@@ -1683,3 +1683,7 @@ en mono en el pie.
 - **PUBLICADA (24/09) por GitHub:** Andoni conectó `savvia-home` al repositorio; push de `239b794` → despliegue de producción `savvia-home-m5bkktjlm` en 13 s.
   Medido EN VIVO (https://savvia.studio): `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 · tintes, favicon `?v=52`, logotipo nuevo,
   píldora de scroll y paleta 2 servidos · `tools/r50-tinte.cjs` en vivo: blanco cargando → 41·29·34 con Multiverse. Sigue `noindex`. Eric: lo invita Andoni.
+- **Favicon nuevo (Andoni, `~/Desktop/favicon.svg`: «tiene que atravesar de lado a lado, como está»):** su dibujo TAL CUAL (el trazo de las v, 64×64, que entra por
+  la izquierda y sale por arriba a la derecha, recortado por el borde); solo se le pone el fondo Cacao con radio 14 (el archivo viene en blanco sobre
+  transparente: en una pestaña clara no se vería) y las v en Rosa niebla. `apple-touch-icon.png` igual, a sangre (iOS redondea). `?v=53`. Los anteriores, en
+  `tools/retirados/*.r50b.*`. Revisado a 16, 32, 64 y 180 px. No subido.
