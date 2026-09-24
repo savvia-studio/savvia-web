@@ -1668,3 +1668,7 @@ en mono en el pie.
 - **Hecho:** el cristal ya no es un `backdrop-filter` en vivo: `.tras-cromo::before` es la franja de la captura PRE-desenfocada (`blur(1,8 cqh)` + saturación,
   en unidades de la pantalla) y la barra, niebla al 42 % encima. Mismo aspecto de pie, en el viaje y sentado; y sin coste de desenfoque en cada fotograma.
 - **Medido:** `tools/r50-sentado.cjs` (Chrome y WebKit): fondo de la barra 0,42 de pie, en el viaje y sentado (antes 0,92 en el viaje) · `tools/verify.cjs` limpio.
+- **GitHub (24/09, Andoni: «tenemos que subirlo a GitHub para compartir con mi socio Eric»):** repositorio PRIVADO https://github.com/AndoniMart/savvia-web
+  (rama `main`, primer commit `e828761`; privado porque lleva las fuentes con licencia y capturas de webs de clientes). Fuera del repositorio (`.gitignore`):
+  `tools/grab/` (grabaciones en bruto, 238 MB), `tools/retirados/voces/` (vídeos que nombran el estudio anterior), `tools/shots/`, `.vercel/`, `dist/`.
+  Pendiente: invitar a Eric como colaborador (falta su usuario de GitHub). Publicar en savvia.studio sigue siendo la receta de arriba (no depende de GitHub).
