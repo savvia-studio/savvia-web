@@ -46,7 +46,7 @@ const forma = (k: number) => 'M' + Array.from({ length: 96 }, (_, n) => { const 
   vec3 oleo(vec2 u){
     vec3 a=texture2D(A,cubre(u,SA)).rgb,b=texture2D(B,cubre(u,SB)).rgb;
     float frente=smoothstep(F-.08,F,length((u-C)*vec2(R.x/R.y,1.)));
-    return mix(b,a,m<1.?frente:1.);
+    return m<1.?mix(a,b,frente):a;                              // A (la nueva) crece desde el icono; fuera del frente sigue B
   }
   float alto(vec2 tp){vec2 a=vec2(.93,-.37);vec2 o=vec2(dot(tp,a),dot(tp,vec2(-a.y,a.x)));return ruido(o*vec2(.16,.5))*.55+ruido(o*vec2(.4,1.1)+7.3)*.3+ruido(o*vec2(.9,2.)+2.1)*.15;}
   void main(){
@@ -133,10 +133,16 @@ const forma = (k: number) => 'M' + Array.from({ length: 96 }, (_, n) => { const 
   let actual = EST[estacionActual()], nueva = actual, m = 1, cambio0 = 0;
   let nocheA = NOCHE[estacionActual()], nocheB = nocheA;
   const fijos = () => tarjetas.forEach((t) => (t.querySelector<HTMLImageElement>('[data-oleo-fijo]')!.src = archivo(nueva, Number(t.dataset.tarjeta))));
+  // el cambio: manda SIEMPRE la última estación pedida (`pedido`); si llegan varios clics mientras cargan las láminas, solo el último arranca la onda.
+  // Si se cambia a media onda, lo que ya se ve (la que entraba, si pasaba de la mitad) queda como punto de partida.
+  let pedido = 0;
   addEventListener('savvia:estacion', (ev) => {
-    const k = (ev as CustomEvent).detail.n as number, n = EST[k]; if (n === nueva) return;
+    const k = (ev as CustomEvent).detail.n as number, n = EST[k], yo = ++pedido;
     Promise.all(tarjetas.map((t) => cargar(n, Number(t.dataset.tarjeta)))).then(() => {
-      actual = nueva; nueva = n; nocheA = nocheB; nocheB = NOCHE[k]; m = 0; cambio0 = performance.now();
+      if (yo !== pedido || n === nueva && m >= 1) return;
+      const vale = m >= 0.5 ? nueva : actual, nocheVale = m >= 0.5 ? nocheB : nocheA;
+      if (vale === n) { actual = nueva = n; nocheA = nocheB = NOCHE[k]; m = 1; fijos(); pedir(); return; }
+      actual = vale; nocheA = nocheVale; nueva = n; nocheB = NOCHE[k]; m = 0; cambio0 = performance.now();
       if (reducido) { actual = n; nocheA = nocheB; m = 1; }
       fijos(); pedir();
     });

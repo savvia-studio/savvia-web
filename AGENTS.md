@@ -1816,3 +1816,8 @@ en mono en el pie.
 - **PUBLICADA (24/09) en https://savvia.studio** (Andoni: «me gusta, súbelo a GitHub y publica. Aún habrá que darle más vueltas»): la sección 2 por defecto
   es la A2 (tarjetas de agua); `?s2=b` y `?s2=a` siguen de prueba. Push de `06cbba8` → en vivo a los 12 s. Medido EN VIVO: `tools/verify.cjs` (Chrome y WebKit,
   1280 y 390) limpio, 0 ≥ 400, desborde 0 · la tarjeta de agua ondea (65–70 % de píxeles en 1 s) en Chrome y WebKit. Sigue `noindex`.
+- **Arreglo (Andoni: «cuando cambie de estación las cards cambien bien, ahora se bugean y te enseñan otra estación»):** dos causas. (1) En el shader la mezcla iba
+  AL REVÉS: la estación nueva salía de golpe fuera del frente, la vieja crecía desde el icono comiéndosela y al acabar saltaba a la nueva → ahora la nueva
+  crece desde el icono y fuera sigue la vieja. (2) Carrera: con varios clics mientras cargaban las láminas, la última en llegar ganaba → manda la última
+  pedida (`pedido`); a media onda, lo que ya se ve es el punto de partida. Medido: `tools/r52-cambio.cjs` (Chrome y WebKit): un cambio, ráfagas de 2, 3 y 5
+  clics y un clic a media onda → la tarjeta acaba siempre en la estación de la página; captura a 0,7 s con el invierno entrando desde el icono.
