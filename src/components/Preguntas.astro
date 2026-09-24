@@ -1,0 +1,342 @@
+---
+import { preguntas, pie } from '../data/home';
+import Flora from './Flora.astro';
+const CARA = ['/media/equipo/cara-andoni.webp', '/media/equipo/cara-eric.webp'];
+const NOMBRE = ['Andoni', 'Eric'];
+---
+
+<!--
+  PREGUNTAS (ronda 43 · «las FAQs hacerlas más originales»). Una CONVERSACIÓN con Eric y Andoni, no un acordeón. Debajo, las preguntas que suele hacer la
+  gente, como sugerencias: al pulsar una, aparece como tu mensaje, uno de los dos «está escribiendo…» (con su cara) y contesta. Y puedes escribir la tuya:
+  se busca entre las respuestas escritas por palabras clave, en el navegador y sin ningún modelo detrás (la página lo dice); si no está, te ofrece
+  mandársela por correo. Contestan por turnos (Andoni, Eric…). Sin JS o con movimiento reducido: la conversación entera, a la vista.
+-->
+<section id="preguntas" class="surface-light" aria-label={preguntas.pregunta} data-preguntas data-sube>
+  <Flora lamina="rama-roble-bellotas" fondo="niebla" opacidad={0.45} soloEscritorio estilo="left:2%;bottom:6%;width:min(16vw,14rem)" />
+  <div class="wrap section-y">
+    <div class="grid-12 gap-y-12">
+      <div class="col-span-4 lg:col-span-5">
+        <h2 class="text-h2" data-entra>{preguntas.titulo}</h2>
+        <p class="mt-6 flex items-center gap-3">
+          <span class="caras" aria-hidden="true"><img src={CARA[1]} alt="" width="144" height="144" loading="lazy" decoding="async" /><img src={CARA[0]} alt="" width="144" height="144" loading="lazy" decoding="async" /></span>
+          <span>
+            <span class="text-ui block font-medium">{preguntas.firma}</span>
+            <span class="text-aux text-fg2 block">{preguntas.nota}</span>
+          </span>
+        </p>
+      </div>
+      <div class="col-span-4 lg:col-span-6 lg:col-start-7" data-enfoca style="--d:2">
+        <div class="charla" role="log" aria-live="polite" aria-label={`Conversación con ${preguntas.firma}`} data-charla>
+          {
+            preguntas.lista.map((x, i) => (
+              <div class={`intercambio ${i === 0 ? 'q-on a-on' : 'pendiente'}`} data-i={i} data-claves={x.claves.join(' ')}>
+                <p class="burbuja tu"><span class="sr-only">Tú: </span>{x.q}</p>
+                <div class="resp">
+                  <img class="cara" src={CARA[i % 2]} alt="" width="144" height="144" loading="lazy" decoding="async" />
+                  <div class="burbuja ellos">
+                    <p class="quien detail">{NOMBRE[i % 2]}</p>
+                    <p data-respuesta>{x.a}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          }
+          <div class="escribiendo" hidden data-escribiendo>
+            <img class="cara" src={CARA[1]} alt="" width="144" height="144" loading="lazy" decoding="async" data-escribe-cara />
+            <p class="burbuja ellos puntos" aria-label="Está escribiendo"><i></i><i></i><i></i></p>
+          </div>
+        </div>
+        <div class="sugeridas" data-sugeridas>
+          <p class="detail text-fg2">Lo que suele preguntar la gente</p>
+          <div class="chips">
+            {preguntas.lista.map((x, i) => i > 0 && <button type="button" class="chip" data-q={i}>{x.q}</button>)}
+          </div>
+        </div>
+        <form class="compositor" data-libre novalidate>
+          <label for="otra" class="sr-only">{preguntas.libre.etiqueta}</label>
+          <input id="otra" name="otra" type="text" autocomplete="off" maxlength="160" placeholder="Escribe otra pregunta…" class="campo text-ui" aria-describedby="otra-ayuda" />
+          <button type="submit" class="mandar" aria-label={preguntas.libre.boton}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5" /></svg></button>
+        </form>
+        <p id="otra-ayuda" class="text-aux text-fg2 mt-3">{preguntas.libre.ayuda}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script define:vars={{ sinRespuesta: preguntas.libre.sinRespuesta, correo: pie.correo, caras: CARA, nombres: NOMBRE }} is:inline>
+  window.__PREG = { sinRespuesta, correo, caras, nombres };
+</script>
+<script>
+  const raiz = document.querySelector<HTMLElement>('[data-preguntas]');
+  if (raiz) {
+    const { sinRespuesta, correo, caras, nombres } = (window as any).__PREG as { sinRespuesta: string; correo: string; caras: string[]; nombres: string[] };
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const charla = raiz.querySelector<HTMLElement>('[data-charla]')!, escribiendo = raiz.querySelector<HTMLElement>('[data-escribiendo]')!, caraEsc = raiz.querySelector<HTMLImageElement>('[data-escribe-cara]')!;
+    const inter = [...raiz.querySelectorAll<HTMLElement>('.intercambio')];
+    let turno = 1, ocupado = false; // la primera la contestó Andoni: ahora le toca a Eric
+    const bajar = () => charla.scrollTo({ top: charla.scrollHeight, behavior: reducido ? 'auto' : 'smooth' });
+    // una pregunta → su burbuja; «está escribiendo…» con la cara de quien contesta; y la respuesta
+    const conversar = (ex: HTMLElement, quien: number, alFinal?: () => void) => {
+      ocupado = true;
+      charla.insertBefore(ex, escribiendo);
+      ex.classList.remove('pendiente'); ex.classList.add('q-on');
+      const r = ex.querySelector<HTMLElement>('.resp');
+      if (r) { r.querySelector<HTMLImageElement>('.cara')!.src = caras[quien]; r.querySelector('.quien')!.textContent = nombres[quien]; }
+      bajar();
+      const largo = ex.querySelector('[data-respuesta]')?.textContent?.length ?? 80;
+      const espera = reducido ? 0 : Math.min(2000, 700 + largo * 7);
+      setTimeout(() => {
+        caraEsc.src = caras[quien]; escribiendo.hidden = reducido; charla.insertBefore(escribiendo, null); bajar();
+        setTimeout(() => { escribiendo.hidden = true; ex.classList.add('a-on'); ocupado = false; alFinal?.(); bajar(); }, espera);
+      }, reducido ? 0 : 450);
+    };
+    raiz.querySelectorAll<HTMLButtonElement>('[data-q]').forEach((b) => b.addEventListener('click', () => {
+      if (ocupado) return;
+      const ex = inter[Number(b.dataset.q)];
+      b.remove();
+      conversar(ex, turno); turno = 1 - turno;
+      if (!raiz.querySelector('[data-q]')) raiz.querySelector<HTMLElement>('[data-sugeridas]')!.hidden = true;
+    }));
+    // LA PREGUNTA LIBRE: por palabras clave (exacta = 2 puntos; misma raíz = 1), sin ningún modelo detrás
+    const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ ]/g, ' ');
+    const VACIAS = new Set('el la los las un una unos unas de del al a en y o que con por para mi tu su me te se es son como cuando donde cual cuales hay web pagina sitio si no mas muy ya lo le les nos vosotros'.split(' '));
+    const fichas = inter.map((d) => ({ claves: new Set(d.dataset.claves!.split(' ')), a: d.querySelector('[data-respuesta]')!.textContent! }));
+    const form = raiz.querySelector<HTMLFormElement>('[data-libre]')!, campo = form.querySelector<HTMLInputElement>('input')!;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = campo.value.trim();
+      if (q.length < 3 || ocupado) return campo.focus();
+      const palabras = norm(q).split(/\s+/).filter((w) => w.length > 2 && !VACIAS.has(w));
+      let mejor = -1, puntos = 0;
+      fichas.forEach((f, i) => { const p = palabras.reduce((s, w) => s + (f.claves.has(w) ? 2 : [...f.claves].some((c) => c.length >= 5 && w.length >= 5 && c.slice(0, 4) === w.slice(0, 4)) ? 1 : 0), 0); if (p > puntos) { puntos = p; mejor = i; } });
+      // se CLONA un intercambio de la página (así trae el ámbito de estilos de Astro, que un innerHTML no llevaría) y se rellena
+      const ex = inter[0].cloneNode(true) as HTMLElement;
+      ex.className = inter[0].className.replace(/\b(q-on|a-on)\b/g, '').trim() + ' pendiente';
+      ex.removeAttribute('data-i'); ex.removeAttribute('data-claves');
+      ex.querySelector('.tu')!.lastChild!.textContent = q;
+      const rp = ex.querySelector<HTMLElement>('[data-respuesta]')!;
+      rp.textContent = mejor >= 0 ? fichas[mejor].a : sinRespuesta;
+      if (mejor < 0) {
+        const a = document.createElement('a');
+        [...rp.attributes].filter((at) => at.name.startsWith('data-astro-cid')).forEach((at) => a.setAttribute(at.name, ''));
+        a.className = 'por-correo'; a.textContent = 'Mandársela por correo';
+        a.href = `mailto:${correo}?subject=${encodeURIComponent('Una pregunta')}&body=${encodeURIComponent(q)}`;
+        rp.after(a);
+      }
+      campo.value = '';
+      conversar(ex, turno); turno = 1 - turno;
+    });
+    (window as any).__preguntar = (q: string) => { campo.value = q; form.requestSubmit(); };
+    (window as any).__faq = (i: number) => raiz.querySelector<HTMLButtonElement>(`[data-q="${i}"]`)?.click();
+  }
+</script>
+
+<style>
+  .caras {
+    display: inline-flex;
+  }
+  .caras img {
+    display: block;
+    width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    background: var(--color-nogal);
+    box-shadow: 0 0 0 2px var(--bg);
+  }
+  .caras img + img {
+    margin-left: calc(var(--spacing) * -3);
+  }
+  /* ── LA CONVERSACIÓN */
+  .charla {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 6);
+    max-height: min(34rem, 64lvh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 1) calc(var(--spacing) * 2) 0;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 6));
+    mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 6));
+  }
+  .charla::-webkit-scrollbar {
+    display: none;
+  }
+  .intercambio {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+  }
+  :global(html.js) .intercambio.pendiente {
+    display: none;
+  }
+  :global(html.js) .intercambio:not(.a-on) .resp {
+    display: none;
+  }
+  .burbuja {
+    padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+    font-size: var(--text-ui);
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+  /* tú: a la derecha, en Cacao */
+  .burbuja.tu {
+    align-self: flex-end;
+    max-width: 82%;
+    border-radius: 18px 18px 4px 18px;
+    background: var(--color-cacao);
+    color: var(--color-niebla);
+    font-weight: 500;
+  }
+  /* ellos: a la izquierda, con su cara; burbuja clara con filo */
+  .resp,
+  .escribiendo {
+    display: flex;
+    align-items: flex-end;
+    gap: calc(var(--spacing) * 3);
+    max-width: 92%;
+  }
+  .escribiendo[hidden] {
+    display: none;
+  }
+  .cara {
+    flex: none;
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    background: var(--color-nogal);
+  }
+  .burbuja.ellos {
+    border-radius: 18px 18px 18px 4px;
+    background: color-mix(in oklab, #fff 58%, transparent);
+    box-shadow: inset 0 0 0 1px var(--rule);
+    color: var(--color-cacao);
+    font-size: var(--text-body);
+  }
+  .quien {
+    color: var(--fg2);
+    margin-bottom: calc(var(--spacing) * 1);
+  }
+  .por-correo {
+    display: inline-block;
+    margin-top: calc(var(--spacing) * 3);
+    font-size: var(--text-ui);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  /* al llegar: la burbuja entra en foco desde abajo */
+  .q-on .tu,
+  .a-on .resp,
+  .escribiendo:not([hidden]) {
+    animation: llega 0.55s var(--ease-out-expo) both;
+  }
+  @keyframes llega {
+    from { opacity: 0; translate: 0 10px; filter: blur(6px); }
+  }
+  .puntos {
+    display: flex;
+    gap: 5px;
+    padding-block: calc(var(--spacing) * 4);
+  }
+  .puntos i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fg2);
+    animation: punto 1.1s ease-in-out infinite;
+  }
+  .puntos i:nth-child(2) { animation-delay: 0.15s; }
+  .puntos i:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes punto {
+    0%, 60%, 100% { translate: 0 0; opacity: 0.4; }
+    30% { translate: 0 -4px; opacity: 1; }
+  }
+  /* ── las sugerencias y el compositor */
+  .sugeridas {
+    margin-top: calc(var(--spacing) * 8);
+    padding-top: calc(var(--spacing) * 6);
+    border-top: 1px solid var(--rule);
+  }
+  .sugeridas[hidden] {
+    display: none;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 3);
+  }
+  .chip {
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+    border-radius: var(--radius-full);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 30%, transparent);
+    font-size: var(--text-aux);
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .chip:hover,
+  .chip:focus-visible {
+    background: var(--color-cacao);
+    color: var(--color-niebla);
+    box-shadow: none;
+  }
+  .compositor {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 6);
+  }
+  .campo {
+    flex: 1;
+    min-width: 0;
+    min-height: calc(var(--spacing) * 12);
+    padding-inline: calc(var(--spacing) * 4);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #fff 50%, transparent);
+    box-shadow: inset 0 0 0 1px var(--rule);
+    font-size: max(1rem, var(--text-ui)); /* nunca por debajo de 16 px: iOS hace zoom */
+  }
+  .campo:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 1.5px var(--color-naranja);
+  }
+  .mandar {
+    flex: none;
+    width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-cacao);
+    color: var(--color-niebla);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .mandar:hover,
+  .mandar:focus-visible {
+    background: var(--color-naranja);
+    color: var(--color-cacao);
+  }
+  .mandar svg {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .q-on .tu,
+    .a-on .resp,
+    .escribiendo:not([hidden]),
+    .puntos i {
+      animation: none;
+    }
+  }
+</style>

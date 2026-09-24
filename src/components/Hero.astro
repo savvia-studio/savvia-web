@@ -1,0 +1,271 @@
+---
+import { hero } from '../data/home';
+import { rich } from '../lib/rich';
+---
+
+<!--
+  HERO (ronda 13). Andoni pasa una ACUARELA de roble (copa en otoño que se deshace en estelas horizontales, línea de suelo y raíces):
+  «te paso una imagen y ya veremos cómo la animamos, quiero probar».
+  · `tools/recorte-hero.py`: se recorta del fondo hueso (el color de la zona translúcida sale de la tinta vecina: sin halo sobre Cacao)
+    y se parte por la línea de suelo → `hero-arbol.webp` (aquí) y `hero-raices.webp` (Raices.astro). Centradas en el tronco.
+  · ANIMACIÓN (`src/scripts/estela.ts`, ronda 14): una gota de savia cae a la base del tronco, corre por el suelo y el árbol BROTA de ahí;
+    en reposo, tramado en color y canto (se funde con el grano del fondo) y una deriva de color muy lenta. Más pequeño que en la 13.
+  · El roble de PALABRAS de la ronda 12 (`src/scripts/palabras.ts`) sigue en el código, sin uso: se vuelve a él cambiando el import.
+  · Regla dura 3: el lienzo nace invisible. Sin WebGL queda la lámina como imagen. Con movimiento reducido, ya compuesto y quieto.
+-->
+<section class="hero relative flex flex-col items-center overflow-hidden" aria-labelledby="h1" data-hero>
+  <!-- RONDA 27 · «ese rayo de luz que entre desde arriba afectando a todo el hero, como si entrase por una ventana desde la naturaleza, con sombras
+       muy sutiles, y que se mueva siguiendo al ratón»: dos haces oblicuos de Rosa niebla, más fuertes arriba, que se desplazan con el puntero;
+       el titular proyecta una sombra que se mueve al contrario, y los haces del árbol (en el shader) siguen la misma luz -->
+  <div class="luz" aria-hidden="true" data-luz><i class="haz a"></i></div>
+  <div class="wrap titular flex flex-col items-center text-center">
+    <h1 id="h1" class="text-h1 max-w-[16ch]" set:html={rich(hero.h1)} />
+    <p class="text-lead text-fg2 mt-4 lg:mt-6">{hero.h2}</p>
+  </div>
+  <div class="pie-arbol">
+    <!-- EL MARCO (rondas 15–17, captura de sythera): el recuadro de detrás del árbol, entre los dos carriles. RONDA 17: «lo hacemos más alto,
+         que llegue hasta estar a 40 px del subtítulo» → ocupa toda la caja del pie (que empieza a 40 px del subtítulo) hasta el pie del hero.
+         Puntos Rosa niebla al 10 % → 0 %. Arriba, su fila de carriles con cruces ([data-carril-fila]). -->
+    <div class="marco" aria-hidden="true" data-carril-fila></div>
+    <!-- RONDA 25 · en las esquinas de abajo DEL RECUADRO (en su misma caja, pero fuera de su máscara, que se desvanece a 0 abajo y los borraba):
+         «desde 2020» y la estación (la de HOY al cargar; el clic en el árbol la cambia) -->
+    <p class="esquina desde detail">desde 2020</p>
+    <p class="esquina estacion detail" data-estacion-rotulo><span data-estacion-nombre>otoño</span></p>
+    <!-- RONDA 21 · «cuando clicas para cambiar de color que no haga la animación de redibujado; el redibujado solo con la carga»: el clic cambia
+         de ESTACIÓN (otoño → invierno → primavera → verano) con un viraje suave del color; nada se redibuja. El hover ya no hace nada. -->
+    <div class="arbol-caja" aria-hidden="true" data-arbol>
+      <!-- el HALO (clusia): el propio árbol muy desenfocado detrás; su color sangra en el fondo cuando ya está pintado -->
+      <i class="halo" aria-hidden="true"></i>
+      <img src="/media/hero-arbol.webp" alt="" width="1260" height="583" decoding="async" fetchpriority="high" data-lamina />
+      <canvas class="lienzo" data-lienzo></canvas>
+    </div>
+    <!-- RONDA 20 · «al clicar el árbol me gusta que cambie de color, que cambien como de estaciones»: el nombre de la estación, en mono, al pasar -->
+  </div>
+</section>
+
+<script>
+  import { crearEstela } from '../scripts/estela';
+  import { EST, NOMBRE, NOCHE, estacionActual, fijarEstacion } from '../scripts/estacion';
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  if (hero) {
+    const cv = hero.querySelector<HTMLCanvasElement>('[data-lienzo]')!, img = hero.querySelector<HTMLImageElement>('[data-lamina]')!;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // RONDA 15: la gota la trae la carga (Cargador.astro): resbala por las letras de «savvia», cae aquí y avisa con `savvia:gota`.
+    // Al tocar el suelo: la savia corre por la línea, el árbol se DIBUJA y se PINTA con canto rasgado; luego sangra el halo.
+    const t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true });
+    const w = window as any;
+    // RONDA 30: al caer la gota, primero ENTRA EL HAZ desde arriba (luz-entra); la luz sobre el árbol la pone el shader al terminar de pintarse
+    const suelta = () => { t?.soltar(); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
+    if (w.__gotaSuelta) suelta(); else addEventListener('savvia:gota', suelta, { once: true });
+    if (!t) hero.classList.add('sin-gl');
+    // HUEVO DE PASCUA (ronda 21): clic = la estación siguiente (solo vira el color).
+    // RONDA 39: la estación es de TODA la web (fondo oscuro, árbol y raíces: src/scripts/estacion.ts). El clic la cambia para todos; si la cambia
+    // otro (los botones de estación de Proyectos), el árbol la sigue (pintándose si se ve; de golpe si no).
+    const caja = hero.querySelector<HTMLElement>('[data-arbol]')!;
+    const nombre = hero.querySelector<HTMLElement>('[data-estacion-nombre]')!;
+    let est = estacionActual(), heroVisible = true;
+    const rotular = () => { hero.dataset.estacion = EST[est]; nombre.textContent = NOMBRE[est]; };
+    rotular();
+    if (t) { t.estacion(est); t.fondo(...NOCHE[est]); }
+    caja.addEventListener('click', () => { if (!hero.classList.contains('crecido')) return; fijarEstacion(est + 1, 'hero'); });
+    addEventListener('savvia:estacion', (ev) => {
+      const n = (ev as CustomEvent).detail.n as number;
+      if (n === est) return;
+      est = n; rotular();
+      if (!t) return;
+      t.fondo(...NOCHE[n]);
+      if (heroVisible && !reducido && hero.classList.contains('crecido')) t.renacer(n); else t.estacion(n);
+    });
+    new IntersectionObserver((e) => { heroVisible = e[0].isIntersecting; t?.visible(heroVisible); }).observe(hero);
+    // la luz sigue al ratón (con retraso); con movimiento reducido o en táctil se queda quieta
+    // RONDA 29 · «tiene que parecer que el haz incide en el árbol, no al revés»: el brillo del árbol (shader) se coloca EXACTAMENTE bajo el haz
+    // principal del hero: misma inclinación (18°: tan = 0,325, la del shader) y misma x a la altura de la copa, con el ratón incluido
+    const alinear = (mx: number) => {
+      if (!t) return;
+      const hr = hero.getBoundingClientRect(), cr = caja.getBoundingClientRect();
+      const base = hr.width * 0.57 + mx * 0.38 * innerWidth; // centro del haz «a» (left 40 % + ancho 34 %) en el hero
+      const xTop = base - 0.325 * (cr.top - hr.top - hr.height * 0.5); // el haz gira sobre su centro (a media altura del hero)
+      const d = (xTop - (cr.left - hr.left)) / cr.width; // en fracciones de la caja del árbol
+      t.luz(0.95 * d - 0.62);
+    };
+    alinear(0); addEventListener('resize', () => alinear(0));
+    if (!reducido && matchMedia('(hover: hover)').matches) {
+      let mx = 0, my = 0, tx = 0, ty = 0, raf = 0;
+      const seguir = () => {
+        raf = 0;
+        mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
+        hero.style.setProperty('--lx', mx.toFixed(4)); hero.style.setProperty('--ly', my.toFixed(4));
+        alinear(mx);
+        if (Math.abs(tx - mx) + Math.abs(ty - my) > 0.001) raf = requestAnimationFrame(seguir);
+      };
+      hero.addEventListener('pointermove', (e) => { const r = hero.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width - 0.5; ty = (e.clientY - r.top) / r.height - 0.5; if (!raf) raf = requestAnimationFrame(seguir); }, { passive: true });
+      hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; if (!raf) raf = requestAnimationFrame(seguir); });
+    }
+  }
+</script>
+
+<style>
+  .hero {
+    --lx: 0; /* el ratón, de −0,5 a 0,5 */
+    --ly: 0;
+    min-height: 100lvh;
+    padding-top: calc(var(--spacing) * 24);
+    padding-bottom: 0; /* RONDA 16: el pie del árbol ES el pie del hero («para que no se vea el corte»); las raíces nacen justo debajo */
+  }
+  /* RONDA 14 · «ahora que el árbol es más pequeño bajamos el titular»: el hueco libre va ENCIMA del titular; titular y árbol quedan juntos
+     abajo, como un cartel (el árbol sigue sobre la línea de suelo a 48 px del pliegue) */
+  .titular {
+    margin-top: auto;
+    position: relative;
+    z-index: 1;
+  }
+  /* ronda 31: sin sombra en el titular («no la quiero») */
+  /* LA LUZ: dos haces oblicuos que entran desde arriba (más fuertes en lo alto), sobre todo el hero, en «screen»; se desplazan con el ratón */
+  .luz {
+    position: absolute;
+    inset: 0;
+    z-index: 0; /* ronda 30: por DETRÁS del titular (z 1) y del árbol */
+    pointer-events: none;
+    overflow: hidden;
+    /* ronda 29: sin mezcla «screen» (Safari no la pintaba fuera del lienzo del árbol): luz normal, Rosa niebla translúcida */
+    opacity: 0;
+    translate: 0 -18%;
+    transition: opacity 2.2s ease, translate 2.6s var(--ease-out-expo);
+    /* ronda 28: «tiene que salir desde arriba y atravesar el árbol»: llega entera hasta abajo, solo se apaga en el último tramo */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgb(0 0 0 / 0.45) 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgb(0 0 0 / 0.45) 100%);
+  }
+  /* ronda 30: el haz ENTRA desde arriba al caer la gota; el árbol se pinta debajo y su luz (shader) llega al final */
+  .luz-entra .luz {
+    opacity: 1;
+    translate: 0 0;
+  }
+  /* UN solo haz, sutil (pico 0,11), que sale de un punto arriba (más ancho y claro al nacer, se abre y se apaga hacia abajo) */
+  .luz .haz {
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    width: 34%;
+    left: 40%;
+    background: linear-gradient(90deg, transparent, rgb(234 221 231 / 0.03) 30%, rgb(234 221 231 / 0.075) 50%, rgb(234 221 231 / 0.03) 70%, transparent); /* ronda 31: pico 0,075 */
+    transform: translateX(calc(var(--lx) * 38vw)) skewX(-18deg); /* 18°: la misma inclinación que el brillo del árbol */
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .luz .haz { transform: skewX(-18deg); }
+    .luz { transition: none; }
+  }
+  .pie-arbol {
+    margin-top: 2.5rem; /* 40 px: pedido así por Andoni (el marco empieza a 40 px del subtítulo) */
+    padding-top: calc(var(--spacing) * 8);
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .arbol-caja {
+    position: relative;
+    width: var(--roble-w);
+    aspect-ratio: 1260 / 583; /* el tronco ya está en el centro de la lámina */
+  }
+  .marco {
+    --gutter: calc(var(--spacing) * 5);
+    --punto: rgb(234 221 231 / 0.1); /* Rosa niebla al 10 % */
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    translate: -50% 0;
+    width: min(100% - var(--gutter) * 2, 75rem);
+    /* «el fondo detrás del árbol va de color sólido a nada […] replicarlo pero con puntos que son casi del color del fondo. Nuestro color
+       claro al 10 % y que vaya a 0 %»: retícula de puntos a 45° (la misma del semitono del árbol) que se desvanece hacia abajo */
+    background:
+      radial-gradient(circle, var(--punto) 1.15px, transparent 1.7px) 0 0 / 8px 8px,
+      radial-gradient(circle, var(--punto) 1.15px, transparent 1.7px) 4px 4px / 8px 8px;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 96%);
+    mask-image: linear-gradient(to bottom, #000, transparent 96%);
+    border-inline: 1px dashed rgb(234 221 231 / 0.22);
+    pointer-events: none;
+  }
+  @media (width >= 48rem) {
+    .marco { --gutter: calc(var(--spacing) * 8); }
+  }
+  @media (width >= 64rem) {
+    .marco { --gutter: calc(var(--spacing) * 12); }
+  }
+  .arbol-caja {
+    pointer-events: auto; /* el huevo de pascua */
+    cursor: pointer;
+  }
+  /* el MISMO grano de la página por encima del árbol: una sola materia */
+  .arbol-caja::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('/media/grano.png') 0 0 / 240px 240px;
+    /* recortado a la forma del árbol: suelto, el grano doble dibujaba la CAJA como un rectángulo más claro (cazado mirando) */
+    -webkit-mask: url('/media/hero-arbol.webp') center / 100% 100% no-repeat;
+    mask: url('/media/hero-arbol.webp') center / 100% 100% no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+  .crecido .arbol-caja::after {
+    opacity: 0.9;
+  }
+  .esquina {
+    --gutter: calc(var(--spacing) * 5);
+    --marco-w: min(100% - var(--gutter) * 2, 75rem);
+    position: absolute;
+    bottom: calc(var(--spacing) * 3);
+    color: var(--fg2);
+    opacity: 0;
+    transition: opacity 0.8s ease 0.4s;
+    pointer-events: none;
+    z-index: 2;
+  }
+  @media (width >= 48rem) { .esquina { --gutter: calc(var(--spacing) * 8); } }
+  @media (width >= 64rem) { .esquina { --gutter: calc(var(--spacing) * 12); } }
+  .estacion { right: calc((100% - var(--marco-w)) / 2 + var(--spacing) * 4); }
+  .desde { left: calc((100% - var(--marco-w)) / 2 + var(--spacing) * 4); }
+  .crecido .esquina {
+    opacity: 1;
+  }
+  /* el HALO (clusia): la silueta del árbol, muy desenfocada, en el COLOR DEL ÁRBOL de la estación (ronda 40): su color sangra en el fondo */
+  .halo {
+    position: absolute;
+    inset: 0;
+    display: block;
+    background: var(--arbol);
+    -webkit-mask: url('/media/hero-arbol.webp') center / 100% 100% no-repeat;
+    mask: url('/media/hero-arbol.webp') center / 100% 100% no-repeat;
+    filter: blur(28px);
+    transform: scale(1.06);
+    opacity: 0;
+    transition: opacity 2.6s ease;
+  }
+  .crecido .halo {
+    opacity: 0.32;
+  }
+  .lienzo,
+  .arbol-caja img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .lienzo {
+    opacity: 0;
+  }
+  .lienzo:global(.listo) {
+    opacity: 1;
+  }
+  /* La lámina es la textura del lienzo; como imagen solo se ve si no hay WebGL. */
+  .arbol-caja img[data-lamina] {
+    opacity: 0;
+  }
+  .sin-gl .arbol-caja img[data-lamina] {
+    opacity: 1;
+  }
+</style>

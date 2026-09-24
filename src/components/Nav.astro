@@ -1,0 +1,405 @@
+---
+import { nav, pie } from '../data/home';
+---
+
+<!--
+  Navegación (referencia: offmenu.design): logotipo arriba a la izquierda y una rejilla de 9 puntos arriba a la derecha.
+  RONDA 9: el menú ya no es una pantalla completa: es una TARJETA que crece desde el propio botón (esquina superior derecha),
+  con los enlaces grandes, un filete y un segundo grupo pequeño. La página es oscura → la tarjeta es clara (Rosa niebla)
+  y detrás baja un velo Cacao para que se despegue también sobre las secciones claras.
+  Sin píldora de contacto («Cuéntanos tu proyecto va fuera»): hablar con nosotros es un enlace más del menú.
+  Logotipo y rejilla van en blanco con mix-blend-mode: difference → claros sobre Cacao, oscuros sobre lo claro.
+  Escala de z: 0 contenido · 48 velo · 50 tarjeta · 55 nav · 60 escenario sentado.
+-->
+<!-- filtro «gooey» de la rejilla: los puntos se funden como gotas (ronda 12) -->
+<svg width="0" height="0" class="absolute" aria-hidden="true">
+  <filter id="goo-nav"><feGaussianBlur in="SourceGraphic" stdDeviation="1.7" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 16 -6" /></filter>
+</svg>
+<header class="barra-nav" data-nav>
+  <!-- Logotipo de Andoni (ronda 10): `public/savvia-logo.svg`, blanco; la mezcla por diferencia lo vuelve oscuro sobre lo claro. -->
+  <!-- RONDA 24: el logotipo es una máscara con el color de la barra: blanco por diferencia sobre lo oscuro, Cacao sobre lo claro (sin mezcla:
+       la diferencia daba un azul sucio sobre Rosa arcilla y Rosa niebla) -->
+  <a href="/" class="marca" aria-label="savvia, inicio"><i class="logo-marca" aria-hidden="true"></i></a>
+  <div class="acciones-nav">
+    <!-- RONDA 40 · «al lado del desplegable del menú un icono para cambiar de estación: que sea mórfico, que el mismo icono se transforme en los 4
+         de las estaciones». Una sola línea que se deforma: flor (primavera) · sol (verano) · hoja (otoño) · copo (invierno). Clic = la siguiente. -->
+    <button type="button" class="estacion-ic" aria-label="Cambiar de estación" data-estacion-ic data-nombre="otoño">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path data-forma /></svg>
+    </button>
+    <button type="button" class="rejilla" aria-expanded="false" aria-controls="menu" aria-label="Abrir el menú" data-rejilla>
+      {Array.from({ length: 9 }).map((_, i) => <span style={`--i:${i}`} />)}
+    </button>
+  </div>
+</header>
+
+<div class="velo" data-velo hidden></div>
+
+<div id="menu" class="menu surface-light" data-menu hidden>
+  <nav aria-label="Principal">
+    <ul class="flex flex-col">
+      {
+        nav.links.map((l, i) => (
+          <li style={`--n:${i}`}>
+            <a href={l.href} class="enlace font-display text-h2 inline-block">{l.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="resto border-rule mt-6 border-t pt-6" style={`--n:${nav.links.length}`}>
+      <p class="detail detail-caps text-fg2">{nav.mas.titulo}</p>
+      <ul class="text-lead mt-3 flex flex-col gap-1">
+        {nav.mas.links.map((l) => <li><a href={l.href} class="enlace inline-block">{l.label}</a></li>)}
+        <li><a href={`mailto:${pie.correo}`} class="enlace inline-block">{pie.correo}</a></li>
+      </ul>
+    </div>
+  </nav>
+</div>
+
+<script>
+  import { dibujar } from '../scripts/dibujar';
+  import { EST, NOMBRE, estacionActual, fijarEstacion } from '../scripts/estacion';
+  const btn = document.querySelector<HTMLButtonElement>('[data-rejilla]')!;
+  const menu = document.querySelector<HTMLElement>('[data-menu]')!;
+  const velo = document.querySelector<HTMLElement>('[data-velo]')!;
+  let abierto = false;
+  function poner(si: boolean, devolverFoco = false) {
+    abierto = si;
+    btn.setAttribute('aria-expanded', String(si));
+    btn.setAttribute('aria-label', si ? 'Cerrar el menú' : 'Abrir el menú');
+    document.documentElement.classList.toggle('menu-abierto', si);
+    // RONDA 40 · la tarjeta se DIBUJA desde el botón (líneas de sus enlaces, luego la pintura rasgada) y al cerrar se recoge hacia él
+    const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
+    const LINEA = 'rgb(48 32 24 / 0.55)'; // Cacao, sobre la tarjeta Rosa niebla
+    if (si) {
+      menu.hidden = velo.hidden = false;
+      menu.classList.add('on');
+      requestAnimationFrame(() => velo.classList.add('on'));
+      dibujar(menu, { estacion: true, abrir: true, origen, color: LINEA }); // ronda 45: como el cambio de estación del árbol
+    } else {
+      velo.classList.remove('on');
+      dibujar(menu, { estacion: true, abrir: false, origen, color: LINEA, alTerminar: () => { if (!abierto) { menu.classList.remove('on'); menu.hidden = velo.hidden = true; } } });
+      if (devolverFoco) btn.focus({ preventScroll: true });
+    }
+  }
+  // RONDA 21: recién levantado de la escena de Proyectos (la × estaba justo aquí), el botón ignora el clic durante 1,6 s
+  btn.addEventListener('click', () => { if (performance.now() - ((window as any).__levantado || 0) < 1600) return; poner(!abierto); });
+  velo.addEventListener('click', () => poner(false));
+  menu.addEventListener('click', (e) => (e.target as HTMLElement).closest('a') && poner(false));
+  addEventListener('keydown', (e) => e.key === 'Escape' && abierto && poner(false, true));
+  // ── EL ICONO DE ESTACIÓN (ronda 40): una misma línea cerrada de 96 puntos que se deforma entre las cuatro formas. Todas se muestrean en los MISMOS
+  // ángulos alrededor del centro (en polares), así cada punto viaja a su sitio sin cruzarse. Orden de estacion.ts: otoño · invierno · primavera · verano.
+  {
+    const ic = document.querySelector<HTMLButtonElement>('[data-estacion-ic]')!, forma = ic.querySelector<SVGPathElement>('[data-forma]')!;
+    const N = 96, reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hoja = (a: number) => { // lente con puntas (|y| ≤ 0,52·(1 − x²)), girada 45°: el radio en cada dirección sale de una cuadrática
+      const f = a - Math.PI / 4, c = Math.cos(f), s2 = Math.abs(Math.sin(f)), k = 0.52;
+      return Math.abs(c) < 1e-4 ? k / Math.max(s2, 1e-4) * 0 + k : (-s2 + Math.sqrt(s2 * s2 + 4 * k * k * c * c)) / (2 * k * c * c);
+    };
+    const R = [
+      hoja, // otoño
+      (a: number) => 0.3 + 0.7 * Math.pow(Math.abs(Math.cos(3 * a)), 9), // invierno: copo de seis brazos
+      (a: number) => 0.38 + 0.62 * Math.abs(Math.cos(2.5 * a + Math.PI / 2)), // primavera: flor de cinco pétalos
+      (a: number) => 0.56 + 0.44 * Math.pow(Math.max(0, Math.cos(8 * a)), 5), // verano: sol con ocho rayos
+    ];
+    const pts = (i: number) => Array.from({ length: N }, (_, k) => { const a = (k / N) * Math.PI * 2 - Math.PI / 2, r = R[i](a) * 9.5; return [12 + r * Math.cos(a), 12 + r * Math.sin(a)]; });
+    const FORMAS = [0, 1, 2, 3].map(pts);
+    const d = (p: number[][]) => 'M' + p.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join('L') + 'Z';
+    let actual = FORMAS[estacionActual()], est = estacionActual(), raf = 0;
+    const rotular = () => { const sig = (est + 1) % 4; ic.dataset.nombre = NOMBRE[est]; ic.setAttribute('aria-label', `Estación: ${NOMBRE[est]}. Cambiar a ${NOMBRE[sig]}`); };
+    forma.setAttribute('d', d(actual)); rotular();
+    const ir = (n: number) => {
+      est = n; rotular();
+      const de = actual.map((p) => [...p]), a = FORMAS[n];
+      if (reducido) { actual = a; forma.setAttribute('d', d(a)); return; }
+      cancelAnimationFrame(raf); let t0 = 0;
+      const paso = (ahora: number) => {
+        if (!t0) t0 = ahora;
+        const k = Math.min(1, (ahora - t0) / 750), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        actual = de.map((p, i) => [p[0] + (a[i][0] - p[0]) * e, p[1] + (a[i][1] - p[1]) * e]);
+        forma.setAttribute('d', d(actual));
+        if (k < 1) raf = requestAnimationFrame(paso);
+      };
+      raf = requestAnimationFrame(paso);
+    };
+    ic.addEventListener('click', () => fijarEstacion(est + 1, 'nav'));
+    addEventListener('savvia:estacion', (e) => { const n = (e as CustomEvent).detail.n as number; if (n !== est) ir(n); });
+    void EST;
+  }
+  // RONDA 24 · qué hay bajo la barra: si es una superficie clara (La Savvia, el pie), el logotipo y la rejilla van en Cacao
+  {
+    let sobreClaro = false, pedido = false;
+    const mirar = () => {
+      pedido = false;
+      const y = 40, el = document.elementsFromPoint(innerWidth / 2, y).find((e) => e.matches('.surface-light, .surface-warm, .surface-dark, main > section, main > div, footer'));
+      // ronda 50: surface-warm es Cobalto (oscuro): sobre él la barra va en claro, como sobre la noche
+      const claro = !!el && (el.matches('.surface-light') || (!el.matches('.surface-warm, .surface-dark') && !!el.closest('.surface-light')));
+      if (claro !== sobreClaro) { sobreClaro = claro; document.documentElement.classList.toggle('sobre-claro', claro); }
+      // la mezcla por diferencia sobre Cobalto da un amarillo: ahí la barra va en Rosa niebla, sin mezcla
+      const color = !!el && (el.matches('.surface-warm') || (!el.matches('.surface-light, .surface-dark') && !!el.closest('.surface-warm')));
+      document.documentElement.classList.toggle('sobre-color', color);
+    };
+    const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(mirar); } };
+    addEventListener('scroll', pedir, { passive: true }); addEventListener('resize', pedir); setTimeout(mirar, 300);
+  }
+</script>
+
+<style>
+  .barra-nav {
+    position: fixed;
+    z-index: 55;
+    inset: 0 0 auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--spacing) * 4) calc(var(--spacing) * 5);
+    padding-top: max(calc(var(--spacing) * 4), env(safe-area-inset-top));
+    color: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+  @media (width >= 64rem) {
+    .barra-nav {
+      padding-inline: calc(var(--spacing) * 12);
+      padding-block: calc(var(--spacing) * 6);
+    }
+  }
+  .barra-nav > * {
+    pointer-events: auto;
+  }
+  /* RONDA 16 · «el logo de savvia del menú lo veo muy grande»: 24/32 px de alto → 16/24 */
+  .logo-marca {
+    display: block;
+    height: calc(var(--spacing) * 4);
+    aspect-ratio: 1118 / 348;
+    background: currentColor;
+    -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
+    mask: url('/savvia-logo.svg') center / contain no-repeat;
+    transition: background-color 0.4s ease;
+  }
+  @media (width >= 64rem) {
+    .logo-marca {
+      height: calc(var(--spacing) * 6);
+    }
+  }
+  /* sobre lo claro: Cacao, sin mezcla por diferencia (la clase la pone el script mirando qué sección hay bajo la barra) */
+  html.sobre-claro [data-nav] {
+    mix-blend-mode: normal;
+    color: var(--color-cacao);
+  }
+  /* RONDA 50 · sobre el bloque Cobalto (surface-warm): Rosa niebla, sin mezcla */
+  html.sobre-color [data-nav] {
+    mix-blend-mode: normal;
+    color: var(--color-niebla);
+  }
+  .acciones-nav {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 6);
+  }
+  .estacion-ic {
+    position: relative;
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    padding: 0;
+    margin: calc(var(--spacing) * -2);
+    box-sizing: content-box;
+    border: calc(var(--spacing) * 2) solid transparent;
+    cursor: pointer;
+    background: none;
+    color: inherit;
+  }
+  .estacion-ic svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transition: rotate 0.75s var(--ease-out-expo);
+  }
+  .estacion-ic path {
+    fill: currentColor; /* ronda 41: «que sea relleno» */
+    stroke: currentColor;
+    stroke-width: 0.6;
+    stroke-linejoin: round;
+  }
+  .estacion-ic:hover svg {
+    rotate: 12deg;
+  }
+  /* el nombre de la estación, en mono, al pasar */
+  .estacion-ic::after {
+    content: attr(data-nombre);
+    position: absolute;
+    right: calc(100% + var(--spacing) * 2);
+    top: 50%;
+    translate: 4px -50%;
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, translate 0.4s var(--ease-out-expo);
+  }
+  .estacion-ic:hover::after,
+  .estacion-ic:focus-visible::after {
+    opacity: 0.8;
+    translate: 0 -50%;
+  }
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(3, 4px);
+    gap: 5px;
+    padding: calc(var(--spacing) * 3);
+    margin: calc(var(--spacing) * -3);
+    cursor: pointer;
+  }
+  .rejilla span {
+    width: 4px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: currentColor;
+    transition:
+      transform 0.5s var(--ease-out-expo),
+      opacity 0.3s ease;
+    transition-delay: calc(var(--i) * 12ms);
+  }
+  /* RONDA 12 · «cuando haces hover que se junten como gotas los puntos de las esquinas. Y cuando está abierta y haces hover lo mismo
+     pero formando una x». La rejilla lleva un filtro gooey: al acercarse, los puntos se FUNDEN.
+     · cerrada + hover: las cuatro esquinas viajan al centro y se funden con él en una gota; los cuatro lados se retiran.
+     · abierta: quedan las diagonales (el aspa, a puntos). abierta + hover: las esquinas se acercan al centro lo justo para que la
+       trama las una en una X continua. */
+  .rejilla {
+    filter: url(#goo-nav);
+  }
+  .rejilla span:nth-child(1) { --dx: 1; --dy: 1; }
+  .rejilla span:nth-child(3) { --dx: -1; --dy: 1; }
+  .rejilla span:nth-child(7) { --dx: 1; --dy: -1; }
+  .rejilla span:nth-child(9) { --dx: -1; --dy: -1; }
+  .rejilla:hover span:nth-child(odd):not(:nth-child(5)) {
+    transform: translate(calc(var(--dx) * 7px), calc(var(--dy) * 7px)) scale(1.5);
+  }
+  .rejilla:hover span:nth-child(5) {
+    transform: scale(2.1);
+  }
+  .rejilla:hover span:nth-child(even) {
+    transform: scale(0.55);
+    opacity: 0.55;
+  }
+  .rejilla[aria-expanded='true'] span:nth-child(even) {
+    opacity: 0;
+    transform: scale(0);
+  }
+  .rejilla[aria-expanded='true'] span:nth-child(odd) {
+    transform: scale(1.6);
+  }
+  .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)) {
+    transform: translate(calc(var(--dx) * 3.2px), calc(var(--dy) * 3.2px)) scale(2.1);
+  }
+  .rejilla[aria-expanded='true']:hover span:nth-child(5) {
+    transform: scale(2.2);
+  }
+
+  .velo {
+    position: fixed;
+    z-index: 48;
+    inset: 0;
+    background: color-mix(in oklab, var(--noche) 62%, transparent);
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-out-expo);
+  }
+  .velo.on {
+    opacity: 1;
+  }
+
+  /* LA TARJETA. Cerrada está recortada a la caja del botón (--b) y es invisible; abierta, el recorte se va a cero:
+     crece desde el botón hacia abajo y hacia la izquierda. Regla dura 3: su estado por defecto no se ve. */
+  .menu {
+    --m: calc(var(--spacing) * 2); /* margen a la ventana */
+    --b: calc(var(--spacing) * 12); /* caja del botón */
+    --r: calc(var(--spacing) * 3); /* radio: 12 px (ronda 24: «menos redondeo»; antes 24, el de la referencia) */
+    position: fixed;
+    z-index: 50;
+    top: max(var(--m), env(safe-area-inset-top));
+    right: var(--m);
+    width: min(34rem, 100vw - var(--m) * 2);
+    max-height: calc(100dvh - var(--m) * 2);
+    overflow-y: auto;
+    padding: calc(var(--spacing) * 24) calc(var(--spacing) * 6) calc(var(--spacing) * 8);
+    border-radius: var(--r);
+    opacity: 0; /* ronda 40: ya no crece recortada desde el botón: se DIBUJA (máscara rasgada + líneas, src/scripts/dibujar.ts) */
+  }
+  @media (width >= 64rem) {
+    .menu {
+      --m: calc(var(--spacing) * 3);
+      right: calc(var(--spacing) * 8);
+      padding-inline: calc(var(--spacing) * 8);
+    }
+  }
+  .menu.on {
+    opacity: 1;
+  }
+  .menu li,
+  .menu .resto {
+    opacity: 0;
+    translate: 0 0.4em;
+    transition:
+      opacity 0.2s ease,
+      translate 0.2s ease;
+  }
+  .menu.on li,
+  .menu.on .resto {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 0.6s var(--ease-out-expo),
+      translate 0.6s var(--ease-out-expo);
+    transition-delay: calc(0.14s + var(--n, 0) * 45ms);
+  }
+  .resto li {
+    --n: inherit;
+  }
+  .enlace {
+    transition: opacity 0.35s ease, filter 0.45s ease;
+  }
+  /* como en la referencia: el que pisas se queda, los demás se retiran. RONDA 22: y se DESENFOCAN */
+  .menu ul:has(.enlace:hover) .enlace:not(:hover) {
+    opacity: 0.4;
+    filter: blur(4px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .menu,
+    .menu.on,
+    .menu li,
+    .menu .resto,
+    .menu.on li,
+    .menu.on .resto,
+    .velo,
+    .rejilla span {
+      transition: none;
+    }
+  }
+</style>
+
+<style is:global>
+  html.menu-abierto {
+    overflow: hidden;
+  }
+  /* Con la tarjeta abierta el botón pisa Rosa niebla: deja la mezcla por diferencia (daría un verde sucio) y pasa a Cacao. */
+  html.menu-abierto [data-nav] {
+    mix-blend-mode: normal;
+    color: var(--color-niebla);
+  }
+  html.menu-abierto [data-rejilla],
+  html.menu-abierto [data-estacion-ic] {
+    color: var(--color-cacao);
+  }
+  html.estudio-sentado [data-nav] {
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* RONDA 20 · «en proyectos destacados, savvia se tiene que ver con el color claro»: sobre la escena (cielo claro) la mezcla por diferencia lo
+     oscurecía → sin mezcla, en claro. La clase la pone Proyectos.astro mientras la escena está bajo la barra. */
+  html.sobre-escena [data-nav] {
+    mix-blend-mode: normal;
+    color: #fff;
+  }
+</style>

@@ -1,0 +1,1075 @@
+---
+// OTROS TRABAJOS (rondas 17–18). Andoni: «otros trabajos lo quiero mostrar más estilo agencia creativa […] northmail.app, como tienen la sección
+// "Channels designed for life's moments": así quiero mostrar los proyectos. Con mockups, gradientes de ese estilo».
+// Referencia medida: titular grande arriba a la izquierda; MOSAICO asimétrico sobre 12 columnas (piezas de tamaños distintos, escalonadas, con
+// mucho aire); cada pieza = una imagen con el nombre GRANDE encima, arriba a la izquierda, y un pie pequeño debajo; la primera pieza es un
+// degradado de aerógrafo con un icono y el texto de entrada.
+// RONDA 18 · «le tenemos que dar más aire […] y no podemos usar el mismo gradiente en todos. Lo ideal sería usar en algunas imágenes un mockup
+// con fondo realista como el que hemos puesto con estaciones. Tener variedad. Y que entren con alguna animación»:
+//   · TRES tipos de pieza: `escena` (la mesa de Andoni en una estación, con la web del cliente DENTRO del monitor: la pantalla está medida
+//     en la lámina), `claro` (degradado pálido, navegador RECTO y cortado por abajo, nombre en Cacao) y `mancha` (degradado intenso u oscuro,
+//     navegador ladeado). Ninguna repite fondo. Iris no entra (significa «la IA»). Excepción consciente a «sin degradados» de DESIGN.md.
+//   · AIRE: piezas más estrechas, tres filas escalonadas con huecos de columna vacíos y 128 px entre filas.
+//   · ENTRADA: cada pieza se descubre de abajo arriba (recorte), su fondo llega ampliado y se asienta, y el mockup sube después.
+// RONDA 19 · Andoni: «las barras de los navegadores son muy gordas y en Remerge deberíamos enseñar la versión móvil. Luego estaría guay que al
+// hacer hover se viera el vídeo de cada proyecto». Y dos láminas más de la mesa: un MÓVIL en la mesa y un iMac en la mesa de ROBLE.
+//   · Cada pieza lleva el VÍDEO real de la web del cliente (Chrome real recorriendo la página, `tools/grabar-otros.cjs` → mp4 de 7 s, sin
+//     sonido; Remerge grabada a 390 px como móvil). Se reproduce al pasar el cursor o enfocar; en táctil, mientras la pieza está a la vista.
+//     El primer fotograma es el póster. (brag redibuja la web en HTML: para webs ajenas es mejor grabar la real.)
+//   · Las pantallas del móvil y del iMac no son rectas: están en PERSPECTIVA. Sus cuatro esquinas se han medido en la lámina y de ahí sale una
+//     HOMOGRAFÍA (cuadrado unidad → cuadrilátero) que se aplica como `matrix3d`; los términos de perspectiva y traslación van en píxeles, así que
+//     dependen del tamaño real de la lámina en pantalla: el JS mide la mesa y deja la escala en `--s`.
+//   · Barras de navegador a 16 px (antes 24).
+import { proyectos, voces } from '../data/home';
+import Flora from './Flora.astro';
+const A = proyectos.anteriores;
+type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number };
+// Los DEGRADADOS salen de los colores de la web de cada cliente (home.ts › color); las escenas no llevan degradado (llevan la mesa).
+// RONDA 40 · «los testimonios ponemos menos cantidad y que sean animados y vayan rotando; si se nos ocurre alguna manera original de mostrarlos,
+// mejor»: TRES voces en un solo sitio del mosaico, junto a Isotrol. Cada cita entra palabra a palabra (el gesto de los titulares), un hilo de savia
+// mide su tiempo bajo el nombre de quien la dice, y si habla de un proyecto del mosaico, ese proyecto se SEÑALA (un punto de savia en su pie).
+const SITIO: Sitio[] = [
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'escena', est: 'otono', zoom: 3.3, cy: 0.6 },
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5 },
+  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6 }, // ronda 20: «Cubbo lo dejamos como estaba con el fondo de gradiente» (el iMac de roble queda en QUAD, sin uso)
+  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'movil', zoom: 1.9, cy: 0.5 }, // ronda 30: con 1,35 la lámina (16:9) no cubría la pieza cuadrada (ni redondeaba)
+  { col: '5 / span 4', ratio: '4 / 5', baja: 0, tipo: 'escena', est: 'invierno', zoom: 2.7, cy: 0.58 },
+];
+const V = voces.filter((v) => v.rota);
+// RONDA 42 · «los testimonios no van antes de nuestros proyectos, van entre medias, y que puedas cambiar de testimonio con unas flechas muy sutiles»:
+// una fila entera en medio del mosaico (tras la primera fila de proyectos), centrada; el nombre de quien habla entre dos flechas finas.
+// la pantalla del monitor dentro de la lámina de la mesa (medida en la ronda 6)
+const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // ronda 26: la caja blanca entera
+const LAM = { w: 1672, h: 941 };
+// las pantallas en perspectiva: esquinas medidas por inundación en la lámina (px): TL · TR · BR · BL
+const QUAD: Record<string, { foto: string; q: [number, number][] }> = {
+  movil: { foto: 'mesa-movil', q: [[974, 188], [1194, 183], [1184, 708], [950, 695]] },
+  roble: { foto: 'mesa-roble', q: [[792, 274], [1220, 249], [1212, 535], [781, 519]] },
+};
+// homografía del cuadrado unidad al cuadrilátero (Heckbert): x' = (a·u + b·v + c) / (g·u + h·v + 1)
+function homografia(p: [number, number][]) {
+  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = p;
+  const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+  const det = dx1 * dy2 - dx2 * dy1;
+  const g = (dx3 * dy2 - dx2 * dy3) / det, h = (dx1 * dy3 - dx3 * dy1) / det;
+  return { a: x1 - x0 + g * x1, b: x3 - x0 + h * x3, c: x0, d: y1 - y0 + g * y1, e: y3 - y0 + h * y3, f: y0, g, h };
+}
+// la caja de la pantalla (px de la lámina) y la matriz que la lleva a sus esquinas; los términos con píxeles se dejan como variables
+function escenaQuad(k: string) {
+  const { q } = QUAD[k];
+  const x0 = Math.min(q[0][0], q[3][0]), y0 = Math.min(q[0][1], q[1][1]), x1 = Math.max(q[1][0], q[2][0]), y1 = Math.max(q[2][1], q[3][1]);
+  const W = x1 - x0, H = y1 - y0;
+  const n = q.map(([x, y]) => [(x - x0) / W, (y - y0) / H] as [number, number]);
+  const m = homografia(n);
+  const r = (v: number) => +v.toFixed(6);
+  // matrix3d(m11 m12 m13 m14 · m21 m22 m23 m24 · m31… · m41 m42 m43 m44): x' = m11x + m21y + m41; w' = m14x + m24y + 1
+  const matriz = `matrix3d(${r(m.a)}, ${r((m.d * H) / W)}, 0, calc(${r(m.g / W)} / var(--s)), ${r((m.b * W) / H)}, ${r(m.e)}, 0, calc(${r(m.h / H)} / var(--s)), 0, 0, 1, 0, calc(${r(m.c * W)} * var(--s)), calc(${r(m.f * H)} * var(--s)), 0, 1)`;
+  return { x0, y0, W, H, cx: (x0 + x1) / 2 / LAM.w, cy: (y0 + y1) / 2 / LAM.h, matriz };
+}
+---
+
+<section id="anteriores" class="surface-light section-y" aria-labelledby="ant-h" data-sube>
+  <div class="wrap">
+    <!-- RONDA 24 · «ver todos los proyectos a la derecha del titular pegado a la línea derecha, con una animación más fluida, como que se rellena de
+         naranja, y la flecha más minimalista» -->
+    <div class="cabecera flex flex-wrap items-end justify-between gap-6">
+      <h2 id="ant-h" class="text-h1 max-w-[12ch]" data-entra>{proyectos.titulo2}</h2>
+      <a href={proyectos.enlace.href} class="todos text-ui font-medium"><span>{proyectos.enlace.label}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5" /></svg></a>
+    </div>
+    <div class="mosaico mt-24 lg:mt-32">
+      <!-- la pieza de entrada: solo degradado, con el símbolo (la gota) y el texto debajo -->
+      <!-- RONDA 18 · «el logo que está encima del gradiente, ser los de los proyectos rotando con un efecto líquido de transición»: los cinco
+           logotipos se relevan fundiéndose como gotas (filtro gooey solo durante el relevo: en reposo el logotipo se ve limpio) y el degradado
+           de detrás vira a los colores de cada proyecto (@property: los colores se interpolan). -->
+      <div class="pieza entrada" data-pieza style="--i:0">
+        <div class="lamina g-marca rota" data-rota data-colores={JSON.stringify(A.map((c) => c.color))} style={`--c1:${A[0].color[0]};--c2:${A[0].color[1]};--c3:${A[0].color[2]}`}>
+          <div class="logos" role="img" aria-label={`Logotipos: ${A.map((c) => c.n).join(', ')}`}>
+            {A.map((c, i) => <i class={i === 0 ? 'on' : ''} style={`--logo:url('/media/anteriores/logos/${c.logo}.svg')`} data-logo />)}
+          </div>
+        </div>
+        <p class="pie text-aux text-fg2 mt-4">{proyectos.intro2}</p>
+      </div>
+      {
+        A.map((c, i) => {
+          const s = SITIO[i];
+          // escena: la lámina se amplía `zoom` veces y se coloca para que el centro de la pantalla caiga en (50 %, cy) de la pieza
+          const Z = s.zoom ?? 3;
+          const quad = s.tipo === 'movil' || s.tipo === 'roble' ? escenaQuad(s.tipo) : null;
+          const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
+          const esMovil = s.tipo === 'movil';
+          // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
+          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}.mp4" type="video/mp4" /></video>`;
+          return (
+            <>
+            {i === 2 && (
+
+              <figure class="voces" data-voces data-alguno={V.some((v) => v.video) ? '' : undefined}>
+                <Flora lamina="helecho" fondo="niebla" opacidad={0.4} soloEscritorio estilo="left:-15rem;top:-2rem;width:13rem" />
+                <Flora lamina="brezo" fondo="niebla" opacidad={0.35} voltear soloEscritorio estilo="right:-13rem;bottom:-3rem;width:11rem" />
+        <div class="citas">
+          {V.map((v, k) => (
+            <blockquote class={`cita ${k === 0 ? 'on' : ''}`} data-cita={k} data-de={v.de} data-video={v.video || undefined} data-poster={v.poster || undefined} data-ar={v.video ? v.ar.toFixed(4) : undefined} aria-hidden={k === 0 ? 'false' : 'true'}>
+              {`«${v.q}»`.split(' ').map((w, n) => <><span class="pal"><span style={`--n:${n}`}>{w}</span></span>{' '}</>)}
+            </blockquote>
+          ))}
+        </div>
+        <figcaption class="autor">
+          <span class="quien-fila">
+          <button type="button" class="flecha-v" aria-label="Testimonio anterior" data-voz="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></button>
+          <span class="quienes">
+            {V.map((v, k) => (
+              <span class={`quien ${k === 0 ? 'on' : ''}`} data-quien={k} aria-hidden={k === 0 ? 'false' : 'true'}>
+                <span class="nombre-v">{v.n}</span>
+                <span class="rol">{v.r}</span>
+              </span>
+            ))}
+          </span>
+          <button type="button" class="flecha-v" aria-label="Testimonio siguiente" data-voz="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6.5L15 12l-5.5 5.5" /></svg></button>
+          </span>
+          <!-- RONDA 47 · «quitamos la barra de progreso y el icono del vídeo lo hacemos más sutil, más mimetizado con el fondo»: la cámara ocupa el
+               sitio del hilo de tiempo, centrada bajo el nombre, en línea fina del color del texto (sin cristal) -->
+          <button type="button" class="vid-voz" aria-label="Ver el vídeo del testimonio" aria-haspopup="dialog" data-voz-video><i class="gota" aria-hidden="true"></i><i class="onda" aria-hidden="true"></i><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></button>
+        </figcaption>
+      </figure>
+            )}
+            <a class={`pieza ${s.tipo}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
+              <div class={`lamina ${s.g ?? ''}`}>
+                {s.tipo === 'escena' ? (
+                  <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
+                    <img class="foto" src={`/media/estudio/${s.est}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
+                    <span class="pantalla"><Fragment set:html={video} /></span>
+                  </div>
+                ) : quad ? (
+                  <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`} data-mesa-quad>
+                    <img class="foto" src={`/media/anteriores/${QUAD[s.tipo].foto}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
+                    <span class="pantalla quad" style={`left:${((quad.x0 / LAM.w) * 100).toFixed(3)}%;top:${((quad.y0 / LAM.h) * 100).toFixed(3)}%;width:${((quad.W / LAM.w) * 100).toFixed(3)}%;height:${((quad.H / LAM.h) * 100).toFixed(3)}%;transform:${quad.matriz}`}><Fragment set:html={video} /></span>
+                  </div>
+                ) : (
+                  <div class="mockup">
+                    <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{c.dominio}</b></span>
+                    <Fragment set:html={video} />
+                  </div>
+                )}
+                <h3 class="nombre font-display">{c.n}</h3>
+                <!-- RONDA 41 · «añadir un icono de que los mockups tienen vídeo al hacer hover»: se ve en reposo y se retira mientras el vídeo suena -->
+                <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>
+              </div>
+              <p class="pie detail text-fg2 mt-4"><span class="text-fg">{c.dominio}</span>{c.sector && <> · {c.sector}</>}</p>
+            </a>
+            </>
+          );
+        })
+      }
+    </div>
+  </div>
+  <!-- RONDA 46 · EL REPRODUCTOR de los testimonios en vídeo: una tarjeta oscura que se PINTA desde la cámara (el cambio de estación del árbol, como
+       el menú), el vídeo sin los controles del navegador y, debajo, los nuestros: reproducir, el hilo de savia que mide y busca, el tiempo en mono
+       y el sonido. Esc, la × o un clic fuera lo cierran (se recoge hacia la cámara). -->
+  <dialog class="reproductor" aria-labelledby="rep-n" data-reproductor>
+    <div class="rep-panel surface-dark" data-rep-panel>
+      <header class="rep-cab">
+        <p class="rep-quien"><span id="rep-n" class="nombre-v" data-rep-n></span><span class="rol" data-rep-r></span></p>
+        <button type="button" class="rep-x" aria-label="Cerrar el vídeo" data-rep-cerrar><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+      </header>
+      <div class="rep-vista">
+        <video class="rep-video" playsinline preload="metadata" data-rep-video></video>
+        <button type="button" class="rep-grande" aria-label="Reproducir" tabindex="-1" data-rep-grande><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg></button>
+      </div>
+      <div class="rep-mandos">
+        <button type="button" class="rep-bt" aria-label="Reproducir" data-rep-play>
+          <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
+          <svg class="ic-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
+        </button>
+        <span class="rep-hilo" role="slider" tabindex="0" aria-label="Posición del vídeo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-rep-hilo><i></i></span>
+        <span class="rep-t detail" data-rep-t>0:00 / 0:00</span>
+        <button type="button" class="rep-bt" aria-label="Silenciar" data-rep-son>
+          <svg class="ic-son" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M15.5 9.2a4 4 0 010 5.6M18 6.8a7.5 7.5 0 010 10.4" /></svg>
+          <svg class="ic-mudo" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M16 10l4 4M20 10l-4 4" /></svg>
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<script>
+  import { dibujar } from '../scripts/dibujar';
+  // RONDA 19 · el VÍDEO de cada web: al pasar el cursor o enfocar la pieza; en táctil (sin hover), mientras la pieza está a la vista.
+  // Con movimiento reducido no se reproduce solo. La fuente se carga la primera vez que hace falta (preload="none").
+  {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches, conRaton = matchMedia('(hover: hover)').matches;
+    const vids = [...document.querySelectorAll<HTMLVideoElement>('[data-vid]')];
+    const tocar = (v: HTMLVideoElement, si: boolean) => { if (si) { v.play().catch(() => {}); } else { v.pause(); } };
+    vids.forEach((v) => {
+      const pieza = v.closest('[data-pieza]')!;
+      v.addEventListener('playing', () => pieza.classList.add('suena'));
+      v.addEventListener('pause', () => pieza.classList.remove('suena'));
+      if (reducido) return;
+      if (conRaton) {
+        pieza.addEventListener('pointerenter', () => tocar(v, true));
+        pieza.addEventListener('pointerleave', () => tocar(v, false));
+        pieza.addEventListener('focusin', () => tocar(v, true));
+        pieza.addEventListener('focusout', () => tocar(v, false));
+      } else new IntersectionObserver((e) => tocar(v, e[0].isIntersecting), { threshold: 0.55 }).observe(pieza);
+    });
+    // las pantallas en perspectiva: la homografía lleva píxeles → hace falta la escala real de la lámina (--s = ancho de la mesa / 1672)
+    const mesas = [...document.querySelectorAll<HTMLElement>('[data-mesa-quad]')];
+    const ro = new ResizeObserver((es) => es.forEach((e) => (e.target as HTMLElement).style.setProperty('--s', String(e.contentRect.width / 1672))));
+    mesas.forEach((m) => { m.style.setProperty('--s', String(m.offsetWidth / 1672)); ro.observe(m); });
+  }
+  // ── LAS VOCES QUE ROTAN (ronda 40): 9 s cada una; se paran con el puntero encima, fuera de pantalla o con movimiento reducido; el nombre se elige
+  {
+    const caja = document.querySelector<HTMLElement>('[data-voces]');
+    if (caja) {
+      const citas = [...caja.querySelectorAll<HTMLElement>('[data-cita]')], quienes = [...caja.querySelectorAll<HTMLElement>('[data-quien]')];
+      const piezas = [...document.querySelectorAll<HTMLElement>('#anteriores [data-slug]')];
+      const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches, DUR = 9000;
+      const camara = caja.querySelector<HTMLButtonElement>('[data-voz-video]')!;
+      let k = 0, visible = false, quieto = false, t0 = 0, raf = 0, t = 0, viendo = false;
+      const poner = (n: number) => {
+        k = (n + citas.length) % citas.length;
+        citas.forEach((c, i) => { c.classList.toggle('on', i === k); c.setAttribute('aria-hidden', String(i !== k)); });
+        quienes.forEach((q, i) => { q.classList.toggle('on', i === k); q.setAttribute('aria-hidden', String(i !== k)); });
+        piezas.forEach((p) => p.classList.toggle('citado', p.dataset.slug === citas[k].dataset.de));
+        const hay = !!citas[k].dataset.video; camara.classList.toggle('apagada', !hay); camara.tabIndex = hay ? 0 : -1; camara.setAttribute('aria-hidden', String(!hay));
+        t = 0; t0 = performance.now();
+      };
+      const paso = (ahora: number) => {
+        raf = 0;
+        if (!visible || reducido) return;
+        if (quieto || viendo) t0 = ahora - t * DUR;
+        else { t = (ahora - t0) / DUR; if (t >= 1) poner(k + 1); }
+        raf = requestAnimationFrame(paso);
+      };
+      caja.querySelectorAll<HTMLButtonElement>('[data-voz]').forEach((b) => b.addEventListener('click', () => poner(k + Number(b.dataset.voz))));
+      // ── RONDA 46 · EL REPRODUCTOR
+      const dlg = document.querySelector<HTMLDialogElement>('[data-reproductor]')!, panel = dlg.querySelector<HTMLElement>('[data-rep-panel]')!;
+      const vid = dlg.querySelector<HTMLVideoElement>('[data-rep-video]')!, hilo = dlg.querySelector<HTMLElement>('[data-rep-hilo]')!;
+      const bPlay = dlg.querySelector<HTMLButtonElement>('[data-rep-play]')!, bSon = dlg.querySelector<HTMLButtonElement>('[data-rep-son]')!;
+      const tTxt = dlg.querySelector<HTMLElement>('[data-rep-t]')!, grande = dlg.querySelector<HTMLButtonElement>('[data-rep-grande]')!;
+      const mmss = (x: number) => { const n = Math.max(0, Math.floor(x || 0)); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
+      const pintarT = () => {
+        const d = vid.duration || 0, p = d ? vid.currentTime / d : 0;
+        hilo.style.setProperty('--p', p.toFixed(4)); hilo.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+        tTxt.textContent = `${mmss(vid.currentTime)} / ${mmss(d)}`;
+      };
+      const estado = () => {
+        dlg.classList.toggle('suena', !vid.paused);
+        bPlay.setAttribute('aria-label', vid.paused ? 'Reproducir' : 'Pausar');
+        dlg.classList.toggle('mudo', vid.muted); bSon.setAttribute('aria-label', vid.muted ? 'Activar el sonido' : 'Silenciar');
+      };
+      ['play', 'pause', 'ended', 'volumechange'].forEach((ev) => vid.addEventListener(ev, estado));
+      ['timeupdate', 'loadedmetadata', 'seeked'].forEach((ev) => vid.addEventListener(ev, pintarT));
+      const alternar = () => (vid.paused ? vid.play().catch(() => {}) : vid.pause());
+      bPlay.addEventListener('click', alternar); grande.addEventListener('click', alternar); vid.addEventListener('click', alternar);
+      bSon.addEventListener('click', () => (vid.muted = !vid.muted));
+      // el hilo: clic o arrastre para buscar; flechas ±5 s
+      const buscar = (x: number) => { const r = hilo.getBoundingClientRect(); if (vid.duration) vid.currentTime = Math.min(1, Math.max(0, (x - r.left) / r.width)) * vid.duration; };
+      hilo.addEventListener('pointerdown', (e) => { hilo.setPointerCapture(e.pointerId); buscar(e.clientX); const mv = (m: PointerEvent) => buscar(m.clientX); hilo.addEventListener('pointermove', mv); hilo.addEventListener('pointerup', () => hilo.removeEventListener('pointermove', mv), { once: true }); });
+      hilo.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); vid.currentTime = Math.max(0, vid.currentTime + (e.key === 'ArrowRight' ? 5 : -5)); } });
+      let origen: [number, number] = [innerWidth / 2, innerHeight / 2], cerrando = false;
+      const punto = new Map<string, number>();
+      const abrir = () => {
+        const c = citas[k], q = quienes[k];
+        if (!c.dataset.video) return;
+        const rb = camara.getBoundingClientRect(); origen = [rb.left + rb.width / 2, rb.top + rb.height / 2];
+        dlg.style.setProperty('--ar', c.dataset.ar || '1.7778'); dlg.classList.toggle('vertical', Number(c.dataset.ar || 2) < 1);
+        dlg.querySelector('[data-rep-n]')!.textContent = q.querySelector('.nombre-v')!.textContent;
+        dlg.querySelector('[data-rep-r]')!.textContent = q.querySelector('.rol')!.textContent;
+        // RONDA 47 · «al cerrarlos empiezan de 0; tienen que seguir donde los habías dejado»: cada vídeo recuerda su punto (también si abres otro)
+        if (vid.getAttribute('src') !== c.dataset.video) {
+          const src = c.dataset.video!, desde = punto.get(src) || 0;
+          vid.src = src; if (c.dataset.poster) vid.poster = c.dataset.poster; else vid.removeAttribute('poster');
+          if (desde) vid.addEventListener('loadedmetadata', () => { vid.currentTime = desde; }, { once: true });
+        } else if (vid.ended) vid.currentTime = 0;
+        vid.muted = false; pintarT(); estado();
+        viendo = true; cerrando = false;
+        dlg.showModal(); dlg.classList.add('on');
+        dibujar(panel, { estacion: true, abrir: true, origen, color: 'rgb(234 221 231 / 0.5)' });
+        vid.play().catch(() => {});
+        bPlay.focus({ preventScroll: true });
+      };
+      const cerrar = () => {
+        if (!dlg.open || cerrando) return;
+        cerrando = true; vid.pause(); punto.set(vid.getAttribute('src')!, vid.ended ? 0 : vid.currentTime); dlg.classList.remove('on');
+        dibujar(panel, { estacion: true, abrir: false, origen, color: 'rgb(234 221 231 / 0.5)', alTerminar: () => { dlg.close(); cerrando = false; viendo = false; camara.focus({ preventScroll: true }); } });
+      };
+      camara.addEventListener('click', abrir);
+      // RONDA 47 · la gota del «Enviar» del pie: cae donde entra el puntero, llena el botón de Naranja y se recoge hacia donde sale
+      const caeGota = (e: PointerEvent) => { const r = camara.getBoundingClientRect(); camara.style.setProperty('--gx', `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`); camara.style.setProperty('--gy', `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`); };
+      camara.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'mouse') return; caeGota(e); camara.classList.add('mojado'); });
+      camara.addEventListener('pointerleave', (e) => { if (e.pointerType !== 'mouse') return; caeGota(e); camara.classList.remove('mojado'); });
+      camara.addEventListener('focus', () => { if (camara.matches(':focus-visible')) { camara.style.setProperty('--gx', '50%'); camara.style.setProperty('--gy', '50%'); camara.classList.add('mojado'); } });
+      camara.addEventListener('blur', () => camara.classList.remove('mojado'));
+      dlg.querySelector('[data-rep-cerrar]')!.addEventListener('click', cerrar);
+      dlg.addEventListener('cancel', (e) => { e.preventDefault(); cerrar(); }); // Esc: se recoge en vez de desaparecer
+      dlg.addEventListener('click', (e) => { if (!panel.contains(e.target as Node)) cerrar(); });
+      dlg.addEventListener('keydown', (e) => { if (e.key === ' ' && !(e.target as HTMLElement).closest('button, [role="slider"]')) { e.preventDefault(); alternar(); } });
+      (window as any).__reproductor = () => ({ abierto: dlg.open, suena: !vid.paused, src: vid.getAttribute('src'), t: vid.currentTime, mudo: vid.muted, camara: !camara.classList.contains('apagada') });
+      caja.addEventListener('pointerenter', () => (quieto = true));
+      caja.addEventListener('pointerleave', () => (quieto = false));
+      new IntersectionObserver((e) => { visible = e[0].isIntersecting; if (visible && !raf) { t0 = performance.now() - t * DUR; raf = requestAnimationFrame(paso); } }, { threshold: 0.3 }).observe(caja);
+      poner(0);
+    }
+  }
+  // ENTRADA de cada pieza al asomar (sin JS o con movimiento reducido están ya puestas: los estados ocultos cuelgan de html.anima)
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+  document.querySelectorAll('[data-pieza]').forEach((p) => io.observe(p));
+  // los logotipos que rotan: relevo cada 2,8 s, solo a la vista; el filtro gooey se enciende durante el relevo
+  const rota = document.querySelector<HTMLElement>('[data-rota]');
+  if (rota && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const logos = [...rota.querySelectorAll<HTMLElement>('[data-logo]')], colores: string[][] = JSON.parse(rota.dataset.colores!);
+    let k = 0, reloj = 0, fin = 0;
+    const sig = () => {
+      // RONDA 22 · «entren con blur y se vayan con blur»: el que se va se desenfoca y se apaga; el que llega viene desenfocado y enfoca
+      logos[k].classList.remove('on'); k = (k + 1) % logos.length; logos[k].classList.add('on');
+      colores[k].forEach((c, i) => rota.style.setProperty(`--c${i + 1}`, c));
+      void fin;
+    };
+    new IntersectionObserver((e) => { clearInterval(reloj); if (e[0].isIntersecting) reloj = window.setInterval(sig, 2800); }, { threshold: 0.3 }).observe(rota);
+  }
+</script>
+
+<style>
+  /* RONDA 27 · «mucho más sutil, como el de ver documento»: texto con subrayado que crece desde la izquierda y la flecha avanza (sin píldora) */
+  .todos {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 1);
+    margin-bottom: calc(var(--spacing) * 2);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-size: 0 1px;
+    background-position: 0 100%;
+    transition: background-size 0.5s var(--ease-out-expo);
+  }
+  .todos svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: translate 0.5s var(--ease-out-expo);
+  }
+  .todos:hover,
+  .todos:focus-visible {
+    background-size: 100% 1px;
+  }
+  .todos:hover svg {
+    translate: calc(var(--spacing) * 1) 0;
+  }
+  .mosaico {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--spacing) * 16) calc(var(--spacing) * 6);
+  }
+  .pieza {
+    display: block;
+    min-width: 0;
+  }
+  /* RONDA 40 · LAS VOCES QUE ROTAN: la cita en Family (voz editorial), sus palabras suben desde una máscara al entrar y se desenfocan al irse;
+     debajo, quién la dice (se puede elegir), con un hilo de savia que mide su tiempo */
+  .voces {
+    position: relative;
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin: 0;
+    padding-block: calc(var(--spacing) * 16); /* ronda 44 · «al testimonio darle más espacio por arriba y por abajo» (+64 px a cada lado, sobre el hueco de fila) */
+    max-width: 44rem;
+    text-align: center;
+  }
+  .quien-fila {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 4);
+  }
+  .flecha-v {
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--fg2);
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity 0.3s ease, translate 0.4s var(--ease-out-expo);
+  }
+  .flecha-v:hover,
+  .flecha-v:focus-visible {
+    opacity: 1;
+  }
+  .flecha-v:first-child:hover { translate: -2px 0; }
+  .flecha-v:last-child:hover { translate: 2px 0; }
+  .flecha-v svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* RONDA 47 · la cámara del testimonio, centrada bajo el nombre (donde estaba el hilo de tiempo): sin fondo, filo fino y el icono en el color
+     secundario del texto; al pasar, el filo y el icono toman el color del texto */
+  .vid-voz {
+    --gx: 50%;
+    --gy: 50%;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    margin-top: calc(var(--spacing) * 4);
+    border-radius: var(--radius-full);
+    box-shadow: inset 0 0 0 1px var(--rule);
+    color: var(--fg2);
+    cursor: pointer;
+    transition: scale 0.5s var(--ease-out-expo), color 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease, filter 0.4s ease;
+  }
+  /* sin ningún testimonio en vídeo, no existe; si alguno lo tiene, el hueco se queda (la cita no salta al cambiar de voz) */
+  .voces:not([data-alguno]) .vid-voz { display: none; }
+  .vid-voz.apagada { opacity: 0; filter: blur(4px); scale: 0.7; pointer-events: none; animation: none; }
+  /* al pasar: la GOTA (el efecto del «Enviar» del pie) — un disco Naranja nace donde entra el puntero y llena el botón; la ONDA se abre y se apaga */
+  .vid-voz .gota,
+  .vid-voz .onda {
+    position: absolute;
+    left: var(--gx);
+    top: var(--gy);
+    width: 5rem;
+    height: 5rem;
+    margin: -2.5rem 0 0 -2.5rem;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: scale(0);
+  }
+  .vid-voz .gota {
+    z-index: -1;
+    background: var(--color-naranja);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .vid-voz .onda {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: -0.75rem 0 0 -0.75rem;
+    border: 1.5px solid var(--color-cacao);
+    opacity: 0;
+  }
+  .vid-voz.mojado {
+    color: var(--color-niebla); /* ronda 47: «el icono pasa a fill y blanco» (el blanco de la paleta es Rosa niebla) */
+    box-shadow: inset 0 0 0 1px transparent;
+    transition-delay: 0.08s;
+  }
+  .vid-voz.mojado .gota {
+    transform: scale(1);
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  .vid-voz.mojado .onda {
+    animation: onda-cam 0.6s var(--ease-out-expo) both;
+  }
+  .vid-voz svg { transition: fill 0.3s ease 0.08s; }
+  .vid-voz.mojado svg { fill: currentColor; }
+  @keyframes onda-cam {
+    from { transform: scale(0.2); opacity: 0.8; }
+    to { transform: scale(2.4); opacity: 0; }
+  }
+  .vid-voz svg {
+    position: relative;
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .citas {
+    display: grid;
+  }
+  .cita {
+    grid-area: 1 / 1;
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .cita .pal > span {
+    translate: 0 112%;
+    transition: translate 0.5s ease, opacity 0.4s ease, filter 0.4s ease;
+  }
+  .cita.on .pal > span {
+    translate: 0 0;
+    transition: translate 0.9s var(--ease-out-expo);
+    transition-delay: calc(var(--n) * 28ms);
+  }
+  .cita:not(.on) .pal > span {
+    opacity: 0;
+    filter: blur(6px);
+    translate: 0 -30%;
+  }
+  .autor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: calc(var(--spacing) * 8);
+  }
+  .quienes {
+    display: grid;
+  }
+  .quien {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    opacity: 0;
+    filter: blur(4px);
+    transition: opacity 0.4s ease, filter 0.5s ease;
+  }
+  .quien.on {
+    opacity: 1;
+    filter: none;
+    transition-delay: 0.3s;
+  }
+  .nombre-v {
+    font-size: var(--text-ui);
+    font-weight: 500;
+  }
+  .rol {
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+    line-height: var(--text-detail--line-height);
+    color: var(--fg2);
+  }
+  /* el proyecto del que se habla: un punto de savia antes de su dominio */
+  .pieza .pie::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 0;
+    border-radius: 50%;
+    background: var(--color-naranja);
+    vertical-align: 0.1em;
+    scale: 0;
+    width: 0;
+    transition: scale 0.5s var(--ease-out-expo), width 0.5s var(--ease-out-expo), margin-right 0.5s var(--ease-out-expo);
+  }
+  .pieza.citado .pie::before {
+    scale: 1;
+    width: 6px;
+    margin-right: calc(var(--spacing) * 2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cita .pal > span { transition: none; }
+    .vid-voz, .vid-voz .gota { transition: none; }
+    .vid-voz .onda { animation: none; }
+  }
+  /* ── RONDA 46 · EL REPRODUCTOR: el <dialog> ocupa la ventana y es transparente; la tarjeta (Cacao con grano, radio 8) se pinta desde la cámara */
+  .reproductor {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: calc(var(--spacing) * 6);
+    border: 0;
+    background: transparent;
+    display: none;
+    place-items: center;
+    overscroll-behavior: contain;
+  }
+  .reproductor[open] { display: grid; }
+  .reproductor::backdrop {
+    background: color-mix(in oklab, #1a1210 72%, transparent);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .reproductor.on::backdrop { opacity: 1; }
+  .rep-panel {
+    position: relative;
+    width: min(100%, 60rem);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+    padding: calc(var(--spacing) * 4);
+    border-radius: var(--radius-lg);
+    color: var(--fg);
+  }
+  .rep-cab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 4);
+    padding-inline: calc(var(--spacing) * 1);
+  }
+  .rep-quien {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+  }
+  .rep-x,
+  .rep-bt {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    border-radius: var(--radius-full);
+    color: var(--fg);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .rep-x:hover, .rep-x:focus-visible,
+  .rep-bt:hover, .rep-bt:focus-visible { background: color-mix(in oklab, var(--color-niebla) 12%, transparent); }
+  .rep-x svg,
+  .rep-bt svg,
+  .rep-grande svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .rep-vista {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: #1a1210;
+    aspect-ratio: var(--ar, 1.7778);
+  }
+  /* los testimonios grabados en vertical: la tarjeta se estrecha para que el vídeo quepa entero en la ventana (lo que no es vídeo, ~11 rem) */
+  .reproductor.vertical .rep-panel {
+    width: min(100%, calc((100dvh - 14rem) * var(--ar) + 2rem));
+  }
+  .reproductor.vertical .rep-quien { flex-direction: column; gap: calc(var(--spacing) * 1); }
+  .rep-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+  }
+  /* el botón grande del centro: solo con el vídeo parado */
+  .rep-grande {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 16);
+    height: calc(var(--spacing) * 16);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #1a1210 55%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--color-niebla);
+    cursor: pointer;
+    transition: opacity 0.4s ease, scale 0.5s var(--ease-out-expo), filter 0.4s ease;
+  }
+  .rep-grande svg { width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); fill: currentColor; stroke: none; }
+  .reproductor.suena .rep-grande { opacity: 0; scale: 0.8; filter: blur(4px); pointer-events: none; }
+  .rep-mandos {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+  }
+  .rep-bt .ic-play { fill: currentColor; stroke: none; }
+  .rep-bt .ic-pausa,
+  .reproductor.suena .rep-bt .ic-play,
+  .rep-bt .ic-mudo,
+  .reproductor.mudo .rep-bt .ic-son { display: none; }
+  .reproductor.suena .rep-bt .ic-pausa,
+  .reproductor.mudo .rep-bt .ic-mudo { display: block; }
+  /* el hilo de savia que mide el vídeo (el mismo de la voz que rota); se pincha o se arrastra para buscar */
+  .rep-hilo {
+    position: relative;
+    flex: 1;
+    height: calc(var(--spacing) * 6);
+    cursor: pointer;
+    touch-action: none;
+  }
+  .rep-hilo::before,
+  .rep-hilo i {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1.5px;
+    margin-top: -0.75px;
+    background: var(--rule-strong, var(--rule));
+    transition: height 0.3s var(--ease-out-expo), margin-top 0.3s var(--ease-out-expo);
+  }
+  .rep-hilo i {
+    background: var(--color-naranja);
+    transform-origin: 0 50%;
+    transform: scaleX(var(--p, 0));
+  }
+  .rep-hilo:hover::before, .rep-hilo:hover i,
+  .rep-hilo:focus-visible::before, .rep-hilo:focus-visible i { height: 3px; margin-top: -1.5px; }
+  .rep-hilo:focus-visible { outline: none; }
+  .rep-hilo:focus-visible i { box-shadow: 0 0 0 2px var(--color-naranja); }
+  .rep-t {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg2);
+  }
+  @media (width < 48rem) {
+    .reproductor { padding: calc(var(--spacing) * 3); }
+    .rep-panel { padding: calc(var(--spacing) * 3); gap: calc(var(--spacing) * 3); }
+    .rep-mandos { gap: calc(var(--spacing) * 2); }
+  }
+  .lamina {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    isolation: isolate;
+    container-type: inline-size;
+  }
+  .entrada .lamina {
+    aspect-ratio: 3 / 2;
+    display: grid;
+    place-items: center;
+  }
+  @media (width >= 64rem) {
+    .mosaico {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+      row-gap: calc(var(--spacing) * 32);
+    }
+    .pieza {
+      grid-column: var(--col);
+      margin-top: calc(var(--spacing) * var(--baja, 0));
+    }
+    .pieza .lamina {
+      aspect-ratio: var(--ratio);
+    }
+    .entrada {
+      grid-column: 1 / span 3;
+    }
+    .entrada .lamina {
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  /* ── LOS FONDOS de degradado: manchas muy desenfocadas (aerógrafo) + el grano de la web. Cada uno, distinto. */
+  .lamina[class*='g-']::before {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    z-index: -2;
+    background: var(--manchas);
+    filter: blur(34px);
+    transition: transform 1.6s var(--ease-out-expo);
+  }
+  .lamina::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: url('/media/grano.png') 0 0 / 240px 240px;
+  }
+  /* de MARCA: los tres colores medidos en la web del cliente (fondo, secundario, acento) */
+  .g-marca {
+    --manchas: radial-gradient(70% 60% at 72% 22%, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96%, var(--c3), transparent 70%), var(--c1);
+  }
+  .rota {
+    transition: --c1 1.4s ease, --c2 1.4s ease, --c3 1.4s ease;
+  }
+  .claro {
+    --tinta: var(--color-cacao);
+  }
+
+  /* los LOGOTIPOS que rotan: cada uno es una máscara (se pinta en Rosa niebla, o en Cacao sobre el amarillo de Remerge) */
+  .logos {
+    position: relative;
+    width: 62%;
+    aspect-ratio: 5 / 2;
+  }
+  .logos i {
+    position: absolute;
+    inset: 0;
+    background: var(--color-niebla);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+    opacity: 0;
+    filter: blur(16px);
+    scale: 0.97;
+    transition: opacity 0.8s ease, filter 1s ease, scale 1s var(--ease-out-expo), background-color 1s ease;
+  }
+  .logos i.on {
+    opacity: 1;
+    filter: blur(0);
+    scale: 1;
+    transition-delay: 0.25s; /* el que llega entra cuando el que se va ya se ha desenfocado */
+  }
+  .logos i:nth-child(4) {
+    background: var(--color-cacao); /* Remerge: fondo claro */
+  }
+
+  /* ── el icono de vídeo: una píldora de cristal oscuro arriba a la derecha; al pasar crece un poco y, mientras el vídeo suena, se retira */
+  .vid-ic {
+    position: absolute;
+    z-index: 3;
+    right: calc(var(--spacing) * 3);
+    bottom: calc(var(--spacing) * 3);
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1);
+    padding: calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #1a1210 55%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--color-niebla);
+    transition: opacity 0.4s ease, scale 0.5s var(--ease-out-expo), filter 0.4s ease;
+  }
+  .vid-ic svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .pieza:hover .vid-ic {
+    scale: 1.06;
+  }
+  .pieza.suena .vid-ic {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  /* ── el nombre, grande, encima (arriba a la izquierda) */
+  .nombre {
+    position: absolute;
+    z-index: 2;
+    left: calc(var(--spacing) * 4);
+    top: calc(var(--spacing) * 3);
+    right: calc(var(--spacing) * 4);
+    font-size: var(--text-h3);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--tinta, var(--color-niebla));
+    text-wrap: balance;
+  }
+  .escena .nombre,
+  .mancha .nombre {
+    text-shadow: 0 1px 18px color-mix(in oklab, var(--color-cacao) 55%, transparent);
+  }
+
+  /* ── ESCENA: la mesa en una estación, con la web dentro del monitor. Todo en unidades de la propia pieza (cqw). */
+  .mesa {
+    position: absolute;
+    width: calc(var(--z) * 100cqw);
+    aspect-ratio: 16 / 9;
+    left: calc(var(--left) * 1cqw);
+    /* alto de la lámina ampliada = z·100·9/16 cqw; el centro de la pantalla (py) va a la altura cy de la pieza (su alto: 100cqh) */
+    top: calc(var(--cy) * 100cqh - var(--py) * var(--z) * 56.25cqw);
+    transition: scale 1.6s var(--ease-out-expo);
+    transform-origin: 50% var(--py);
+  }
+  .lamina:has(.mesa) {
+    container-type: size;
+  }
+  .mesa .foto {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mesa .pantalla {
+    position: absolute;
+    z-index: 2; /* por encima del grano de la pieza (::after, z 1): la web se ve limpia */
+    left: 39.03%;
+    top: 36.96%;
+    width: 21.78%;
+    height: 21.04%;
+    overflow: hidden;
+    background: #fbfbfa;
+  }
+  /* RONDA 43 · «Remerge e Isotrol no encajan bien en el mockup»: el <video> lo inserta set:html y NO lleva el ámbito de Astro: estas reglas no se
+     aplicaban nunca (el vídeo quedaba a su tamaño y con object-fit: contain: bandas en la pantalla y, en el móvil, la web recortada) → :global */
+  .mesa .pantalla :global(.vid) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+  /* la pantalla en PERSPECTIVA: caja en % de la lámina y la homografía como matrix3d (sus píxeles, vía --s) */
+  .mesa .pantalla.quad {
+    transform-origin: 0 0;
+    background: transparent;
+    border-radius: 2px;
+  }
+  .movil .mesa .pantalla.quad {
+    border-radius: 6% / 3%;
+  }
+  .escena .lamina::before,
+  .movil .lamina::before,
+  .roble .lamina::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(to bottom, color-mix(in oklab, var(--color-cacao) 55%, transparent), transparent 34%);
+  }
+  /* sobre la foto, un velo arriba para que el nombre se lea siempre (regla junto a la de las pantallas en perspectiva) */
+
+  /* ── el MOCKUP: una ventana de navegador con la web real */
+  .mockup {
+    position: absolute;
+    border-radius: calc(var(--spacing) * 2);
+    overflow: hidden;
+    background: #fbfbfa;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.18),
+      0 24px 48px -12px rgb(30 16 8 / 0.55);
+    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
+  }
+  /* mancha: ladeado, saliéndose por abajo y por un lado (como los teléfonos de la referencia) */
+  .mancha .mockup {
+    left: 14%;
+    top: 34%;
+    width: 118%;
+    rotate: var(--giro, -6deg);
+    transform-origin: 0 0;
+  }
+  /* claro: recto, centrado, cortado por abajo */
+  .claro .mockup {
+    left: 10%;
+    top: 30%;
+    width: 80%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow:
+      0 0 0 1px rgb(48 32 24 / 0.14),
+      0 18px 40px -14px rgb(48 32 24 / 0.4);
+  }
+  .claro .mockup :global(.vid) {
+    aspect-ratio: 960 / 900; /* más alto que el vídeo: llega siempre al borde de la pieza */
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+  .mockup :global(.vid) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  /* RONDA 19 · «las barras de los navegadores son muy gordas»: 16 px (antes 24) */
+  .cromo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 14px; /* ronda 24: más fina; el campo, con aire arriba y abajo */
+    padding-inline: calc(var(--spacing) * 2);
+    background: linear-gradient(#f7f6f5, #ebe9e8);
+    box-shadow: inset 0 -1px 0 #d2d0ce;
+  }
+  .cromo i {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #d5d2cf;
+  }
+  .cromo b {
+    margin-inline: auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 calc(var(--spacing) * 3);
+    height: 8px;
+    line-height: 8px;
+    border-radius: 2px;
+    background: #fff;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 0.4rem;
+    color: #5c5a58;
+  }
+
+  /* ── al pasar */
+  .mancha:hover .mockup,
+  .mancha:focus-visible .mockup {
+    translate: -3% -4%;
+    rotate: calc(var(--giro, -6deg) * 0.5);
+  }
+  .claro:hover .mockup,
+  .claro:focus-visible .mockup {
+    translate: 0 -5%;
+  }
+  .escena:hover .mesa,
+  .escena:focus-visible .mesa,
+  .movil:hover .mesa,
+  .movil:focus-visible .mesa,
+  .roble:hover .mesa,
+  .roble:focus-visible .mesa {
+    scale: 1.06;
+  }
+  .pieza:is(a):hover .lamina[class*='g-']::before {
+    transform: scale(1.15) rotate(8deg);
+  }
+  .pieza:is(a):focus-visible {
+    outline: 2px solid var(--color-niebla);
+    outline-offset: calc(var(--spacing) * 1);
+  }
+
+  /* ── ENTRADA: la pieza se descubre de abajo arriba; su contenido llega un poco después */
+  :global(html.anima) .pieza .lamina {
+    clip-path: inset(100% 0 0 0 round var(--radius-lg));
+  }
+  :global(html.anima) .pieza .mockup,
+  :global(html.anima) .pieza .mesa,
+  :global(html.anima) .pieza .logos {
+    translate: 0 22%;
+  }
+  :global(html.anima) .pieza .mesa {
+    translate: 0 6%;
+    scale: 1.12;
+  }
+  :global(html.anima) .pieza .nombre,
+  :global(html.anima) .pieza .pie {
+    opacity: 0;
+  }
+  :global(html.anima) .pieza.visto .lamina {
+    clip-path: inset(0 0 0 0 round var(--radius-lg));
+    transition: clip-path 1.2s var(--ease-out-expo) calc(var(--i) * 110ms);
+  }
+  :global(html.anima) .pieza.visto .mockup,
+  :global(html.anima) .pieza.visto .mesa,
+  :global(html.anima) .pieza.visto .logos {
+    translate: 0 0;
+    scale: 1;
+    transition: translate 1.4s var(--ease-out-expo) calc(0.12s + var(--i) * 110ms), scale 1.8s var(--ease-out-expo) calc(var(--i) * 110ms), rotate 0.9s var(--ease-out-expo);
+  }
+  :global(html.anima) .pieza.visto .nombre,
+  :global(html.anima) .pieza.visto .pie {
+    opacity: 1;
+    transition: opacity 0.9s ease calc(0.55s + var(--i) * 110ms);
+  }
+  /* una vez dentro, el «al pasar» manda otra vez con su propio ritmo */
+  :global(html.anima) .pieza.visto:hover .mockup {
+    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
+  }
+  :global(html.anima) .mancha.visto:hover .mockup { translate: -3% -4%; }
+  :global(html.anima) .claro.visto:hover .mockup { translate: 0 -5%; }
+  :global(html.anima) .escena.visto:hover .mesa,
+  :global(html.anima) .movil.visto:hover .mesa,
+  :global(html.anima) .roble.visto:hover .mesa { scale: 1.06; transition: scale 1.6s var(--ease-out-expo); }
+  @media (prefers-reduced-motion: reduce) {
+    .mockup, .mesa, .lamina::before { transition: none; }
+  }
+</style>

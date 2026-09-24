@@ -1,0 +1,428 @@
+---
+import { servicios } from '../data/home';
+const LETRA = ['01', '02', '03', '04']; // ronda 44 · «los servicios no van por letras, van por número»
+---
+
+<!--
+  SERVICIOS (rondas 39–40). Referencia de Andoni: athleticsnyc.com, «Our specialties» (medida en tools/ref39/): lista tipográfica ENORME con letra de
+  índice; la tinta de cada nombre SE LLENA con el scroll. RONDA 40 · «al hacer hover no usamos lo mismo que la referencia: pensemos qué puede salir que
+  tenga sentido con lo que se cuenta. Y fuera el savvia agentic de aquí»: al pasar por un servicio (o enfocarlo) las otras se retiran y, entre el
+  nombre y lo que te llevas, sale una DEMO pequeña de lo que ES ese servicio, en bucle:
+    A · Web nueva  — la página nace en BOCETO (cajas a trazos) y se pinta: de la idea a la web (el mismo gesto que las tarjetas de los dolores).
+    B · Evolución  — la web que ya tienes recibe una sección nueva y otro idioma, y sale publicada: cambios en días.
+    C · Formación  — tu equipo va marcando lo que ya sabe hacer con agentes: leer su savvia, pedir un cambio, revisarlo y publicarlo.
+  En móvil (sin hover) la demo va debajo, siempre, y corre mientras se ve. Sección en Rosa arcilla (ronda 40: después de Proyectos la web es clara).
+-->
+<section id="servicios" class="surface-warm" aria-labelledby="serv-h" data-servicios data-sube>
+  <div class="wrap section-y">
+    <h2 id="serv-h" class="text-h2 max-w-[16ch]" data-entra>{servicios.titulo}</h2>
+    <ol class="lista mt-16 lg:mt-24" data-lista>
+      {
+        servicios.lista.map((s, i) => (
+          <li class="servicio" data-servicio={i}>
+            <span class="letra detail tabular-nums" aria-hidden="true">{LETRA[i]}</span>
+            <button type="button" class="nombre font-display" aria-expanded="false" aria-describedby={`serv-d${i}`} data-nombre>
+              <span class="tinta" data-tinta>{s.corto}</span>
+            </button>
+            <div class={`demo d-${s.demo}`} aria-hidden="true" data-demo>
+              <div class="mini">
+                <span class="barra"><i /><i /><i /></span>
+                {s.demo === 'nueva' && (
+                  <div class="lienzo">
+                    <i class="b tit" /><i class="b tit corta" />
+                    <i class="b txt" /><i class="b txt" /><i class="b txt corta" />
+                    <span class="fila"><i class="b cta" /><i class="b foto" /></span>
+                    <p class="etq"><span class="e1">boceto</span><span class="e2">web</span></p>
+                  </div>
+                )}
+                {s.demo === 'evolucion' && (
+                  <div class="lienzo">
+                    <span class="cab"><i class="b tit" /><span class="idioma"><b class="i1">ES</b><b class="i2">EU</b><b class="i3">EN</b></span></span>
+                    <i class="b txt" /><i class="b txt corta" />
+                    <span class="nueva"><i class="b bloque" /><i class="b bloque" /><i class="b bloque" /></span>
+                    <i class="b txt" />
+                    <p class="publicado">publicado <b>✓</b></p>
+                  </div>
+                )}
+                {s.demo === 'formacion' && (
+                  <div class="lienzo">
+                    <p class="equipo"><i /><i /><i /><span>Tu equipo</span></p>
+                    {['Leer su savvia', 'Pedir un cambio a un agente', 'Revisarlo y publicarlo'].map((t, k) => (
+                      <p class="paso" style={`--k:${k}`}><i class="caja" /><span>{t}</span></p>
+                    ))}
+                    <span class="avance"><i /></span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div class="bajada" id={`serv-d${i}`}>
+              <p class="text-ui font-medium">{s.t}</p>
+              <p class="text-aux text-fg2 mt-2">{s.d}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<script>
+  const raiz = document.querySelector<HTMLElement>('[data-servicios]');
+  if (raiz) {
+    const lista = raiz.querySelector<HTMLElement>('[data-lista]')!;
+    const items = [...raiz.querySelectorAll<HTMLElement>('[data-servicio]')];
+    const botones = items.map((li) => li.querySelector<HTMLButtonElement>('[data-nombre]')!);
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const conRaton = matchMedia('(width >= 64rem) and (hover: hover) and (pointer: fine)');
+    let abierto = -1;
+    // al abrirse, la demo empieza desde el principio (se clona: todas sus piezas van a una)
+    const reiniciar = (li: HTMLElement) => { const d = li.querySelector('.mini')!; d.replaceWith(d.cloneNode(true)); };
+    const abrir = (i: number) => {
+      if (i === abierto) return;
+      abierto = i;
+      lista.classList.toggle('con-uno', i >= 0);
+      items.forEach((li, k) => { const on = k === i; if (on && !li.classList.contains('on')) reiniciar(li); li.classList.toggle('on', on); });
+      botones.forEach((b, k) => b.setAttribute('aria-expanded', String(k === i)));
+    };
+    botones.forEach((b, i) => {
+      b.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && conRaton.matches) abrir(i); });
+      b.addEventListener('focus', () => { if (conRaton.matches) abrir(i); });
+      b.addEventListener('click', () => { if (conRaton.matches) abrir(i); });
+    });
+    lista.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') abrir(-1); });
+    lista.addEventListener('focusout', (e) => { if (!lista.contains(e.relatedTarget as Node)) abrir(-1); });
+    // sin ratón: cada demo corre mientras se ve
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (!conRaton.matches) (e.target as HTMLElement).closest('.servicio')!.classList.toggle('on', e.isIntersecting); }), { threshold: 0.4 });
+    raiz.querySelectorAll('[data-demo]').forEach((d) => io.observe(d));
+
+    // LA TINTA QUE SE LLENA: cada nombre pasa de apagado a plena tinta, de izquierda a derecha, mientras cruza la parte baja de la pantalla
+    const tintas = [...raiz.querySelectorAll<HTMLElement>('[data-tinta]')];
+    if (reducido) tintas.forEach((t) => t.style.setProperty('--p', '106%'));
+    else {
+      let visible = false, pedido = false;
+      const pintar = () => {
+        pedido = false;
+        const vh = innerHeight;
+        tintas.forEach((t) => { const r = t.getBoundingClientRect(); const p = Math.min(1, Math.max(0, (vh * 0.92 - r.top) / (vh * 0.42))); t.style.setProperty('--p', `${(p * 112).toFixed(1)}%`); });
+      };
+      const pedir = () => { if (visible && !pedido) { pedido = true; requestAnimationFrame(pintar); } };
+      new IntersectionObserver((e) => { visible = e[0].isIntersecting; pedir(); }, { rootMargin: '10% 0px' }).observe(lista);
+      addEventListener('scroll', pedir, { passive: true });
+      addEventListener('resize', pedir);
+      pintar();
+    }
+  }
+</script>
+
+<style>
+  .lista {
+    border-top: 1px solid var(--rule);
+  }
+  .servicio {
+    position: relative;
+    display: grid;
+    grid-template-columns: calc(var(--spacing) * 8) minmax(0, 1fr);
+    column-gap: calc(var(--spacing) * 3);
+    row-gap: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 6);
+    border-bottom: 1px solid var(--rule);
+    transition: opacity 0.5s var(--ease-out-expo), filter 0.5s var(--ease-out-expo);
+  }
+  .letra {
+    padding-top: 0.9em;
+    color: var(--fg2);
+  }
+  .nombre {
+    justify-self: start;
+    text-align: left;
+    font-size: clamp(3rem, 1.4rem + 5.2vw, 6rem); /* 48 → 96 */
+    line-height: 1;
+    letter-spacing: -0.025em;
+    cursor: default;
+  }
+  /* la tinta que se llena con el scroll: plena hasta --p, apagada después */
+  .tinta {
+    background: linear-gradient(90deg, var(--fg) calc(var(--p, 0%) - 6%), color-mix(in oklab, var(--fg) 28%, transparent) calc(var(--p, 0%) + 6%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bajada,
+  .demo {
+    grid-column: 2;
+  }
+  .bajada {
+    max-width: 34ch;
+  }
+
+  /* ── LA DEMO: una ventana pequeña en Rosa niebla con la página dibujada en Cacao */
+  .demo {
+    width: min(100%, 20rem);
+  }
+  .mini {
+    aspect-ratio: 4 / 3;
+    border-radius: calc(var(--spacing) * 3);
+    background: var(--color-niebla);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cacao) 12%, transparent), 0 18px 40px -22px color-mix(in oklab, var(--color-cacao) 55%, transparent);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    color: var(--color-cacao);
+    container-type: inline-size;
+  }
+  .barra {
+    display: flex;
+    gap: 1.6cqw;
+    padding: 2.6cqw 3.2cqw;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-cacao) 12%, transparent);
+  }
+  .barra i {
+    width: 2cqw;
+    height: 2cqw;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--color-cacao) 22%, transparent);
+  }
+  .lienzo {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2.6cqw;
+    padding: 5cqw 6cqw;
+  }
+  .b {
+    display: block;
+    border-radius: 1.2cqw;
+    background: color-mix(in oklab, var(--color-cacao) 16%, transparent);
+  }
+  .b.tit { height: 5.2cqw; width: 72%; background: var(--color-cacao); }
+  .b.tit.corta { width: 46%; }
+  .b.txt { height: 2cqw; width: 88%; }
+  .b.txt.corta { width: 56%; }
+  /* las demos solo corren con su servicio abierto (o, sin ratón, a la vista) */
+  .servicio:not(.on) .demo *,
+  .servicio:not(.on) .demo *::before,
+  .servicio:not(.on) .demo *::after {
+    animation-play-state: paused !important;
+  }
+
+  /* A · WEB NUEVA: de boceto (cajas a trazos, vacías) a web pintada, en bucle de 5 s */
+  .d-nueva .b {
+    border: 1px dashed color-mix(in oklab, var(--color-cacao) 45%, transparent);
+    background: transparent;
+    animation: pintar-b 5s var(--ease-out-expo) infinite both;
+  }
+  /* aparecen en orden de lectura */
+  .d-nueva .lienzo > .b:nth-child(2) { animation-delay: 0.08s; }
+  .d-nueva .lienzo > .b:nth-child(3) { animation-delay: 0.16s; }
+  .d-nueva .lienzo > .b:nth-child(4) { animation-delay: 0.24s; }
+  .d-nueva .lienzo > .b:nth-child(5) { animation-delay: 0.32s; }
+  .d-nueva .fila .cta { animation-delay: 0.4s; }
+  .d-nueva .fila .foto { animation-delay: 0.48s; }
+  .d-nueva .fila {
+    display: flex;
+    gap: 3cqw;
+    margin-top: 1.6cqw;
+  }
+  .d-nueva .cta { width: 26%; height: 6cqw; border-radius: 99px; --pinta: var(--color-naranja); }
+  .d-nueva .foto { flex: 1; height: 14cqw; --pinta: var(--color-nogal); }
+  .d-nueva .tit { --pinta: var(--color-cacao); }
+  .d-nueva .txt { --pinta: color-mix(in oklab, var(--color-cacao) 20%, transparent); }
+  @keyframes pintar-b {
+    0%, 8% { opacity: 0; translate: 0 4px; }
+    14%, 42% { opacity: 1; translate: 0 0; background: transparent; border-color: color-mix(in oklab, var(--color-cacao) 45%, transparent); }
+    52%, 90% { opacity: 1; background: var(--pinta); border-color: transparent; }
+    98%, 100% { opacity: 0; background: var(--pinta); border-color: transparent; }
+  }
+  .etq {
+    position: absolute;
+    right: 5cqw;
+    bottom: 4cqw;
+    font-family: var(--font-mono);
+    font-size: 4cqw;
+    line-height: 1;
+  }
+  .etq span {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    white-space: nowrap;
+  }
+  .etq .e1 { animation: etq-1 5s ease infinite both; }
+  .etq .e2 { color: var(--color-cacao); /* ronda 50: nada de texto pequeño coral sobre claro */  animation: etq-2 5s ease infinite both; }
+  @keyframes etq-1 { 0%, 42% { opacity: 1; } 48%, 100% { opacity: 0; } }
+  @keyframes etq-2 { 0%, 46% { opacity: 0; } 54%, 90% { opacity: 1; } 98%, 100% { opacity: 0; } }
+
+  /* B · EVOLUCIÓN: la web que ya tienes recibe una sección nueva, cambia de idioma y sale publicada (bucle de 6 s) */
+  .d-evolucion .cab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .d-evolucion .cab .tit { width: 52%; }
+  .idioma {
+    position: relative;
+    width: 7cqw;
+    height: 4.4cqw;
+    font-family: var(--font-mono);
+    font-size: 3.4cqw;
+    line-height: 4.4cqw;
+    text-align: center;
+  }
+  .idioma b {
+    position: absolute;
+    inset: 0;
+    font-weight: 400;
+    border-radius: 99px;
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 35%, transparent);
+    opacity: 0;
+  }
+  .idioma .i1 { animation: idioma-1 6s ease infinite both; }
+  .idioma .i2 { animation: idioma-2 6s ease infinite both; }
+  .idioma .i3 { animation: idioma-3 6s ease infinite both; }
+  @keyframes idioma-1 { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  @keyframes idioma-2 { 0%, 48% { opacity: 0; } 52%, 66% { opacity: 1; } 70%, 100% { opacity: 0; } }
+  @keyframes idioma-3 { 0%, 68% { opacity: 0; } 72%, 96% { opacity: 1; } 100% { opacity: 0; } }
+  .nueva {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2cqw;
+    overflow: hidden;
+    animation: abrir-hueco 6s var(--ease-out-expo) infinite both;
+  }
+  .nueva .b {
+    height: 10cqw;
+    background: var(--color-nogal);
+    animation: bloque-entra 6s var(--ease-out-expo) infinite both;
+  }
+  .nueva .b:nth-child(2) { background: var(--color-naranja); animation-delay: 0.12s; }
+  .nueva .b:nth-child(3) { background: var(--color-nogal); animation-delay: 0.24s; }
+  @keyframes abrir-hueco { 0%, 14% { max-height: 0; } 28%, 94% { max-height: 12cqw; } 100% { max-height: 0; } }
+  @keyframes bloque-entra { 0%, 18% { opacity: 0; translate: 0 6cqw; } 30%, 94% { opacity: 1; translate: 0 0; } 100% { opacity: 0; } }
+  .publicado {
+    position: absolute;
+    right: 5cqw;
+    bottom: 4cqw;
+    font-family: var(--font-mono);
+    font-size: 3.6cqw;
+    line-height: 1;
+    animation: publicado 6s ease infinite both;
+  }
+  .publicado b { font-weight: 600; color: var(--color-cacao); }
+  @keyframes publicado { 0%, 78% { opacity: 0; translate: 0 3px; } 83%, 96% { opacity: 1; translate: 0 0; } 100% { opacity: 0; } }
+
+  /* C · FORMACIÓN: tu equipo marca lo que ya sabe hacer con agentes; la barra de avance se llena (bucle de 6 s) */
+  .equipo {
+    display: flex;
+    align-items: center;
+    gap: 1cqw;
+    font-size: 4cqw;
+    font-weight: 500;
+    margin-bottom: 1.6cqw;
+  }
+  .equipo i {
+    width: 5cqw;
+    height: 5cqw;
+    border-radius: 50%;
+    background: var(--color-cacao);
+    box-shadow: 0 0 0 0.6cqw var(--color-niebla);
+  }
+  .equipo i + i { margin-left: -2.2cqw; background: var(--color-nogal); }
+  .equipo i + i + i { background: var(--color-naranja); }
+  .equipo span { margin-left: 1.6cqw; }
+  .paso {
+    display: flex;
+    align-items: center;
+    gap: 2.4cqw;
+    font-size: 3.8cqw;
+    line-height: 1.2;
+  }
+  .caja {
+    position: relative;
+    flex: none;
+    width: 4.4cqw;
+    height: 4.4cqw;
+    border-radius: 1cqw;
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 45%, transparent);
+    animation: marcar-caja 6s ease infinite both;
+    animation-delay: calc(var(--k) * 0.9s);
+  }
+  .caja::after {
+    content: '';
+    position: absolute;
+    left: 1.5cqw;
+    top: 0.6cqw;
+    width: 1.3cqw;
+    height: 2.4cqw;
+    border: solid var(--color-cacao);
+    border-width: 0 0.5cqw 0.5cqw 0;
+    rotate: 40deg;
+    scale: 0;
+    animation: marcar-tic 6s var(--ease-out-expo) infinite both;
+    animation-delay: calc(var(--k) * 0.9s);
+  }
+  @keyframes marcar-caja { 0%, 20% { background: transparent; } 26%, 90% { background: var(--color-naranja); box-shadow: none; } 100% { background: transparent; } }
+  @keyframes marcar-tic { 0%, 21% { scale: 0; } 28%, 90% { scale: 1; } 100% { scale: 0; } }
+  .avance {
+    display: block;
+    height: 1.2cqw;
+    margin-top: 2cqw;
+    border-radius: 99px;
+    background: color-mix(in oklab, var(--color-cacao) 12%, transparent);
+    overflow: hidden;
+  }
+  .avance i {
+    display: block;
+    height: 100%;
+    background: var(--color-cacao);
+    transform-origin: 0 50%;
+    animation: avance 6s ease infinite both;
+  }
+  @keyframes avance { 0%, 18% { scale: 0 1; } 30% { scale: 0.33 1; } 45% { scale: 0.66 1; } 60%, 90% { scale: 1 1; } 100% { scale: 0 1; } }
+
+  @media (width >= 64rem) {
+    .servicio {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: calc(var(--spacing) * 6);
+      align-items: center;
+      padding-block: calc(var(--spacing) * 8);
+    }
+    .letra { grid-column: 1; align-self: start; }
+    .nombre { grid-column: 2 / span 5; }
+    .demo { grid-column: 7 / span 3; grid-row: 1; width: 100%; }
+    .bajada { grid-column: 10 / span 3; grid-row: 1; }
+  }
+  /* con ratón: la demo está plegada hasta que pasas por su servicio; las demás filas se retiran */
+  @media (width >= 64rem) and (hover: hover) and (pointer: fine) {
+    .nombre { cursor: pointer; }
+    .demo {
+      margin-block: calc(var(--spacing) * -6);
+      opacity: 0;
+      scale: 0.94;
+      filter: blur(8px);
+      transition: opacity 0.3s ease, scale 0.5s var(--ease-out-expo), filter 0.4s ease;
+      pointer-events: none;
+    }
+    .servicio.on .demo {
+      opacity: 1;
+      scale: 1;
+      filter: none;
+      transition: opacity 0.45s ease, scale 0.8s var(--ease-out-expo), filter 0.6s var(--ease-out-expo);
+    }
+    .con-uno .servicio:not(.on) {
+      opacity: 0.32;
+      filter: blur(3px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .servicio,
+    .demo {
+      transition: none !important;
+    }
+    .demo *,
+    .demo *::before,
+    .demo *::after {
+      animation: none !important;
+    }
+  }
+</style>

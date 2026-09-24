@@ -1,0 +1,1221 @@
+---
+import { recorrido, laSavvia } from '../data/home';
+import { rich } from '../lib/rich';
+import { IAS } from '../data/ias';
+import Flora from './Flora.astro';
+const pasos = recorrido.pasos;
+const N = pasos.length;
+const pad = (n: number) => String(n).padStart(2, '0');
+const doc = laSavvia.doc.lineas.slice(0, 6);
+---
+
+<!--
+  LOS DOLORES (ronda 39). Andoni: «la segunda sección tenemos que enfocarla más a los pains del usuario. Y no hacer que sea un slider: hacer
+  como que es un recorrido que funciona con el scroll, de manera que el usuario pasa por todos los pains».
+  · Cuatro PARADAS. Cada una: el DOLOR (izquierda, lo que siente quien entra) · la DEMO que ya gustaba de cada paso (centro, sobre el eje del
+    roble: la gota de la raíz cae en ella) · la RESPUESTA (derecha). Se lee problema → lo que pasa → solución.
+  · La savia lo cura: con el scroll, un HILO Naranja sale del dolor y llega a la tarjeta, que DESPIERTA (vuelve el color, arranca su demo, una
+    onda la recorre desde donde llega el hilo); el hilo sigue hasta la respuesta, que aparece. Abajo, el CARRIL con las cuatro paradas se llena.
+  · Escritorio (≥ 64 rem, sin movimiento reducido): pista fijada (100 + 4 × 75 lvh). Es el único tramo fijado antes de Proyectos (punto 9:
+    «después de proyectos destacados ya no atrapamos el scroll»). Móvil o movimiento reducido: las paradas, una debajo de otra, sin fijar.
+  · Las demos (rondas 10–14) son las mismas: 01 escuchar (caras) · 02 decidir a cuatro manos · 03 savvia.md líquido · 04 la landing de campaña.
+-->
+<section id="recorrido" class="pasos" aria-label={recorrido.pregunta} data-pasos data-sin-fila>
+  <!-- filtro «gooey» de la demo 02 -->
+  <svg width="0" height="0" class="absolute" aria-hidden="true">
+    <filter id="goo-pasos"><feGaussianBlur in="SourceGraphic" stdDeviation="9" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" /></filter>
+    <!-- 03: la savia es LÍQUIDA — gotas que corren por el marco y una que se descuelga (desenfoque corto: el marco es fino) -->
+    <!-- RONDA 40 · el BOCETO: la tarjeta, antes de que le llegue la savia, es solo su dibujo: bordes de luminancia (y de su silueta) en Rosa niebla,
+         con el pulso tembloroso de un trazo a mano; nada de relleno: se mimetiza con el fondo -->
+    <filter id="boceto" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 1 0" result="gris" />
+      <feConvolveMatrix in="gris" order="3" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" preserveAlpha="true" result="bordes" />
+      <feColorMatrix in="bordes" type="matrix" values="0 0 0 0 0.918  0 0 0 0 0.867  0 0 0 0 0.906  2.6 2.6 2.6 0 0" result="linea" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="pulso" />
+      <feDisplacementMap in="linea" in2="pulso" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <filter id="goo-savia"><feGaussianBlur in="SourceGraphic" stdDeviation="3.5" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" /></filter>
+  </svg>
+
+  <!-- la gota que baja por la raíz y despierta la primera tarjeta (rondas 18–25): vive en el <body> -->
+  <svg class="gota-raiz" viewBox="-8 -34 16 42" aria-hidden="true" data-gota-raiz><path d="M-6 0C-5.4 -7 -2 -17 0 -30C2 -17 5.4 -7 6 0Z" data-cuello /><circle r="6" /></svg>
+
+  <div class="pista" data-pista style={`--n:${N}`}>
+    <div class="pegado">
+      <!-- RONDA 42 · la flora alrededor de la tarjeta: más sutil y pintada como el árbol (color de la estación, se repinta al cambiarla). Una sola
+           pareja para la ranura de la tarjeta (las cuatro paradas ocupan el mismo sitio); se dibuja cuando la gota ha dibujado la primera tarjeta -->
+      <Flora lamina="helecho" espera="savvia:tarjeta" soloEscritorio opacidad={0.55} estilo="left:calc(50% - var(--cw) / 2 - 10rem);top:calc((100lvh - 4rem) / 2 + var(--ch) / 2 - 12rem);width:15rem" />
+      <Flora lamina="rama-roble-bellotas" espera="savvia:tarjeta" soloEscritorio voltear opacidad={0.45} estilo="left:calc(50% + var(--cw) / 2 - 4.5rem);top:calc((100lvh - 4rem) / 2 - var(--ch) / 2 - 5.5rem);width:11rem" />
+      <ol class="paradas wrap" data-paradas>
+        {
+          pasos.map((p, i) => (
+            <li class={`parada ${i === 0 ? 'act' : 'fut'}`} data-parada={i} style={`--i:${i}`}>
+              <div class="dolor">
+                <p class="num detail tabular-nums" aria-hidden="true">{pad(i + 1)}</p>
+                <h2 class="frase text-h2">{p.dolor}</h2>
+                <i class="hilo" aria-hidden="true"></i>
+              </div>
+              <div class={`tarjeta t${i}`} data-tarjeta={i} style={i === 0 ? '--ox:50%;--oy:0%' : '--ox:0%;--oy:50%'}>
+                {(i === 0 ? ['boceto', 'vivo'] : ['vivo']).map((capa) => (
+                <div class={`capa-t ${capa}`} aria-hidden="true">
+                <div class={`demo demo-${i + 1}`}>
+            {i === 0 && (
+              <>
+                <!-- RONDA 13 · «en escuchando que salgan la cara de Eric y mía, para humanizar» -->
+                <span class="pildora-orbe">
+                  <span class="caras"><img src="/media/equipo/cara-andoni.webp" alt="" width="144" height="144" loading="lazy" decoding="async" /><img src="/media/equipo/cara-eric.webp" alt="" width="144" height="144" loading="lazy" decoding="async" /></span>
+                  <span>Escuchando…</span>
+                  <i class="nivel"><i /><i /><i /><i /></i>
+                </span>
+                {['¿Qué vendes?', '¿A quién?', '¿Qué ha dejado de contar?'].map((q, k) => (
+                  <p class="preg" style={`--k:${k}`}>
+                    <span class="q detail">{q}</span>
+                    <span class="resp"><i /><i /></span>
+                    <b class="ok detail">✓</b>
+                  </p>
+                ))}
+              </>
+            )}
+            {i === 1 && (
+              <div class="goo-caja">
+                <!-- RONDA 13 · vuelve la fusión de la ronda 10 («me gustaba más») + NUESTRO ratón y el del cliente, llevando cada uno una
+                   dirección hacia la otra: se elige a cuatro manos -->
+                <div class="goo"><i class="dir dir-a" /><i class="dir dir-b" /></div>
+                <span class="mano mano-a"><span class="puntero"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" /></svg><b class="etiqueta">savvia</b></span></span>
+                <span class="mano mano-b"><span class="puntero"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" /></svg><b class="etiqueta">Tú</b></span></span>
+                <p class="elegida detail">decidido juntos <b>✓</b></p>
+              </div>
+            )}
+            {i === 2 && (
+              <div class="liquido">
+                <!-- RONDA 13 · «darle un toque savvia, como líquido»: el marco del documento es SAVIA que corre (gotas que lo recorren
+                   y engordan al pasar) y, abajo, una gota que se descuelga -->
+                <div class="savia-goo"><i class="marco" /><i class="gota g1" /><i class="gota g2" /><i class="gota g3" /><i class="cae" /></div>
+                <div class="doc detail">
+                  <p class="cab"><span>{laSavvia.doc.archivo}</span><span>fuente de verdad</span></p>
+                  {doc.map((l, k) => <p class={l.k === 'h' ? 'h' : 'l'} style={`--k:${k}`}>{l.v}</p>)}
+                </div>
+              </div>
+            )}
+            {i === 3 && (
+              <>
+                <!-- RONDA 13 · «que salgan los iconos de todas las IAs y pedirle algo más complejo que cambiar un titular» -->
+                <div class="ias">
+                  {IAS.map((ia, k) => (
+                    <svg class="ia-ic" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" style={`--k:${k}`} aria-label={ia.n} set:html={ia.svg} />
+                  ))}
+                </div>
+                <div class="vista">
+                  <span class="vbarra"><i /><i /><i /></span>
+                  <!-- antes: la web de siempre -->
+                  <span class="v-antes">
+                    <span class="vtit">Hecho en Donostia.</span>
+                    <span class="vlin" /><span class="vlin corta" />
+                  </span>
+                  <!-- después: la landing de campaña, montada bloque a bloque -->
+                  <span class="v-nueva">
+                    <span class="v-etq">Campaña · otoño</span>
+                    <span class="vtit">Otoño, a medida.</span>
+                    <span class="v-cta">Ver la colección</span>
+                    <span class="v-cards"><i style="--k:0" /><i style="--k:1" /><i style="--k:2" /></span>
+                  </span>
+                  <span class="v-genera detail">Generando…</span>
+                </div>
+                <div class="metal">
+                  <span class="orden detail"><span class="l1">Hazme la landing de campaña</span><span class="l2">de otoño, con nuestro estilo</span></span>
+                  <span class="boton" aria-hidden="true"><svg class="chispa" viewBox="0 0 24 24"><path d="M12 2.5c.6 4.6 2.9 6.9 7.5 7.5-4.6.6-6.9 2.9-7.5 7.5-.6-4.6-2.9-6.9-7.5-7.5 4.6-.6 6.9-2.9 7.5-7.5z" /><path class="mini" d="M19 15.5c.25 1.8 1 2.55 2.8 2.8-1.8.25-2.55 1-2.8 2.8-.25-1.8-1-2.55-2.8-2.8 1.8-.25 2.55-1 2.8-2.8z" /></svg></span>
+                </div>
+                <p class="hecho detail tabular-nums">landing nueva · 6 bloques · publicada <b>✓</b></p>
+              </>
+            )}
+                </div>
+                </div>
+                ))}
+              </div>
+              <div class="resp">
+                <i class="hilo" aria-hidden="true"></i>
+                <h3 class="text-h3" set:html={rich(p.t)} />
+                <p class="text-sub text-fg2 mt-3">{p.d}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+      <!-- EL CARRIL (solo escritorio fijado). RONDA 40 · «al camino de los 4 pasos le falta ese toque savvia de naturaleza»: es una RAÍZ fina que ondula
+           (la dibuja el JS a su ancho), la savia corre por dentro según avanzas y en cada parada resuelta BROTA un tallo con dos hojas en el color del
+           árbol de la estación -->
+      <div class="carril wrap" aria-hidden="true" data-carril>
+        <svg class="rama" data-rama><path class="base" data-rama-base /><path class="savia" pathLength="1" data-rama-savia /></svg>
+        <ol>
+          {pasos.map((p, i) => (
+            <li style={`--i:${i}`}>
+              <i class="brote"><svg viewBox="0 0 24 24"><path class="tallo" d="M12 22V13" /><path class="hoja h1" d="M12 15.5C8.2 15.5 5.6 12.8 5.6 9.2C9.4 9.2 12 11.8 12 15.5Z" /><path class="hoja h2" d="M12 13C12 9 14.6 6.2 18.4 6.2C18.4 10 15.8 13 12 13Z" /></svg></i>
+              <span class="detail tabular-nums">{pad(i + 1)}</span><span class="detail">{p.corto}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- RONDA 42 · la firma a mano con sus colas («lo que te paso en la captura va fuera») se retira -->
+</section>
+
+<script>
+  import { salpicar, formaGota } from '../scripts/gota';
+  const raiz = document.querySelector<HTMLElement>('[data-pasos]');
+  if (raiz) {
+    const paradas = [...raiz.querySelectorAll<HTMLElement>('[data-parada]')], N = paradas.length;
+    const ts = paradas.map((p) => p.querySelector<HTMLElement>('[data-tarjeta]')!);
+    const pista = raiz.querySelector<HTMLElement>('[data-pista]')!;
+    const carril = [...raiz.querySelectorAll<HTMLElement>('[data-carril] li')];
+    // LA RAÍZ del carril: una línea que ondula suave (dos ondas y un temblor) y pasa por el pie de cada parada; los brotes nacen donde la cruza
+    const rama = raiz.querySelector<SVGSVGElement>('[data-rama]')!, ramaBase = raiz.querySelector<SVGPathElement>('[data-rama-base]')!, ramaSavia = raiz.querySelector<SVGPathElement>('[data-rama-savia]')!;
+    const dibujarRama = () => {
+      const r = rama.getBoundingClientRect(); if (!r.width) return;
+      const W = r.width, H = 24, y = (x: number) => H / 2 + 3.2 * Math.sin(x / 90) + 1.4 * Math.sin(x / 23 + 1.3) + 0.6 * Math.sin(x / 7.1);
+      let d = `M0 ${y(0).toFixed(2)}`;
+      for (let x = 6; x <= W; x += 6) d += `L${x.toFixed(1)} ${y(x).toFixed(2)}`;
+      rama.setAttribute('viewBox', `0 0 ${W} ${H}`); ramaBase.setAttribute('d', d); ramaSavia.setAttribute('d', d);
+      carril.forEach((li) => { const x = li.getBoundingClientRect().left - r.left; li.style.setProperty('--y', `${(y(x) - H / 2).toFixed(2)}px`); });
+    };
+    new ResizeObserver(dibujarRama).observe(rama);
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fijo = matchMedia('(width >= 64rem) and (prefers-reduced-motion: no-preference)');
+    let despierta = false, visible = false;
+    // Umbrales dentro de cada parada (q = 0…1): el hilo sale del dolor · la tarjeta despierta · el hilo llega a la respuesta · la respuesta.
+    const Q_TARJETA = 0.18, Q_RESP = 0.34;
+
+    // despertar una tarjeta = color + onda + su demo desde el principio (se clona el nodo: todas sus piezas van a una)
+    const vivas = new Set<number>();
+    const avivar = (i: number, si: boolean) => {
+      if (si === vivas.has(i)) return;
+      const t = ts[i];
+      if (si) { vivas.add(i); const d = t.querySelector('.vivo .demo')!; d.replaceWith(d.cloneNode(true)); t.classList.add('viva'); }
+      else { vivas.delete(i); t.classList.remove('viva'); }
+    };
+
+    // ── ESCRITORIO: el recorrido fijado. p = 0…1 a lo largo de la pista; cada parada, un cuarto.
+    let ultimo = '';
+    const recorrer = () => {
+      const r = pista.getBoundingClientRect(), T = r.height - innerHeight;
+      const p = Math.min(1, Math.max(0, -r.top / T)) * N;
+      const i = Math.min(N - 1, Math.floor(p)), q = Math.min(1, p - i);
+      const clave = `${i}|${(q * 200) | 0}|${despierta}`;
+      if (clave === ultimo) return;
+      ultimo = clave;
+      paradas.forEach((el, k) => {
+        el.classList.toggle('act', k === i); el.classList.toggle('pas', k < i); el.classList.toggle('fut', k > i);
+        // los hilos, atados al scroll: el primero hasta Q_TARJETA, el segundo hasta Q_RESP
+        const h1 = k < i ? 1 : k > i ? 0 : Math.min(1, q / Q_TARJETA);
+        const h2 = k < i ? 1 : k > i ? 0 : Math.min(1, Math.max(0, (q - Q_TARJETA) / (Q_RESP - Q_TARJETA)));
+        el.style.setProperty('--h1', (despierta || k > 0 ? h1 : 0).toFixed(3));
+        el.style.setProperty('--h2', (despierta || k > 0 ? h2 : 0).toFixed(3));
+        el.classList.toggle('resuelta', k < i || (k === i && q >= Q_RESP && despierta));
+        // RONDA 41: la primera vive cuando la gota la ha dibujado; las demás, en cuanto llegas (ya van animadas, como antes del boceto)
+        avivar(k, visible && k === i && (k === 0 ? dibujada : true));
+      });
+      // el carril: la savia llega hasta donde vas (cada parada cuenta entera cuando su respuesta ya ha salido)
+      // la savia llega hasta la parada en curso (el ancho de la raíz se reparte en cuatro tramos iguales, como sus columnas)
+      ramaSavia.style.strokeDashoffset = (1 - (i + Math.min(1, q / Q_RESP)) / N).toFixed(4);
+      carril.forEach((li, k) => { li.classList.toggle('on', k === i); li.classList.toggle('hecho', k < i || (k === i && q >= Q_RESP)); });
+    };
+
+    // ── MÓVIL / MOVIMIENTO REDUCIDO: apiladas; cada tarjeta despierta al entrar en pantalla (tras la gota)
+    const enVista = new Set<number>();
+    const ioT = new IntersectionObserver((es) => {
+      es.forEach((e) => { const k = ts.indexOf(e.target as HTMLElement); e.isIntersecting ? enVista.add(k) : enVista.delete(k); });
+      if (!fijo.matches) ts.forEach((_, k) => avivar(k, visible && enVista.has(k) && (k > 0 || dibujada)));
+    }, { threshold: 0.55 });
+    ts.forEach((t) => ioT.observe(t));
+
+    const modo = () => {
+      raiz.classList.toggle('fijo', fijo.matches);
+      if (fijo.matches) { ultimo = ''; recorrer(); }
+      else {
+        paradas.forEach((el) => { el.classList.remove('pas', 'fut'); el.classList.add('act', 'resuelta'); el.style.setProperty('--h1', '1'); el.style.setProperty('--h2', '1'); });
+        ts.forEach((_, k) => avivar(k, visible && enVista.has(k) && (k > 0 || dibujada)));
+      }
+    };
+    let pedido = false;
+    const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(() => { pedido = false; if (fijo.matches) recorrer(); }); } };
+    addEventListener('scroll', pedir, { passive: true });
+    addEventListener('resize', () => { ultimo = ''; pedir(); });
+    fijo.addEventListener('change', modo);
+    new IntersectionObserver((e) => { visible = e[0].isIntersecting; raiz.classList.toggle('viva', visible); ultimo = ''; modo(); }, { threshold: 0.05 }).observe(raiz);
+
+    // ── LA PRIMERA TARJETA SE DIBUJA COMO EL ÁRBOL (ronda 41 · «se tiene que dibujar como se dibuja el árbol, con ese toque de Shopify»): desde el
+    // impacto de la gota, primero las LÍNEAS (la capa boceto, con un frente blando en círculo) y detrás la PINTURA (la capa viva, con el canto de
+    // papel rasgado de public/media/rasgo-circulo.png). Antes de la gota no hay tarjeta. Luego el boceto se retira y arranca su demo.
+    let dibujada = false;
+    const t0el = ts[0], boceto = t0el.querySelector<HTMLElement>('.boceto')!, pintura = t0el.querySelector<HTMLElement>('.vivo')!;
+    const dibujarPrimera = (instantaneo: boolean) => {
+      const fin = () => { [boceto, pintura].forEach((e) => { e.style.removeProperty('-webkit-mask'); e.style.removeProperty('mask'); }); dibujada = true; t0el.classList.add('dibujada'); ultimo = ''; modo(); dispatchEvent(new Event('savvia:tarjeta')); };
+      t0el.classList.add('dibujando');
+      if (instantaneo) return fin();
+      const W = t0el.offsetWidth, H = t0el.offsetHeight, ox = W / 2, oy = 0, R = Math.hypot(W / 2, H) * 1.12;
+      const LINEAS = 1100, PINTA = 1500, RETRASO = 380;
+      const poner = (el: HTMLElement, v: string) => { el.style.setProperty('-webkit-mask', v); el.style.setProperty('mask', v); };
+      poner(boceto, 'linear-gradient(transparent, transparent)'); poner(pintura, 'linear-gradient(transparent, transparent)');
+      let a = 0;
+      const paso = (ahora: number) => {
+        if (!a) a = ahora;
+        const t = ahora - a;
+        const k1 = Math.min(1, t / LINEAS), r1 = R * (1 - Math.pow(1 - k1, 2.2));
+        poner(boceto, `radial-gradient(circle at ${ox}px ${oy}px, #000 ${Math.max(0, r1 - 36)}px, transparent ${r1 + 0.1}px)`);
+        const k2 = Math.min(1, Math.max(0, (t - RETRASO) / PINTA)), r2 = R * (1 - Math.pow(1 - k2, 1.8)), S = Math.max(0.01, (r2 / 0.44) * 1.04);
+        poner(pintura, `url('/media/rasgo-circulo.png') ${ox - S / 2}px ${oy - S / 2}px / ${S}px ${S}px no-repeat`);
+        if (t < RETRASO + PINTA) requestAnimationFrame(paso); else fin();
+      };
+      requestAnimationFrame(paso);
+    };
+    const despertar = (instantaneo = false) => {
+      if (despierta) return; despierta = true;
+      raiz.classList.add('despierta');
+      dibujarPrimera(instantaneo || reducido);
+      ultimo = ''; modo();
+    };
+
+    // ── LA GOTA QUE DA VIDA (rondas 18–25): nace bajo el tronco, RESBALA por el eje de la raíz principal, cuelga de la punta y cae sobre el
+    // canto de la PRIMERA tarjeta (en el eje del roble). Atada al scroll: p = 0 cuando la tarjeta asoma por abajo; 1 cuando llega a su sitio
+    // (escritorio: donde se queda fijada; móvil: con su canto al 44 % de la pantalla). Vive en el <body>, en coordenadas de página.
+    const gotaR = raiz.querySelector<SVGSVGElement>('[data-gota-raiz]')!, cuello = raiz.querySelector<SVGPathElement>('[data-cuello]')!;
+    document.body.append(gotaR);
+    const raices = document.querySelector<HTMLElement>('[data-raices]'), cajaR = document.querySelector<HTMLElement>('[data-raices-caja]');
+    const diana = ts[0];
+    // dónde se queda la tarjeta cuando la pista se fija (distancia de su canto al borde superior de la pantalla)
+    const llegada = () => (fijo.matches ? diana.getBoundingClientRect().top - pista.getBoundingClientRect().top : innerHeight * 0.44);
+    let cayo = false, poner: ((p: number) => void) | null = null;
+    const caer = () => {
+      if (cayo) return; cayo = true;
+      const rr = (cajaR ?? raiz).getBoundingClientRect(), rt = diana.getBoundingClientRect();
+      const eje: [number, number][] = cajaR && raices?.dataset.eje ? JSON.parse(raices.dataset.eje) : [[0.5, 0], [0.5, 1]];
+      const pts = eje.map(([fx, fy]) => [rr.left + fx * rr.width + scrollX, rr.top + fy * rr.height + scrollY] as [number, number]);
+      const largo = [0]; for (let i = 1; i < pts.length; i++) largo.push(largo[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      const total = largo[largo.length - 1];
+      const enEje = (k: number): [number, number] => { const s = k * total; let i = 1; while (i < largo.length - 1 && largo[i] < s) i++; const f = (s - largo[i - 1]) / Math.max(1e-6, largo[i] - largo[i - 1]); return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f]; };
+      const [tx, ty] = pts[pts.length - 1];
+      // el canto de la tarjeta, en coordenadas de página, en el momento en que llega a su sitio (antes de fijarse la pista, el pegado aún
+      // no se ha despegado: su posición de página es la de ahora)
+      const y1 = rt.top + scrollY + 1;
+      const y0 = ty + 6;
+      let px = tx, py = ty, ang = 0, hecho = false;
+      poner = (p: number) => {
+        if (hecho) return;
+        let x = tx, y = ty, sx = 1, sy = 1, c = 0, gordo = 1;
+        if (p < 0.08) { const e = 0.5 - 0.5 * Math.cos(Math.PI * (p / 0.08)); [x, y] = pts[0]; gordo = 0.15 + e * 0.55; }
+        else if (p < 0.66) {
+          const k = Math.pow((p - 0.08) / 0.58, 1.4); [x, y] = enEje(k); gordo = 0.7 + k * 0.2;
+          const vx = x - px, vy = y - py; if (Math.hypot(vx, vy) > 0.3) ang = Math.atan2(vy, vx) - Math.PI / 2;
+          c = 0.55; sx = 1 - k * 0.08; sy = 1 + k * 0.1;
+        } else if (p < 0.76) { const k = (p - 0.66) / 0.1, e = k * k * (3 - 2 * k); ang = 0; x = tx; y = ty + e * 6; gordo = 0.9 + e * 0.1; c = 0.55 + e * 0.35; sy = 1 + e * 0.12; }
+        else { const k = (p - 0.76) / 0.24; x = tx; y = y0 + (y1 - y0) * k * k; ang = 0; c = Math.max(0, 0.9 * (1 - k * 6)); const f = formaGota(k * 600, (y - py) * 0.4); sx = f.sx; sy = f.sy; }
+        px = x; py = y;
+        cuello.setAttribute('transform', `scale(${(1 - c * 0.1).toFixed(3)}, ${c.toFixed(3)})`);
+        gotaR.style.opacity = p > 0 ? '1' : '0';
+        gotaR.style.transform = `translate3d(${x}px, ${Math.min(y, y1)}px, 0) rotate(${ang.toFixed(3)}rad) scale(${(gordo * sx).toFixed(3)}, ${(gordo * sy).toFixed(3)})`;
+        if (p >= 1) {
+          hecho = true; gotaR.style.opacity = '0';
+          // la salpicadura, en la parada (la tarjeta recorta); en el canto de la tarjeta
+          const pa = paradas[0], pr = pa.getBoundingClientRect(), dr = diana.getBoundingClientRect();
+          salpicar(pa, tx - scrollX - pr.left, dr.top - pr.top + 1, { n: 9, fuerza: 0.8 });
+          despertar();
+        }
+      };
+    };
+    let pedidoG = false;
+    const seguirGota = () => {
+      pedidoG = false;
+      if (despierta) return;
+      const r = diana.getBoundingClientRect(), vh = innerHeight, meta = llegada();
+      const p0 = Math.min(1, Math.max(0, (vh - r.top) / Math.max(1, vh - meta)));
+      const p = p0 > 0.985 ? 1 : p0; // en el instante en que la pista se fija (redondeo de subpíxel), ya ha llegado
+      if (p > 0 && !cayo) caer();
+      poner?.(p);
+    };
+    const pedirG = () => { if (!pedidoG) { pedidoG = true; requestAnimationFrame(seguirGota); } };
+    if (reducido) despertar(true);
+    else if (diana.getBoundingClientRect().top < llegada() - 2) despertar(true); // la página se abrió ya más abajo: sin teatro
+    else { addEventListener('scroll', pedirG, { passive: true }); addEventListener('resize', () => { cayo = false; poner = null; pedirG(); }); seguirGota(); }
+
+    modo();
+    (window as any).__pasos = () => ({ fijo: fijo.matches, despierta, dibujada, vivas: [...vivas], act: paradas.findIndex((p) => p.classList.contains('act')), resueltas: paradas.map((p) => p.classList.contains('resuelta')) });
+  }
+</script>
+
+<style>
+  .pasos {
+    position: relative;
+    overflow-x: clip; /* ronda 41: la flora de las tarjetas sobresale; clip no crea contenedor de scroll (el fijado sigue funcionando) */
+    padding-top: calc(var(--spacing) * 16);
+    padding-bottom: var(--space-section);
+  }
+  @media (width >= 64rem) {
+    .pasos { padding-top: calc(var(--spacing) * 24); }
+  }
+
+  /* ── LA TARJETA: solo el escenario de la demo (el texto vive fuera: dolor a un lado, respuesta al otro) */
+  .paradas {
+    --cw: min(86vw, 22rem);
+    --ch: calc(var(--cw) * 1.12);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 32);
+  }
+  .parada {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 8);
+  }
+  .num {
+    color: var(--color-naranja);
+    margin-bottom: calc(var(--spacing) * 3);
+  }
+  .frase {
+    max-width: 16ch;
+  }
+  /* RONDA 40 · «la card cuando llegas me desentona, venimos de mucha naturaleza: que sea un boceto o algo muy mimetizado con el fondo, y cuando le
+     cae la gota ya cobra vida». Dos capas iguales: el BOCETO (quieto en un fotograma de su demo y filtrado a líneas) y la VIVA, que se descubre en
+     un círculo desde donde llega la savia (la gota, arriba; el hilo, a la izquierda) y arranca su demo. */
+  .tarjeta {
+    --sup: color-mix(in oklab, var(--color-niebla) 7%, var(--bg));
+    --hondo: color-mix(in oklab, #000 34%, var(--bg));
+    position: relative;
+    width: var(--cw);
+    height: var(--ch);
+    flex: none;
+  }
+  .capa-t {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    padding: calc(var(--spacing) * 2);
+    border-radius: calc(var(--spacing) * 5);
+    background: var(--sup);
+    box-shadow: inset 0 0 0 1px var(--rule);
+    overflow: clip;
+  }
+  .boceto {
+    filter: url(#boceto);
+    opacity: 0.7;
+    transition: opacity 1.2s ease 0.4s;
+  }
+  /* el boceto enseña un fotograma del MEDIO de su demo (con todo a la vista), quieto */
+  .boceto .demo *,
+  .boceto .demo *::before,
+  .boceto .demo *::after {
+    animation-delay: -3.4s !important;
+    animation-play-state: paused !important;
+  }
+  /* la primera tarjeta no existe hasta que cae la gota (regla dura 3: invisible por defecto; la dibuja el JS); dibujada, el boceto se va */
+  .t0:not(.dibujando) .capa-t {
+    visibility: hidden;
+  }
+  .t0.dibujada .boceto {
+    opacity: 0;
+  }
+  .tarjeta {
+    isolation: isolate;
+  }
+  /* la onda de savia nace donde llega (la gota: arriba al centro; el hilo: a la izquierda) */
+  .tarjeta::after {
+    content: '';
+    position: absolute;
+    left: var(--ox, 50%);
+    top: var(--oy, 0%);
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    margin: calc(var(--spacing) * -3) 0 0 calc(var(--spacing) * -3);
+    border-radius: 50%;
+    border: 1px solid var(--color-naranja);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tarjeta.viva::after {
+    animation: onda 1.5s var(--ease-out-expo) both;
+  }
+  @keyframes onda {
+    from { scale: 0.2; opacity: 0.7; border-width: 2px; }
+    to { scale: 46; opacity: 0; border-width: 0.03px; }
+  }
+  .demo {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: calc(var(--spacing) * 3);
+    background: var(--hondo);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+  /* solo corre la demo de una tarjeta VIVA con la sección en pantalla (con !important: el atajo `animation` de cada pieza reinicia
+     `animation-play-state` y, con más especificidad, la dejaba corriendo; cazado en la ronda 16) */
+  .tarjeta:not(.viva) .vivo .demo *,
+  .tarjeta:not(.viva) .vivo .demo *::before,
+  .tarjeta:not(.viva) .vivo .demo *::after,
+  .pasos:not(.viva) .demo *,
+  .pasos:not(.viva) .demo *::before,
+  .pasos:not(.viva) .demo *::after {
+    animation-play-state: paused !important;
+  }
+
+  /* EL HILO de savia: bajo el dolor (va hacia la tarjeta) y sobre la respuesta (viene de la tarjeta). En móvil/apilado no se ve. */
+  .hilo {
+    display: none;
+  }
+  .carril {
+    display: none;
+  }
+
+  /* ── ESCRITORIO FIJADO */
+  @media (width >= 64rem) and (prefers-reduced-motion: no-preference) {
+    .pista {
+      height: calc(100lvh + var(--n) * 75lvh);
+    }
+    .pegado {
+      --cw: min(26rem, (100lvh - 13rem) / 1.12);
+      --ch: calc(var(--cw) * 1.12);
+      position: sticky;
+      top: 0;
+      height: 100lvh;
+      overflow: clip;
+    }
+    .paradas {
+      --cw: min(26rem, (100lvh - 13rem) / 1.12);
+      --gap: calc(var(--spacing) * 12);
+      position: relative;
+      height: 100%;
+      display: grid;
+      gap: 0;
+    }
+    .parada {
+      grid-area: 1 / 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--cw) minmax(0, 1fr);
+      column-gap: var(--gap);
+      align-items: center;
+      padding-bottom: calc(var(--spacing) * 16); /* aire para el carril */
+      pointer-events: none;
+    }
+    .parada.act {
+      pointer-events: auto;
+    }
+    .dolor,
+    .resp {
+      position: relative;
+      transition:
+        opacity 0.7s ease,
+        translate 0.9s var(--ease-out-expo),
+        filter 0.9s var(--ease-out-expo);
+    }
+    .tarjeta {
+      transition:
+        filter 0.9s var(--ease-out-expo),
+        opacity 0.7s ease,
+        translate 0.9s var(--ease-out-expo);
+    }
+    /* la que viene espera abajo, desenfocada; la que se va sube y se apaga */
+    .parada.fut .dolor,
+    .parada.fut .tarjeta {
+      opacity: 0;
+      translate: 0 calc(var(--spacing) * 16);
+      filter: blur(10px);
+    }
+    .parada.pas .dolor,
+    .parada.pas .tarjeta,
+    .parada.pas .resp {
+      opacity: 0;
+      translate: 0 calc(var(--spacing) * -16);
+      filter: blur(10px);
+    }
+    .parada.act .tarjeta {
+      transition-delay: 0.08s, 0.08s, 0.08s;
+    }
+    /* la respuesta: solo cuando la savia ha llegado */
+    .parada:not(.resuelta) .resp {
+      opacity: 0;
+      translate: calc(var(--spacing) * 4) 0;
+      filter: blur(8px);
+    }
+    .parada:not(.resuelta) .resp .hilo {
+      opacity: 1; /* el hilo de la respuesta se ve mientras crece, antes que el texto */
+    }
+    .hilo {
+      display: block;
+      position: absolute;
+      height: 1.5px;
+      background: var(--color-naranja);
+      transform-origin: 0 50%;
+      pointer-events: none;
+    }
+    /* del final del dolor al canto de la tarjeta */
+    .dolor .hilo {
+      left: 0;
+      bottom: calc(var(--spacing) * -8);
+      width: calc(100% + var(--gap));
+      transform: scaleX(var(--h1, 0));
+    }
+    /* del otro canto de la tarjeta a la respuesta */
+    .resp .hilo {
+      left: calc(var(--gap) * -1);
+      top: calc(var(--spacing) * -8);
+      width: calc(100% + var(--gap));
+      transform: scaleX(var(--h2, 0));
+    }
+    .dolor .hilo::after,
+    .resp .hilo::after {
+      /* la gota que va delante del hilo */
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: -2.25px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-naranja);
+      transform: scaleX(calc(1 / max(var(--h1, 1), 0.02)));
+    }
+    .resp .hilo::after {
+      transform: scaleX(calc(1 / max(var(--h2, 1), 0.02)));
+    }
+    .frase {
+      max-width: 15ch;
+    }
+    .resp h3,
+    .resp p {
+      max-width: 30ch;
+    }
+    /* EL CARRIL: una raíz al pie del recorrido con las cuatro paradas; la activa a plena tinta; la savia corre por la raíz y en cada parada resuelta
+       brota un tallo con dos hojas del color del árbol de la estación (--arbol) */
+    .carril {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: calc(var(--spacing) * 8);
+      display: block;
+    }
+    .rama {
+      position: absolute;
+      left: var(--gutter);
+      right: var(--gutter);
+      top: -12px;
+      width: calc(100% - var(--gutter) * 2);
+      height: 24px;
+      overflow: visible;
+      fill: none;
+    }
+    .rama .base {
+      stroke: var(--rule);
+      stroke-width: 1;
+    }
+    .rama .savia {
+      stroke: var(--color-naranja);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+    }
+    .carril ol {
+      display: grid;
+      grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr));
+      column-gap: calc(var(--spacing) * 6);
+    }
+    .carril li {
+      position: relative;
+      display: flex;
+      gap: calc(var(--spacing) * 3);
+      padding-top: calc(var(--spacing) * 4);
+      color: var(--fg2);
+      opacity: 0.55;
+      transition: opacity 0.5s ease, color 0.5s ease;
+    }
+    .carril li.on,
+    .carril li.hecho {
+      opacity: 1;
+    }
+    .carril li.on {
+      color: var(--fg);
+    }
+    .brote {
+      position: absolute;
+      left: -4px;
+      top: calc(var(--y, 0px) - 31px);
+      width: 30px;
+      height: 30px;
+      pointer-events: none;
+    }
+    .brote svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+    .brote .tallo {
+      stroke: var(--arbol);
+      stroke-width: 1.3;
+      stroke-linecap: round;
+      transform-origin: 12px 22px;
+      scale: 1 0;
+      transition: scale 0.5s var(--ease-out-expo);
+    }
+    .brote .hoja {
+      fill: var(--arbol);
+      scale: 0;
+      transition: scale 0.9s var(--ease-out-expo);
+    }
+    .brote .h1 { transform-origin: 12px 15.5px; }
+    .brote .h2 { transform-origin: 12px 13px; }
+    /* RONDA 41 · «que cada vez que llegues al paso salga»: el brote nace al LLEGAR a la parada (on) y se queda (hecho); si vuelves atrás, se recoge */
+    .carril li.on .tallo,
+    .carril li.hecho .tallo {
+      scale: 1 1;
+    }
+    .carril li.on .h1,
+    .carril li.hecho .h1 {
+      scale: 1;
+      transition-delay: 0.25s;
+    }
+    .carril li.on .h2,
+    .carril li.hecho .h2 {
+      scale: 1;
+      transition-delay: 0.4s;
+    }
+  }
+  .gota-raiz {
+    position: absolute; /* RONDA 19: el JS la cuelga del <body>: coordenadas de página */
+    left: -8px;
+    top: -34px;
+    width: 16px;
+    height: 42px;
+    transform-origin: 8px 34px;
+    overflow: visible;
+    fill: var(--color-naranja);
+    opacity: 0;
+    z-index: 4;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+
+  /* 01 · Entender — el BRIEFING: alguien escucha, y las tres preguntas del paso se van contestando una a una */
+  .demo-1 {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 6);
+  }
+  .pildora-orbe {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4) calc(var(--spacing) * 2) calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, var(--color-niebla) 9%, transparent);
+    color: var(--color-niebla);
+    font-size: var(--text-ui);
+    font-weight: 500;
+  }
+  /* las caras de Eric y Andoni (ronda 13): dos retratos que se solapan; el que «habla» se enciende con un filo Naranja */
+  .caras {
+    display: flex;
+    flex: none;
+  }
+  .caras img {
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--hondo);
+    animation: habla 6s ease infinite both;
+  }
+  .caras img + img {
+    margin-left: calc(var(--spacing) * -2);
+    animation-delay: -3s;
+  }
+  @keyframes habla {
+    0%, 8%, 46%, 100% { box-shadow: 0 0 0 2px var(--hondo); }
+    14%, 40% { box-shadow: 0 0 0 2px var(--hondo), 0 0 0 3.5px var(--color-naranja); }
+  }
+  /* nivel de audio: cuatro barritas que escuchan */
+  .nivel {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: calc(var(--spacing) * 3);
+  }
+  .nivel i {
+    width: 2px;
+    height: 100%;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+    transform-origin: 50% 50%;
+    animation: nivel 1.1s ease-in-out infinite alternate;
+  }
+  .nivel i:nth-child(2) { animation-delay: -0.4s; }
+  .nivel i:nth-child(3) { animation-delay: -0.8s; }
+  .nivel i:nth-child(4) { animation-delay: -0.2s; }
+  @keyframes nivel {
+    from { scale: 1 0.25; }
+    to { scale: 1 1; }
+  }
+  .preg {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 3);
+    border-radius: calc(var(--spacing) * 3);
+    background: color-mix(in oklab, var(--color-niebla) 6%, transparent);
+    animation: llegar 6s var(--ease-out-expo) infinite both;
+    animation-delay: calc(var(--k) * 0.9s);
+  }
+  .preg .q {
+    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+  }
+  .preg .resp {
+    grid-column: 1;
+    display: grid;
+    gap: 5px;
+  }
+  .preg .resp i {
+    height: 5px;
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--color-niebla) 55%, transparent);
+    transform-origin: 0 50%;
+    animation: contestar 6s var(--ease-out-expo) infinite both;
+    animation-delay: calc(var(--k) * 0.9s + 0.35s);
+  }
+  .preg .resp i:last-child {
+    width: 62%;
+    animation-delay: calc(var(--k) * 0.9s + 0.6s);
+  }
+  .preg .ok {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    color: var(--color-naranja);
+    animation: marcar 6s ease infinite both;
+    animation-delay: calc(var(--k) * 0.9s + 1s);
+  }
+  @keyframes llegar {
+    0%, 3% { opacity: 0; translate: 0 10px; filter: blur(6px); }
+    12%, 88% { opacity: 1; translate: 0 0; filter: none; }
+    97%, 100% { opacity: 0; translate: 0 -6px; filter: blur(4px); }
+  }
+  @keyframes contestar {
+    0%, 4% { scale: 0 1; }
+    16%, 100% { scale: 1 1; }
+  }
+  @keyframes marcar {
+    0%, 6% { opacity: 0; scale: 0.4; }
+    12%, 100% { opacity: 1; scale: 1; }
+  }
+  @keyframes girar {
+    to { rotate: 1turn; }
+  }
+
+  /* 02 · Decidir — dos direcciones que se funden en una (gooey, ronda 10) y, ronda 13, los DOS RATONES: el nuestro (Savvia) y el
+     del cliente (Tú) cogen cada uno una y las juntan. Los punteros van fuera del filtro; su envoltorio se mueve igual que su forma. */
+  .goo-caja {
+    position: relative;
+    width: 72%;
+    aspect-ratio: 1;
+  }
+  .goo {
+    position: absolute;
+    inset: 0;
+    filter: url(#goo-pasos);
+  }
+  .dir,
+  .mano {
+    position: absolute;
+    width: 42%;
+    aspect-ratio: 1;
+  }
+  .dir {
+    border-radius: 22%;
+  }
+  .dir-a,
+  .mano-a {
+    left: 6%;
+    top: 12%;
+    animation: fundir-a 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
+  }
+  .dir-b,
+  .mano-b {
+    right: 6%;
+    bottom: 12%;
+    animation: fundir-b 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
+  }
+  .dir-a { background: var(--color-naranja); }
+  .dir-b { background: var(--color-cobalto); animation-name: fundir-b, virar; }
+  .mano { pointer-events: none; }
+  @keyframes fundir-a {
+    0% { translate: 0 0; opacity: 0; scale: 0.9; }
+    6% { opacity: 1; scale: 1; }
+    18% { translate: 0 0; scale: 1; }
+    50%, 86% { translate: 52% 40%; scale: 1.08; opacity: 1; }
+    94%, 100% { translate: 52% 40%; scale: 1.08; opacity: 0; }
+  }
+  @keyframes fundir-b {
+    0% { translate: 0 0; opacity: 0; scale: 0.9; }
+    6% { opacity: 1; scale: 1; }
+    18% { translate: 0 0; scale: 1; }
+    50%, 86% { translate: -52% -40%; scale: 1.08; opacity: 1; }
+    94%, 100% { translate: -52% -40%; scale: 1.08; opacity: 0; }
+  }
+  @keyframes virar {
+    0%, 50% { background: var(--color-cobalto); }
+    60%, 100% { background: var(--color-naranja); }
+  }
+  /* el puntero: llega, «coge» (un clic pequeño), arrastra con su forma y la suelta al fundirse */
+  .puntero {
+    position: absolute;
+    left: 30%;
+    top: 24%;
+    display: flex;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .puntero svg {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    fill: var(--color-niebla);
+    stroke: var(--color-cacao);
+    stroke-width: 1.3;
+  }
+  .etiqueta {
+    margin-top: calc(var(--spacing) * 4);
+    padding: 2px calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--color-cacao);
+  }
+  .mano-b .puntero { left: 56%; top: 60%; } /* al fundirse, los dos punteros quedan separados, no uno encima del otro */
+  .mano-a .etiqueta { background: var(--color-naranja); }
+  .mano-b .etiqueta { background: var(--color-niebla); }
+  .mano-a .puntero { animation: coger-a 6s cubic-bezier(0.3, 0, 0.2, 1) infinite both; }
+  .mano-b .puntero { animation: coger-b 6s cubic-bezier(0.3, 0, 0.2, 1) infinite both; }
+  @keyframes coger-a {
+    0%, 4% { translate: -150% -120%; opacity: 0; }
+    14% { translate: 0 0; opacity: 1; scale: 1; }
+    16%, 52% { scale: 0.88; }
+    58% { translate: 0 0; scale: 1; opacity: 1; }
+    72% { translate: -110% -150%; opacity: 0; }
+    100% { translate: -110% -150%; opacity: 0; }
+  }
+  @keyframes coger-b {
+    0%, 6% { translate: 150% 120%; opacity: 0; }
+    16% { translate: 0 0; opacity: 1; scale: 1; }
+    18%, 52% { scale: 0.88; }
+    58% { translate: 0 0; scale: 1; opacity: 1; }
+    72% { translate: 130% 140%; opacity: 0; }
+    100% { translate: 130% 140%; opacity: 0; }
+  }
+  .elegida {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + var(--spacing) * 2);
+    translate: -50% 0;
+    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+    white-space: nowrap;
+    animation: hecho-2 6s ease infinite both;
+  }
+  .elegida b { font-weight: 400; color: var(--color-naranja); }
+  @keyframes hecho-2 {
+    0%, 56% { opacity: 0; }
+    64%, 88% { opacity: 1; }
+    96%, 100% { opacity: 0; }
+  }
+
+  /* 03 · Documentar — el documento escribiéndose dentro de un marco de SAVIA LÍQUIDA (ronda 13): el marco es un aro Naranja con filtro
+     gooey; tres gotas lo recorren (al pasar lo engordan, como savia que corre) y abajo una gota se hincha, se estira y se descuelga. */
+  .liquido {
+    position: relative;
+    width: 80%;
+  }
+  .savia-goo {
+    position: absolute;
+    inset: -5px;
+    filter: url(#goo-savia);
+  }
+  .marco {
+    position: absolute;
+    inset: 0;
+    border: 5px solid var(--color-naranja);
+    border-radius: calc(var(--spacing) * 4 + 5px);
+  }
+  .gota {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border-radius: 50%;
+    background: var(--color-naranja);
+    animation: recorrer 7.5s linear infinite;
+  }
+  .g2 { animation-delay: -2.5s; width: 12px; height: 12px; margin: -6px 0 0 -6px; }
+  .g3 { animation-delay: -5s; }
+  /* el recorrido del marco (por el centro del aro): arriba → derecha → abajo → izquierda */
+  @keyframes recorrer {
+    0% { left: 2.5px; top: 2.5px; }
+    31% { left: calc(100% - 2.5px); top: 2.5px; }
+    50% { left: calc(100% - 2.5px); top: calc(100% - 2.5px); }
+    81% { left: 2.5px; top: calc(100% - 2.5px); }
+    100% { left: 2.5px; top: 2.5px; }
+  }
+  .cae {
+    position: absolute;
+    left: 62%;
+    top: calc(100% - 2.5px);
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
+    background: var(--color-naranja);
+    animation: descolgar 6s cubic-bezier(0.5, 0, 0.7, 0.4) infinite;
+  }
+  @keyframes descolgar {
+    0%, 30% { translate: 0 0; scale: 0.3; opacity: 1; }
+    58% { translate: 0 6px; scale: 1 1.15; }
+    70% { translate: 0 16px; scale: 0.9 1.25; }
+    86% { translate: 0 70px; scale: 0.7; opacity: 1; }
+    92%, 100% { translate: 0 90px; scale: 0.5; opacity: 0; }
+  }
+  .doc {
+    position: relative;
+    border-radius: calc(var(--spacing) * 4);
+    background: color-mix(in oklab, var(--color-niebla) 5%, var(--hondo));
+    padding: calc(var(--spacing) * 4);
+    color: var(--color-niebla);
+    font-size: 0.6875rem;
+  }
+  .doc .cab {
+    display: flex;
+    justify-content: space-between;
+    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+    padding-bottom: calc(var(--spacing) * 2);
+    margin-bottom: calc(var(--spacing) * 2);
+    border-bottom: 1px solid var(--rule);
+  }
+  .doc .h,
+  .doc .l {
+    white-space: nowrap;
+    overflow: hidden;
+    animation: escribir 6s steps(28, end) infinite both;
+    animation-delay: calc(var(--k) * 0.42s);
+  }
+  .doc .h {
+    color: var(--color-naranja);
+    margin-top: calc(var(--spacing) * 1);
+  }
+  .doc .l {
+    padding-left: calc(var(--spacing) * 3);
+    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+  }
+  @keyframes escribir {
+    0% { max-width: 0; }
+    16%, 90% { max-width: 100%; }
+    100% { max-width: 0; }
+  }
+
+  /* 04 · Entregar — la web «habla con la IA» (ronda 13: «que salgan los iconos de todas las IAs y pedirle algo más complejo que cambiar
+     un titular, algo que el cliente diga: hostia, esto me cuesta hacer»). Fila de IAs (cualquiera sirve: se encienden en ola al enviar).
+     Ronda 14: la orden es una PÁGINA DE MARKETING entera («Hazme la landing de campaña de otoño, con nuestro estilo»): la web de siempre se
+     va, un barrido «Generando…» y la landing se monta bloque a bloque (etiqueta, titular, botón, tres tarjetas). Enviar = chispa de IA. */
+  .demo-4 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 4);
+    padding: calc(var(--spacing) * 6);
+  }
+  .ias {
+    display: flex;
+    gap: calc(var(--spacing) * 3);
+    color: var(--color-niebla);
+  }
+  .ia-ic {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    opacity: 0.38;
+    animation: ola-ia 7s ease infinite both;
+    animation-delay: calc(var(--k) * 70ms);
+  }
+  @keyframes ola-ia {
+    0%, 37% { opacity: 0.38; translate: 0 0; }
+    41% { opacity: 1; translate: 0 -3px; }
+    47%, 100% { opacity: 0.38; translate: 0 0; }
+  }
+  .vista {
+    position: relative;
+    flex: none; /* en móvil la demo es baja: que la vista no se aplaste */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    aspect-ratio: 16 / 10; /* cabe la landing entera: etiqueta, titular, botón y tres tarjetas */
+    padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4) calc(var(--spacing) * 4);
+    border-radius: calc(var(--spacing) * 3);
+    background: var(--color-niebla);
+    color: var(--color-cacao);
+    overflow: hidden;
+  }
+  .vbarra { display: flex; align-items: center; gap: 4px; margin-bottom: calc(var(--spacing) * 1); }
+  .vbarra > i { width: 6px; height: 6px; border-radius: 50%; background: color-mix(in oklab, var(--color-cacao) 28%, transparent); }
+  .vtit {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-lead);
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .vlin { display: block; height: 5px; width: 88%; border-radius: 3px; background: color-mix(in oklab, var(--color-cacao) 22%, transparent); }
+  .vlin.corta { width: 54%; }
+  .v-antes { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); animation: v-antes 7s ease infinite both; }
+  @keyframes v-antes { 0%, 38% { opacity: 1; filter: none; } 44%, 97% { opacity: 0; filter: blur(4px); } 100% { opacity: 1; filter: none; } }
+  /* mientras genera: un barrido de luz cruza la página */
+  .vista::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, color-mix(in oklab, var(--color-niebla) 45%, transparent) 50%, transparent 70%);
+    translate: -100% 0;
+    animation: barrido 7s ease-in-out infinite both;
+    pointer-events: none;
+  }
+  @keyframes barrido { 0%, 39% { translate: -100% 0; } 53%, 100% { translate: 100% 0; } }
+  .v-genera {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    translate: -50% -50%;
+    color: var(--color-nogal);
+    animation: v-genera 7s ease infinite both;
+  }
+  @keyframes v-genera { 0%, 40% { opacity: 0; } 43%, 50% { opacity: 1; } 53%, 100% { opacity: 0; } }
+  .v-nueva {
+    position: absolute;
+    left: calc(var(--spacing) * 4);
+    right: calc(var(--spacing) * 4);
+    top: calc(var(--spacing) * 6);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--spacing) * 2);
+  }
+  .v-etq { font-family: var(--font-mono); font-size: 0.625rem; line-height: 1; color: var(--color-nogal); animation: v-bloque-1 7s var(--ease-out-expo) infinite both; }
+  .v-nueva .vtit { animation: v-bloque-2 7s var(--ease-out-expo) infinite both; }
+  .v-cta { padding: 3px calc(var(--spacing) * 2); border-radius: var(--radius-full); background: var(--color-naranja); font-size: 0.625rem; font-weight: 600; animation: v-bloque-3 7s var(--ease-out-expo) infinite both; }
+  .v-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--spacing) * 2); width: 100%; }
+  .v-cards i { aspect-ratio: 5 / 2; border-radius: 4px; background: color-mix(in oklab, var(--color-niebla) 70%, transparent); animation: v-card 7s var(--ease-out-expo) infinite both; animation-delay: calc(var(--k) * 0.28s); }
+  .v-cards i:nth-child(2) { background: var(--color-nogal); }
+  .v-cards i:nth-child(3) { background: var(--color-coral); }
+  @keyframes v-bloque-1 { 0%, 52% { opacity: 0; translate: 0 6px; } 56%, 95% { opacity: 1; translate: 0 0; } 99%, 100% { opacity: 0; } }
+  @keyframes v-bloque-2 { 0%, 54% { opacity: 0; translate: 0 8px; filter: blur(4px); } 59%, 95% { opacity: 1; translate: 0 0; filter: none; } 99%, 100% { opacity: 0; } }
+  @keyframes v-bloque-3 { 0%, 57% { opacity: 0; scale: 0.7; } 61%, 95% { opacity: 1; scale: 1; } 99%, 100% { opacity: 0; } }
+  @keyframes v-card { 0%, 59% { opacity: 0; translate: 0 10px; scale: 0.9; } 64%, 95% { opacity: 1; translate: 0 0; scale: 1; } 99%, 100% { opacity: 0; } }
+  .metal {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 3) calc(var(--spacing) * 2) calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+    border-radius: calc(var(--spacing) * 5);
+    background: color-mix(in oklab, var(--color-niebla) 8%, transparent);
+  }
+  /* la orden, en dos renglones que se escriben uno tras otro */
+  .orden {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    overflow: hidden;
+    color: var(--color-niebla);
+  }
+  @media (width < 64rem) {
+    .orden { font-size: 0.625rem; } /* la tarjeta es estrecha: los dos renglones caben enteros junto al botón */
+  }
+  .orden span {
+    display: block;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    width: fit-content;
+    border-right: 1px solid transparent;
+  }
+  .orden .l1 { animation: teclear-1 7s steps(27, end) infinite both; }
+  .orden .l2 { animation: teclear-2 7s steps(28, end) infinite both; }
+  @keyframes teclear-1 {
+    0%, 4% { max-width: 0; border-color: var(--color-naranja); }
+    20% { max-width: 27ch; border-color: var(--color-naranja); }
+    20.1%, 96% { max-width: 27ch; border-color: transparent; }
+    100% { max-width: 0; }
+  }
+  @keyframes teclear-2 {
+    0%, 20% { max-width: 0; border-color: transparent; }
+    20.1% { border-color: var(--color-naranja); }
+    34%, 96% { max-width: 28ch; border-color: var(--color-naranja); }
+    100% { max-width: 0; }
+  }
+  /* ENVIAR con un destello de IA: la chispa gira y late al mandar la orden */
+  .boton {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    border-radius: var(--radius-full);
+    background: var(--hondo);
+    color: var(--color-niebla);
+  }
+  .boton::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: conic-gradient(from 0deg, var(--color-nogal), var(--color-niebla), var(--color-nogal), var(--color-coral), var(--color-niebla), var(--color-nogal));
+    mask: radial-gradient(circle, transparent calc(50% - 3px), #000 calc(50% - 2px));
+    animation: girar 2.4s linear infinite;
+  }
+  .chispa {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: currentColor;
+    animation: chispa 7s var(--ease-out-expo) infinite;
+  }
+  @keyframes chispa {
+    0%, 34% { rotate: 0deg; scale: 1; color: var(--color-niebla); }
+    38% { rotate: 90deg; scale: 1.25; color: var(--color-naranja); }
+    52% { rotate: 180deg; scale: 1; color: var(--color-naranja); }
+    60%, 100% { rotate: 180deg; scale: 1; color: var(--color-niebla); }
+  }
+  .hecho { color: var(--color-coral); animation: hecho 7s ease infinite both; }
+  .hecho b { font-weight: 400; color: var(--color-naranja); }
+  @keyframes hecho {
+    0%, 74% { opacity: 0; translate: 0 6px; }
+    80%, 94% { opacity: 1; translate: 0 0; }
+    100% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta,
+    .tarjeta.viva::after,
+    .demo *,
+    .demo *::before,
+    .demo *::after {
+      animation: none !important;
+    }
+    .orden span { max-width: none; }
+  }
+</style>

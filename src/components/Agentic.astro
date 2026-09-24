@@ -1,0 +1,47 @@
+---
+// RONDA 39 · «buscar alguna forma de introducir un nombre para productizar savvia, savvia agentic o algo así». La MARCA del producto: el
+// logotipo de savvia + «agentic» en la voz de los detalles (mono), y el píxel Iris que en toda la web significa «la IA». Hereda el color y el
+// tamaño del texto donde se pone (el logotipo mide la altura de ascendentes, como en el titular del pie).
+interface Props { class?: string }
+const { class: cls = '' } = Astro.props;
+---
+
+<span class={`agentic ${cls}`} role="img" aria-label="savvia agentic"><i class="logo" aria-hidden="true"></i><span class="ag" aria-hidden="true">agentic</span></span>
+
+<style>
+  .agentic {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3em;
+    white-space: nowrap;
+    vertical-align: baseline;
+  }
+  .logo {
+    display: inline-block;
+    height: 0.74em;
+    aspect-ratio: 1118 / 348;
+    background: currentColor;
+    -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
+    mask: url('/savvia-logo.svg') center / contain no-repeat;
+    translate: 0 0.06em;
+  }
+  .ag {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 0.72em;
+    letter-spacing: 0.02em;
+    padding-right: 0.32em;
+  }
+  /* el píxel Iris: la IA, en su dosis de siempre */
+  .ag::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0.18em;
+    width: 0.18em;
+    height: 0.18em;
+    min-width: 3px;
+    min-height: 3px;
+    background: var(--color-cobalto);
+  }
+</style>

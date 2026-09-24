@@ -1,0 +1,91 @@
+---
+// FLORA (ronda 42). Andoni: «los detalles de las cards me gustan pero tienen que ser más sutiles y, como el árbol del hero, adaptarse en color a la
+// estación: cuando cambiamos de estación cambian de color como el árbol» · «igual esos detalles de flora podemos añadirlos en más sitios, de manera sutil».
+// Una rama de las láminas de Andoni (public/media/flora/) pintada con el MISMO motor que el árbol (src/scripts/estela.ts): la hoja se pinta en el color
+// de la estación, se hunde un poco hacia el fondo para mimetizarse, se deshace en semitono en los cantos, SE DIBUJA al aparecer (líneas y pintura desde la
+// base) y, al cambiar de estación, la nueva se pinta con el frente rasgado. `fondo`: el color de la superficie donde vive (para mimetizarse).
+// `espera`: nombre de un evento de window; hasta que llega, la rama no se dibuja (la de los dolores espera a que la gota dibuje la primera tarjeta).
+// Solo decora (aria-hidden). Sin WebGL: la lámina, tenue.
+interface Props {
+  lamina: 'helecho' | 'rama-roble-bellotas' | 'brezo' | 'acebo-bayas-rojas';
+  estilo: string; // posición y tamaño (left/top/width…), en el sitio donde se pone
+  fondo?: 'noche' | 'niebla' | 'arcilla';
+  voltear?: boolean;
+  opacidad?: number;
+  espera?: string;
+  soloEscritorio?: boolean;
+}
+const { lamina, estilo, fondo = 'noche', voltear = false, opacidad = 0.5, espera = '', soloEscritorio = false } = Astro.props;
+---
+
+<div class={`flora-rama ${soloEscritorio ? 'solo-escritorio' : ''}`} data-flora data-fondo={fondo} data-espera={espera} style={`${estilo};--op:${opacidad};--sx:${voltear ? -1 : 1}`} aria-hidden="true">
+  <img src={`/media/flora/${lamina}.webp`} alt="" loading="lazy" decoding="async" data-lamina />
+  <canvas data-lienzo></canvas>
+</div>
+
+<script>
+  import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
+  import { NOCHE, estacionActual } from '../scripts/estacion';
+  const FONDOS: Record<string, [number, number, number] | null> = { noche: null, niebla: [234, 221, 231], arcilla: [229, 172, 158] };
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll<HTMLElement>('[data-flora]:not([data-lista])').forEach((el) => {
+    el.dataset.lista = '1';
+    const img = el.querySelector<HTMLImageElement>('[data-lamina]')!, cv = el.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
+    let t: Estela | null = null, est = estacionActual(), dibujada = false, visible = false, llego = !el.dataset.espera;
+    const fondo = () => FONDOS[el.dataset.fondo!] ?? NOCHE[est];
+    const crear = () => {
+      if (t || el.dataset.muerta) return;
+      if (!img.complete) img.loading = 'eager';
+      t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, radial: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: 2 }); // toda la rama en el color de la estación
+      if (!t) { el.classList.add('sin-gl'); el.dataset.muerta = '1'; return; }
+      t.estacion(est); t.fondo(...fondo()); t.crecer(0);
+    };
+    // se DIBUJA una vez, al verse (y, si espera un evento, cuando llega): el frente sale de la base, como el árbol
+    const dibujar = () => {
+      if (dibujada || !t || !visible || !llego) return;
+      dibujada = true; el.classList.add('dibujada');
+      if (reducido) return t.crecer(1);
+      let a = 0;
+      const paso = (ahora: number) => { if (!a) a = ahora; const k = Math.min(1, (ahora - a) / 2400); t!.crecer(1 - Math.pow(1 - k, 1.6)); if (k < 1) requestAnimationFrame(paso); };
+      requestAnimationFrame(paso);
+    };
+    if (el.dataset.espera) addEventListener(el.dataset.espera, () => { llego = true; dibujar(); }, { once: true });
+    new IntersectionObserver((e) => { if (e[0].isIntersecting) crear(); }, { rootMargin: '600px 0px' }).observe(el);
+    new IntersectionObserver((e) => { visible = e[0].isIntersecting; t?.visible(visible); dibujar(); }, { threshold: 0.25 }).observe(el);
+    addEventListener('savvia:estacion', (ev) => {
+      const n = (ev as CustomEvent).detail.n as number;
+      if (n === est) return;
+      est = n;
+      if (!t) return;
+      t.fondo(...fondo());
+      if (visible && dibujada && !reducido) t.renacer(n); else t.estacion(n);
+    });
+  });
+</script>
+
+<style>
+  .flora-rama {
+    position: absolute;
+    aspect-ratio: 1;
+    pointer-events: none;
+    opacity: var(--op, 0.5);
+    scale: var(--sx, 1) 1;
+  }
+  .flora-rama img,
+  .flora-rama canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+  /* regla dura 3: el lienzo nace invisible; la lámina solo se ve sin WebGL */
+  .flora-rama canvas { opacity: 0; }
+  .flora-rama canvas:global(.listo) { opacity: 1; }
+  .flora-rama img { opacity: 0; }
+  .flora-rama.sin-gl img { opacity: 0.6; }
+  @media (width < 64rem) {
+    .solo-escritorio { display: none; }
+  }
+</style>

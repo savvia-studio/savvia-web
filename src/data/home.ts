@@ -1,0 +1,280 @@
+// Copy de la home. Fuente: estructura (Google Doc) + Narrativa – Savvia (Keynote), ronda 82.
+// Lo marcado `falta` son datos de Andoni y Eric que NO se inventan.
+// [[…]] = detalle de IA: una marca Iris MUY sutil junto a la palabra. Hoy, dos en toda la página.
+// NO se presume de experiencia (años, nº de clientes): el trabajo la demuestra. «Desde 2020» solo como detalle en el pie.
+
+export const nav = {
+  links: [
+    { label: 'Proyectos', href: '#proyectos' },
+    { label: 'Servicios', href: '#servicios' },
+    { label: 'La savvia', href: '#la-savvia' },
+    { label: 'Estudio', href: '#estudio' },
+    { label: 'Hablemos', href: '#contacto' },
+  ],
+  // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete). El correo se añade solo desde `pie.correo`.
+  mas: { titulo: 'Más', links: [{ label: 'Carta fundacional', href: '/carta' }] },
+};
+
+export const hero = {
+  // RONDA 40 · «el titular principal no tiene que ser crecer tu web, podemos mirar del documento keynote». Del Keynote («Narrativa – Savvia»):
+  // el elevator pitch habla a quien «está cambiando y su web ya no le representa», y el mensaje clave de beneficio es «mejor web en menos tiempo y
+  // a menor coste». El titular responde al primero; el subtítulo es el segundo, con el cómo (criterio + IA).
+  h1: 'Tu web, a la altura de lo que haces.',
+  h2: 'Eleva tu web con criterio.', // ronda 41 (Andoni: «el subtítulo del hero tiene que ser eleva tu web con criterio»)
+  // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
+  vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
+  vocabularioRaiz: ['raíz', 'briefing', 'entender', 'qué vendes', 'a quién', 'decisiones', 'savvia', 'fuente de verdad', 'documentado', 'criterio', 'la savia', 'desde la raíz'],
+};
+
+// RONDA 39 · «buscar alguna forma de introducir un nombre para productizar savvia, savvia agentic o algo así». Nombre elegido: savvia agentic
+// (el sistema: la web a medida + su savvia + los agentes que la cuidan). «savvia.md» sigue siendo el documento que se entrega.
+export const producto = {
+  nombre: 'savvia agentic',
+  frase: 'La web, su receta y los agentes que la mantienen al día.',
+};
+
+export const recorrido = {
+  // RONDA 39 · «la segunda sección tenemos que enfocarla más a los pains del usuario, y no hacer que sea un slider: un recorrido que funciona
+  // con el scroll, de manera que el usuario pasa por todos los pains». Cada parada: el DOLOR (lo que siente quien entra) y la RESPUESTA,
+  // con la demo que ya gustaba de cada paso. Siempre en segunda persona (ronda 39, punto 8: «el yo solo lo proyectamos en equipo»).
+  pregunta: '¿Te suena alguno?',
+  pasos: [
+    {
+      corto: 'No te cuenta',
+      dolor: 'Tu web ya no cuenta lo que haces.',
+      t: 'Empezamos por entenderte.',
+      d: 'Antes de diseñar nada: qué vendes, a quién y qué ha dejado de contarse.',
+    },
+    {
+      corto: 'De plantilla',
+      dolor: 'Podría ser la web de cualquiera.',
+      t: 'Decides tú, con criterio al lado.',
+      d: 'Ves direcciones de diseño reales desde los primeros días y eliges la que es tuya, no la de una plantilla.',
+    },
+    {
+      corto: 'Sin receta',
+      dolor: 'Nadie sabe ya por qué está hecha así.',
+      t: 'Cada decisión, por escrito.',
+      d: 'Todo queda en tu savvia: un documento que lees tú y entiende cualquier IA. La web es tuya, y su receta también.',
+    },
+    {
+      corto: 'Cada cambio, una espera',
+      dolor: 'Cada cambio es un presupuesto y una espera.',
+      t: 'Se cambia hablándole.',
+      d: 'Tu equipo le pide la landing de campaña a un agente y sale con tu estilo, en horas y no en semanas.',
+    },
+  ],
+};
+
+export const laSavvia = {
+  pregunta: '¿Qué es la savvia?',
+  // RONDA 12 (Andoni): «ponemos savvia es la receta de tu web. Y en vez de un documento, ponemos un sistema.»
+  titulo: 'La savvia es la receta de tu web.',
+  intro: 'No es un documento que se guarda en un cajón: es un sistema. Cada ingrediente decide una parte de la web, y todos se leen igual: tú, tu equipo y la [[IA]].',
+  // Los INGREDIENTES del sistema. Todos los valores son REALES: son los de la Savvia de esta misma web (DESIGN.md + AGENTS.md).
+  ingredientes: [
+    { id: 'color', n: 'Color', v: 'Cacao · Rosa niebla · Nogal · Coral · Cobalto · Cereza', d: 'Seis colores, cada uno con su papel. El Coral es la acción; cada bloque, un solo acento.' },
+    { id: 'tipo', n: 'Tipografía', v: 'Family · ABC Areal · ABC Areal Mono', d: 'Tres voces: la editorial, la de lectura y la de los detalles.' },
+    { id: 'espacio', n: 'Espaciado', v: '4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128', d: 'Una sola escala. Ningún hueco se decide a ojo.' },
+    { id: 'piezas', n: 'Componentes', v: 'Botón · enlace · tarjeta · detalle', d: 'Las piezas con las que se monta cualquier página nueva.' },
+    { id: 'voz', n: 'Voz', v: 'orquestar · criterio · a medida · contigo', d: 'Lo que se dice y lo que no. También las palabras son del sistema.' },
+    { id: 'no', n: 'Lo descartado', v: 'Cursivas · paisajes en el hero · un efecto de protagonista', d: 'Cada decisión que cayó, y por qué. Para no volver.' },
+  ],
+  puntos: [
+    { t: 'Donde se entiende todo.', d: 'Qué es, para quién y por qué es así.' },
+    { t: 'Donde queda cada decisión.', d: 'De diseño y de desarrollo. También las que descartamos, y por qué.' },
+    { t: 'Un sistema que tú lees y la [[IA]] entiende.', d: 'savvia.md' },
+  ],
+  cierre: 'Todo documentado para que cualquiera sepa cambiar y actualizar la web.',
+  // Extracto REAL: es la Savvia de esta misma web (DESIGN.md + AGENTS.md). Nada inventado.
+  doc: {
+    archivo: 'savvia.md',
+    lineas: [
+      { k: 'h', v: '# savvia · web' },
+      { k: 'h', v: '## Color' },
+      { k: 'p', v: 'Cacao #302018 · la base de la página' },
+      { k: 'p', v: 'Coral #F65340 · botones y llamadas a la acción' },
+      { k: 'p', v: 'Cobalto · Cereza · un acento por bloque' },
+      { k: 'h', v: '## Tipografía' },
+      { k: 'p', v: 'Family 400 · ABC Areal · ABC Areal Mono' },
+      { k: 'h', v: '## Rechazado' },
+      { k: 'p', v: 'Cursivas. Fondos de paisaje en el hero.' },
+      { k: 'p', v: 'Un efecto como protagonista de la página.' },
+    ],
+  },
+  falta: 'Hoy enseña la savvia de esta web. ¿Algún cliente autoriza enseñar la suya?',
+};
+
+export const proyectos = {
+  pregunta: '¿Qué ha hecho esta gente?',
+  // RONDA 44 · «lo que has puesto para finalizar la segunda sección va como titular de los destacados y se mete en el ordenador; el titular, todo en la
+  // misma tipografía»: el puente deja de ser una sección y es el titular-pantalla de Proyectos, en Family (sin logotipo ni mono)
+  titulo: 'Para eso está savvia agentic.',
+  // Los cuatro proyectos hechos con desarrollo agéntico (los de la web anterior, ronda 28). Cada uno trae SU estación:
+  // al cambiar de proyecto cambia el paisaje de la ventana y el ambiente sonoro.
+  // `d` y `dato` salen de la propia web de cada cliente y del registro de rondas; PENDIENTES de visto bueno.
+  nuevos: [
+    {
+      slug: 'multiverse',
+      paleta: ['#15181C', '#F01438', '#3A3E44', '#C0C3C5'], // medida sobre la captura (Multiverse: sus tokens reales). PROVISIONAL: confirmar con el CSS de cada web
+      n: 'Multiverse Computing',
+      cat: 'IA y computación cuántica',
+      d: 'Una esfera de puntos que se comprime hasta ser su logotipo: el producto, explicado sin una palabra.',
+      url: 'https://multiverse-home.vercel.app/',
+      estacion: 'invierno',
+      hechos: [
+        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
+        ['Tipografía', 'Schibsted Grotesk'],
+        ['Un dato', '23 rondas documentadas'],
+      ],
+    },
+    {
+      slug: 'playground',
+      paleta: ['#FFFFFF', '#21127A', '#3D7A96', '#5C2E6E'], // medida sobre la captura (Multiverse: sus tokens reales). PROVISIONAL: confirmar con el CSS de cada web
+      n: 'Playground IEP',
+      cat: 'Educación especial',
+      d: 'IA con base científica para educación especial, contada con pegatinas que se pueden coger.',
+      url: 'https://playground-iep-two.vercel.app/home-v5.html',
+      estacion: 'primavera',
+      hechos: [
+        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
+        ['Un dato', '24 rondas · 4 versiones de la home'],
+      ],
+    },
+    {
+      slug: 'neety',
+      paleta: ['#F5F7F9', '#9C787C', '#CEB7B5', '#CCD5E5'], // medida sobre la captura (Multiverse: sus tokens reales). PROVISIONAL: confirmar con el CSS de cada web
+      n: 'Neety',
+      cat: 'Ventas B2B',
+      d: 'Detecta a quién vender y cuándo. La web enseña el feed de señales antes de explicarlo.',
+      url: 'https://neety.treseiscero.app/home',
+      embed: false, // RONDA 19: la web real va en un iframe, pero neety.treseiscero.app manda `x-frame-options: SAMEORIGIN` → se enseña la captura hasta que se quite esa cabecera
+      estacion: 'otono',
+      hechos: [
+        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
+        ['Un dato', '9 secciones'],
+      ],
+    },
+    {
+      slug: 'zernio',
+      paleta: ['#F8F4EE', '#603B32', '#998A82', '#251A17'], // medida sobre la captura (Multiverse: sus tokens reales). PROVISIONAL: confirmar con el CSS de cada web
+      n: 'Zernio',
+      cat: 'API para desarrolladores',
+      d: 'Una API de redes y mensajería para 23 canales, presentada como un muelle donde atraca cada uno.',
+      url: 'https://zernio.treseiscero.app/',
+      estacion: 'verano',
+      hechos: [
+        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
+        ['Un dato', '23 canales · 11 secciones'],
+      ],
+    },
+  ],
+  faltaNuevos: 'Confirmar los cuatro proyectos, sus frases y qué estación lleva cada uno.',
+  titulo2: 'Más proyectos.', // ronda 46 (antes «Nuestros proyectos.», ronda 39; y antes «Otros trabajos.»)
+  antes: ['Invopop', 'Business Online Payroll', 'Cubbo', 'Remerge', 'Isotrol'],
+  // RONDA 17 · «Trabajo anterior» como mosaico (referencia: northmail.app, «Channels designed for life's moments»). Datos REALES, de
+  // ../savvia_inspo/web/data/casos.json: dominio y sector (donde el sector no consta, no se inventa). Capturas en public/media/anteriores.
+  intro2: 'Webs a medida, de principio a fin, para equipos que viven de su web. Y lo que cuentan quienes las usan cada día.',
+  // `color`: tres colores de la PROPIA web del cliente, medidos en su captura (fondo · secundario · acento): el degradado de su pieza sale de ahí
+  // (ronda 18: «los gradientes de detrás pueden ser relacionados con cada proyecto»). `logo`: su logotipo (de la web anterior de savvia).
+  anteriores: [
+    { n: 'Invopop', slug: 'invopop', dominio: 'invopop.com', sector: 'Facturación electrónica', logo: 'invopop', color: ['#1a4534', '#2f6a52', '#9dbfae'] },
+    { n: 'Business Online Payroll', slug: 'business-online-payroll', dominio: 'businessonlinepayroll.com', sector: 'Nóminas y banca', logo: 'surepayroll', color: ['#101e3b', '#1c3364', '#a4a2a3'] },
+    { n: 'Cubbo', slug: 'cubbo', dominio: 'cubbo.com', sector: '', logo: 'cubbo', color: ['#1b40d6', '#4963e2', '#788ae8'] },
+    { n: 'Remerge', slug: 'remerge', dominio: 'remerge.io', sector: '', logo: 'remerge', color: ['#eceed9', '#f2ff71', '#ffffff'] },
+    { n: 'Isotrol', slug: 'isotrol', dominio: 'isotrol.com', sector: 'Renovables', logo: 'isotrol', color: ['#19171d', '#635850', '#8d8478'] },
+  ],
+
+  enlace: { label: 'Todos los proyectos', href: '/proyectos' },
+};
+
+// RONDA 39 · referencia: athleticsnyc.com («Our specialties»): lista tipográfica enorme con letra de índice. RONDA 40 · «al hacer hover no usamos lo
+// mismo que la referencia: pensemos qué puede salir que tenga sentido con lo que se cuenta. Y fuera el savvia agentic de aquí»: al pasar sale una
+// pequeña DEMO de lo que es cada servicio (`demo`): de boceto a web · un cambio publicado · tu equipo aprendiendo. Y sin «crecer» (Keynote: elevar).
+export const servicios = {
+  pregunta: '¿Qué puede hacer savvia por ti?',
+  titulo: 'Tres maneras de elevar tu web.',
+  lista: [
+    {
+      corto: 'Web nueva',
+      t: 'Una web nueva, de principio a fin.',
+      d: 'Se rehace entera, contigo dentro del proceso: estrategia, diseño, desarrollo y su savvia.',
+      demo: 'nueva',
+    },
+    {
+      corto: 'Evolución',
+      t: 'Siempre al día.',
+      d: 'Cambios en días, no en presupuestos: agentes que trabajan sobre tu savvia.',
+      demo: 'evolucion',
+    },
+    {
+      corto: 'Formación',
+      t: 'Tu equipo, con agentes.',
+      d: 'Para que tu gente toque la web sin miedo y sin llamar a nadie.',
+      demo: 'formacion',
+    },
+  ],
+};
+
+// Testimonios REALES, extractos fieles de los casos (los mismos de la web anterior). Pendiente: visto bueno de cada cliente.
+// RONDA 39 · salen de Servicios y van a «Nuestros proyectos» (Anteriores.astro); `de`: el proyecto del mosaico del que hablan.
+// RONDA 40 · «ponemos menos cantidad y que sean animados y vayan rotando»: tres (`rota: true`), en una sola voz que se va relevando.
+// RONDA 46 · «si tenemos vídeo del testimonio, poner un iconito como el de los proyectos para verlo en un modal»: `video` (mp4 en
+// public/media/voces/) y `poster` (su primer fotograma). Vacío = sin vídeo: el icono no sale. `ar`: ancho / alto del vídeo (los tres son verticales).
+// RONDA 48 · «deja testimonios de texto solo: los vídeos dicen treseiscero todos» → sin vídeos (los archivos, en tools/retirados/voces/). Codely y THX se
+// quedan como voces de texto; la cita de THX, traducida del inglés y sin el nombre del estudio anterior («no se dice»).
+export const voces = [
+  { rota: true, de: 'isotrol', n: 'Inés López-Pita', r: 'Marketing Director · Isotrol', q: 'El servicio, la ejecución, los plazos y la entrega son excelentes, pero lo que de verdad destaca es vuestro conocimiento y la capacidad de mejorar nuestra visión inicial.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: 'invopop', n: 'Juan Moliner', r: 'Co-founder · Invopop', q: 'Desde el primer día se integraron con nuestras herramientas. Responden en minutos y suben a producción en horas en vez de días. Superaron nuestras expectativas y volveremos a trabajar con ellos.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Javi Ferrer', r: 'Co-fundador · Codely', q: 'El proyecto ha sido un éxito gracias al increíble trabajo de Andoni y Eric. Compartimos un boceto y, para la siguiente iteración, Andoni lo tenía listo en Figma para que Eric lo desarrollara en Webflow. Una colaboración excelente, ¡muy recomendable!', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Thomas Hauer', r: 'Founder · THX', q: 'Me los recomendó un diseñador para crear mi web y estoy encantado de haber seguido el consejo, tanto por la calidad de su trabajo como por cómo colaboraron conmigo. Lo pensaron todo, siempre estuvieron disponibles y me lo pusieron fácil con vídeos cortos y personalizados. Seis estrellas de cinco.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Claudia Bethencourt', r: 'Brand Shaper · Claudia BE', q: 'Metódicos, fiables, y se lanzaron de cabeza a desarrollar todas nuestras ideas. Un trabajo impecable, elogiado incluso por otros desarrolladores.', video: '', poster: '', ar: 16 / 9 },
+  { rota: false, de: '', n: 'Danny Saltaren', r: 'Founder · Minimum Run', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Volveremos a trabajar juntos.', video: '', poster: '', ar: 16 / 9 },
+  { rota: false, de: '', n: 'Félix Gonzalo', r: 'Webflow Developer · Monad', q: 'Eric y Andoni destacan por su talento, su profesionalidad y un flujo de trabajo impecable. Un equipo fiable y comprometido que recomiendo de corazón.', video: '', poster: '', ar: 16 / 9 },
+];
+
+export const estudio = {
+  pregunta: '¿Quiénes están detrás?',
+  // RONDA 39 · el claim que salía del hero vive aquí: es la única sección donde se habla en primera persona («el yo, en equipo»)
+  titulo: 'El estudio web que orquesta la IA.',
+  texto:
+    'Somos Eric y Andoni, y estamos los dos en cada web, de la primera conversación a la última línea. Elegimos la herramienta adecuada para cada problema, no al revés.',
+  personas: [
+    { n: 'Andoni', falta: 'Frase de 2–3 líneas y rol.' },
+    { n: 'Eric', falta: 'Frase de 2–3 líneas y rol.' },
+  ],
+};
+
+// Respuestas PROVISIONALES (Nilo), escritas con lo que dicen la narrativa y el contexto de marca. Andoni y Eric las reescriben.
+// `claves`: palabras con las que la pregunta LIBRE del visitante encuentra esta respuesta (sin ningún modelo detrás).
+export const preguntas = {
+  pregunta: '¿Preguntas?',
+  titulo: 'Pregunta. Contestamos nosotros.',
+  firma: 'Eric y Andoni',
+  nota: 'Solemos contestar en el día.',
+  // RONDA 39 · reescritas hacia quien pregunta (punto 8): lo que gana o lo que decide el cliente va primero.
+  lista: [
+    { q: '¿La web la hace la IA?', a: 'No. La deciden personas: tú y dos diseñadores con criterio. La IA ejecuta más rápido lo que se decide, y eso te da más web por el mismo presupuesto.', claves: ['ia', 'inteligencia', 'artificial', 'agentes', 'agente', 'robot', 'automatica', 'chatgpt', 'claude'] },
+    { q: '¿Qué es savvia agentic?', a: 'La forma de hacer y cuidar una web: a medida, con su savvia (la receta, en un documento que entiende cualquier IA) y los agentes que la cambian contigo.', claves: ['agentic', 'agentico', 'agentica', 'producto', 'sistema', 'metodo', 'receta', 'savvia'] },
+    { q: '¿Cuánto tarda?', a: 'Depende del alcance, pero ves algo real en los primeros días, no una presentación al cabo de un mes. Las entregas son tempranas y frecuentes.', claves: ['tarda', 'tiempo', 'plazo', 'plazos', 'semanas', 'meses', 'rapido', 'fecha'] },
+    { q: '¿Cuánto cuesta?', a: 'Lo sabes antes de empezar, con un número cerrado, en cuanto entendemos tu proyecto. El desarrollo agéntico te da más calidad a un coste asumible.', claves: ['cuesta', 'precio', 'precios', 'coste', 'costes', 'presupuesto', 'tarifa', 'caro', 'dinero', 'pagar', 'costar', 'vale', 'cobrais', 'inversion'] },
+    { q: '¿Y si mi web está en Webflow o WordPress?', a: 'Si lo que tienes te sirve, se mejora; si te encierra, te proponemos salir y te explicamos por qué. La herramienta se elige por tu problema, no al revés.', claves: ['webflow', 'wordpress', 'framer', 'shopify', 'migrar', 'migracion', 'cms', 'plataforma', 'herramienta', 'tecnologia', 'stack'] },
+    { q: '¿Voy a depender de vosotros?', a: 'No. Te quedas con el código y con tu savvia: el documento con cada decisión. Con él, cualquiera, persona o agente, sabe cambiarla.', claves: ['dependo', 'dependencia', 'depender', 'despues', 'terminar', 'mantenimiento', 'mantener', 'propiedad', 'codigo', 'documento', 'documentacion'] },
+    { q: '¿Mi equipo puede tocarla?', a: 'Sí, y aprende a hacerlo. Tu equipo se forma en desarrollo agéntico para cambiar la web sin miedo y sin llamar a nadie.', claves: ['equipo', 'tocar', 'editar', 'cambiar', 'actualizar', 'formacion', 'aprender', 'ensenar', 'contenido'] },
+  ],
+  libre: {
+    etiqueta: '¿Tienes otra?',
+    ayuda: 'Escríbela. Aquí no contesta ninguna IA: si ya la tenemos respondida te la enseñamos, y si no, nos llega a nosotros.',
+    boton: 'Preguntar',
+    sinRespuesta: 'Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.',
+  },
+};
+
+export const pie = {
+  tagline: 'La savia de tu web.',
+  pitch: 'El estudio que orquesta la IA, con criterio.', // ronda 24: «lo dejamos solo en esto»; ronda 48: sin «tu web» (ya lo dice el titular del pie)
+  correo: 'hola@savvia.studio',
+  faltaCorreo: '¿hola@savvia.com o @savvia.studio?',
+  lugar: 'Donostia',
+  desde: 'desde 2020',
+};

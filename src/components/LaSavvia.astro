@@ -1,0 +1,372 @@
+---
+import { laSavvia } from '../data/home';
+import Agentic from './Agentic.astro';
+const ING = laSavvia.ingredientes;
+const pad = (n: number) => String(n).padStart(2, '0');
+const COLORES = ['#302018', '#EADDE7', '#63402F', '#F65340', '#3456D3', '#B52C4C']; // ronda 50: la paleta 2 (sin el Cítrico)
+import { IAS } from '../data/ias';
+// RONDA 13: al acabar la receta, el plato se convierte en el DOCUMENTO. Es el mismo texto que se copia con «Copiar savvia.md».
+const MD_LINEAS: { k: 'h1' | 'q' | 'h' | 'p'; v: string }[] = [
+  { k: 'h1', v: '# savvia.md' },
+  { k: 'q', v: '> La receta de esta web. Tú la lees; tu IA la entiende.' },
+  ...ING.flatMap((g) => [{ k: 'h' as const, v: `## ${g.n}` }, { k: 'p' as const, v: g.v }]),
+];
+---
+
+<!--
+  ¿QUÉ ES LA SAVVIA? (ronda 12, repensada). Andoni: «ponemos savvia es la receta de tu web. Y en vez de un documento, ponemos un sistema.»
+  Una receta son INGREDIENTES; un sistema, partes que gobiernan algo. Así que la sección ENSEÑA el sistema gobernando una web:
+  · a la izquierda, los seis ingredientes (con sus valores REALES: los de esta misma web);
+  · a la derecha, el PLATO: una página en miniatura sobre la pieza Naranja (el Naranja es la Savvia). Al elegir un ingrediente, la página
+    enseña qué parte de ella decide: se pintan sus colores, se rotulan sus tres tipografías, aparecen las medidas entre bloques, se
+    contornean sus componentes, cambian sus palabras, o salen tachadas las decisiones descartadas.
+  Va sola (un ingrediente cada 3,4 s) hasta que tocas uno. Sustituye al documento y al modo «guías» de la ronda 8.
+-->
+<section id="la-savvia" class="surface-light" aria-label={laSavvia.pregunta} data-sistema data-sube>
+  <div class="wrap section-y">
+    <div class="grid-12 gap-y-12">
+      <div class="col-span-4 lg:col-span-5">
+        <h2 class="text-h2" data-entra>{laSavvia.titulo}</h2>
+        <ol class="ingredientes mt-8 lg:mt-12" data-enfoca style="--d:3">
+          {
+            ING.map((g, i) => (
+              <li>
+                <button type="button" class="ing" data-ing={g.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+                  <span class="detail num tabular-nums">{pad(i + 1)}</span>
+                  <span class="text-h3 font-display nombre">{g.n}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+        <!-- el detalle del ingrediente activo: bloque de alto FIJO (un acordeón movía las filas bajo el cursor y saltaba de ingrediente) -->
+        <div class="detalle-ing mt-6" aria-live="polite">
+          {ING.map((g, i) => (
+            <p class="ficha-ing" data-ficha={g.id} hidden={i !== 0}><span class="detail block">{g.v}</span><span class="text-aux text-fg2 mt-2 block">{g.d}</span></p>
+          ))}
+        </div>
+      </div>
+
+      <!-- EL PLATO: una página en miniatura gobernada por el sistema -->
+      <div class="col-span-4 lg:col-span-6 lg:col-start-7" data-enfoca style="--d:2">
+        <div class="plato bg-naranja rounded-lg" data-plato data-modo={ING[0].id} aria-hidden="true">
+          <p class="detail cabecera"><Agentic class="marca-producto" /><span data-rotulo>{ING[0].n}</span></p>
+          <div class="pagina">
+            <div class="p-nav"><i class="logo" /><i class="pt" /><i class="pt" /><i class="pt" /></div>
+            <div class="p-hero">
+              <p class="p-tit"><span class="dice">A la altura de lo que haces.</span><span class="nodice">Potencia tu negocio con prompts.</span></p>
+              <p class="p-txt"><i /><i /><i class="corta" /></p>
+              <p class="p-acc"><span class="p-btn">Hablemos</span><span class="p-link">Ver proyectos</span></p>
+            </div>
+            <div class="p-cards"><i class="p-card" /><i class="p-card" /><i class="p-card" /></div>
+            <p class="p-meta detail">01 / 04 · Donostia</p>
+
+            <!-- capas por ingrediente -->
+            <div class="capa c-color">{COLORES.map((c, k) => <i style={`--c:${c};--k:${k}`} />)}</div>
+            <div class="capa c-no"><b>Cursivas</b><b>Paisajes en el hero</b><b>Un efecto de protagonista</b></div>
+            <!-- RONDA 13 · «cuando terminan todos los pasos me gustaría que se transformase en un documento que puedes dar de comer a
+                 cualquier IA»: la página se pliega y en su sitio se escribe savvia.md, ingrediente a ingrediente -->
+            <div class="capa c-doc">
+              {MD_LINEAS.map((l, k) => <p class={`md md-${l.k}`} style={`--k:${k}`}>{l.v}</p>)}
+              <div class="md-pie" style={`--k:${MD_LINEAS.length}`}>
+                <span>Dáselo a cualquier IA</span>
+                <span class="md-ias">{IAS.map((ia) => <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" set:html={ia.svg} />)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- RONDA 24 · «dejamos solo Ver documento con una animación de hover más pulida»: el subrayado crece desde la izquierda y la flecha avanza -->
+        <div class="acciones mt-4">
+          <button type="button" class="ver-doc text-ui font-medium" data-ver-doc aria-pressed="false"><span data-ver-doc-txt>Ver documento</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5" /></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const raiz = document.querySelector<HTMLElement>('[data-sistema]');
+  if (raiz) {
+    const plato = raiz.querySelector<HTMLElement>('[data-plato]')!, rotulo = raiz.querySelector<HTMLElement>('[data-rotulo]')!;
+    const bs = [...raiz.querySelectorAll<HTMLButtonElement>('[data-ing]')];
+    const verDoc = raiz.querySelector<HTMLButtonElement>('[data-ver-doc]')!, verDocTxt = raiz.querySelector<HTMLElement>('[data-ver-doc-txt]')!;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let act = 0, solo = !reducido, visible = false, reloj = 0, doc = false;
+    const encender: number[] = [];
+    const poner = (i: number) => {
+      doc = false; encender.forEach(clearTimeout); encender.length = 0;
+      act = (i + bs.length) % bs.length;
+      bs.forEach((b, k) => b.setAttribute('aria-pressed', String(k === act)));
+      plato.dataset.modo = bs[act].dataset.ing!;
+      raiz.querySelectorAll<HTMLElement>('[data-ficha]').forEach((f) => (f.hidden = f.dataset.ficha !== plato.dataset.modo));
+      rotulo.textContent = bs[act].querySelector('.nombre')!.textContent;
+      verDoc.setAttribute('aria-pressed', 'false'); verDocTxt.textContent = 'Ver documento';
+    };
+    // EL DOCUMENTO: la receta entera escrita. Mientras se escribe, los ingredientes de la lista se encienden a la vez que su línea.
+    const documento = () => {
+      doc = true; encender.forEach(clearTimeout); encender.length = 0;
+      plato.dataset.modo = 'doc'; rotulo.textContent = 'savvia.md';
+      raiz.querySelectorAll<HTMLElement>('[data-ficha]').forEach((f) => (f.hidden = true));
+      bs.forEach((b, k) => { b.setAttribute('aria-pressed', 'false'); encender.push(window.setTimeout(() => b.setAttribute('aria-pressed', 'true'), reducido ? 0 : 700 + (2 + k * 2) * 170)); });
+      verDoc.setAttribute('aria-pressed', 'true'); verDocTxt.textContent = 'Ver web';
+    };
+    // solo: los seis ingredientes y, al terminar, el documento (9 s); luego vuelve a empezar
+    const programar = () => {
+      clearTimeout(reloj);
+      if (!solo || !visible) return;
+      reloj = window.setTimeout(() => { if (doc) poner(0); else if (act === bs.length - 1) documento(); else poner(act + 1); programar(); }, doc ? 9000 : 3400);
+    };
+    bs.forEach((b, i) => {
+      const elegir = () => { solo = false; clearTimeout(reloj); poner(i); };
+      b.addEventListener('click', elegir);
+      b.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && elegir());
+      b.addEventListener('focus', elegir);
+    });
+    verDoc.addEventListener('click', () => { solo = false; clearTimeout(reloj); doc ? poner(act) : documento(); });
+    new IntersectionObserver((e) => { visible = e[0].isIntersecting; programar(); }, { threshold: 0.3 }).observe(plato);
+    (window as any).__sistema = () => ({ act, modo: plato.dataset.modo, solo });
+  }
+</script>
+
+<style>
+  /* ── los ingredientes: lista tipográfica; el activo se despliega (su valor real y una frase) */
+  .ing {
+    width: 100%;
+    display: grid;
+    grid-template-columns: calc(var(--spacing) * 8) 1fr;
+    align-items: baseline;
+    text-align: left;
+    padding-block: calc(var(--spacing) * 2);
+    opacity: 0.42;
+    transition: opacity 0.4s var(--ease-out-expo);
+  }
+  .ing:hover,
+  .ing[aria-pressed='true'] {
+    opacity: 1;
+  }
+  .ing .num {
+    color: var(--fg2);
+  }
+  .ing[aria-pressed='true'] .num {
+    color: var(--fg); /* ronda 50: nada de texto pequeño coral sobre claro */
+  }
+  .detalle-ing {
+    min-height: calc(var(--spacing) * 24);
+    padding-left: calc(var(--spacing) * 8);
+  }
+  .ficha-ing:not([hidden]) {
+    animation: enfocar-ing 0.5s var(--ease-out-expo);
+  }
+  @keyframes enfocar-ing {
+    from { opacity: 0; filter: blur(6px); }
+  }
+
+  /* ── el plato */
+  .plato {
+    --ink: var(--color-cacao);
+    position: relative;
+    padding: calc(var(--spacing) * 4);
+    color: var(--ink);
+  }
+  @media (width >= 64rem) {
+    .plato {
+      padding: calc(var(--spacing) * 6); /* ronda 24: ya no se pega al scroll («lo de la derecha no se mueve con el scroll») */
+    }
+  }
+  .ver-doc {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 1);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-size: 0 1px;
+    background-position: 0 100%;
+    transition: background-size 0.5s var(--ease-out-expo);
+  }
+  .ver-doc svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: translate 0.5s var(--ease-out-expo);
+  }
+  .ver-doc:hover,
+  .ver-doc:focus-visible {
+    background-size: 100% 1px;
+  }
+  .ver-doc:hover svg {
+    translate: calc(var(--spacing) * 1) 0;
+  }
+  .cabecera :global(.marca-producto) {
+    font-size: 1.3em; /* ronda 39: la marca del producto encabeza el plato */
+  }
+  .cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: calc(var(--spacing) * 3);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-cacao) 30%, transparent);
+    margin-bottom: calc(var(--spacing) * 4);
+  }
+  .pagina {
+    position: relative;
+    container-type: inline-size;
+    border-radius: var(--radius-lg);
+    background: var(--color-niebla);
+    padding: 5cqw;
+    display: grid;
+    gap: 5cqw;
+    overflow: hidden;
+  }
+  .pagina i { display: block; }
+  .p-nav { display: flex; gap: 3cqw; align-items: center; }
+  .p-nav .logo { width: 12cqw; height: 2.6cqw; border-radius: 99px; background: var(--color-cacao); margin-right: auto; }
+  .p-nav .pt { width: 7cqw; height: 1.4cqw; border-radius: 99px; background: color-mix(in oklab, var(--color-cacao) 35%, transparent); }
+  .p-tit {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 6.4cqw;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+    min-height: 2.2em;
+  }
+  .p-tit .nodice {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  .p-txt { display: grid; gap: 1.6cqw; margin-top: 4cqw; }
+  .p-txt i { height: 1.4cqw; width: 78%; border-radius: 99px; background: color-mix(in oklab, var(--color-cacao) 28%, transparent); }
+  .p-txt .corta { width: 46%; }
+  .p-acc { display: flex; align-items: center; gap: 4cqw; margin-top: 5cqw; font-size: 2.6cqw; font-weight: 600; }
+  .p-btn { padding: 2cqw 4cqw; border-radius: 1.4cqw; background: var(--color-naranja); }
+  .p-link { text-decoration: underline; text-underline-offset: 0.3em; }
+  .p-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3cqw; }
+  .p-card { aspect-ratio: 4 / 3; border-radius: 1.4cqw; background: var(--color-cobalto); }
+  .p-card:nth-child(2) { background: var(--color-cacao); }
+  .p-card:nth-child(3) { background: color-mix(in oklab, var(--color-cacao) 12%, transparent); }
+  .p-meta { font-size: 2.1cqw; color: var(--color-nogal); }
+  .pagina > *:not(.capa), .pagina > * > * { transition: opacity 0.5s var(--ease-out-expo), filter 0.5s var(--ease-out-expo); }
+
+  /* ── capas: cada ingrediente enseña lo que decide. Todas nacen ocultas. */
+  .capa {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.45s var(--ease-out-expo);
+  }
+  .capa b {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 2.2cqw;
+    line-height: 1;
+    white-space: nowrap;
+    padding: 1cqw 1.6cqw;
+    border-radius: 1cqw;
+    background: var(--color-cacao);
+    color: var(--color-niebla);
+  }
+  /* color: las seis muestras bajan en fila y la página se queda en gris: lo que tiene color es lo que decide el sistema */
+  [data-modo='color'] .c-color { opacity: 1; }
+  .c-color { display: flex; gap: 2cqw; align-items: flex-end; justify-content: center; padding-bottom: 5cqw; }
+  .c-color i { width: 9cqw; height: 9cqw; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 0.8cqw var(--color-niebla), 0 0 0 1cqw color-mix(in oklab, var(--color-cacao) 25%, transparent); translate: 0 6cqw; opacity: 0; transition: translate 0.6s var(--ease-out-expo), opacity 0.4s ease; transition-delay: calc(var(--k) * 60ms); }
+  [data-modo='color'] .c-color i { translate: 0 0; opacity: 1; }
+  [data-modo='color'] .p-cards, [data-modo='color'] .p-meta { opacity: 0.15; }
+  /* Las etiquetas y las medidas van ENGANCHADAS a los elementos reales de la página (pseudo-elementos), no en posiciones a ojo. */
+  .p-tit, .p-txt, .p-acc, .p-meta, .p-hero, .p-cards, .p-btn, .p-link, .p-card { position: relative; }
+  .pagina ::before, .pagina ::after { font-family: var(--font-mono); font-size: 2.1cqw; line-height: 1; font-weight: 400; letter-spacing: 0; white-space: nowrap; opacity: 0; transition: opacity 0.45s var(--ease-out-expo); pointer-events: none; }
+  /* tipografía: cada voz, rotulada donde se usa */
+  .p-tit::after, .p-txt::after, .p-meta::after { position: absolute; left: calc(100% + 2cqw); top: 0; padding: 1cqw 1.6cqw; border-radius: 1cqw; background: var(--color-cacao); color: var(--color-niebla); }
+  .p-tit::after { content: 'Family 400'; left: auto; right: -6cqw; }
+  .p-txt::after { content: 'ABC Areal'; left: 80%; top: -1cqw; }
+  .p-meta::after { content: 'ABC Areal Mono'; left: 34%; top: -1cqw; }
+  [data-modo='tipo'] .p-tit::after, [data-modo='tipo'] .p-txt::after, [data-modo='tipo'] .p-meta::after { opacity: 1; }
+  [data-modo='tipo'] .p-cards, [data-modo='tipo'] .p-nav, [data-modo='tipo'] .p-acc { opacity: 0.2; }
+  /* espaciado: la franja naranja ocupa EXACTAMENTE el hueco real entre bloques, con su medida */
+  .p-hero::before, .p-txt::before, .p-acc::before, .p-cards::before { position: absolute; left: 0; right: 0; display: grid; place-items: center; background: var(--color-naranja); color: var(--color-cacao); }
+  .p-hero::before { content: '48'; top: -5cqw; height: 5cqw; }
+  .p-txt::before { content: '32'; top: -4cqw; height: 4cqw; }
+  .p-acc::before { content: '48'; top: -5cqw; height: 5cqw; }
+  .p-cards::before { content: '48'; top: -5cqw; height: 5cqw; }
+  [data-modo='espacio'] .p-hero::before, [data-modo='espacio'] .p-txt::before, [data-modo='espacio'] .p-acc::before, [data-modo='espacio'] .p-cards::before { opacity: 1; }
+  [data-modo='espacio'] .p-nav > i, [data-modo='espacio'] .p-tit > .dice, [data-modo='espacio'] .p-txt > i, [data-modo='espacio'] .p-acc > span, [data-modo='espacio'] .p-card, [data-modo='espacio'] .p-meta { opacity: 0.3; }
+  /* componentes: contorno a rayas + su nombre, sobre cada pieza */
+  .p-btn::after, .p-link::after, .p-card:first-child::after { position: absolute; left: 0; bottom: calc(100% + 1.8cqw); padding: 1cqw 1.6cqw; border-radius: 1cqw; background: var(--color-cacao); color: var(--color-niebla); }
+  .p-btn::after { content: 'botón'; }
+  .p-link::after { content: 'enlace'; }
+  .p-card:first-child::after { content: 'tarjeta'; bottom: auto; top: 1.6cqw; left: 1.6cqw; }
+  [data-modo='piezas'] .p-btn::after, [data-modo='piezas'] .p-link::after, [data-modo='piezas'] .p-card:first-child::after { opacity: 1; }
+  [data-modo='piezas'] .p-btn, [data-modo='piezas'] .p-link, [data-modo='piezas'] .p-card:first-child, [data-modo='piezas'] .p-meta { outline: 0.4cqw dashed var(--color-cacao); outline-offset: 1cqw; }
+  [data-modo='piezas'] .p-tit, [data-modo='piezas'] .p-txt, [data-modo='piezas'] .p-nav { opacity: 0.2; }
+  /* voz: el titular «de generador» sale tachado y entra el nuestro */
+  [data-modo='voz'] .p-tit .nodice { animation: nodice 3.2s ease both; text-decoration: line-through; text-decoration-thickness: 0.4cqw; }
+  [data-modo='voz'] .p-tit .dice { animation: dice 3.2s ease both; }
+  @keyframes nodice { 0%, 40% { opacity: 1; filter: none; } 60%, 100% { opacity: 0; filter: blur(1cqw); } }
+  @keyframes dice { 0%, 45% { opacity: 0; filter: blur(1cqw); } 65%, 100% { opacity: 1; filter: none; } }
+  [data-modo='voz'] .p-cards, [data-modo='voz'] .p-acc, [data-modo='voz'] .p-txt, [data-modo='voz'] .p-nav, [data-modo='voz'] .p-meta { opacity: 0.2; }
+  /* lo descartado */
+  [data-modo='no'] .c-no { opacity: 1; }
+  .c-no { display: grid; place-content: center; gap: 2.4cqw; justify-items: start; }
+  .c-no b { position: static; font-size: 2.8cqw; padding: 1.6cqw 2.4cqw; text-decoration: line-through; text-decoration-color: var(--color-naranja); text-decoration-thickness: 0.5cqw; }
+  [data-modo='no'] .pagina > *:not(.capa) { opacity: 0.12; filter: blur(0.6cqw); }
+
+  /* ── EL DOCUMENTO (ronda 13): la página se aparta (se desenfoca y se encoge) y la hoja savvia.md se despliega de arriba abajo;
+     sus líneas se escriben una a una. Mono sobre Rosa niebla; los títulos de sección en Nogal. */
+  .c-doc {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1cqw;
+    padding: 6cqw;
+    background: var(--color-niebla);
+    font-family: var(--font-mono);
+    font-size: 2.9cqw;
+    line-height: 1.45;
+    color: var(--color-cacao);
+    clip-path: inset(0 0 100% 0 round var(--radius-lg));
+    transition: clip-path 0.8s var(--ease-out-expo), opacity 0.3s ease;
+  }
+  [data-modo='doc'] .c-doc { opacity: 1; clip-path: inset(0 0 0 0 round var(--radius-lg)); }
+  [data-modo='doc'] .pagina > *:not(.capa) { opacity: 0; filter: blur(1cqw); transform: scale(0.96); }
+  .pagina > *:not(.capa) { transition: opacity 0.5s var(--ease-out-expo), filter 0.5s var(--ease-out-expo), transform 0.6s var(--ease-out-expo); }
+  .md { white-space: nowrap; overflow: hidden; text-overflow: clip; flex: none; }
+  .md-h1 { font-size: 4.4cqw; }
+  .md-q { color: var(--color-nogal); margin-bottom: 1.2cqw; white-space: normal; }
+  .md-h { color: var(--color-nogal); margin-top: 1.2cqw; }
+  .md-pie {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3cqw;
+    padding-top: 3cqw;
+    border-top: 1px solid color-mix(in oklab, var(--color-cacao) 20%, transparent);
+    color: var(--color-nogal);
+  }
+  .md-ias { display: flex; gap: 2cqw; color: var(--color-cacao); }
+  .md-ias svg { width: 3.8cqw; height: 3.8cqw; }
+  [data-modo='doc'] .md,
+  [data-modo='doc'] .md-pie {
+    animation: md-escribe 0.55s steps(14, end) both;
+    animation-delay: calc(0.5s + var(--k) * 170ms);
+  }
+  [data-modo='doc'] .md-pie { animation: md-sale 0.6s var(--ease-out-expo) both; animation-delay: calc(0.5s + var(--k) * 170ms); }
+  @keyframes md-escribe { from { max-width: 0; } to { max-width: 100%; } }
+  @keyframes md-sale { from { opacity: 0; translate: 0 1cqw; } }
+  .acciones .link { cursor: pointer; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .c-doc, .pagina > *:not(.capa) { transition: none; }
+    [data-modo='doc'] .md, [data-modo='doc'] .md-pie { animation: none; }
+    .ing, .capa, .c-color i, .pagina > *, .pagina > * > * { transition: none; }
+    .ficha-ing:not([hidden]) { animation: none; }
+    [data-modo='voz'] .p-tit .nodice, [data-modo='voz'] .p-tit .dice { animation: none; }
+  }
+</style>

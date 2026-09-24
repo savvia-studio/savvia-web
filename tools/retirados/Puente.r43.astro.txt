@@ -1,0 +1,76 @@
+---
+import { recorrido, puente } from '../data/home';
+import Agentic from './Agentic.astro';
+---
+
+<!--
+  EL PUENTE (ronda 43). Andoni: «después de la segunda sección tenemos que poner un titular que diga "para eso está savvia agentic" o algo así, hilando
+  con los problemas de arriba. Problema → solución». Arriba, en mono, los cuatro problemas del recorrido; al llegar, una línea de savia los TACHA uno a uno;
+  debajo, grande, la respuesta, con la marca del producto dentro de la frase (como «La [savvia] de tu web.» en el pie).
+-->
+<section class="puente section-y" aria-labelledby="puente-h" data-puente>
+  <div class="wrap flex flex-col items-center text-center">
+    <ul class="problemas" aria-label="Los problemas de antes">
+      {recorrido.pasos.map((p, i) => <li class="detail" style={`--i:${i}`}><span>{p.corto}</span></li>)}
+    </ul>
+    <h2 id="puente-h" class="titular text-h1 mt-12 lg:mt-16" data-enfoca>
+      {puente.antes} <Agentic class="en-titular" />{puente.despues}
+    </h2>
+    <p class="text-sub text-fg2 measure mt-6" data-enfoca style="--d:2">{puente.sub}</p>
+  </div>
+</section>
+
+<script>
+  const raiz = document.querySelector<HTMLElement>('[data-puente]');
+  if (raiz) new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { raiz.classList.add('tachado'); o.disconnect(); } }, { threshold: 0.45 }).observe(raiz);
+</script>
+
+<style>
+  .problemas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: calc(var(--spacing) * 3) calc(var(--spacing) * 8);
+    color: var(--fg2);
+  }
+  .problemas span {
+    position: relative;
+  }
+  /* la savia tacha cada problema, de izquierda a derecha, uno tras otro */
+  .problemas span::after {
+    content: '';
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    top: 55%;
+    height: 1.5px;
+    background: var(--color-naranja);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    transition: transform 0.6s var(--ease-out-expo);
+    transition-delay: calc(0.2s + var(--i) * 0.28s);
+  }
+  .tachado .problemas span::after {
+    transform: scaleX(1);
+  }
+  .problemas li {
+    transition: opacity 0.6s ease;
+    transition-delay: calc(0.5s + var(--i) * 0.28s);
+  }
+  .tachado .problemas li {
+    opacity: 0.55;
+  }
+  .titular {
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+  .titular :global(.agentic) {
+    color: var(--fg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .problemas span::after,
+    .problemas li {
+      transition: none;
+    }
+  }
+</style>

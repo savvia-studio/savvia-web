@@ -1,0 +1,34 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# herramientas de verificación
+tools/shots/
+
+# grabaciones en bruto de las webs (se regeneran con tools/grabar-paso.cjs) y los vídeos de testimonio retirados (nombran el estudio anterior)
+tools/grab/
+tools/retirados/voces/
+
+# Vercel (el enlace al proyecto se copia en dist/ al publicar)
+.vercel/

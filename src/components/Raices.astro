@@ -1,0 +1,82 @@
+---
+// RAÍCES (ronda 13) · la mitad de abajo de la ACUARELA del hero (`hero-raices.webp`, `tools/recorte-hero.py`): mismo ancho y mismo eje que el
+// árbol, así casan bajo la línea de suelo. RONDA 39: ya no se componen con el scroll: están pintadas y siguen la estación de la web.
+---
+
+<!-- RONDA 19 · el EJE de la raíz principal, medido en la lámina (fracciones de la caja): baja recto bajo el tronco, entra en la masa de raíces y
+     sigue por la que llega más abajo hasta su punta. Por él resbala la gota que despierta las tarjetas (Recorrido.astro). -->
+<div class="raices" aria-hidden="true" data-raices data-carril-fila data-eje="[[0.507,0],[0.505,0.18],[0.501,0.36],[0.497,0.52],[0.4937,0.6787],[0.5063,0.7064],[0.4984,0.7341],[0.5048,0.7618],[0.5087,0.7895],[0.5056,0.8172],[0.5095,0.8449],[0.5087,0.8726],[0.5071,0.8892]]">
+  <div class="caja" data-raices-caja>
+    <img src="/media/hero-raices.webp" alt="" width="1260" height="361" decoding="async" loading="lazy" data-lamina />
+    <canvas data-lienzo></canvas>
+  </div>
+</div>
+
+<script>
+  import { crearEstela, ESTACIONES_SIN_RALEO } from '../scripts/estela';
+  import { NOCHE, estacionActual } from '../scripts/estacion';
+  // RONDA 39 · «en el hero las raíces se sincronizan con cada estación del año y ya no aparecen en scroll, son fijas; en scroll mantenemos solo
+  // la gota»: las raíces están PINTADAS desde el principio (sin frente atado al scroll) y viran con la estación de la web, con el mismo frente
+  // rasgado que la copa, que aquí baja desde el cuello. Son las mismas estelas de la acuarela: viran como las hojas, pero no ralean en invierno.
+  const raiz = document.querySelector<HTMLElement>('[data-raices]');
+  if (raiz) {
+    const cv = raiz.querySelector<HTMLCanvasElement>('[data-lienzo]')!, img = raiz.querySelector<HTMLImageElement>('[data-lamina]')!;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // RONDA 47 · «el árbol tiene como un dithering, movimiento: ¿podemos ponerlo en las raíces también?»: `soplo` = el hervor de la copa (celdas de
+    // 3 px que saltan un píxel 12 veces por segundo, destellos en los cantos y la deriva de color lenta); `sinLuz`: bajo tierra no entran los haces.
+    const t = crearEstela(cv, img, { origen: [0.5, 0], dir: 1, soplo: true, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, origenEstacion: [0.5, 0] });
+    if (!t) raiz.classList.add('sin-gl');
+    else {
+      let est = estacionActual(), visible = false;
+      t.crecer(1);
+      t.estacion(est); t.fondo(...NOCHE[est]);
+      new IntersectionObserver((e) => { visible = e[0].isIntersecting; t.visible(visible); }, { rootMargin: '10% 0px' }).observe(raiz);
+      addEventListener('savvia:estacion', (ev) => {
+        const n = (ev as CustomEvent).detail.n as number;
+        if (n === est) return;
+        est = n; t.fondo(...NOCHE[n]);
+        // el árbol se pinta desde la base del tronco (2,2 s); las raíces siguen al cuello un instante después, como si la estación bajara por ellas
+        if (visible && !reducido) setTimeout(() => t.renacer(n), 700); else t.estacion(n);
+      });
+    }
+  }
+</script>
+
+<style>
+  .raices {
+    position: relative;
+    z-index: 1;
+    margin-top: 0; /* RONDA 16: el pie del árbol es el pie del hero; las raíces nacen justo debajo */
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .caja {
+    position: relative;
+    flex: none;
+    width: var(--roble-w);
+    aspect-ratio: 1260 / 361;
+  }
+  canvas,
+  img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* Regla dura 3: lo que coloca el JS nace invisible. La lámina solo se ve si no hay WebGL. */
+  canvas {
+    opacity: 0;
+  }
+  canvas:global(.listo) {
+    opacity: 1;
+  }
+  img {
+    opacity: 0;
+  }
+  .sin-gl img {
+    opacity: 1;
+  }
+</style>

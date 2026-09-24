@@ -1,0 +1,405 @@
+---
+// LA CARGA (rondas 15–20). Referencia: off.site (pantalla lisa, el logotipo aparece, de su última letra sale un hilo que baja).
+// RONDA 20 · Andoni: «¿podemos hacer que para iniciar la web tengas que hacer un círculo con el ratón? La animación de la gota tiene que parecer
+// que dibuja las v realmente».
+// · EMPEZAR: aparece «sa  ia» y el visitante DIBUJA UN CÍRCULO con el ratón (o con el dedo): un rastro Naranja sigue al puntero; al cerrar la
+//   vuelta, el círculo se encoge hasta el pie de la primera v y se convierte en la gota, que echa a rodar. Pista a los 1,6 s: «dibuja un círculo».
+//   Espacio o intro arrancan sin círculo; «saltar», rueda o Escape lo saltan.
+// · LAS V SE DIBUJAN A TRAZO: la máscara de las v ya no es un frente en x sino la PLUMADA de la gota: un trazo grueso con puntas redondas que
+//   sigue exactamente su camino (baja por el trazo grueso, sube por el fino, rodea el rizo, la ligadura) y se va destapando con
+//   `stroke-dashoffset` a la vez que ella avanza. La tinta aparece solo donde la gota ha pasado.
+// · El camino por las v está medido en el propio trazo del logotipo y suavizado (Catmull-Rom) al compilar; luego el palo de la i, por debajo
+//   del punto, el lomo de la última «a» y la punta de su rabo.
+// · DESCOLGARSE (ronda 19): engorda y cae por su peso; un CUELLO la sujeta y se estrangula; resto que se retrae y SATÉLITE detrás.
+// · CAER (ronda 19): tiembla, se estira y la ESTELA se desenfoca en la dirección del movimiento. SALPICA en la base del tronco.
+// · La cámara baja con ella: logotipo y gota viven en un «mundo» que sube y el HERO SUBE DESDE ABAJO (`html.cargando`, puesto en el <head>).
+//   La gota toca el suelo bajo el titular en el mismo instante en que la cámara se posa → `savvia:gota` → el árbol se genera.
+// · Recarga a media página o movimiento reducido: sin carga. Sin JS no existe.
+import sharp from 'sharp';
+import svg from '../../public/savvia-logo.svg?raw';
+const LW = 1118, LH = 348;
+// RONDA 50 · el logotipo nuevo (logo_savia3): las dos v y el punto de la i son UN SOLO trazo caligráfico que sale de la «a»
+const trazos = [...svg.matchAll(/<path d="([^"]+)"/g)].map((m) => m[1]); // 0 a final · 1 i (sin punto) · 2 a · 3 s · 4 vv + punto de la i
+// el lomo de la última «a», medido sola (así el punto de la i no tira del suavizado)
+const sola = `<svg width="${LW}" height="${LH}" viewBox="0 0 ${LW} ${LH}" xmlns="http://www.w3.org/2000/svg"><path d="${trazos[0]}" fill="#fff"/></svg>`;
+const { data } = await sharp(new TextEncoder().encode(sola)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+let tope: number[] = [];
+for (let x = 0; x < LW; x++) { let y = -1; for (let k = 0; k < LH; k++) if (data[(k * LW + x) * 4 + 3] > 60) { y = k; break; } tope.push(y < 0 ? 120 : y); }
+const suave = (a: number[], r: number) => a.map((_, i) => { let s = 0, n = 0; for (let k = -r; k <= r; k++) { const j = Math.min(a.length - 1, Math.max(0, i + k)); s += a[j]; n++; } return s / n; });
+tope = suave(suave(tope, 14), 10);
+// EL CAMINO POR LAS V (unidades del logotipo), medido en el trazo y suavizado con Catmull-Rom en pasos de ~5 px
+// ronda 50: medido en el trazo nuevo (tools/shots/r50-logo-guia.png): la cola que sale de la «a», la primera v, su rizo, la ligadura, la segunda v,
+// el trazo largo que sube y el remolino que hace de punto de la i
+const vvGuia: [number, number][] = [[317, 195], [370, 170], [415, 143], [444, 146], [440, 190], [435, 250], [438, 300], [455, 325], [480, 305], [505, 262], [519, 222], [510, 165], [522, 110], [539, 99], [552, 130], [550, 188], [557, 219], [580, 220], [605, 190], [634, 150], [654, 140], [659, 162], [636, 215], [616, 280], [630, 330], [655, 320], [690, 258], [730, 170], [765, 88], [800, 46], [830, 37], [852, 55], [840, 70]];
+const vv: [number, number][] = [];
+for (let i = 0; i < vvGuia.length - 1; i++) {
+  const p0 = vvGuia[Math.max(0, i - 1)], p1 = vvGuia[i], p2 = vvGuia[i + 1], p3 = vvGuia[Math.min(vvGuia.length - 1, i + 2)];
+  const n = Math.max(2, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 5));
+  for (let k = 0; k < n; k++) {
+    const t = k / n, t2 = t * t, t3 = t2 * t;
+    vv.push([
+      0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3),
+      0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3),
+    ]);
+  }
+}
+vv.push(vvGuia[vvGuia.length - 1]);
+const r1 = (v: number) => +v.toFixed(1);
+const plumada = 'M' + vv.map(([x, y]) => `${r1(x)} ${r1(y)}`).join('L'); // la máscara de las v: el trazo de la gota
+const camino: [number, number][] = [...vv.map(([x, y]) => [r1(x), r1(y)] as [number, number]), [852, 86], [858, 104], [872, 112]];
+for (let x = 886; x <= 1096; x += 14) camino.push([x, r1(tope[x] - 13)]);
+camino.push([1108, 296], [1113, 320]);
+---
+
+<div class="cargador" aria-hidden="true" data-cargador data-camino={JSON.stringify(camino)} data-nvv={vv.length}>
+  <!-- el RASTRO del puntero mientras se dibuja el círculo, y el anillo que se encoge hasta ser la gota -->
+  <svg class="rastro" data-rastro-svg><polyline points="" data-rastro /><circle class="anillo" r="0" data-anillo /></svg>
+  <div class="mundo" data-mundo>
+    <svg class="logo" viewBox={`0 0 ${LW} ${LH}`} data-logo>
+      <defs>
+        <mask id="cg-vv" maskUnits="userSpaceOnUse" x="0" y="0" width={LW} height={LH}>
+          <path d={plumada} fill="none" stroke="#fff" stroke-width="78" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000" data-plumada />
+        </mask>
+      </defs>
+      <g class="fija">{[3, 2, 1, 0].map((i) => <path d={trazos[i]} />)}</g>
+      <g mask="url(#cg-vv)"><path d={trazos[4]} /></g>
+    </svg>
+    <p class="pista detail" data-carga-pista>dibuja un círculo<button type="button" class="saltar" data-saltar>saltar</button></p>
+    <!-- el CUELLO que sujeta la gota mientras se descuelga, el resto que se retrae y el satélite (en el sistema del mundo) -->
+    <svg class="cuello" viewBox="-20 -4 40 40" data-cuello><path d="" data-cuello-d /><circle class="resto" r="0" data-resto /></svg>
+    <i class="satelite" data-satelite></i>
+    <!-- la GOTA: cabeza + estela de velocidad con desenfoque de movimiento (el x del viewBox es la dirección de avance: la svg gira) -->
+    <svg class="gota" viewBox="-34 -8 42 16" data-gota>
+      <defs>
+        <filter id="cg-mb" filterUnits="userSpaceOnUse" x="-160" y="-60" width="220" height="120"><feGaussianBlur stdDeviation="0 0" data-mb /></filter>
+        <filter id="cg-mbc" filterUnits="userSpaceOnUse" x="-40" y="-40" width="80" height="80"><feGaussianBlur stdDeviation="0 0" data-mbc /></filter>
+      </defs>
+      <path class="estela" filter="url(#cg-mb)" d="M0 -2.4C-22 -1.8 -70 -0.6 -110 0C-70 0.6 -22 1.8 0 2.4Z" transform="scale(0, 1)" data-estela />
+      <circle r="6" filter="url(#cg-mbc)" />
+    </svg>
+  </div>
+</div>
+
+<script>
+  import { salpicar, formaGota } from '../scripts/gota';
+  const velo = document.querySelector<HTMLElement>('[data-cargador]');
+  const w = window as any, raiz = document.documentElement;
+  w.__cargaViva = true; // el salvavidas del <head> solo actúa si este script no llega a correr
+  const soltar = () => { if (w.__gotaSuelta) return; w.__gotaSuelta = true; dispatchEvent(new Event('savvia:gota')); };
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const terminar = () => {
+    if (hero) hero.style.transform = '';
+    if (raiz.classList.contains('cargando')) { raiz.classList.remove('cargando', 'carriles-entran'); void raiz.offsetWidth; raiz.classList.add('carriles-entran'); }
+  };
+  if (!velo || !hero || !raiz.classList.contains('cargando') || scrollY > 40) { terminar(); velo?.remove(); soltar(); }
+  else {
+    const $ = <T extends Element>(s: string) => velo.querySelector<T>(s)!;
+    const mundo = $<HTMLElement>('[data-mundo]'), logo = $<SVGSVGElement>('[data-logo]'), plumada = $<SVGPathElement>('[data-plumada]');
+    const gota = $<SVGSVGElement>('[data-gota]'), estela = $<SVGPathElement>('[data-estela]'), mb = $<SVGElement>('[data-mb]'), mbc = $<SVGElement>('[data-mbc]');
+    const cuello = $<SVGSVGElement>('[data-cuello]'), cuelloD = $<SVGPathElement>('[data-cuello-d]'), resto = $<SVGCircleElement>('[data-resto]');
+    const satelite = $<HTMLElement>('[data-satelite]'), pista = $<HTMLElement>('[data-carga-pista]'), rastro = $<SVGPolylineElement>('[data-rastro]'), anillo = $<SVGCircleElement>('[data-anillo]');
+    const camino: [number, number][] = JSON.parse(velo.dataset.camino!), NVV = +velo.dataset.nvv!;
+    const LW = 1118, LH = 348;
+    const seno = (t: number) => 0.5 - 0.5 * Math.cos(Math.PI * t);
+    const cubica = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const entre = (t: number, a: number, b: number) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+    // tiempos (ms) desde que la gota echa a rodar
+    const RODAR = 2400, COLGAR = 560, CAER = 1450, FIN = RODAR + COLGAR + CAER;
+    let t0 = 0, D = 0, L = { x: 0, y: 0, w: 0, h: 0 }, meta = { x: 0, y: 0 }, largo: number[] = [], total = 0, pts: [number, number][] = [], largoVV = 1;
+    let px = 0, py = 0, parado = false, estelaS = 0, camAnt = 0, ult = 0, rota = false, satT = -1, satY = 0, satX = 0, arrancando = false;
+    const aPant = ([x, y]: [number, number]): [number, number] => [L.x + (x / LW) * L.w, L.y + (y / LH) * L.h];
+    const medir = () => {
+      const hr = hero.getBoundingClientRect(); D = hr.top; // el hero nace desplazado: esa es la distancia que baja la cámara
+      const r = logo.getBoundingClientRect(); L = { x: r.left, y: r.top, w: r.width, h: r.height };
+      const c = hero.querySelector('.arbol-caja')!.getBoundingClientRect();
+      meta = { x: c.left + c.width / 2, y: c.bottom - 4 }; // en el MUNDO (el hero ya lleva sumada la distancia D)
+      pts = camino.map(aPant);
+      largo = [0]; for (let i = 1; i < pts.length; i++) largo.push(largo[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      total = largo[largo.length - 1]; largoVV = largo[NVV - 1];
+    };
+    const enCamino = (k: number): [number, number] => {
+      const s = k * total; let i = 1; while (i < largo.length - 1 && largo[i] < s) i++;
+      const f = (s - largo[i - 1]) / Math.max(1e-6, largo[i] - largo[i - 1]);
+      return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
+    };
+    const acabar = (conGota: boolean) => {
+      if (parado) return; parado = true;
+      terminar();
+      velo.classList.add('fuera');
+      gota.style.opacity = '0';
+      const caja = hero.querySelector<HTMLElement>('.arbol-caja');
+      if (conGota && caja) salpicar(caja, caja.offsetWidth / 2, caja.offsetHeight - 4, { n: 11, fuerza: 1.05 });
+      soltar();
+      setTimeout(() => velo.remove(), 1400);
+    };
+    const ponerGota = (x: number, y: number, ang: number, sx: number, sy: number) => {
+      gota.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${ang}rad) scale(${sy.toFixed(3)}, ${sx.toFixed(3)})`;
+    };
+    const cuelloPath = (Lc: number, r: number, wa: number, wm: number) =>
+      `M${-wa} 0C${-wm} ${Lc * 0.42} ${-r * 0.8} ${Lc * 0.72} ${-r * 0.8} ${Lc}L${r * 0.8} ${Lc}C${r * 0.8} ${Lc * 0.72} ${wm} ${Lc * 0.42} ${wa} 0Z`;
+    const paso = (ahora: number) => {
+      if (parado) return;
+      if (!ult) { ult = ahora; medir(); velo.classList.add('en-marcha'); }
+      ult = ahora;
+      if (!rota) { requestAnimationFrame(paso); return; }
+      const [ax, ay] = pts[pts.length - 1]; // la punta del rabo de la «a» (pantalla)
+      let x = 0, y = 0, cam = 0, ang = 0, sx = 1, sy = 1, gordo = 1;
+      const t = ahora - t0;
+      if (t < RODAR) {
+        // RODAR: por las v (se dibujan a su paso, con la plumada), el palo de la i y el lomo de la a
+        const k = seno(entre(t, 0, RODAR));
+        [x, y] = enCamino(k);
+        plumada.setAttribute('stroke-dashoffset', String(1000 * (1 - Math.min(1, (k * total) / largoVV + 0.012))));
+        const vx = x - px, vy = y - py, vel = Math.hypot(vx, vy);
+        ang = vel > 0.2 ? Math.atan2(vy, vx) : 0;
+        gota.style.opacity = String(entre(t, 0, 180));
+      } else if (t < RODAR + COLGAR) {
+        // DESCOLGARSE: la gota engorda y cae por su peso; el cuello se alarga y se estrangula
+        const k = entre(t, RODAR, RODAR + COLGAR), e = k * k * (3 - 2 * k);
+        gordo = 1 + 0.32 * e;
+        const r = 6 * gordo, Lc = 3 + 17 * e;
+        x = ax + Math.sin(k * 9) * 0.6 * (1 - k); y = ay + Lc;
+        cuello.style.opacity = '1'; cuello.style.transform = `translate3d(${ax}px, ${ay}px, 0)`;
+        cuelloD.setAttribute('d', cuelloPath(Lc, r, 4.2 - 2.6 * e, r * 0.72 * (1 - Math.pow(k, 1.6)) + 0.7));
+        ang = Math.PI / 2; sx = 1 - 0.08 * e; sy = 1 + 0.16 * e;
+      } else {
+        // CAER: en pantalla acelera (gravedad); la cámara baja con curva suave y se posa a la vez que la gota toca el suelo
+        const tCae = t - (RODAR + COLGAR);
+        if (tCae < 40) { cuelloD.setAttribute('d', ''); satT = ahora; satX = ax; satY = ay + 9; satelite.style.opacity = '1'; }
+        const rk = entre(tCae, 0, 220); resto.setAttribute('r', String(2.4 * (1 - rk))); resto.setAttribute('cy', String(-3 * rk));
+        const k = entre(t, RODAR + COLGAR, FIN);
+        cam = cubica(k);
+        const y0 = ay + 20;
+        const pantY = y0 + (meta.y - D - y0) * Math.pow(k, 2.1);
+        y = pantY + cam * D;
+        x = ax + (meta.x - ax) * seno(k) + Math.sin(k * Math.PI * 2) * 14 * (1 - k);
+        mundo.style.transform = `translate3d(0, ${-cam * D}px, 0)`;
+        hero.style.transform = `translate3d(0, ${(1 - cam) * D}px, 0)`;
+        if (k > 0.02) velo.classList.add('cayendo');
+        gordo = 1.3;
+        const velP = Math.abs(y - cam * D - (py - camAnt * D));
+        const vx = x - px, vy = y - py;
+        ang = Math.PI / 2 + (Math.hypot(vx, vy) > 0.2 ? (Math.atan2(vy, vx) - Math.PI / 2) * 0.5 : 0);
+        const f = formaGota(tCae, velP); sx = f.sx; sy = f.sy;
+        estelaS += ((tCae > 100 ? Math.min(1, velP * 0.05) : 0) - estelaS) * 0.22;
+        estela.setAttribute('transform', `scale(${estelaS.toFixed(3)}, 1)`);
+        estela.style.opacity = String(0.42 * estelaS);
+        mb.setAttribute('stdDeviation', `${Math.min(9, velP * 0.28).toFixed(2)} 0.4`);
+        mbc.setAttribute('stdDeviation', `${Math.min(1.4, velP * 0.035).toFixed(2)} 0.15`);
+        if (satT > 0) {
+          const ts = (ahora - satT) / 1000, sy2 = satY + 0.5 * 1500 * ts * ts * 0.85;
+          satelite.style.transform = `translate3d(${satX}px, ${sy2 + cam * D}px, 0) scale(${1 + ts * 1.2}, ${1 - ts * 0.15})`;
+          satelite.style.opacity = String(Math.max(0, 1 - ts * 1.6));
+        }
+      }
+      ponerGota(x, y, ang, gordo * sx, gordo * sy);
+      camAnt = cam; px = x; py = y;
+      if (t >= FIN) return acabar(true);
+      requestAnimationFrame(paso);
+    };
+    // ── EL CÍRCULO: el puntero deja un rastro; cuando la vuelta se cierra (≥ 340° alrededor de su centro, radio ≥ 18 px), arranca
+    const traza: { x: number; y: number; t: number }[] = [];
+    const arrancar = (cx: number, cy: number, r: number) => {
+      if (arrancando || rota) return; arrancando = true;
+      clearTimeout(pistaT); pista.classList.remove('ver');
+      velo.classList.add('circulo');
+      rastro.setAttribute('points', ''); traza.length = 0; // el rastro desaparece en cuanto se cierra el círculo
+      // el anillo se encoge desde el círculo dibujado hasta el pie de la primera v y se vuelve la gota (rAF: los atributos SVG no se animan igual en todos)
+      const [gx, gy] = pts[0];
+      anillo.style.opacity = '1';
+      let a0 = 0;
+      const enc = (ahora: number) => {
+        if (!a0) a0 = ahora;
+        const k = Math.min(1, (ahora - a0) / 520), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        anillo.setAttribute('cx', String(cx + (gx - cx) * e)); anillo.setAttribute('cy', String(cy + (gy - cy) * e)); anillo.setAttribute('r', String(r + (3 - r) * e));
+        if (k < 1) return void requestAnimationFrame(enc);
+        anillo.style.opacity = '0'; rota = true; t0 = performance.now(); px = gx; py = gy;
+      };
+      requestAnimationFrame(enc);
+    };
+    const mover = (e: PointerEvent) => {
+      if (rota || arrancando) return;
+      if (e.pointerType === 'touch' && e.buttons === 0) return;
+      const ahora = performance.now();
+      traza.push({ x: e.clientX, y: e.clientY, t: ahora });
+      while (traza.length && ahora - traza[0].t > 1400) traza.shift();
+      rastro.setAttribute('points', traza.map((p) => `${p.x},${p.y}`).join(' '));
+      if (traza.length < 14) return;
+      let cx = 0, cy = 0; for (const p of traza) { cx += p.x; cy += p.y; } cx /= traza.length; cy /= traza.length;
+      let giro = 0, radio = 0, prev = Math.atan2(traza[0].y - cy, traza[0].x - cx);
+      for (let i = 1; i < traza.length; i++) {
+        const a = Math.atan2(traza[i].y - cy, traza[i].x - cx); let d = a - prev; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; giro += d; prev = a;
+        radio += Math.hypot(traza[i].x - cx, traza[i].y - cy);
+      }
+      radio /= traza.length - 1;
+      if (Math.abs(giro) >= Math.PI * 1.9 && radio >= 18) arrancar(cx, cy, radio);
+    };
+    addEventListener('pointermove', mover, { passive: true });
+    // pista «dibuja un círculo» si a los 1,6 s nadie ha hecho nada
+    const pistaT = setTimeout(() => { if (!rota && !arrancando) pista.classList.add('ver'); }, 1600);
+    const saltar = () => acabar(false);
+    $('[data-saltar]').addEventListener('click', saltar);
+    addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') return saltar();
+      if ((e.key === ' ' || e.key === 'Enter') && !rota && !arrancando) { e.preventDefault(); medir(); arrancar(innerWidth / 2, innerHeight / 2, 40); }
+    });
+    addEventListener('wheel', saltar, { once: true, passive: true });
+    document.fonts.ready.then(() => requestAnimationFrame(paso));
+  }
+</script>
+
+<style>
+  .cargador {
+    position: fixed;
+    inset: 0;
+    z-index: 70; /* escala de z: … 55 nav · 60 escenario sentado · 70 carga */
+    overflow: hidden;
+    pointer-events: auto; /* mientras dura, el puntero es suyo (debajo no hay nada que tocar) */
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none; /* el dedo dibuja el círculo, no hace scroll */
+  }
+  /* el velo: la misma materia que la página. Se retira cuando la gota empieza a caer (debajo solo hay fondo: el hero aún está abajo) */
+  .cargador::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--noche) url('/media/grano.png') 0 0 / 240px 240px;
+    transition: opacity 0.7s ease;
+  }
+  .cayendo::before {
+    opacity: 0;
+  }
+  .mundo {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(56vw, 21rem);
+    height: auto;
+    translate: -50% -50%;
+    overflow: visible;
+    fill: var(--color-niebla);
+  }
+  /* «sa  ia» aparece primero; las v las dibuja la gota (la plumada de la máscara) */
+  .logo .fija {
+    opacity: 0;
+    transition: opacity 1.1s ease 0.35s;
+  }
+  .en-marcha .logo .fija {
+    opacity: 1;
+  }
+  /* el rastro del puntero y el anillo que se encoge */
+  .rastro {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .rastro polyline {
+    fill: none;
+    stroke: var(--color-naranja);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.55;
+    transition: opacity 0.4s ease;
+  }
+  .circulo .rastro polyline {
+    opacity: 0;
+  }
+  .anillo {
+    fill: none;
+    stroke: var(--color-naranja);
+    stroke-width: 2;
+    opacity: 0;
+  }
+  .pista {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + min(56vw, 21rem) * 0.155 + 1.5rem);
+    translate: -50% 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    color: var(--fg2);
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .pista.ver {
+    opacity: 1;
+  }
+  .saltar {
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--fg2);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .saltar:hover {
+    color: var(--fg);
+  }
+  .gota .estela {
+    opacity: 0; /* solo cayendo: el JS la escala y la enciende con la velocidad */
+  }
+  .gota {
+    position: absolute;
+    /* el centro de la cabeza (0,0 del viewBox) cae en el punto del camino: el viewBox va de −34 a 8 en x y de −8 a 8 en y */
+    left: -34px;
+    top: -8px;
+    width: 42px;
+    height: 16px;
+    transform-origin: 34px 8px;
+    overflow: visible;
+    fill: var(--color-naranja);
+    opacity: 0;
+    will-change: transform;
+  }
+  .cuello {
+    position: absolute;
+    left: -20px;
+    top: -4px;
+    width: 40px;
+    height: 40px;
+    overflow: visible;
+    fill: var(--color-naranja);
+    opacity: 0;
+    transform-origin: 20px 4px;
+  }
+  .satelite {
+    position: absolute;
+    left: -1.7px;
+    top: -1.7px;
+    width: 3.4px;
+    height: 3.4px;
+    border-radius: 50%;
+    background: var(--color-naranja);
+    opacity: 0;
+  }
+  /* al posarse: el rastro y la gota se funden con la savia del suelo */
+  .fuera {
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    pointer-events: none;
+  }
+  .fuera .gota,
+  .fuera .satelite {
+    opacity: 0 !important;
+    transition: opacity 0.25s ease;
+  }
+  :global(html:not(.cargando)) .cargador:not(.en-marcha),
+  :global(html:not(.js)) .cargador {
+    display: none;
+  }
+</style>

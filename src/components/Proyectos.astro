@@ -1,0 +1,1837 @@
+---
+import { proyectos } from '../data/home';
+const P = proyectos.nuevos;
+const EST = ['primavera', 'verano', 'otono', 'invierno'];
+const nombreEst: Record<string, string> = { primavera: 'Primavera', verano: 'Verano', otono: 'Otoño', invierno: 'Invierno' };
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<!--
+  EL ESTUDIO (ronda 9). Los proyectos se ven DENTRO del ordenador de la mesa. EL PROTAGONISTA SON LOS PROYECTOS.
+  · ENTRAR: al hacer scroll hacia la escena, llega como una lámina enmarcada y crece hasta llenar la pantalla: entras en ella.
+    (Pista sticky corta: 100 + 60 lvh. NO pasa proyectos con el scroll: eso sigue siendo lista, flechas o teclado.)
+  · Interfaz MÍNIMA sobre la escena, sin cajas: el proyecto abajo a la izquierda, la lista abajo a la derecha, estación y sonido en una línea.
+  · SENTARSE sale de la SILLA con una línea de llamada (el recurso clásico de anotar un objeto). Esc o «Levantarse» sale.
+  · La web de dentro del monitor se puede recorrer SIEMPRE, también sin sentarse (se activa al mover el ratón por la escena,
+    para que un scroll de página con el cursor quieto en el centro no se quede atrapado dentro del monitor).
+  · Cada estación trae un detalle SUTIL en el paisaje, tras el cristal: hojas en otoño, nieve en invierno, pétalos en primavera,
+    motas de luz en verano. Nunca por delante del monitor ni de los montantes de la ventana.
+  Rectángulo de la pantalla medido en la lámina (1920×1080): left 39,219 % · top 37,130 % · 21,406 % × 20,926 %.
+  RONDA 19 · láminas NUEVAS de Andoni (la luz cambia con la estación; 1672×941, pegadas en el chat: hace falta el archivo original a 4K):
+  pantalla medida por inundación en las cuatro → left 39,18 % · top 37,08 % · 21,48 % × 20,85 % (recortando 0,1 % de bisel).
+  RONDA 19 · dentro del monitor va la WEB REAL en un <iframe> (referencia: la maqueta de Eric en Webflow: iframe a 1680 px reducido con
+  `transform: scale`): se ven sus animaciones. Solo se monta la del proyecto activo; la que no se deja embeber (Neety) enseña su captura.
+  La silla: el centro de su respaldo cae en (58,7 % · 81 %).
+-->
+<section id="proyectos" class="surface-dark" aria-label={proyectos.pregunta} data-estudio>
+  <div class="pista" data-pista>
+    <div class="pegado">
+      <div class="escenario" data-escenario>
+        <div class="escena" data-escena>
+          {
+            EST.map((e) => (
+              <img class="capa" data-capa={e} data-src={`/media/estudio/${e}.webp`} data-src-m={`/media/estudio/${e}-m.webp`} data-src-xl={`/media/estudio/${e}-xl.webp`} alt="" decoding="async" />
+            ))
+          }
+          <canvas class="aire" aria-hidden="true" data-aire></canvas>
+          <!-- RONDA 14 · sentado, el marco del monitor en CSS (nítido a cualquier zoom): pisa al de la foto, que al ampliarse queda blanda.
+               RONDA 18 · «cuando te sientas dejamos toda la imagen nítida sin nada»: sentado NO se desenfoca nada (ni paisaje ni aire). -->
+          <i class="marco-monitor" aria-hidden="true"></i>
+          <div class="pantalla" data-pantalla>
+            <!-- La web, ABIERTA EN UN NAVEGADOR: barra con semáforo y dirección; debajo, la página, que se recorre. -->
+            <!-- Safari: semáforo, barra lateral, atrás/adelante, campo de dirección con candado y recarga, compartir · nueva · pestañas,
+                 y la barra de progreso de la carga. Todo en unidades de la propia pantalla (cqh): crece con ella al sentarse. -->
+            <!-- RONDA 50 · lo que hay TRAS la barra de cristal: la parte de arriba de la captura de la web activa (la web real es un iframe de otro
+                 dominio y empieza bajo la barra para no taparle el menú; así el cristal se tiñe con los colores de cada proyecto) -->
+            <i class="tras-cromo" aria-hidden="true"></i>
+            <div class="cromo" aria-hidden="true">
+              <span class="semaforo"><i /><i /><i /></span>
+              <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M9 5v14" /></svg>
+              <svg class="ic" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6" /></svg>
+              <svg class="ic tenue" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" /></svg>
+              <span class="direccion">
+                <svg class="ic mini" viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="9" rx="2" /><path d="M9 11V8a3 3 0 016 0v3" /></svg>
+                <span class="url" data-url></span>
+                <svg class="ic mini fin" viewBox="0 0 24 24"><path d="M19 12a7 7 0 11-2.2-5.1M19 4v4h-4" /></svg>
+              </span>
+              <svg class="ic" viewBox="0 0 24 24"><path d="M12 15V4m0 0l-4 4m4-4l4 4M6 12v6a2 2 0 002 2h8a2 2 0 002-2v-6" /></svg>
+              <svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+              <svg class="ic" viewBox="0 0 24 24"><rect x="4" y="8" width="12" height="12" rx="2.5" /><path d="M8 8V6.5A2.5 2.5 0 0110.5 4H17.5A2.5 2.5 0 0120 6.5v7A2.5 2.5 0 0117.5 16H16" /></svg>
+              <i class="progreso" data-progreso></i>
+            </div>
+            <!-- RONDA 13 · «que la primera web que cargue, en ese propio marrón, salga un buscador que typeas la web y carga la primera»:
+                 al terminar de entrar, la pantalla sigue siendo el MISMO Cacao del titular (con su grano) y en ella aparece un buscador;
+                 se teclea el dominio, carga, y la página de inicio se retira dejando Safari con la web. Los cambios de proyecto, como antes. -->
+            <div class="inicio" aria-hidden="true" data-inicio>
+              <p class="inicio-tit font-display">{proyectos.titulo}</p>
+              <span class="buscador">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
+                <span class="busca-txt" data-busca-txt></span>
+                <i class="busca-carga" data-busca-carga></i>
+              </span>
+            </div>
+            <!-- RONDA 39 · «hay que poner algún indicador de que se puede hacer scroll en el ordenador»: una píldora al pie de la pantalla, con la
+                 rueda del ratón que baja; sale cuando la web ha cargado y se va en cuanto el puntero entra en la pantalla (ya lo has descubierto) -->
+            <!-- RONDA 41 · la capa que recoge el PRIMER gesto de scroll sobre la web (el iframe es de otro dominio: no se puede saber si se ha deslizado
+                 dentro). Con ese primer gesto la llamada «Desliza dentro» se va y la capa desaparece: a partir de ahí, la web se recorre normal. -->
+            <i class="capta" aria-hidden="true" data-capta></i>
+            <!-- RONDA 50 · «el indicador de scroll como estaba antes, encima de la pantalla del ordenador»: vuelve la píldora de la ronda 39, al pie
+                 de la web; se va con el primer gesto sobre ella (la capa `capta`, ronda 41) -->
+            <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span>desliza dentro</span></p>
+            <div class="visor">
+            {
+              P.map((p, i) => (
+                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-embed={(p as any).embed === false ? 'no' : 'si'} tabindex="-1" role="region" aria-label={`Web de ${p.n}`} hidden={i !== 0}>
+                  <!-- RONDA 19: aquí se monta, al acercarse, el <iframe> con la web REAL (o su captura si la web no se deja embeber) -->
+                </div>
+              ))
+            }
+            </div>
+          </div>
+          <!-- La llamada: un punto en la silla, una línea y la palabra. Todo ello es el botón. -->
+          <button type="button" class="llamada" data-sentarse>
+            <i class="punto-silla" aria-hidden="true"></i>
+            <svg class="linea" viewBox="0 0 120 64" fill="none" aria-hidden="true"><path d="M2 62L58 6H118" /></svg>
+            <span class="detail detail-caps">Sentarse</span>
+          </button>
+        </div>
+
+        <!-- ENTRADA: al llegar, la pantalla del ordenador LLENA la ventana y enseña el titular; al bajar, la cámara se aleja y el
+             titular se queda del tamaño de la pantalla del monitor. Va FUERA de la escena escalada: se rasteriza grande y se reduce (nítido). -->
+        <div class="titulo-pantalla" data-titulo>
+          <h2 class="font-display">{proyectos.titulo}</h2>
+        </div>
+
+        <div class="velo-ui" aria-hidden="true"></div>
+
+        <!-- Proyecto activo: abajo a la izquierda -->
+        <div class="ui ui-info" aria-live="polite">
+          {
+            P.map((p, i) => (
+              <div class="ficha" data-hechos={i} hidden={i !== 0}>
+                <p class="text-body">{p.cat}</p>
+                <p class="text-body mt-1">{p.hechos[0][1]}</p>
+                <p class="text-aux mt-3 max-w-[34ch] opacity-80">{p.d}</p>
+                <a class="ver text-aux mt-3 inline-block" href={`/casos/${p.slug}`}>Ver caso de estudio +</a>
+              </div>
+            ))
+          }
+        </div>
+
+        <!-- EL DIAL (ronda 12): la lista de proyectos como el dial de una radio: gira hacia arriba y hacia abajo SIN FIN, el activo nítido en
+             el centro y los de los extremos, difuminados. Rueda, clic, flechas. La lista va repetida 5 veces; el JS la mantiene centrada. -->
+        <!-- RONDA 39 · «tiene que ser más notorio que el menú de la izquierda puedes cambiar de proyecto»: flechas arriba y abajo del dial, el
+             contador del proyecto y, al llegar, un empujón del dial que enseña que gira -->
+        <div class="ui ui-guia" data-guia>
+          <!-- RONDA 40 · «quitamos proyectos con números: con las flechas ya es suficiente». En móvil, las flechas a los lados del nombre -->
+          <p class="guia-nombre" aria-live="polite" data-guia-nombre>{P[0].n}</p>
+          <button type="button" class="giro arriba" data-giro="-1" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14.5l6-6 6 6" /></svg></button>
+          <button type="button" class="giro abajo" data-giro="1" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6" /></svg></button>
+        </div>
+        <div class="ui ui-lista" data-lista>
+          <ol class="dial" data-dial>
+            {
+              Array.from({ length: 5 }).flatMap((_, v) =>
+                P.map((p, i) => (
+                  <li>
+                    <button type="button" class="item" data-item={i} data-pos={v * P.length + i} tabindex={v === 2 ? 0 : -1} aria-hidden={v === 2 ? 'false' : 'true'}>
+                      <i class="raya" aria-hidden="true" />
+                      <span class="num tabular-nums">{pad(i + 1)}</span>
+                      <span class="nombre">{p.n}</span>
+                    </button>
+                  </li>
+                )),
+              )
+            }
+          </ol>
+        </div>
+
+        <!-- BARRA INFERIOR (ronda 11 · «algo estilo Apple, más recogido y con iconitos»): una píldora de cristal con las cuatro
+             estaciones y el sonido. El nombre de cada botón sale en una etiqueta al pasar o enfocar. -->
+        <!-- RONDA 19 · «los botones de cambiar de estación quiero que vayan bajo un (+) redondeado que cuando lo clicas de él salen los iconos
+             como si se fuesen multiplicando haciendo una circunferencia alrededor de él. La animación de separarse del (+) tiene que ser
+             líquida»: una capa de GOTAS Rosa niebla (la del (+) y cuatro que nacen de ella) bajo un filtro gooey mientras se separan, y encima
+             los botones (transparentes, con el icono). Las gotas se colocan en una circunferencia de 60 px alrededor del (+). -->
+        <div class="ui ui-mando" data-mando>
+          <svg width="0" height="0" class="absolute" aria-hidden="true"><filter id="goo-estaciones" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="6" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" /></filter></svg>
+          <div class="abanico" data-abanico>
+            <span class="blobs" aria-hidden="true"><i class="blob mas-blob"></i>{[0, 1, 2, 3, 4].map((k) => <i class="blob" style={`--i:${k}`} />)}</span>
+            <button type="button" class="mas" data-mas aria-expanded="false" aria-label="Cambiar de estación">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            </button>
+          <div class="grupo" role="group" aria-label="Estación y sonido" inert>
+            <button type="button" class="est" data-est="primavera" aria-pressed="false" aria-label="Primavera" style="--i:0">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.2" /><path d="M12 9.8c-1.6-2.4-1.6-4.6 0-6.3 1.6 1.7 1.6 3.9 0 6.3zM14.2 12c2.4-1.6 4.6-1.6 6.3 0-1.7 1.6-3.9 1.6-6.3 0zM12 14.2c1.6 2.4 1.6 4.6 0 6.3-1.6-1.7-1.6-3.9 0-6.3zM9.8 12c-2.4 1.6-4.6 1.6-6.3 0 1.7-1.6 3.9-1.6 6.3 0z" /></svg><span class="rotulo detail">Primavera</span>
+            </button>
+            <button type="button" class="est" data-est="verano" aria-pressed="false" aria-label="Verano" style="--i:1">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8" /></svg><span class="rotulo detail">Verano</span>
+            </button>
+            <button type="button" class="est" data-est="otono" aria-pressed="false" aria-label="Otoño" style="--i:2">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-14 14zM5 19l8-8" /></svg><span class="rotulo detail">Otoño</span>
+            </button>
+            <button type="button" class="est" data-est="invierno" aria-pressed="false" aria-label="Invierno" style="--i:3">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M20.2 7.2L3.8 16.8M12 6l-2-2m2 2l2-2M12 18l-2 2m2-2l2 2" /></svg><span class="rotulo detail">Invierno</span>
+            </button>
+          <!-- RONDA 20 · «dentro del + también ponemos el sonido»: la quinta gota -->
+          <button type="button" class="est" aria-pressed="false" aria-label="Sonido" data-sonido style="--i:4">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" /><path class="ondas" d="M15.5 9a4.2 4.2 0 010 6M18 6.5a7.8 7.8 0 010 11" /><path class="mudo" d="M15.5 9.5l5 5m0-5l-5 5" /></svg>
+            <span class="rotulo detail">Sonido <span data-sonido-estado>off</span></span>
+          </button>
+          </div>
+          </div>
+        </div>
+
+        <!-- SENTADO (ronda 12): que quede claro cómo se sale: una (x) arriba a la derecha y, abajo, la tecla Esc. Sin «Abrir la web» aquí. -->
+        <div class="barra" data-barra hidden>
+          <button type="button" class="cerrar cristal" data-levantarse aria-label="Levantarse y volver">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+          <p class="salir cristal detail"><kbd>esc</kbd> para levantarte</p>
+          <!-- RONDA 14 · «en la vista sentado de proyectos que también puedas ver otros»: sin levantarte, anterior · proyecto · siguiente -->
+          <div class="otros cristal" role="group" aria-label="Cambiar de proyecto">
+            <button type="button" class="paso" data-otro="-1" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg></button>
+            <p class="cual" aria-live="polite"><span class="detail tabular-nums" data-otro-n>01/{pad(P.length)}</span><span data-otro-nombre>{P[0].n}</span></p>
+            <button type="button" class="paso" data-otro="1" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+  </div>
+</section>
+
+<script define:vars={{ datos: P.map((p) => ({ n: p.n, url: p.url, estacion: p.estacion })), nombreEst }} is:inline>
+  window.__ESTUDIO = { datos, nombreEst };
+</script>
+
+<script>
+  import { crearSonido } from '../scripts/sonido-estudio';
+  import { EST, fijarEstacion } from '../scripts/estacion';
+
+  const raiz0 = document.querySelector<HTMLElement>('[data-estudio]');
+  if (raiz0) {
+    const raiz: HTMLElement = raiz0;
+    const { datos, nombreEst } = (window as any).__ESTUDIO as { datos: { n: string; url: string; estacion: string }[]; nombreEst: Record<string, string> };
+    const $ = <T extends HTMLElement>(s: string) => raiz.querySelector<T>(s)!;
+    const $$ = <T extends HTMLElement>(s: string) => [...raiz.querySelectorAll<T>(s)];
+    const escenario = $('[data-escenario]'), escena = $('[data-escena]');
+    const otroN = $('[data-otro-n]'), otroNombre = $('[data-otro-nombre]'); // el selector de la vista sentado
+    const capas = $$<HTMLImageElement>('[data-capa]'), webs = $$('[data-web]'), items = $$<HTMLButtonElement>('[data-item]'), hechos = $$('[data-hechos]');
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sonido = crearSonido();
+    let activo = 0, sentado = false, cargado = false, estManual: string | null = null;
+    const estActual = () => estManual ?? datos[activo].estacion;
+    const ests = $$<HTMLButtonElement>('[data-est]');
+
+    // Las láminas se piden al acercarse la sección: primero la de la estación visible.
+    // RONDA 39 · «los mockups del ordenador hay que hacerlos más nítidos»: láminas nuevas de Andoni a 8K → 1600 (móvil), 2560 y 5120 px.
+    // Se pide la que cubre la pantalla a su densidad real; sentado (la escena se amplía ×2,4) se sube a la de 5120 sin parpadeo.
+    const pedir = (img: HTMLImageElement) => {
+      if (img.src) return;
+      const px = innerWidth * Math.min(devicePixelRatio || 1, 2);
+      img.src = innerWidth < 700 ? img.dataset.srcM! : px > 2600 ? img.dataset.srcXl! : img.dataset.src!;
+    };
+    const mejorar = (img: HTMLImageElement) => {
+      const xl = img.dataset.srcXl!;
+      if (!img.src) { img.src = xl; return; }
+      if (img.src.endsWith(xl) || img.dataset.mejorando) return;
+      img.dataset.mejorando = '1';
+      const pre = new Image(); pre.decoding = 'async'; pre.src = xl;
+      pre.decode().then(() => { img.src = xl; }).catch(() => {});
+    };
+    // ── LAS WEBS REALES (ronda 19): un <iframe> a un ancho de escritorio, reducido con `transform: scale` a la pantalla del monitor (como
+    // la maqueta de Eric). Solo se monta la del proyecto activo (cuatro webs con WebGL y GSAP a la vez es demasiado); al cambiar, la anterior
+    // se desmonta al momento. La que no se deja embeber (data-embed="no") enseña su captura. `listo` = el iframe ha cargado (o la imagen).
+    type Montada = { el: HTMLIFrameElement | HTMLImageElement; listo: boolean; cbs: (() => void)[] };
+    const montadas = new Map<HTMLElement, Montada>();
+    const BASE = () => (innerWidth < 700 ? 1024 : 1440);
+    function ajustar() {
+      const B = BASE();
+      montadas.forEach((m, w) => {
+        if (!(m.el instanceof HTMLIFrameElement) || w.hidden || !w.clientWidth) return;
+        const k = w.clientWidth / B;
+        m.el.style.width = `${B}px`; m.el.style.height = `${Math.ceil(w.clientHeight / k)}px`; m.el.style.transform = `scale(${k})`;
+      });
+    }
+    function montar(w: HTMLElement): Montada {
+      const ya = montadas.get(w); if (ya) return ya;
+      const m: Montada = { el: null as any, listo: false, cbs: [] };
+      const listo = () => { m.listo = true; m.cbs.splice(0).forEach((f) => f()); };
+      if (w.dataset.embed === 'no') {
+        const img = new Image(); img.src = w.dataset.cap!; img.alt = `${w.getAttribute('aria-label')}, completa`; img.decoding = 'async';
+        img.complete && img.naturalWidth ? listo() : img.addEventListener('load', listo, { once: true });
+        m.el = img;
+      } else {
+        const f = document.createElement('iframe');
+        f.src = w.dataset.src!; f.title = w.getAttribute('aria-label')!; f.tabIndex = -1;
+        f.setAttribute('referrerpolicy', 'no-referrer'); f.setAttribute('loading', 'eager');
+        f.addEventListener('load', listo, { once: true });
+        m.el = f;
+      }
+      w.append(m.el); montadas.set(w, m); ajustar();
+      return m;
+    }
+    function desmontar(w: HTMLElement) { const m = montadas.get(w); if (m) { m.el.remove(); montadas.delete(w); } }
+    const cuandoListo = (w: HTMLElement, f: () => void) => { const m = montar(w); m.listo ? f() : m.cbs.push(f); };
+    new ResizeObserver(ajustar).observe($('.visor'));
+    const cargar = () => {
+      if (cargado) return;
+      cargado = true;
+      pedir(capas.find((c) => c.dataset.capa === estActual())!);
+      montar(webs[activo]);
+      const resto = () => capas.forEach(pedir);
+      'requestIdleCallback' in window ? requestIdleCallback(resto, { timeout: 2500 }) : setTimeout(resto, 1200);
+    };
+    new IntersectionObserver((e, o) => e.some((x) => x.isIntersecting) && (cargar(), o.disconnect()), { rootMargin: '900px 0px' }).observe(raiz);
+
+    // Fuera de pantalla, el ambiente calla (y vuelve al entrar).
+    new IntersectionObserver((e) => sonido.visible(e[0].isIntersecting), { threshold: 0.15 }).observe(raiz);
+
+
+    // ── EL AIRE DE CADA ESTACIÓN: un detalle sutil en el paisaje, TRAS el cristal. Pocas piezas, pequeñas y lentas.
+    // Nunca se pintan sobre el monitor, su pie ni los montantes de la ventana, ni por debajo del alféizar (64 % del alto).
+    const aire = (() => {
+      const cv = $<HTMLCanvasElement>('[data-aire]'), c = cv.getContext('2d')!;
+      type Pz = { x: number; y: number; z: number; f: number; g: number };
+      const REC = {
+        otono: { n: 16, col: ['#C8692B', '#E0A03A', '#8E3B1F'], vy: 0.035, vx: 0.012, tam: 0.0042, forma: 'hoja' },
+        invierno: { n: 38, col: ['#FFFFFF'], vy: 0.028, vx: 0.006, tam: 0.0016, forma: 'punto' },
+        primavera: { n: 12, col: ['#FFFFFF', '#F6D6DE'], vy: 0.022, vx: 0.02, tam: 0.0028, forma: 'hoja' },
+        verano: { n: 14, col: ['#FFF3C4'], vy: -0.006, vx: 0.008, tam: 0.0014, forma: 'punto' },
+      } as Record<string, { n: number; col: string[]; vy: number; vx: number; tam: number; forma: string }>;
+      let est = '', pzs: Pz[] = [], raf = 0, visible = false, t0 = 0;
+      const tapado = (x: number, y: number) =>
+        y > 0.635 || (x > 0.385 && x < 0.612 && y > 0.355 && y < 0.59) || (x > 0.465 && x < 0.535 && y >= 0.59) || Math.abs(x - 0.342) < 0.0022 || Math.abs(x - 0.658) < 0.0022;
+      const medir = () => { const k = Math.min(devicePixelRatio || 1, 1.5); cv.width = Math.round(cv.clientWidth * k); cv.height = Math.round(cv.clientHeight * k); };
+      const paso = (ahora: number) => {
+        raf = 0;
+        const r = REC[est];
+        if (!r) return;
+        const dt = Math.min(0.05, (ahora - (t0 || ahora)) / 1000); t0 = ahora;
+        const W = cv.width, H = cv.height;
+        c.clearRect(0, 0, W, H);
+        pzs.forEach((p, i) => {
+          p.f += dt;
+          p.y += r.vy * dt * (0.6 + p.z * 0.8);
+          p.x += (r.vx + Math.sin(p.f * 0.9 + i) * 0.012) * dt * (0.6 + p.z);
+          if (p.y > 0.66 || p.y < -0.02 || p.x > 1.02) { p.y = r.vy > 0 ? -0.02 : 0.62; p.x = Math.random(); p.f = Math.random() * 9; }
+          if (tapado(p.x, p.y)) return;
+          const s = r.tam * W * (0.55 + p.z * 0.9);
+          c.globalAlpha = (0.35 + p.z * 0.45) * Math.min(1, p.f * 0.8);
+          c.fillStyle = r.col[i % r.col.length];
+          c.beginPath();
+          if (r.forma === 'hoja') c.ellipse(p.x * W, p.y * H, s, s * 0.46, p.g + Math.sin(p.f * 1.7) * 0.9, 0, 6.283);
+          else c.arc(p.x * W, p.y * H, s, 0, 6.283);
+          c.fill();
+        });
+        if (visible) raf = requestAnimationFrame(paso);
+      };
+      const pedir = () => { if (!raf && visible && !reducido) { t0 = 0; raf = requestAnimationFrame(paso); } };
+      new IntersectionObserver((en) => { visible = en[0].isIntersecting; pedir(); }).observe(cv);
+      new ResizeObserver(medir).observe(cv);
+      return {
+        estacion(e2: string) {
+          if (e2 === est) return;
+          est = e2;
+          const r = REC[e2];
+          pzs = r ? Array.from({ length: r.n }, () => ({ x: Math.random(), y: Math.random() * 0.62, z: Math.random(), f: Math.random() * 9, g: Math.random() * 3.14 })) : [];
+          pedir();
+        },
+      };
+    })();
+
+    // ── NAVEGAR (ronda 11): en vez de aparecer sin más, alguien TECLEA la dirección del proyecto en Safari, la barra de progreso
+    // corre y la página carga. La primera vez (al terminar de entrar en la escena) va despacio; al cambiar de proyecto, deprisa.
+    let estrenado = reducido, turno = 0;
+    const urlEl = $('[data-url]'), prog = $('[data-progreso]');
+    $('[data-pantalla]').style.setProperty('--cap', `url('${webs[activo].dataset.cap}')`); // el tinte del cristal, ya para la primera web (el estreno no pasa por navegar)
+    function navegar(rapido: boolean) {
+      inicio.classList.add('fuera'); // si se cambia de proyecto en pleno estreno, la página de inicio se retira
+      const yo = ++turno, w = webs[activo], host = new URL(datos[activo].url).host;
+      $('[data-pantalla]').style.setProperty('--cap', `url('${w.dataset.cap}')`); // el tinte del cristal de la barra
+      if (reducido) { urlEl.textContent = host; w.classList.remove('cargando'); return; }
+      webs.forEach((x) => x.classList.add('cargando'));
+      urlEl.textContent = ''; urlEl.classList.add('tecleando');
+      prog.style.transition = 'none'; prog.style.opacity = '1'; prog.style.transform = 'scaleX(0)';
+      let k = 0;
+      const teclear = () => {
+        if (yo !== turno) return;
+        urlEl.textContent = host.slice(0, ++k);
+        if (k < host.length) return void setTimeout(teclear, (rapido ? 16 : 46) + Math.random() * (rapido ? 18 : 60));
+        urlEl.classList.remove('tecleando');
+        // intro → carga: la barra avanza a tirones, como una carga de verdad
+        const T = rapido ? 520 : 1150;
+        prog.style.transition = `transform ${T * 0.55}ms cubic-bezier(.2,.7,.2,1)`; prog.style.transform = 'scaleX(.68)';
+        setTimeout(() => { if (yo !== turno) return; prog.style.transition = `transform ${T * 0.45}ms cubic-bezier(.5,0,.2,1)`; prog.style.transform = 'scaleX(.9)'; }, T * 0.55);
+        // RONDA 19: la web es un iframe de verdad → se descubre cuando ha CARGADO (la barra espera al 90 % si aún no ha llegado)
+        setTimeout(() => { if (yo !== turno) return; cuandoListo(w, () => { if (yo !== turno) return; prog.style.transition = 'transform .25s ease'; prog.style.transform = 'scaleX(1)'; w.classList.remove('cargando'); prog.style.transition = 'opacity .4s ease .3s'; prog.style.opacity = '0'; avisarScroll(); }); }, T);
+      };
+      setTimeout(teclear, rapido ? 120 : 480);
+    }
+
+    if (!reducido) webs.forEach((x) => x.classList.add('cargando')); // hasta que alguien teclee la dirección, pestaña en blanco
+
+    // ── LA SEÑAL DE SCROLL (ronda 39): sale al descubrirse cada web hasta que el puntero entra en la pantalla (o te sientas); entonces ya se sabe
+    const pistaScroll = $('[data-pista-scroll]'), capta = $('[data-capta]');
+    let scrollVisto = false;
+    function avisarScroll() { if (!scrollVisto) pistaScroll.classList.add('on'); }
+    const scrollDescubierto = () => { if (scrollVisto) return; scrollVisto = true; pistaScroll.classList.remove('on'); capta.remove(); };
+    // el primer gesto sobre la web (rueda, dedo o clic) la «descubre»
+    capta.addEventListener('wheel', scrollDescubierto, { passive: true });
+    capta.addEventListener('touchstart', scrollDescubierto, { passive: true });
+    capta.addEventListener('pointerdown', scrollDescubierto);
+    $('.visor').addEventListener('scroll', scrollDescubierto, { capture: true, passive: true });
+    if (reducido) avisarScroll();
+
+    // ── EL ESTRENO (ronda 13): la primera web se busca en la página de inicio Cacao (la misma materia que el titular: sin corte).
+    const inicio = $('[data-inicio]'), buscaTxt = $('[data-busca-txt]'), buscaCarga = $('[data-busca-carga]');
+    if (reducido) inicio.hidden = true;
+    function estrenar() {
+      estrenado = true;
+      const yo = ++turno, w = webs[activo], host = new URL(datos[activo].url).host;
+      inicio.classList.add('busca');
+      buscaTxt.textContent = ''; buscaTxt.classList.add('tecleando');
+      let k = 0;
+      const teclear = () => {
+        if (yo !== turno) return;
+        buscaTxt.textContent = host.slice(0, ++k);
+        if (k < host.length) return void setTimeout(teclear, 45 + Math.random() * 60);
+        buscaTxt.classList.remove('tecleando');
+        buscaCarga.classList.add('corre'); // «intro»: la carga corre por el filo del buscador
+        setTimeout(() => {
+          if (yo !== turno) return;
+          cuandoListo(w, () => { if (yo !== turno) return; urlEl.textContent = host; w.classList.remove('cargando'); inicio.classList.add('fuera'); avisarScroll(); });
+        }, 1000);
+      };
+      setTimeout(teclear, 750);
+    }
+
+    function pintar(primera = false) {
+      void nombreEst;
+      capas.forEach((c) => c.classList.toggle('on', c.dataset.capa === estActual()));
+      if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!); // sentado y cambiando de estación: esa, a 5120
+      ests.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.est === estActual())));
+      webs.forEach((w, i) => { w.hidden = i !== activo; if (i !== activo) desmontar(w); });
+      if (cargado) { montar(webs[activo]); ajustar(); }
+      if (estrenado) navegar(!primera);
+      hechos.forEach((h, i) => (h.hidden = i !== activo));
+      { otroN.textContent = `${String(activo + 1).padStart(2, '0')}/${String(datos.length).padStart(2, '0')}`; otroNombre.textContent = datos[activo].n; }
+      $('[data-guia-nombre]').textContent = datos[activo].n;
+      girar();
+      sonido.estacion(estActual());
+      aire.estacion(estActual());
+      if (!primera) sonido.fx('cambio'); // el primer pintado fija el estado SIN sonar
+    }
+    function ir(i: number) {
+      const n = (i + datos.length) % datos.length;
+      if (n === activo) return;
+      activo = n;
+      estManual = null; // cada proyecto trae su estación
+      cargar();
+      pintar();
+    }
+    // EL DIAL: `pos` es el índice del botón centrado dentro de la lista repetida. Siempre se vuelve a la copia central sin que se note.
+    const dial = $('[data-dial]'), N = datos.length;
+    let pos = 2 * N;
+    function girar(salto = false) {
+      const fila = items[0].offsetHeight || 44;
+      if (salto) dial.classList.add('sin');
+      // solo en escritorio el dial es vertical y se desplaza; en móvil es una fila de números quieta (desplazado, se quedaba ENCIMA del monitor)
+      dial.style.transform = matchMedia('(width >= 64rem)').matches ? `translateY(${-pos * fila}px)` : '';
+      items.forEach((b) => { const d = Math.abs(+b.dataset.pos! - pos); b.style.setProperty('--d', String(Math.min(3, d))); b.setAttribute('aria-current', String(d === 0)); });
+      if (salto) { void dial.offsetWidth; dial.classList.remove('sin'); }
+    }
+    function rodar(paso: number) {
+      pos += paso; ir(((pos % N) + N) % N);
+      // de vuelta a la copia central (mismo proyecto, 4 filas más arriba o abajo), sin transición, cuando acaba el giro
+      if (pos < N || pos >= 4 * N) setTimeout(() => { pos = 2 * N + (((pos % N) + N) % N); girar(true); }, 650);
+    }
+    items.forEach((b) => b.addEventListener('click', () => rodar(+b.dataset.pos! - pos)));
+    $$<HTMLButtonElement>('[data-giro]').forEach((b) => b.addEventListener('click', () => rodar(+b.dataset.giro!)));
+    addEventListener('resize', () => girar(true));
+    let ultRueda = 0;
+    $('[data-lista]').addEventListener('wheel', (ev) => { ev.preventDefault(); const t = performance.now(); if (t - ultRueda < 260 || Math.abs(ev.deltaY) < 4) return; ultRueda = t; rodar(ev.deltaY > 0 ? 1 : -1); }, { passive: false });
+    ests.forEach((b) => b.addEventListener('click', () => {
+      estManual = b.dataset.est!; cargar(); capas.forEach(pedir); pintar();
+      fijarEstacion(EST.indexOf(estManual as any), 'proyectos'); // RONDA 39: elegir una estación aquí la elige para toda la web (fondo, árbol, raíces)
+    }));
+    // ── EL (+) DE LAS ESTACIONES (ronda 19): abre y cierra el abanico; el filtro gooey solo mientras las gotas se separan o se juntan
+    const abanico = $('[data-abanico]'), mas = $<HTMLButtonElement>('[data-mas]'), grupoEst = abanico.querySelector<HTMLElement>('.grupo')!;
+    let abierto = false, finGoo = 0;
+    function abrir(si: boolean) {
+      if (si === abierto) return;
+      abierto = si;
+      abanico.classList.toggle('abierto', si);
+      mas.setAttribute('aria-expanded', String(si));
+      grupoEst.inert = !si;
+      if (!reducido) { abanico.classList.add('fundiendo'); clearTimeout(finGoo); finGoo = window.setTimeout(() => abanico.classList.remove('fundiendo'), si ? 900 : 650); }
+    }
+    mas.addEventListener('click', () => abrir(!abierto));
+    document.addEventListener('pointerdown', (ev) => { if (abierto && !abanico.contains(ev.target as Node)) abrir(false); });
+
+    // Acercar la cámara al monitor: el centro de la pantalla va al centro del escenario.
+    const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // ronda 26: la caja blanca entera de las láminas, sin hueco («encajar mejor la pantalla al ordenador»)
+    function encuadrar() {
+      if (!sentado) { escena.style.transform = ''; nitido(1); return; }
+      const E = escenario.getBoundingClientRect();
+      const sw = escena.offsetWidth, sh = escena.offsetHeight;
+      // RONDA 10: «no hacer tanto zoom para que el ordenador no se difumine»: la pantalla ocupa ~la mitad de la ventana (antes el 86 %)
+      const k = Math.min((E.width * (E.width < 700 ? 0.92 : 0.52)) / (PANT.w * sw), (E.height * 0.6) / (PANT.h * sh));
+      const cx = (PANT.x + PANT.w / 2) * sw, cy = (PANT.y + PANT.h / 2) * sh;
+      const ox = (E.width - sw) / 2, oy = (E.height - sh) / 2; // la escena va centrada en el escenario
+      escena.style.transformOrigin = `${cx}px ${cy}px`;
+      escena.style.transform = `translate(${E.width / 2 - (ox + cx)}px, ${E.height / 2 - (oy + cy)}px) scale(${k})`;
+      nitido(k);
+    }
+    // RONDA 14 · «cuando te sientas difuminas el ordenador, déjalo nítido completamente»: la escena se amplía ×k, pero la PANTALLA y el
+    // marco se maquetan k veces más grandes y se contra-escalan 1/k → escala neta 1: se pintan a su resolución real (en Safari y en
+    // retina, una capa ampliada se quedaba blanda). La web conserva por dónde ibas.
+    const pantallaEl = $('[data-pantalla]');
+    function nitido(k: number) {
+      pantallaEl.style.setProperty('--k', String(k));
+      escena.style.setProperty('--k', String(k));
+      ajustar(); // el iframe se reduce a la pantalla nueva (que ahora se maqueta k veces mayor)
+    }
+    let finDolly = 0, finLevantar = 0;
+    function sentar(si: boolean) {
+      if (si === sentado) return;
+      const antes = escenario.getBoundingClientRect();
+      sentado = si;
+      raiz.classList.toggle('sentado', si);
+      if (si) escenario.classList.add('viva');
+      // RONDA 21 · «la (x) para salir activa el menú superior»: la × está donde el botón del menú; al levantarse, la barra sigue oculta y sin puntero
+      // hasta que la cámara se posa (1,5 s), y el menú ignora clics en ese lapso (Nav.astro mira window.__levantado)
+      if (si) document.documentElement.classList.add('estudio-sentado');
+      else { (window as any).__levantado = performance.now(); clearTimeout(finLevantar); finLevantar = window.setTimeout(() => document.documentElement.classList.remove('estudio-sentado'), reducido ? 0 : 1500); }
+      $('[data-barra]').hidden = !si;
+      $('[data-mando]').hidden = si; if (si) abrir(false);
+      const ahora = escenario.getBoundingClientRect();
+      if (!reducido) {
+        // RONDA 20: el escenario y la escena viajan JUNTOS con la misma curva de cámara: arranca despacio, planea y se posa (1,5 s)
+        escenario.animate(
+          [{ transform: `translate(${antes.left - ahora.left}px, ${antes.top - ahora.top}px) scale(${antes.width / ahora.width}, ${antes.height / ahora.height})` }, { transform: 'none' }],
+          { duration: 1500, easing: 'cubic-bezier(0.7, 0, 0.16, 1)' },
+        );
+        escena.classList.add('dolly'); clearTimeout(finDolly); finDolly = window.setTimeout(() => escena.classList.remove('dolly'), 1600);
+      }
+      encuadrar();
+      if (si) scrollDescubierto();
+      // RONDA 43 · «al sentarnos hemos perdido ese movimiento de cámara»: cambiar las cuatro láminas a 5120 px EN PLENO VIAJE (decodificar y subir ~240 MB
+      // de imagen) se comía los fotogramas del dolly. Ahora se mejora SOLO la estación visible y cuando la cámara ya se ha posado (1,6 s)
+      if (si) setTimeout(() => { if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!); }, reducido ? 0 : 1650);
+      sonido.fx(si ? 'sentarse' : 'levantarse');
+      sonido.foco(si); // ronda 46: sentado, el ambiente se oye como con cascos puestos
+      if (si) webs[activo].focus({ preventScroll: true });
+      else $<HTMLButtonElement>('[data-sentarse]').focus({ preventScroll: true });
+    }
+    $$<HTMLButtonElement>('[data-otro]').forEach((b) => b.addEventListener('click', () => rodar(+b.dataset.otro!)));
+    $('[data-sentarse]').addEventListener('click', () => (cargar(), sentar(true)));
+    $('[data-levantarse]').addEventListener('click', () => sentar(false));
+    addEventListener('resize', encuadrar);
+    addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && abierto) return abrir(false);
+      if (e.key === 'Escape' && sentado) return sentar(false);
+      const dentro = sentado || raiz.contains(document.activeElement);
+      if (!dentro) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); rodar(1); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); rodar(-1); }
+    });
+
+
+    // ── ENTRAR EN LA ESCENA (ronda 10): al llegar, la PANTALLA del ordenador llena la ventana y enseña el titular; con el scroll la
+    // cámara se ALEJA hasta descubrir la mesa, y el titular queda del tamaño de la pantalla del monitor; entonces salen los proyectos.
+    const pista = $('[data-pista]'), titulo = $('[data-titulo]'), tituloH2 = titulo.querySelector('h2')!;
+    let e = reducido ? 1 : -1, pedidoE = false, empujado = false;
+    const entrar = () => {
+      pedidoE = false;
+      if (reducido || sentado) return;
+      const r = pista.getBoundingClientRect(), vh = innerHeight, T = r.height - vh, y = -r.top;
+      // RONDA 14: la pista tiene ENTRADA (0 → 34 % del recorrido: la cámara se aleja de la pantalla), descanso, y SALIDA (71 → 96,5 %: la
+      // cámara vuelve a meterse en la pantalla, que se funde con el Cacao de lo que sigue). Fracciones del recorrido: misma unidad que la pista.
+      // RONDA 18 · «si scrolleas demasiado te pierdes los proyectos»: el DESCANSO entre entrar y salir pasa de 25 a 130 lvh (mismas
+      // distancias de entrada, 120 lvh, y de salida, 90 lvh): hay más de una pantalla entera de scroll con los proyectos quietos.
+      // RONDA 40 · «la salida de proyectos destacados quitamos la animación, dejamos scroll normal»: sin SALIDA; la pista es entrada (120 lvh) +
+      // descanso (130 lvh) y luego la escena sube con la página
+      const lin = Math.min(1, Math.max(0, y / (T * 0.48)));
+      const sal = 0;
+      const clave = lin + sal * 2;
+      if (Math.abs(clave - e) < 0.0008) return;
+      e = clave;
+      const E = escenario.getBoundingClientRect(), sw = escena.offsetWidth, sh = escena.offsetHeight;
+      const pw = PANT.w * sw, ph = PANT.h * sh;
+      const K = Math.max(E.width / pw, E.height / ph) * 1.03; // a K, la pantalla cubre la ventana
+      // entrada: k va de 0 (pantalla a sangre) a 1 (la mesa); salida: de vuelta a 0
+      const kk = sal > 0 ? 1 - sal * sal * (3 - 2 * sal) : lin * lin * (3 - 2 * lin);
+      const s2 = Math.pow(K, 1 - kk); // zoom exponencial: el alejamiento se percibe uniforme
+      const m = (s2 - 1) / (K - 1); // 1 = centrado en la pantalla · 0 = la escena en su sitio
+      const cx = (PANT.x + PANT.w / 2) * sw, cy = (PANT.y + PANT.h / 2) * sh;
+      const dx = (E.width - sw) / 2 + cx - E.width / 2, dy = (E.height - sh) / 2 + cy - E.height / 2;
+      const quieta = kk >= 1;
+      escena.classList.toggle('entrando', !quieta);
+      escena.style.transformOrigin = `${cx}px ${cy}px`;
+      escena.style.transform = quieta ? '' : `translate(${-dx * m}px, ${-dy * m}px) scale(${s2})`;
+      // un 1,4 % mayor que la pantalla: pisa el marco negro del monitor y no deja ver un filo blanco por subpíxeles
+      titulo.style.width = `${pw * K * 1.014}px`; titulo.style.height = `${ph * K * 1.014}px`;
+      titulo.style.transform = `translate(-50%, -50%) translate(${dx * (1 - m)}px, ${dy * (1 - m)}px) scale(${s2 / K})`;
+      // RONDA 13: el grano del titular se contra-escala (en pantalla mide siempre 240 px, como el de la sección): sin «corte» de materia
+      titulo.style.setProperty('--gr', `${(240 * K) / s2}px`);
+      // la página de inicio del monitor repite el titular al MISMO tamaño relativo: el fundido de uno a otro no se ve
+      inicio.style.setProperty('--ft', `${(parseFloat(getComputedStyle(tituloH2).fontSize) / (pw * K * 1.014)) * 100}cqw`);
+      if (sal > 0) {
+        // SALIDA: la pantalla se llena de Cacao (sin texto) mientras la cámara entra; al final es la página que sigue
+        titulo.classList.add('vacio');
+        titulo.style.opacity = String(Math.min(1, Math.max(0, (sal - 0.3) / 0.45)));
+        titulo.style.visibility = sal > 0.3 ? 'visible' : 'hidden';
+        escenario.classList.remove('dentro', 'viva');
+      } else {
+        titulo.classList.remove('vacio');
+        titulo.style.opacity = String(1 - Math.min(1, Math.max(0, (lin - 0.84) / 0.12)));
+        titulo.style.visibility = lin >= 0.97 ? 'hidden' : 'visible';
+        escenario.classList.toggle('dentro', lin > 0.93);
+        if (lin > 0.93 && !empujado) empujar();
+        if (lin > 0.965 && !estrenado) estrenar(); // cuando el titular-pantalla ya se ha fundido con el de la página de inicio
+        if (lin < 0.93) escenario.classList.remove('viva');
+      }
+    };
+    const pedirE = () => { if (!pedidoE) { pedidoE = true; requestAnimationFrame(entrar); } };
+    // RONDA 39 · el dial enseña que gira: al llegar, sube medio paso y vuelve, dos veces, y las flechas laten
+    function empujar() {
+      empujado = true;
+      if (reducido || !matchMedia('(width >= 64rem)').matches) return;
+      dial.animate([{ translate: '0 0' }, { translate: '0 -18px' }, { translate: '0 0' }, { translate: '0 18px' }, { translate: '0 0' }], { duration: 1600, delay: 1100, easing: 'ease-in-out' });
+      $('[data-guia]').classList.add('late');
+    }
+    // RONDA 20 · «savvia se tiene que ver con el color claro» sobre la escena: mientras la sección pasa bajo la barra, html.sobre-escena
+    let sobre = false;
+    const mirarBarra = () => { const r = raiz.getBoundingClientRect(); const si = r.top <= 72 && r.bottom >= 72; if (si !== sobre) { sobre = si; document.documentElement.classList.toggle('sobre-escena', si); } };
+    addEventListener('scroll', mirarBarra, { passive: true }); mirarBarra();
+    if (reducido) { escenario.classList.add('dentro'); titulo.hidden = true; }
+    else { addEventListener('scroll', pedirE, { passive: true }); addEventListener('resize', () => { e = -1; pedirE(); }); entrar(); }
+    // La web del monitor se recorre SIEMPRE, pero solo se activa cuando el ratón se MUEVE por la escena: un scroll de página con
+    // el cursor quieto en el centro no debe quedarse atrapado dentro del monitor. En táctil, siempre activa.
+    escenario.addEventListener('pointermove', (ev) => { if (ev.pointerType !== 'mouse' || e > 0.93) escenario.classList.add('viva'); }, { passive: true });
+    escenario.addEventListener('pointerleave', () => !sentado && escenario.classList.remove('viva'));
+
+    // Sonido: nace con un gesto (este clic) y se recuerda.
+    const bs = $<HTMLButtonElement>('[data-sonido]');
+    const pintarSonido = () => {
+      bs.setAttribute('aria-pressed', String(sonido.activo()));
+      $('[data-sonido-estado]').textContent = sonido.activo() ? 'on' : 'off';
+    };
+    bs.addEventListener('click', () => { sonido.alternar(); sonido.estacion(estActual()); pintarSonido(); });
+    pintarSonido();
+
+    pintar(true);
+  }
+</script>
+
+<style>
+  /* La pista: una pantalla pegada + 250 lvh de recorrido: 120 para ALEJARSE de la pantalla (entrada), 25 de descanso, 90 para volver a
+     METERSE en ella (salida, ronda 14) y 15 con la pantalla ya a sangre en Cacao. Misma unidad que el alto del pegado (lvh). */
+  .pista {
+    height: 350lvh; /* ronda 40: 120 de entrada + 130 de descanso + los 100 del pegado (sin salida: «scroll normal») */
+  }
+  .pegado {
+    position: sticky;
+    top: 0;
+    height: 100lvh;
+    overflow: clip;
+  }
+  .escenario {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--noche);
+    container-type: size;
+  }
+  /* El titular que «es» la pantalla: una caja con la proporción de la pantalla del monitor, centrada; el JS la escala y la mueve
+     para que pise SIEMPRE la pantalla de la lámina. Regla dura 3: sin JS no tapa nada (ver html:not(.js)). */
+  .titulo-pantalla {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 104%;
+    height: 104%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    padding: 8%;
+    background: var(--noche) url('/media/grano.png') 50% 50% / var(--gr, 240px) var(--gr, 240px);
+    color: var(--color-niebla);
+    text-align: center;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .titulo-pantalla.vacio h2 {
+    visibility: hidden;
+  }
+  .titulo-pantalla h2 {
+    font-size: clamp(2.75rem, 1.2rem + 4.6vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+  }
+  .escena {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100cqw, 100cqh * 16 / 9);
+    aspect-ratio: 16 / 9;
+    translate: -50% -50%;
+    transition: transform 0.9s var(--ease-out-expo);
+  }
+  /* mientras el scroll la mueve: sin transición y en su propia capa (la nitidez se recupera al llegar, al quitar la clase) */
+  .escena.dolly {
+    transition: transform 1.5s cubic-bezier(0.7, 0, 0.16, 1); /* RONDA 20: «que parezca que la cámara se acerca como con motion» */
+    will-change: transform; /* ronda 43: el viaje, en su propia capa (fluido); al posarse se quita la clase y se vuelve a pintar nítido */
+  }
+  /* ronda 43 → 50: la barra ya no lleva backdrop-filter (el cristal es la franja PRE-desenfocada de .tras-cromo): en el viaje no cambia de aspecto.
+     Antes aquí se quitaba el desenfoque y la barra se volvía blanca y sólida durante 1,5 s al sentarse. */
+  .escena.entrando {
+    transition: none;
+    will-change: transform;
+    /* SIN will-change: con él Chrome guarda la capa a 1× y, al acercar ×4, la web de dentro sale borrosa. */
+  }
+  .capa {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition:
+      opacity 1.6s ease,
+      filter 0.9s ease;
+  }
+  .capa.on {
+    opacity: 1;
+  }
+  .aire {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: filter 0.9s ease;
+  }
+  /* el marco: medido en la lámina (1920 px): 9 px a los lados y 8 arriba y abajo alrededor de la pantalla. Solo sentado. */
+  .marco-monitor {
+    position: absolute;
+    left: calc(39.03% - 0.469%);
+    top: calc(36.96% - 0.741%);
+    width: calc((21.78% + 0.938%) * var(--k, 1));
+    height: calc((21.04% + 1.482%) * var(--k, 1));
+    transform: scale(calc(1 / var(--k, 1)));
+    transform-origin: 0 0;
+    border-radius: 1.16% / 2.07%; /* ~5 px de esquina en la lámina de 1920 (el % es de su propia caja: escala sola) */
+    background: #060606;
+    box-shadow: 0 0 0 1px rgb(120 118 116 / 0.55); /* escala neta 1: un píxel de filo de aluminio, siempre */
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  [data-estudio].sentado .marco-monitor {
+    opacity: 1;
+  }
+
+  .pantalla {
+    position: absolute;
+    left: 39.03%; /* ronda 26: la caja blanca entera de la lámina */
+    top: 36.96%;
+    width: calc(21.78% * var(--k, 1));
+    height: calc(21.04% * var(--k, 1));
+    transform: scale(calc(1 / var(--k, 1)));
+    transform-origin: 0 0;
+    background: #fff;
+    overflow: hidden;
+    pointer-events: none;
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+  }
+  /* SAFARI, realista (ronda 11). Todo en unidades de la propia pantalla (cqh): crece con ella al sentarse. */
+  /* RONDA 41 · «el navegador tiene que ser mucho más elegante, incluso un poco translúcido: que se note que cuando haces scroll la web pasa por
+     debajo»: la barra FLOTA sobre la web (la web empieza arriba del todo, bajo la barra) y es de cristal claro: blanco al 60 % + desenfoque y
+     saturación del fondo, un filo de medio píxel abajo. Iconos más finos y más claros; la dirección, una píldora tenue. */
+  /* RONDA 50 · «el navegador mucho más finito, con backdrop y el buscador centrado»: 7,4 → 4,6 cqh, cristal más marcado y la dirección centrada en la
+     BARRA (absoluta), no en el hueco que dejan los iconos. La web sigue empezando bajo la barra (ronda 46: si no, le tapa su menú). */
+  .cromo {
+    position: absolute;
+    z-index: 2;
+    inset: 0 0 auto;
+    height: 4.6cqh;
+    display: flex;
+    align-items: center;
+    gap: 1.6cqh;
+    padding-inline: 1.8cqh;
+    background: rgb(252 252 251 / 0.42); /* el desenfoque lo lleva la franja de detrás (.tras-cromo), no un backdrop-filter en vivo */
+    box-shadow: 0 0.5px 0 rgb(0 0 0 / 0.1);
+    color: rgb(40 38 36 / 0.62);
+  }
+  /* tras el cristal: la cabecera de la captura de la web activa, a todo el ancho (la barra la desenfoca y la aclara) */
+  .tras-cromo {
+    position: absolute;
+    z-index: 1;
+    inset: 0 0 auto;
+    height: 4.6cqh;
+    overflow: hidden;
+    background: #fbfbfa;
+  }
+  /* la franja, desenfocada de antemano y en unidades de la pantalla (cqh): igual de pie, en el viaje y sentado; el margen negativo evita el canto claro del blur */
+  .tras-cromo::before {
+    content: '';
+    position: absolute;
+    inset: -3cqh -3cqh auto;
+    height: 12cqh;
+    background: var(--cap, none) center top / 100% auto no-repeat;
+    filter: blur(1.8cqh) saturate(1.8);
+  }
+  .semaforo {
+    display: flex;
+    gap: 1.1cqh;
+    margin-right: 0.8cqh;
+  }
+  .semaforo i {
+    width: 1.5cqh;
+    height: 1.5cqh;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.18);
+  }
+  .semaforo i:nth-child(1) { background: #ff5f57; }
+  .semaforo i:nth-child(2) { background: #febc2e; }
+  .semaforo i:nth-child(3) { background: #28c840; }
+  .ic {
+    flex: none;
+    width: 2.6cqh;
+    height: 2.6cqh;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ic.tenue {
+    opacity: 0.35;
+  }
+  .ic.mini {
+    width: 2.1cqh;
+    height: 2.1cqh;
+  }
+  /* los iconos de la derecha se van al final (la dirección ya no ocupa el hueco) */
+  .direccion + .ic {
+    margin-left: auto;
+  }
+  .direccion {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: 40%;
+    height: 3.1cqh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1cqh;
+    padding-inline: 1.8cqh;
+    border-radius: 99px;
+    background: rgb(0 0 0 / 0.05);
+    font-family: var(--font-sans);
+    font-size: 2.1cqh;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgb(30 28 26 / 0.8);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  /* ronda 50: el texto, CENTRADO en el campo: el candado va con él y la recarga se sale del flujo, pegada al borde derecho */
+  .direccion .fin {
+    position: absolute;
+    right: 1.2cqh;
+    top: 50%;
+    translate: 0 -50%;
+    opacity: 0.6;
+  }
+  /* el candado va pegado al texto (como en Safari); su ancho se compensa al otro lado para que lo escrito quede en el centro exacto */
+  .direccion .url {
+    margin-right: 3.1cqh;
+  }
+  .url.tecleando::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 2.6cqh;
+    margin-left: 0.3cqh;
+    vertical-align: -0.45cqh;
+    background: #0a7aff;
+    animation: cursor 0.9s steps(1) infinite;
+  }
+  @keyframes cursor {
+    50% { opacity: 0; }
+  }
+  .progreso {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: max(1.5px, 0.7cqh);
+    background: #0a7aff;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    opacity: 0;
+  }
+  /* un reflejo mínimo del cristal del monitor */
+  .pantalla::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(118deg, rgb(255 255 255 / 0.1), transparent 38%);
+  }
+  /* LA PÁGINA DE INICIO (ronda 13): Cacao con grano, el titular y un buscador. Tapa también la barra de Safari. */
+  .inicio {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    place-items: center; /* el titular, SOLO en el centro: pisa exactamente al del titular-pantalla (padding 8 % igual) */
+    padding: 8%;
+    background: var(--noche) url('/media/grano.png') 0 0 / 240px 240px;
+    color: var(--color-niebla);
+    text-align: center;
+    pointer-events: none; /* la rueda pasa a la web de debajo */
+    transition: opacity 0.7s ease 0.1s;
+  }
+  .inicio[hidden] {
+    display: none;
+  }
+  .inicio.fuera {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.7s ease 0.1s, visibility 0s linear 0.8s;
+  }
+  .inicio-tit {
+    font-size: var(--ft, 5.8cqw);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+    text-wrap: balance;
+    transition: transform 0.8s var(--ease-out-expo), opacity 0.8s ease;
+  }
+  .busca .inicio-tit {
+    transform: translateY(-13cqh) scale(0.62);
+    opacity: 0.55;
+  }
+  .buscador {
+    position: absolute;
+    left: 21cqw;
+    top: calc(50% + 2cqh);
+    display: flex;
+    align-items: center;
+    gap: 2.4cqh;
+    width: 58cqw;
+    height: 11cqh;
+    padding-inline: 3.4cqh;
+    border-radius: 99px;
+    background: color-mix(in oklab, var(--color-niebla) 9%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 18%, transparent);
+    font-family: var(--font-sans);
+    font-size: 4.6cqh;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(4cqh);
+    transition: opacity 0.6s ease 0.25s, transform 0.8s var(--ease-out-expo) 0.25s;
+  }
+  .busca .buscador {
+    opacity: 1;
+    transform: none;
+  }
+  .buscador svg {
+    flex: none;
+    width: 5cqh;
+    height: 5cqh;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    opacity: 0.6;
+  }
+  .busca-txt.tecleando::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 5.4cqh;
+    margin-left: 0.4cqh;
+    vertical-align: -1cqh;
+    background: var(--color-naranja);
+    animation: cursor 0.9s steps(1) infinite;
+  }
+  .busca-carga {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: max(1.5px, 0.6cqh);
+    width: 100%;
+    background: var(--color-naranja);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+  .busca-carga.corre {
+    transform: scaleX(1);
+    transition: transform 0.95s cubic-bezier(0.3, 0.6, 0.2, 1);
+  }
+  /* RONDA 46 · «el menú de la web se queda detrás de la barra de navegación»: la web es un iframe de otro dominio y se desplaza DENTRO de sí
+     misma: nunca puede pasar por debajo de la barra, solo quedar tapada. La web empieza bajo la barra, como en un Safari de verdad. */
+  .visor {
+    position: absolute;
+    inset: 4.6cqh 0 0;
+    background: #fbfbfa; /* pestaña en blanco, mientras se teclea la dirección */
+  }
+  /* la web de dentro se recorre siempre; se activa al mover el ratón por la escena (o al sentarse) */
+  .viva .pantalla {
+    pointer-events: auto;
+  }
+  .web {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    outline: none;
+  }
+  .web::-webkit-scrollbar {
+    display: none;
+  }
+  /* la captura y el iframe los crea el JS: sin el ámbito de Astro → :global (como las filas de los carriles, ronda 14) */
+  .web :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  /* RONDA 19: la web real. El iframe se maqueta a 1440 px (1024 en móvil) y el JS lo reduce a la pantalla con `transform: scale`. */
+  .web :global(iframe) {
+    display: block;
+    border: 0;
+    background: #fff;
+    transform-origin: 0 0;
+  }
+  .web:has(:global(iframe)) {
+    overflow: hidden;
+  }
+  /* la página «carga»: aparece de arriba abajo cuando la barra de progreso termina */
+  .web {
+    clip-path: inset(0);
+    transition:
+      opacity 0.35s ease,
+      clip-path 0.7s var(--ease-out-expo);
+  }
+  .web.cargando {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transition: none;
+  }
+
+  /* ── INTERFAZ MÍNIMA: texto sobre la escena, sin cajas. Aparece al terminar de entrar. */
+  .ui,
+  .velo-ui,
+  .llamada {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .dentro .ui,
+  .dentro .velo-ui,
+  .dentro .llamada {
+    opacity: 1;
+  }
+  .ui {
+    position: absolute;
+    color: var(--color-niebla);
+    text-shadow: 0 1px 2px color-mix(in oklab, var(--noche) 70%, transparent), 0 0 18px var(--noche);
+  }
+  /* un velo Cacao abajo y otro, más leve, arriba: lo justo para que el texto se lea sobre cualquier estación */
+  .velo-ui {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, color-mix(in oklab, var(--noche) 80%, transparent), transparent 22%),
+      linear-gradient(to bottom, color-mix(in oklab, var(--noche) 88%, transparent) 8%, transparent 40%);
+  }
+  /* móvil: la ficha va ARRIBA, sobre el cielo (abajo pisaba la llamada de la silla); en escritorio, abajo a la izquierda */
+  .ui-info {
+    left: calc(var(--spacing) * 5);
+    right: calc(var(--spacing) * 5);
+    top: calc(var(--spacing) * 16);
+  }
+  .ficha:not([hidden]) {
+    animation: enfocar 0.6s var(--ease-out-expo);
+  }
+  @keyframes enfocar {
+    from {
+      opacity: 0;
+      filter: blur(6px);
+    }
+  }
+  .muestra {
+    width: calc(var(--spacing) * 3);
+    height: calc(var(--spacing) * 3);
+    border-radius: var(--radius-full);
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 40%, transparent);
+  }
+  /* EL DIAL. Móvil: una fila de números, centrada, encima de la barra. Escritorio: dial vertical (más abajo). */
+  .ui-lista {
+    left: 50%;
+    translate: -50% 0;
+    bottom: calc(var(--spacing) * 20);
+  }
+  .dial {
+    display: flex;
+    gap: calc(var(--spacing) * 1);
+  }
+  .dial li:not(:nth-child(n + 9):nth-child(-n + 12)) {
+    display: none; /* en móvil, solo la copia central */
+  }
+  .item {
+    display: flex;
+    gap: calc(var(--spacing) * 3);
+    min-height: calc(var(--spacing) * 8);
+    min-width: calc(var(--spacing) * 8);
+    align-items: center;
+    opacity: 0.5;
+    transition: opacity 0.4s var(--ease-out-expo);
+  }
+  .item .nombre,
+  .item .raya {
+    display: none;
+  }
+  /* la raya que marca el activo, como en el esquema */
+  .raya {
+    width: calc(var(--spacing) * 3);
+    height: 1px;
+    background: currentColor;
+    scale: 0 1;
+    transform-origin: 0 50%;
+    transition: scale 0.5s var(--ease-out-expo);
+  }
+  .item[aria-current='true'] .raya {
+    scale: 1 1;
+  }
+  .ver {
+    opacity: 0.7;
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+  .ver:hover {
+    opacity: 1;
+  }
+  .item[aria-current='true'] {
+    opacity: 1;
+  }
+  .item[aria-current='true'] .num {
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+  }
+  /* CRISTAL (ronda 11): el material de la interfaz sobre la escena —lista, ficha y barra—, estilo Apple: desenfoque del fondo + velo
+     Cacao + filo claro. Así se LEE sobre cualquier estación («el menú lateral con la info se lee mal»). */
+  .cristal {
+    background: color-mix(in oklab, var(--noche) 58%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 16%, transparent),
+      0 12px 32px -12px rgb(0 0 0 / 0.45);
+    border-radius: calc(var(--spacing) * 4);
+    text-shadow: none;
+  }
+  /* la barra inferior: píldora recogida con iconos */
+  /* RONDA 21 · «el + sin la card cuadrada de fuera y el estilo como teníamos antes, semitransparente»: sin píldora; el (+) y las gotas son
+     círculos de cristal (velo Cacao translúcido + desenfoque de fondo + filo) con el icono en Rosa niebla; pulsado = Rosa niebla con el icono en Cacao */
+  .ui-mando {
+    left: 50%;
+    translate: -50% 0;
+    bottom: max(calc(var(--spacing) * 4), env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+  }
+  /* ── EL ABANICO DE ESTACIONES (ronda 19): el (+) y, alrededor, cuatro gotas que salen de él. Capa de gotas (Rosa niebla, opacas: el
+     umbral del filtro gooey trabaja con el alfa) + botones transparentes encima. Ángulos: una circunferencia de 60 px, el arco de arriba. */
+  .abanico {
+    --R: 64px;
+    position: relative;
+    width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+  }
+  .abanico .blobs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.22; /* la capa líquida es translúcida: el umbral del gooey trabaja antes, sobre las gotas opacas; la opacidad va después */
+  }
+  .abanico.fundiendo .blobs {
+    filter: url(#goo-estaciones);
+  }
+  .abanico .blob,
+  .abanico .grupo .est {
+    --a: calc(-200deg + var(--i, 0) * 50deg); /* −200 · −150 · −100 · −50 · 0: del lado izquierdo al lado derecho (ronda 20: la quinta es el sonido) */
+    --tx: calc(cos(var(--a)) * var(--R));
+    --ty: calc(sin(var(--a)) * var(--R));
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--spacing) * 9);
+    height: calc(var(--spacing) * 9);
+    margin: calc(var(--spacing) * -4.5) 0 0 calc(var(--spacing) * -4.5);
+    border-radius: 50%;
+    translate: 0 0;
+    transition:
+      translate 0.55s cubic-bezier(0.4, 0, 0.2, 1) calc((4 - var(--i, 0)) * 35ms),
+      scale 0.45s cubic-bezier(0.4, 0, 0.2, 1) calc((4 - var(--i, 0)) * 35ms),
+      opacity 0.3s ease;
+  }
+  .abanico .blob {
+    background: var(--color-niebla);
+    scale: 0.35;
+  }
+  .abanico .blob.mas-blob {
+    width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+    margin: calc(var(--spacing) * -6) 0 0 calc(var(--spacing) * -6);
+    scale: 1;
+  }
+  .abanico.abierto .blob:not(.mas-blob),
+  .abanico.abierto .grupo .est {
+    translate: var(--tx) var(--ty);
+    scale: 1;
+    /* al abrirse, con muelle (se pasa un poco y vuelve); al cerrarse, sin rebote */
+    transition:
+      translate 0.7s cubic-bezier(0.34, 1.45, 0.5, 1) calc(var(--i, 0) * 45ms),
+      scale 0.6s cubic-bezier(0.34, 1.45, 0.5, 1) calc(var(--i, 0) * 45ms),
+      opacity 0.3s ease calc(var(--i, 0) * 45ms);
+  }
+  .abanico .mas {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: color-mix(in oklab, var(--color-niebla) 80%, transparent);
+    background: color-mix(in oklab, var(--noche) 52%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 18%, transparent), 0 10px 28px -12px rgb(0 0 0 / 0.45);
+    transition: color 0.3s var(--ease-out-expo), background-color 0.3s var(--ease-out-expo);
+  }
+  .abanico .mas:hover {
+    color: var(--color-niebla);
+    background: color-mix(in oklab, var(--noche) 40%, transparent);
+  }
+  .abanico .mas svg {
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    transition: rotate 0.5s var(--ease-out-expo);
+  }
+  .abanico.abierto .mas svg {
+    rotate: 45deg; /* el (+) se vuelve una × */
+  }
+  .abanico .grupo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none; /* RONDA 22: el grupo (una caja de 48 px encima del (+)) NUNCA coge el puntero: abierto tapaba la × y «costaba cerrarlo» */
+  }
+  .abanico.abierto .grupo .est {
+    pointer-events: auto;
+  }
+  .ui-mando .abanico .grupo .est {
+    display: grid;
+    place-items: center;
+    background: color-mix(in oklab, var(--noche) 52%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 18%, transparent);
+    color: color-mix(in oklab, var(--color-niebla) 75%, transparent);
+    opacity: 0;
+  }
+  .ui-mando .abanico.abierto .grupo .est {
+    opacity: 1;
+  }
+  .ui-mando .abanico .grupo .est svg {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+  }
+  .ui-mando .abanico .grupo .est:hover {
+    background: color-mix(in oklab, var(--color-niebla) 14%, color-mix(in oklab, var(--noche) 45%, transparent));
+    color: var(--color-niebla);
+    scale: 1.1;
+  }
+  .ui-mando .abanico .grupo .est[aria-pressed='true'] {
+    background: var(--color-niebla);
+    color: var(--color-cacao);
+  }
+  .ui-mando .grupo {
+    display: flex;
+    gap: calc(var(--spacing) * 1);
+  }
+  .ui-mando[hidden],
+  .barra[hidden] {
+    display: none;
+  }
+  .sep {
+    width: 1px;
+    height: calc(var(--spacing) * 6);
+    margin-inline: calc(var(--spacing) * 1);
+    background: color-mix(in oklab, var(--color-niebla) 18%, transparent);
+  }
+  .ui-mando .est {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+    border-radius: calc(var(--spacing) * 4);
+    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+    transition:
+      background-color 0.3s var(--ease-out-expo),
+      color 0.3s var(--ease-out-expo),
+      scale 0.3s var(--ease-out-expo);
+  }
+  .ui-mando .est svg {
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ui-mando .est:hover {
+    color: var(--color-niebla);
+    background: color-mix(in oklab, var(--color-niebla) 10%, transparent);
+  }
+  .ui-mando .est:active {
+    scale: 0.94;
+  }
+  .ui-mando .est[aria-pressed='true'] {
+    color: var(--color-cacao);
+    background: var(--color-niebla);
+  }
+  [data-sonido] .ondas { display: none; }
+  [data-sonido][aria-pressed='true'] .ondas { display: inline; }
+  [data-sonido][aria-pressed='true'] .mudo { display: none; }
+  /* la etiqueta del botón: sale encima al pasar o enfocar */
+  .rotulo {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + var(--spacing) * 3);
+    translate: -50% 4px;
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    border-radius: calc(var(--spacing) * 2);
+    background: var(--color-niebla);
+    color: var(--color-cacao);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.25s ease,
+      translate 0.35s var(--ease-out-expo);
+  }
+  .est:hover .rotulo,
+  .est:focus-visible .rotulo {
+    opacity: 1;
+    translate: -50% 0;
+  }
+  .barra {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .barra > * {
+    pointer-events: auto;
+  }
+  .cerrar {
+    position: absolute;
+    top: max(calc(var(--spacing) * 4), env(safe-area-inset-top));
+    right: calc(var(--spacing) * 5);
+    width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-full);
+    color: var(--color-niebla);
+    transition: scale 0.3s var(--ease-out-expo), background-color 0.3s ease;
+  }
+  .cerrar:hover {
+    background: var(--color-niebla);
+    color: var(--color-cacao);
+  }
+  .cerrar:active {
+    scale: 0.94;
+  }
+  .cerrar svg {
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  .otros {
+    position: absolute;
+    left: 50%;
+    bottom: max(calc(var(--spacing) * 6), env(safe-area-inset-bottom));
+    translate: -50% 0;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 1);
+    border-radius: var(--radius-full);
+    color: var(--color-niebla);
+    white-space: nowrap;
+  }
+  .otros .paso {
+    width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-full);
+    transition: background-color 0.3s ease, color 0.3s ease, scale 0.3s var(--ease-out-expo);
+  }
+  .otros .paso:hover {
+    background: var(--color-niebla);
+    color: var(--color-cacao);
+  }
+  .otros .paso:active {
+    scale: 0.94;
+  }
+  .otros svg {
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .cual {
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 3);
+    min-width: calc(var(--spacing) * 48);
+    justify-content: center;
+    font-size: var(--text-ui);
+    font-weight: 500;
+  }
+  .cual .detail {
+    opacity: 0.6;
+  }
+  /* el aviso de esc sube arriba, en el centro: abajo va el selector de proyectos */
+  .salir {
+    position: absolute;
+    left: 50%;
+    top: max(calc(var(--spacing) * 6), env(safe-area-inset-top));
+    translate: -50% 0;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4) calc(var(--spacing) * 2) calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    color: var(--color-niebla);
+    white-space: nowrap;
+  }
+  kbd {
+    font: inherit;
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    border-radius: calc(var(--spacing) * 2);
+    background: color-mix(in oklab, var(--color-niebla) 16%, transparent);
+    box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--color-niebla) 30%, transparent);
+  }
+  @media (hover: none) {
+    .salir { display: none; } /* en táctil no hay tecla Esc: queda la (x) */
+  }
+  @media (width >= 64rem) {
+    .cerrar {
+      top: calc(var(--spacing) * 6);
+      right: calc(var(--spacing) * 12);
+    }
+  }
+
+  /* ── LA LLAMADA «SENTARSE»: punto en el respaldo de la silla, línea a 45° y la palabra. Vive en coordenadas de la lámina. */
+  .llamada {
+    /* la caja del botón va del punto (esquina inferior izquierda) a la palabra: así tiene área de clic y anillo de foco reales */
+    position: absolute;
+    left: 58.7%;
+    top: 81%;
+    width: 216px;
+    height: 72px;
+    translate: 0 -100%;
+    color: var(--color-niebla);
+    cursor: pointer;
+  }
+  .punto-silla {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+    margin: -5px;
+    border-radius: var(--radius-full);
+    background: currentColor;
+  }
+  .punto-silla::after {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border-radius: inherit;
+    border: 1px solid currentColor;
+    animation: latido 2.6s var(--ease-out-expo) infinite;
+  }
+  @keyframes latido {
+    from { transform: scale(0.5); opacity: 0.9; }
+    to { transform: scale(1.5); opacity: 0; }
+  }
+  .linea {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 120px;
+    height: 64px;
+    overflow: visible;
+  }
+  .linea path {
+    stroke: currentColor;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .llamada span {
+    position: absolute;
+    left: 128px;
+    top: 0;
+    line-height: 28px; /* la línea llega a y = 6 de 64 desde arriba de su caja: el centro de la palabra cae ahí */
+    white-space: nowrap;
+    text-shadow: 0 1px 12px color-mix(in oklab, var(--noche) 80%, transparent);
+  }
+  .llamada:hover span,
+  .llamada:focus-visible span {
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+  }
+  /* en móvil la silla queda cerca del borde derecho: la llamada sale hacia la izquierda */
+  @media (width < 48rem) {
+    .llamada {
+      translate: -100% -100%;
+    }
+    .punto-silla {
+      left: auto;
+      right: 0;
+    }
+    .linea {
+      left: auto;
+      right: 0;
+      scale: -1 1;
+    }
+    .llamada span {
+      left: auto;
+      right: 128px;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .ui-info {
+      left: auto;
+      right: calc(var(--spacing) * 12);
+      top: 50%;
+      translate: 0 -50%;
+      width: min(22vw, 20rem);
+      font-weight: 500;
+    }
+    /* escritorio: la interfaz va a los LADOS del ordenador (esquema de Andoni) → velos laterales, y uno abajo para el mando */
+    /* RONDA 13 · «que los gradientes de izquierda y derecha sean radiales, así se van a ver más en la zona de los textos»: dos elipses
+       centradas en el dial (izquierda) y en la ficha (derecha); lo más hondo cae justo detrás del texto y se abre hacia el monitor. */
+    .velo-ui {
+      background:
+        radial-gradient(ellipse min(26vw, 26rem) 42% at calc(var(--spacing) * 12 + min(12vw, 11rem)) 50%, color-mix(in oklab, var(--noche) 94%, transparent), color-mix(in oklab, var(--noche) 62%, transparent) 50%, transparent),
+        radial-gradient(ellipse min(25vw, 25rem) 42% at calc(100% - var(--spacing) * 12 - min(11vw, 10rem)) 50%, color-mix(in oklab, var(--noche) 94%, transparent), color-mix(in oklab, var(--noche) 62%, transparent) 50%, transparent),
+        linear-gradient(to top, color-mix(in oklab, var(--noche) 70%, transparent), transparent 24%);
+    }
+    /* el dial: una ventana de 5 filas; el activo en el centro; arriba y abajo se funde (máscara) y cada fila pierde foco con la distancia */
+    .ui-lista {
+      --fila: calc(var(--spacing) * 12);
+      left: calc(var(--spacing) * 12);
+      right: auto;
+      top: 50%;
+      bottom: auto;
+      translate: 0 -50%;
+      height: calc(var(--fila) * 5);
+      width: min(24vw, 22rem);
+      overflow: hidden;
+      font-size: var(--text-lead);
+      mask-image: linear-gradient(to bottom, transparent, #000 32%, #000 68%, transparent);
+    }
+    .dial {
+      display: block;
+      padding-top: calc(var(--fila) * 2); /* la fila `pos` cae en el centro de la ventana */
+      transition: transform 0.7s var(--ease-out-expo);
+    }
+    .dial.sin,
+    .dial.sin .item {
+      transition: none;
+    }
+    .dial li:not(:nth-child(n + 9):nth-child(-n + 12)) {
+      display: block;
+    }
+    .dial .item {
+      height: var(--fila);
+      width: 100%;
+      opacity: calc(1 - var(--d, 0) * 0.34);
+      filter: blur(calc(var(--d, 0) * 1.5px));
+      scale: calc(1 - var(--d, 0) * 0.05);
+      transform-origin: 0 50%;
+      transition:
+        opacity 0.6s var(--ease-out-expo),
+        filter 0.6s var(--ease-out-expo),
+        scale 0.6s var(--ease-out-expo);
+    }
+    .item .nombre {
+      display: inline;
+    }
+    .item .num {
+      display: none;
+    }
+    .item .raya {
+      display: block;
+    }
+    .ui-mando {
+      bottom: calc(var(--spacing) * 8);
+    }
+  }
+
+  /* RONDA 41 · la capa que recoge el PRIMER gesto de scroll sobre la web */
+  .capta {
+    position: absolute;
+    inset: 4.6cqh 0 0;
+    z-index: 3;
+  }
+  /* ── RONDA 39 · LA SEÑAL DE SCROLL dentro de la pantalla: una píldora oscura al pie de la web con la rueda del ratón bajando.
+     Todo en unidades de la pantalla (cqh/cqw): crece con ella. Nace invisible (regla dura 3); la enciende el JS. */
+  .pista-scroll {
+    position: absolute;
+    left: 50%;
+    bottom: 6cqh;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 2.4cqh;
+    padding: 2.2cqh 4cqh 2.2cqh 3cqh;
+    border-radius: 99px;
+    background: color-mix(in oklab, #000 62%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: max(9px, 5.4cqh);
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    translate: -50% 30%;
+    transition: opacity 0.5s ease, translate 0.7s var(--ease-out-expo);
+  }
+  .pista-scroll.on {
+    opacity: 1;
+    translate: -50% 0;
+    transition-delay: 0.6s;
+  }
+  .raton {
+    position: relative;
+    display: block;
+    width: max(9px, 6cqh);
+    height: max(14px, 9.5cqh);
+    border: 1.5px solid currentColor;
+    border-radius: 99px;
+  }
+  .raton i {
+    position: absolute;
+    left: 50%;
+    top: 22%;
+    width: 2px;
+    height: 22%;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: currentColor;
+    animation: rueda 1.6s var(--ease-out-expo) infinite;
+  }
+  @keyframes rueda {
+    0% { translate: 0 0; opacity: 0; }
+    20% { opacity: 1; }
+    70% { translate: 0 120%; opacity: 0; }
+    100% { translate: 0 120%; opacity: 0; }
+  }
+  [data-estudio].sentado .pista-scroll {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .raton i { animation: none; }
+  }
+
+  /* ── RONDA 39 · LA GUÍA DEL DIAL (solo escritorio): «Proyectos 01/04» y flechas arriba y abajo de la ventana del dial */
+  /* móvil: las flechas a los lados del nombre del proyecto, centradas sobre el (+); el dial de números se va */
+  .ui-guia {
+    left: 50%;
+    translate: -50% 0;
+    bottom: calc(var(--spacing) * 20);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+  .guia-nombre {
+    min-width: 12ch;
+    text-align: center;
+    font-size: var(--text-ui);
+    font-weight: 500;
+  }
+  .ui-guia .giro {
+    width: calc(var(--spacing) * 10);
+    height: calc(var(--spacing) * 10);
+    display: grid;
+    place-items: center;
+    color: var(--color-niebla);
+  }
+  .ui-guia .giro svg {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    rotate: -90deg;
+  }
+  .ui-guia .giro.arriba { order: -1; }
+  @media (width < 64rem) {
+    .ui-lista { display: none; }
+  }
+  @media (width >= 64rem) {
+    .guia-nombre { display: none; }
+    .ui-guia .giro svg { rotate: none; }
+    .ui-guia {
+      --fila: calc(var(--spacing) * 12);
+      display: block;
+      translate: none;
+      bottom: auto;
+      left: calc(var(--spacing) * 12);
+      top: 50%;
+      width: min(24vw, 22rem);
+      height: 0;
+    }
+    .giro {
+      position: absolute;
+      left: calc(var(--spacing) * -2);
+      width: calc(var(--spacing) * 10);
+      height: calc(var(--spacing) * 10);
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--color-niebla);
+      opacity: 0.7;
+      transition: opacity 0.3s ease, background-color 0.3s ease, translate 0.4s var(--ease-out-expo);
+    }
+    .giro:hover,
+    .giro:focus-visible {
+      opacity: 1;
+      background: color-mix(in oklab, var(--color-niebla) 12%, transparent);
+    }
+    .giro svg {
+      width: calc(var(--spacing) * 5);
+      height: calc(var(--spacing) * 5);
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .giro.arriba {
+      bottom: calc(var(--fila) * 2.5 + var(--spacing) * 1);
+    }
+    .giro.abajo {
+      top: calc(var(--fila) * 2.5 + var(--spacing) * 1);
+    }
+    .giro.arriba:hover { translate: 0 -2px; }
+    .giro.abajo:hover { translate: 0 2px; }
+    /* al llegar, las flechas laten dos veces (acompañan al empujón del dial) */
+    .late .giro {
+      animation: late 0.8s ease-in-out 1.1s 2;
+    }
+    @keyframes late {
+      50% { opacity: 1; background: color-mix(in oklab, var(--color-niebla) 16%, transparent); }
+    }
+    .ui-lista {
+      cursor: ns-resize;
+    }
+    [data-estudio].sentado .ui-guia {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .raton i,
+    .late .giro {
+      animation: none;
+    }
+  }
+
+  /* Sentado: el escenario ocupa la ventana, la cámara se acerca y el paisaje pierde foco. */
+  [data-estudio].sentado .escenario {
+    position: fixed;
+    z-index: 60; /* escala de z: 0 contenido · 48 velo · 50 menú · 55 nav · 60 escenario sentado */
+    inset: 0;
+    width: auto;
+    height: auto;
+  }
+  /* RONDA 10: sentado NO se desenfoca nada (el monitor es parte de la lámina y se difuminaba con ella) y el zoom es menor. */
+  [data-estudio].sentado .web {
+    overscroll-behavior: contain;
+  }
+  [data-estudio].sentado .ui-info,
+  [data-estudio].sentado .ui-lista,
+  [data-estudio].sentado .llamada,
+  [data-estudio].sentado .velo-ui {
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .escena,
+    .capa,
+    .item,
+    .est,
+    .blob,
+    .ui,
+    .llamada {
+      transition: none;
+    }
+    .ficha:not([hidden]) {
+      animation: none;
+    }
+    .punto-silla::after {
+      animation: none;
+      opacity: 0.5;
+    }
+  }
+</style>
+
+
+<style is:global>
+  /* sin JS no hay entrada: el titular-pantalla no debe tapar la escena */
+  html:not(.js) [data-titulo] {
+    display: none;
+  }
+  html.estudio-sentado {
+    overflow: hidden;
+  }
+</style>
