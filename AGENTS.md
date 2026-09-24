@@ -1672,3 +1672,11 @@ en mono en el pie.
   (rama `main`, primer commit `e828761`; privado porque lleva las fuentes con licencia y capturas de webs de clientes). Fuera del repositorio (`.gitignore`):
   `tools/grab/` (grabaciones en bruto, 238 MB), `tools/retirados/voces/` (vídeos que nombran el estudio anterior), `tools/shots/`, `.vercel/`, `dist/`.
   Pendiente: invitar a Eric como colaborador (falta su usuario de GitHub). Publicar en savvia.studio sigue siendo la receta de arriba (no depende de GitHub).
+- **A media ronda (Andoni):** «cuando la web carga, en la navegación se ve un fondo raro; incluso cuando la web está cargada, detrás del navegador se ve como un
+  fondo raro».
+- **Causa:** la franja de la CAPTURA tras la barra (desenfocada y saturada) salía también con la pestaña en blanco y no coincidía con la web en vivo.
+- **Hecho:** fuera la franja: `.tras-cromo` es UN color, `--tinte`: `#fbfbfa` (pestaña en blanco) mientras se teclea y carga, y al descubrirse la web el tono medio
+  de la cabecera de su captura, medido al compilar con sharp (`data-tinte`: Multiverse 41·29·34, Playground 230·228·240, Neety 224·216·220, Zernio
+  245·231·225), con transición de 0,6 s. La barra, niebla al 42 % encima: cristal tintado, igual en el viaje de cámara.
+- **Medido:** `tools/r50-tinte.cjs` (Chrome y WebKit): estreno 251·251·250 cargando → Multiverse 41·29·34 → cambio 251·251·250 cargando → Playground 230·228·240;
+  capturas de los cuatro estados · `tools/r50-sentado.cjs` y `tools/verify.cjs` limpios. No publicado; no subido a GitHub (último commit `7a0894c`).

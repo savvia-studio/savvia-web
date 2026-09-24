@@ -1,6 +1,16 @@
 ---
+import sharp from 'sharp';
 import { proyectos } from '../data/home';
 const P = proyectos.nuevos;
+// RONDA 50 · el TINTE del cristal de la barra: el color medio de la cabecera de cada web (la franja de arriba de su captura, el 4,2 % de su ancho: ~60 px a 1440), medido al compilar
+const TINTE: Record<string, string> = {};
+for (const p of P) {
+  const img = sharp(`public/media/proyectos/${p.slug}.webp`), { width = 1 } = await img.metadata();
+  const franja = await img.extract({ left: 0, top: 0, width, height: Math.round(width * 0.042) }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  let r = 0, g = 0, b = 0; const n = franja.data.length / 3;
+  for (let i = 0; i < franja.data.length; i += 3) { r += franja.data[i]; g += franja.data[i + 1]; b += franja.data[i + 2]; }
+  TINTE[p.slug] = `rgb(${Math.round(r / n)} ${Math.round(g / n)} ${Math.round(b / n)})`;
+}
 const EST = ['primavera', 'verano', 'otono', 'invierno'];
 const nombreEst: Record<string, string> = { primavera: 'Primavera', verano: 'Verano', otono: 'Otoño', invierno: 'Invierno' };
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -81,7 +91,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <div class="visor">
             {
               P.map((p, i) => (
-                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-embed={(p as any).embed === false ? 'no' : 'si'} tabindex="-1" role="region" aria-label={`Web de ${p.n}`} hidden={i !== 0}>
+                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-tinte={TINTE[p.slug]} data-embed={(p as any).embed === false ? 'no' : 'si'} tabindex="-1" role="region" aria-label={`Web de ${p.n}`} hidden={i !== 0}>
                   <!-- RONDA 19: aquí se monta, al acercarse, el <iframe> con la web REAL (o su captura si la web no se deja embeber) -->
                 </div>
               ))
@@ -347,12 +357,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // corre y la página carga. La primera vez (al terminar de entrar en la escena) va despacio; al cambiar de proyecto, deprisa.
     let estrenado = reducido, turno = 0;
     const urlEl = $('[data-url]'), prog = $('[data-progreso]');
-    $('[data-pantalla]').style.setProperty('--cap', `url('${webs[activo].dataset.cap}')`); // el tinte del cristal, ya para la primera web (el estreno no pasa por navegar)
+    // RONDA 50 · el cristal de la barra: neutro (pestaña en blanco) mientras se teclea y carga; con la web ya descubierta, el tono de su cabecera
+    const pantallaTinte = $('[data-pantalla]');
+    const tintar = (w: HTMLElement | null) => pantallaTinte.style.setProperty('--tinte', w ? w.dataset.tinte! : '#fbfbfa');
     function navegar(rapido: boolean) {
       inicio.classList.add('fuera'); // si se cambia de proyecto en pleno estreno, la página de inicio se retira
       const yo = ++turno, w = webs[activo], host = new URL(datos[activo].url).host;
-      $('[data-pantalla]').style.setProperty('--cap', `url('${w.dataset.cap}')`); // el tinte del cristal de la barra
-      if (reducido) { urlEl.textContent = host; w.classList.remove('cargando'); return; }
+      tintar(null);
+      if (reducido) { urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); return; }
       webs.forEach((x) => x.classList.add('cargando'));
       urlEl.textContent = ''; urlEl.classList.add('tecleando');
       prog.style.transition = 'none'; prog.style.opacity = '1'; prog.style.transform = 'scaleX(0)';
@@ -367,7 +379,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         prog.style.transition = `transform ${T * 0.55}ms cubic-bezier(.2,.7,.2,1)`; prog.style.transform = 'scaleX(.68)';
         setTimeout(() => { if (yo !== turno) return; prog.style.transition = `transform ${T * 0.45}ms cubic-bezier(.5,0,.2,1)`; prog.style.transform = 'scaleX(.9)'; }, T * 0.55);
         // RONDA 19: la web es un iframe de verdad → se descubre cuando ha CARGADO (la barra espera al 90 % si aún no ha llegado)
-        setTimeout(() => { if (yo !== turno) return; cuandoListo(w, () => { if (yo !== turno) return; prog.style.transition = 'transform .25s ease'; prog.style.transform = 'scaleX(1)'; w.classList.remove('cargando'); prog.style.transition = 'opacity .4s ease .3s'; prog.style.opacity = '0'; avisarScroll(); }); }, T);
+        setTimeout(() => { if (yo !== turno) return; cuandoListo(w, () => { if (yo !== turno) return; prog.style.transition = 'transform .25s ease'; prog.style.transform = 'scaleX(1)'; w.classList.remove('cargando'); tintar(w); prog.style.transition = 'opacity .4s ease .3s'; prog.style.opacity = '0'; avisarScroll(); }); }, T);
       };
       setTimeout(teclear, rapido ? 120 : 480);
     }
@@ -403,7 +415,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         buscaCarga.classList.add('corre'); // «intro»: la carga corre por el filo del buscador
         setTimeout(() => {
           if (yo !== turno) return;
-          cuandoListo(w, () => { if (yo !== turno) return; urlEl.textContent = host; w.classList.remove('cargando'); inicio.classList.add('fuera'); avisarScroll(); });
+          cuandoListo(w, () => { if (yo !== turno) return; urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); inicio.classList.add('fuera'); avisarScroll(); });
         }, 1000);
       };
       setTimeout(teclear, 750);
@@ -772,22 +784,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
     color: rgb(40 38 36 / 0.62);
   }
   /* tras el cristal: la cabecera de la captura de la web activa, a todo el ancho (la barra la desenfoca y la aclara) */
+  /* ronda 50 (2.ª): un solo color, no la franja de la captura («se ve un fondo raro», también cargando): neutro mientras carga y, con la web descubierta,
+     el tono medio de su cabecera; la barra, niebla al 42 % encima → cristal tintado. Igual de pie, en el viaje y sentado. */
   .tras-cromo {
     position: absolute;
     z-index: 1;
     inset: 0 0 auto;
     height: 4.6cqh;
-    overflow: hidden;
-    background: #fbfbfa;
-  }
-  /* la franja, desenfocada de antemano y en unidades de la pantalla (cqh): igual de pie, en el viaje y sentado; el margen negativo evita el canto claro del blur */
-  .tras-cromo::before {
-    content: '';
-    position: absolute;
-    inset: -3cqh -3cqh auto;
-    height: 12cqh;
-    background: var(--cap, none) center top / 100% auto no-repeat;
-    filter: blur(1.8cqh) saturate(1.8);
+    background: var(--tinte, #fbfbfa);
+    transition: background-color 0.6s ease;
   }
   .semaforo {
     display: flex;
