@@ -29,9 +29,9 @@ La web de **Savvia**, el estudio de Andoni y Eric (Donostia). Lead: Nilo. Se emp
 La biblioteca de referencias y las 81 rondas anteriores viven en `../savvia_inspo/` (su `CLAUDE.md` es el archivo histórico;
 el brief de esta web está en `../savvia_inspo/docs/WEB-2-BRIEF.md`). **PUBLICADA en https://savvia.studio desde la ronda 38 (22/09/2026), con
 `noindex`** (sustituye a la v58 de la web anterior). Modo revisión para Eric: https://savvia.studio/?feedback=1 (Agentation, solo escritorio).
-**Publicar:** `npx astro build` → `mkdir -p dist/.vercel && cp ../savvia_inspo/dist/.vercel/project.json dist/.vercel/` (el build borra `dist/`) →
-`cd dist && vercel deploy --prod --yes` (proyecto `savvia-home` de Vercel, que tiene el dominio; DNS en DonDominio → Vercel) → `node tools/verify.cjs
-https://savvia.studio/`.
+**Publicar (desde el 24/09/2026):** el proyecto `savvia-home` de Vercel (el que tiene el dominio; DNS en DonDominio → Vercel) está CONECTADO al repositorio
+privado https://github.com/AndoniMart/savvia-web: `git push` a `main` = compila en Vercel y publica en savvia.studio (~15 s) → `node tools/verify.cjs
+https://savvia.studio/`. Commit y push, solo cuando Andoni lo pida. (La receta anterior, `vercel deploy --prod` desde `dist/`, sigue valiendo de emergencia.)
 
 ## Orden de trabajo (acordado)
 1. Estructura y copy → 2. color y tipografía → 3. la página ENTERA maquetada y leída, sin animación → 4. UNA firma.
@@ -1680,3 +1680,6 @@ en mono en el pie.
   245·231·225), con transición de 0,6 s. La barra, niebla al 42 % encima: cristal tintado, igual en el viaje de cámara.
 - **Medido:** `tools/r50-tinte.cjs` (Chrome y WebKit): estreno 251·251·250 cargando → Multiverse 41·29·34 → cambio 251·251·250 cargando → Playground 230·228·240;
   capturas de los cuatro estados · `tools/r50-sentado.cjs` y `tools/verify.cjs` limpios. No publicado; no subido a GitHub (último commit `7a0894c`).
+- **PUBLICADA (24/09) por GitHub:** Andoni conectó `savvia-home` al repositorio; push de `239b794` → despliegue de producción `savvia-home-m5bkktjlm` en 13 s.
+  Medido EN VIVO (https://savvia.studio): `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 · tintes, favicon `?v=52`, logotipo nuevo,
+  píldora de scroll y paleta 2 servidos · `tools/r50-tinte.cjs` en vivo: blanco cargando → 41·29·34 con Multiverse. Sigue `noindex`. Eric: lo invita Andoni.
