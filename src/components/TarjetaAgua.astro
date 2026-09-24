@@ -1,0 +1,285 @@
+---
+// RONDA 51 (4.ª) · LA TARJETA DE AGUA. Andoni (captura y vídeo 3136x2080.mp4): «quiero que la card se parezca lo máximo posible» · «los fondos van
+// sincronizados con la estación que estamos» · «la animación son ondas de agua por encima del óleo: es como si tuviese un charco por encima y ondea
+// continuamente». Composición de la captura: óleo a sangre; encima, AGUA (ondas escalonadas que se abren desde abajo, refractan el cuadro, ondulan la
+// pincelada y brillan en las crestas); el icono blanco centrado (el de la estación, las formas polares del icono de la barra); el texto en un panel
+// esmerilado; una píldora blanca abajo con el paso del método.
+// El agua la pinta UN solo contexto WebGL compartido por todas las tarjetas (la página roza el límite de contextos): cada tarjeta viva y a la vista
+// se dibuja en él y se copia a su lienzo 2D, a ~30 fps.
+interface Props { i: number; texto: string; paso: string }
+const { i, texto, paso } = Astro.props;
+// los iconos de estación: las mismas funciones polares que Nav.astro (orden de estacion.ts: otoño · invierno · primavera · verano)
+const hoja = (a: number) => { const f = a - Math.PI / 4, c = Math.cos(f), s2 = Math.abs(Math.sin(f)), k = 0.52; return Math.abs(c) < 1e-4 ? k : (-s2 + Math.sqrt(s2 * s2 + 4 * k * k * c * c)) / (2 * k * c * c); };
+const R = [hoja, (a: number) => 0.3 + 0.7 * Math.pow(Math.abs(Math.cos(3 * a)), 9), (a: number) => 0.38 + 0.62 * Math.abs(Math.cos(2.5 * a + Math.PI / 2)), (a: number) => 0.56 + 0.44 * Math.pow(Math.max(0, Math.cos(8 * a)), 5)];
+const EST = ['otono', 'invierno', 'primavera', 'verano'];
+const forma = (k: number) => 'M' + Array.from({ length: 96 }, (_, n) => { const a = (n / 96) * Math.PI * 2 - Math.PI / 2, r = R[k](a) * 9.5; return `${(12 + r * Math.cos(a)).toFixed(2)} ${(12 + r * Math.sin(a)).toFixed(2)}`; }).join('L') + 'Z';
+---
+
+<div class={`tarjeta agua t${i}`} data-tarjeta={i} data-agua>
+  <img class="oleo-fijo" src={`/media/tarjetas/otono-${i}.webp`} alt="" width="640" height="968" loading="lazy" decoding="async" data-oleo-fijo />
+  <canvas class="lienzo-agua" data-lienzo-agua></canvas>
+  <div class="panel">
+    <span class="icono" aria-hidden="true">
+      <i class="halo"></i>
+      <svg viewBox="0 0 24 24">{EST.map((e, k) => <path class={`f-${e}`} d={forma(k)} />)}</svg>
+    </span>
+    <p class="texto">{texto}</p>
+  </div>
+  <span class="pildora">{paso}</span>
+</div>
+
+<script>
+  import { EST, NOCHE, estacionActual } from '../scripts/estacion';
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tarjetas = [...document.querySelectorAll<HTMLElement>('[data-agua]')];
+  // ── EL AGUA (ronda 52, medida en el vídeo de Andoni fotograma a fotograma): no son aros finos: son DISCOS DE CRISTAL descentrados y encajados unos en
+  // otros (todos rozan el canto derecho; se abren hacia arriba). Cada disco AMPLÍA lo que tiene debajo alrededor de su centro (la lente escalonada: en el
+  // canto, el cuadro salta); junto al canto la refracción se dispara y la pincelada se estira en vetas; filo de luz arriba a la izquierda y una media luna
+  // de sombra por dentro al otro lado. Los discos CRECEN despacio desde el icono (una onda cada ~6 s) y cada uno aparece y se retira sin salto (`w`).
+  // Debajo, el óleo ampliado con RELIEVE de pincelada (la luz sobre el gradiente de la pintura: las láminas son de 250 px y así no se leen blandas).
+  // Y se MIMETIZA con la página: algo desaturado, teñido de la noche de la estación y fundido hacia ella en los cantos.
+  const FS = `precision highp float;
+  uniform sampler2D A,B;uniform vec2 R,C,SA,SB,TX;uniform float t,m,F;uniform vec3 N;varying vec2 v;
+  vec2 cubre(vec2 u,vec2 s){return (u-.5)*s+.5;}
+  float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float ruido(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hs(i),hs(i+vec2(1.,0.)),f.x),mix(hs(i+vec2(0.,1.)),hs(i+1.),f.x),f.y);}
+  vec3 oleo(vec2 u){
+    vec3 a=texture2D(A,cubre(u,SA)).rgb,b=texture2D(B,cubre(u,SB)).rgb;
+    float frente=smoothstep(F-.08,F,length((u-C)*vec2(R.x/R.y,1.)));
+    return mix(b,a,m<1.?frente:1.);
+  }
+  float alto(vec2 tp){vec2 a=vec2(.93,-.37);vec2 o=vec2(dot(tp,a),dot(tp,vec2(-a.y,a.x)));return ruido(o*vec2(.16,.5))*.55+ruido(o*vec2(.4,1.1)+7.3)*.3+ruido(o*vec2(.9,2.)+2.1)*.15;}
+  void main(){
+    vec2 uv=vec2(v.x,1.-v.y);float asp=R.x/R.y;vec2 K=vec2(asp,1.);
+    vec2 p=(uv-C)*K;
+    vec2 s=p;
+    float luz=0.,sombra=0.;
+    vec2 L=normalize(vec2(-.55,-.85));
+    float ph=fract(t*.13);
+    for(int jj=0;jj<8;jj++){
+      float fj=float(7-jj),id=fj-floor(t*.13);
+      float r=.17*(fj+ph);
+      float w=smoothstep(.02,.08,r)*(1.-smoothstep(.85,1.2,r));
+      vec2 c=vec2(-.1*r,.05*r)+.01*vec2(sin(t*.41+id*1.9),cos(t*.33+id*1.3));
+      vec2 d=p-c;float dl=length(d);float e=dl/max(r,1e-3);
+      if(e<1.&&w>0.){
+        vec2 n=d/max(dl,1e-4);
+        s=c+(s-c)/(1.+.24*w)+vec2(.018,-.012)*w;
+        float canto=smoothstep(.9,.995,e);
+        s+=n*r*canto*canto*.22*w;
+        s+=vec2(-n.y,n.x)*sin(e*r*900.+id)*.0025*canto*w;
+        float cara=dot(n,L);
+        luz+=smoothstep(.978,.997,e)*smoothstep(-.2,.8,cara)*w*.9;
+        luz+=canto*smoothstep(.55,1.,cara)*w*.14;
+        sombra+=canto*smoothstep(-.1,.8,-cara)*w*1.;
+        sombra+=smoothstep(.5,.96,e)*smoothstep(.2,1.,-cara)*w*.32;
+        sombra+=smoothstep(.994,1.,e)*w*.3;
+      }
+    }
+    s+=vec2(sin(p.y*34.+t*1.6),cos(p.x*40.-t*1.3))*.0022;
+    s/=1.06;s+=vec2(sin(t*.05),cos(t*.04))*.01;
+    vec2 q=C+s/K;
+    vec3 col=oleo(q);
+    vec2 tp=q*TX;
+    float h0=alto(tp),hx=alto(tp+vec2(1.,0.)),hy=alto(tp+vec2(0.,1.));
+    float relieve=dot(vec2(hx-h0,hy-h0),vec2(-.7,-.7));
+    float lienzo=ruido(uv*R*.35)*.5+ruido(uv*R*.9+3.1)*.5;
+    col*=1.+relieve*.55+(h0-.5)*.035+(lienzo-.5)*.04;
+    col=mix(col,vec3(1.,.98,.94),clamp(luz,0.,1.)*.62);
+    col*=1.-clamp(sombra,0.,.8)*.6;
+    float g=dot(col,vec3(.299,.587,.114));
+    col=mix(col,vec3(g),.1);
+    col=mix(col,col*(N*2.2+.25),.14);
+    col*=.95;
+    vec2 k=abs(uv-.5)*2.;
+    float canto=max(smoothstep(.5,1.02,k.x),smoothstep(.62,1.01,k.y));
+    float vin=smoothstep(.25,1.25,length((uv-vec2(.5,.45))*vec2(1.25,1.)));
+    col=mix(col,N,clamp(canto*.74+vin*.22,0.,.84));
+    gl_FragColor=vec4(col,1.);
+  }`;
+  const VS = 'attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}';
+  const gcv = document.createElement('canvas');
+  const gl = gcv.getContext('webgl', { premultipliedAlpha: false, preserveDrawingBuffer: true }) as WebGLRenderingContext | null;
+  type Tex = { tex: WebGLTexture; w: number; h: number };
+  const texturas = new Map<string, Tex>();
+  const pidiendo = new Map<string, Promise<Tex>>();
+  let U: Record<string, WebGLUniformLocation | null> = {};
+  if (gl) {
+    const sh = (t: number, s: string) => { const o = gl.createShader(t)!; gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(o)); return o; };
+    const pr = gl.createProgram()!; gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); gl.useProgram(pr);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    ['A', 'B', 'R', 'C', 'SA', 'SB', 'TX', 't', 'm', 'F', 'N'].forEach((n) => (U[n] = gl.getUniformLocation(pr, n)));
+    gl.uniform1i(U.A, 0); gl.uniform1i(U.B, 1);
+  }
+  // cada tarjeta, su óleo de la estación (public/media/tarjetas/<estación>-<0..3>.webp: las 16 láminas de Andoni, ronda 52)
+  const archivo = (est: string, i: number) => `/media/tarjetas/${est}-${i}.webp`;
+  const cargar = (est: string, i: number) => {
+    const key = `${est}-${i}`, ya = texturas.get(key); if (ya) return Promise.resolve(ya);
+    if (pidiendo.has(key)) return pidiendo.get(key)!;
+    const pr = new Promise<Tex>((ok) => {
+      const img = new Image(); img.decoding = 'async'; img.src = archivo(est, i);
+      img.onload = () => {
+        const tex = gl!.createTexture()!; gl!.bindTexture(gl!.TEXTURE_2D, tex);
+        gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, gl!.RGBA, gl!.UNSIGNED_BYTE, img);
+        [gl!.TEXTURE_MIN_FILTER, gl!.TEXTURE_MAG_FILTER].forEach((f) => gl!.texParameteri(gl!.TEXTURE_2D, f, gl!.LINEAR));
+        [gl!.TEXTURE_WRAP_S, gl!.TEXTURE_WRAP_T].forEach((f) => gl!.texParameteri(gl!.TEXTURE_2D, f, gl!.CLAMP_TO_EDGE));
+        const e = { tex, w: img.naturalWidth, h: img.naturalHeight }; texturas.set(key, e); ok(e);
+      };
+    });
+    pidiendo.set(key, pr); return pr;
+  };
+  // la estación: la de hoy; al cambiarla, la nueva entra como una onda (1,6 s) y la noche de la tarjeta vira con la de la página
+  let actual = EST[estacionActual()], nueva = actual, m = 1, cambio0 = 0;
+  let nocheA = NOCHE[estacionActual()], nocheB = nocheA;
+  const fijos = () => tarjetas.forEach((t) => (t.querySelector<HTMLImageElement>('[data-oleo-fijo]')!.src = archivo(nueva, Number(t.dataset.tarjeta))));
+  addEventListener('savvia:estacion', (ev) => {
+    const k = (ev as CustomEvent).detail.n as number, n = EST[k]; if (n === nueva) return;
+    Promise.all(tarjetas.map((t) => cargar(n, Number(t.dataset.tarjeta)))).then(() => {
+      actual = nueva; nueva = n; nocheA = nocheB; nocheB = NOCHE[k]; m = 0; cambio0 = performance.now();
+      if (reducido) { actual = n; nocheA = nocheB; m = 1; }
+      fijos(); pedir();
+    });
+  });
+  nocheB = nocheA; fijos();
+  if (!gl) tarjetas.forEach((t) => t.classList.add('sin-gl'));
+  const vistas = new Set<HTMLElement>();
+  const io = new IntersectionObserver((es) => es.forEach((e) => { e.isIntersecting ? vistas.add(e.target as HTMLElement) : vistas.delete(e.target as HTMLElement); pedir(); }), { rootMargin: '100px 0px' });
+  tarjetas.forEach((t) => io.observe(t));
+  new MutationObserver(() => pedir()).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  const t0 = performance.now();
+  let raf = 0, ult = 0;
+  const pintar = async (ahora: number) => {
+    raf = 0;
+    if (!gl) return;
+    const vivas = [...vistas].filter((t) => t.classList.contains('viva'));
+    if (!vivas.length) return;
+    if (ahora - ult < 32 && !reducido) { raf = requestAnimationFrame(pintar); return; }
+    ult = ahora;
+    if (m < 1) { m = Math.min(1, (ahora - cambio0) / 1600); if (m >= 1) { actual = nueva; nocheA = nocheB; } }
+    const noche = nocheA.map((c, j) => (c + (nocheB[j] - c) * m) / 255);
+    for (const t of vivas) {
+      const i = Number(t.dataset.tarjeta);
+      const [A, B] = await Promise.all([cargar(nueva, i), cargar(actual, i)]);
+      const cv = t.querySelector<HTMLCanvasElement>('[data-lienzo-agua]')!, r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+      const W = Math.max(2, Math.round(r.width * dpr)), H = Math.max(2, Math.round(r.height * dpr));
+      if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+      if (gcv.width !== W || gcv.height !== H) { gcv.width = W; gcv.height = H; }
+      gl.viewport(0, 0, W, H);
+      const cubre = (e: { w: number; h: number }) => { const ar = W / H, ai = e.w / e.h; return ar > ai ? [1, ai / ar] : [ar / ai, 1]; };
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.tex); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, B.tex);
+      // el centro de los discos es el icono (0,5 · 0,6): el disco más pequeño le hace de halo, como en el vídeo
+      gl.uniform2f(U.R, W, H); gl.uniform2f(U.C, 0.5, 0.62); gl.uniform2fv(U.SA, cubre(A)); gl.uniform2fv(U.SB, cubre(B)); gl.uniform2f(U.TX, A.w, A.h);
+      gl.uniform3f(U.N, noche[0], noche[1], noche[2]);
+      gl.uniform1f(U.t, reducido ? 8 : (ahora - t0) / 1000 + i * 3.1); gl.uniform1f(U.m, m); gl.uniform1f(U.F, m * 1.6);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      const ctx = cv.getContext('2d')!; ctx.clearRect(0, 0, W, H); ctx.drawImage(gcv, 0, 0);
+    }
+    if (!reducido || m < 1) raf = requestAnimationFrame(pintar);
+  };
+  function pedir() { if (!raf) raf = requestAnimationFrame(pintar); }
+  (window as any).__agua = () => ({ gl: !!gl, err: gl?.getError(), texturas: [...texturas.keys()], vistas: vistas.size, actual, nueva, m, W: gcv.width, H: gcv.height });
+  pedir();
+</script>
+
+<style>
+  /* la tarjeta de la captura: vertical, a sangre, radio grande */
+  .agua {
+    --cw: min(78vw, 20rem);
+    --ch: calc(var(--cw) * 1.78);
+    position: relative;
+    width: var(--cw);
+    height: var(--ch);
+    border-radius: calc(var(--cw) * 0.06);
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--noche);
+  }
+  /* se mimetiza (ronda 52): el mismo grano que la página por encima del óleo */
+  .agua::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: url('/media/grano.png') 0 0 / 240px 240px;
+    opacity: 0.9;
+  }
+  .oleo-fijo,
+  .lienzo-agua {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .oleo-fijo { opacity: 0; } /* sin WebGL o sin JS se ve el óleo quieto */
+  .sin-gl .oleo-fijo,
+  :global(html:not(.anima)) .oleo-fijo { opacity: 1; }
+  /* el panel esmerilado con el icono y el texto (en la captura: de un 66 % a un 88 % del alto, con 7 % de margen) */
+  .panel {
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    top: 63%;
+    bottom: 11.5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 3);
+    padding: 0 8%;
+    border-radius: calc(var(--cw) * 0.05);
+    background: color-mix(in oklab, #fff 11%, transparent);
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+  }
+  .icono {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--cw) * 0.15);
+    aspect-ratio: 1;
+    margin-top: calc(var(--cw) * -0.2);
+  }
+  .halo {
+    position: absolute;
+    inset: -60%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(0 0 0 / 0.16), transparent 64%);
+  }
+  .icono svg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    fill: #fff;
+  }
+  .icono path { display: none; }
+  :global(html[data-estacion='otono']) .icono .f-otono,
+  :global(html[data-estacion='invierno']) .icono .f-invierno,
+  :global(html[data-estacion='primavera']) .icono .f-primavera,
+  :global(html[data-estacion='verano']) .icono .f-verano,
+  :global(html:not([data-estacion])) .icono .f-otono { display: block; }
+  .texto {
+    color: #fff;
+    font-size: calc(var(--cw) * 0.047);
+    line-height: 1.4;
+    text-align: center;
+    text-wrap: balance;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.25);
+  }
+  .pildora {
+    position: absolute;
+    left: 3.5%;
+    right: 3.5%;
+    bottom: 2.6%;
+    height: 6.2%;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-niebla) 88%, transparent);
+    color: var(--color-cacao);
+    font-size: calc(var(--cw) * 0.046);
+    font-weight: 500;
+  }
+</style>

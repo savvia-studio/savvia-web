@@ -1,0 +1,164 @@
+---
+import { recorrido } from '../data/home';
+const pasos = recorrido.pasos;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<!--
+  LOS DOLORES · DIRECCIÓN B, «TACHADO» (ronda 51, a prueba en local; `?s2=a` enseña la A). Tesis: savvia RESUELVE lo que duele, y lo hace con su
+  material: la savia. Cada dolor es un CARTEL tipográfico (Family, más grande que un h1, casi a todo el ancho); con el scroll, un trazo de savia (Coral, la
+  plumada de la carga: puntas redondas, pulso de mano) lo TACHA línea a línea; tachado, se apaga y debajo aparece la respuesta. Atado al scroll: al subir
+  se destacha. Sin tarjetas, sin demos (viven en Servicios), sin fijar el scroll: la sección más callada de la página, antes de la escena del monitor.
+  Movimiento reducido: tachados y con la respuesta a la vista.
+-->
+<section id="recorrido-b" class="tachado surface-dark" aria-label={recorrido.pregunta} data-tachado data-sin-fila>
+  <ol class="carteles wrap">
+    {
+      pasos.map((p, k) => (
+        <li class="cartel" data-cartel={k}>
+          <p class="num detail">{pad(k + 1)}</p>
+          <h2 class="dolor font-display">
+            <span class="frase" data-frase>{p.dolor}</span>
+            <svg class="trazos" aria-hidden="true" data-trazos></svg>
+          </h2>
+          <div class="respuesta">
+            <p class="t text-h2 font-display">{p.t}</p>
+            <p class="d text-sub mt-3">{p.d}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<script>
+  const sec = document.querySelector<HTMLElement>('[data-tachado]');
+  if (sec) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    type Cartel = { li: HTMLElement; frase: HTMLElement; svg: SVGSVGElement; trazos: SVGPathElement[]; largos: number[] };
+    const carteles: Cartel[] = [...sec.querySelectorAll<HTMLElement>('[data-cartel]')].map((li) => ({ li, frase: li.querySelector('[data-frase]')!, svg: li.querySelector('[data-trazos]')!, trazos: [], largos: [] }));
+    // un número pseudoaleatorio estable por línea (el pulso de mano no cambia al redimensionar)
+    const azar = (n: number) => { const x = Math.sin(n * 91.7 + 13.1) * 43758.5; return x - Math.floor(x); };
+    // LAS LÍNEAS de cada frase (lo que el navegador ha partido): un trazo por línea, a la altura del ojo medio de Family, con un pulso de mano
+    const medir = () => {
+      carteles.forEach((c, k) => {
+        const h2 = c.frase.parentElement!.getBoundingClientRect();
+        c.svg.setAttribute('viewBox', `0 0 ${h2.width} ${h2.height}`); c.svg.setAttribute('width', String(h2.width)); c.svg.setAttribute('height', String(h2.height));
+        c.svg.replaceChildren(); c.trazos = []; c.largos = [];
+        const r = document.createRange(); r.selectNodeContents(c.frase);
+        // getClientRects devuelve un rectángulo por línea (y a veces trozos de la misma): se agrupan por su fila
+        const filas: DOMRect[] = [];
+        [...r.getClientRects()].forEach((q) => { const f = filas.find((x) => Math.abs(x.top - q.top) < q.height * 0.4); if (f) { const l = Math.min(f.left, q.left), d = Math.max(f.right, q.right); filas[filas.indexOf(f)] = new DOMRect(l, f.top, d - l, f.height); } else filas.push(q); });
+        const fs = parseFloat(getComputedStyle(c.frase).fontSize);
+        filas.forEach((f, i) => {
+          const x0 = f.left - h2.left - fs * 0.06, x1 = f.right - h2.left + fs * 0.04, y = f.top - h2.top + f.height * 0.56;
+          const s = k * 7 + i, sube = (azar(s) - 0.5) * fs * 0.1, panza = (azar(s + 3) - 0.5) * fs * 0.08;
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          p.setAttribute('d', `M${x0.toFixed(1)} ${(y + sube * 0.5).toFixed(1)} Q${((x0 + x1) / 2).toFixed(1)} ${(y + panza).toFixed(1)} ${x1.toFixed(1)} ${(y - sube * 0.5).toFixed(1)}`);
+          p.style.strokeWidth = `${Math.max(3, fs * 0.075).toFixed(1)}px`;
+          c.svg.append(p); c.trazos.push(p);
+          const L = p.getTotalLength(); c.largos.push(L); p.style.strokeDasharray = `${L}`; p.style.strokeDashoffset = `${L}`;
+        });
+      });
+      pintar();
+    };
+    // EL SCROLL: cada cartel se tacha mientras su frase sube del 72 % al 38 % de la pantalla; las líneas, una tras otra, repartiéndose ese tramo
+    const pintar = () => {
+      raf = 0;
+      carteles.forEach((c) => {
+        const r = c.frase.getBoundingClientRect(), H = innerHeight;
+        const k = reducido ? 1 : Math.min(1, Math.max(0, (H * 0.72 - (r.top + r.height / 2)) / (H * 0.34)));
+        const n = c.trazos.length;
+        c.trazos.forEach((p, i) => { const t = Math.min(1, Math.max(0, k * n - i)); p.style.strokeDashoffset = String(c.largos[i] * (1 - t)); });
+        c.li.classList.toggle('resuelto', k >= 0.999);
+      });
+    };
+    let raf = 0;
+    const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
+    addEventListener('scroll', pedir, { passive: true });
+    new ResizeObserver(() => medir()).observe(sec);
+    document.fonts.ready.then(medir);
+    medir();
+    (window as any).__tachado = () => carteles.map((c) => ({ lineas: c.trazos.length, resuelto: c.li.classList.contains('resuelto'), tachado: c.trazos.map((p, i) => +(1 - parseFloat(p.style.strokeDashoffset) / c.largos[i]).toFixed(2)) }));
+  }
+</script>
+
+<style>
+  .tachado {
+    padding-block: calc(var(--spacing) * 24) calc(var(--spacing) * 32);
+  }
+  .carteles {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 32);
+  }
+  .cartel {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: calc(var(--spacing) * 6);
+    min-height: 64lvh;
+    align-content: center;
+  }
+  .num {
+    grid-column: 1 / -1;
+    color: var(--color-coral);
+    margin-bottom: calc(var(--spacing) * 6);
+  }
+  /* el cartel: Family, por encima del h1 (44 → 120 px) y con un ancho máximo para que parta en dos o tres líneas (el tachado va renglón a renglón) */
+  .dolor {
+    position: relative;
+    grid-column: 1 / -1;
+    max-width: 12ch;
+    font-size: clamp(2.75rem, 0.5rem + 7.2vw, 7.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .frase {
+    transition: color 0.8s ease 0.1s;
+  }
+  .resuelto .frase {
+    color: var(--fg2);
+  }
+  /* los trazos: la savia (Coral) con puntas redondas, encima de la frase */
+  .trazos {
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .trazos :global(path) {
+    fill: none;
+    stroke: var(--color-coral);
+    stroke-linecap: round;
+  }
+  /* la respuesta, alineada con la segunda mitad del cartel: sube desde el desenfoque cuando el dolor está tachado */
+  .respuesta {
+    grid-column: 7 / span 5;
+    margin-top: calc(var(--spacing) * 8);
+    opacity: 0;
+    filter: blur(8px);
+    translate: 0 12px;
+    transition: opacity 0.7s ease 0.15s, filter 0.8s ease 0.15s, translate 0.9s var(--ease-out-expo) 0.15s;
+  }
+  .resuelto .respuesta {
+    opacity: 1;
+    filter: none;
+    translate: 0 0;
+  }
+  .respuesta .d {
+    color: var(--fg2);
+    text-wrap: pretty;
+  }
+  @media (width < 64rem) {
+    .tachado { padding-block: calc(var(--spacing) * 16) calc(var(--spacing) * 24); }
+    .carteles { gap: calc(var(--spacing) * 24); }
+    .cartel { min-height: 0; }
+    .dolor, .respuesta { grid-column: 1 / -1; }
+    .respuesta { margin-top: calc(var(--spacing) * 8); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .frase, .respuesta { transition: none; }
+  }
+</style>

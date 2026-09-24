@@ -1687,3 +1687,129 @@ en mono en el pie.
   la izquierda y sale por arriba a la derecha, recortado por el borde); solo se le pone el fondo Cacao con radio 14 (el archivo viene en blanco sobre
   transparente: en una pestaña clara no se vería) y las v en Rosa niebla. `apple-touch-icon.png` igual, a sangre (iOS redondea). `?v=53`. Los anteriores, en
   `tools/retirados/*.r50b.*`. Revisado a 16, 32, 64 y 180 px. No subido.
+
+### Ronda 51 — 2026-09-24 · crítica de la web y la sección 2 en la dirección A, «el roble que sana» (a prueba, en local)
+- **Andoni (textual):** «Nilo podemos mirar posibles mejoras de la web, por ejemplo cosas que no encajan, o cosas que creamos que se salen de lo que es savvia.
+  Usar el criterio» · «quiero que revises con ojos de diseñador, la sección 2 no nos acaba de convencer» · «vamos a probar la A y si no me convence la B, todo
+  en local».
+- **Crítica (resumen):** la web pasa el «¿podría ser de otro?», pero sobra: ~12 mecanismos. En vivo: 7 enlaces a 404 (`/carta`, `/proyectos`, los cuatro
+  `/casos/…`), «FALTA · Frase…» a la vista en el Estudio, texto secundario sobre Cobalto a 3,18:1. Por decidir: la carga que obliga a dibujar un círculo, tres
+  nombres (savvia · la savvia · savvia agentic), los proyectos en la pantalla 8 de 20, Eric y Andoni en 3D realista en un mundo de acuarela, el vacío del pie.
+  SECCIÓN 2: el mismo esqueleto cuatro veces (dolor · tarjeta negra · respuesta), la jerarquía al revés (el dolor en h3, la tarjeta medio vacía domina), demos de
+  interfaz que hablan el idioma de un SaaS y repiten a Servicios, flora de relleno, 4,4 pantallas fijadas. Direcciones: A «el roble que sana», B «tachado» (mi
+  recomendación), C «antes / después» (falta material).
+- **Hecho (A):** `src/components/Dolores.astro` sustituye en `index.astro` a `Recorrido.astro` (que se queda intacto). Cada parada es un cartel: el dolor en
+  `text-h1` (Family) y al otro lado, alternando, una rama de las láminas (roble con bellotas · helecho · brezo · acebo) pintada con el motor del árbol en una
+  quinta «estación», MARCHITA (ceniza parda `#5e534c`, raleo 0,55). Un HILO de savia (Coral, 2 px, con su gota en la punta) baja desde arriba al centro (la
+  punta de las raíces) y serpentea hasta la base de cada rama con curvas que salen y llegan en vertical; se dibuja con el scroll (su punta al 62 % de la
+  pantalla) y al tocar una base la SANA: `renacer(estación de hoy)` con el frente rasgado y el filo de savia desde la base; el dolor se apaga a `--fg2` y la
+  respuesta sube desde el desenfoque. El hilo pasa por DETRÁS de los bloques de texto (máscara con un hueco por bloque). Sin fijar el scroll, sin tarjetas ni
+  demos. Móvil: una columna. Movimiento reducido: todo sano y el hilo entero.
+- **Medido:** `astro check` 0 errores · `astro build` OK · `spacing-lint` en escala · `tools/r51A-dolores.cjs` (1280 y 390): las cuatro ramas sanan en orden, hilo
+  3702/3702 px (1280); la sección pasa de 4,4 a 3,3 pantallas (1280) y de la pantalla 20,6 a 19,6 de página · WebKit: ramas pintadas y sanando en orden ·
+  movimiento reducido: todo sano · `tools/verify.cjs` limpio en los cuatro. **SIN medir:** cuatro lienzos WebGL más en GPU real.
+- **Backup:** `../savvia-web.bak-r51-2026-09-24/`.
+- **Pendiente de Andoni:** verla en local (http://localhost:4331); si no convence, la B «tachado»; el bloque 1 de la crítica (404, FALTA, contraste) sigue sin
+  arreglar; no publicado ni subido.
+- **A media ronda (Andoni):** «vamos a probar la B, aunque esta [la A] me gusta y añadiendo las cards que teníamos puede quedar bien. Así que probamos B y luego
+  probamos eso».
+- **Hecho:** las tres, CONMUTABLES en la misma página (`index.astro`, un `<script is:inline>` pone `html[data-s2]` antes del primer pintado; `global.css` oculta las
+  otras): sin parámetro → **B** · `?s2=a` → **A** · `?s2=a2` → **A con tarjetas**.
+  · **B «tachado» (`DoloresB.astro`):** cada dolor, un cartel en Family de 44 a 120 px con `max-width: 12ch` (parte en 2–3 líneas); un trazo de savia (Coral,
+    pulso de mano estable, puntas redondas) por LÍNEA, medido con `Range.getClientRects()`, lo tacha renglón a renglón mientras la frase sube del 72 % al 38 % de
+    la pantalla (atado al scroll: al subir se destacha); tachado, se apaga a `--fg2` y la respuesta (h2 + texto) sube desde el desenfoque, en las columnas 7–11.
+    Sin fijar el scroll. 3,7 pantallas a 1280 (antes 4,4).
+  · **A con tarjetas:** las cuatro demos de la sección antigua sacadas a `TarjetaPaso.astro` (mismo marcado y CSS; los filtros gooey con otro id porque la
+    sección antigua sigue en la página, oculta). `Dolores.astro` gana `id` y `tarjetas`: la tarjeta delante y la rama detrás, más grande, asomando alrededor
+    y con su base bajo la tarjeta; la tarjeta DUERME (opaca, `saturate(.35) brightness(.6)`: sin gris frío) y, cuando la savia llega a la base, la rama sana y
+    la demo arranca desde el principio; fuera de pantalla, parada. El script de `Dolores.astro` recorre todas las secciones (la A y la A2 conviven).
+- **Fallos propios cazados:** la tarjeta dormida al 55 % de opacidad dejaba ver la rama gris a través (un fantasma) → opaca; en gris frío desentonaba → apagada
+  sin perder el calor.
+- **Medido:** `tools/r51B-dolores.cjs` (1280 y 390): los cuatro carteles tachados línea a línea (3 · 2 · 3 · 3 líneas a 1280) y resueltos ·
+  `tools/r51A2-dolores.cjs` (1280 y 390): cuatro ramas sanas y cuatro demos vivas, en orden; 3,6 pantallas a 1280 · `tools/r51A-dolores.cjs` sin cambios ·
+  `tools/verify.cjs` limpio con y sin `?s2=a2` (Chrome y WebKit, 1280 y 390) · `astro check` 0 errores · `spacing-lint` en escala.
+- **Pendiente de Andoni:** elegir entre B, A y A2 (http://localhost:4331, `?s2=a`, `?s2=a2`); al elegir, se quita el conmutador y las secciones que sobren
+  (y `Recorrido.astro` si no vuelve). No publicado ni subido.
+- **A media ronda (Andoni):** «me gusta la de las cards, pero podemos hacer que el recorrido se parezca más a algo como las 2 v del logo, un recorrido no tan
+  uniforme, y lo que fluye por ello que sea una gota que va dando vida a las cards. Al dar vida se dibujan como el roble. Los detalles de flores mucho más
+  sutiles en las cards» · «y luego que la gota llegue hasta "Para eso está savvia agentic" y al llegar se genera ese titular».
+- **Hecho (`Dolores.astro`, reescrito):** EL RECORRIDO es un trazo CALIGRÁFICO de plumilla ancha: una cinta rellena cuyo grosor sale del ángulo de la tangente
+  (pluma a −0,62 rad: grueso al bajar, fino en la diagonal que sube; 1,1 → 11 px, 7 en móvil; suavizado y afilado en las puntas), con un RIZO de una vuelta
+  entre parada y parada (como el lazo de la primera v); la forma entera se ve al 7 % y la savia (Coral) se descubre tras la gota con una máscara: la línea
+  central, gruesa, con `stroke-dashoffset` (la técnica de las v de la carga). LA GOTA: una elipse Coral orientada a su marcha y estirada con la velocidad. Al
+  entrar en una tarjeta (por arriba) SALPICA (`gota.ts`), la rama de detrás sana y la tarjeta, que NO EXISTÍA (invisible hasta entonces), SE DIBUJA COMO EL
+  ROBLE (`dibujar.ts`, modo `arbol`: su grabado a líneas y la pintura rasgada desde el impacto) y su demo arranca; la gota sigue por detrás de la tarjeta y
+  sale por abajo. FLORA más sutil: la rama detrás al 26 % marchita y al 42 % sana, al 116 % de la tarjeta. AL FINAL la gota cae fuera de la sección y
+  «Para eso está savvia agentic.» (Proyectos) no existe hasta que la gota ha terminado y el titular asoma: se GENERA con la máscara rasgada creciendo desde
+  su centro (`global.css › h2.generado`, solo con `?s2=a2` y sin movimiento reducido).
+- **Fallos propios cazados:** el rizo salía como una joroba (la vuelta se repartía en el 22 % del tramo) → 8 %; el titular anclado arriba quedaba TAPADO al
+  final (el borde del círculo de la máscara acababa por debajo del texto) → desde el centro; la prueba del titular llamaba a `getComputedStyle` fuera de la página.
+- **Medido:** `tools/r51A2-dolores.cjs` (1280 y 390): cuatro tarjetas vivas en orden, trazo entero (4.696 px a 1280) · `tools/r51A2-titular.cjs` (Chrome y
+  WebKit): tarjetas invisibles al empezar → la 2.ª capturada a líneas y pintándose → titular oculto antes de terminar la gota y visible (generado) al asomar ·
+  `tools/verify.cjs` limpio con `?s2=a2` y sin parámetro (Chrome y WebKit, 1280 y 390).
+- **Pendiente de Andoni:** verla en http://localhost:4331/?s2=a2; si se queda, quitar el conmutador, la A sin tarjetas, la B y `Recorrido.astro`. No publicado.
+- **A media ronda (Andoni, con `~/Desktop/3136x2080.mp4` y una lámina de las cuatro estaciones al óleo):** «el recorrido, ¿puede ser como si fueran raíces que
+  se extienden desde las del árbol?» · «las tarjetas, ¿podemos hacer algo del estilo del vídeo? Te paso imágenes para usar de fondo» · «y cuando llegue a
+  savvia agentic, que haga un pulso como de agua y ese pulso genere el titular».
+- **Referencia medida (el vídeo, 3136×2080, 24 s; `tools/ref52/`):** una tarjeta vertical: un ÓLEO de paisaje a sangre; encima, ANILLOS DE CRISTAL
+  concéntricos (una lente escalonada: cada anillo amplía y desplaza el cuadro, con un filo de luz) que respiran despacio; abajo, un panel esmerilado con un
+  símbolo y el texto, y un botón en píldora.
+- **Hecho:** · RAÍZ (`Dolores.astro`): la línea central ondea (dos senos lentos), gruesa arriba (9 px, 6 en móvil, donde nace de las raíces del árbol) y cada
+  vez más fina con un pulso irregular, en el color del árbol de la estación hundido en la noche; RAICILLAS sembradas cada 70–150 px a los lados (curvas,
+  alguna ramificada) que BROTAN tras la gota (atadas al scroll); por dentro, un hilo de savia Coral de 1,6 px. Fuera el trazo caligráfico con rizos.
+  · TARJETAS (`TarjetaPaso.astro`, `fondo`): el óleo de su estación a sangre (la lámina de Andoni partida en cuatro → `public/media/tarjetas/`: 01 primavera ·
+  02 verano · 03 otoño · 04 invierno; el recorrido pasa por el año), los ANILLOS DE CRISTAL en un lienzo 2D (siete discos concéntricos, cada uno con el cuadro
+  un 4,5 % más ampliado y subido, filo de luz arriba y sombra abajo; se abren despacio; solo con la tarjeta viva y a la vista, ~30 fps; sin WebGL: la página
+  roza el límite de contextos) y la demo en un panel ESMERILADO (niebla oscura al 42 % + desenfoque 14 px) del 38 % hacia abajo; la tarjeta, 1:1,42.
+  · PULSO DE AGUA (`global.css › .pulso-agua`, `h2.generado`): al asomar el titular con la gota ya llegada, tres ondas finas (niebla con filo Coral) se abren
+  desde su centro, escalonadas 0,28 s; la primera DESCUBRE el titular (máscara radial de borde blando atada a `--onda`, desde el desenfoque).
+- **Fallos propios cazados:** las ondas crecían con `scale` y el borde engordaba con ellas (aros gruesos) → crece el tamaño.
+- **Medido:** `tools/r51A2-dolores.cjs` (1280 y 390): cuatro tarjetas vivas en orden, raíz entera; la sección mide 4,2 pantallas a 1280 (las tarjetas son más
+  altas) · `tools/r51A2-titular.cjs` (Chrome y WebKit): titular oculto hasta el final y generado con las ondas (capturas a 250, 450, 700 y 1.500 ms) ·
+  `tools/verify.cjs` con `?s2=a2` limpio (Chrome y WebKit, 1280 y 390).
+- **Pendiente de Andoni:** verlo (http://localhost:4331/?s2=a2); las láminas de óleo son de 466×832 px (en la tarjeta, a DPR 2, se amplían ×1,5: hacen falta a más
+  resolución si se quedan); la sección ha crecido a 4,2 pantallas; no publicado.
+- **Ajuste:** la demo de `savvia.md` se salía del panel esmerilado en móvil → 88 % de ancho, texto a 10 px y líneas con puntos suspensivos. verify limpio.
+- **A media ronda (Andoni, con una captura de la tarjeta del vídeo):** «quiero que la card se parezca lo máximo posible, y los fondos de las cards van
+  sincronizados con la estación que estamos. La animación son ondas de agua por encima del óleo: es como si tuviese un charco por encima y ondea
+  continuamente» · «al llegar a savvia agentic la onda tiene que empezar desde la raíz y esa onda genera el titular, como si se crease en agua».
+- **Hecho:** `TarjetaAgua.astro` (nueva; `TarjetaPaso.astro`, con las demos, queda guardada): la tarjeta de la captura, 1:1,78, a sangre, radio 6 % del ancho:
+  el ÓLEO de la ESTACIÓN DE HOY en las cuatro (al cambiar de estación, el nuevo entra como una onda desde el centro); encima el AGUA, un fragment shader:
+  ondas ESCALONADAS que se abren desde el icono (0,5 · 0,645: el anillo más pequeño le hace de halo), dentro de cada banda el cuadro se desplaza y se amplía
+  y en el borde SALTA (la lente de la captura), un ondulado fino en la pincelada, filo de luz arriba y sombra por dentro; UN solo contexto WebGL para las
+  cuatro (cada tarjeta viva y a la vista se dibuja en él y se copia a su lienzo 2D, ~30 fps). Encima: el icono de la estación en blanco (las formas polares de
+  la barra), la EXPLICACIÓN del paso en un panel esmerilado (blanco al 11 %, desenfoque 1,5 px) y una PÍLDORA blanca con el paso del método (Entender ·
+  Decidir · Documentar · Entregar). A la izquierda quedan el dolor y la respuesta corta. TITULAR: las ondas nacen arriba al centro del titular-pantalla
+  (donde acaba la raíz y cae la gota); la primera lo descubre con una máscara radial y el texto sale ONDULADO (filtro `#agua-titular`, desplazamiento 22 →
+  0 en 2,6 s) hasta asentarse.
+- **Fallos propios cazados:** (1) al fijar el centro de las ondas metí un comentario `//` en mitad de una línea de JS y se tragó el resto: la escala del óleo,
+  el tiempo y el cambio de estación no llegaban a la GPU (la tarjeta salía de un color plano: leía siempre el centro del cuadro) → aislado devolviendo la
+  textura sola y leyendo el uniform (`[0, 0]`); (2) lo mismo, otra vez, en el titular (la compilación falló). REGLA para la casa: nunca un `//` en una línea
+  con más sentencias detrás; el comentario, en su línea. (3) el ondulado del titular inclinaba las letras (parecían cursivas, rechazadas) → redondo y corto.
+- **Medido:** `tools/r51-agua.cjs` (Chrome y WebKit, DPR 2): el agua mueve el 82–88 % de la tarjeta en 1 s; comparada lado a lado con la captura ·
+  `tools/r51A2-titular.cjs` (Chrome y WebKit): titular oculto hasta que llega la gota y generado desde el agua · `tools/r51A2-dolores.cjs` (1280 y 390) ·
+  `tools/verify.cjs` con `?s2=a2` limpio (Chrome y WebKit, 1280 y 390).
+- **Pendiente de Andoni:** verlo (http://localhost:4331/?s2=a2); los óleos siguen a 466×832 (en retina se amplían: mejor a más resolución, y sin la cinta de
+  cristal que traen pintada, que ahora compite con el agua); no publicado.
+
+### Ronda 52 — 2026-09-24 · el agua de la referencia (discos de cristal), 16 óleos por estación y la tarjeta que se funde con la noche (a prueba, en local)
+- **Andoni (textual + lámina de 4×4 óleos, `~/Desktop/estaciones 4.png`):** «en las cards de naturaleza no estamos consiguiendo ese efecto chulo del agua que tiene
+  la referencia» · «te paso 4 imágenes para cada estación» · «las cards que se mimeticen mejor con el fondo».
+- **Referencia medida otra vez (`3136x2080.mp4`, recortes de la tarjeta cada 0,5 s y cada 0,125 s):** no son aros finos ni ondas repetidas: son 4–5 DISCOS DE
+  CRISTAL grandes, casi concéntricos (desplazados a la izquierda al crecer), espaciados de forma regular; cada disco AMPLÍA de golpe lo que tiene debajo
+  (el cuadro salta en el canto); el canto es GRUESO: una franja donde la pintura se estira en vetas, con filo de luz arriba a la izquierda y una media luna
+  oscura por dentro al otro lado; el óleo, muy ampliado, con la pincelada a la vista.
+- **Hecho (`TarjetaAgua.astro`, shader reescrito):** ocho discos con radio lineal (0,17 del alto por paso) que CRECEN despacio desde el icono (un paso cada
+  ~7,7 s; cada uno aparece y se retira sin salto, `w`, con identidad estable para su vaivén); ampliación ×1,24 y corrimiento por disco; canto de cristal
+  (franja del 10 % exterior que empuja hacia fuera + vetas tangenciales), luz y media luna de sombra; un temblor fino de superficie. RELIEVE de pincelada
+  (ruido anisótropo en coordenadas de la lámina, iluminado por diferencias: la lente lo amplía con el óleo) para que las láminas de 250 px no se lean
+  blandas. SE FUNDE: algo desaturado, teñido de la noche de la estación (uniform `N`, vira con el cambio), cantos fundidos hacia ella, sin sombra, fondo
+  `--noche`, el grano de la página encima y la píldora en Rosa niebla. ÓLEOS: la lámina 4×4 recortada por sus canalones blancos → `public/media/tarjetas/
+  <estación>-<0..3>.webp` (640×968, lanczos + enfoque suave): cada tarjeta su cuadro, los cuatro de la estación de hoy. Los de la ronda 51, en
+  `tools/retirados/tarjetas-r51/` (siguen en `public/` por `TarjetaPaso.astro`, guardada).
+- **Medido:** `astro check` 0 errores · `tools/r51-agua.cjs` (Chrome y WebKit, DPR 2): la tarjeta cambia el 71–83 % de sus píxeles en 1 s, sin errores ·
+  cuatro estaciones capturadas en escritorio y móvil (16 texturas cargadas, `gl.getError` 0) · `tools/r51A2-dolores.cjs`: las cuatro tarjetas vivas y el
+  recorrido entero · `tools/verify.cjs` con `?s2=a2` (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0. **SIN medir:** GPU real (12 muestras
+  del óleo por píxel + 8 discos, una tarjeta a la vez a ~30 fps).
+- **Pendiente de Andoni:** las láminas llegan a 250×380 por cuadro (a más resolución la pincelada sería real, no simulada); traen pintada la cinta de cristal,
+  que en algunas (primavera) se suma a los discos; no publicado ni subido.

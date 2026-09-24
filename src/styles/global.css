@@ -467,3 +467,62 @@ html.tipo-antes {
   }
 
 }
+
+/* RONDA 51 · la prueba de la sección 2 (index.astro): solo se ve la dirección elegida con `?s2=` */
+html:not([data-s2='a']) #recorrido,
+html:not([data-s2='a2']) #recorrido-a2,
+html:not([data-s2='b']) #recorrido-b {
+  display: none;
+}
+
+/* RONDA 51 · con la dirección A con tarjetas (`?s2=a2`), «Para eso está savvia agentic.» NO EXISTE hasta que llega la gota de los dolores.
+   Andoni: «al llegar a savvia agentic la onda tiene que empezar desde la raíz y esa onda genera el titular, como si se crease en agua». Dolores.astro pone
+   `.generado` y mete las ONDAS (`.pulso-agua`) que nacen arriba al centro (donde acaba la raíz y cae la gota); la primera DESCUBRE el titular (máscara radial
+   desde ese punto, atada a `--onda`) y el texto sale ONDULADO (filtro #agua-titular, cuyo desplazamiento apaga el JS) hasta asentarse. */
+@property --onda { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@media (prefers-reduced-motion: no-preference) {
+  html.anima[data-s2='a2'] [data-titulo] h2:not(.generado) {
+    visibility: hidden;
+  }
+  html.anima[data-s2='a2'] [data-titulo] h2.generado {
+    -webkit-mask: radial-gradient(circle at 50% -60%, #000 calc(var(--onda) - 5rem), transparent var(--onda));
+    mask: radial-gradient(circle at 50% -60%, #000 calc(var(--onda) - 5rem), transparent var(--onda));
+    animation: generar-titular 2.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  }
+  html.anima[data-s2='a2'] [data-titulo] h2.generado:not(.asentado) {
+    filter: url(#agua-titular);
+  }
+}
+@keyframes generar-titular {
+  from { --onda: 0px; }
+  to { --onda: 160vmax; }
+}
+/* las ondas: anillos finos que nacen arriba al centro (la punta de la raíz) y se abren, uno tras otro, como una gota en un charco */
+.pulso-agua {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+.pulso-agua i {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in oklab, var(--color-niebla) 60%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-coral) 30%, transparent), inset 0 0 18px color-mix(in oklab, var(--color-niebla) 12%, transparent);
+  opacity: 0;
+  animation: onda-agua 3s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+}
+.pulso-agua i:nth-child(2) { animation-delay: 0.25s; }
+.pulso-agua i:nth-child(3) { animation-delay: 0.55s; }
+.pulso-agua i:nth-child(4) { animation-delay: 0.95s; }
+/* crece el TAMAÑO, no la escala: con `scale` el borde engordaba con el anillo; así se queda fino, como en el agua */
+@keyframes onda-agua {
+  0% { width: 0.5rem; height: 0.5rem; opacity: 0.95; }
+  100% { width: 190vmax; height: 190vmax; opacity: 0; }
+}

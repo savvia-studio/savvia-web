@@ -1,0 +1,425 @@
+---
+import { recorrido } from '../data/home';
+import TarjetaAgua from './TarjetaAgua.astro'; // ronda 51 (4.ª): la tarjeta de agua de la captura de Andoni (TarjetaPaso.astro, con las demos, queda guardada)
+// RONDA 51 · `tarjetas`: la A con las tarjetas de antes (Andoni: «esta me gusta y añadiendo las cards que teníamos puede quedar bien»)
+interface Props { id?: string; tarjetas?: boolean }
+const { id = 'recorrido', tarjetas = false } = Astro.props;
+const pasos = recorrido.pasos;
+const pad = (n: number) => String(n).padStart(2, '0');
+// cada dolor, su rama (láminas de Andoni, public/media/flora/): el fruto que no se ve · el patrón de cualquiera · la mata sin porqué · la espera del invierno
+const RAMAS = ['rama-roble-bellotas', 'helecho', 'brezo', 'acebo-bayas-rojas'];
+// y su estación (el óleo de fondo de cada tarjeta): el recorrido pasa por el año
+// los pasos del método (ronda 8), en la píldora de cada tarjeta
+const PASOS = ['Entender', 'Decidir', 'Documentar', 'Entregar'];
+const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho: 504 / 640, brezo: 570 / 640, 'acebo-bayas-rojas': 480 / 640 };
+---
+
+<!--
+  LOS DOLORES · DIRECCIÓN A, «EL ROBLE QUE SANA» (ronda 51, a prueba en local). Tesis: tu web es una rama de tu árbol; cada dolor es una rama MARCHITA y la
+  savia la devuelve a la vida. Con `tarjetas` (la preferida, `?s2=a2`): la tarjeta de cada paso NO EXISTE hasta que llega la savia.
+  · EL RECORRIDO, como las v del logotipo (Andoni: «que el recorrido se parezca más a las dos v del logo, no tan uniforme»): un trazo CALIGRÁFICO de plumilla
+    ancha (grueso al bajar, fino al subir: el grosor sale del ángulo de la tangente), con un RIZO entre parada y parada, como el lazo de la primera v. Se
+    descubre detrás de la gota con la misma técnica que las v de la carga: una máscara con el trazo de la línea central que avanza.
+  · LO QUE FLUYE ES UNA GOTA de savia (se estira con la velocidad). Al llegar a una tarjeta, salpica y la tarjeta SE DIBUJA COMO EL ROBLE (dibujar.ts, modo
+    `arbol`: su grabado a líneas y detrás la pintura con canto rasgado, desde el impacto); la rama de detrás sana con el frente rasgado del cambio de estación
+    y la demo arranca. Luego la gota sigue.
+  · AL FINAL la gota cae fuera de la sección, hacia «Para eso está savvia agentic.»: el titular de Proyectos NO EXISTE hasta entonces; al asomar, la gota
+    cae en él como en AGUA: un pulso de tres ondas que se abren desde su centro, y la primera lo descubre (global.css › `.pulso-agua`, `h2.generado`).
+  · La flora, mucho más sutil. Sin fijar el scroll. Móvil: una columna. Movimiento reducido: todo vivo y el trazo entero.
+-->
+<section id={id} class={`dolores surface-dark ${tarjetas ? 'con-tarjetas' : ''}`} aria-label={recorrido.pregunta} data-dolores data-sin-fila>
+  <!-- el agua del titular de Proyectos: ruido suave y ancho → desplazamiento que el JS apaga (el titular «se crea en agua») -->
+  {tarjetas && (
+    <svg width="0" height="0" class="absolute" aria-hidden="true"><filter id="agua-titular" x="-10%" y="-40%" width="120%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.018 0.028" numOctaves="1" seed="1" /><feDisplacementMap in="SourceGraphic" scale="22" xChannelSelector="G" yChannelSelector="R" /></filter></svg>
+  )}
+  <svg class="hilo" aria-hidden="true" data-hilo>
+    <defs>
+      <!-- el trazo pasa POR DETRÁS de cada bloque de texto (no tacha lo que se lee) -->
+      <mask id={`hilo-texto-${id}`} maskUnits="userSpaceOnUse" data-mascara><rect x="-10" y="-10" width="99999" height="99999" fill="#fff" /></mask>
+      <!-- y se descubre detrás de la gota: la línea central, gruesa, que avanza (como la plumada de las v en la carga) -->
+      <mask id={`hilo-avance-${id}`} maskUnits="userSpaceOnUse"><path class="guia" d="" data-guia /></mask>
+    </defs>
+    <g mask={`url(#hilo-texto-${id})`}>
+      <!-- RONDA 51 (3.ª) · «que el recorrido sea como raíces que se extienden desde las del árbol»: la raíz (color del árbol de la estación, hundido)
+           crece tras la gota; sus raicillas brotan al pasar; por dentro, el hilo de savia -->
+      <g class="raicillas" data-raicillas></g>
+      <g mask={`url(#hilo-avance-${id})`}>
+        <path class="raiz" d="" data-raiz />
+        <path class="savia" d="" data-savia />
+      </g>
+      <ellipse class="gota" rx="5" ry="4.2" data-gota />
+    </g>
+  </svg>
+  <ol class="paradas wrap">
+    {
+      pasos.map((p, k) => (
+        <li class={`parada ${k % 2 ? 'derecha' : ''}`} data-parada={k}>
+          <div class="texto">
+            <p class="num detail">{pad(k + 1)}</p>
+            <h2 class="dolor text-h1 font-display">{p.dolor}</h2>
+            <div class="respuesta">
+              <p class="t text-h3 font-display">{p.t}</p>
+              {!tarjetas && <p class="d text-sub mt-3">{p.d}</p>}
+            </div>
+          </div>
+          <div class="lado">
+            <div class="rama" style={`--prop:${PROP[RAMAS[k]]}`} aria-hidden="true" data-rama>
+              <img src={`/media/flora/${RAMAS[k]}.webp`} alt="" loading="lazy" decoding="async" data-lamina />
+              <canvas data-lienzo></canvas>
+            </div>
+            {tarjetas && <TarjetaAgua i={k} texto={p.d} paso={PASOS[k]} />}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<script>
+  import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
+  import { NOCHE, estacionActual } from '../scripts/estacion';
+  import { dibujar } from '../scripts/dibujar';
+  import { salpicar } from '../scripts/gota';
+  document.querySelectorAll<HTMLElement>('[data-dolores]').forEach((sec) => {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const conTarjetas = sec.classList.contains('con-tarjetas');
+    // MARCHITA = una estación más de la tabla del motor: ceniza parda y rala (raleo 0,55: pierde las hojas claras). Las cuatro de siempre, sin raleo.
+    const MARCHITA = 4;
+    const tabla = [...ESTACIONES_SIN_RALEO, [0x5e / 255, 0x53 / 255, 0x4c / 255, 0.55]];
+    let est = estacionActual();
+    const ramas = [...sec.querySelectorAll<HTMLElement>('[data-parada]')].map((li) => {
+      const el = li.querySelector<HTMLElement>('[data-rama]')!;
+      return { li, el, img: el.querySelector<HTMLImageElement>('[data-lamina]')!, cv: el.querySelector<HTMLCanvasElement>('[data-lienzo]')!, tarjeta: li.querySelector<HTMLElement>('[data-tarjeta]'), t: null as Estela | null, sana: false, dibujada: false };
+    });
+    type Rama = (typeof ramas)[number];
+    const crear = (r: Rama) => {
+      if (r.t) return;
+      if (!r.img.complete) r.img.loading = 'eager';
+      r.t = crearEstela(r.cv, r.img, { origen: [0.5, 1], dir: -1, radial: true, estaciones: tabla, origenEstacion: [0.5, conTarjetas ? 0.5 : 0.96], intensidad: 2 });
+      if (!r.t) { r.el.classList.add('sin-gl'); return; }
+      r.t.estacion(r.sana ? est : MARCHITA); r.t.fondo(...NOCHE[est]); r.t.crecer(reducido ? 1 : 0);
+    };
+    // la rama marchita se dibuja al asomar (líneas y pintura desde la base, 1,6 s): la savia aún no ha llegado
+    const dibujarRama = (r: Rama) => {
+      if (r.dibujada || !r.t) return;
+      r.dibujada = true;
+      if (reducido) return r.t.crecer(1);
+      let a = 0;
+      const paso = (ahora: number) => { if (!a) a = ahora; const k = Math.min(1, (ahora - a) / 1600); r.t!.crecer(1 - Math.pow(1 - k, 1.6)); if (k < 1) requestAnimationFrame(paso); };
+      requestAnimationFrame(paso);
+    };
+    // LLEGA LA SAVIA: la rama sana; la tarjeta aparece DIBUJÁNDOSE COMO EL ROBLE desde el impacto y su demo arranca desde el principio
+    const sanar = (r: Rama, impacto?: [number, number]) => {
+      if (r.sana) return;
+      r.sana = true; r.li.classList.add('sana');
+      if (r.t) { if (reducido) r.t.estacion(est); else r.t.renacer(est); }
+      const t = r.tarjeta;
+      if (!t) return;
+      const d = t.querySelector('.demo'); d?.replaceWith(d.cloneNode(true));
+      t.classList.add('viva');
+      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, origen: impacto, color: 'rgb(234 221 231 / 0.6)' });
+    };
+    ramas.forEach((r) => {
+      if (r.tarjeta) new IntersectionObserver((e) => r.tarjeta!.classList.toggle('fuera', !e[0].isIntersecting)).observe(r.tarjeta);
+      new IntersectionObserver((e) => { if (e[0].isIntersecting) crear(r); }, { rootMargin: '600px 0px' }).observe(r.el);
+      new IntersectionObserver((e) => { r.t?.visible(e[0].isIntersecting); if (e[0].isIntersecting) dibujarRama(r); }, { threshold: 0.2 }).observe(r.el);
+    });
+    addEventListener('savvia:estacion', (ev) => {
+      const n = (ev as CustomEvent).detail.n as number;
+      if (n === est) return;
+      est = n;
+      ramas.forEach((r) => { if (!r.t) return; r.t.fondo(...NOCHE[n]); if (r.sana) r.t.renacer(n); });
+    });
+
+    // ── EL RECORRIDO CALIGRÁFICO ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+    const svg = sec.querySelector<SVGSVGElement>('[data-hilo]')!, raiz = sec.querySelector<SVGPathElement>('[data-raiz]')!, savia = sec.querySelector<SVGPathElement>('[data-savia]')!, raicillas = sec.querySelector<SVGGElement>('[data-raicillas]')!;
+    const guia = sec.querySelector<SVGPathElement>('[data-guia]')!, gota = sec.querySelector<SVGEllipseElement>('[data-gota]')!;
+    type P = { x: number; y: number };
+    let pts: P[] = [], acum: number[] = [], maxY: number[] = [], llegadas: number[] = [], total = 1, wMax = 10;
+    let brotes: { el: SVGPathElement; desde: number; largo: number }[] = [];
+    const PLUMA = -0.62; // el ángulo de la plumilla (rad): los trazos que bajan salen gruesos, los que suben en diagonal, finos
+    // un tramo de A a B: sale y llega en vertical (una raíz que baja) y a mitad hace un RIZO, hacia el lado al que va
+    const tramo = (A: P, B: P, rizo: boolean, lado: number) => {
+      const out: P[] = [], dy = B.y - A.y, m = dy * 0.5, n = Math.max(12, Math.ceil(Math.hypot(B.x - A.x, dy) / 5));
+      const r = Math.min(64, Math.max(22, dy * 0.1));
+      for (let i = 1; i <= n; i++) {
+        const t = i / n, u = 1 - t;
+        let x = u * u * u * A.x + 3 * u * u * t * A.x + 3 * u * t * t * B.x + t * t * t * B.x;
+        let y = u * u * u * A.y + 3 * u * u * t * (A.y + m) + 3 * u * t * t * (B.y - m) + t * t * t * B.y;
+        if (rizo && t > 0.46 && t < 0.54) {
+          // una vuelta entera (empieza y acaba en el tramo: sin 0 = 0 y 1 − cos 0 = 0), como el lazo de la primera v
+          const th = ((t - 0.46) / 0.08) * Math.PI * 2;
+          x += lado * r * Math.sin(th); y -= r * 0.95 * (1 - Math.cos(th)) * 0.5;
+        }
+        out.push({ x, y });
+      }
+      return out;
+    };
+    const medir = () => {
+      const sr = sec.getBoundingClientRect(), W = sr.width, H = sec.offsetHeight;
+      if (!H) return; // la dirección oculta (`?s2=`)
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', String(W)); svg.setAttribute('height', String(H));
+      wMax = innerWidth < 768 ? 6 : 9;
+      const wr = sec.querySelector<HTMLElement>('.paradas')!.getBoundingClientRect();
+      const rel = (x: number, y: number): P => ({ x: x - sr.left, y: y - sr.top });
+      pts = [{ x: wr.left - sr.left + wr.width / 2, y: 0 }]; llegadas = [];
+      ramas.forEach((r, k) => {
+        const b = (r.tarjeta ?? r.el).getBoundingClientRect(), cx = b.left + b.width / 2;
+        const llega = r.tarjeta ? rel(cx, b.top + 4) : rel(cx, b.top + b.height * 0.94), sale = r.tarjeta ? rel(cx, b.bottom - 4) : llega;
+        const prev = pts[pts.length - 1];
+        pts.push(...tramo(prev, llega, false, 1));
+        llegadas.push(pts.length - 1);
+        if (sale !== llega) pts.push(...tramo(llega, sale, false, 1)); // por detrás de la tarjeta
+      });
+      const ult = pts[pts.length - 1];
+      pts.push(...tramo(ult, { x: wr.left - sr.left + wr.width / 2, y: H }, false, 1));
+      // longitudes y la y máxima alcanzada (el rizo sube un poco: la punta avanza por la y máxima, que nunca retrocede)
+      acum = [0]; maxY = [pts[0].y];
+      for (let i = 1; i < pts.length; i++) { acum.push(acum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y)); maxY.push(Math.max(maxY[i - 1], pts[i].y)); }
+      total = acum[acum.length - 1];
+      // LA RAÍZ: la línea central ONDEA (dos senos lentos con fase propia, hacia los lados), gruesa arriba (donde nace de las raíces del árbol) y cada vez
+      // más fina, con un pulso irregular; por dentro, el hilo de savia (Coral, fino)
+      const ang0 = pts.map((_, i) => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; return Math.atan2(b.y - a.y, b.x - a.x); });
+      pts = pts.map((p, i) => { const s = acum[i], o = (Math.sin(s / 97 + 1.3) * 9 + Math.sin(s / 41 + 4.1) * 3.5) * Math.min(1, s / 120); return { x: p.x - Math.sin(ang0[i]) * o, y: p.y + Math.cos(ang0[i]) * o }; });
+      acum = [0]; for (let i = 1; i < pts.length; i++) acum.push(acum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+      total = acum[acum.length - 1];
+      const ang = pts.map((_, i) => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; return Math.atan2(b.y - a.y, b.x - a.x); });
+      const ws = acum.map((s) => (wMax - (wMax - 2.2) * (s / total)) * (1 + 0.16 * Math.sin(s / 33 + 0.7) + 0.08 * Math.sin(s / 11)) * Math.min(1, (total - s) / 50 + 0.2));
+      const izq: string[] = [], der: string[] = [];
+      pts.forEach((p, i) => { const nx = -Math.sin(ang[i]), ny = Math.cos(ang[i]), h = ws[i] / 2; izq.push(`${(p.x + nx * h).toFixed(1)} ${(p.y + ny * h).toFixed(1)}`); der.push(`${(p.x - nx * h).toFixed(1)} ${(p.y - ny * h).toFixed(1)}`); });
+      raiz.setAttribute('d', `M${izq.join('L')}L${der.reverse().join('L')}Z`);
+      maxY = [pts[0].y]; for (let i = 1; i < pts.length; i++) maxY.push(Math.max(maxY[i - 1], pts[i].y));
+      const linea = 'M' + pts.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join('L');
+      savia.setAttribute('d', linea); guia.setAttribute('d', linea);
+      guia.style.strokeWidth = `${wMax + 10}px`; guia.style.strokeDasharray = `${total + 20}`;
+      // LAS RAICILLAS: sembradas (siempre las mismas), a los lados, cada 70–150 px; bajan en curva y adelgazan; alguna se ramifica. Brotan al pasar la gota.
+      let semilla = 7; const azar = () => { semilla = (semilla * 16807) % 2147483647; return semilla / 2147483647; };
+      raicillas.replaceChildren(); brotes = [];
+      const brote = (x: number, y: number, a: number, L: number, w: number, desde: number, nivel: number) => {
+        const x2 = x + Math.cos(a) * L, y2 = y + Math.sin(a) * L, curva = (azar() - 0.5) * L * 0.5;
+        const mx = (x + x2) / 2 - Math.sin(a) * curva, my = (y + y2) / 2 + Math.cos(a) * curva;
+        const el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        el.setAttribute('d', `M${x.toFixed(1)} ${y.toFixed(1)}Q${mx.toFixed(1)} ${my.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`);
+        el.style.strokeWidth = `${w.toFixed(2)}px`;
+        raicillas.append(el);
+        const largo = el.getTotalLength(); el.style.strokeDasharray = `${largo}`; el.style.strokeDashoffset = `${largo}`;
+        brotes.push({ el, desde, largo });
+        if (nivel === 0 && azar() < 0.55) { const f = 0.45 + azar() * 0.3; brote(x + (x2 - x) * f, y + (y2 - y) * f, a + (azar() < 0.5 ? -1 : 1) * (0.45 + azar() * 0.4), L * (0.35 + azar() * 0.25), w * 0.55, desde + 60, 1); }
+      };
+      let lado = 1;
+      for (let s = 110; s < total - 80; s += 70 + azar() * 80) {
+        const i = acum.findIndex((v) => v >= s), p = pts[i], a = ang[i];
+        lado = azar() < 0.72 ? -lado : lado;
+        brote(p.x, p.y, a + lado * (0.55 + azar() * 0.55), 30 + azar() * 90, Math.max(0.8, ws[i] * 0.42), s, 0);
+      }
+      // los huecos de la máscara de texto: cada bloque (dolor + respuesta), con 20 px de aire
+      const mascara = sec.querySelector<SVGMaskElement>('[data-mascara]')!;
+      mascara.querySelectorAll('.hueco').forEach((n) => n.remove());
+      sec.querySelectorAll<HTMLElement>('.texto').forEach((t) => {
+        const r = t.getBoundingClientRect(), h = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        h.setAttribute('class', 'hueco'); h.setAttribute('fill', '#000'); h.setAttribute('rx', '24');
+        h.setAttribute('x', String(r.left - sr.left - 20)); h.setAttribute('y', String(r.top - sr.top - 20));
+        h.setAttribute('width', String(r.width + 40)); h.setAttribute('height', String(r.height + 40));
+        mascara.append(h);
+      });
+      pintar();
+    };
+    let ultL = 0, hecho = false;
+    const pintar = () => {
+      raf = 0;
+      if (!pts.length) return;
+      const sr = sec.getBoundingClientRect();
+      if (reducido) { guia.style.strokeDashoffset = '0'; brotes.forEach((b) => (b.el.style.strokeDashoffset = '0')); gota.style.opacity = '0'; ramas.forEach((r) => sanar(r)); hecho = true; return titular(); }
+      const y = innerHeight * 0.62 - sr.top;
+      let i = maxY.findIndex((v) => v > y); if (i < 0) i = pts.length - 1;
+      const l = acum[i];
+      guia.style.strokeDashoffset = String(total + 20 - l);
+      brotes.forEach((b) => { const k = Math.min(1, Math.max(0, (l - b.desde) / 140)); b.el.style.strokeDashoffset = String(b.largo * (1 - k)); });
+      // la gota: en la punta, orientada a su marcha, estirada con la velocidad
+      const a = pts[Math.max(0, i - 2)], b = pts[i], ang = Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI), v = Math.min(8, Math.abs(l - ultL) * 0.06);
+      gota.setAttribute('rx', (5 + v).toFixed(1)); gota.setAttribute('ry', (4.4 - v * 0.2).toFixed(1));
+      gota.setAttribute('transform', `translate(${b.x.toFixed(1)} ${b.y.toFixed(1)}) rotate(${ang.toFixed(1)})`);
+      gota.style.opacity = l > 8 && l < total - 8 ? '1' : '0';
+      ultL = l;
+      llegadas.forEach((k, n) => {
+        if (i < k || ramas[n].sana) return;
+        const p = pts[k];
+        if (!reducido) salpicar(sec, p.x, p.y, { n: 7, fuerza: 0.55 });
+        sanar(ramas[n], [sr.left + p.x, sr.top + p.y]);
+      });
+      if (l >= total - 2 && !hecho) { hecho = true; }
+      titular();
+    };
+    // EL TITULAR de Proyectos: solo lo genera la dirección con tarjetas, cuando la gota ha terminado y el titular asoma
+    const h2 = document.querySelector<HTMLElement>('[data-titulo] h2');
+    const titular = () => {
+      if (!conTarjetas || !hecho || !h2 || h2.classList.contains('generado')) return;
+      const r = h2.getBoundingClientRect();
+      if (r.top + r.height / 2 >= innerHeight * 0.78) return;
+      // el PULSO DE AGUA nace donde acaba la RAÍZ (arriba al centro del titular-pantalla: ahí cae la gota) y, al llegar, el titular SE FORMA EN EL AGUA:
+      // una onda lo descubre y el texto sale ondulado (desplazamiento con ruido, SVG) y se asienta (global.css › .pulso-agua, h2.generado)
+      const pulso = document.createElement('div'); pulso.className = 'pulso-agua'; pulso.setAttribute('aria-hidden', 'true'); pulso.innerHTML = '<i></i><i></i><i></i><i></i>';
+      h2.parentElement!.append(pulso); setTimeout(() => pulso.remove(), 4200);
+      h2.classList.add('generado');
+      const onda = document.querySelector<SVGFEDisplacementMapElement>('#agua-titular feDisplacementMap'), ruido = document.querySelector<SVGFETurbulenceElement>('#agua-titular feTurbulence');
+      if (onda && ruido) {
+        // ondulado redondo y corto (con más desplazamiento lateral las letras parecían cursivas: rechazado)
+        let a = 0;
+        const paso = (ahora: number) => { if (!a) a = ahora; const k = Math.min(1, (ahora - a) / 2600); onda.setAttribute('scale', (22 * Math.pow(1 - k, 1.6)).toFixed(2)); ruido.setAttribute('seed', String(1 + Math.floor(k * 18))); if (k < 1) requestAnimationFrame(paso); else h2.classList.add('asentado'); };
+        requestAnimationFrame(paso);
+      }
+    };
+    let raf = 0;
+    const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
+    addEventListener('scroll', pedir, { passive: true });
+    new ResizeObserver(() => medir()).observe(sec);
+    ramas.forEach((r) => r.img.addEventListener('load', () => medir(), { once: true }));
+    document.fonts.ready.then(medir);
+    medir();
+    const sonda = () => ({ sanas: ramas.map((r) => r.sana), vivas: ramas.map((r) => !!r.tarjeta?.classList.contains('viva')), total: Math.round(total), llegadas: llegadas.map((k) => Math.round(acum[k])), dibujado: Math.round(total + 20 - parseFloat(guia.style.strokeDashoffset || '0')), hecho, titular: !!h2?.classList.contains('generado') });
+    ((window as any).__dolores ??= {})[sec.id] = sonda;
+  });
+</script>
+
+<style>
+  .dolores {
+    position: relative;
+    padding-block: calc(var(--spacing) * 24) calc(var(--spacing) * 32);
+    overflow-x: clip;
+  }
+  /* ── el recorrido: la vía apenas marcada (la forma entera, al 7 %) y la savia en Coral, que se descubre tras la gota */
+  .hilo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+  }
+  /* la raíz, del color del árbol de la estación hundido en la noche (como las raíces del hero); la savia, un hilo Coral por dentro */
+  .raiz {
+    fill: color-mix(in oklab, var(--arbol) 46%, var(--noche));
+  }
+  .raicillas :global(path) {
+    fill: none;
+    stroke: color-mix(in oklab, var(--arbol) 38%, var(--noche));
+    stroke-linecap: round;
+  }
+  .savia {
+    fill: none;
+    stroke: var(--color-coral);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.9;
+  }
+  .guia {
+    fill: none;
+    stroke: #fff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .gota {
+    fill: var(--color-coral);
+    transition: opacity 0.3s ease;
+  }
+  /* ── las paradas: carteles, alternando el lado */
+  .paradas {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 32);
+  }
+  .parada {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: calc(var(--spacing) * 6);
+    align-items: center;
+    min-height: 62lvh;
+  }
+  .texto {
+    grid-column: 1 / span 6;
+    grid-row: 1;
+  }
+  .lado {
+    position: relative;
+    grid-column: 8 / span 5;
+    grid-row: 1;
+  }
+  .rama {
+    position: relative;
+    aspect-ratio: 1 / var(--prop);
+  }
+  .derecha .texto { grid-column: 7 / span 6; }
+  .derecha .lado { grid-column: 1 / span 5; }
+  /* CON TARJETAS: la tarjeta delante; la rama detrás, apenas asomando y MUY sutil (Andoni: «los detalles de flores, mucho más sutiles») */
+  .con-tarjetas .lado {
+    display: grid;
+    place-items: center;
+    padding-block: calc(var(--spacing) * 12);
+  }
+  .con-tarjetas .lado > :global(*) {
+    grid-area: 1 / 1; /* la tarjeta y su copia a líneas (dibujar.ts) en la misma celda */
+  }
+  .con-tarjetas .rama {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 116%;
+    translate: -50% -46%;
+    opacity: 0.42;
+    transition: opacity 1.4s ease;
+  }
+  .con-tarjetas .parada:not(.sana) .rama {
+    opacity: 0.26;
+  }
+  .con-tarjetas .lado :global(.tarjeta) {
+    position: relative;
+    z-index: 1;
+  }
+  /* la tarjeta NO EXISTE hasta que llega la savia (con JS; regla dura 3: invisible por defecto, la dibuja el JS) */
+  :global(html.anima) .con-tarjetas .parada:not(.sana) .lado :global(.tarjeta) {
+    visibility: hidden;
+  }
+  .rama img,
+  .rama canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .rama img { opacity: 0; } /* es la textura del motor; sin WebGL, la lámina tenue */
+  .rama.sin-gl img { opacity: 0.35; filter: grayscale(1); }
+  .sana .rama.sin-gl img { filter: none; opacity: 0.6; }
+  .num {
+    color: var(--color-coral);
+    margin-bottom: calc(var(--spacing) * 4);
+  }
+  .dolor {
+    max-width: 13ch;
+    text-wrap: balance;
+    transition: color 0.9s ease 0.2s;
+  }
+  /* resuelto: el dolor se apaga y la respuesta sube desde el desenfoque */
+  .sana .dolor { color: var(--fg2); }
+  .respuesta {
+    max-width: 30rem;
+    margin-top: calc(var(--spacing) * 8);
+    opacity: 0;
+    filter: blur(8px);
+    translate: 0 12px;
+    transition: opacity 0.8s ease 0.5s, filter 0.9s ease 0.5s, translate 1s var(--ease-out-expo) 0.5s;
+  }
+  .sana .respuesta { opacity: 1; filter: none; translate: 0 0; }
+  .respuesta .d { color: var(--fg2); text-wrap: pretty; }
+  @media (width < 64rem) {
+    .dolores { padding-block: calc(var(--spacing) * 16) calc(var(--spacing) * 24); }
+    .paradas { gap: calc(var(--spacing) * 24); }
+    .parada { display: flex; flex-direction: column; align-items: stretch; min-height: 0; gap: calc(var(--spacing) * 8); }
+    .lado { width: 78%; align-self: center; }
+    .con-tarjetas .lado { width: 100%; }
+    .dolor { max-width: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dolor, .respuesta, .con-tarjetas .rama { transition: none; }
+  }
+</style>
