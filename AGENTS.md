@@ -1813,3 +1813,6 @@ en mono en el pie.
   del óleo por píxel + 8 discos, una tarjeta a la vez a ~30 fps).
 - **Pendiente de Andoni:** las láminas llegan a 250×380 por cuadro (a más resolución la pincelada sería real, no simulada); traen pintada la cinta de cristal,
   que en algunas (primavera) se suma a los discos; no publicado ni subido.
+- **PUBLICADA (24/09) en https://savvia.studio** (Andoni: «me gusta, súbelo a GitHub y publica. Aún habrá que darle más vueltas»): la sección 2 por defecto
+  es la A2 (tarjetas de agua); `?s2=b` y `?s2=a` siguen de prueba. Push de `06cbba8` → en vivo a los 12 s. Medido EN VIVO: `tools/verify.cjs` (Chrome y WebKit,
+  1280 y 390) limpio, 0 ≥ 400, desborde 0 · la tarjeta de agua ondea (65–70 % de píxeles en 1 s) en Chrome y WebKit. Sigue `noindex`.
