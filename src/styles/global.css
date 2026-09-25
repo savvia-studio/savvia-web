@@ -247,7 +247,7 @@ html.estudio-sentado .marcas {
 }
 @media (width >= 48rem) {
   :root {
-    --roble-h: clamp(12rem, 100lvh - 26.5rem, 30rem); /* ronda 16: «un poco más grande» (a 1280×720: 640×296) */
+    --roble-h: clamp(12rem, 100lvh - 31.5rem, 30rem); /* ronda 16: «un poco más grande» (a 1280×720: 640×296); ronda 53: el H1 nuevo ocupa una línea más (−5 rem) */
     --roble-w: min(calc(var(--roble-h) * 2.1612), 84vw);
   }
 }

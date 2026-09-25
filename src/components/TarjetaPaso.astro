@@ -6,12 +6,13 @@ import { laSavvia } from '../data/home';
 import { IAS } from '../data/ias';
 // RONDA 51 (2.ª) · `fondo`: la tarjeta al estilo del vídeo de Andoni (3136x2080.mp4): un ÓLEO de su estación a sangre (public/media/tarjetas/, las cuatro
 // láminas que pasó Andoni), ANILLOS DE CRISTAL concéntricos que lo refractan (una lente escalonada que respira) y la demo en un panel ESMERILADO abajo.
-interface Props { i: number; fondo?: string }
-const { i, fondo } = Astro.props;
+// RONDA 54 · `desnuda`: Andoni: «usar la animación de dentro de las cards sin las cards»: sin fondo, sin filo y sin el pozo oscuro; la demo flota sobre la sección
+interface Props { i: number; fondo?: string; desnuda?: boolean }
+const { i, fondo, desnuda } = Astro.props;
 const doc = laSavvia.doc.lineas.slice(0, 6);
 ---
 
-<div class={`tarjeta t${i} ${fondo ? 'pintada' : ''}`} data-tarjeta={i} style="--ox:50%;--oy:0%">
+<div class={`tarjeta t${i} ${fondo ? 'pintada' : ''} ${desnuda ? 'desnuda' : ''}`} data-tarjeta={i} style="--ox:50%;--oy:0%">
   {i === 1 && <svg width="0" height="0" class="absolute" aria-hidden="true"><filter id="goo-pasos-a2"><feGaussianBlur in="SourceGraphic" stdDeviation="9" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" /></filter></svg>}
   {i === 2 && <svg width="0" height="0" class="absolute" aria-hidden="true"><filter id="goo-savia-a2"><feGaussianBlur in="SourceGraphic" stdDeviation="3.5" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" /></filter></svg>}
   <div class="capa-t vivo" aria-hidden="true">
@@ -218,6 +219,20 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
   @keyframes onda {
     from { scale: 0.2; opacity: 0.7; border-width: 2px; }
     to { scale: 46; opacity: 0; border-width: 0.03px; }
+  }
+  /* RONDA 54 · SIN LA TARJETA: solo la animación, sobre el fondo de la sección */
+  .desnuda {
+    --sup: transparent;
+    --hondo: var(--bg);
+  }
+  .desnuda .capa-t {
+    padding: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .desnuda .demo {
+    overflow: visible;
+    background: transparent;
   }
   .demo {
     position: relative;

@@ -1,7 +1,9 @@
-// Sonido del estudio. Todo sintetizado (Web Audio): cero archivos.
+// Sonido del estudio. RONDA 59 («los sonidos de ambiente del mockup, de internet: sonidos muy naturales»): el ambiente de cada estación es una
+// GRABACIÓN de campo (Pixabay, uso libre; ver tools/fuentes-sonido.md) en bucle de 45 s, oída a través del cristal (un paso bajo suave); al cambiar
+// de estación, fundido cruzado de 2,5 s. Se carga solo la que suena, y solo con el sonido encendido. Los efectos de interfaz siguen sintetizados.
 // · Apagado por defecto. Nace con un gesto (el botón «Sonido») y se recuerda en localStorage.
 // · Un AMBIENTE por estación, oído desde dentro, a través del cristal (todo filtrado en grave):
-//     primavera = brisa + pájaros · verano = aire cálido + chicharra lejana · otoño = rachas + hojas · invierno = viento sordo.
+//     primavera = bosque por la mañana, pájaros · verano = prado con grillos · otoño = viento en los árboles · invierno = rachas de viento.
 // · Efectos de interfaz: cambio de proyecto (doble clic de «encajado», ~45 ms), sentarse (peso), levantarse.
 // Regla (skill web-audio-sfx): solo la CONSTRUCCIÓN de fuentes depende del interruptor;
 // el fundido a 0 y la limpieza de temporizadores corren siempre.
@@ -13,7 +15,7 @@ const CLAVE = 'savvia:sonido';
 // 180 Hz (la presión de la almohadilla) y la mitad de volumen. Entra y sale en el tiempo del viaje de cámara (~1,5 s). Los efectos de interfaz no
 // pasan por aquí: siguen nítidos, «dentro» de los cascos.
 const CASCOS = { abierto: 18000, cerrado: 480, nivel: 0.42, t: 0.45 };
-const NIVEL = 0.018; // pico del ambiente: deliberadamente bajo (ronda 38: «se escucha demasiado», 0,05 → 0,018)
+const NIVEL = 0.09; // ronda 59: las grabaciones van a −23 LUFS; × 0,09 ≈ −44 LUFS, muy de fondo (Andoni: «que se escuchen menos, más sutiles»; antes 0,2)
 
 export function crearSonido() {
   let ctx: AudioContext | null = null;
@@ -25,9 +27,7 @@ export function crearSonido() {
   // Recordado «On», pero sin gesto todavía: el contexto se crea en el primer gesto del visitante.
   if (on) addEventListener('pointerdown', () => on && (asegurar(), tick()), { once: true });
 
-  const espera = (ms: number, f: () => void) => { const id = window.setTimeout(() => { relojes.delete(id); f(); }, ms); relojes.add(id); };
   const limpiar = () => { relojes.forEach(clearTimeout); relojes.clear(); };
-  const azar = (a: number, b: number) => a + Math.random() * (b - a);
 
   function ruido(seg = 2) {
     const b = ctx!.createBuffer(1, ctx!.sampleRate * seg, ctx!.sampleRate), d = b.getChannelData(0);
@@ -44,68 +44,41 @@ export function crearSonido() {
     cascosPico = ctx.createBiquadFilter(); cascosPico.type = 'peaking'; cascosPico.frequency.value = 180; cascosPico.Q.value = 0.9; cascosPico.gain.value = enfocado ? 3 : 0;
     cascosG = ctx.createGain(); cascosG.gain.value = enfocado ? CASCOS.nivel : 1;
     amb.connect(cascosLp).connect(cascosPico).connect(cascosG).connect(salida);
-    // Viento: ruido pardo en bucle → paso bajo (el cristal) → ganancia con rachas lentas.
-    const src = ctx.createBufferSource(); src.buffer = ruido(3); src.loop = true;
-    viento = ctx.createBiquadFilter(); viento.type = 'lowpass'; viento.frequency.value = 600; viento.Q.value = 0.4;
-    racha = ctx.createGain(); racha.gain.value = 0.6;
-    const lfo = ctx.createOscillator(); lfo.frequency.value = 0.07;
-    const lfoG = ctx.createGain(); lfoG.gain.value = 0.25;
-    lfo.connect(lfoG).connect(racha.gain); lfo.start();
-    src.connect(viento).connect(racha).connect(amb); src.start();
+    // el CRISTAL: un paso bajo suave (se oye desde dentro, sin perder naturalidad)
+    viento = ctx.createBiquadFilter(); viento.type = 'lowpass'; viento.frequency.value = 7000; viento.Q.value = 0.3;
+    racha = ctx.createGain(); racha.gain.value = 1;
+    viento.connect(racha).connect(amb);
   }
 
-  // — voces del ambiente —
-  function pajaro() {
-    const t = ctx!.currentTime, f0 = azar(2600, 4200), notas = Math.round(azar(2, 5));
-    for (let i = 0; i < notas; i++) {
-      const o = ctx!.createOscillator(), g = ctx!.createGain(), lp = ctx!.createBiquadFilter();
-      lp.type = 'lowpass'; lp.frequency.value = 3800; // a través del cristal
-      const t0 = t + i * azar(0.09, 0.16);
-      o.frequency.setValueAtTime(f0 * azar(0.9, 1.15), t0);
-      o.frequency.exponentialRampToValueAtTime(f0 * azar(1.1, 1.5), t0 + 0.06);
-      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(azar(0.05, 0.11), t0 + 0.015); g.gain.exponentialRampToValueAtTime(0.0008, t0 + 0.09);
-      o.connect(lp).connect(g).connect(amb); o.start(t0); o.stop(t0 + 0.12);
-    }
-  }
-  function chicharra() {
-    const t = ctx!.currentTime, dur = azar(1.6, 3.2);
-    const s = ctx!.createBufferSource(); s.buffer = ruido(1); s.loop = true;
-    const bp = ctx!.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = azar(4200, 5200); bp.Q.value = 9;
-    const am = ctx!.createGain(), lfo = ctx!.createOscillator(), lg = ctx!.createGain(), g = ctx!.createGain();
-    lfo.type = 'square'; lfo.frequency.value = azar(38, 52); lg.gain.value = 0.5; am.gain.value = 0.5;
-    lfo.connect(lg).connect(am.gain);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t + 0.5); g.gain.linearRampToValueAtTime(0, t + dur);
-    s.connect(bp).connect(am).connect(g).connect(amb); s.start(t); lfo.start(t); s.stop(t + dur); lfo.stop(t + dur);
-  }
-  function hojas() {
-    const t = ctx!.currentTime, dur = azar(0.5, 1.1);
-    const s = ctx!.createBufferSource(); s.buffer = ruido(1);
-    const hp = ctx!.createBiquadFilter(); hp.type = 'bandpass'; hp.frequency.value = azar(1800, 2800); hp.Q.value = 0.8;
-    const g = ctx!.createGain();
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.09, t + dur * 0.4); g.gain.linearRampToValueAtTime(0, t + dur);
-    s.connect(hp).connect(g).connect(amb); s.start(t); s.stop(t + dur);
-  }
-  const RECETA: Record<Estacion, { corte: number; nivel: number; voz?: () => void; cada: [number, number] }> = {
-    primavera: { corte: 620, nivel: 0.55, voz: pajaro, cada: [1800, 5200] },
-    verano: { corte: 480, nivel: 0.45, voz: () => (Math.random() < 0.7 ? chicharra() : pajaro()), cada: [2600, 6000] },
-    otono: { corte: 900, nivel: 0.9, voz: hojas, cada: [1400, 3600] },
-    invierno: { corte: 300, nivel: 1.1, cada: [0, 0] },
+  // — el ambiente grabado —
+  const NIVELES: Record<Estacion, number> = { primavera: 1, verano: 0.9, otono: 1, invierno: 0.85 };
+  const buffers = new Map<Estacion, Promise<AudioBuffer | null>>();
+  const buffer = (e: Estacion) => {
+    if (!buffers.has(e)) buffers.set(e, fetch(`/media/sonido/ambiente-${e}.mp3`).then((r) => r.arrayBuffer()).then((a) => ctx!.decodeAudioData(a)).catch(() => null));
+    return buffers.get(e)!;
   };
-  function programarVoz() {
-    const r = RECETA[est];
-    if (!r.voz) return;
-    espera(azar(r.cada[0], r.cada[1]), () => { if (on && visible && ctx) { r.voz!(); n++; } programarVoz(); });
+  let pista: { e: Estacion; f: AudioBufferSourceNode; g: GainNode } | null = null, pedida: Estacion | null = null;
+  function sonarEstacion() {
+    if (!ctx || (pista && pista.e === est) || pedida === est) return;
+    const e = (pedida = est);
+    buffer(e).then((b) => {
+      if (!b || !ctx || est !== e || pedida !== e) return;
+      pedida = null;
+      const t = ctx.currentTime, g = ctx.createGain(), f = ctx.createBufferSource();
+      f.buffer = b; f.loop = true;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(NIVELES[e], t + 2.5);
+      f.connect(g).connect(viento); f.start(t, Math.random() * b.duration);
+      if (pista) { const v = pista; v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(0, t + 2.5); v.f.stop(t + 2.6); }
+      pista = { e, f, g };
+    });
   }
 
   function tick() {
     limpiar(); // siempre
     if (!ctx) return;
     const sonando = on && visible;
-    const r = RECETA[est], t = ctx.currentTime;
-    salida.gain.setTargetAtTime(sonando ? NIVEL : 0, t, sonando ? 1.2 : 0.5); // el fundido a 0 corre SIEMPRE
-    viento.frequency.setTargetAtTime(r.corte, t, 1.5);
-    amb.gain.setTargetAtTime(r.nivel, t, 1.5);
-    if (sonando) programarVoz(); // solo esto va detrás del interruptor
+    salida.gain.setTargetAtTime(sonando ? NIVEL : 0, ctx.currentTime, sonando ? 1.2 : 0.5); // el fundido a 0 corre SIEMPRE
+    if (on) sonarEstacion(); // solo esto va detrás del interruptor
   }
 
   // — efectos de interfaz —
@@ -126,9 +99,9 @@ export function crearSonido() {
     if (!on || !ctx) return;
     const t = ctx.currentTime;
     n++;
-    if (tipo === 'cambio') { clic(t, 1900, 0.025); clic(t + 0.045, 1350, 0.018); } // «encajado» = doble clic (ronda 38: a la mitad)
-    if (tipo === 'sentarse') { peso(t, 120, 62, 0.055, 0.05); clic(t + 0.16, 900, 0.01); }
-    if (tipo === 'levantarse') peso(t, 70, 110, 0.03, 0.08);
+    if (tipo === 'cambio') { clic(t, 1900, 0.012); clic(t + 0.045, 1350, 0.009); } // «encajado» = doble clic (ronda 38: a la mitad; ronda 59: otra mitad)
+    if (tipo === 'sentarse') { peso(t, 120, 62, 0.028, 0.05); clic(t + 0.16, 900, 0.005); }
+    if (tipo === 'levantarse') peso(t, 70, 110, 0.015, 0.08);
   }
 
   const api = {

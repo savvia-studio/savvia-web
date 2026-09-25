@@ -81,8 +81,28 @@ import { nav, pie } from '../data/home';
       if (devolverFoco) btn.focus({ preventScroll: true });
     }
   }
-  // RONDA 21: recién levantado de la escena de Proyectos (la × estaba justo aquí), el botón ignora el clic durante 1,6 s
-  btn.addEventListener('click', () => { if (performance.now() - ((window as any).__levantado || 0) < 1600) return; poner(!abierto); });
+  // RONDA 21 / 59 · «la (x) en la vista focus a veces abre el nav bar: que no ocurra nunca». La × de Proyectos está justo donde este botón. Al levantarse
+  // (Proyectos pone window.__levantado), el botón queda BLOQUEADO hasta que el puntero SALE de su zona (no basta con esperar: quien repite el clic en la
+  // × porque la cámara aún viaja caía en el menú). Con dedo (no hay «salir»), 2,5 s. Mientras se está sentado, siempre bloqueado.
+  let bloqueado = false, desde = 0, visto = 0, tipo = 'mouse';
+  btn.addEventListener('pointerdown', (e) => (tipo = e.pointerType));
+  const zona = (x: number, y: number) => { const r = btn.getBoundingClientRect(); return x > r.left - 24 && x < r.right + 24 && y > r.top - 24 && y < r.bottom + 24; };
+  addEventListener('pointermove', (e) => {
+    const l = (window as any).__levantado || 0;
+    if (l !== visto) { visto = l; bloqueado = true; desde = l; }
+    if (bloqueado && e.pointerType === 'mouse' && performance.now() - desde > 300 && !zona(e.clientX, e.clientY)) bloqueado = false;
+  }, { passive: true });
+  btn.addEventListener('click', (e) => {
+    const l = (window as any).__levantado || 0;
+    if (l !== visto) { visto = l; bloqueado = true; desde = l; }
+    if (document.documentElement.classList.contains('estudio-sentado') && performance.now() - l < 1500) return;
+    if (bloqueado) {
+      const teclado = e.detail === 0, tiempo = performance.now() - desde;
+      if (!(teclado && tiempo > 300) && !(tipo !== 'mouse' && tiempo > 2500)) return;
+      bloqueado = false;
+    }
+    poner(!abierto);
+  });
   velo.addEventListener('click', () => poner(false));
   menu.addEventListener('click', (e) => (e.target as HTMLElement).closest('a') && poner(false));
   addEventListener('keydown', (e) => e.key === 'Escape' && abierto && poner(false, true));

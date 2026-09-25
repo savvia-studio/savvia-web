@@ -1821,3 +1821,227 @@ en mono en el pie.
   crece desde el icono y fuera sigue la vieja. (2) Carrera: con varios clics mientras cargaban las láminas, la última en llegar ganaba → manda la última
   pedida (`pedido`); a media onda, lo que ya se ve es el punto de partida. Medido: `tools/r52-cambio.cjs` (Chrome y WebKit): un cambio, ráfagas de 2, 3 y 5
   clics y un clic a media onda → la tarjeta acaba siempre en la estación de la página; captura a 0,7 s con el invierno entrando desde el icono.
+
+### Ronda 53 — 2026-09-25 · copy del Keynote y H1 concreto, el arnés de la IA, la receta de papel, ejemplos reales en Servicios y el cilindro (en local)
+- **Andoni (textual):** 1 «Los copies tienen que estar más cerca del keynote. Y el H1 tenemos que mejorarlo, ahora mismo es muy amplio y no dice nada. Más
+  específicos para que cuando entre un cliente diga hostia, esto pueden hacer por mí» · 2 «La sección de savvia la receta de tu web quiero hacer una receta
+  de papel estilo poetry.camera pero que tenga relación con savvia. Al final el papel sale del árbol. Para nosotros la receta es esto que entregamos a cliente:
+  neety.treseiscero.app/library» · 3 «Servicios me gusta cómo los mostramos pero hay que afinar los copies y ver qué mostramos al hacer hover: igual un ejemplo
+  real de cada paso» · 4 «Más proyectos: al hacer scroll, que parezca que la página está curvada hacia dentro, como un cilindro» · (a media ronda) «el
+  concepto del arnés de la IA: la receta de savvia te ayuda a que la IA te lleve a donde tú quieres llegar y no a otro sitio que no querías».
+- **Keynote releído** (`savvia-recursos/Narrativa - Savvia.key`, texto sacado de sus .iwa): pitch («empresas que están cambiando y su web ya no les representa…
+  no ofrece un lavado de cara: la rehace entera de principio a fin con el cliente dentro»), los cuatro problemas («Web anclada en paradigma anterior»), la
+  diapositiva de servicios (orquestación con desarrollo agéntico · procesos que elevan la calidad y reducen costes · todo documentado · formación) y beneficios
+  («mejor web en menos tiempo y a menor coste»).
+- **Hecho:**
+  · **1 · copy (`home.ts`):** H1 «Una web a medida que tu equipo cambia con IA, sin romperla.» (qué: web a medida; para quién gana: tu equipo; la promesa: con IA
+    y sin salirse de la marca = el arnés); subtítulo, el de Andoni (ronda 41). `max-w` 16 → 20ch; `--roble-h` −5 rem en escritorio (el titular ocupa 3 líneas;
+    a 1280×720 el roble pasa de 296 a 216 px y el hero sigue midiendo 720). Dolores con los problemas del Keynote («Tu web ya no te representa.» · «Podría ser
+    la web de cualquiera.» · «Nadie sabe cómo cambiarla sin romperla.» · «Cada cambio es un presupuesto y una espera.»); el tercero presenta el ARNÉS.
+  · **3 · Servicios:** copy del Keynote («Rehecha de principio a fin.» · «Cambios en horas, no en presupuestos.» · «Tu equipo, al mando de la IA.») y, al pasar,
+    un EJEMPLO REAL en vez del dibujo: la home de Zernio recorrida entera en un navegador; una petición real del manual de Neety que se escribe palabra a palabra
+    («Añade una métrica más a la sección “Por qué Neety”…») con «publicado ✓»; el manual de Neety recorrido despacio (`public/media/servicios/manual-neety.webp`,
+    `tools/r53-manual.cjs`). Pie en mono «Ejemplo real · …».
+  · **2 · `LaReceta.astro` (nueva; `LaSavvia.astro` queda guardada):** sección oscura; de fondo, NUESTRO ROBLE (la acuarela del hero) grande y desenfocado: el papel
+    sale del árbol. Cinco TIRAS de papel térmico estilo poetry.camera (Rosa niebla con grano, mono, título centrado, una raya ASCII distinta cada una, giro de
+    ±1,2° como mucho, paralaje propio en escritorio, fila con desplazamiento lateral en móvil) con la receta REAL entregada a Neety: fundamentos · guardarraíles
+    (el arnés) · lo que pide su equipo · ticket · decisiones. Cada tira SE IMPRIME al llegar (se descubre de arriba abajo a tirones, `steps(16)`). Titular «La savvia
+    es la receta de tu web.» + «Y el arnés de tu IA: lo que hace que te lleve a donde quieres ir, y no a otro sitio.» + enlace a la receta entera (library de Neety).
+    El Estudio pierde su transición líquida (ahora va de oscuro a oscuro).
+  · **4 · el CILINDRO (`Anteriores.astro`):** cabecera, piezas y voces sobre la cara interior de un cilindro de radio 0,95 pantallas (1,25 en móvil): a un ángulo
+    φ = d/R del centro de la pantalla, cada bloque se acerca R(1 − cos φ), se recoge hacia el centro y se inclina φ (rotateX). Centros medidos sin transformar;
+    más allá del tope, el bloque se queda como en el tope (primer intento: volvían a entrar en pantalla). `overflow-x: clip` en la sección. Sin movimiento reducido.
+- **Medido:** `astro check` 0 errores y 0 avisos · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia,
+  0 ≥ 400, desborde 0 · `tools/r53-cilindro.cjs` (Chrome 1280 y 390, WebKit 1280): desborde 0 en cinco puntos del scroll, curvatura capturada · `tools/r53-servicios.cjs`
+  (Chrome y WebKit, DPR 2): los tres ejemplos abiertos al pasar (opacidad 1), sin 404 · `tools/r53-receta.cjs` (Chrome 1280 y 390, WebKit 1280): cinco tiras
+  impresas, desborde 0 · `tools/r52-cambio.cjs` sin regresión. **SIN medir:** fluidez del cilindro en GPU real (8 bloques con `perspective` por scroll).
+- **Backup:** `../savvia-web.bak-r52-2026-09-25/`.
+- **Pendiente de Andoni:** el H1 (alternativas: «Tu web, rehecha a medida y lista para que tu equipo la cambie con IA.» · «Webs a medida que tu equipo cambia con
+  IA, sin salirse de tu marca.»); si el subtítulo «Eleva tu web con criterio.» se queda o pasa a «Mejor web, en menos tiempo y a menor coste.»; permiso de Neety
+  para enseñar su receta y enlazar su library; las tiras rozan dos reglas de «Rechazado» (papel suelto, giro) por petición expresa: se mantienen casi rectas;
+  no publicado ni subido.
+- **A media ronda (Andoni):** «sin romperla no me gusta, es muy despectivo» → H1 «Una web a medida que tu equipo cambia con IA, fiel a tu marca.» (el arnés dicho en
+  positivo) y el tercer dolor, «Nadie sabe cómo cambiarla.». Medido: el hero sigue en 720 a 1280×720 (titular de 3 líneas, 227 px) y en 844 a 390×844.
+- **Rechazado (ronda 53):** decir lo que hace la IA en negativo («sin romperla»): es despectivo con quien cambia su web. El arnés se cuenta en positivo.
+
+### Ronda 54 — 2026-09-25 · el hero limpio, las demos sin tarjeta, Servicios que se construyen, la receta clara (humana + digital, de izquierda a derecha) y la ventana del pie (en local)
+- **Andoni (textual):** «en el hero hemos añadido unos detalles de naturaleza al fondo que no proceden» · 1 «al lado de cada pain algo que lo represente
+  visualmente. Antes teníamos unas cards que me gustaban pero no encajaban: utilizar la animación de dentro de las cards sin las cards» · 2 «en servicios,
+  cambiar los nombres grandes, no me convencen. Algo más comercial; y al hacer hover representar un ejemplo real pero cómo se ejecuta, cómo se va
+  construyendo cada caso» · 3 «la receta de savvia, que caiga en un color claro y los tickets con más personalidad y más humanos. En cada ticket superponer
+  algo digital que enfatice lo que pasa en cada uno. También es un proceso de izquierda a derecha, mostrarlo mejor. El árbol de fondo va fuera» · 4 «en el
+  footer, en algún lado pequeño, una ventanita que puedas abrir y de la cual entra luz».
+- **Hecho:**
+  · **Hero:** eran las ramas del ESTUDIO (fallo de Nilo en la ronda 53: al quitarle `data-sube` perdió su `position: relative` y sus `Flora` absolutas se fueron
+    al principio de la página) → `relative` en `Estudio.astro` (y vuelve `data-sube`: la receta es clara otra vez). Medido: 0 ramas en el primer pantallazo.
+  · **1 · `TarjetaPaso.astro` › `desnuda`:** las cuatro demos (escuchando, las dos direcciones que se funden, `savvia.md` líquido, la landing de campaña)
+    SIN tarjeta: sin fondo, sin filo y sin el pozo oscuro (que era un color plano sin grano), sobre la sección; `Dolores.astro` las usa en lugar de las
+    tarjetas de agua (`TarjetaAgua.astro` queda guardada) y enseña ya la respuesta larga. La raíz pasa por DETRÁS de cada demo (hueco en su máscara) y la rama
+    del fondo baja a 0,22 / 0,14.
+  · **2 · `Servicios.astro`:** nombres «Web a medida» · «Cambios con IA» · «Equipos con IA». Al pasar, un PROCESO de 10 s con pasos que se encienden abajo:
+    Zernio (briefing real → boceto con las cajas de su hero medidas en su captura → sistema con sus colores → su web) · Neety (la petición real de su manual se
+    escribe → lo que hace el agente → la vista previa con la métrica nueva → «publicado en neety.com ✓») · Neety (su equipo recorre cuatro apartados reales de
+    su manual: `public/media/servicios/manual-*.webp`, `tools/r54-manual-pasos.cjs`). Cada proceso se REINICIA entero cada 10 s mientras está abierto (los
+    retrasos de CSS solo valen en la primera vuelta). Demo más ancha (4 columnas).
+  · **3 · `LaReceta.astro` (rehecha):** sección CLARA, sin árbol. PROCESO: 01 tu marca → 02 el arnés → 03 tu equipo pide → 04 queda escrito → 05 la cuenta,
+    sobre un hilo de savia que avanza de izquierda a derecha; cada ticket se imprime en su turno (0,9 s). HUMANO: papel térmico casi blanco con el canto de
+    abajo DENTADO y TINTA A MANO en Coral que se dibuja después (círculo, subrayado, tachado, vistos). DIGITAL: sobre cada ticket aterriza una pieza de
+    interfaz recta y nítida: muestras de la paleta con el token · «#FF2E9A no está en la receta → usa Naranja Core» (el arnés) · el agente leyendo la receta →
+    «sección lista ✓» · «docs/decisiones.md +3 líneas» · «publicado · neety.com ✓». Cada una en su altura, asomando por el lado.
+  · **4 · `Pie.astro`:** VENTANA de dos hojas de madera bajo el subtítulo («abre la ventana»); al pasar, se entreabre; al abrirla, las hojas giran, el cielo
+    se enciende y entra un HAZ de luz cálida que baja en diagonal hasta el paisaje: el barrido de los cuatro cristales (la cruz del marco hace sombra) que se
+    abre al alejarse, con motas de polvo. «ciérrala» la cierra; con el formulario abierto, la luz se apaga.
+- **Medido:** `astro check` 0 errores y 0 avisos · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia,
+  0 ≥ 400, desborde 0 · `tools/r54-dolores.cjs` (Chrome 1280 y 390, WebKit 1280): cuatro demos vivas · `tools/r54-servicios.cjs` (Chrome y WebKit): los tres
+  procesos capturados en sus cuatro fases · `tools/r53-receta.cjs` (Chrome 1280 y 390, WebKit 1280): cinco tickets impresos, desborde 0 · `tools/r54-ventana.cjs`
+  (Chrome 1280 y 390, WebKit 1280): abre (k 1) y cierra (k 0) · cilindro sin regresión.
+- **Backup:** `../savvia-web.bak-r52-2026-09-25/` (antes de la ronda 53; la 53 no se llegó a publicar).
+- **Pendiente de Andoni:** los nombres de Servicios (alternativas: «Tu web, nueva» · «Web viva» · «Formación IA»); si el boceto de Zernio y la métrica de Neety
+  (reconstrucciones del proceso con material real) le valen como «ejemplo real»; permiso de Neety y Zernio; no publicado ni subido.
+
+### Ronda 55 — 2026-09-25 · óleos pintados en el fondo de los dolores, la ventana discreta con la luz sincronizada y el ticket que se imprime con el scroll (en local)
+- **Andoni (textual):** 1 «en la segunda sección, debajo de cada ilustración animada, los fondos estilo óleo de cada estación; muy mimetizados con el fondo,
+  como si estuvieran pintados en el fondo y con el efecto dithering; sustituyen a los detalles de naturaleza» · 2 «la ventana del footer más realista y sutil,
+  y no indiques nada de que se abre: que la gente la descubra si indaga en el footer; que llame un poco la atención pero muy poco. Y cuando se va la luz no
+  está bien sincronizado y no parece realista» · 3 «la receta me gusta, pero que a medida que haces scroll se vaya imprimiendo el ticket: un ticket continuo con
+  los diferentes pasos, y por encima salen esos resaltes digitales».
+- **Hecho:**
+  · **1 · `Dolores.astro`:** bajo cada demo, el ÓLEO de su paso en la estación de la web (`public/media/tarjetas/<estación>-<k>-v.webp`: las láminas de Andoni con
+    un borde que se desvanece irregular, horneado con `tools/r55-oleos-vineta.cjs`) pintado con el MOTOR DEL ÁRBOL (`estela.ts`): se hunde en la noche, se
+    deshace en semitono hacia fuera y HIERVE (soplo sin luz), con un 25 % del color de la estación. No existe hasta que llega la savia: entonces se dibuja y
+    se pinta desde el centro (2,6 s), a la vez que la demo. Al cambiar de estación, lienzo nuevo con el cuadro nuevo (el viejo suelta su contexto WebGL).
+    Fuera las ramas de flora. Opacidad 0,52.
+  · **2 · `Pie.astro` › la ventana:** sin rótulo. Hueco con sombra dentro, marco fino, alféizar y contraventanas de LAMAS; entre las lamas se escapa, tenue, la
+    luz de fuera. Al pasar, las hojas se entreabren y se cuela una rendija de luz. La LUZ ya no «viaja» (crecer y recogerse no era realista): sale de la
+    ABERTURA. Un solo reloj (`ap`) gira las hojas y recorta el haz a la rendija que dejan: al abrir se ensancha desde el centro; al cerrar se estrecha y se
+    apaga justo cuando las hojas se juntan (curva de madera: arranca y frena).
+  · **3 · `LaReceta.astro` (rehecha; la de la ronda 54, en `tools/retirados/LaReceta.r54.astro.txt`):** una IMPRESORA (ranura oscura) fija a tres cuartos
+    de la pantalla; el ticket, UNO y largo con los cinco pasos seguidos (cabecera «savvia · la receta de la web de Neety», dentado arriba y abajo), sale de
+    ella con el scroll a tirones de una línea. Cada paso, cuando ha salido entero, recibe su tinta a mano y, a su lado y montada sobre el canto, su pieza
+    digital (derecha e izquierda alternando; en móvil, sobre el canto de abajo). El papel y sus dientes van en una capa (`::before`): la máscara ya no
+    recorta las piezas.
+- **Medido:** `astro check` 0 errores y 0 avisos · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia,
+  0 ≥ 400, desborde 0 · `tools/r55-receta.cjs` (Chrome 1280 y 390, WebKit 1280): impreso 57 → 475 → 893 → 1311 → 1729 → 1768 px con el scroll y 0 → 5 pasos
+  marcados, desborde 0 · `tools/r55-ventana.cjs` (Chrome 1280 y 390, WebKit 1280): abertura 0 · 0,13 (rendija) · abriéndose · 1 · cerrándose · 0 · `tools/
+  r55-oleos-estacion.cjs` (Chrome y WebKit): otoño → invierno cambia el cuadro, 4 lienzos, sin errores · `tools/r54-dolores.cjs` y `r54-servicios.cjs` sin
+  regresión. `tools/r52-cambio.cjs` queda obsoleta (probaba las tarjetas de agua, que ya no se usan).
+- **Pendiente de Andoni:** el cambio de estación del óleo es inmediato (se podría pintar con el frente rasgado como el árbol); no publicado ni subido.
+
+### Ronda 56 — 2026-09-25 · el óleo cambia de estación pintándose, el ticket imprime de verdad (con sonido y flora) y la luz se filtra por las lamas e ilumina «Contáctanos» (en local)
+- **Andoni (textual):** 1 «¿podemos hacer que los fondos de la segunda sección se cambien al cambiar de estación como cambia el árbol del hero?» · 2 «el ticket que se va
+  imprimiendo, que parezca que se imprime de verdad; ahora parece muy artificial, uno de verdad va más a tirones. Y si podemos ponerle sonido de ticket que
+  se imprime sería top. También añadirle algunos detalles florales a la receta alrededor si no queda muy a destono» · 3 «la ventana: como has puesto
+  persianita, que se filtre un poco de luz por esos huecos. Al hacer hover no sale nada de luz, solo al clicar. Y si podemos hacer que ilumine el
+  contáctanos y además proyecte su sombra sería top» · (a media ronda) «el sonido del ticket lo puedes sacar de aquí: silencio.es».
+- **Hecho:**
+  · **1 · `Dolores.astro`:** al cambiar de estación, el óleo nuevo se PINTA ENCIMA del viejo con el frente del árbol (líneas y pintura rasgada con filo de savia,
+    2,4 s) sobre un lienzo nuevo; al acabar, el viejo se retira y suelta su contexto WebGL. Capturado a 0,65 s: el invierno avanzando sobre el otoño.
+  · **2 · `LaReceta.astro` (la de la ronda 55, en `tools/retirados/LaReceta.r55.astro.txt`):** el ticket va ENGANCHADO a la boca de la impresora y sale hacia
+    ARRIBA (escenario sticky de 100 lvh dentro de una «imprenta» tan alta como el ticket + una pantalla). El scroll marca hasta dónde hay que imprimir; la
+    IMPRESORA va a su ritmo: una línea cada 28–40 ms en ráfagas, pausas cortas cada 4–8 líneas y una larga (0,3–0,46 s) entre pasos; si se queda muy atrás,
+    dos líneas por tirón; nunca desimprime; termina aunque ya no se vea. Cada tirón sube el papel en dos golpes con rebote de 1 px; la impresora vibra y se
+    enciende su piloto. SONIDO sintetizado (Web Audio): motor continuo (rasgueo filtrado + zumbido del paso a paso) con un golpe por línea y dos pitidos al
+    terminar; solo tras un gesto en la página y nunca con `savvia:sonido = 0`. silencio.es usa grabaciones propias (`print1.2.mp3`, `print2.1.mp3`,
+    `beep.mp3`, «all rights reserved»): NO se han copiado. FLORA: helecho y brezo (motor del árbol, fondo niebla) a los lados, solo escritorio.
+    Con movimiento reducido: el ticket entero, en su sitio.
+  · **3 · `Pie.astro` › la ventana:** con las hojas cerradas, la luz se FILTRA entre las lamas: el haz de la ventana hecho de hilos finos (trama en la dirección
+    de la luz, desenfocada 1,4 px, al 26 %), que se apaga según se abre. Al pasar, se entreabre (abertura 0,2) y sale luz de verdad. «Contáctanos» se ILUMINA
+    donde cae la luz (una copia en luz cálida a media intensidad, recortada con `clip-path: path()` a la forma exacta del haz y de los hilos) y proyecta su
+    SOMBRA en la dirección de la luz (42 px); todo con el mismo reloj de las hojas.
+- **Medido:** `astro check` 0 errores y 0 avisos · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia,
+  0 ≥ 400, desborde 0 · `tools/r56-receta.cjs` (Chrome 1280 y 390, WebKit 1280): impreso/objetivo 0/0 · 76/84 · 380/624 · 950/1164 · 1463/1704 · 1710/1768 →
+  1768/1768, cinco pasos marcados, audio «running» tras el clic, desborde 0 · movimiento reducido: ticket entero (1775 px) y cinco pasos · `tools/r55-ventana.cjs`
+  (Chrome 1280 y 390, WebKit 1280) · `tools/r55-oleos-estacion.cjs` (Chrome y WebKit). **SIN medir:** la escucha del sonido (lo decide Andoni con el oído).
+- **Pendiente de Andoni:** escuchar la impresora; si quiere una grabación real, hace falta una con licencia (librería o grabada por nosotros): la de silencio.es
+  es suya; no publicado ni subido.
+
+### Ronda 57 — 2026-09-25 · las siluetas en la ventana y su sombra en la luz, «still eric&andoni», la sombra de «Contáctanos», la ventana que se cierra con el formulario, el ticket que vuelve a la impresora, el altavoz y la maleza (en local)
+- **Andoni (textual):** «cuando la ventana está cerrada la luz que proyecta tiene que ser mucho más sutil; cuando se abre se pueden desvelar dos siluetas en la ventana
+  y debajo escribirse muy pequeño "still eric&andoni". Le falta proyectar sombra al contáctanos cuando se abre la ventana. Y recuerda que las siluetas también
+  habría que tenerlas en cuenta para cómo se proyecta la luz» · «en el ticket, poner en esa sección para activar y quitar sonido. Y los detalles florales,
+  que salgan como envolviendo el ticket, como si fueran parte de la naturaleza» · (a media ronda) «la luz de la ventana no se va al abrirse el formulario» ·
+  «el ticket, cuando haces scroll hacia arriba una vez abierto, se buguea y se ve mal: una vez abierto lo dejamos abierto y puedes hacer scroll en él
+  metiéndose por donde ha salido».
+- **Hecho (`Pie.astro`):** la luz filtrada entre las lamas, al 9 % (antes 26 %). SILUETAS: dos bustos a contraluz en la parte baja del cristal (`#siluetas-v`), que
+  se desvelan con la abertura; su SOMBRA viaja en el haz: el cristal barrido por la luz en 90 copias de las siluetas (más grandes cuanto más lejos) dentro de
+  una máscara desenfocada. Debajo se escribe letra a letra «still eric&andoni» (mono, 9 px, alineada con la ventana). El haz llega ya hasta el suelo del paisaje
+  (97 % del pie) y no se desvanece del todo: la «n» iluminada proyecta su sombra (56 px en la dirección de la luz) sobre la colina. Al abrir el formulario, la
+  ventana SE CIERRA (con su animación: la luz se va con las hojas); fuera el `visibility: hidden` que la cortaba de golpe.
+- **Hecho (`LaReceta.astro`):** lo IMPRESO se queda impreso (ni se reimprime ni suena) y lo que ASOMA sigue al scroll en los dos sentidos: al subir, el papel se
+  mete por la boca; al bajar, vuelve a salir (`asoma = min(impreso, scroll)`); ya no se monta sobre el titular. ALTAVOZ en la propia impresora («sonido», con
+  ondas o tachado): comparte `savvia:sonido` con la web y pulsarlo es el gesto que deja sonar. MALEZA: helecho y brezo por delante del papel (y detrás de la
+  impresora) y roble con bellotas y acebo por detrás, alrededor de la boca: el ticket sale entre las ramas (escenario con `isolation`).
+- **Medido:** `astro check` 0 errores y 0 avisos · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia,
+  0 ≥ 400, desborde 0 · `tools/r57-receta-vuelta.cjs` (Chrome 1280 y 390, WebKit 1280): al subir, asoma 1768 → 0 px con el scroll y 0 veces sobre el titular ·
+  `tools/r57-receta-flora.cjs` (Chrome y WebKit): altavoz on → off (`0`) → on (`1`, audio «running») · `tools/r55-ventana.cjs` (Chrome 1280 y 390, WebKit 1280) ·
+  ventana abierta + formulario → ventana cerrada (k 0) · `tools/r56-receta.cjs` sin regresión.
+- **Pendiente de Andoni:** escuchar la impresora; las siluetas son bustos genéricos (si quiere, se recortan de fotos de perfil de los dos); no publicado ni subido.
+
+### Ronda 58 — 2026-09-25 · sonido de impresora térmica, el ticket que se queda abierto y la luz del punto final (fuera la ventana) (en local)
+- **Andoni (textual):** 1 «el sonido del ticket tiene que ser más realista. Una vez hecha la animación de scroll no quiero secuestrar el scroll para volver arriba: el
+  ticket se queda abierto y puedes scrollear sobre él» · 2 «quitamos la ventana del footer; si podemos conseguir algo parecido de una forma más sintetizada con el
+  diseño, mejor».
+- **Hecho:**
+  · **1 · `LaReceta.astro` › sonido:** «brrrrt» de térmica: MOTOR (sierra ~430 Hz saturada con `tanh`, pasa-banda 1,4 kHz) + CABEZAL (ruido pasa-altos 2,6 kHz),
+    los dos temblando al ritmo de los pasos (trémolo cuadrado ~96 Hz, 0,35–1); microcorte de 6 ms entre líneas; al acabar, la CUCHILLA que corta el papel
+    (golpe de ruido corto + chasquido que baja de 3,2 a 1,4 kHz) en vez de pitidos. Renderizado a `tools/shots/r58-impresora.wav` (`tools/r58-sonido-wav.cjs`,
+    misma síntesis y mismo ritmo) para escucharlo.
+  · **1 · `LaReceta.astro` › abierto:** al terminar de imprimir, el escenario deja de ir fijo y se ANCLA en la página justo donde está (sin salto); el ticket queda
+    fuera entero y el scroll es normal (ya no se mete por la boca).
+  · **2 · `Pie.astro`:** fuera la ventana, las siluetas y la firma (en `tools/retirados/Pie.r57-ventana.astro.txt`). La luz sale ahora del PUNTO FINAL de «La savvia
+    de tu web.»: en reposo respira muy despacio (un halo mínimo), al pasar se aviva, al pulsarlo se enciende como una bombilla (un parpadeo) y cae un CONO de luz
+    cálida desenfocado hasta el paisaje, con motas; ilumina «Contáctanos» (copia en luz recortada al cono) y le hace proyectar su sombra; otro clic lo apaga; con
+    el formulario, se apaga solo.
+- **Medido:** `astro check` 0 errores y 0 avisos · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia,
+  0 ≥ 400, desborde 0 · `tools/r58-receta-abierta.cjs` (Chrome 1280 y 390, WebKit 1280): abierta, el ticket quieto en la página al volver arriba, 0 veces sobre
+  el titular · `tools/r58-punto.cjs` (Chrome 1280 y 390, WebKit 1280): encendida (k 1) → con formulario apagada (k 0) · `tools/r56-receta.cjs` y
+  `r57-receta-flora.cjs` sin regresión · espectro del `.wav`: ráfagas con armónicos del motor y ruido del cabezal, pausas y la cuchilla.
+- **Pendiente de Andoni:** escuchar `r58-impresora.wav`; si quiere, una grabación real con licencia; no publicado ni subido.
+
+## Rechazado — añadidos de la ronda 58 (NO VOLVER)
+- La VENTANA del pie (rondas 54–57: contraventanas, luz filtrada, siluetas, «still eric&andoni»): «quitamos la ventana; algo parecido, más sintetizado con el diseño».
+
+### Ronda 59 — 2026-09-25 · sonidos grabados (impresora y ambiente del estudio), el logotipo en el ticket y la bombilla medio fundida del pie (en local)
+- **Andoni (textual):** 1 «la receta de savvia que tenga un sonido más realista, si hace falta sácalo de internet» · 2 «en la receta sale el logo de savvia» · 3 «en el footer
+  me gusta lo del punto, pero que parpadee como si fuera una bombilla a medio fundir y cuando clicas ilumina todo el contáctanos; y corregir que cuando abres el
+  formulario no se solape lo iluminado con el formulario» · (a media ronda) «y los sonidos de ambiente de fondo del mockup, si lo podemos sacar de internet
+  también, mejor: sonidos muy naturales».
+- **Hecho:**
+  · **Sonidos (`public/media/sonido/`, fuentes y licencia en `tools/fuentes-sonido.md`: Pixabay, uso libre sin atribución):** la IMPRESORA es una grabación
+    real de una térmica Epson: 7,6 s de impresión en bucle (desde un punto al azar) mientras tira, con el microcorte por línea, y la CUCHILLA grabada al
+    terminar (`LaReceta.astro`; fuera la síntesis). El AMBIENTE del estudio (`sonido-estudio.ts`) son grabaciones de campo, una por estación, en bucles de
+    45 s con fundido cruzado de 3 s y −23 LUFS: bosque por la mañana (primavera) · prado con grillos (verano) · viento en los árboles (otoño) · rachas de
+    viento (invierno); fundido de 2,5 s al cambiar; paso bajo suave de 7 kHz (el cristal); nivel 0,2 (≈ −37 LUFS). Solo se descarga la estación que suena y
+    solo con el sonido encendido (360 KB cada una). Cascos al sentarse y efectos de interfaz, como estaban.
+  · **Ticket:** la cabecera es el LOGOTIPO (máscara de `savvia-logo.svg` en la tinta del papel, 1,9 rem).
+  · **Pie › el punto:** en reposo titila como una bombilla medio fundida (ciclo irregular de 7,3 s con caídas bruscas); encendida, cada 2,6–9 s la luz entera
+    tiembla 2–4 veces. El cono apunta al centro de «Contáctanos» y se abre hasta cubrir la palabra ENTERA (iluminada y con su sombra). Al abrir el formulario, la
+    palabra iluminada desaparece en el acto y el cono se apaga en 220 ms: ya no se cruza con el panel.
+- **Medido:** `astro check` 0 errores · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400,
+  desborde 0 · `tools/r59-sonidos.cjs` (Chrome y WebKit): los mp3 responden 200, el ambiente suena (contexto «running», ganancia 0,19) y la impresora imprime el
+  ticket entero con el contexto «running» · `tools/r59-punto.cjs` (Chrome 1280 y 390, WebKit 1280): encendida k 1; a 260 ms de abrir el formulario, luz de la
+  palabra a 0 · `tools/r58-receta-abierta.cjs` sin regresión. **SIN medir:** la escucha (lo decide Andoni con el oído).
+- **Pendiente de Andoni:** escuchar impresora y los cuatro ambientes (hay alternativas descargadas y analizadas para cada estación); no publicado ni subido.
+- **A media ronda (Andoni):** «los sonidos ambiente, que se escuchen menos, más sutiles» → nivel del ambiente 0,2 → 0,09 (≈ −44 LUFS; unos 7 dB menos). Sentado, con los
+  cascos, baja además al 42 %. Medido: ganancia 0,09 con el sonido encendido.
+- **A media ronda (Andoni):** «la impresora y los clics, más bajo también» → impresora 0,55 → 0,28 y cuchilla 0,8 → 0,4; clics de cambio de proyecto, sentarse y levantarse,
+  a la mitad (`sonido-estudio.ts › fx`).
+- **A media ronda (Andoni):** «la (x) en la vista focus a veces abre el nav bar: que no ocurra nunca». Causa: la × está donde el botón del menú y el bloqueo era solo
+  de 1,6 s: quien repetía el clic en la × mientras la cámara aún se posaba caía en el menú. Ahora (`Nav.astro`), al levantarse el botón queda BLOQUEADO hasta
+  que el ratón SALE de su zona (±24 px); con dedo, 2,5 s; con teclado, 0,3 s. Medido (`tools/r59-cruz.cjs`, Chrome 1280 y 390, WebKit 1280): × y tres clics más
+  en el mismo sitio a 0,3 · 1,7 · 3 s, dos veces seguidas → el menú nunca se abre; al salir y volver, el menú abre normal.
+- **A media ronda (Andoni):** «cuando encendemos la luz en el footer y se abre el formulario, la luz no se apaga: se queda por detrás» → aclarado: «la luz, si la
+  tienes encendida al abrir el formulario, tiene que quedarse por detrás». Fuera el apagado automático: la luz SIGUE encendida y el panel la tapa (el cono,
+  que va por encima del paisaje, lleva un `clip-path` con el hueco del panel, `path(evenodd, …)`, seguido fotograma a fotograma mientras sube y baja); la
+  palabra iluminada se retira con la palabra. Medido (Chrome y WebKit, 1280): con el formulario abierto k 1 y el hueco puesto; al cerrarlo, sin hueco y la luz
+  sigue encendida; capturas subiendo y abierto.
+- **A media ronda (Andoni, con captura):** «la luz no se transparenta por detrás de la card y luego hace un raro a la izquierda» · «el formulario debería proyectar algo
+  de sombra al abrirse». El hueco duro en el cono dejaba el cristal sin luz → una COPIA del cono vive dentro del paisaje, justo detrás del panel (mismo z, antes en
+  el DOM; delante del velo y de los árboles), recortada al panel: el desenfoque del cristal la deja ver esmerilada. SOMBRA: una mancha oscura desenfocada (44 px)
+  del tamaño del panel, dentro del paisaje, detrás del panel y de la hierba (no oscurece el prado de delante: la primera versión, con `box-shadow` sobre el paisaje,
+  dibujaba un rectángulo en la hierba); con la luz encendida se desplaza 50 px en la dirección de la luz y se oscurece (0,34 → 0,64). Medido (Chrome y WebKit, 1600):
+  capturas con la luz encendida y apagada; al cerrar, la copia a 0 y la luz sigue encendida.
+- **A media ronda (Andoni):** «el formulario tiene que proyectar sombra hacia delante pero con perspectiva: corta la luz a izquierda y derecha con una línea recta y queda
+  raro; debería seguir la perspectiva». La sombra de la luz es ahora una CUÑA: de las dos esquinas de arriba del panel, siguiendo los rayos que salen del punto, hasta
+  más allá del suelo (se abre con la distancia); se resta del cono con una `<mask>` SVG desenfocada (7 px: canto blando) en vez del hueco recto. La copia de la luz
+  tras el cristal no lleva la cuña. La mancha de la sombra ya no se desplaza con la luz (queda la sombra blanda de siempre). Capturas Chrome y WebKit a 1600.

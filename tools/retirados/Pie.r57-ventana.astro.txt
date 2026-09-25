@@ -1,0 +1,1122 @@
+---
+// EL PIE (rondas 20–23). Andoni (23): «el paisaje tiene que solaparse con el texto. Cuando llegues al footer el logo de savvia se dibuja, cae la gota
+// y se dibuja el paisaje tal y como se dibuja el árbol de arriba. El logo hay que ajustarlo para que tenga el mismo alto que el texto. Y los
+// recolores del footer tienen que ser como los del hero».
+// · EL TITULAR: «La savvia de tu web.» con la palabra hecha LOGOTIPO, a la altura de x de Family (medida: 0,47 em; la «a» del logotipo mide 0,696 de
+//   su alto → alto 0,675 em, ancho 2,18 em), con el pie de las letras en la línea base.
+// · EL PAISAJE (tres capas de la misma mano que el roble: montes · árboles · hierba, con alfa) va DETRÁS del texto, a sangre al pie: el contenido
+//   se solapa con las colinas. Cada capa es un lienzo del MISMO motor que el árbol (`estela.ts`, modo paisaje): al llegar, el LOGOTIPO se dibuja
+//   (de izquierda a derecha), de su última «a» se descuelga una GOTA que cae al paisaje, SALPICA, y desde el impacto el paisaje se DIBUJA (líneas del
+//   grabado) y se PINTA con el frente rasgado, en círculo (Shopify, como el árbol). ESTACIONES: cada 6 s la siguiente se pinta desde la base con ese
+//   mismo frente (`renacer`, el del árbol; tabla propia: aquí el invierno no ralea). Otoño → invierno → primavera → verano.
+// · PROFUNDIDAD: con el scroll cada capa se asienta desde más abajo; con el ratón se aparta según su lejanía (montes 6 px, árboles 20, hierba 34).
+// · Sin WebGL: las láminas como imágenes. Movimiento reducido: pintado y quieto, sin estaciones.
+// · RONDA 40 · el pie es OSCURO, con el fondo de la estación (la paleta de Andoni: «fondo oscuro — footer y secciones oscuras»), y el paisaje enseña
+//   la ESTACIÓN DE LA WEB (la de hoy o la elegida con el icono de la barra), pintado en su color de árbol; ya no rota solo cada 6 s.
+//   El formulario se DIBUJA al abrir y al cerrar (src/scripts/dibujar.ts), como el paisaje.
+import { pie, nav } from '../data/home';
+import svg from '../../public/savvia-logo.svg?raw';
+const year = new Date().getFullYear();
+const trazos = [...svg.matchAll(/<path d="([^"]+)"/g)].map((m) => m[1]);
+const CAPAS = [
+  { n: 'montes', d: 40, m: 6 },
+  { n: 'arboles', d: 90, m: 20 },
+  { n: 'hierba', d: 150, m: 34 },
+];
+// el horizonte del paisaje (primera fila con tinta de árboles + hierba) en 51 columnas: ahí cae la gota
+const HORIZONTE = [0.619, 0.598, 0.52, 0.519, 0.505, 0.475, 0.454, 0.436, 0.454, 0.46, 0.513, 0.555, 0.531, 0.571, 0.628, 0.627, 0.63, 0.666, 0.679, 0.684, 0.705, 0.694, 0.702, 0.735, 0.753, 0.763, 0.771, 0.772, 0.772, 0.774, 0.768, 0.759, 0.747, 0.735, 0.729, 0.718, 0.706, 0.696, 0.64, 0.598, 0.591, 0.543, 0.555, 0.544, 0.579, 0.606, 0.574, 0.589, 0.576, 0.568, 0.588];
+const [antes, despues] = pie.tagline.split('savia');
+---
+
+<footer id="contacto" class="surface-dark pie" data-sube data-pie data-horizonte={JSON.stringify(HORIZONTE)}>
+  <div class="wrap contenido pt-24 lg:pt-32">
+    <div class="grid-12 gap-y-12">
+      <div class="col-span-4 lg:col-span-7">
+        <p class="text-h1 font-display tracking-[-0.02em] titular" data-entra>
+          {antes}<span class="marca" role="img" aria-label="savvia" data-marca><svg viewBox="0 0 1118 348" aria-hidden="true">{trazos.map((d) => <path d={d} />)}</svg></span>{despues}
+        </p>
+        <p class="text-sub measure mt-4 lg:mt-6">{pie.pitch}</p>
+        <!-- RONDA 54 · «en algún lado pequeño una ventanita que puedas abrir y de la cual entra luz» -->
+        <!-- RONDA 55 · «más realista y sutil, sin indicar que se abre: que la gente la descubra si indaga en el footer; que llame un poco la atención pero
+             muy poco». Sin rótulo: solo la ventana, con un hilo de luz que se escapa entre las lamas de las contraventanas -->
+        <button type="button" class="ventana mt-12 lg:mt-16" aria-pressed="false" aria-label="Abrir la ventana" data-ventana>
+          <span class="marco" aria-hidden="true"><i class="cielo"></i><svg class="siluetas" viewBox="0 0 1 1" preserveAspectRatio="none"><use href="#siluetas-v" /></svg><i class="cruz-v"></i><i class="hoja izq" data-hoja="-1"></i><i class="hoja der" data-hoja="1"></i></span>
+          <span class="alfeizar" aria-hidden="true"></span>
+          <!-- RONDA 57 · «al abrirse se desvelan dos siluetas en la ventana y debajo se escribe muy pequeño "still eric&andoni"» -->
+          <span class="firma-v" aria-hidden="true" data-firma-v>{'still eric&andoni'.split('').map((l, n) => <i style={`--n:${n}`}>{l}</i>)}</span>
+        </button>
+      </div>
+      <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
+      <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
+        <ul class="enlaces text-ui flex flex-col gap-3 font-medium lg:items-end" data-enlaces>
+          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li><a href={l.href} class="enlace-pie">{l.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- EL PAISAJE, detrás del texto: por capa, la lámina (textura y respaldo sin WebGL) y su lienzo -->
+  <div class="paisaje" data-paisaje>
+    {CAPAS.map((c, i) => (
+      <>
+        <div class={`capa ${c.n}`} style={`--d:${c.d}px;--m:${c.m}px`} data-capa aria-hidden="true">
+          <img src={`/media/pie/${c.n}.webp`} alt="" width="2000" height="667" loading="lazy" decoding="async" data-lamina />
+          <canvas data-lienzo></canvas>
+          {c.n === 'hierba' && <canvas class="flores" aria-hidden="true" data-flores></canvas>}
+        </div>
+        {i === 1 && (
+          <>
+            <button type="button" class="contacta font-display" data-contacta aria-expanded="false" aria-controls="form-contacto">
+              <span data-contacta-txt>Contáctanos</span>
+            </button>
+            <!-- RONDA 32 · el formulario de cristal EMERGE del paisaje y queda METIDO entre los árboles y la hierba (la hierba lo corta por abajo, como
+                 a la palabra); Esc, «cerrar» o un clic fuera lo devuelven al paisaje. Hoy envía por mailto: (sin servidor). -->
+      <form id="form-contacto" class="formulario" data-form action={`mailto:${pie.correo}`} method="post" enctype="text/plain" novalidate hidden>
+        <i class="cruz c1" aria-hidden="true"></i><i class="cruz c2" aria-hidden="true"></i><i class="cruz c3" aria-hidden="true"></i><i class="cruz c4" aria-hidden="true"></i>
+        <div class="campos">
+          <label class="campo"><span class="detail">Nombre</span><input name="nombre" type="text" autocomplete="name" required /></label>
+          <label class="campo"><span class="detail">Correo</span><input name="correo" type="email" autocomplete="email" required /></label>
+          <label class="campo mensaje"><span class="detail">Cuéntanos</span><textarea name="mensaje" rows="5" required></textarea></label>
+        </div>
+        <div class="acciones">
+          <p class="detail aviso" data-aviso aria-live="polite"></p>
+          <!-- RONDA 36 · hover de GOTA: al entrar el ratón, una gota de savia cae donde está el puntero y se extiende por dentro hasta llenar el botón -->
+          <button type="submit" class="enviar text-ui font-medium" data-enviar><i class="gota" aria-hidden="true"></i><i class="onda" aria-hidden="true"></i><span class="txt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg>Enviar</span></button>
+        </div>
+        <button type="button" class="cerrar" data-form-cerrar aria-label="Cerrar el formulario"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+      </form>
+          </>
+        )}
+      </>
+    ))}
+  </div>
+  <!-- RONDA 42 · «en el footer, detalles típicos de cada estación: otoño caen hojas, invierno nieva, verano sale el sol (igual el rayo de luz),
+       primavera salen flores». Un lienzo sobre el paisaje (bajo el texto), con la estación de la web -->
+  <canvas class="clima" aria-hidden="true" data-clima></canvas>
+  <!-- RONDA 43 · «en verano poner el rayo de luz que tenemos en el hero, que se mueve con el ratón ligeramente; y ojo que se va al salir el formulario» -->
+  <div class="luz-pie" aria-hidden="true"><i class="haz"></i></div>
+  <svg class="luz-ventana" aria-hidden="true" data-luz-ventana>
+    <defs>
+      <linearGradient id="luz-v" gradientUnits="userSpaceOnUse" data-luz-grad><stop offset="0" stop-color="rgb(255 238 205)" stop-opacity="0.22" /><stop offset="0.55" stop-color="rgb(255 226 180)" stop-opacity="0.12" /><stop offset="1" stop-color="rgb(255 220 170)" stop-opacity="0.09" /></linearGradient>
+      <!-- RONDA 57 · Eric y Andoni a contraluz: dos bustos en la parte baja de la ventana (coordenadas de la caja del cristal, 0…1) -->
+      <symbol id="siluetas-v" viewBox="0 0 1 1" preserveAspectRatio="none">
+        <path d="M.08 1 C .08 .8 .13 .72 .24 .69 C .19 .64 .17 .57 .18 .5 C .19 .41 .25 .36 .32 .36 C .4 .36 .45 .42 .45 .5 C .46 .58 .43 .64 .39 .69 C .5 .72 .55 .8 .55 1 Z" />
+        <path d="M.46 1 C .47 .83 .52 .75 .63 .72 C .58 .67 .56 .6 .57 .53 C .58 .45 .64 .4 .71 .4 C .79 .41 .84 .47 .84 .55 C .84 .62 .81 .67 .77 .71 C .88 .75 .93 .83 .94 1 Z" />
+      </symbol>
+      <!-- su SOMBRA en el haz: las siluetas barridas a lo largo de la luz (el JS coloca las copias; más grandes cuanto más lejos) -->
+      <mask id="luz-siluetas-m" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><rect x="-1e4" y="-1e4" width="3e4" height="3e4" fill="#fff" /><g fill="#000" filter="url(#luz-sombra-blanda)" data-luz-siluetas></g></mask>
+      <filter id="luz-sombra-blanda" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3" /></filter>
+    </defs>
+    <!-- ronda 56 · la luz que se FILTRA entre las lamas: haces finos (una trama de líneas en la dirección de la luz) que se desvanecen hacia el suelo -->
+    <defs>
+      <pattern id="luz-rayas" patternUnits="userSpaceOnUse" width="6" height="6" data-luz-rayas><rect width="1.3" height="6" fill="rgb(255 234 198)" /></pattern>
+      <linearGradient id="luz-f" gradientUnits="userSpaceOnUse" data-luz-grad-f><stop offset="0" stop-color="#fff" /><stop offset="0.55" stop-color="#fff" stop-opacity="0.45" /><stop offset="1" stop-color="#fff" stop-opacity="0" /></linearGradient>
+      <mask id="luz-fuga-m" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><g data-luz-fuga-m></g></mask>
+    </defs>
+    <g mask="url(#luz-siluetas-m)"><g mask="url(#luz-fuga-m)"><g class="fugas" data-luz-fugas></g></g>
+    <g data-luz-panes></g></g>
+    <g class="motas" data-luz-motas></g>
+  </svg>
+  <p class="wrap linea detail flex justify-between" data-linea>
+    <span>savvia · {pie.lugar} · {pie.desde}</span>
+    <span>© {year}</span>
+  </p>
+</footer>
+
+<script>
+  // RONDA 54–55 · LA VENTANA. Una ventanita con contraventanas de lamas bajo el subtítulo. Ronda 55: «cuando se va la luz no está bien sincronizado y no
+  // parece realista»: la luz no «viaja»; sale de la ABERTURA. Un solo reloj (`ap`, 0…1) gira las hojas Y recorta el haz a la rendija que dejan entre
+  // ellas: al abrir, la rendija se ensancha desde el centro; al cerrar, se estrecha y la luz desaparece justo cuando se juntan. El haz es el barrido de
+  // la parte abierta de los cuatro cristales a lo largo de la dirección de la luz (paralela), abriéndose hacia el suelo; motas de polvo dentro.
+  // Al pasar el ratón (cerrada), las hojas se entreabren un poco y se cuela una rendija de luz: así se descubre. Con el formulario abierto, se apaga.
+  {
+    const pie = document.querySelector<HTMLElement>('[data-pie]');
+    const btn = pie?.querySelector<HTMLButtonElement>('[data-ventana]');
+    const svg = pie?.querySelector<SVGSVGElement>('[data-luz-ventana]');
+    if (pie && btn && svg) {
+      const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const panes = svg.querySelector<SVGGElement>('[data-luz-panes]')!, motas = svg.querySelector<SVGGElement>('[data-luz-motas]')!;
+      const grad = svg.querySelector<SVGLinearGradientElement>('[data-luz-grad]')!;
+      const hojas = [...btn.querySelectorAll<HTMLElement>('[data-hoja]')];
+      const marco = btn.querySelector<HTMLElement>('.marco')!;
+      const NS = 'http://www.w3.org/2000/svg';
+      let abierta = false, ap = 0, raf = 0;
+      const polys = Array.from({ length: 4 }, () => { const p = document.createElementNS(NS, 'polygon'); p.setAttribute('fill', 'url(#luz-v)'); panes.append(p); return p; });
+      const puntos = Array.from({ length: 14 }, (_, n) => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', String(0.8 + (n % 3) * 0.5)); c.style.setProperty('--n', String(n)); motas.append(c); return c; });
+      // RONDA 56 · LA LUZ QUE SE FILTRA ENTRE LAS LAMAS: con las hojas cerradas, cada rendija deja pasar una franja fina de luz que se proyecta (y se abre)
+      // hacia el suelo; al abrir, las lamas giran con la hoja y las franjas se apagan (la luz pasa ya por la abertura)
+      const fugas = svg.querySelector<SVGGElement>('[data-luz-fugas]')!, gradF = svg.querySelector<SVGLinearGradientElement>('[data-luz-grad-f]')!;
+      const rayas = svg.querySelector<SVGPatternElement>('[data-luz-rayas]')!, mfuga = svg.querySelector<SVGGElement>('[data-luz-fuga-m]')!;
+      const tiras = Array.from({ length: 4 }, () => { const p = document.createElementNS(NS, 'polygon'); p.setAttribute('fill', 'url(#luz-rayas)'); fugas.append(p); return p; });
+      const mtiras = Array.from({ length: 4 }, () => { const p = document.createElementNS(NS, 'polygon'); p.setAttribute('fill', 'url(#luz-f)'); mfuga.append(p); return p; });
+      // LA PALABRA ILUMINADA: una copia de «Contáctanos» en luz cálida, recortada a la forma del haz (y de las franjas), con su SOMBRA desplazada en la
+      // dirección de la luz; entre los árboles y la hierba, como la palabra
+      const palabra = pie.querySelector<HTMLElement>('[data-contacta-txt]');
+      const paisaje = pie.querySelector<HTMLElement>('[data-paisaje]');
+      const lit = document.createElement('span');
+      lit.className = 'contacta-luz'; lit.setAttribute('aria-hidden', 'true'); lit.textContent = palabra?.textContent ?? '';
+      paisaje?.append(lit);
+      const sombras = svg.querySelector<SVGGElement>('[data-luz-siluetas]')!;
+      const PASOS_S = 90;
+      const usos = Array.from({ length: PASOS_S }, () => { const u = document.createElementNS(NS, 'use'); u.setAttribute('href', '#siluetas-v'); sombras.append(u); return u; });
+      const quad = (P: number[][]) => P.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ');
+      const dibujar = () => {
+        hojas.forEach((h) => (h.style.rotate = `y ${(Number(h.dataset.hoja) * ap * 118).toFixed(1)}deg`));
+        marco.style.setProperty('--ap', ap.toFixed(3));
+        const pr = pie.getBoundingClientRect(), vr = marco.getBoundingClientRect();
+        svg.setAttribute('viewBox', `0 0 ${pr.width} ${pr.height}`);
+        const x0 = vr.left - pr.left + 3, y0 = vr.top - pr.top + 3, w = vr.width - 6, h = vr.height - 6, g = 2;
+        const cx = x0 + w / 2, cy = y0 + h / 2;
+        const s = ap <= 0 ? 0 : Math.min(1, Math.sin((ap * 118 * Math.PI) / 180 / 2) * 1.35);
+        const ax0 = cx - (w * s) / 2, ax1 = cx + (w * s) / 2;
+        const suelo = pr.height * 0.97, L = Math.max(0, suelo - (y0 + h)), vx = L * 0.62, vy = L, S = 3.8; // ronda 57: hasta el suelo del paisaje (la sombra de «Contáctanos» cae dentro de la luz)
+        const lejos = (a: number, b: number) => [cx + vx + (a - cx) * S, cy + vy + (b - cy) * S];
+        const hh = (h - g) / 2;
+        const formas: number[][][] = [];
+        [[x0, cx - g / 2], [cx + g / 2, x0 + w]].forEach(([l, r], col) => {
+          const L0 = Math.max(l, ax0), R0 = Math.min(r, ax1);
+          [y0, y0 + hh + g].forEach((py, fila) => {
+            const p = polys[col * 2 + fila];
+            if (R0 - L0 < 0.3) { p.setAttribute('points', ''); return; }
+            const P = [[L0, py], [R0, py], lejos(R0, py), lejos(R0, py + hh), lejos(L0, py + hh), [L0, py + hh]];
+            p.setAttribute('points', quad(P)); formas.push(P);
+          });
+        });
+        // la luz FILTRADA: el haz de la ventana entera, tenue y hecho de hilos (la trama gira con la dirección de la luz); se apaga según se abre
+        const fuga = Math.max(0, 1 - s * 1.6);
+        const cristales = [[x0, cx - g / 2], [cx + g / 2, x0 + w]].flatMap(([l, r]) => [y0, y0 + hh + g].map((py) => [[l, py], [r, py], lejos(r, py), lejos(r, py + hh), lejos(l, py + hh), [l, py + hh]]));
+        cristales.forEach((P, n) => { const q = fuga > 0.01 ? quad(P) : ''; tiras[n].setAttribute('points', q); mtiras[n].setAttribute('points', q); if (fuga > 0.01 && n < 2) formas.push(P); });
+        rayas.setAttribute('patternTransform', `rotate(${((Math.atan2(vy, vx) * 180) / Math.PI - 90).toFixed(2)})`);
+        fugas.style.opacity = String(fuga * 0.09); // ronda 57: «cerrada, mucho más sutil»
+        // la sombra de las siluetas: el cristal (x0, y0, w, h) barrido por la luz; en t su caja es c + v·t + (p − c)·(1 + (S − 1)·t)
+        usos.forEach((u, n) => {
+          const t = n / (PASOS_S - 1), k = 1 + (S - 1) * t;
+          u.setAttribute('x', (cx + vx * t + (x0 - cx) * k).toFixed(1)); u.setAttribute('y', (cy + vy * t + (y0 - cy) * k).toFixed(1));
+          u.setAttribute('width', (w * k).toFixed(1)); u.setAttribute('height', (h * k).toFixed(1));
+        });
+        panes.style.opacity = String(Math.min(1, s * 1.15));
+        [grad, gradF].forEach((gr) => { gr.setAttribute('x1', String(cx)); gr.setAttribute('y1', String(cy)); gr.setAttribute('x2', String(cx + vx)); gr.setAttribute('y2', String(cy + vy)); });
+        svg.style.opacity = '1';
+        puntos.forEach((c, n) => { const t = ((n * 0.37) % 1) * 0.85 + 0.08, lado = ((n * 0.61) % 1) - 0.5; c.setAttribute('cx', (cx + vx * t + lado * w * S * t * 0.9).toFixed(1)); c.setAttribute('cy', (cy + vy * t).toFixed(1)); });
+        motas.style.opacity = String(Math.max(0, (s - 0.6) / 0.4));
+        // la palabra, iluminada donde cae la luz, con su sombra
+        if (palabra && paisaje) {
+          const wr = palabra.getBoundingClientRect(), qr = paisaje.getBoundingClientRect();
+          const ox = wr.left - pr.left, oy = wr.top - pr.top; // del pie a la palabra
+          lit.style.left = `${wr.left - qr.left}px`; lit.style.top = `${wr.top - qr.top}px`;
+          lit.style.fontSize = getComputedStyle(palabra).fontSize;
+          const d = Math.hypot(vx, vy) || 1, sx = (vx / d) * 56, sy = (vy / d) * 56;
+          lit.style.setProperty('--sx', `${sx.toFixed(1)}px`); lit.style.setProperty('--sy', `${sy.toFixed(1)}px`);
+          const intensidad = Math.max(s * 0.5, fuga * 0.12); // a media luz: la palabra se aclara, no se enciende
+          lit.style.opacity = pie.classList.contains('pintado-luz') ? String(intensidad) : '0';
+          lit.style.clipPath = formas.length ? `path('${formas.map((P) => 'M' + P.map(([a, b]) => `${(a - ox).toFixed(1)} ${(b - oy).toFixed(1)}`).join(' L') + ' Z').join(' ')}')` : 'inset(50%)';
+        }
+      };
+      const ir = (meta: number, dur: number) => {
+        cancelAnimationFrame(raf);
+        if (reducido) { ap = meta; dibujar(); return; }
+        const a0 = ap, t0 = performance.now();
+        const paso = (ahora: number) => {
+          const p = Math.min(1, (ahora - t0) / dur), e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; // la madera: arranca y frena
+          ap = a0 + (meta - a0) * e; dibujar();
+          if (p < 1) raf = requestAnimationFrame(paso);
+        };
+        raf = requestAnimationFrame(paso);
+      };
+      btn.addEventListener('click', () => {
+        abierta = !abierta;
+        btn.setAttribute('aria-pressed', String(abierta));
+        btn.setAttribute('aria-label', abierta ? 'Cerrar la ventana' : 'Abrir la ventana');
+        pie.classList.toggle('ventana-abierta', abierta);
+        ir(abierta ? 1 : 0, abierta ? 1300 : 1000);
+      });
+      // RONDA 57 · «la luz de la ventana no se va al abrirse el formulario»: al abrir el formulario, la ventana SE CIERRA (con su animación: la luz se va
+      // con las hojas); al cerrarlo, se queda cerrada
+      new MutationObserver(() => { if (pie.classList.contains('form-abierto') && abierta) btn.click(); }).observe(pie, { attributes: true, attributeFilter: ['class'] });
+      // cerrada, al pasar: se entreabre (una rendija de luz) y vuelve
+      btn.addEventListener('pointerenter', (e) => { if (e.pointerType === "mouse" && !abierta) ir(0.2, 700); });
+      btn.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !abierta) ir(0, 700); });
+      addEventListener('resize', () => dibujar());
+      new ResizeObserver(() => dibujar()).observe(pie);
+      // la palabra existe (opacidad) cuando el paisaje ya se ha pintado: hasta entonces, su luz tampoco
+      new MutationObserver(() => { const si = !!pie.querySelector('.pintado') || pie.classList.contains('pintado'); if (si !== pie.classList.contains('pintado-luz')) { pie.classList.toggle('pintado-luz', si); dibujar(); } }).observe(pie, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      dibujar();
+      (window as any).__ventana = () => ({ abierta, k: +ap.toFixed(2), pts: polys[0].getAttribute('points') });
+    }
+  }
+</script>
+
+<script>
+  import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
+  import { caerRealista } from '../scripts/gota';
+    import { EST as NOMBRES_EST, estacionActual } from '../scripts/estacion';
+  const pie = document.querySelector<HTMLElement>('[data-pie]'), paisaje = document.querySelector<HTMLElement>('[data-paisaje]');
+  if (pie && paisaje) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches, conRaton = matchMedia('(hover: hover)').matches;
+    const HZ: number[] = JSON.parse(pie.dataset.horizonte!);
+    const capas = [...paisaje.querySelectorAll<HTMLElement>('[data-capa]')];
+    const marca = pie.querySelector<HTMLElement>('[data-marca]')!;
+    // RONDA 27 · «Contáctanos» a todo el ancho de las líneas, entre los árboles y la hierba (cortado por ella): el tamaño de letra sale de medir el
+    // texto en Family y escalarlo al ancho del contenido
+    const contacta = pie.querySelector<HTMLElement>('[data-contacta]')!, contenido = pie.querySelector<HTMLElement>('.contenido')!;
+    const ajustarContacta = () => {
+      const w = contenido.clientWidth - 2 * parseFloat(getComputedStyle(contenido).paddingLeft);
+      const c = document.createElement('canvas').getContext('2d')!;
+      c.font = `100px ${getComputedStyle(contacta).fontFamily}`;
+      const tw = c.measureText(contacta.querySelector('[data-contacta-txt]')!.textContent!.trim()).width || 1;
+      contacta.style.fontSize = `${(100 * w) / tw}px`;
+      // el lienzo mide con la fuente de respaldo si Family aún no está: se corrige con el ancho REAL del elemento
+      const real = contacta.getBoundingClientRect().width; if (real > 0) contacta.style.fontSize = `${parseFloat(contacta.style.fontSize) * (w / real) * 0.99}px`;
+    };
+    document.fonts.ready.then(ajustarContacta); addEventListener('resize', ajustarContacta);
+    // ── EL FORMULARIO que emerge del paisaje
+    const form = pie.querySelector<HTMLFormElement>('[data-form]')!, aviso = pie.querySelector<HTMLElement>('[data-aviso]')!;
+    let abierto = false, origen: [number, number] = [0, 0], cerrando = 0;
+    // el origen del dibujo: donde está el puntero sobre «Contáctanos» (o su centro)
+    const centro = (): [number, number] => { const r = contacta.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * 0.55]; };
+    contacta.addEventListener('pointermove', (e) => { origen = [e.clientX, e.clientY]; }, { passive: true });
+    const LINEA = 'rgb(234, 221, 231)'; // Rosa niebla: las líneas del dibujo
+    const abrir = (si: boolean, foco = false) => {
+      if (si === abierto) return;
+      abierto = si;
+      contacta.setAttribute('aria-expanded', String(si));
+      pie.classList.toggle('form-abierto', si);
+      if (!origen[0]) origen = centro();
+      // RONDA 43 · «el formulario sale como teníamos: desde abajo, pareciendo que sale del paisaje» (vuelve el de la ronda 33; fuera el dibujado)
+      clearTimeout(cerrando);
+      if (si) { form.hidden = false; requestAnimationFrame(() => requestAnimationFrame(() => { form.classList.add('on'); if (foco) form.querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true }); })); }
+      else { esperaSalir = true; form.classList.remove('on'); cerrando = window.setTimeout(() => { if (!abierto) form.hidden = true; }, 1100); origen = [0, 0]; }
+    };
+    // al cerrar con el puntero aún encima de la palabra, no se vuelve a abrir hasta que el puntero salga y vuelva
+    let esperaSalir = false;
+    contacta.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse' && !esperaSalir) { origen = [e.clientX, e.clientY]; abrir(true); } });
+    contacta.addEventListener('pointerleave', () => { esperaSalir = false; });
+    // (el panel tapa la palabra mientras está abierto: se mira la posición del puntero, no :hover)
+    document.addEventListener('pointermove', (e) => { if (!esperaSalir) return; const r = contacta.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) esperaSalir = false; }, { passive: true });
+    contacta.addEventListener('click', () => abrir(!abierto, true));
+    let ignoraFoco = false;
+    contacta.addEventListener('focus', () => { if (!ignoraFoco && contacta.matches(':focus-visible')) abrir(true); }); // solo con teclado
+    pie.querySelector('[data-form-cerrar]')!.addEventListener('click', () => { abrir(false); ignoraFoco = true; contacta.focus({ preventScroll: true }); setTimeout(() => { ignoraFoco = false; }, 300); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && abierto) abrir(false); });
+    const enviarBtn = pie.querySelector<HTMLElement>('[data-enviar]')!;
+    // la gota del CTA cae donde entra el puntero (y desde ahí se recoge al salir)
+    const caeGota = (e: PointerEvent) => { const r = enviarBtn.getBoundingClientRect(); enviarBtn.style.setProperty('--gx', `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`); enviarBtn.style.setProperty('--gy', `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`); };
+    enviarBtn.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'mouse') return; caeGota(e); enviarBtn.classList.add('mojado'); });
+    enviarBtn.addEventListener('pointerleave', (e) => { if (e.pointerType !== 'mouse') return; caeGota(e); enviarBtn.classList.remove('mojado'); });
+    enviarBtn.addEventListener('focus', () => enviarBtn.classList.add('mojado'));
+    enviarBtn.addEventListener('blur', () => enviarBtn.classList.remove('mojado'));
+    document.addEventListener('pointerdown', (e) => { const t = e.target as Node; if (abierto && !form.contains(t) && !contacta.contains(t) && !enviarBtn.contains(t)) abrir(false); }); // el botón «Enviar» vive fuera del panel: no es «clic fuera»
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const d = new FormData(form), cuerpo = `${d.get('mensaje')}\n\n— ${d.get('nombre')} · ${d.get('correo')}`;
+      aviso.textContent = 'Se abre tu correo con el mensaje listo.'; // antes de navegar (si no, en algunos navegadores no llega a pintarse)
+      location.href = `mailto:${form.getAttribute('action')!.replace('mailto:', '')}?subject=${encodeURIComponent('Hola, savvia')}&body=${encodeURIComponent(cuerpo)}`;
+    });
+    // RONDA 40: el paisaje en la estación de la web, pintado en su color de árbol (algo menos que el árbol: es un paisaje entero). Aquí nada ralea.
+    let est = estacionActual();
+    let estelas: (Estela | null)[] = [], creadas = false, visible = false;
+    const crear = () => {
+      if (creadas) return; creadas = true;
+      estelas = capas.map((c) => {
+        const img = c.querySelector<HTMLImageElement>('[data-lamina]')!, cv = c.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
+        if (!img.complete) img.loading = 'eager';
+        const t = crearEstela(cv, img, { origen: [0.5, 1], dir: 1, radial: true, paisaje: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: 0.62 });
+        if (!t) c.classList.add('sin-gl');
+        t?.estacion(est);
+        return t;
+      });
+      if (reducido || estelas.every((t) => !t)) { estelas.forEach((t) => t?.crecer(1)); paisaje.classList.add('pintado'); dibujado = true; }
+    };
+    new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { crear(); o.disconnect(); } }, { rootMargin: '900px 0px' }).observe(pie);
+    // ── el paralaje del scroll: cada capa viene de más abajo (--d) y se asienta según entra el pie
+    let pedido = false, ult = -1;
+    const pintar = () => {
+      pedido = false;
+      const r = pie.getBoundingClientRect(), vh = innerHeight;
+      const k = Math.min(1, Math.max(0, (vh - r.top) / Math.max(1, r.height)));
+      const e = 1 - (1 - k) * (1 - k);
+      if (Math.abs(e - ult) < 0.002) return;
+      ult = e;
+      paisaje.style.setProperty('--p', String(1 - e));
+    };
+    const pedir = () => { if (visible && !pedido) { pedido = true; requestAnimationFrame(pintar); } };
+    // ── el ratón: las capas se apartan del puntero según su profundidad, con retraso
+    let mx = 0, my = 0, tx = 0, ty = 0, rafM = 0;
+    const seguir = () => {
+      rafM = 0;
+      mx += (tx - mx) * 0.07; my += (ty - my) * 0.07;
+      paisaje.style.setProperty('--mx', mx.toFixed(3)); paisaje.style.setProperty('--my', my.toFixed(3)); pie.style.setProperty('--lx', mx.toFixed(4));
+      if (Math.abs(tx - mx) + Math.abs(ty - my) > 0.002) rafM = requestAnimationFrame(seguir);
+    };
+    if (conRaton && !reducido) {
+      pie.addEventListener('pointermove', (e) => { const r = pie.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width - 0.5; ty = (e.clientY - r.top) / r.height - 0.5; if (!rafM) rafM = requestAnimationFrame(seguir); }, { passive: true });
+      pie.addEventListener('pointerleave', () => { tx = 0; ty = 0; if (!rafM) rafM = requestAnimationFrame(seguir); });
+    }
+    // ── LA LLEGADA: el logotipo se dibuja → la gota se descuelga de la «a» → cae al horizonte → salpica → el paisaje se dibuja y se pinta desde ahí
+    let dibujado = false;
+    const dibujar = () => {
+      if (dibujado) return;
+      crear(); // ronda 41: si el observador de la llegada corre antes que el de los lienzos (al saltar al final), los crea aquí; si no, se perdía
+      if (!creadas || dibujado) return; dibujado = true;
+      marca.classList.add('dibuja');
+      setTimeout(caer, 1100);
+    };
+    const caer = () => {
+      const rp = pie.getBoundingClientRect(), rm = marca.getBoundingClientRect();
+      // la punta del rabo de la «a»: el extremo derecho del logotipo, a un 92 % de su alto
+      const x = rm.right - rm.width * 0.004 - rp.left, y0 = rm.top + rm.height * 0.92 - rp.top;
+      // el horizonte a esa x (coordenadas de la capa de hierba, ya con su paralaje)
+      const rh = capas[2].getBoundingClientRect();
+      const fx = Math.min(1, Math.max(0, (x + rp.left - rh.left) / rh.width)), i = fx * (HZ.length - 1), hy = HZ[Math.floor(i)] + (HZ[Math.min(HZ.length - 1, Math.ceil(i))] - HZ[Math.floor(i)]) * (i - Math.floor(i));
+      const y1 = rh.top + hy * rh.height - rp.top;
+      // RONDA 24 · «la gota mucho más realista»: la misma física que la de la carga (cuello que se estrangula, resto, satélite, estela desenfocada)
+      caerRealista(pie, x, y0, y1, { alImpacto: () => brotar(x + rp.left, y1 + rp.top) });
+    };
+    // desde el impacto: cada lienzo pone ahí su origen y crece (las líneas por delante, la pintura detrás, con el frente rasgado)
+    const brotar = (px: number, py: number) => {
+      capas.forEach((c, i) => { const r = c.getBoundingClientRect(); estelas[i]?.origen((px - r.left) / r.width, (py - r.top) / r.height); });
+      const T = 2600; let t0 = 0;
+      const paso = (ahora: number) => {
+        if (!t0) t0 = ahora;
+        const k = Math.min(1, (ahora - t0) / T), g = 1 - Math.pow(1 - k, 1.6);
+        estelas.forEach((t) => t?.crecer(g));
+        if (k < 1) requestAnimationFrame(paso); else { paisaje.classList.add('pintado'); empezarEstaciones(); }
+      };
+      requestAnimationFrame(paso);
+    };
+    // ── la estación: la de la web. Si cambia (el icono de la barra), se pinta desde la base con el frente del árbol; si no se ve, de golpe
+    paisaje.dataset.estacion = NOMBRES_EST[est];
+    const empezarEstaciones = () => { capas.forEach((_, i) => estelas[i]?.origen(0.5, 1)); };
+    addEventListener('savvia:estacion', (ev) => {
+      const n = (ev as CustomEvent).detail.n as number;
+      if (n === est) return;
+      est = n; paisaje.dataset.estacion = NOMBRES_EST[n];
+      estelas.forEach((t) => (visible && !reducido && paisaje.classList.contains('pintado') ? t?.renacer(n) : t?.estacion(n)));
+    });
+    new IntersectionObserver((en) => {
+      visible = en[0].isIntersecting; pie.classList.toggle('viva', visible); pedir();
+      estelas.forEach((t) => t?.visible(visible));
+      if (visible && en[0].intersectionRatio > 0.3) dibujar();
+    }, { threshold: [0, 0.3, 0.6] }).observe(pie);
+    if (!reducido) { addEventListener('scroll', pedir, { passive: true }); addEventListener('resize', pedir); pintar(); }
+    else paisaje.style.setProperty('--p', '0');
+
+    // ── EL TIEMPO DE CADA ESTACIÓN (rondas 42–43), en un lienzo 2D sobre el paisaje y bajo el texto.
+    //   OTOÑO: hojas que caen girando y meciéndose y SE POSAN en el prado: se van acumulando poco a poco (ronda 43).
+    //   INVIERNO: nieve fina que también se posa, y deja una escarcha que va blanqueando el suelo.
+    //   VERANO: el sol tras los montes (un resplandor cálido) y motas que suben; el RAYO es el del hero (capa .luz-pie, sigue al ratón).
+    //   PRIMAVERA: matas de BREZO (la lámina de Andoni, no flores dibujadas: «más realistas y menos infantiles») que brotan en el prado y se mecen.
+    // Solo corre con el pie a la vista; con movimiento reducido, un fotograma quieto. Se esconde mientras el formulario está abierto.
+    const cv = pie.querySelector<HTMLCanvasElement>('[data-clima]')!, c = cv.getContext('2d')!;
+    const acc = document.createElement('canvas'), ca = acc.getContext('2d')!; // lo que se ha ido POSANDO (se pinta una vez, al posarse)
+    type Pz = { x: number; y: number; z: number; f: number; g: number; v: number; d: number };
+    let W = 0, Hh = 0, dpr = 1, pzs: Pz[] = [], estC = est, fade = 1, fadeMeta = 1, rafC = 0, visC = false, t0C = 0, nacio = 0, posados = 0;
+    // (al cambiar de tamaño el lienzo acumulado se vacía: las flores ya pintadas en él se vuelven a pintar; antes se perdían)
+    const medir = () => {
+      const d2 = Math.min(devicePixelRatio || 1, 1.5), w2 = pie.clientWidth, h2 = pie.clientHeight;
+      if (w2 === W && h2 === Hh && d2 === dpr) return;
+      dpr = d2; W = w2; Hh = h2;
+      for (const k of [cv, acc]) { k.width = Math.round(W * dpr); k.height = Math.round(Hh * dpr); }
+      ca.setTransform(dpr, 0, 0, dpr, 0, 0); posados = 0;
+    };
+    // el SUELO: la primera fila con tinta del paisaje a esa x (HORIZONTE, medido en la capa de hierba), en coordenadas del pie
+    let RP: DOMRect | null = null, RH: DOMRect | null = null; // medidas del pie y de la hierba, una vez por fotograma
+    const suelo = (x: number) => {
+      const pr = RP ?? pie.getBoundingClientRect(), hr = RH ?? capas[2].getBoundingClientRect();
+      const fx = Math.min(1, Math.max(0, (x + pr.left - hr.left) / hr.width)), i = fx * (HZ.length - 1), a0 = Math.floor(i), a1 = Math.min(HZ.length - 1, a0 + 1);
+      return hr.top - pr.top + (HZ[a0] + (HZ[a1] - HZ[a0]) * (i - a0)) * hr.height;
+    };
+    const sembrar = () => {
+      const n = [34, 120, 22, 0][estC];
+      pzs = Array.from({ length: n }, (_, i) => {
+        const x = Math.random();
+        // primavera: florecillas por el prado, más en lo cercano (abajo) que en lo lejano
+        const y = Math.random() * 0.9;
+        return { x, y, z: Math.random(), f: Math.random() * 10, g: Math.random() * 6.28, v: i / n, d: 0.1 + Math.random() * 0.7 };
+      });
+
+      nacio = performance.now();
+    };
+    const FLORES = ['255,255,255', '250,232,238', '244,214,222', '255,255,255', '236,176,196', '250,232,238', '199,107,131'];
+    const florecilla = (k: CanvasRenderingContext2D, x: number, y: number, r: number, col: string, a: number) => {
+      const gr = k.createRadialGradient(x, y, 0, x, y, r * 1.6);
+      gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(0.55, `rgba(${col},${a * 0.8})`); gr.addColorStop(1, `rgba(${col},0)`);
+      k.fillStyle = gr; k.beginPath(); k.ellipse(x, y, r * 1.6, r * 1.15, 0, 0, 6.283); k.fill();
+      if (r > 2) { k.fillStyle = `rgba(214,160,70,${a * 0.7})`; k.beginPath(); k.arc(x, y, r * 0.3, 0, 6.283); k.fill(); }
+    };
+    const HOJAS = ['#c65c2d', '#e0a03a', '#7a2e16', '#d98b3a', '#9c3b1c', '#efc070']; // ronda 43: más variedad (ocres claros y rojos hondos): posadas se distinguen del prado
+    const hoja = (k: CanvasRenderingContext2D, x: number, y: number, s: number, a: number, col: string, plana = 1) => {
+      k.save(); k.translate(x, y); k.rotate(a); k.scale(1, plana); k.fillStyle = col;
+      k.beginPath(); k.moveTo(0, -s); k.quadraticCurveTo(s * 0.8, 0, 0, s); k.quadraticCurveTo(-s * 0.8, 0, 0, -s); k.fill();
+      k.strokeStyle = 'rgba(40,20,10,.35)'; k.lineWidth = Math.max(0.6, s * 0.08); k.beginPath(); k.moveTo(0, -s * 0.8); k.lineTo(0, s * 0.95); k.stroke();
+      k.restore();
+    };
+    // al POSARSE: se pinta en la capa acumulada (las hojas, tumbadas; la nieve, un copo y un velo de escarcha alrededor)
+    const posar = (p: Pz, i: number) => {
+      const x = p.x * W, y = p.y * Hh;
+      if (estC === 0 && posados < 320) { ca.globalAlpha = 0.9; hoja(ca, x, y, 4 + p.z * 5, p.g + p.f, HOJAS[i % HOJAS.length], 0.45); posados++; }
+      if (estC === 1 && posados < 1600) {
+        ca.globalAlpha = 0.85; ca.fillStyle = '#fff'; ca.beginPath(); ca.arc(x, y, 0.8 + p.z * 1.8, 0, 6.283); ca.fill();
+        const g = ca.createRadialGradient(x, y, 0, x, y, 14); g.addColorStop(0, 'rgba(255,255,255,.07)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        ca.globalAlpha = 1; ca.fillStyle = g; ca.fillRect(x - 14, y - 14, 28, 28); posados++;
+      }
+      ca.globalAlpha = 1;
+    };
+    const dibujarC = (ahora: number) => {
+      const dt = Math.min(0.05, (ahora - (t0C || ahora)) / 1000); t0C = ahora;
+      const T = ahora / 1000, mueve = reducido ? 0 : 1;
+      RP = pie.getBoundingClientRect(); RH = capas[2].getBoundingClientRect();
+      c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, Hh);
+      // RONDA 44 · «al abrir el formulario que no se vayan las hojas, ni la nieve, ni nada»: siguen, pero pasan por DETRÁS del panel (se recorta su hueco)
+      c.save();
+      if (abierto && !form.hidden) { const fr = form.getBoundingClientRect(); c.beginPath(); c.rect(0, 0, W, Hh); c.roundRect(fr.left - RP!.left, fr.top - RP!.top, fr.width, fr.height, 2); c.clip('evenodd'); }
+      fade += (fadeMeta - fade) * Math.min(1, dt * 3);
+      if (fadeMeta === 0 && fade < 0.02) { estC = est; ca.setTransform(1, 0, 0, 1, 0, 0); ca.clearRect(0, 0, acc.width, acc.height); ca.setTransform(dpr, 0, 0, dpr, 0, 0); posados = 0; sembrar(); fadeMeta = 1; }
+      c.globalAlpha = fade;
+      if (estC === 0 || estC === 1) c.drawImage(acc, 0, 0, W, Hh); // lo posado
+      if (estC === 0) { // OTOÑO: hojas que caen y se posan
+        pzs.forEach((p, i) => {
+          p.f += dt; p.y += (0.022 + p.z * 0.03) * dt * mueve; p.x += (Math.sin(p.f * 0.9 + i) * 0.014 + 0.006) * dt * mueve;
+          const g = suelo(p.x * W);
+          if (p.y * Hh > g + (Hh - g) * p.d * 0.8) { posar(p, i); p.y = -0.03; p.x = Math.random(); p.d = 0.1 + Math.random() * 0.7; }
+          c.globalAlpha = fade; hoja(c, p.x * W, p.y * Hh, 5 + p.z * 7, p.g + Math.sin(p.f * 1.3 + i) * 1.1 + p.f * 0.4, HOJAS[i % HOJAS.length]);
+        });
+      } else if (estC === 1) { // INVIERNO: nieve que se posa
+        c.fillStyle = '#fff';
+        pzs.forEach((p, i) => {
+          p.f += dt; p.y += (0.018 + p.z * 0.03) * dt * mueve; p.x += Math.sin(p.f * 0.7 + i) * 0.006 * dt * mueve;
+          const g = suelo(p.x * W);
+          if (p.y * Hh > g + (Hh - g) * p.d * 0.85) { posar(p, i); p.y = -0.01; p.x = Math.random(); p.d = 0.05 + Math.random() * 0.8; }
+          c.globalAlpha = fade * (0.35 + p.z * 0.55); c.beginPath(); c.arc(p.x * W, p.y * Hh, 0.8 + p.z * 2.2, 0, 6.283); c.fill();
+        });
+      } else if (estC === 3) { // VERANO: el sol tras los montes y las motas (el rayo es la capa .luz-pie)
+        const sx = W * 0.8, sy = suelo(W * 0.8) - 10;
+        const g = c.createRadialGradient(sx, sy, 0, sx, sy, W * 0.42);
+        g.addColorStop(0, 'rgba(255,214,140,.40)'); g.addColorStop(0.25, 'rgba(255,190,110,.15)'); g.addColorStop(1, 'rgba(255,180,100,0)');
+        c.fillStyle = g; c.fillRect(0, 0, W, Hh);
+        c.fillStyle = 'rgba(255,236,190,1)';
+        pzs.forEach((p, i) => {
+          p.f += dt; p.y -= (0.006 + p.z * 0.008) * dt * mueve; p.x += Math.sin(p.f * 0.5 + i) * 0.004 * dt * mueve;
+          if (p.y < 0.2) { p.y = 0.98; p.x = Math.random(); }
+          c.globalAlpha = fade * (0.25 + 0.35 * (0.5 + 0.5 * Math.sin(p.f * 1.7 + i))); c.beginPath(); c.arc(p.x * W, p.y * Hh, 0.8 + p.z * 1.4, 0, 6.283); c.fill();
+        });
+      }
+      c.globalAlpha = 1;
+      c.restore();
+      RP = RH = null;
+    };
+    const bucle = (ahora: number) => { rafC = 0; if (!visC) return; dibujarC(ahora); if (!reducido || fadeMeta !== fade) rafC = requestAnimationFrame(bucle); };
+    const arrancar = () => { if (!rafC && visC) { t0C = 0; rafC = requestAnimationFrame(bucle); } };
+    new ResizeObserver(() => { medir(); if (!pzs.length) sembrar(); arrancar(); }).observe(pie);
+    new IntersectionObserver((e) => { visC = e[0].isIntersecting; arrancar(); }).observe(pie);
+
+    // ── LAS FLORES DE PRIMAVERA (ronda 44 · «flores que encajen con el fondo; lo de ahora es un pegote»). Van en un lienzo DENTRO de la capa de la
+    // hierba: nacen sobre el prado real (su borde de arriba, HORIZONTE, en coordenadas de la propia lámina) y se mueven con él (paralaje y ratón).
+    // Son florecillas PINTADAS con el toque del prado: manchas blandas, blanco y rosa pálido (algo de Rosa flor), en MATAS, más pequeñas cuanto más
+    // lejos, que BROTAN poco a poco cuando llegas al pie. Solo en primavera.
+    const cf = pie.querySelector<HTMLCanvasElement>('[data-flores]')!, fx = cf.getContext('2d')!;
+    cf.classList.add('listo');
+    type Fl = { x: number; d: number; z: number; v: number; c: string };
+    let flores: Fl[] = [], nacF = 0, rafF = 0, dprF = 1, WF = 0, HF = 0;
+    const sembrarF = () => {
+      const centros = Array.from({ length: 60 }, () => [Math.random(), Math.pow(Math.random(), 1.4)]); // x, profundidad bajo el borde del prado (0 = lejos)
+      flores = Array.from({ length: 280 }, (_, i) => { const [cx0, cd] = centros[i % centros.length]; const d = Math.min(1, Math.max(0, cd + (Math.random() - 0.5) * 0.05)); return { x: cx0 + (Math.random() - 0.5) * (0.012 + d * 0.02), d, z: Math.random(), v: Math.random(), c: FLORES[Math.floor(Math.random() * FLORES.length)] }; });
+    };
+    const bordeF = (x: number) => { const i = Math.min(1, Math.max(0, x)) * (HZ.length - 1), a0 = Math.floor(i), a1 = Math.min(HZ.length - 1, a0 + 1); return HZ[a0] + (HZ[a1] - HZ[a0]) * (i - a0); };
+    const pintarF = (ahora: number) => {
+      rafF = 0;
+      const r = cf.getBoundingClientRect(), d2 = Math.min(devicePixelRatio || 1, 1.5);
+      if (Math.round(r.width * d2) !== cf.width || Math.round(r.height * d2) !== cf.height) { cf.width = Math.round(r.width * d2); cf.height = Math.round(r.height * d2); }
+      dprF = d2; WF = r.width; HF = r.height;
+      fx.setTransform(dprF, 0, 0, dprF, 0, 0); fx.clearRect(0, 0, WF, HF);
+      if (est !== 2) return;
+      const edad = (ahora - nacF) / 1000; let pendientes = false;
+      for (const f of flores) {
+        const abre = reducido ? 1 : Math.max(0, Math.min(1, (edad - f.v * 7) / 1.1));
+        if (abre < 1) pendientes = true;
+        if (!abre) continue;
+        const top = bordeF(f.x) + 0.015, y = (top + f.d * (0.97 - top)) * HF;
+        const rr = (1.3 + f.d * 3.4) * (0.75 + f.z * 0.5) * (1 - Math.pow(1 - abre, 3)) * (WF / 1280);
+        florecilla(fx, f.x * WF, y, Math.max(0.6, rr), f.c, 0.7 + f.d * 0.28);
+      }
+      if (pendientes && visC) rafF = requestAnimationFrame(pintarF);
+    };
+    const pedirF = () => { if (!rafF) rafF = requestAnimationFrame(pintarF); };
+    let vistoF = false;
+    new IntersectionObserver((e) => { if (e[0].isIntersecting && !vistoF && paisaje.classList.contains('pintado')) { vistoF = true; nacF = performance.now(); } pedirF(); }, { threshold: 0.3 }).observe(pie);
+    new MutationObserver(() => { if (paisaje.classList.contains('pintado') && !vistoF) { vistoF = true; nacF = performance.now() + 400; pedirF(); } }).observe(paisaje, { attributes: true, attributeFilter: ['class'] });
+    new ResizeObserver(pedirF).observe(cf);
+    addEventListener('savvia:estacion', () => { setTimeout(() => { nacF = performance.now(); pedirF(); }, 1200); });
+    sembrarF();
+    addEventListener('savvia:estacion', () => { fadeMeta = 0; arrancar(); }); // se apaga lo de antes; al apagarse, entra la estación nueva (est)
+    if (reducido) { medir(); sembrar(); }
+  }
+</script>
+
+<style>
+  .pie {
+    position: relative;
+    /* RONDA 26: sin overflow hidden: recortaba la gota de la transición líquida (data-sube), que vive por encima del borde superior.
+       RONDA 27: sin min-height: manda la distancia paisaje–enlaces (a 1280 sale ~750 px igualmente) */
+  }
+  .contenido {
+    position: relative;
+    z-index: 2;
+    pointer-events: none; /* su caja (con el relleno de abajo) pisaba el «Contáctanos»: solo sus enlaces reciben el puntero */
+    /* RONDA 27: «a 80 px de Carta fundacional»: las cimas de los montes (al 43,6 % del alto de la lámina) quedan 80 px bajo el último enlace:
+       lo que sobra del paisaje por debajo de las cimas (56,4 % de su alto) + 80 px */
+    padding-bottom: calc(400px + 0.564 * min(33.35vw, 62lvh)); /* ronda 35: a 400 px de Carta fundacional: el panel, más alto, asoma por encima del paisaje sin tocar los enlaces */
+  }
+  .contenido a {
+    pointer-events: auto;
+  }
+  /* «La savvia de tu web.»: el logotipo como palabra. RONDA 28 («el mismo tamaño de letras que el resto del título, completamente alineado»): su alto
+     entero (el punto de la i arriba) = la altura de ascendentes de Family (medida: 0,71 em; la «l»), con lo que su «a» queda a 0,494 em, un 5 % por
+     encima de la x de Family, como pide el ojo; el pie de las letras, en la línea base, sin desplazar */
+  .titular .marca {
+    display: inline-block;
+    vertical-align: baseline;
+    width: 2.29em;
+    margin-inline: 0.03em;
+  }
+  /* los enlaces: la parte alta de sus mayúsculas a la altura de la del titular (72 px, interlineado 1,05 → ~14 px de aire sobre la mayúscula;
+     16 px, 1,25 → ~4 px): 10 px de desplazamiento a 1280 */
+  @media (width >= 64rem) {
+    .enlaces { margin-top: calc(var(--text-h1) * 0.14); }
+  }
+  .titular .marca svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    fill: currentColor;
+    /* se DIBUJA al llegar: de izquierda a derecha, con canto blando */
+    -webkit-mask: linear-gradient(90deg, #000 42%, transparent 58%) 100% 0 / 240% 100% no-repeat;
+    mask: linear-gradient(90deg, #000 42%, transparent 58%) 100% 0 / 240% 100% no-repeat;
+  }
+  .titular .marca.dibuja svg { /* con el ámbito de Astro (atributos), la regla del estado necesita más especificidad que la base */
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+    transition: mask-position 1.1s cubic-bezier(0.5, 0, 0.3, 1), -webkit-mask-position 1.1s cubic-bezier(0.5, 0, 0.3, 1);
+  }
+  :global(html:not(.anima)) .titular .marca svg {
+    -webkit-mask: none;
+    mask: none;
+  }
+  /* el paisaje: a sangre, pegado al pie, DETRÁS del contenido */
+  .paisaje {
+    --p: 0; /* 1 = las capas aún vienen de abajo · 0 = asentadas */
+    --mx: 0;
+    --my: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    --alto: min(33.35vw, 62lvh);
+    --extra: 18rem; /* ronda 37: la tarjeta asoma más por encima del paisaje */
+    height: calc(var(--alto) + var(--extra));
+    pointer-events: none;
+    /* recorte REAL (overflow: clip-path no evita el scroll horizontal de lo recortado); el panel asoma por encima del paisaje porque la caja lleva una
+       franja transparente arriba (--extra) y las capas van ancladas abajo con su alto propio (ronda 35) */
+    overflow: clip;
+  }
+  /* «Contáctanos»: entre los árboles y la hierba (la hierba le tapa el pie: queda cortado), a todo el ancho de las líneas; al pasar, se difumina */
+  .contacta {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--alto) * 0.19); /* del alto del paisaje (la caja lleva una franja extra arriba); ronda 30: «más arriba, que se vea algo más» */
+    translate: -50% 0;
+    z-index: 1;
+    width: max-content;
+    line-height: 0.82;
+    letter-spacing: -0.02em;
+    /* ronda 28: «mimetizarse más con el fondo»: Cacao en multiplicar, a media tinta */
+    color: var(--color-niebla); /* ronda 40: el pie es oscuro: Rosa niebla a poca tinta, mimetizado */
+    opacity: 0; /* ronda 29: sale DESPUÉS de que el paisaje se haya pintado */
+    white-space: nowrap;
+    pointer-events: none;
+    transition: color 0.5s ease, opacity 1.6s ease;
+  }
+  .pintado .contacta {
+    opacity: 0.22;
+    pointer-events: auto;
+  }
+  /* RONDA 32 · al pasar (o pulsar, o enfocar): la palabra se retira y EMERGE el formulario */
+  .pintado .contacta:hover,
+  .pintado .contacta:focus-visible,
+  .form-abierto .contacta {
+    color: var(--color-naranja);
+    opacity: 1;
+    outline: none;
+  }
+  .contacta {
+    cursor: pointer;
+    font: inherit;
+    font-family: var(--font-display); /* ronda 32: en Family, como los titulares (el reinicio del botón la pisaba) */
+    font-weight: 400;
+    line-height: 0.82;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+  .contacta [data-contacta-txt] {
+    display: block;
+    transition: opacity 0.5s ease, filter 0.5s ease;
+  }
+  .form-abierto .contacta [data-contacta-txt] {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  /* EL FORMULARIO: cristal esmerilado a todo el ancho de las líneas, con su pie en la línea del horizonte; sube desde la hierba, recortado por
+     abajo mientras emerge (clip-path) */
+  .formulario {
+    --gutter: calc(var(--spacing) * 5);
+    /* RONDA 33 · «tiene que salir desde abajo, que parezca que sale de las montañas; más alto y con más espacio por los lados, así llega hasta
+       abajo»: el panel apoya su pie en el borde inferior del paisaje (la hierba, delante, lo corta), es más estrecho (60 % de las líneas) y más alto
+       (el relleno de abajo sube el CTA hasta el valle), y ENTRA subiendo desde detrás de las colinas (translate 100 % → 0, sin fundido ni recorte:
+       el paisaje recorta lo que aún está bajo tierra) */
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    z-index: 2; /* entre los árboles (y el velo, z 1) y la hierba (z 3), como la palabra */
+    width: min(100% - var(--gutter) * 2, 75rem, 60%);
+    min-width: min(100% - var(--gutter) * 2, 40rem);
+    pointer-events: auto;
+    translate: -50% 100%; /* ronda 43: vuelve a SUBIR desde detrás de las colinas (el paisaje recorta lo que aún está bajo tierra) */
+    transition: translate 1.1s var(--ease-out-expo);
+    /* ronda 37: «que suba hasta ahí y deja el botón donde está»: crece por ARRIBA (cabecera de 64 px y «Cuéntanos» de 5 líneas); el pie y el CTA no se mueven */
+    padding: calc(var(--spacing) * 16) calc(var(--spacing) * 6) calc(var(--alto) * 0.34);
+    /* ronda 40: cristal OSCURO (el pie es oscuro): velo de la noche de la estación + desenfoque + filo Rosa niebla */
+    background: color-mix(in oklab, var(--noche) 58%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    backdrop-filter: blur(20px) saturate(1.2);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 18%, transparent), 0 24px 60px -30px rgb(0 0 0 / 0.5);
+    color: var(--color-niebla);
+  }
+  @media (width >= 48rem) {
+    .formulario { --gutter: calc(var(--spacing) * 8); }
+  }
+  @media (width >= 64rem) {
+    .formulario { --gutter: calc(var(--spacing) * 12); }
+  }
+  .formulario[hidden] {
+    display: none;
+  }
+  .formulario.on {
+    translate: -50% 0;
+  }
+  .formulario .campos {
+    display: grid;
+    gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6);
+  }
+  @media (width >= 48rem) {
+    .formulario .campos { grid-template-columns: 1fr 1fr; }
+    .formulario .campo.mensaje { grid-column: 1 / -1; }
+  }
+  .formulario .campo {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    color: var(--fg2);
+  }
+  .formulario input,
+  .formulario textarea {
+    font: inherit;
+    font-family: var(--font-sans);
+    font-size: max(1rem, var(--text-ui));
+    color: var(--color-niebla);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-niebla) 40%, transparent);
+    padding-block: calc(var(--spacing) * 2);
+    resize: none;
+  }
+  .formulario input:focus-visible,
+  .formulario textarea:focus-visible {
+    outline: none;
+    border-bottom-color: var(--color-naranja);
+    box-shadow: 0 1px 0 var(--color-naranja);
+  }
+  /* RONDA 35 · «que la card llegue hasta arriba y así entra dentro el CTA»: «Enviar» DENTRO del panel, abajo a la derecha de los campos; el panel es
+     más alto (su relleno inferior, el 52 % del alto del paisaje, deja el CTA por encima del prado) y asoma por encima del paisaje */
+  .formulario .acciones {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 4);
+    margin-top: calc(var(--spacing) * 4);
+  }
+  .formulario .aviso {
+    min-height: 1.4em;
+  }
+  .enviar {
+    --gx: 50%; /* el punto donde cae la gota (lo pone el JS con el ratón) */
+    --gy: 50%;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: calc(var(--spacing) * 12);
+    padding-inline: calc(var(--spacing) * 5) calc(var(--spacing) * 6);
+    border-radius: var(--radius-lg);
+    background: var(--color-niebla); /* ronda 40: sobre el cristal oscuro, claro; al pasar, la gota Naranja lo llena */
+    color: var(--color-cacao);
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.35s ease 0.1s;
+  }
+  .enviar .txt {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+  }
+  /* la GOTA: un disco Naranja que nace en el punto del puntero (scale 0) y se extiende hasta cubrir el botón; la ONDA, un aro que se abre y se apaga */
+  .enviar .gota,
+  .enviar .onda {
+    position: absolute;
+    left: var(--gx);
+    top: var(--gy);
+    width: 24rem;
+    height: 24rem;
+    margin: -12rem 0 0 -12rem;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: scale(0);
+    transform-origin: 50% 50%;
+  }
+  .enviar .gota {
+    background: var(--color-naranja);
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .enviar .onda {
+    width: 3rem;
+    height: 3rem;
+    margin: -1.5rem 0 0 -1.5rem;
+    border: 2px solid var(--color-cacao);
+    opacity: 0;
+    z-index: 1;
+  }
+  .enviar.mojado {
+    color: var(--color-cacao);
+  }
+  .enviar.mojado .gota {
+    transform: scale(1);
+    transition: transform 0.7s var(--ease-out-expo);
+  }
+  .enviar.mojado .onda {
+    animation: onda-cta 0.7s var(--ease-out-expo) both;
+  }
+  @keyframes onda-cta {
+    from { transform: scale(0.2); opacity: 0.8; }
+    to { transform: scale(2.6); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .enviar .gota { transition: none; }
+    .enviar .onda { animation: none; }
+  }
+  .enviar svg {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: square;
+  }
+  .formulario .aviso {
+    color: var(--fg2);
+  }
+  .formulario .cerrar {
+    position: absolute;
+    top: calc(var(--spacing) * 2);
+    right: calc(var(--spacing) * 2);
+    width: calc(var(--spacing) * 10);
+    height: calc(var(--spacing) * 10);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--color-niebla);
+    cursor: pointer;
+    background: none;
+    border: 0;
+    transition: background-color 0.3s ease;
+  }
+  .formulario .cerrar:hover {
+    background: color-mix(in oklab, var(--color-niebla) 12%, transparent);
+  }
+  .formulario .cerrar svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  /* las cruces, fuera de las esquinas (como en la referencia) */
+  .formulario .cruz {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    background:
+      linear-gradient(var(--color-niebla), var(--color-niebla)) 50% 0 / 1px 100% no-repeat,
+      linear-gradient(var(--color-niebla), var(--color-niebla)) 0 50% / 100% 1px no-repeat;
+  }
+  .formulario .c1 { left: -4px; top: -16px; }
+  .formulario .c2 { right: -4px; top: -16px; }
+  .formulario .c3 { left: -4px; bottom: -16px; }
+  .formulario .c4 { right: -4px; bottom: -16px; }
+  @media (prefers-reduced-motion: reduce) {
+    .contacta [data-contacta-txt] { transition: none; }
+  }
+  .capa.hierba {
+    z-index: 3; /* delante del «Contáctanos» y del formulario de cristal */
+  }
+  /* el lienzo del tiempo: sobre el paisaje y bajo el texto; aparece cuando el paisaje está pintado; se esconde con el formulario abierto */
+  .clima {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+  }
+  .pie:has(.pintado) .clima {
+    opacity: 1;
+  }
+  /* RONDA 54–55 · LA VENTANA: pequeña y callada. Hueco con fondo (sombra por dentro), marco fino, alféizar, y dos contraventanas de LAMAS de Nogal;
+     entre las lamas se escapa, muy tenue, la luz de fuera (lo único que llama la atención). Las hojas las gira el JS (`ap`) */
+  .ventana {
+    pointer-events: auto;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start; /* la firma, alineada con la ventana (centrada se salía del margen) */
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .marco {
+    --ap: 0;
+    position: relative;
+    width: 26px;
+    height: 34px;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--noche) 55%, #000);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-niebla) 22%, transparent), inset 0 2px 4px rgb(0 0 0 / 0.55);
+    perspective: 90px;
+  }
+  /* el exterior: luz cálida, tenue con las hojas cerradas (se ve solo entre las lamas) y plena al abrir */
+  .marco .cielo {
+    position: absolute;
+    inset: 2px;
+    border-radius: 1px;
+    background: rgb(255 232 196);
+    opacity: calc(0.6 + var(--ap) * 0.4);
+    box-shadow: 0 0 calc(var(--ap) * 16px) calc(var(--ap) * 3px) rgb(255 226 180 / 0.3);
+  }
+  /* RONDA 57 · las dos SILUETAS, a contraluz, dentro del cristal: se desvelan al abrir */
+  .marco .siluetas {
+    position: absolute;
+    inset: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    fill: color-mix(in oklab, var(--noche) 55%, #000);
+    opacity: calc(var(--ap) * 0.95);
+  }
+  /* y debajo, muy pequeño, se escribe «still eric&andoni» */
+  .firma-v {
+    margin-top: calc(var(--spacing) * 2);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    white-space: pre;
+    color: var(--fg2);
+  }
+  .firma-v i {
+    font-style: normal;
+    opacity: 0;
+    transition: opacity 0.12s linear;
+  }
+  .ventana-abierta .firma-v i {
+    opacity: 1;
+    transition-delay: calc(0.9s + var(--n) * 55ms);
+  }
+  .marco .cruz-v {
+    position: absolute;
+    inset: 2px;
+    background: linear-gradient(90deg, transparent calc(50% - 0.5px), color-mix(in oklab, var(--noche) 70%, #000) 0 calc(50% + 0.5px), transparent 0), linear-gradient(transparent calc(50% - 0.5px), color-mix(in oklab, var(--noche) 70%, #000) 0 calc(50% + 0.5px), transparent 0);
+  }
+  .hoja {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    width: calc(50% - 1px);
+    /* lamas: madera con una rendija de luz muy fina entre cada dos */
+    background: repeating-linear-gradient(to bottom, var(--color-nogal) 0 2.2px, color-mix(in oklab, var(--color-nogal) 60%, #000) 2.2px 2.8px, transparent 2.8px 3.3px);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, #000 30%, transparent);
+    will-change: rotate;
+  }
+  .hoja.izq { left: 1px; transform-origin: 0 50%; }
+  .hoja.der { right: 1px; transform-origin: 100% 50%; }
+  .alfeizar {
+    width: 32px;
+    margin-left: -3px;
+    height: 2px;
+    margin-top: 1px;
+    border-radius: 1px;
+    background: color-mix(in oklab, var(--color-niebla) 28%, transparent);
+  }
+  .ventana:focus-visible {
+    outline: 1px solid var(--fg2);
+    outline-offset: 4px;
+  }
+  /* RONDA 56 · «Contáctanos» ILUMINADA por la luz de la ventana, con su sombra (la copia la coloca el JS sobre la palabra; recortada al haz) */
+  .paisaje :global(.contacta-luz) {
+    position: absolute;
+    z-index: 2;
+    font-family: var(--font-display);
+    line-height: 0.82;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    color: rgb(255 238 208);
+    text-shadow: var(--sx, 10px) var(--sy, 16px) 7px rgb(14 6 3 / 0.85);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s linear;
+  }
+  /* los hilos de luz entre las lamas, blandos (luz, no líneas) */
+  .fugas {
+    filter: blur(1.4px);
+  }
+
+  /* el HAZ: sobre el paisaje, bajo el texto; se apaga con el formulario */
+  .luz-ventana {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+    opacity: 0;
+  }
+
+  .motas :global(circle) {
+    fill: rgb(255 240 215);
+    opacity: 0.55;
+    animation: mota 7s ease-in-out infinite alternate;
+    animation-delay: calc(var(--n) * -0.9s);
+  }
+  @keyframes mota {
+    from { translate: -6px 8px; }
+    to { translate: 8px -10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .motas :global(circle) { animation: none; }
+  }
+
+  /* el RAYO del verano: el haz del hero (Rosa niebla translúcida, 18°), algo más presente, que se desplaza un poco con el ratón; solo en verano, con
+     el paisaje pintado y sin el formulario */
+  .luz-pie {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    translate: 0 -12%;
+    transition: opacity 1.6s ease, translate 2.2s var(--ease-out-expo);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 70%, rgb(0 0 0 / 0.4));
+    mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 70%, rgb(0 0 0 / 0.4));
+  }
+  .luz-pie .haz {
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    width: 30%;
+    left: 48%;
+    background: linear-gradient(90deg, transparent, rgb(255 236 200 / 0.05) 30%, rgb(255 236 200 / 0.12) 50%, rgb(255 236 200 / 0.05) 70%, transparent);
+    transform: translateX(calc(var(--lx, 0) * 30vw)) skewX(-18deg);
+  }
+  :global(html[data-estacion='verano']) .pie:has(.pintado) .luz-pie {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  /* RONDA 24 · «las palabras que quedan en el footer se tienen que leer bien»: sobre el paisaje, un velo del propio Rosa arcilla que se funde
+     hacia abajo (bruma): lo que queda tras el texto se aclara sin taparlo */
+  .paisaje::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--alto);
+    z-index: 1; /* ronda 32: bajo el formulario de cristal (z 2); la hierba (z 3) delante de todo */
+    /* ronda 26: el GRANO de la página por encima del velo; si no, el filo superior del velo (arcilla lisa contra la sección con grano) se veía como un
+       cambio de color */
+    background: url('/media/grano.png') 0 0 / 240px 240px, linear-gradient(to bottom, var(--noche), color-mix(in oklab, var(--noche) 88%, transparent) 30%, color-mix(in oklab, var(--noche) 45%, transparent) 65%, transparent);
+    pointer-events: none;
+  }
+  .capa {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: var(--alto);
+    translate: calc(var(--mx) * var(--m) * -2) calc(var(--p) * var(--d) + var(--my) * var(--m) * -1);
+    scale: 1.04;
+    will-change: translate;
+  }
+  .capa .flores {
+    z-index: 1;
+  }
+  .capa img,
+  .capa canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .capa img {
+    object-fit: cover;
+    object-position: 50% 100%;
+    opacity: 0; /* es la textura: como imagen solo se ve sin WebGL */
+  }
+  .capa.sin-gl img,
+  :global(html:not(.js)) .capa img {
+    opacity: 1;
+  }
+  .capa canvas {
+    opacity: 0; /* regla dura 3: nace invisible */
+  }
+  .capa canvas:global(.listo) {
+    opacity: 1;
+  }
+  /* RONDA 24 · los enlaces: al pasar por uno, los demás se desenfocan y se retiran (como en el menú); el que pisas se desplaza un poco */
+  .enlace-pie {
+    display: inline-block;
+    transition: opacity 0.35s ease, filter 0.45s ease, translate 0.45s var(--ease-out-expo);
+  }
+  ul:has(.enlace-pie:hover) .enlace-pie:not(:hover) {
+    opacity: 0.4;
+    filter: blur(3px);
+  }
+  .enlace-pie:hover {
+    translate: 0.25em 0;
+  }
+  /* la línea mono, sobre la hierba (ronda 26: fuera la mezcla por diferencia, que viraba de color): Rosa niebla con una sombra Cacao */
+  /* RONDA 35 · la línea mono, sin nada alrededor: en color-dodge sobre el paisaje (Andoni: «el típico efecto de color dodge y listo») */
+  .linea {
+    position: absolute;
+    left: 50%;
+    bottom: max(calc(var(--spacing) * 5), env(safe-area-inset-bottom));
+    translate: -50% 0;
+    z-index: 4;
+    color: var(--color-niebla);
+    mix-blend-mode: color-dodge;
+    pointer-events: none;
+  }
+  :global(html:not(.js)) .capa { translate: 0 0; }
+</style>

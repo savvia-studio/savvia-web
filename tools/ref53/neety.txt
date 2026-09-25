@@ -1,0 +1,1241 @@
+LIBRERÍA · SISTEMA DE DISEÑO
+El sistema de diseño de Neety, y cómo mantener la web
+
+Dos partes: los fundamentos (tokens y componentes tal como están en el frame «Library» de Figma, que es la fuente de verdad) y una guía viva para que el equipo de producto de Neety mantenga y actualice la web —con Claude— sin perder el contexto. El porqué de cada decisión está en docs/decisiones.md; las convenciones de código en CLAUDE.md.
+
+INTRODUCCIÓN
+
+Cómo usar esta librería
+Mapa de la web
+
+TRABAJAR CON CLAUDE
+
+Recibir el proyecto
+Conectar con Claude
+Cambiar contenido
+Editar el blog y el equipo (Sanity)
+Reutilizar componentes
+Añadir secciones nuevas
+Añadir una página nueva
+Buenas prácticas
+
+FUNDAMENTOS
+
+Color
+Tipografía
+Espaciado
+Radios y sombras
+Gradiente progresivo
+
+COMPONENTES
+
+Botones
+Marca y favicon
+Componentes de la web
+
+MANTENIMIENTO
+
+Mantenimiento técnico
+← Volver a la web
+
+INTRODUCCIÓN
+
+Cómo usar esta librería
+
+Esta página es el manual de la web de Neety, y se genera desde su propio código: cada color, botón o componente que ves aquí es el que se renderiza en producción, así que nunca queda desactualizada. Tiene cuatro bloques — estas tarjetas te llevan a cada uno. El primero, «Trabajar con Claude», es el que usarás en el día a día: cómo conectar con Claude y qué pedirle para cambiar la web. El resto es material de consulta.
+
+01
+EMPIEZA AQUÍ
+
+Trabajar con Claude
+
+Cómo te llega el proyecto (el zip), cómo conectar con Claude y qué pedirle para cambiar contenido, reutilizar componentes o añadir secciones nuevas — con prompts listos para copiar.
+
+Ir a la sección ↓
+
+02
+
+Fundamentos
+
+La identidad de la marca en código: paleta, tipografías, espaciado, radios y sombras. Consúltalo para nombrar un color o un estilo al pedir cambios.
+
+Ir a la sección ↓
+
+03
+
+Componentes
+
+Las piezas reales con las que está montada la web, con miniatura, nombre en claro y ruta. Sirve para señalar sin ambigüedad qué quieres tocar.
+
+Ir a la sección ↓
+
+04
+
+Mantenimiento
+
+Cambiar tokens, validar y desplegar. Solo para perfiles técnicos (o para el propio Claude).
+
+Ir a la sección ↓
+
+INTRODUCCIÓN
+
+Mapa de la web
+
+Todas las páginas de la web en forma de árbol, con sus dos URLs navegables: la española y, atenuada, la inglesa bajo /en con el slug traducido. Las rutas salen del propio código (lib/i18n.ts), así que el mapa no puede quedarse viejo. Para crear una página nueva, pídeselo a Claude y este mapa se actualiza con ella.
+
+neety.com
+
+Copia de revisión (todo, incluidos borradores): hoy neety.treseiscero.app; pasará al subdominio de prueba de Neety cuando el equipo lo monte.
+
+Cada página muestra sus dos URLs: la española y, atenuada al lado, la inglesa bajo /en (con el slug traducido). Ambas son navegables y cada página enlaza a su equivalente por hreflang.
+
+Portada «coming soon»
+/
+/en
+TEMPORAL
+
+Al lanzar, la home completa pasará a ser la raíz y esta portada se retira.
+
+Home
+/home
+/en/home
+NOINDEX
+Plataforma
+/plataforma
+/en/platform
+NOINDEX
+Librería (este documento)
+/library
+/en/library
+OCULTA
+Casos de uso
+NOINDEX
+
+6 páginas sobre la misma plantilla (components/pages/CasoDeUsoPage.tsx, rutas app/(es)/casos-de-uso/[slug] y app/(en)/en/use-cases/[slug]); copy por caso en components/casos-de-uso/data.ts y slugs por idioma en slugs.ts.
+
+Internacionalización B2B
+/casos-de-uso/internacionalizacion-b2b
+/en/use-cases/b2b-internationalization
+NOINDEX
+Preparar ferias B2B
+/casos-de-uso/ferias-y-eventos
+/en/use-cases/trade-fairs-and-events
+NOINDEX
+Priorizar cuentas comerciales
+/casos-de-uso/priorizacion-de-cuentas
+/en/use-cases/account-prioritization
+NOINDEX
+Detectar intención comercial
+/casos-de-uso/intencion-comercial
+/en/use-cases/buying-intent
+NOINDEX
+Reactivar oportunidades dormidas
+/casos-de-uso/reactivacion-de-oportunidades
+/en/use-cases/reactivating-opportunities
+NOINDEX
+Marketing ventas B2B
+/casos-de-uso/marketing-y-ventas
+/en/use-cases/marketing-and-sales
+NOINDEX
+Recursos
+Blog
+/blog
+/en/blog
+NOINDEX
+Ficha del artículo
+/blog/futuro-prospeccion-inteligente
+/en/blog/the-future-of-intelligent-prospecting
+NOINDEX
+
+components/pages/ArticlePage.tsx (app/(es)/blog/[slug] y app/(en)/en/blog/[slug]): solo se generan los posts con cuerpo (`body` en Sanity → `article` en components/blog/data.ts). El slug se traduce en el CMS (aquí, un ejemplo).
+
+Academia
+/academia
+/en/academy
+NOINDEX
+Ficha del recurso
+/academia/fundamentos-de-sales-intelligence
+/en/academy/sales-intelligence-fundamentals
+NOINDEX
+
+components/pages/RecursoPage.tsx (app/(es)/academia/[slug] y app/(en)/en/academy/[slug]): solo los recursos con capítulos en Sanity. Dos plantillas: vídeos (reproductor + capítulos) y guías/plantillas/glosario (imagen + formulario de descarga).
+
+Eventos
+/eventos
+/en/events
+NOINDEX
+Ficha del evento
+/eventos/sales-intelligence-summit
+/en/events/sales-intelligence-summit
+NOINDEX
+
+components/pages/EventoPage.tsx (app/(es)/eventos/[slug] y app/(en)/en/events/[slug]): solo se generan los eventos con cuerpo en Sanity (`detail` en components/eventos/data.ts, que lee del CMS desde el 27-ago).
+
+Compañía
+Sobre Neety
+/sobre-neety
+/en/about-neety
+NOINDEX
+Manifesto
+/manifesto
+/en/manifesto
+NOINDEX
+Contacto
+/contacto
+/en/contact
+NOINDEX
+Precios
+/precios
+/en/pricing
+NOINDEX
+
+components/pages/PreciosPage.tsx (app/(es)/precios y app/(en)/en/pricing).
+
+Solicita una demo
+/solicitar-demo
+/en/request-demo
+NOINDEX
+
+components/pages/SolicitarDemoPage.tsx (app/(es)/solicitar-demo y app/(en)/en/request-demo). Flujo de 5 pantallas en una sola ruta; destino de todos los CTA «Solicitar demo». La agenda se embebe (NEXT_PUBLIC_DEMO_SCHEDULER_URL).
+
+Páginas legales
+
+Textos del despacho (nov/dic 2025) sobre una misma plantilla (components/pages/LegalPage.tsx). Indexables y presentes en PRODUCCIÓN aunque el resto siga en coming soon; la versión inglesa es traducción nuestra pendiente de revisión del despacho.
+
+Aviso legal
+/aviso-legal
+/en/legal-notice
+Política de privacidad
+/politica-de-privacidad
+/en/privacy-policy
+Política de cookies
+/politica-de-cookies
+/en/cookie-policy
+Términos y condiciones
+/terminos-y-condiciones
+/en/terms-and-conditions
+
+TRABAJAR CON CLAUDE
+
+Recibir el proyecto
+
+La web vive completa en un repositorio de GitHub: código, assets, documentación y esta misma librería. Así es como se consigue y cómo dejarlo funcionando en tu ordenador — solo hace falta hacerlo una vez.
+
+1
+
+Pide acceso al repositorio
+
+El proyecto está en github.com/unaiarambarri/neety (privado). Necesitas una cuenta de GitHub y que te inviten como colaborador con permiso de escritura. Si no vas a usar GitHub, también puede llegarte como zip (unos MB; con los assets originales, por WeTransfer o Drive): el contenido es el mismo y los pasos siguientes no cambian.
+
+2
+
+Tráelo a tu ordenador
+
+Con Ship Studio: «Importar proyecto» y elige el repositorio de GitHub (o la carpeta del zip); él se encarga de clonarlo e instalar lo necesario. Con terminal: git clone https://github.com/unaiarambarri/neety.git. Con zip: descomprímelo (doble click en Mac, «Extraer todo…» en Windows). En los tres casos obtienes una carpeta neety/ que ya es la web.
+
+3
+
+Instala lo necesario (solo la primera vez)
+
+Necesitas Node 20 o superior (gratis, de nodejs.org). Después, en un terminal dentro de la carpeta, ejecuta npm install (~1 minuto): regenera las dependencias, que no viajan ni en el repo ni en el zip. Si has importado con Ship Studio, este paso ya está hecho.
+
+4
+
+Crea tu .env.local con tu token de Sanity
+
+Blog, eventos, academia y el equipo se leen de Sanity, y la clave para leerlos está fuera del repositorio a propósito. En la carpeta del proyecto, copia .env.example como .env.local y rellena SANITY_READ_TOKEN. El token lo genera cada persona con su cuenta (no se comparte por chat): sanity.io/manage → proyecto Neety → API → Tokens → Add API token, permiso Viewer. Hace falta ser miembro del proyecto; si no lo eres, pide la invitación. Sin este archivo la web arranca pero esas páginas fallan con «Faltan SANITY_PROJECT_ID / SANITY_READ_TOKEN». Se lee solo al arrancar: si lo creas con el servidor abierto, reinícialo. Empieza por punto, así que el Finder lo oculta (Cmd + Shift + . para verlo).
+
+5
+
+Ya está — conecta con Claude
+
+Con la carpeta preparada, sigue los pasos de la sección siguiente, «Conectar con Claude». Estas mismas instrucciones están en el archivo README.md del proyecto, por si las necesitas sin conexión.
+
+¿Tienes que pasar el proyecto a alguien sin GitHub? El comando exacto para preparar el zip (qué carpetas excluir y por qué) está en README.md → «Si eres quien prepara el zip» — o pídeselo a Claude: «prepara el zip del proyecto para enviarlo».
+
+TRABAJAR CON CLAUDE
+
+Conectar con Claude
+
+La web se mantiene conversando con Claude: tú pides los cambios en castellano y él toca el código por ti. No hace falta saber programar. Puedes conectar de varias formas según la herramienta con la que trabajes.
+
+¿Trabajas con Ship Studio? No hay nada que configurar
+
+Si abres el proyecto en Ship Studio, Claude y el preview ya vienen conectados: escribes la petición en el chat, ves el cambio en vivo en el panel de al lado y publicas desde ahí. Los cinco pasos de abajo son para trabajar fuera de Ship Studio: con la app de Claude (la misma del chat) o con Claude Code en el terminal, sobre la carpeta del proyecto.
+1
+
+Abre la app de Claude
+
+La app de escritorio de Claude (Mac/Windows) — la misma con la que chateas — tiene una sección «Code» para trabajar sobre proyectos. Se descarga en claude.com/download. Si prefieres el terminal, el comando claude (Claude Code) hace lo mismo.
+
+2
+
+Abre la carpeta del proyecto en «Code»
+
+Elige la carpeta neety/. A partir de ahí es un chat como el de siempre, con una diferencia: Claude puede leer y editar los archivos de la web. Además lee automáticamente las instrucciones del proyecto (CLAUDE.md), así que ya conoce el stack, los colores y las convenciones — no hace falta explicarle nada.
+
+3
+
+Arranca el preview
+
+Pídele «arranca el servidor de desarrollo» y abre http://localhost:3000 en el navegador: ahí verás cada cambio en vivo antes de publicarlo. Esta librería vive en /library.
+
+4
+
+Pide el cambio
+
+En castellano, como a un compañero: qué quieres, dónde va y el resultado esperado. Los tres tipos de petición habituales —contenido, componentes, secciones nuevas— van justo debajo con ejemplos para copiar.
+
+5
+
+Revisa y publica
+
+Comprueba el cambio en el preview y, cuando esté bien, dile «despliega la web»: Claude ejecuta el script de publicación y el cambio queda en producción en unos minutos.
+
+Ojo: el chat corriente de claude.ai (sin la sección «Code») no puede tocar el proyecto. Úsalo si quieres para pensar textos o preparar contenidos, y luego trae aquí el resultado: «cambia el titular del hero por este que he preparado: […]».
+
+TRABAJAR CON CLAUDE
+
+Cambiar contenido
+
+La petición más habitual: cambiar un texto o una imagen que ya existe. No necesitas saber en qué archivo vive cada cosa —Claude lo encuentra—, pero cuanto más exacto seas con el contenido actual y el nuevo, mejor sale a la primera.
+
+TEXTOS
+PROMPT PARA CLAUDE
+
+“Cambia el titular del hero por: «Detecta señales, cierra antes».”
+
+PROMPT PARA CLAUDE
+
+“En el menú, renombra «Precios» a «Planes» y añade un enlace «Blog» al final.”
+
+PROMPT PARA CLAUDE
+
+“Cambia el texto del botón «Solicitar demo» por «Pedir una demo» en toda la web.”
+
+PROMPT PARA CLAUDE
+
+“Sustituye el copy de los tabs 2–4 de «Casos de uso» por estos textos definitivos: […]”
+
+Truco: pega el texto exacto actual y el nuevo, así no hay ambigüedad. Si el cambio es en varios sitios, dilo («en toda la web»); y si quieres señalar una sección, usa su nombre en claro del catálogo («Componentes de la web»).
+
+IMÁGENES
+Ojo con el caché: si reemplazas un archivo con el mismo nombre, el preview puede seguir mostrando el antiguo. La solución es usar un nombre nuevo (hero-v2.png) — Claude actualiza la referencia automáticamente.
+PROMPT PARA CLAUDE
+
+“Reemplaza la ilustración del hero por esta imagen. [adjunta el archivo]”
+
+→ Claude la guarda en public/assets con un nombre versionado y actualiza el componente.
+
+PROMPT PARA CLAUDE
+
+“Cambia el logo de «Fagor» en la animación por este SVG. [adjunta el archivo]”
+
+PROMPT PARA CLAUDE
+
+“Reemplaza [degradado-01] de la librería con este archivo. [adjunta el archivo]”
+
+→ Usa la convención de placeholders [nombre] que aparece en la web.
+
+PROMPT PARA CLAUDE
+
+“El logo que subí sale deformado; ajústalo para que mantenga su proporción.”
+
+→ Claude corrige el preserveAspectRatio del SVG (gotcha conocido).
+
+Formatos: logos e iconos en SVG; fotos en PNG/JPG optimizado (Claude las convierte al formato final). Los huecos de imagen pendientes se marcan con una etiqueta [nombre] — pídele a Claude que la reemplace por tu archivo.
+
+IDIOMAS (ESPAÑOL / INGLÉS)
+
+La web es bilingüe desde el 27-ago-2026: el español vive en la raíz y el inglés bajo /en con las URLs traducidas (/en/platform, /en/use-cases/…). Cada texto existe en los dos idiomas en el mismo sitio (un objeto copy({ es, en }) junto a la sección), así que un cambio de copy se pide para uno o para los dos. El selector del footer salta a la misma página en el otro idioma, y quien entra en la portada desde fuera de España aterriza en inglés (solo España se queda en español). El blog y el equipo se traducen en el Studio de Sanity: cada artículo tiene su versión ES y EN enlazadas.
+
+PROMPT PARA CLAUDE
+
+“Cambia el subtítulo del hero en inglés por: «Know which accounts matter today.» (el español se queda igual).”
+
+PROMPT PARA CLAUDE
+
+“Revisa la traducción inglesa de /en/platform y ajusta el tono: más directo, frases más cortas.”
+
+PROMPT PARA CLAUDE
+
+“Crea la página /equipo con este contenido […]”
+
+→ Claude la crea en los dos idiomas (ruta en español y bajo /en) y la enlaza entre sí; pídele la traducción o pásasela.
+
+PROMPT PARA CLAUDE
+
+“Traduce al inglés el artículo «Cómo priorizar leads» que acabo de publicar en Sanity.”
+
+→ En el Studio: menú de idiomas del artículo → «English»; Claude puede rellenar la traducción con el script de siembra si se lo pides.
+
+Ojo: la traducción inglesa la hicimos nosotros (tono B2B en-US) y está pendiente de revisión por vuestra parte, igual que el copy de marcador del blog.
+
+TRABAJAR CON CLAUDE
+
+Editar el blog y el equipo (Sanity)
+
+El blog y el equipo de «Sobre Neety» no viven en el código: viven en un gestor de contenidos (Sanity) con su propio panel, el Studio, en neety.sanity.studio. Se entra con la cuenta con la que os hayamos invitado. Todo lo demás de la web (textos de las páginas, imágenes, secciones) sigue siendo cosa de Claude.
+
+QUÉ SE EDITA DÓNDE
+
+EN EL STUDIO (VOSOTROS)
+
+Artículos del blog: texto, imágenes, etiquetas, fecha, autoría.
+Portada del blog: cuál va destacado y cuáles en la lista de al lado.
+Etiquetas del blog.
+Equipo: nombre, puesto, retrato y orden. Son las mismas personas que firman los artículos («By …»); con la casilla «Mostrar en Sobre Neety» desmarcada alguien puede firmar sin salir en el grid (así está «Equipo Neety»).
+La versión en inglés de cada artículo y de la portada.
+
+CON CLAUDE (CÓDIGO)
+
+Cómo se ven el blog y las fichas (diseño, tamaños, tipografía).
+Campos nuevos en un artículo (p. ej. un vídeo o una tabla).
+Textos e imágenes del resto de páginas.
+Cuántos artículos salen por página (hoy 9, el grid 3×3 del diseño).
+Escribir un artículo entero por ti a partir de un texto o una idea: lo deja como borrador en el Studio (ver abajo).
+AÑADIR UN ARTÍCULO PIDIÉNDOSELO A CLAUDE
+
+Es la vía rápida si no os apetece pelearos con el editor: le pasáis a Claude el texto (o el tema) y la imagen, y Claude deja el artículo como borrador en el Studio. Claude nunca publica: publicáis vosotros después de leerlo, con el botón «Publish» de siempre. Por debajo usa studio/scripts/new-post.mjs, que convierte un Markdown en un artículo con todos sus campos.
+
+QUÉ NECESITA CLAUDE DE VOSOTROS
+
+El texto (pegado, en un .docx/.md, o solo el tema y los puntos clave si queréis que lo redacte él).
+La imagen principal: un PNG o JPG grande (mínimo 1208 × 768, mejor 2400 de ancho). AVIF no vale. Si va dentro del artículo alguna figura más, también.
+Etiquetas (de las que ya existen en el Studio; la primera es la principal) y firma (un miembro del equipo; «Equipo Neety» para firmar como empresa). Si no lo decís, Claude os pregunta o os enseña las que hay.
+Opcional: fecha, entradilla, versión en inglés.
+
+QUÉ HACE CLAUDE
+
+Redacta o adapta el texto a las piezas que tienen diseño: titulares de sección, párrafos, listas, citas y figuras con pie. Escribe la entradilla corta de las cards y la larga de la ficha.
+Comprueba que las etiquetas y la firma existen y que no hay otro artículo con la misma URL.
+Sube la imagen y crea el borrador en el Studio.
+Os pasa el enlace para revisarlo. Vosotros retocáis lo que queráis y le dais a «Publish».
+
+EJEMPLO DE PETICIÓN
+
+«Crea un artículo para el blog con este texto: [pegar]. La imagen principal es ~/Desktop/portada-leads.png (se ve un panel con señales de compra). Etiquetas: Sales, AI Agent. Firma: Equipo Neety. Déjalo como borrador en Sanity.»
+
+Para el inglés, después de publicar el español: «Haz la versión en inglés del artículo «X» y déjala como borrador enlazada con el español». Claude la crea ya enlazada (menú «Translations» del Studio), igual que si la hubierais creado a mano.
+
+Para que funcione, en el ordenador desde el que trabajáis con Claude hay que haber entrado una vez en Sanity desde la terminal (cd studio && npx sanity login, con la misma cuenta del Studio). Claude os lo indica si falta.
+
+PUBLICAR: QUÉ PASA AL DARLE AL BOTÓN
+Guardar no publica. Mientras editas, el Studio guarda un borrador solo; la web no lo ve. Puedes dejar un artículo a medias sin miedo.
+«Publish» lo hace visible y dispara solo la reconstrucción de la web: en unos 2 minutos está publicado. No hay que avisar a nadie ni hacer nada más.
+Mientras neety.com esté en modo «próximamente», el blog no sale en la web pública: se revisa en la copia de revisión (hoy neety.treseiscero.app; después, el subdominio de prueba de Neety), que es la que se reconstruye con cada «Publish». Sacar el blog en neety.com es una decisión (se le pide a Claude), no un botón del Studio; a partir de ese día, «Publish» actualiza neety.com directamente.
+«Unpublish» lo retira de la web (también en ~2 min). Borrar un artículo lo elimina del todo; para quitarlo temporalmente, mejor «Unpublish».
+
+Si no aparece: ¿le diste a Publish (no solo a guardar)? ¿han pasado 2 minutos? ¿está el blog ya publicado en neety.com o sigue solo en la copia de revisión? Si todo eso está bien, pídeselo a Claude: «El artículo «X» está publicado en Sanity pero no sale en la web».
+
+ESCRIBIR UN ARTÍCULO: CAMPO A CAMPO
+CAMPO	PAUTA
+Título	Una línea. En las cards se corta a dos.
+Slug (URL)	Se genera solo desde el título («Generate»). No lo cambies una vez publicado: es la dirección del artículo y rompería los enlaces compartidos.
+Entradilla	El resumen de las cards. Máximo ~160 caracteres: por encima se corta a tres líneas.
+Imagen principal	Sube el original grande (mínimo 1208 × 768, mejor 2400 de ancho): la web la recorta sola al tamaño de cada hueco. Con el punto de interés (hotspot) eliges qué parte no se debe recortar. El texto alternativo es obligatorio: describe qué se ve.
+Etiquetas	La primera es la principal (la única que se ve en la card). Una etiqueta nueva aparece sola en el filtro del blog; créala en «Etiqueta» antes de usarla.
+Firma	Un miembro del equipo. Para firmar como empresa, «Equipo Neety». Si falta alguien, créalo en «Miembro del equipo» (y desmarca «Mostrar en Sobre Neety» si no debe salir en el grid).
+Fecha	Ordena el listado (más reciente arriba) y se muestra en la ficha. Se puede poner una fecha pasada.
+Entradilla del artículo	La de la cabecera de la ficha; más larga que la de las cards (2–3 frases). Si se deja vacía se usa la corta.
+Imagen de portada de la ficha	Opcional. Si el artículo tiene arte propio, aquí; si no, la ficha reusa la imagen principal.
+Minutos de lectura	Opcional: si se deja vacío se calcula solo.
+Cuerpo	Solo hay cuatro piezas con diseño, y bastan: Titular de sección (cada uno abre un apartado y alimenta el índice lateral de la ficha — pon uno cada 3–5 párrafos), párrafos, lista, cita destacada y figura (imagen + texto alternativo + pie). Negrita y cursiva sí; no hay más estilos, a propósito.
+Descripción para buscadores	Opcional, 1–2 frases. Si está vacía se usa la entradilla.
+ESPAÑOL E INGLÉS DENTRO DEL STUDIO
+
+La web tiene dos versiones (español en neety.com/…, inglés en neety.com/en/…) y cada una lee del Studio solo lo que está en su idioma. No hay traducción automática: lo que no exista en inglés, no sale en inglés.
+
+UN DOCUMENTO POR IDIOMA
+
+Artículos: cada idioma es un artículo aparte, con su título, su slug y su texto.
+Portada del blog: una ES y otra EN («Portada del blog (ES)» / «(EN)»), cada una con sus destacados.
+
+COMPARTIDO POR LOS DOS IDIOMAS
+
+Etiquetas: un solo nombre, en inglés («AI Agent», «Sales»…), el mismo en las dos webs.
+Equipo (y firmas): un solo documento; el nombre es igual y el puesto tiene un campo «(inglés)» al lado.
+Escribe primero el artículo en español y publícalo (o déjalo en borrador).
+Crea el inglés desde el propio artículo: arriba, menú «Translations» → «English» → «Create». Eso crea el artículo EN ya enlazado con el español. No lo crees como artículo nuevo suelto: quedaría sin enlazar (ver abajo por qué importa).
+Rellena el EN: título, entradilla, cuerpo y descripción para buscadores, en inglés. El slug se genera desde el título inglés (una URL distinta, /en/blog/…). La imagen principal se puede reutilizar tal cual; el texto alternativo va en inglés.
+Publica el EN. Hasta entonces, el artículo solo sale en la web en español y el selector de idioma lleva al listado inglés del blog.
+
+Por qué importa el enlace: es lo que hace que el botón de idioma de la ficha salte a ese mismo artículo en el otro idioma, y lo que le dice a Google que las dos URLs son el mismo contenido (etiquetas hreflang), para que muestre a cada visitante la versión de su idioma en vez de tratarlas como duplicados. Se traduce a mano o se le pide a Claude («traduce al inglés el artículo «X»»): lo redacta y lo deja ya enlazado.
+
+PORTADA DEL BLOG Y EQUIPO
+
+Portada del blog
+
+Un documento por idioma con el artículo destacado (la card grande) y exactamente 4 para la lista de al lado, en el orden en que se ven. Si no está configurado, la web pone el más reciente y los cuatro siguientes.
+
+Miembro del equipo
+
+Nombre, puesto (y puesto en inglés), orden en el grid y retrato. La card «Aquí podrías ir tú» la pone la web sola al final. Retratos: los actuales llevan el degradado de marca de fondo; uno nuevo subido tal cual saldría sin él — pásale la foto a Claude para que la componga, o súbela ya compuesta (300 × 276, a 3×).
+PEDÍRSELO A CLAUDE
+PROMPT PARA CLAUDE
+
+“El artículo «Cómo priorizar leads» está publicado en Sanity pero no sale en neety.com.”
+
+→ Claude revisa el último despliegue (GitHub Actions) y el webhook de Sanity.
+
+PROMPT PARA CLAUDE
+
+“Compón este retrato para la card del equipo con el degradado de marca y súbelo al miembro «Ana Vega». [adjunta la foto]”
+
+PROMPT PARA CLAUDE
+
+“Añade a los artículos un campo «Vídeo de YouTube» que se pinte debajo de la entradilla.”
+
+→ Toca el esquema del Studio y la web a la vez; Claude despliega el Studio y explica el campo nuevo.
+
+PROMPT PARA CLAUDE
+
+“Pasa el listado del blog a 9 artículos por página, como en el diseño.”
+
+PROMPT PARA CLAUDE
+
+“Publica el blog en neety.com.”
+
+→ Es la decisión de sacar el blog del modo «próximamente»: Claude quita la exclusión de producción y despliega.
+
+PROMPT PARA CLAUDE
+
+“Invita a [correo] al Studio de Sanity como editor.”
+
+→ Se hace desde sanity.io/manage → proyecto Neety → Members (Claude te guía; hace falta ser administrador).
+
+TRABAJAR CON CLAUDE
+
+Reutilizar componentes
+
+La web está hecha de piezas reutilizables (ver «Componentes de la web»). Cuando pidas algo nuevo, nombra la pieza o el estilo existente al que se tiene que parecer: Claude reutiliza lo que ya hay en vez de inventar algo distinto, y la web se mantiene consistente.
+
+PROMPT PARA CLAUDE
+
+“Añade un botón secundario que diga «Ver casos de uso» junto al CTA principal del hero.”
+
+→ Reutiliza el componente de botón, variante Outline, con los tokens de marca.
+
+PROMPT PARA CLAUDE
+
+“Añade una métrica más a la sección «Por qué Neety»: 3x reuniones cualificadas.”
+
+→ Añade una entrada al array METRICS; el número se anima solo con RollingNumber.
+
+PROMPT PARA CLAUDE
+
+“Añade un logo más al «Logos de clientes»: este SVG de Acme. [adjunta el archivo]”
+
+→ Una entrada más en LOGOS; aparece en el grid desktop y en la marquesina móvil.
+
+PROMPT PARA CLAUDE
+
+“Usa el color Naranja Core y el estilo de titular H2 para el título de la nueva sección.”
+
+→ Aplica los tokens y la escala tipográfica documentados en Fundamentos.
+
+Truco: nombra las piezas como aparecen en esta librería —el token (Naranja Core, Berenjena), la variante de botón (Primary, Outline) o el nombre en claro del componente (Feed de señales, Menú móvil, Antes / Después…)—. En cada ficha de componente hay chips para copiar el nombre con un click.
+
+TRABAJAR CON CLAUDE
+
+Añadir secciones nuevas
+
+Para ampliar la web —una sección nueva o una página entera— describe qué contiene, dónde va y a qué parte de la web se tiene que parecer. Claude la construye con los colores, tipografías y componentes de esta librería, para que parezca hecha por el mismo equipo.
+
+PROMPT PARA CLAUDE
+
+“Añade una sección de testimonios en la home, entre «Cómo funciona» e «Integraciones»: 3 citas con nombre, cargo y empresa, con el estilo de tarjeta blanca de la web.”
+
+→ Sección nueva construida con los tokens y patrones existentes, en su sitio de la home.
+
+PROMPT PARA CLAUDE
+
+“Crea la página de Precios con 3 planes usando el botón pastilla y las tarjetas existentes, y enlázala en el menú y el footer.”
+
+→ Página nueva /precios + enlaces de navegación + su ficha en esta librería.
+
+PROMPT PARA CLAUDE
+
+“En /plataforma, añade una sección de preguntas frecuentes en acordeón, como el de «Cómo funciona» pero con fondo crema.”
+
+PROMPT PARA CLAUDE
+
+“Crea la página de Contacto con un formulario sencillo (nombre, email, mensaje) sobre una card blanca, con el estilo del hero de /sobre-neety, y enlázala en el menú y el footer.”
+
+→ Una de las páginas «pendientes» del mapa de la web deja de estarlo.
+
+Truco: al terminar, pídele que documente la sección nueva en esta librería (y en el mapa de la web si es una página): el siguiente cambio partirá de un catálogo al día.
+
+TRABAJAR CON CLAUDE
+
+Añadir una página nueva
+
+Una página nueva no se diseña desde cero: se monta con las mismas piezas, márgenes y tipografía que las demás, y sigue una receta fija que Claude ya conoce (está en CLAUDE.md). Esto es lo que tienes que pedir, lo que Claude hará y lo que conviene comprobar antes de dar la página por buena.
+
+LO QUE COMPARTEN TODAS LAS PÁGINAS
+
+La misma estructura, de arriba abajo
+
+Cabecera fija con el logo y el menú (la misma pieza en todas).
+Una card de hero con el degradado granulado de marca y la muesca de la hamburguesa, como en /plataforma, /precios o /sobre-neety.
+Secciones con el borde izquierdo alineado con el logo, fondo Gris Tecnológico y cards blancas.
+Un cierre con CTA (la card de «Solicitar demo») y el Footer.
+
+El mejor modelo: /precios
+
+Está montada casi entera con piezas de otras páginas: el hero de /plataforma, las tarjetas con muesca, el raíl y la CTA de «Cómo funciona», el acordeón de FAQs de los casos de uso y el «Diagnóstico» de la home. Solo tiene dos componentes propios. Cuando pidas una página, di «como /precios» y nombra las secciones de esta librería que quieres reutilizar: así la página nueva parece hecha por el mismo equipo.
+
+LO QUE CLAUDE HACE POR CADA PÁGINA NUEVA
+1
+
+Una página, dos idiomas
+
+El cuerpo vive en components/pages/XPage.tsx; las rutas /nombre y /en/name (slug traducido) son dos archivos mínimos que la llaman con el idioma. Todo texto va en copy({ es, en }).
+
+2
+
+Metadatos completos
+
+Título y descripción por idioma, hreflang (alternates(), sin él el selector de idioma del footer no sabe saltar) y Open Graph propio (withOpenGraph, si no al compartirla sale el de la home).
+
+3
+
+Enlaces de navegación
+
+Si va en el menú o en el footer, entrada en nav-data.ts y Footer.tsx, y la ruta registrada en ROUTES (lib/i18n.ts) para que los enlaces internos la conozcan.
+
+4
+
+Su sitio en esta librería
+
+Un nodo en el mapa de la web y, si trae algún componente nuevo, su ficha en «Componentes de la web».
+
+5
+
+Borrador hasta que se publique
+
+Mientras la web esté en «próximamente», la página nueva va con noindex y en la lista de exclusión de producción de scripts/deploy.sh: se ve en la copia de revisión, no en neety.com. Tras el lanzamiento, ninguna de las dos cosas.
+
+6
+
+Una nota si hubo que decidir algo
+
+Cualquier elección no obvia (un fondo distinto, una sección que no existía) queda en docs/decisiones.md con su porqué.
+
+GUARDARRAÍLES: LO QUE NO HAY QUE ACEPTAR
+
+Claude respeta estas reglas solo; si una página nueva se salta alguna, pídele que la corrija antes de publicar:
+
+Colores o fuentes nuevos. Solo los tokens de «Fundamentos»; un color nuevo se añade al bloque @theme, nunca suelto.
+Un hero distinto. Ya hay tres tipos (card con degradado, hero centrado de la Academia, hero de texto de /contacto). Se reutiliza uno.
+Contenido centrado o con márgenes propios. El borde izquierdo siempre coincide con el logo, en todas las pantallas.
+Botones inventados. Solo la pastilla CTA de «Botones», en sus variantes Primary y Outline.
+Texto en un solo idioma. Cada frase visible existe en español y en inglés desde el primer día.
+Imágenes en PNG o JPG. Todo lo nuevo en AVIF; el original pesado, a la carpeta de másters en Drive.
+Enlaces internos «normales». Van con TransitionLink: es lo que dispara la cortina de marca entre páginas.
+Publicar sin revisar en móvil. Cada página se comprueba en la copia de revisión, en los dos idiomas y a ancho de teléfono.
+PEDÍRSELO A CLAUDE
+PROMPT PARA CLAUDE
+
+“Crea la página /partners como /precios: hero con el degradado de marca, un grid de logos como «Logos de clientes», las FAQs en acordeón y la CTA de «Solicitar demo». Enlázala en el footer bajo «Empresa». En los dos idiomas: /partners y /en/partners.”
+
+→ Página nueva con piezas existentes, rutas es/en, hreflang, Open Graph, enlaces de navegación y su nodo en el mapa de esta librería.
+
+PROMPT PARA CLAUDE
+
+“Revisa que /partners cumple las convenciones de CLAUDE.md: tokens, TransitionLink, dos idiomas, hreflang y Open Graph. Corrige lo que falte.”
+
+→ Una pasada de control antes de publicar; Claude lista lo que ha corregido.
+
+PROMPT PARA CLAUDE
+
+“Compara /partners con /precios en desktop y móvil y ajusta lo que no siga el mismo patrón de márgenes, tipografía y espaciado.”
+
+PROMPT PARA CLAUDE
+
+“Saca /partners de borrador: quítale el noindex, sácala de la lista de exclusión de producción y despliega a neety.com.”
+
+→ Solo tras el lanzamiento; producción se despliega a mano y Claude te lo confirma antes.
+
+TRABAJAR CON CLAUDE
+
+Buenas prácticas al pedir cambios
+
+Unas pocas reglas hacen que Claude acierte a la primera y que la web se mantenga consistente.
+
+Claude ya conoce el proyecto
+
+Al abrirlo lee CLAUDE.md: stack, tokens y convenciones. No hace falta explicárselo cada vez.
+
+Sé concreto: qué, dónde y resultado
+
+«Cambia X por Y en el hero» funciona mejor que «mejora el hero».
+
+Referencia esta librería
+
+«Usa el token Naranja Core», «el botón Outline», «el estilo de tarjeta de Cómo usar».
+
+Un cambio por petición
+
+Cambios pequeños y revisables. Es más fácil ver el resultado y volver atrás.
+
+Revisa en el preview
+
+Comprueba el cambio en el preview antes de pedir el deploy.
+
+Decisiones → documéntalas
+
+Si es una decisión de diseño, pídele que la anote en docs/decisiones.md.
+
+FUNDAMENTOS
+
+Color
+
+Definidos en app/globals.css (bloque @theme). Editar ahí es la única forma de cambiar la paleta; Tailwind genera las utilidades (bg-naranja, text-plum…). Las opacidades (bg-plum/20) generan los tints.
+
+PALETA DE MARCA
+
+Naranja Core
+
+#FE8238
+
+Azúl bebe
+
+#A7C5F9
+
+Berenjena
+
+#431B44
+
+Ciruela
+
+#2A0E2C
+
+Mint claro
+
+#EBFFF6
+
+Base Cálida
+
+#F8F7EC
+
+Gris Tecnológico
+
+#F5F7F9
+
+Blanco
+
+#FFFFFF
+
+RAMPAS DE OPACIDAD
+
+Naranja Core
+
+80
+60
+40
+20
+10
+5
+2
+
+Azúl bebe
+
+80
+60
+40
+20
+10
+5
+2
+
+Berenjena
+
+80
+60
+40
+20
+10
+5
+2
+
+Ciruela
+
+80
+60
+40
+20
+10
+5
+2
+
+FUNDAMENTOS
+
+Tipografía
+
+Titulares en Bricolage Grotesque (font-display), cuerpo en Switzer (font-sans, por defecto del body) e Inter para textos largos. Cada estilo tiene su medida desktop y mobile.
+
+TITULARES — 120% DE INTERLINEADO
+
+H1 · XL
+
+Desktop 112px · Mobile 64px · 120%
+
+H1 · L
+
+Desktop 80px · Mobile 48px · 120%
+
+H1 · M
+
+Desktop 64px · Mobile 40px · 120%
+
+H2
+
+Desktop 48px · Mobile 32px · 120%
+
+H3
+
+Desktop 40px · Mobile 24px · 120%
+
+H4
+
+Desktop 32px · Mobile 20px · 120%
+
+H5
+
+Desktop 24px · Mobile 16px · 120%
+
+H6
+
+Desktop 16px · Mobile 14px · 120%
+
+CUERPO — 150% DE INTERLINEADO
+
+Large · Muy lejos, más allá de las montañas de palabras, viven los textos simulados.
+
+Desktop 24px · Mobile 20px · 150%
+
+Medium · Muy lejos, más allá de las montañas de palabras, viven los textos simulados.
+
+Desktop 20px · Mobile 18px · 150%
+
+Regular · Muy lejos, más allá de las montañas de palabras, viven los textos simulados.
+
+Desktop 16px · Mobile 16px · 150%
+
+Small · Muy lejos, más allá de las montañas de palabras, viven los textos simulados.
+
+Desktop 14px · Mobile 14px · 150%
+
+Tiny · Muy lejos, más allá de las montañas de palabras, viven los textos simulados.
+
+Desktop 12px · Mobile 12px · 150%
+
+FUNDAMENTOS
+
+Espaciado
+
+Escala de tokens de espaciado (gaps, paddings y márgenes). La barra muestra el valor desktop; la etiqueta indica desktop / mobile. Structure (gutters de contenedor) y Paddings derivan de esta misma escala.
+
+xtiny
+4 / 4px
+tiny
+8 / 6px
+xxsmall
+16 / 12px
+xsmall
+20 / 16px
+small
+24 / 18px
+medium
+32 / 24px
+large
+48 / 32px
+xlarge
+64 / 48px
+xxlarge
+80 / 64px
+huge
+96 / 80px
+xhuge
+112 / 96px
+xxhuge
+160 / 112px
+RITMO DE SECCIÓN (LAYOUT DE LA HOME)
+
+Toda sección de la home usa la misma escala de padding vertical en su <section> raíz: py-12 md:py-16 lg:py-28. Como cada sección lleva padding arriba y abajo, el hueco real entre secciones es la suma: 96px en móvil, 128px en tablet y 224px en desktop (el valor del diseño).
+
+Padding lateral: ninguno en móvil —el p-4 del <main> ya aporta los 16px del diseño— y md:px-10 desde tablet. Añadir un px-* extra en el section descuadra su contenido respecto a las demás secciones y estrecha el espacio útil en móvil.
+
+FUNDAMENTOS
+
+Radios y sombras
+
+Radios de esquina (Tiny → XXXLarge) y las tres sombras del sistema.
+
+RADIOS
+
+Tiny
+4px
+
+XSmall
+6px
+
+Small
+8px
+
+Medium
+12px
+
+Large
+16px
+
+XLarge
+20px
+
+XXLarge
+24px
+
+XXXLarge
+32px
+
+SOMBRAS
+
+Small
+
+Medium
+
+Large
+
+FUNDAMENTOS
+
+Gradiente progresivo
+
+Todas las barras y raíles de progreso de la web llevan el mismo degradado: el gradiente de marca completo (crema → naranja → berenjena → azul → blanco) comprimido en la pieza. Vive en app/globals.css como .rail-gradient-x (horizontal), .rail-gradient-y (vertical) y .plataforma-rail-progress (vertical con animación de height). Nunca se construye uno nuevo con bg-gradient-to-r.
+
+HORIZONTAL (.RAIL-GRADIENT-X)
+100%
+66%
+33%
+
+El degradado se estira con la barra (todo el rango es visible a cualquier progreso): se anima el width, no un scaleX. Pista de fondo bg-plum/10 (o sin pista, como en los tabs del hero de /plataforma).
+
+DÓNDE SE USA
+/plataforma · «Cómo funciona»: raíl vertical de cada paso (.plataforma-rail-progress).
+/casos-de-uso · «Cómo te ayuda»: barra de pasos en desktop y raíl vertical de scroll en móvil (ComoAyuda, .rail-gradient-y).
+/solicitar-demo · stepper del formulario (DemoFlow).
+/blog · ficha: anillo de progreso de lectura, mismas paradas en SVG (ArticleSidebar).
+
+COMPONENTES BASE
+
+Botones (CTA)
+
+El CTA real de la web es components/PillCta.tsx: pastilla donde el label rueda hacia arriba en hover mientras el punto se convierte en flecha. La animación es 100% CSS (PillCta.module.css). Los ejemplos de abajo son el componente real — pasa el ratón para ver el hover.
+
+Primary — «Solicitar demo»
+
+Solicitar demo
+
+Outline — «Saber más»
+
+Saber más
+
+Primary · big — CTA del footer
+
+Solicitar demo
+
+Primary · block — menú móvil
+
+Solicitar demo
+components/RequestDemoButton.tsx es el wrapper del «Solicitar demo» que usan Hero, Metrics, How, Footer y el menú móvil — cambia ahí el texto o el href una sola vez para toda la web.
+Destino por defecto: sin href (o con «#»), RequestDemoButton lleva al flujo «Solicita una demo» del idioma actual (ROUTES.solicitarDemo).
+El CTA del navbar es una variante aparte más compacta (NavCta.module.css, solo intercambia el texto en hover).
+
+COMPONENTES BASE
+
+Marca y favicon
+
+El logo (components/Logo.tsx) acepta un prop fill para las variantes. El favicon usa el isotipo sobre el gradiente de marca.
+
+LOGO — VARIANTES
+Positive
+Positive · Medium
+Positive · Dark
+Gradiente
+Negative · Cream
+Negative · Mint
+Negative · Naranja
+Negative · Berenjena
+Negative · Ciruela
+Gradiente · BG
+FAVICON
+32px
+256px
+
+PRODUCTO
+
+Componentes de la web
+
+Todos los componentes reales de la web, en pestañas por página («Comunes» = compartidos por todas). Cada tarjeta lleva una miniatura real, un nombre en claro como título y unos chips de copiado: haz click en un chip para copiar el nombre en claro, el técnico o la ruta del archivo, y pégalo en tu prompt —«cambia el segundo paso del Cómo funciona», «añade un logo al Logos de clientes»— para que no haya ambigüedad. El catálogo vive en components/library/catalog.tsx; documentar una página nueva es añadir ahí su entrada.
+
+Comunes
+12
+Home
+12
+Plataforma
+6
+Casos de uso
+6
+Sobre Neety
+7
+Manifesto
+2
+Blog
+4
+Artículo
+4
+Eventos
+4
+Ficha de evento
+4
+Academia
+3
+Ficha de recurso
+8
+Solicitar demo
+1
+Precios
+2
+Contacto
+2
+404
+1
+Legales
+2
+
+COMUNES (TODAS LAS PÁGINAS)
+
+PIEZAS BASE
+
+Logotipo
+Logotipo
+Logo
+components/Logo.tsx
+
+Wordmark de Neety en SVG inline. Props: className (tamaño) y fill (color).
+
+Fuente: export de Figma.
+fill por defecto = Ciruela (#2A0E2C).
+Punto pulsante
+Punto pulsante
+PulsingDot
+components/PulsingDot.tsx
+
+Punto de marca cuyo halo respira con GSAP. Encabeza el eyebrow de casi todas las secciones.
+
+'use client' — useGSAP.
+Respeta prefers-reduced-motion.
+El halo es un disco hijo animado con transform/opacity (compositado) — antes animaba box-shadow y repintaba en cada frame (Lighthouse, 31-ago).
+Botón pastilla (CTA)
+Botón pastilla (CTA)
+PillCta / RequestDemoButton
+components/PillCta.tsx
+
+El botón-pastilla base (ver sección Botones) y su wrapper «Solicitar demo» usado en toda la web.
+
+Solicitar demo
+Variantes primary/outline; props big, block, compact y spread.
+compact: pastilla menor solo por debajo de md — para cards estrechas a 2 columnas (Casos de uso de /plataforma en móvil).
+spread: punto anclado al borde derecho — para grupos apilados a mismo ancho con los puntos alineados (CTAs del coming soon).
+Animación 100% CSS en PillCta.module.css.
+Renderiza un TransitionLink: los hrefs internos («/…») disparan la cortina de transición; con «#», mailto o externos se comporta como un <a> normal.
+Pastilla de etiqueta
+Pastilla de etiqueta
+TagPill
+components/TagPill.tsx
+
+Pastilla azul bebé al 10% con la etiqueta de la card. La misma pieza en las cards de /blog y en las de /eventos.
+
+Webinar
+Sin `href` es un <span> inerte (dentro de las cards, que ya son un enlace entero).
+Con `href` se vuelve enlace con transición: en la ficha del artículo manda a `/blog?tag=…`, que preselecciona el filtro del listado.
+Badge «+» de hover
+Badge «+» de hover
+PlusBadge
+components/PlusBadge.tsx
+
+Cuadrado berenjena con un «+». En Figma aparece pintado en una sola card de cada bloque: es el estado HOVER de la card.
+
+Sale con el group-hover del enlace que envuelve la card (y con focus-visible, para teclado).
+Compartido por las cards de /blog y las de /eventos.
+Contador rodante
+Contador rodante
+RollingNumber
+components/RollingNumber.tsx
+
+Contador tipo odómetro: cada dígito rueda y aterriza al entrar en viewport. Lo usan las métricas.
+
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+%
+'use client' — GSAP + IntersectionObserver (se dispara al 60% visible).
+Los caracteres no numéricos (+, %, M, k) quedan fijos.
+
+NAVEGACIÓN
+
+Tabs con pastilla líquida
+Tabs con pastilla líquida
+LiquidTabs
+components/LiquidTabs.tsx
+
+Barra de tabs con la pastilla blanca «líquida» de marca: al cambiar de tab se desplaza con un estirón proporcional a la distancia y recupera su forma al llegar (misma física que el hover del navbar).
+
+'use client' — useGSAP. La usan el selector de «Casos de uso» de la home y el filtro por etiqueta de /blog: si cambia el movimiento, cambia en las dos.
+prop `semantics`: "tablist" (tabs con panel asociado, role=tab/aria-selected) o "filter" (botones de filtro sin panel, aria-pressed). Un tablist sin tabpanel confunde a los lectores de pantalla.
+Lo que cambia entre usos entra por props (className del contenedor, tabClassName, colores activo/inactivo): el movimiento es siempre el mismo.
+La barra hace scroll horizontal en móvil, nunca envuelve: con 7 etiquetas el bloque envuelto se leía como una mancha de tres filas.
+El hover es una SEGUNDA pastilla líquida (prop hoverPillClassName, por defecto plum/4 %) que viaja entre tabs con la misma física y vive bajo la blanca; nada de hover:bg estático por botón (feedback 2026-08-28).
+Respeta prefers-reduced-motion (coloca la pastilla sin animar).
+Barra de navegación
+Barra de navegación
+Navbar
+components/Navbar.tsx
+
+Barra desktop: logo, enlaces con mega-menús «líquidos» (GSAP) y CTAs. NAV_ITEMS es la fuente de verdad de la navegación.
+
+Plataforma
+Casos de uso
++
+Recursos
++
+Compañía
++
+Precios
+Log in
+Solicitar demo
+Enlaces = NAV_ITEMS; contenido de los menús = USECASES / RESOURCES / COMPANY.
+CTA «Solicitar demo»: pill compacta en plum/75 con hover plum sólido (el cristal plum/40 parecía deshabilitado y el plum sólido pesaba demasiado; 28-ago) y rodillo de texto de NavCta.module.css.
+MobileMenu importa NAV_ITEMS y DROPDOWNS de aquí — se editan una sola vez.
+Los enlaces solo se ven en pantallas lg+ (en móvil manda MobileMenu).
+La página actual se marca con PulsingDot (4px) + font-medium — también en MobileMenu (los pesos solos no funcionaban: semibold pesado, medium invisible). Los triggers de desplegable también la llevan cuando la página actual es una de sus entradas (p.ej. «Casos de uso» en /casos-de-uso/*).
+Menú móvil
+Menú móvil
+MobileMenu
+components/MobileMenu.tsx
+
+Overlay full-screen del menú móvil/tablet con navegación drill-down a carpetas, abierto desde el botón hamburguesa.
+
+Sin datos propios: reutiliza NAV_ITEMS/DROPDOWNS de Navbar.
+Bloquea el scroll del body sin saltos de breakpoint; Escape cierra.
+Cabecera fija
+Cabecera fija
+StickyHeader
+components/StickyHeader.tsx
+
+Contenedor sticky (h-0, overlay) que mantiene la barra fija sobre todas las secciones. Envuelve NavBlur + Navbar.
+
+No añadir transform aquí: rompería el backdrop fixed del mega-menú.
+Vive en components/pages/HomePage.tsx como hijo directo de <main>.
+Full-bleed: cancela el p-4/p-5 del main con márgenes negativos para que NavBlur llegue a los bordes del viewport; el padding y el tope de 1600px los recupera el wrapper interior del navbar.
+El flag scrolled salta cuando la barra queda fijada (rect.top <= 0), no por scrollY: si no, el tinte se encendía antes de llegar al top y su borde se leía como un corte.
+Prop `flush` (27-ago): en las páginas SIN card degradada con muesca alrededor de la hamburguesa (casos de uso, sobre, blog, eventos y sus fichas), en móvil/tablet la barra nace ya pegada al techo (no baja 16/20px al tocar el tope) y por debajo de md el logo va a los 16px del padding de página, alineado con el contenido. Home, /plataforma y /manifesto (con muesca) siguen sin flush.
+Desenfoques de borde
+Desenfoques de borde
+NavBlur / BottomBlur
+components/NavBlur.tsx
+
+Blurs progresivos: NavBlur aparece tras el navbar al hacer scroll; BottomBlur difumina el borde inferior del viewport.
+
+Animan el radio del blur (no la opacidad): backdrop-filter ignora la opacidad del ancestro en Chromium.
+Tuning en las constantes LAYERS (y TINT en NavBlur).
+El tinte es casi sólido mientras pasan los links y luego se funde en degradado largo («nube»): sobre gradientes de página no debe leerse como un rectángulo.
+La banda asoma 24/32px por encima del origen sticky (-top + altura extra): su borde superior nunca entra en el viewport y los fundidos de entrada/salida no pueden enseñar un corte.
+BottomBlur solo existe con puntero fino (pointer-fine:block): en táctil la barra inferior del navegador (Safari iOS) lo hacía leerse como un corte sobre la web.
+Transición de página
+Transición de página
+PageTransition / TransitionLink
+components/PageTransition.tsx
+
+Velo con el gradiente de marca (el del Loader) que funde sobre la página al navegar: cubre con opacidad, la ruta nueva se monta debajo y se desvanece. Sutil — sin bordes ni barridos; los blobs derivan mientras dura.
+
+'use client' — GSAP. El provider envuelve children en components/RootShell.tsx (los dos root layouts lo comparten).
+Enlaces internos nuevos: usar <TransitionLink href="/..."> (no <a> ni <Link>) — intercepta el clic, cubre y hace router.push.
+Externos, anclas (#), target _blank o clic con modificador → comportamiento nativo.
+Reutiliza .loader-blob-* y .loader-grain; la lámina es .page-curtain-sheet (globals.css).
+Respeta prefers-reduced-motion: fundido rápido sin desplazamiento.
+
+MANTENIMIENTO
+
+Mantenimiento técnico
+
+Referencia para cambios que tocan la base del sistema (para perfiles más técnicos o para Claude).
+
+Cambiar colores, tipografía o espaciado: edita el bloque @theme en app/globals.css. Toda la web y esta librería se actualizan solas.
+Añadir un componente reutilizable: créalo en components/ y añádelo a la sección «Componentes de la web» (components/library/catalog.tsx) para que quede documentado.
+Idiomas: todo texto visible va en copy({ es, en }) (lib/i18n.ts); una página nueva es un components/pages/XPage.tsx con lang más dos rutas finas (app/(es) y app/(en)/en) con alternates() en la metadata — sin hreflang el selector del footer no sabe saltar. Auto-routing por país en functions/_middleware.ts. Ver decisión 2026-08-27 · i18n.
+CMS (Sanity): el esquema vive en studio/schemaTypes/; tras cambiarlo, npx sanity deploy desde studio/. La web lo lee en build por components/blog/data.ts y components/sobre/team.ts (las secciones no saben de Sanity). Publicar en el Studio → webhook → GitHub Actions → copia de revisión; producción solo a mano desde Actions. Tokens de CI en los secretos del repo; en local, cada persona con el suyo en .env.local (ver «Recibir el proyecto»). Plan y estado: docs/cms-sanity.md.
+Tomar una decisión no obvia: anótala en docs/decisiones.md con su porqué.
+Validar: npx tsc --noEmit. No ejecutar npm run build con el dev server de Ship Studio activo.
+Desplegar: cada push a main actualiza solo la copia de revisión (GitHub Actions). Producción (neety.com) siempre a mano: Actions → «Deploy» → Run workflow → prod, o ./scripts/deploy.sh prod desde el terminal. Detalles en CLAUDE.md §Deploy; lista de lanzamiento en docs/lanzamiento.md.
+Pendiente:
+Formularios y agenda de la demo: el backend es un desarrollo ad-hoc de Neety — los conecta el equipo de Neety al recibir el repositorio (email 2-sept). Los formularios ya hacen POST a NEXT_PUBLIC_CONTACT_ENDPOINT / NEXT_PUBLIC_ACADEMY_ENDPOINT y la agenda se embebe con NEXT_PUBLIC_DEMO_SCHEDULER_URL.
+Contenido real: blog, eventos y academia llevan copy de marcador en Sanity; faltan los vídeos (youtubeId) y los archivos descargables de la Academia.
+Traducción inglesa pendiente de revisión por Neety; las legales EN, pendientes del despacho.
+
+v3.0.2
+
+Output Detail
+Standard
+React Components
+Hide Until Restart
+Marker Color
+Clear on copy/send
+Block page interactions
+Manage MCP & Webhooks
+Manage MCP & Webhooks
+MCP Connection
+
+MCP connection allows agents to receive and act on annotations. Learn more
+
+Webhooks
+Auto-Send
+
+The webhook URL will receive live annotation changes and annotation data.

@@ -19,7 +19,9 @@ export const hero = {
   // RONDA 40 · «el titular principal no tiene que ser crecer tu web, podemos mirar del documento keynote». Del Keynote («Narrativa – Savvia»):
   // el elevator pitch habla a quien «está cambiando y su web ya no le representa», y el mensaje clave de beneficio es «mejor web en menos tiempo y
   // a menor coste». El titular responde al primero; el subtítulo es el segundo, con el cómo (criterio + IA).
-  h1: 'Tu web, a la altura de lo que haces.',
+  // RONDA 53 · «el H1 es muy amplio y no dice nada: más específico, que el cliente diga hostia, esto pueden hacer por mí». Lo concreto del Keynote: web
+  // a medida (no un lavado de cara) + tu equipo la cambia con IA (formación + todo documentado) + el ARNÉS (la receta hace que la IA no se salga de tu marca).
+  h1: 'Una web a medida que tu equipo cambia con IA, fiel a tu marca.', // ronda 53: «sin romperla no me gusta, es muy despectivo»
   h2: 'Eleva tu web con criterio.', // ronda 41 (Andoni: «el subtítulo del hero tiene que ser eleva tu web con criterio»)
   // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
   vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
@@ -38,30 +40,32 @@ export const recorrido = {
   // con el scroll, de manera que el usuario pasa por todos los pains». Cada parada: el DOLOR (lo que siente quien entra) y la RESPUESTA,
   // con la demo que ya gustaba de cada paso. Siempre en segunda persona (ronda 39, punto 8: «el yo solo lo proyectamos en equipo»).
   pregunta: '¿Te suena alguno?',
+  // RONDA 53 · más cerca del Keynote: los cuatro problemas de su diapositiva «Web anclada en paradigma anterior» (ya no te representa · genérica e
+  // impersonal · difícil de gestionar y mal documentada · infraestructura vieja y cara + equipo que no domina la IA) y, en el tercero, el ARNÉS.
   pasos: [
     {
-      corto: 'No te cuenta',
-      dolor: 'Tu web ya no cuenta lo que haces.',
+      corto: 'Ya no te representa',
+      dolor: 'Tu web ya no te representa.',
       t: 'Empezamos por entenderte.',
-      d: 'Antes de diseñar nada: qué vendes, a quién y qué ha dejado de contarse.',
+      d: 'Antes de diseñar nada: qué vendes, a quién y qué ha cambiado desde que se hizo tu web.',
     },
     {
-      corto: 'De plantilla',
+      corto: 'Genérica',
       dolor: 'Podría ser la web de cualquiera.',
-      t: 'Decides tú, con criterio al lado.',
-      d: 'Ves direcciones de diseño reales desde los primeros días y eliges la que es tuya, no la de una plantilla.',
+      t: 'Creatividad a medida.',
+      d: 'Ves direcciones de diseño reales desde los primeros días y eliges la tuya. Nada de plantillas ni lavados de cara.',
     },
     {
       corto: 'Sin receta',
-      dolor: 'Nadie sabe ya por qué está hecha así.',
-      t: 'Cada decisión, por escrito.',
-      d: 'Todo queda en tu savvia: un documento que lees tú y entiende cualquier IA. La web es tuya, y su receta también.',
+      dolor: 'Nadie sabe cómo cambiarla.',
+      t: 'Todo, en su receta.',
+      d: 'Cada decisión queda escrita en la savvia: el arnés que hace que la IA te lleve a donde quieres ir, y no a otro sitio.',
     },
     {
       corto: 'Cada cambio, una espera',
       dolor: 'Cada cambio es un presupuesto y una espera.',
-      t: 'Se cambia hablándole.',
-      d: 'Tu equipo le pide la landing de campaña a un agente y sale con tu estilo, en horas y no en semanas.',
+      t: 'Tu equipo, con agentes.',
+      d: 'Formamos a tu gente para que pida una landing de campaña a un agente y salga con tu estilo, en horas y no en semanas.',
     },
   ],
 };
@@ -103,6 +107,63 @@ export const laSavvia = {
     ],
   },
   falta: 'Hoy enseña la savvia de esta web. ¿Algún cliente autoriza enseñar la suya?',
+};
+
+// RONDA 53 · LA RECETA DE PAPEL. Andoni: «la sección de savvia la receta de tu web quiero hacer una receta de papel estilo poetry.camera, pero que tenga
+// relación con savvia. Al final el papel sale del árbol. Para nosotros la receta es esto que entregamos al cliente: neety.treseiscero.app/library» ·
+// «también quiero introducir el concepto del ARNÉS de la IA: la receta de savvia te ayuda a que la IA te lleve a donde tú quieres llegar y no a otro sitio».
+// Cada tira es un trozo REAL de la receta que se entregó a Neety (su library): fundamentos, guardarraíles, una petición de su equipo, decisiones.
+export const receta = {
+  titulo: 'La savvia es la receta de tu web.',
+  arnes: 'Y el arnés de tu IA: lo que hace que te lleve a donde quieres ir, y no a otro sitio.',
+  nota: 'La receta real de Neety: la que usa su equipo cada día para cambiar su web con IA.',
+  enlace: { label: 'Ver la receta entera', href: 'https://neety.treseiscero.app/library' },
+  // RONDA 54 · «que caiga en un color claro, los tickets con más personalidad y más humanos; en cada ticket superponer algo digital que enfatice lo que
+  // pasa en cada uno; también es un proceso de izquierda a derecha, mostrarlo mejor; el árbol de fondo va fuera». El orden es el del proceso: qué es tu
+  // marca → qué no se puede hacer (el arnés) → qué pide tu equipo → qué queda escrito → la cuenta. `marcas`: la tinta a mano sobre una línea (índice →
+  // círculo · subraya · tacha · visto). `digital`: la pieza de interfaz que aterriza encima cuando el ticket ya está impreso.
+  tiras: [
+    {
+      paso: 'tu marca',
+      t: 'fundamentos',
+      raya: '=-=-=-=-=-=-=-=-=-=-=-=',
+      lineas: ['Naranja Core ... #FE8238', 'Azul bebé ...... #A7C5F9', 'Berenjena ...... #431B44', 'Ciruela ........ #2A0E2C', 'Base cálida .... #F8F7EC', '', 'titulares  Bricolage', 'texto      Switzer'],
+      marcas: [[0, 'circulo'], [6, 'subraya']],
+      digital: { tipo: 'muestras', colores: ['#FE8238', '#A7C5F9', '#431B44', '#2A0E2C', '#F8F7EC'], txt: 'token · naranja-core' },
+    },
+    {
+      paso: 'el arnés',
+      t: 'guardarraíles',
+      raya: '·x·x·x·x·x·x·x·x·x·x·x·',
+      lineas: ['nada de colores', '   ni fuentes nuevas', '', 'ni un hero distinto:', '   se reutiliza uno', '', 'ni botones inventados', '', 'ni publicar sin', '   mirarla en el móvil'],
+      marcas: [[0, 'subraya'], [6, 'visto'], [8, 'visto']],
+      digital: { tipo: 'bloqueo', txt: '#FF2E9A no está en la receta', fin: 'usa Naranja Core' },
+    },
+    {
+      paso: 'tu equipo pide',
+      t: 'lo que pide su equipo',
+      raya: "`'. .'`'. .'`'. .'`'. .'`",
+      lineas: ['«Añade una sección de', 'testimonios en la home,', 'entre Cómo funciona', 'e Integraciones: tres', 'citas con nombre, cargo', 'y empresa, con el estilo', 'de tarjeta blanca.»'],
+      marcas: [[6, 'subraya']],
+      digital: { tipo: 'agente', txt: 'agente · leyendo la receta', fin: 'sección lista ✓' },
+    },
+    {
+      paso: 'queda escrito',
+      t: 'decisiones',
+      raya: '·_·~·_·~·_·~·_·~·_·~·_·',
+      lineas: ['el borde izquierdo', '   siempre con el logo', '', 'imágenes nuevas', '   en AVIF', '', 'bilingüe desde', '   el primer día'],
+      marcas: [[0, 'visto'], [3, 'visto'], [6, 'visto']],
+      digital: { tipo: 'commit', txt: 'docs/decisiones.md', fin: '+3 líneas' },
+    },
+    {
+      paso: 'la cuenta',
+      t: 'ticket',
+      raya: '.......................',
+      lineas: ['Web a medida ..... hecha', 'Cada decisión .. escrita', 'Tu IA ...... con arnés', 'Tu equipo ..... al mando', '', 'Lavado de cara ..... 0 €', '', '   gracias por venir'],
+      marcas: [[5, 'tacha'], [2, 'circulo']],
+      digital: { tipo: 'toast', txt: 'publicado · neety.com', fin: '✓' },
+    },
+  ] as { paso: string; t: string; raya: string; lineas: string[]; marcas: [number, string][]; digital: { tipo: string; txt: string; fin?: string; colores?: string[] } }[],
 };
 
 export const proyectos = {
@@ -194,24 +255,29 @@ export const proyectos = {
 export const servicios = {
   pregunta: '¿Qué puede hacer savvia por ti?',
   titulo: 'Tres maneras de elevar tu web.',
+  // RONDA 53 · copy del Keynote (diapositiva de servicios: orquestación con desarrollo agéntico · procesos que elevan la calidad y reducen costes ·
+  // todo documentado para que cualquiera sepa cambiar la web · formación a tus equipos) y, al pasar, un EJEMPLO REAL de cada uno (`ejemplo`).
   lista: [
     {
-      corto: 'Web nueva',
-      t: 'Una web nueva, de principio a fin.',
-      d: 'Se rehace entera, contigo dentro del proceso: estrategia, diseño, desarrollo y su savvia.',
+      corto: 'Web a medida', // ronda 54: «cambiar los nombres grandes, no me convencen: algo más comercial»
+      t: 'Rehecha de principio a fin.',
+      d: 'No es un lavado de cara: estrategia, diseño y desarrollo agéntico a medida, contigo dentro. Mejor web, en menos tiempo y a menor coste.',
       demo: 'nueva',
+      ejemplo: { de: 'Zernio', que: 'Así se hizo su home: del briefing a publicada.' },
     },
     {
-      corto: 'Evolución',
-      t: 'Siempre al día.',
-      d: 'Cambios en días, no en presupuestos: agentes que trabajan sobre tu savvia.',
+      corto: 'Cambios con IA',
+      t: 'Cambios en horas, no en presupuestos.',
+      d: 'Agentes que trabajan sobre la receta de tu web: cada cambio respeta tu marca y queda documentado.',
       demo: 'evolucion',
+      ejemplo: { de: 'Neety', que: 'Una petición de su equipo, de principio a fin.' },
     },
     {
-      corto: 'Formación',
-      t: 'Tu equipo, con agentes.',
-      d: 'Para que tu gente toque la web sin miedo y sin llamar a nadie.',
+      corto: 'Equipos con IA',
+      t: 'Tu equipo, al mando de la IA.',
+      d: 'Formamos a tu gente en desarrollo agéntico, con su manual al lado, para que toque la web sin miedo y sin llamar a nadie.',
       demo: 'formacion',
+      ejemplo: { de: 'Neety', que: 'El recorrido de su equipo por el manual de su web.' },
     },
   ],
 };

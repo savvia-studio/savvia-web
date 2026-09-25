@@ -1,6 +1,26 @@
 ---
 import { servicios } from '../data/home';
 const LETRA = ['01', '02', '03', '04']; // ronda 44 · «los servicios no van por letras, van por número»
+// RONDA 53 · una petición REAL del manual de Neety (neety.treseiscero.app/library › «Añadir secciones nuevas»), tal cual la escribe su equipo
+const PETICION = '«Añade una métrica más a la sección “Por qué Neety”: 3x reuniones cualificadas.»';
+// RONDA 54 · «cuando haces hover, representar un ejemplo real pero cómo se ejecuta, cómo se va construyendo cada caso». Cada demo es un PROCESO en bucle:
+//   Web a medida · Zernio: el briefing (su tesis real), el boceto (las cajas de su hero, medidas en su captura), el sistema (sus colores) y la web real.
+//   Cambios con IA · Neety: la petición real de su manual, lo que hace el agente (los pasos que el manual le pide), la vista previa y publicado.
+//   Equipos con IA · Neety: el recorrido de su equipo por su manual real (cuatro apartados: recibir, cambiar, añadir, buenas prácticas).
+const BRIEF = ['Zernio · API de redes y mensajería', 'para desarrolladores', 'la idea: 23 canales, una sola llamada', 'tono: técnico y cercano'];
+// el hero de Zernio (zernio-hero.webp, 4:3) en cajas: barra, aviso, titular (2 líneas), subtítulo, dos botones y la ventana de código
+const CAJAS = [
+  { c: 'nav', x: 4, y: 2, w: 92, h: 4 },
+  { c: 'aviso', x: 39, y: 19, w: 22, h: 3 },
+  { c: 'tit', x: 22, y: 25, w: 56, h: 6 },
+  { c: 'tit', x: 22, y: 32, w: 56, h: 6 },
+  { c: 'sub', x: 28, y: 40, w: 44, h: 6 },
+  { c: 'cta', x: 37.5, y: 51, w: 11, h: 4.5 },
+  { c: 'cta2', x: 49.5, y: 51, w: 13, h: 4.5 },
+  { c: 'codigo', x: 15, y: 62, w: 70, h: 38 },
+];
+const AGENTE = ['lee la receta de la web', 'usa Naranja Core y la tarjeta blanca', 'la añade en español e inglés', 'la revisa en el móvil'];
+const MANUAL = [{ f: 'recibir', t: 'recibir' }, { f: 'cambiar', t: 'cambiar' }, { f: 'secciones', t: 'añadir' }, { f: 'practicas', t: 'publicar' }];
 ---
 
 <!--
@@ -26,34 +46,45 @@ const LETRA = ['01', '02', '03', '04']; // ronda 44 · «los servicios no van po
             </button>
             <div class={`demo d-${s.demo}`} aria-hidden="true" data-demo>
               <div class="mini">
-                <span class="barra"><i /><i /><i /></span>
+                <span class="barra"><i /><i /><i /><b class="dir">{s.demo === 'nueva' ? 'zernio.treseiscero.app' : s.demo === 'formacion' ? 'neety · manual' : 'neety · agente'}</b></span>
                 {s.demo === 'nueva' && (
-                  <div class="lienzo">
-                    <i class="b tit" /><i class="b tit corta" />
-                    <i class="b txt" /><i class="b txt" /><i class="b txt corta" />
-                    <span class="fila"><i class="b cta" /><i class="b foto" /></span>
-                    <p class="etq"><span class="e1">boceto</span><span class="e2">web</span></p>
+                  <div class="obra">
+                    <div class="fase f-brief">
+                      <p class="etq-f">briefing</p>
+                      {BRIEF.map((l, k) => <p class="linea-b" style={`--k:${k}`}>{l}</p>)}
+                    </div>
+                    <div class="fase f-boceto" aria-hidden="true">
+                      {CAJAS.map((c) => <i class={`caja ${c.c}`} style={`left:${c.x}%;top:${c.y}%;width:${c.w}%;height:${c.h}%`} />)}
+                    </div>
+                    <img class="fase f-web" src="/media/servicios/zernio-hero.webp" alt="" width="720" height="540" loading="lazy" decoding="async" />
+                    <span class="pasos-obra">{['briefing', 'boceto', 'sistema', 'web'].map((t, k) => <b style={`--k:${k}`}>{t}</b>)}</span>
                   </div>
                 )}
                 {s.demo === 'evolucion' && (
-                  <div class="lienzo">
-                    <span class="cab"><i class="b tit" /><span class="idioma"><b class="i1">ES</b><b class="i2">EU</b><b class="i3">EN</b></span></span>
-                    <i class="b txt" /><i class="b txt corta" />
-                    <span class="nueva"><i class="b bloque" /><i class="b bloque" /><i class="b bloque" /></span>
-                    <i class="b txt" />
-                    <p class="publicado">publicado <b>✓</b></p>
+                  <div class="obra">
+                    <div class="fase f-pide">
+                      <p class="quien-pide">su equipo pide</p>
+                      <p class="peticion">{PETICION.split(' ').map((w, n) => <span style={`--n:${n}`}>{w} </span>)}</p>
+                      <div class="agente">
+                        {AGENTE.map((l, k) => <p class="paso-ag" style={`--k:${k}`}><i />{l}</p>)}
+                      </div>
+                    </div>
+                    <div class="fase f-vista">
+                      <img src="/media/servicios/neety-hero.webp" alt="" width="720" height="540" loading="lazy" decoding="async" />
+                      <span class="metrica"><b>3x</b> reuniones cualificadas</span>
+                      <span class="publicado">publicado en neety.com ✓</span>
+                    </div>
+                    <span class="pasos-obra">{['pide', 'agente', 'revisa', 'publica'].map((t, k) => <b style={`--k:${k}`}>{t}</b>)}</span>
                   </div>
                 )}
                 {s.demo === 'formacion' && (
-                  <div class="lienzo">
-                    <p class="equipo"><i /><i /><i /><span>Tu equipo</span></p>
-                    {['Leer su savvia', 'Pedir un cambio a un agente', 'Revisarlo y publicarlo'].map((t, k) => (
-                      <p class="paso" style={`--k:${k}`}><i class="caja" /><span>{t}</span></p>
-                    ))}
-                    <span class="avance"><i /></span>
+                  <div class="obra manual">
+                    {MANUAL.map((m, k) => <img class="hoja" style={`--k:${k}`} src={`/media/servicios/manual-${m.f}.webp`} alt="" width="760" height="570" loading="lazy" decoding="async" />)}
+                    <span class="pasos-obra">{MANUAL.map((m, k) => <b style={`--k:${k}`}>{m.t}</b>)}</span>
                   </div>
                 )}
               </div>
+              <p class="fuente detail"><b>Ejemplo real · {s.ejemplo.de}</b> {s.ejemplo.que}</p>
             </div>
             <div class="bajada" id={`serv-d${i}`}>
               <p class="text-ui font-medium">{s.t}</p>
@@ -77,11 +108,20 @@ const LETRA = ['01', '02', '03', '04']; // ronda 44 · «los servicios no van po
     let abierto = -1;
     // al abrirse, la demo empieza desde el principio (se clona: todas sus piezas van a una)
     const reiniciar = (li: HTMLElement) => { const d = li.querySelector('.mini')!; d.replaceWith(d.cloneNode(true)); };
+    // RONDA 54 · cada proceso dura 10 s y usa retrasos (palabras, pasos del agente) que CSS solo aplica en la primera vuelta: mientras está abierto,
+    // se reinicia entero cada 10 s y cada vuelta se construye igual que la primera
+    const relojes = new Map<HTMLElement, number>();
+    const encender = (li: HTMLElement, on: boolean) => {
+      if (on === li.classList.contains('on')) return;
+      clearInterval(relojes.get(li));
+      if (on) { reiniciar(li); relojes.set(li, window.setInterval(() => reiniciar(li), 10000)); }
+      li.classList.toggle('on', on);
+    };
     const abrir = (i: number) => {
       if (i === abierto) return;
       abierto = i;
       lista.classList.toggle('con-uno', i >= 0);
-      items.forEach((li, k) => { const on = k === i; if (on && !li.classList.contains('on')) reiniciar(li); li.classList.toggle('on', on); });
+      items.forEach((li, k) => encender(li, k === i));
       botones.forEach((b, k) => b.setAttribute('aria-expanded', String(k === i)));
     };
     botones.forEach((b, i) => {
@@ -92,7 +132,7 @@ const LETRA = ['01', '02', '03', '04']; // ronda 44 · «los servicios no van po
     lista.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') abrir(-1); });
     lista.addEventListener('focusout', (e) => { if (!lista.contains(e.relatedTarget as Node)) abrir(-1); });
     // sin ratón: cada demo corre mientras se ve
-    const io = new IntersectionObserver((es) => es.forEach((e) => { if (!conRaton.matches) (e.target as HTMLElement).closest('.servicio')!.classList.toggle('on', e.isIntersecting); }), { threshold: 0.4 });
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (!conRaton.matches) encender((e.target as HTMLElement).closest<HTMLElement>('.servicio')!, e.isIntersecting); }), { threshold: 0.4 });
     raiz.querySelectorAll('[data-demo]').forEach((d) => io.observe(d));
 
     // LA TINTA QUE SE LLENA: cada nombre pasa de apagado a plena tinta, de izquierda a derecha, mientras cruza la parte baja de la pantalla
@@ -206,179 +246,215 @@ const LETRA = ['01', '02', '03', '04']; // ronda 44 · «los servicios no van po
     animation-play-state: paused !important;
   }
 
-  /* A · WEB NUEVA: de boceto (cajas a trazos, vacías) a web pintada, en bucle de 5 s */
-  .d-nueva .b {
-    border: 1px dashed color-mix(in oklab, var(--color-cacao) 45%, transparent);
-    background: transparent;
-    animation: pintar-b 5s var(--ease-out-expo) infinite both;
+  /* RONDA 54 · LOS PROCESOS (bucle de 10 s): cada demo va por cuatro fases y abajo se encienden sus pasos */
+  .dir {
+    margin-left: auto;
+    margin-right: auto;
+    padding-right: 6cqw;
+    font: 400 3.6cqw/1 var(--font-mono);
+    color: color-mix(in oklab, var(--color-cacao) 55%, transparent);
   }
-  /* aparecen en orden de lectura */
-  .d-nueva .lienzo > .b:nth-child(2) { animation-delay: 0.08s; }
-  .d-nueva .lienzo > .b:nth-child(3) { animation-delay: 0.16s; }
-  .d-nueva .lienzo > .b:nth-child(4) { animation-delay: 0.24s; }
-  .d-nueva .lienzo > .b:nth-child(5) { animation-delay: 0.32s; }
-  .d-nueva .fila .cta { animation-delay: 0.4s; }
-  .d-nueva .fila .foto { animation-delay: 0.48s; }
-  .d-nueva .fila {
-    display: flex;
-    gap: 3cqw;
-    margin-top: 1.6cqw;
-  }
-  .d-nueva .cta { width: 26%; height: 6cqw; border-radius: 99px; --pinta: var(--color-naranja); }
-  .d-nueva .foto { flex: 1; height: 14cqw; --pinta: var(--color-nogal); }
-  .d-nueva .tit { --pinta: var(--color-cacao); }
-  .d-nueva .txt { --pinta: color-mix(in oklab, var(--color-cacao) 20%, transparent); }
-  @keyframes pintar-b {
-    0%, 8% { opacity: 0; translate: 0 4px; }
-    14%, 42% { opacity: 1; translate: 0 0; background: transparent; border-color: color-mix(in oklab, var(--color-cacao) 45%, transparent); }
-    52%, 90% { opacity: 1; background: var(--pinta); border-color: transparent; }
-    98%, 100% { opacity: 0; background: var(--pinta); border-color: transparent; }
-  }
-  .etq {
-    position: absolute;
-    right: 5cqw;
-    bottom: 4cqw;
-    font-family: var(--font-mono);
-    font-size: 4cqw;
-    line-height: 1;
-  }
-  .etq span {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    white-space: nowrap;
-  }
-  .etq .e1 { animation: etq-1 5s ease infinite both; }
-  .etq .e2 { color: var(--color-cacao); /* ronda 50: nada de texto pequeño coral sobre claro */  animation: etq-2 5s ease infinite both; }
-  @keyframes etq-1 { 0%, 42% { opacity: 1; } 48%, 100% { opacity: 0; } }
-  @keyframes etq-2 { 0%, 46% { opacity: 0; } 54%, 90% { opacity: 1; } 98%, 100% { opacity: 0; } }
-
-  /* B · EVOLUCIÓN: la web que ya tienes recibe una sección nueva, cambia de idioma y sale publicada (bucle de 6 s) */
-  .d-evolucion .cab {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .d-evolucion .cab .tit { width: 52%; }
-  .idioma {
+  .obra {
     position: relative;
-    width: 7cqw;
-    height: 4.4cqw;
-    font-family: var(--font-mono);
-    font-size: 3.4cqw;
-    line-height: 4.4cqw;
-    text-align: center;
+    flex: 1;
+    overflow: hidden;
+    background: #fff;
+    --t: 10s;
   }
-  .idioma b {
+  .fase {
     position: absolute;
     inset: 0;
-    font-weight: 400;
+    width: 100%;
+    height: 100%;
+  }
+  .pasos-obra {
+    position: absolute;
+    left: 3cqw;
+    right: 3cqw;
+    bottom: 3cqw;
+    display: flex;
+    gap: 1.4cqw;
+    z-index: 3;
+  }
+  .pasos-obra b {
+    flex: 1;
+    padding: 1.2cqw 0;
     border-radius: 99px;
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 35%, transparent);
-    opacity: 0;
+    text-align: center;
+    font: 400 3.2cqw/1 var(--font-mono);
+    color: var(--color-cacao);
+    background: color-mix(in oklab, var(--color-niebla) 92%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cacao) 14%, transparent);
+    opacity: 0.45;
+    animation: paso-on var(--t) linear infinite both;
+    animation-delay: calc(var(--k) * var(--t) / 4 - var(--t)); /* negativo: cada uno arranca ya en su fase */
   }
-  .idioma .i1 { animation: idioma-1 6s ease infinite both; }
-  .idioma .i2 { animation: idioma-2 6s ease infinite both; }
-  .idioma .i3 { animation: idioma-3 6s ease infinite both; }
-  @keyframes idioma-1 { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
-  @keyframes idioma-2 { 0%, 48% { opacity: 0; } 52%, 66% { opacity: 1; } 70%, 100% { opacity: 0; } }
-  @keyframes idioma-3 { 0%, 68% { opacity: 0; } 72%, 96% { opacity: 1; } 100% { opacity: 0; } }
-  .nueva {
+  /* cada paso, encendido durante su cuarto del bucle */
+  @keyframes paso-on {
+    0%, 24% { opacity: 1; background: var(--color-cacao); color: var(--color-niebla); }
+    26%, 100% { opacity: 0.45; }
+  }
+
+  /* 01 · WEB A MEDIDA (Zernio): briefing → boceto → sistema → web */
+  .f-brief {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.4cqw;
+    padding: 0 9cqw 10cqw;
+    background: var(--color-niebla);
+    animation: fase-1 var(--t) ease infinite both;
+  }
+  .etq-f {
+    font: 400 3.2cqw/1 var(--font-mono);
+    color: color-mix(in oklab, var(--color-cacao) 55%, transparent);
+  }
+  .linea-b {
+    font-size: 4.6cqw;
+    line-height: 1.3;
+    animation: linea-b var(--t) ease infinite both;
+    animation-delay: calc(var(--k) * 0.35s);
+  }
+  @keyframes linea-b { 0% { opacity: 0; translate: 0 4px; } 4%, 100% { opacity: 1; translate: 0 0; } }
+  @keyframes fase-1 { 0%, 23% { opacity: 1; } 27%, 100% { opacity: 0; } }
+  .f-boceto {
+    background: #fff;
+    animation: fase-2 var(--t) ease infinite both;
+  }
+  @keyframes fase-2 { 0%, 22% { opacity: 0; } 26%, 76% { opacity: 1; } 82%, 100% { opacity: 0; } }
+  .caja {
+    position: absolute;
+    border-radius: 1cqw;
+    border: 1px dashed color-mix(in oklab, var(--color-cacao) 45%, transparent);
+    animation: caja var(--t) ease infinite both;
+  }
+  /* del trazo a trazos (boceto) al color de Zernio (sistema): fondo #F8F4EE, tinta #251A17, acento #FE5A28 de su titular y su botón */
+  .caja.tit { --pinta: #251a17; }
+  .caja.cta, .caja.aviso { --pinta: #fe5a28; }
+  .caja.cta2, .caja.sub, .caja.nav { --pinta: #e8ddd3; }
+  .caja.codigo { --pinta: #fbf8f4; }
+  @keyframes caja {
+    0%, 26% { background: transparent; }
+    30%, 48% { background: transparent; border-color: color-mix(in oklab, var(--color-cacao) 45%, transparent); }
+    54%, 100% { background: var(--pinta); border-color: transparent; }
+  }
+  .f-web {
+    object-fit: cover;
+    object-position: top;
+    animation: fase-4 var(--t) ease infinite both;
+  }
+  @keyframes fase-4 { 0%, 72% { opacity: 0; } 78%, 96% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* 02 · CAMBIOS CON IA (Neety): pide → el agente → vista previa → publicado */
+  .f-pide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.6cqw;
+    padding: 0 7cqw 10cqw;
+    background: var(--color-niebla);
+    animation: fase-ab var(--t) ease infinite both;
+  }
+  @keyframes fase-ab { 0%, 47% { opacity: 1; } 52%, 100% { opacity: 0; } }
+  .quien-pide {
+    font: 400 3.2cqw/1 var(--font-mono);
+    color: color-mix(in oklab, var(--color-cacao) 55%, transparent);
+  }
+  .peticion {
+    font-size: 4.6cqw;
+    line-height: 1.3;
+    text-wrap: pretty;
+  }
+  .peticion span {
+    animation: palabra var(--t) ease infinite both;
+    animation-delay: calc(var(--n) * 0.1s);
+  }
+  @keyframes palabra { 0% { opacity: 0; } 2%, 100% { opacity: 1; } }
+  .agente {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2cqw;
+    margin-top: 1cqw;
+  }
+  .paso-ag {
+    display: flex;
+    align-items: center;
     gap: 2cqw;
-    overflow: hidden;
-    animation: abrir-hueco 6s var(--ease-out-expo) infinite both;
+    font: 400 3.3cqw/1.2 var(--font-mono);
+    animation: paso-ag var(--t) ease infinite both;
+    animation-delay: calc(2.6s + var(--k) * 0.45s);
   }
-  .nueva .b {
-    height: 10cqw;
-    background: var(--color-nogal);
-    animation: bloque-entra 6s var(--ease-out-expo) infinite both;
+  .paso-ag i {
+    width: 2.2cqw;
+    height: 2.2cqw;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    background: var(--color-coral);
+    border-color: var(--color-coral);
   }
-  .nueva .b:nth-child(2) { background: var(--color-naranja); animation-delay: 0.12s; }
-  .nueva .b:nth-child(3) { background: var(--color-nogal); animation-delay: 0.24s; }
-  @keyframes abrir-hueco { 0%, 14% { max-height: 0; } 28%, 94% { max-height: 12cqw; } 100% { max-height: 0; } }
-  @keyframes bloque-entra { 0%, 18% { opacity: 0; translate: 0 6cqw; } 30%, 94% { opacity: 1; translate: 0 0; } 100% { opacity: 0; } }
+  @keyframes paso-ag { 0% { opacity: 0; translate: -4px 0; } 3%, 100% { opacity: 1; translate: 0 0; } }
+  .f-vista {
+    animation: fase-cd var(--t) ease infinite both;
+  }
+  .f-vista img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+  @keyframes fase-cd { 0%, 48% { opacity: 0; } 53%, 98% { opacity: 1; } 100% { opacity: 0; } }
+  /* la métrica nueva entra en la vista previa con el estilo de Neety (tarjeta blanca, Berenjena) */
+  .metrica {
+    position: absolute;
+    left: 7cqw;
+    top: 56%;
+    padding: 2cqw 3cqw;
+    border-radius: 2cqw;
+    background: #fff;
+    color: #431b44;
+    font-size: 3.8cqw;
+    box-shadow: 0 0 0 1px rgb(67 27 68 / 0.12), 0 2cqw 5cqw -2cqw rgb(67 27 68 / 0.35);
+    animation: metrica var(--t) var(--ease-out-expo) infinite both;
+  }
+  .metrica b {
+    font-weight: 600;
+    color: #fe8238;
+  }
   .publicado {
     position: absolute;
     right: 5cqw;
-    bottom: 4cqw;
-    font-family: var(--font-mono);
-    font-size: 3.6cqw;
-    line-height: 1;
-    animation: publicado 6s ease infinite both;
-  }
-  .publicado b { font-weight: 600; color: var(--color-cacao); }
-  @keyframes publicado { 0%, 78% { opacity: 0; translate: 0 3px; } 83%, 96% { opacity: 1; translate: 0 0; } 100% { opacity: 0; } }
-
-  /* C · FORMACIÓN: tu equipo marca lo que ya sabe hacer con agentes; la barra de avance se llena (bucle de 6 s) */
-  .equipo {
-    display: flex;
-    align-items: center;
-    gap: 1cqw;
-    font-size: 4cqw;
-    font-weight: 500;
-    margin-bottom: 1.6cqw;
-  }
-  .equipo i {
-    width: 5cqw;
-    height: 5cqw;
-    border-radius: 50%;
-    background: var(--color-cacao);
-    box-shadow: 0 0 0 0.6cqw var(--color-niebla);
-  }
-  .equipo i + i { margin-left: -2.2cqw; background: var(--color-nogal); }
-  .equipo i + i + i { background: var(--color-naranja); }
-  .equipo span { margin-left: 1.6cqw; }
-  .paso {
-    display: flex;
-    align-items: center;
-    gap: 2.4cqw;
-    font-size: 3.8cqw;
-    line-height: 1.2;
-  }
-  .caja {
-    position: relative;
-    flex: none;
-    width: 4.4cqw;
-    height: 4.4cqw;
-    border-radius: 1cqw;
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 45%, transparent);
-    animation: marcar-caja 6s ease infinite both;
-    animation-delay: calc(var(--k) * 0.9s);
-  }
-  .caja::after {
-    content: '';
-    position: absolute;
-    left: 1.5cqw;
-    top: 0.6cqw;
-    width: 1.3cqw;
-    height: 2.4cqw;
-    border: solid var(--color-cacao);
-    border-width: 0 0.5cqw 0.5cqw 0;
-    rotate: 40deg;
-    scale: 0;
-    animation: marcar-tic 6s var(--ease-out-expo) infinite both;
-    animation-delay: calc(var(--k) * 0.9s);
-  }
-  @keyframes marcar-caja { 0%, 20% { background: transparent; } 26%, 90% { background: var(--color-naranja); box-shadow: none; } 100% { background: transparent; } }
-  @keyframes marcar-tic { 0%, 21% { scale: 0; } 28%, 90% { scale: 1; } 100% { scale: 0; } }
-  .avance {
-    display: block;
-    height: 1.2cqw;
-    margin-top: 2cqw;
+    top: 5cqw;
+    padding: 1.6cqw 2.6cqw;
     border-radius: 99px;
-    background: color-mix(in oklab, var(--color-cacao) 12%, transparent);
-    overflow: hidden;
-  }
-  .avance i {
-    display: block;
-    height: 100%;
     background: var(--color-cacao);
-    transform-origin: 0 50%;
-    animation: avance 6s ease infinite both;
+    color: var(--color-niebla);
+    font: 400 3.2cqw/1 var(--font-mono);
+    animation: publicado var(--t) var(--ease-out-expo) infinite both;
   }
-  @keyframes avance { 0%, 18% { scale: 0 1; } 30% { scale: 0.33 1; } 45% { scale: 0.66 1; } 60%, 90% { scale: 1 1; } 100% { scale: 0 1; } }
+  @keyframes publicado { 0%, 76% { opacity: 0; translate: 0 -6px; } 80%, 100% { opacity: 1; translate: 0 0; } }
+  @keyframes metrica { 0%, 56% { opacity: 0; scale: 0.9; } 62%, 100% { opacity: 1; scale: 1; } }
+
+  /* 03 · EQUIPOS CON IA (Neety): cuatro apartados de su manual, uno tras otro */
+  .manual .hoja {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    animation: hoja var(--t) ease infinite both;
+    animation-delay: calc(var(--k) * var(--t) / 4 - var(--t)); /* negativo: cada uno arranca ya en su fase */
+  }
+  @keyframes hoja { 0% { opacity: 0; translate: 0 3%; } 3%, 24% { opacity: 1; translate: 0 0; } 28%, 100% { opacity: 0; translate: 0 -2%; } }
+
+  .fuente {
+    margin-top: calc(var(--spacing) * 3);
+    color: var(--fg2);
+    text-wrap: pretty;
+  }
+  .fuente b {
+    font-weight: 400;
+    color: var(--fg);
+  }
 
   @media (width >= 64rem) {
     .servicio {
@@ -388,8 +464,8 @@ const LETRA = ['01', '02', '03', '04']; // ronda 44 · «los servicios no van po
       padding-block: calc(var(--spacing) * 8);
     }
     .letra { grid-column: 1; align-self: start; }
-    .nombre { grid-column: 2 / span 5; }
-    .demo { grid-column: 7 / span 3; grid-row: 1; width: 100%; }
+    .nombre { grid-column: 2 / span 4; }
+    .demo { grid-column: 6 / span 4; grid-row: 1; width: 100%; }
     .bajada { grid-column: 10 / span 3; grid-row: 1; }
   }
   /* con ratón: la demo está plegada hasta que pasas por su servicio; las demás filas se retiran */

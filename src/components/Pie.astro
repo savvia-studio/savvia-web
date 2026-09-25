@@ -33,7 +33,7 @@ const [antes, despues] = pie.tagline.split('savia');
     <div class="grid-12 gap-y-12">
       <div class="col-span-4 lg:col-span-7">
         <p class="text-h1 font-display tracking-[-0.02em] titular" data-entra>
-          {antes}<span class="marca" role="img" aria-label="savvia" data-marca><svg viewBox="0 0 1118 348" aria-hidden="true">{trazos.map((d) => <path d={d} />)}</svg></span>{despues}
+          {antes}<span class="marca" role="img" aria-label="savvia" data-marca><svg viewBox="0 0 1118 348" aria-hidden="true">{trazos.map((d) => <path d={d} />)}</svg></span>{despues.replace(/\.$/, '')}<button type="button" class="punto-luz" aria-pressed="false" aria-label="Encender la luz" data-punto-luz>.</button>
         </p>
         <p class="text-sub measure mt-4 lg:mt-6">{pie.pitch}</p>
       </div>
@@ -85,11 +85,162 @@ const [antes, despues] = pie.tagline.split('savia');
   <canvas class="clima" aria-hidden="true" data-clima></canvas>
   <!-- RONDA 43 · «en verano poner el rayo de luz que tenemos en el hero, que se mueve con el ratón ligeramente; y ojo que se va al salir el formulario» -->
   <div class="luz-pie" aria-hidden="true"><i class="haz"></i></div>
+  <!-- RONDA 58 · la luz del PUNTO FINAL del titular: un cono de luz cálida hacia el paisaje (el JS lo coloca) -->
+  <svg class="luz-ventana" aria-hidden="true" data-luz-ventana>
+    <defs><linearGradient id="luz-v" gradientUnits="userSpaceOnUse" data-luz-grad><stop offset="0" stop-color="rgb(255 238 205)" stop-opacity="0.3" /><stop offset="0.5" stop-color="rgb(255 226 180)" stop-opacity="0.13" /><stop offset="1" stop-color="rgb(255 220 170)" stop-opacity="0.08" /></linearGradient><filter id="luz-cono-blando" x="-20%" y="-5%" width="140%" height="110%"><feGaussianBlur stdDeviation="6" /></filter><filter id="luz-sombra-blanda" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7" /></filter><mask id="luz-sombra" maskUnits="userSpaceOnUse" x="-5000" y="-5000" width="20000" height="20000"><rect x="-5000" y="-5000" width="20000" height="20000" fill="white" /><polygon fill="black" filter="url(#luz-sombra-blanda)" data-luz-sombra /></mask></defs>
+    <!-- RONDA 59 · la SOMBRA del formulario, con perspectiva: la cuña que tapa el panel (rayos del punto por sus esquinas de arriba) se resta del cono -->
+    <g mask="url(#luz-sombra)" data-luz-enmascarada><polygon fill="url(#luz-v)" filter="url(#luz-cono-blando)" data-luz-cono /><g class="motas" data-luz-motas></g></g>
+  </svg>
   <p class="wrap linea detail flex justify-between" data-linea>
     <span>savvia · {pie.lugar} · {pie.desde}</span>
     <span>© {year}</span>
   </p>
 </footer>
+
+<script>
+  // RONDA 58 · Andoni: «quitamos la ventana del footer; si podemos conseguir algo parecido de una forma más sintetizada con el diseño, mejor».
+  // La luz sale del PUNTO FINAL de «La savvia de tu web.»: en reposo brilla apenas (quien se fija, lo ve); al pasar, se aviva; al pulsarlo se enciende
+  // como una bombilla y cae un CONO de luz cálida hasta el paisaje, que ilumina «Contáctanos» (una copia en luz recortada al cono) y le hace proyectar su
+  // SOMBRA; motas de polvo dentro. Otro clic la apaga; al abrir el formulario, se apaga sola.
+  {
+    const pie = document.querySelector<HTMLElement>('[data-pie]');
+    const btn = pie?.querySelector<HTMLButtonElement>('[data-punto-luz]');
+    const svg = pie?.querySelector<SVGSVGElement>('[data-luz-ventana]');
+    if (pie && btn && svg) {
+      const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const cono = svg.querySelector<SVGPolygonElement>('[data-luz-cono]')!, motas = svg.querySelector<SVGGElement>('[data-luz-motas]')!;
+      const grad = svg.querySelector<SVGLinearGradientElement>('[data-luz-grad]')!;
+      const sombraPol = svg.querySelector<SVGPolygonElement>('[data-luz-sombra]')!;
+      const NS = 'http://www.w3.org/2000/svg';
+      let on = false, k = 0, raf = 0, fl = 1;
+      // RONDA 59 · «que parpadee como una bombilla a medio fundir»: apagada, el punto titila a ratos (--f, en CSS); encendida, de vez en cuando la luz
+      // entera tiembla dos o tres veces y vuelve (fl multiplica el cono y la palabra iluminada)
+      const tiritar = () => {
+        if (reducido) return;
+        setTimeout(() => {
+          const n = 2 + Math.floor(Math.random() * 3), t0 = performance.now(), dur = 90 + n * 110;
+          const baches = Array.from({ length: n }, () => [Math.random() * dur, 30 + Math.random() * 60, 0.15 + Math.random() * 0.45]);
+          const paso = (ahora: number) => {
+            const t = ahora - t0;
+            fl = baches.reduce((v, [a, d, h]) => (t > a && t < a + d ? Math.min(v, h) : v), 1);
+            if (on) dibujar();
+            if (t < dur + 80) requestAnimationFrame(paso); else { fl = 1; if (on) dibujar(); }
+          };
+          if (on && document.visibilityState === 'visible') requestAnimationFrame(paso);
+          tiritar();
+        }, 2600 + Math.random() * 6400);
+      };
+      tiritar();
+      const puntos = Array.from({ length: 16 }, (_, n) => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', String(0.8 + (n % 3) * 0.5)); c.style.setProperty('--n', String(n)); motas.append(c); return c; });
+      const palabra = pie.querySelector<HTMLElement>('[data-contacta-txt]');
+      const paisaje = pie.querySelector<HTMLElement>('[data-paisaje]');
+      const lit = document.createElement('span');
+      lit.className = 'contacta-luz'; lit.setAttribute('aria-hidden', 'true'); lit.textContent = palabra?.textContent ?? '';
+      paisaje?.append(lit);
+      // la copia del FONDO (sin <defs>: sus url(#…) usan los del original), la primera del pie: se pinta antes que el paisaje
+      const fondo = svg.cloneNode(true) as SVGSVGElement;
+      fondo.querySelector('defs')?.remove(); fondo.querySelector('[data-luz-motas]')?.remove(); fondo.removeAttribute('data-luz-ventana');
+      fondo.classList.add('fondo'); fondo.style.opacity = '0';
+      const fondoCono = fondo.querySelector<SVGPolygonElement>('[data-luz-cono]')!; fondoCono.removeAttribute('data-luz-cono');
+      fondo.querySelector('[data-luz-enmascarada]')?.removeAttribute('mask'); // dentro del cristal, la luz que pasa por detrás: sin la cuña de sombra
+      const formEl = pie.querySelector<HTMLElement>('[data-form]');
+      if (paisaje && formEl) paisaje.insertBefore(fondo, formEl); else pie.prepend(fondo);
+      const sombra = document.createElement('div'); sombra.className = 'sombra-form'; sombra.setAttribute('aria-hidden', 'true');
+      if (paisaje) paisaje.insertBefore(sombra, fondo); else svg.after(sombra); // detrás de la hierba (z 3) y del panel: cae sobre montes y árboles
+      const dibujar = () => {
+        btn.style.setProperty('--k', k.toFixed(3));
+        const pr = pie.getBoundingClientRect(), br = btn.getBoundingClientRect();
+        svg.setAttribute('viewBox', `0 0 ${pr.width} ${pr.height}`);
+        // el punto: el centro del glifo (el punto de Family cae abajo, sobre la línea base)
+        const px = br.left - pr.left + br.width * 0.5, py = br.top - pr.top + br.height * 0.78;
+        // RONDA 59 · «cuando clicas, ilumina todo el Contáctanos»: el cono apunta al centro de la palabra y se abre lo justo para cubrirla entera
+        // (a su altura, su media anchura + un margen); sigue hasta el suelo del paisaje
+        const wr0 = palabra?.getBoundingClientRect();
+        const cx = wr0 ? wr0.left - pr.left + wr0.width / 2 : px + 200, cy = wr0 ? wr0.top - pr.top + wr0.height * 0.55 : pr.height * 0.8;
+        const dx = cx - px, dy = Math.max(40, cy - py), dW = Math.hypot(dx, dy);
+        const suelo = pr.height * 0.97, L = Math.max(dy, suelo - py);
+        const vx = dx * (L / dy), vy = L, r0 = Math.max(3, br.width * 0.2);
+        const ang = Math.atan2(vy, vx), nx = -Math.sin(ang), ny = Math.cos(ang);
+        // media anchura necesaria a la distancia de la palabra (medida perpendicular al eje del cono), llevada al final del cono
+        const mitad = wr0 ? (wr0.width / 2 + 40) * Math.abs(Math.sin(ang)) + wr0.height * 0.6 : 200;
+        const r1 = Math.max(L * 0.24, mitad * (Math.hypot(vx, vy) / dW));
+        const P = [[px + nx * r0, py + ny * r0], [px + vx + nx * r1, py + vy + ny * r1], [px + vx - nx * r1, py + vy - ny * r1], [px - nx * r0, py - ny * r0]];
+        cono.setAttribute('points', P.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' '));
+        grad.setAttribute('x1', String(px)); grad.setAttribute('y1', String(py)); grad.setAttribute('x2', String(px + vx)); grad.setAttribute('y2', String(py + vy));
+        svg.style.opacity = String(k * fl);
+        // RONDA 59 · la luz queda DETRÁS del cristal del formulario y se TRANSPARENTA: el cono de arriba (sobre el paisaje) lleva el hueco del panel, y
+        // una copia del cono pintada ANTES del paisaje (fondo), recortada al panel, es lo que el desenfoque del cristal deja ver, esmerilado
+        const fm = pie.querySelector<HTMLElement>('[data-form]');
+        if (fm && !fm.hidden && k > 0) {
+          const f = fm.getBoundingClientRect(), x = f.left - pr.left, y = f.top - pr.top;
+          const caja = `M${x.toFixed(1)} ${y.toFixed(1)}h${f.width.toFixed(1)}v${f.height.toFixed(1)}h${(-f.width).toFixed(1)}Z`;
+          svg.style.clipPath = `path(evenodd, 'M0 0H${pr.width.toFixed(0)}V${pr.height.toFixed(0)}H0Z ${caja}')`;
+          // la cuña: de las esquinas de arriba del panel, siguiendo los rayos que salen del punto, hasta más allá del suelo (se abre con la perspectiva)
+          const Y = pr.height + 400, rayo = (cx0: number) => px + (cx0 - px) * ((Y - py) / Math.max(1, y - py));
+          sombraPol.setAttribute('points', `${x},${y + 6} ${x + f.width},${y + 6} ${rayo(x + f.width)},${Y} ${rayo(x)},${Y}`);
+          fondo.style.clipPath = `path('${caja}')`; fondo.style.opacity = String(k * fl);
+        } else { svg.style.clipPath = ''; fondo.style.opacity = '0'; sombraPol.setAttribute('points', ''); }
+        // la copia vive DENTRO del paisaje (justo detrás del panel, delante del velo y los árboles): se coloca con las coordenadas del pie
+        if (paisaje) { const qr = paisaje.getBoundingClientRect(); fondo.style.left = `${pr.left - qr.left}px`; fondo.style.top = `${pr.top - qr.top}px`; fondo.style.width = `${pr.width}px`; fondo.style.height = `${pr.height}px`; }
+        fondo.setAttribute('viewBox', svg.getAttribute('viewBox')!);
+        // RONDA 59 · «el formulario debería proyectar algo de sombra al abrirse»: una sombra blanda que sigue al panel (la de la LUZ es la cuña de arriba)
+        if (fm && !fm.hidden) {
+          const f = fm.getBoundingClientRect();
+          const qr = (paisaje ?? pie).getBoundingClientRect(), sx = 0, sy = 20;
+          sombra.style.left = `${f.left - qr.left + sx - 12}px`; sombra.style.top = `${f.top - qr.top + sy - 12}px`; sombra.style.width = `${f.width + 24}px`; sombra.style.height = `${f.height + 24}px`;
+          sombra.style.setProperty('--sa', '0.34');
+        }
+        sombra.classList.toggle('on', !!fm && !fm.hidden && pie.classList.contains('form-abierto'));
+        fondoCono.setAttribute('points', cono.getAttribute('points')!);
+        puntos.forEach((c, n) => { const t = ((n * 0.37) % 1) * 0.85 + 0.1, lado = ((n * 0.61) % 1) - 0.5; c.setAttribute('cx', (px + vx * t + nx * lado * 2 * r1 * t).toFixed(1)); c.setAttribute('cy', (py + vy * t + ny * lado * 2 * r1 * t).toFixed(1)); });
+        if (palabra && paisaje) {
+          const wr = palabra.getBoundingClientRect(), qr = paisaje.getBoundingClientRect();
+          const ox = wr.left - pr.left, oy = wr.top - pr.top;
+          lit.style.left = `${wr.left - qr.left}px`; lit.style.top = `${wr.top - qr.top}px`;
+          lit.style.fontSize = getComputedStyle(palabra).fontSize;
+          const d = Math.hypot(vx, vy) || 1;
+          lit.style.setProperty('--sx', `${((vx / d) * 56).toFixed(1)}px`); lit.style.setProperty('--sy', `${((vy / d) * 56).toFixed(1)}px`);
+          lit.style.opacity = pie.classList.contains('pintado-luz') && !pie.classList.contains('form-abierto') ? String(k * fl * 0.62) : '0';
+          lit.style.clipPath = k > 0.01 ? `polygon(${P.map(([a, b]) => `${(a - ox).toFixed(1)}px ${(b - oy).toFixed(1)}px`).join(', ')})` : 'inset(50%)';
+        }
+      };
+      const ir = (meta: number, dur: number) => {
+        cancelAnimationFrame(raf);
+        if (reducido) { k = meta; dibujar(); return; }
+        const a0 = k, t0 = performance.now();
+        // una bombilla: se enciende con un parpadeo corto y se apaga suave
+        const paso = (ahora: number) => {
+          const p = Math.min(1, (ahora - t0) / dur);
+          const e = meta > a0 ? (p < 0.12 ? p * 5 : p < 0.2 ? 0.35 : 1 - Math.pow(1 - p, 3)) : p * p; // al encender, un parpadeo; al apagar, se va suave
+          k = a0 + (meta - a0) * Math.min(1, e); dibujar();
+          if (p < 1) raf = requestAnimationFrame(paso);
+        };
+        raf = requestAnimationFrame(paso);
+      };
+      btn.addEventListener('click', () => {
+        on = !on;
+        btn.setAttribute('aria-pressed', String(on));
+        btn.setAttribute('aria-label', on ? 'Apagar la luz' : 'Encender la luz');
+        pie.classList.toggle('luz-encendida', on);
+        ir(on ? 1 : 0, on ? 900 : 700);
+      });
+      // RONDA 59 · «la luz, si la tienes encendida al abrir el formulario, tiene que quedarse por detrás»: sigue encendida y el panel la tapa (se recorta su
+      // hueco en el cono mientras el panel está a la vista: al subir y al bajar se sigue fotograma a fotograma)
+      let siguiendo = 0;
+      new MutationObserver(() => {
+        const hasta = performance.now() + 1500;
+        cancelAnimationFrame(siguiendo);
+        const seguir = () => { dibujar(); if (performance.now() < hasta) siguiendo = requestAnimationFrame(seguir); };
+        seguir();
+      }).observe(pie, { attributes: true, attributeFilter: ['class'] });
+      addEventListener('resize', () => dibujar());
+      new ResizeObserver(() => dibujar()).observe(pie);
+      new MutationObserver(() => { const si = !!pie.querySelector('.pintado') || pie.classList.contains('pintado'); if (si !== pie.classList.contains('pintado-luz')) { pie.classList.toggle('pintado-luz', si); dibujar(); } }).observe(pie, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      dibujar();
+      (window as any).__punto = () => ({ on, k: +k.toFixed(2), cono: cono.getAttribute('points') });
+    }
+  }
+</script>
 
 <script>
   import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
@@ -732,6 +883,108 @@ const [antes, despues] = pie.tagline.split('savia');
   .pie:has(.pintado) .clima {
     opacity: 1;
   }
+  /* RONDA 58 · EL PUNTO QUE ES UNA LUZ: el punto final del titular, un botón del tamaño del glifo; en reposo brilla apenas (respira muy despacio), al
+     pasar se aviva, encendido es una bombilla cálida */
+  .punto-luz {
+    all: unset;
+    position: relative;
+    cursor: pointer;
+    pointer-events: auto; /* el bloque del texto no coge el puntero (ronda 27); el punto, sí */
+    color: inherit;
+    --k: 0;
+    color: color-mix(in oklab, rgb(255 236 200) calc(var(--k) * 100%), currentColor);
+    text-shadow: 0 0 calc(4px + var(--k) * 14px) rgb(255 226 180 / calc(0.25 + var(--k) * 0.6));
+    animation: respira 7.3s steps(1, end) infinite;
+  }
+  .punto-luz:hover,
+  .punto-luz:focus-visible {
+    text-shadow: 0 0 calc(8px + var(--k) * 14px) rgb(255 226 180 / calc(0.55 + var(--k) * 0.4));
+  }
+  .punto-luz:focus-visible {
+    outline: 1px solid var(--fg2);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  .luz-encendida .punto-luz {
+    animation: none;
+  }
+  /* RONDA 59 · una bombilla A MEDIO FUNDIR: brilla tibia y, a ratos, titila (dos o tres caídas rápidas) y se recupera; el ciclo es irregular */
+  @keyframes respira {
+    0%, 17%, 19.5%, 21%, 48%, 50%, 71%, 72.5%, 74%, 75.5%, 100% { text-shadow: 0 0 7px rgb(255 226 180 / 0.42); color: color-mix(in oklab, rgb(255 236 200) 45%, currentColor); }
+    18%, 20%, 49%, 72%, 75% { text-shadow: 0 0 2px rgb(255 226 180 / 0.06); color: currentColor; }
+    73% { text-shadow: 0 0 4px rgb(255 226 180 / 0.2); color: color-mix(in oklab, rgb(255 236 200) 18%, currentColor); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .punto-luz { animation: none; }
+  }
+  /* RONDA 56 · «Contáctanos» ILUMINADA por la luz de la ventana, con su sombra (la copia la coloca el JS sobre la palabra; recortada al haz) */
+  .paisaje :global(.contacta-luz) {
+    position: absolute;
+    z-index: 2;
+    font-family: var(--font-display);
+    line-height: 0.82;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    color: rgb(255 238 208);
+    text-shadow: var(--sx, 10px) var(--sy, 16px) 7px rgb(14 6 3 / 0.85);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s linear;
+  }
+
+  /* RONDA 59 · con el formulario abierto, la luz SIGUE (el panel la tapa: el JS recorta su hueco en el cono); la palabra iluminada se retira con la palabra */
+  .form-abierto .paisaje :global(.contacta-luz) {
+    opacity: 0 !important;
+    transition: opacity 0.15s linear !important;
+  }
+  .paisaje :global(.luz-ventana.fondo) {
+    position: absolute;
+    inset: auto;
+    z-index: 2; /* mismo nivel que el panel y antes en el DOM: detrás del cristal, delante del velo y los árboles */
+    pointer-events: none;
+    overflow: visible;
+  }
+  /* la SOMBRA del formulario (ronda 59): una mancha oscura desenfocada, desplazada hacia donde va la luz; dentro del paisaje, detrás del panel y de la
+     hierba (que la tapa: la sombra cae sobre montes y árboles, no sobre el prado de delante) */
+  .pie :global(.sombra-form) {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    border-radius: 24px;
+    background: rgb(12 5 2 / var(--sa, 0.34));
+    filter: blur(44px);
+  }
+  .pie :global(.sombra-form.on) {
+    opacity: 1;
+  }
+  /* el HAZ: sobre el paisaje, bajo el texto; se apaga con el formulario */
+  .luz-ventana {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+    opacity: 0;
+  }
+
+  .motas :global(circle) {
+    fill: rgb(255 240 215);
+    opacity: 0.55;
+    animation: mota 7s ease-in-out infinite alternate;
+    animation-delay: calc(var(--n) * -0.9s);
+  }
+  @keyframes mota {
+    from { translate: -6px 8px; }
+    to { translate: 8px -10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .motas :global(circle) { animation: none; }
+  }
+
   /* el RAYO del verano: el haz del hero (Rosa niebla translúcida, 18°), algo más presente, que se desplaza un poco con el ratón; solo en verano, con
      el paisaje pintado y sin el formulario */
   .luz-pie {
