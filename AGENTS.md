@@ -2045,3 +2045,6 @@ en mono en el pie.
   raro; debería seguir la perspectiva». La sombra de la luz es ahora una CUÑA: de las dos esquinas de arriba del panel, siguiendo los rayos que salen del punto, hasta
   más allá del suelo (se abre con la distancia); se resta del cono con una `<mask>` SVG desenfocada (7 px: canto blando) en vez del hueco recto. La copia de la luz
   tras el cristal no lleva la cuña. La mancha de la sombra ya no se desplaza con la luz (queda la sombra blanda de siempre). Capturas Chrome y WebKit a 1600.
+- **PUBLICADA (25/09) en https://savvia.studio** (Andoni: «sube a GitHub y publica»): rondas 53–59 en un commit, push de `6eeef92` → Vercel. Medido EN VIVO:
+  `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 (una primera pasada dio un 404 de un script de la versión anterior mientras
+  se propagaba el despliegue; a los 20 s, limpio) · `tools/r59-sonidos.cjs` en vivo: mp3 200, ambiente y impresora suenan. Sigue `noindex`.
