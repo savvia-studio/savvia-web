@@ -2484,3 +2484,5 @@ en mono en el pie.
 - **Hecho (`transicion.ts`, `global.css`):** la GOTA de `data-sube`: una capa de Cacao con grano asoma por el centro de abajo con el perfil de campana, se ensancha y cubre
   (0,5 s); en la página nueva, la página asoma igual y el Cacao se retira (0,55 s). Fuera las tres capas de ola.
 - **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390): limpio · `tools/r68-transicion.cjs` (Chrome y WebKit).
+- **PUBLICADA (29/09) en https://savvia.studio:** commit `bcdb29b` → Vercel. Fuera del repositorio (`.gitignore`) el material en bruto de `tools/` (láminas originales, tomas del reel, música): 250 → 45 MB. Medido EN VIVO: `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0; logotipo, favicon, imagen para compartir y reel responden 200; la transición llega al caso sin capas colgadas. Sigue `noindex`.
+- **Pendiente de Andoni:** el enlace de cal.com; el (+) de estaciones sigue redondo.
