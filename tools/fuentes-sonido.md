@@ -10,3 +10,7 @@ Todas de Pixabay, licencia de contenido de Pixabay (uso libre, también comercia
 | ambiente-verano.mp3 | https://pixabay.com/sound-effects/nature-field-meadow-insects-crickets-summer-day-notl-10-57854/ | freesound_community | desde 65 s |
 | ambiente-otono.mp3 | https://pixabay.com/sound-effects/nature-autumn-wind-grabbs-the-trees-17477/ | freesound_community | desde 161 s |
 | ambiente-invierno.mp3 | https://pixabay.com/sound-effects/nature-gusty-winter-wind-loop-by-using-crossfades-215541/ | Shut_Up_Ghost | desde 200 s |
+
+## Reel (ronda 60) — música provisional
+- «Distant Miles», JonasBlakewood (Pixabay, licencia de contenido de Pixabay: uso libre sin atribución) · https://pixabay.com/music/beats-distant-miles-313990/
+  → `tools/reel/distant-miles.mp3` (y copia en `tools/reel/hf/assets/`). 92 BPM. Provisional hasta elegir el tema definitivo (Artlist/Musicbed).

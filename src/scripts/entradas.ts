@@ -65,6 +65,19 @@ if (!reducido && 'IntersectionObserver' in window) {
       if (v !== s.v) { s.v = v; dibujar(s.path, v); }
     }
   };
+  // RONDA 65 · «el logo, cuando pasas entre secciones, cambia mal de color: se queda un rato con el que no toca»: la gota de la sección que llega
+  // cubre la barra ANTES de que llegue la sección. La barra pregunta aquí qué sección pinta un punto, contando con la gota (misma curva que dibujar)
+  (window as any).__subeEn = (x: number, y: number): HTMLElement | null => {
+    for (const s of subes) {
+      if (!s.on || s.v <= 0) continue;
+      const r = s.path.getBoundingClientRect();
+      if (y < r.top || y > r.bottom || x < r.left || x > r.right) continue;
+      const p = s.v, ee = 1 - Math.pow(1 - p, 2.2), w = 12 + 310 * p * p * p * p, t = ((x - r.left) / r.width * 100 - 50) / w;
+      const tope = r.top + (r.height * (100 - (100 * ee) / Math.pow(1 + t * t, 1.5))) / 100;
+      if (y >= tope) return s.sec;
+    }
+    return null;
+  };
   const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(mover); } };
   const io = new IntersectionObserver((es) => { es.forEach((e) => { const s = subes.find((x) => x.sec === e.target); if (s) s.on = e.isIntersecting; }); pedir(); }, { rootMargin: '30% 0px' });
   subes.forEach((s) => io.observe(s.sec));

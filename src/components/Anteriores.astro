@@ -20,10 +20,15 @@
 //     HOMOGRAFÍA (cuadrado unidad → cuadrilátero) que se aplica como `matrix3d`; los términos de perspectiva y traslación van en píxeles, así que
 //     dependen del tamaño real de la lámina en pantalla: el JS mide la mesa y deja la escala en `--s`.
 //   · Barras de navegador a 16 px (antes 24).
-import { proyectos, voces } from '../data/home';
-import Flora from './Flora.astro';
+import { proyectos } from '../data/home';
 const A = proyectos.anteriores;
-type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number };
+const CELDAS = proyectos.celdas, T = proyectos.testimonios;
+const pad = (n: number) => String(n).padStart(2, '0');
+// RONDA 65 · dos FRANJAS entre filas del mosaico: HECHOS Y LOGOTIPOS tras la primera (estilo minimum.run: una línea, la frase a la izquierda, los hechos
+// numerados a la derecha y el muro de logotipos en baldosas, cada logotipo una máscara en el color del texto) y TESTIMONIOS tras la tercera (la captura de
+// Andoni: franja oscura a sangre, una línea sobre cada uno, el RETRATO grabado —la imagen la prepara Andoni; sin ella, la tarjeta empieza por la cita—,
+// el nombre y el cargo). Fuera las voces que rotaban, el reproductor dormido y la flora.
+type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean };
 // Los DEGRADADOS salen de los colores de la web de cada cliente (home.ts › color); las escenas no llevan degradado (llevan la mesa).
 // RONDA 40 · «los testimonios ponemos menos cantidad y que sean animados y vayan rotando; si se nos ocurre alguna manera original de mostrarlos,
 // mejor»: TRES voces en un solo sitio del mosaico, junto a Isotrol. Cada cita entra palabra a palabra (el gesto de los titulares), un hilo de savia
@@ -33,9 +38,16 @@ const SITIO: Sitio[] = [
   { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5 },
   { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6 }, // ronda 20: «Cubbo lo dejamos como estaba con el fondo de gradiente» (el iMac de roble queda en QUAD, sin uso)
   { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'movil', zoom: 1.9, cy: 0.5 }, // ronda 30: con 1,35 la lámina (16:9) no cubría la pieza cuadrada (ni redondeaba)
-  { col: '5 / span 4', ratio: '4 / 5', baja: 0, tipo: 'escena', est: 'invierno', zoom: 2.7, cy: 0.58 },
+  // RONDA 67 · «al final solo 2 proyectos, no 3» (Naterra sube) y «la línea de Isotrol, Monad y Naterra, como la primera»: la misma composición que la
+  // primera fila (cuadrada a la izquierda, 3 : 4 en el centro, 4 : 5 bajada a la derecha)
+  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'escena', est: 'invierno', zoom: 2.9, cy: 0.56 },
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'claro', g: 'g-marca', giro: 5, izq: true },
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'escena', est: 'primavera', zoom: 3.1, cy: 0.58 },
+  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -5 },
+  { col: '8 / span 4', ratio: '4 / 5', baja: 40, tipo: 'mancha', g: 'g-marca', giro: 4, izq: true },
 ];
-const V = voces.filter((v) => v.rota);
+// los logotipos que rotan en la pieza de entrada: solo los proyectos que tienen el suyo
+const AL = A.filter((c) => c.logo);
 // RONDA 42 · «los testimonios no van antes de nuestros proyectos, van entre medias, y que puedas cambiar de testimonio con unas flechas muy sutiles»:
 // una fila entera en medio del mosaico (tras la primera fila de proyectos), centrada; el nombre de quien habla entre dos flechas finas.
 // la pantalla del monitor dentro de la lámina de la mesa (medida en la ronda 6)
@@ -43,7 +55,7 @@ const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // ronda 26: la caj
 const LAM = { w: 1672, h: 941 };
 // las pantallas en perspectiva: esquinas medidas por inundación en la lámina (px): TL · TR · BR · BL
 const QUAD: Record<string, { foto: string; q: [number, number][] }> = {
-  movil: { foto: 'mesa-movil', q: [[974, 188], [1194, 183], [1184, 708], [950, 695]] },
+  movil: { foto: 'mesa-movil', q: [[964, 183], [1205, 178], [1195, 714], [943, 705]] }, // ronda 67: esquinas de las rectas ajustadas a los cuatro bordes de la pantalla (antes, las de dentro del redondeo)
   roble: { foto: 'mesa-roble', q: [[792, 274], [1220, 249], [1212, 535], [781, 519]] },
 };
 // homografía del cuadrado unidad al cuadrilátero (Heckbert): x' = (a·u + b·v + c) / (g·u + h·v + 1)
@@ -82,9 +94,9 @@ function escenaQuad(k: string) {
            logotipos se relevan fundiéndose como gotas (filtro gooey solo durante el relevo: en reposo el logotipo se ve limpio) y el degradado
            de detrás vira a los colores de cada proyecto (@property: los colores se interpolan). -->
       <div class="pieza entrada" data-pieza style="--i:0">
-        <div class="lamina g-marca rota" data-rota data-colores={JSON.stringify(A.map((c) => c.color))} style={`--c1:${A[0].color[0]};--c2:${A[0].color[1]};--c3:${A[0].color[2]}`}>
-          <div class="logos" role="img" aria-label={`Logotipos: ${A.map((c) => c.n).join(', ')}`}>
-            {A.map((c, i) => <i class={i === 0 ? 'on' : ''} style={`--logo:url('/media/anteriores/logos/${c.logo}.svg')`} data-logo />)}
+        <div class="lamina g-marca rota" data-rota data-colores={JSON.stringify(AL.map((c) => c.color))} style={`--c1:${AL[0].color[0]};--c2:${AL[0].color[1]};--c3:${AL[0].color[2]}`}>
+          <div class="logos" role="img" aria-label={`Logotipos: ${AL.map((c) => c.n).join(', ')}`}>
+            {AL.map((c, i) => <i class={i === 0 ? 'on' : ''} style={`--logo:url('/media/anteriores/logos/${c.logo}.svg')`} data-logo />)}
           </div>
         </div>
         <p class="pie text-aux text-fg2 mt-4">{proyectos.intro2}</p>
@@ -102,37 +114,70 @@ function escenaQuad(k: string) {
           return (
             <>
             {i === 2 && (
-
-              <figure class="voces" data-voces data-alguno={V.some((v) => v.video) ? '' : undefined}>
-                <Flora lamina="helecho" fondo="niebla" opacidad={0.4} soloEscritorio estilo="left:-15rem;top:-2rem;width:13rem" />
-                <Flora lamina="brezo" fondo="niebla" opacidad={0.35} voltear soloEscritorio estilo="right:-13rem;bottom:-3rem;width:11rem" />
-        <div class="citas">
-          {V.map((v, k) => (
-            <blockquote class={`cita ${k === 0 ? 'on' : ''}`} data-cita={k} data-de={v.de} data-video={v.video || undefined} data-poster={v.poster || undefined} data-ar={v.video ? v.ar.toFixed(4) : undefined} aria-hidden={k === 0 ? 'false' : 'true'}>
-              {`«${v.q}»`.split(' ').map((w, n) => <><span class="pal"><span style={`--n:${n}`}>{w}</span></span>{' '}</>)}
-            </blockquote>
-          ))}
-        </div>
-        <figcaption class="autor">
-          <span class="quien-fila">
-          <button type="button" class="flecha-v" aria-label="Testimonio anterior" data-voz="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></button>
-          <span class="quienes">
-            {V.map((v, k) => (
-              <span class={`quien ${k === 0 ? 'on' : ''}`} data-quien={k} aria-hidden={k === 0 ? 'false' : 'true'}>
-                <span class="nombre-v">{v.n}</span>
-                <span class="rol">{v.r}</span>
-              </span>
-            ))}
-          </span>
-          <button type="button" class="flecha-v" aria-label="Testimonio siguiente" data-voz="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6.5L15 12l-5.5 5.5" /></svg></button>
-          </span>
-          <!-- RONDA 47 · «quitamos la barra de progreso y el icono del vídeo lo hacemos más sutil, más mimetizado con el fondo»: la cámara ocupa el
-               sitio del hilo de tiempo, centrada bajo el nombre, en línea fina del color del texto (sin cristal) -->
-          <button type="button" class="vid-voz" aria-label="Ver el vídeo del testimonio" aria-haspopup="dialog" data-voz-video><i class="gota" aria-hidden="true"></i><i class="onda" aria-hidden="true"></i><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></button>
-        </figcaption>
-      </figure>
+              <div class="banda cuadricula" data-banda data-cuadricula>
+                <span class="guias" aria-hidden="true">
+                  {[0, 1, 2].map((r) => <i class="gh" style={`--r:${r}`} />)}
+                  {[1, 2].map((c) => <i class="gv" style={`--c:${c}`} />)}
+                  {[0, 1, 2].flatMap((r) => [0, 1, 2, 3].map((c) => <i class="gx" style={`--r:${r};--c:${c}`} />))}
+                </span>
+                {CELDAS.map((celda, c) => (
+                  <div class="celda" style={`--c:${c}`} data-celda>
+                    {celda.map((it, k) => (
+                      <div class={`item ${it.tipo} ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-item>
+                        {it.tipo === 'cita' && (
+                          <>
+                            <p class="cq">“{it.q}”</p>
+                            <p class="cn">{it.n}</p>
+                            <p class="cr">{it.r}</p>
+                          </>
+                        )}
+                        {it.tipo === 'marca' && (
+                          <>
+                            <p class="cr">{it.rotulo}</p>
+                            {it.texto ? (
+                              <p class="marca-txt"><i class="mk" style={`--logo:url('${it.logo}')`} aria-hidden="true" />{it.texto}</p>
+                            ) : (
+                              <i class="mk grande" role="img" aria-label={it.n} style={`--logo:url('${it.logo}')`} />
+                            )}
+                          </>
+                        )}
+                        {it.tipo === 'cifra' && (
+                          <>
+                            <p class="cr">{it.l === 'desde' ? 'Desde' : ' '}</p>
+                            <p class="cv font-display tabular-nums">{it.v}</p>
+                            {it.l !== 'desde' && <p class="cr">{it.l}</p>}
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             )}
-            <a class={`pieza ${s.tipo}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
+            {i === 7 && (
+              <figure class="banda voz" data-banda data-voz>
+                <!-- RONDA 67 · «a los retratos, el estilo dithering, que se mimeticen más con el fondo; el cambio, animado con el estilo de savvia»: cada retrato
+                     se pinta como TRAMA DE PUNTOS en el color del texto (lienzo 2D; la imagen es solo la fuente) y el relevo es el pintado rasgado de savvia -->
+                <div class="retratos" aria-hidden="true" data-retratos>
+                  {T.map((t) => <img class="fuente-r" src={t.retrato} alt="" width="1254" height="1254" loading="lazy" decoding="async" data-retrato />)}
+                  <canvas class="retrato-cv" data-rc></canvas>
+                  <canvas class="retrato-cv" data-rc></canvas>
+                </div>
+                <div class="voz-txt">
+                  <div class="citas">
+                    {T.map((t, k) => <blockquote class={`vq font-display ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-vq>«{t.q}»</blockquote>)}
+                  </div>
+                  <figcaption class="autor">
+                    <button type="button" class="flecha-v" aria-label="Testimonio anterior" data-paso="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5L9 12l5.5 5.5" /></svg></button>
+                    <span class="quienes">
+                      {T.map((t, k) => <span class={`quien ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-quien><b>{t.n}</b><span>{t.r}</span></span>)}
+                    </span>
+                    <button type="button" class="flecha-v" aria-label="Testimonio siguiente" data-paso="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6.5L15 12l-5.5 5.5" /></svg></button>
+                  </figcaption>
+                </div>
+              </figure>
+            )}
+            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
               <div class={`lamina ${s.g ?? ''}`}>
                 {s.tipo === 'escena' ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
@@ -162,33 +207,6 @@ function escenaQuad(k: string) {
       }
     </div>
   </div>
-  <!-- RONDA 46 · EL REPRODUCTOR de los testimonios en vídeo: una tarjeta oscura que se PINTA desde la cámara (el cambio de estación del árbol, como
-       el menú), el vídeo sin los controles del navegador y, debajo, los nuestros: reproducir, el hilo de savia que mide y busca, el tiempo en mono
-       y el sonido. Esc, la × o un clic fuera lo cierran (se recoge hacia la cámara). -->
-  <dialog class="reproductor" aria-labelledby="rep-n" data-reproductor>
-    <div class="rep-panel surface-dark" data-rep-panel>
-      <header class="rep-cab">
-        <p class="rep-quien"><span id="rep-n" class="nombre-v" data-rep-n></span><span class="rol" data-rep-r></span></p>
-        <button type="button" class="rep-x" aria-label="Cerrar el vídeo" data-rep-cerrar><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
-      </header>
-      <div class="rep-vista">
-        <video class="rep-video" playsinline preload="metadata" data-rep-video></video>
-        <button type="button" class="rep-grande" aria-label="Reproducir" tabindex="-1" data-rep-grande><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg></button>
-      </div>
-      <div class="rep-mandos">
-        <button type="button" class="rep-bt" aria-label="Reproducir" data-rep-play>
-          <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
-          <svg class="ic-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
-        </button>
-        <span class="rep-hilo" role="slider" tabindex="0" aria-label="Posición del vídeo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-rep-hilo><i></i></span>
-        <span class="rep-t detail" data-rep-t>0:00 / 0:00</span>
-        <button type="button" class="rep-bt" aria-label="Silenciar" data-rep-son>
-          <svg class="ic-son" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M15.5 9.2a4 4 0 010 5.6M18 6.8a7.5 7.5 0 010 10.4" /></svg>
-          <svg class="ic-mudo" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M16 10l4 4M20 10l-4 4" /></svg>
-        </button>
-      </div>
-    </div>
-  </dialog>
 </section>
 
 <script>
@@ -200,7 +218,7 @@ function escenaQuad(k: string) {
   {
     const sec = document.getElementById('anteriores');
     if (sec && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const els = [...sec.querySelectorAll<HTMLElement>('.cabecera, .mosaico > .pieza, .mosaico > .voces')];
+      const els = [...sec.querySelectorAll<HTMLElement>('.cabecera, .mosaico > .pieza, .mosaico > .banda')];
       let centros: number[] = [], vista = false, raf = 0;
       const medir = () => {
         els.forEach((e) => (e.style.transform = ''));
@@ -230,7 +248,6 @@ function escenaQuad(k: string) {
 </script>
 
 <script>
-  import { dibujar } from '../scripts/dibujar';
   // RONDA 19 · el VÍDEO de cada web: al pasar el cursor o enfocar la pieza; en táctil (sin hover), mientras la pieza está a la vista.
   // Con movimiento reducido no se reproduce solo. La fuente se carga la primera vez que hace falta (preload="none").
   {
@@ -254,99 +271,138 @@ function escenaQuad(k: string) {
     const ro = new ResizeObserver((es) => es.forEach((e) => (e.target as HTMLElement).style.setProperty('--s', String(e.contentRect.width / 1672))));
     mesas.forEach((m) => { m.style.setProperty('--s', String(m.offsetWidth / 1672)); ro.observe(m); });
   }
-  // ── LAS VOCES QUE ROTAN (ronda 40): 9 s cada una; se paran con el puntero encima, fuera de pantalla o con movimiento reducido; el nombre se elige
+  // RONDA 66 · LA CUADRÍCULA QUE ROTA: cada celda releva su contenido cada 4,8 s, escalonadas (la celda c, c × 0,8 s después); el que se va se desenfoca
+  // y sube, el que llega viene de abajo y enfoca. Solo a la vista y sin movimiento reducido. Y EL TESTIMONIO: uno a la vez, cada 9 s, con flechas; se para
+  // con el puntero encima.
   {
-    const caja = document.querySelector<HTMLElement>('[data-voces]');
-    if (caja) {
-      const citas = [...caja.querySelectorAll<HTMLElement>('[data-cita]')], quienes = [...caja.querySelectorAll<HTMLElement>('[data-quien]')];
-      const piezas = [...document.querySelectorAll<HTMLElement>('#anteriores [data-slug]')];
-      const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches, DUR = 9000;
-      const camara = caja.querySelector<HTMLButtonElement>('[data-voz-video]')!;
-      let k = 0, visible = false, quieto = false, t0 = 0, raf = 0, t = 0, viendo = false;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rejilla = document.querySelector<HTMLElement>('[data-cuadricula]');
+    if (rejilla) new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { rejilla.classList.add('trazada'); o.disconnect(); } }, { threshold: 0.3 }).observe(rejilla);
+    if (rejilla && !reducido) {
+      const celdas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')].map((el) => ({ items: [...el.querySelectorAll<HTMLElement>('[data-item]')], k: 0 }));
+      let relojes: number[] = [];
+      const girar = (c: (typeof celdas)[number]) => {
+        c.items[c.k].classList.remove('on'); c.items[c.k].classList.add('sale'); c.items[c.k].setAttribute('aria-hidden', 'true');
+        const viejo = c.items[c.k]; setTimeout(() => viejo.classList.remove('sale'), 1600);
+        c.k = (c.k + 1) % c.items.length; c.items[c.k].classList.add('on'); c.items[c.k].setAttribute('aria-hidden', 'false');
+      };
+      new IntersectionObserver((e) => {
+        relojes.forEach(clearTimeout); relojes = [];
+        if (!e[0].isIntersecting) return;
+        celdas.forEach((c, i) => { const t = window.setTimeout(function tic() { girar(c); relojes[i] = window.setTimeout(tic, 9000); }, 5000 + i * 1500); relojes[i] = t; });
+      }, { threshold: 0.2 }).observe(rejilla);
+    }
+    const voz = document.querySelector<HTMLElement>('[data-voz]');
+    if (voz) {
+      const grupos = ['[data-vq]', '[data-quien]'].map((q) => [...voz.querySelectorAll<HTMLElement>(q)]);
+      const fuentes = [...voz.querySelectorAll<HTMLImageElement>('[data-retrato]')], lienzos = [...voz.querySelectorAll<HTMLCanvasElement>('[data-rc]')];
+      let k = 0, quieto = false, visible = false, reloj = 0, frente = 0, gen = 0;
+      // RONDA 68 · «menos dithering y más como estaban, como dibujadas, más mimetizadas con el fondo; al cambiar de testimonio, que se dibujen los retratos
+      // y se escriba el testimonio». El retrato es el CARBONCILLO tal cual, pero en la tinta del texto de la sección (alfa = lo oscuro del trazo: el papel
+      // es el propio fondo) y se DIBUJA: primero lo más oscuro (pelo, ojos, contorno), luego los medios tonos, en rayas diagonales como el sombreado
+      // del propio dibujo. Un solo reloj por relevo (gen): si llega otro a medias, el anterior se abandona sin tocar nada.
+      const ruido = (() => {
+        const N = 256, t = new Float32Array(N * N); let h = 1234567;
+        for (let i = 0; i < t.length; i++) { h = (h * 1103515245 + 12345) & 0x7fffffff; t[i] = h / 0x7fffffff; }
+        return (x: number, y: number) => {
+          const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+          const g = (a: number, b: number) => t[((b & 255) << 8) | (a & 255)];
+          return (g(xi, yi) * (1 - sx) + g(xi + 1, yi) * sx) * (1 - sy) + (g(xi, yi + 1) * (1 - sx) + g(xi + 1, yi + 1) * sx) * sy;
+        };
+      })();
+      type Prep = { W: number; H: number; d: Float32Array; t: Float32Array; rgb: number[] };
+      const preparar = (img: HTMLImageElement, cv: HTMLCanvasElement): Prep | null => {
+        const dpr = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect(), W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+        if (!W || !img.naturalWidth) return null;
+        cv.width = W; cv.height = H;
+        const o = document.createElement('canvas'); o.width = W; o.height = H; const oc = o.getContext('2d')!;
+        const s = Math.min(W / img.naturalWidth, H / img.naturalHeight); oc.drawImage(img, (W - img.naturalWidth * s) / 2, H - img.naturalHeight * s, img.naturalWidth * s, img.naturalHeight * s);
+        const px = oc.getImageData(0, 0, W, H).data, n = W * H, d = new Float32Array(n), t = new Float32Array(n);
+        const esc = 1 / dpr;
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+          const i = y * W + x, a = px[i * 4 + 3] / 255;
+          const osc = 1 - (0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]) / 255;
+          // RONDA 69 · «más mimetizados con el fondo aún»: la tinta más ligera y el dibujo se deshace hacia los bordes (como un carboncillo que se difumina en el papel)
+          // RONDA 72 · «algo menos mimetizados y con el efecto dithering del resto de la web, pero no tan exagerado»: borde más corto, y encima de la tinta
+          // continua un SEMITONO de puntos a 45° (celda de 3,5 px, como los cantos del roble) que pesa más en los medios tonos y hacia los bordes
+          const rx = x / W - 0.5, ry = y / H - 0.46, rr = Math.sqrt(rx * rx + ry * ry * 0.8), borde = rr < 0.36 ? 1 : Math.max(0, 1 - (rr - 0.36) / 0.16);
+          const u = (x + y) * esc * 0.7071, v = (x - y) * esc * 0.7071;
+          const tinta = Math.min(1, Math.pow(osc, 1.05) * a) * borde;
+          const cel = 3.5, fu = (u / cel) % 1, fv = (((v / cel) % 1) + 1) % 1, du = fu - 0.5, dv = fv - 0.5, r = Math.sqrt(du * du + dv * dv) * cel;
+          const R = Math.sqrt(tinta) * cel * 0.58, punto = Math.min(1, Math.max(0, (R - r) / 0.7 + 0.5));
+          const peso = 0.28 + 0.34 * (1 - Math.abs(tinta - 0.5) * 2) + 0.2 * (1 - borde);
+          d[i] = tinta * (1 - peso) + punto * peso * (tinta > 0.02 ? 1 : 0);
+          // rayas (el orden del dibujo): largas en la diagonal del sombreado, finas de través
+          t[i] = 0.5 * (1 - d[i]) + 0.32 * ruido(u / 46, v / 2.6) + 0.18 * ruido(x * esc / 90, y * esc / 90);
+        }
+        const m = getComputedStyle(voz).color.match(/[\d.]+/g)!.map(Number);
+        return { W, H, d, t, rgb: [m[0], m[1], m[2]] };
+      };
+      const pintar = (cv: HTMLCanvasElement, P: Prep, p: number) => {
+        const c = cv.getContext('2d')!, im = c.createImageData(P.W, P.H), o = im.data, [R, G, B] = P.rgb, n = P.W * P.H, lo = p * 1.18 - 0.14;
+        for (let i = 0; i < n; i++) {
+          const di = P.d[i]; if (di < 0.02) continue;
+          const q = (lo - P.t[i]) / 0.14, e = q <= 0 ? 0 : q >= 1 ? 1 : q * q * (3 - 2 * q);
+          if (!e) continue;
+          const j = i * 4; o[j] = R; o[j + 1] = G; o[j + 2] = B; o[j + 3] = 255 * di * 0.8 * e;
+        }
+        c.putImageData(im, 0, 0);
+      };
+      let anchoR = 0;
+      const listo = (img: HTMLImageElement) => (img.complete && img.naturalWidth ? Promise.resolve() : new Promise<void>((r) => img.addEventListener('load', () => r(), { once: true })));
+      const pintarRetrato = async (n: number, dibujado = true) => {
+        const mia = ++gen, img = fuentes[n]; if (img.loading === 'lazy') img.loading = 'eager';
+        await listo(img);
+        if (mia !== gen) return;
+        const nuevo = lienzos[1 - frente], viejo = lienzos[frente];
+        const P = preparar(img, nuevo); if (!P) return;
+        anchoR = innerWidth; frente = 1 - frente;
+        nuevo.style.zIndex = '2'; viejo.style.zIndex = '1';
+        viejo.classList.remove('on'); nuevo.classList.add('on');
+        if (!dibujado || reducido) { pintar(nuevo, P, 1); return; }
+        const t0 = performance.now(), DUR = 2400;
+        const paso = (ahora: number) => {
+          if (mia !== gen) return;
+          const p = Math.min(1, (ahora - t0) / DUR);
+          pintar(nuevo, P, 1 - Math.pow(1 - p, 2.2));
+          if (p < 1) requestAnimationFrame(paso);
+        };
+        requestAnimationFrame(paso);
+      };
+      // la CITA se ESCRIBE: lo escrito y lo que falta (transparente, para que el alto no baile) en la misma caja, con un cursor de savia
+      const citas = grupos[0], textos = citas.map((q) => q.textContent || '');
+      let genCita = 0;
+      const escribir = (n: number, animar: boolean) => {
+        const mia = ++genCita, q = citas[n], txt = textos[n];
+        q.textContent = '';
+        const hecho = document.createElement('span'), cursor = document.createElement('i'), falta = document.createElement('span');
+        cursor.className = 'cursor-cita'; falta.className = 'falta-cita';
+        q.append(hecho, cursor, falta);
+        if (!animar || reducido) { hecho.textContent = txt; cursor.remove(); return; }
+        const t0 = performance.now(), porLetra = Math.min(26, 2600 / txt.length);
+        const paso = (ahora: number) => {
+          if (mia !== genCita) return;
+          const k2 = Math.min(txt.length, Math.floor((ahora - t0) / porLetra));
+          hecho.textContent = txt.slice(0, k2); falta.textContent = txt.slice(k2);
+          if (k2 < txt.length) requestAnimationFrame(paso);
+          else window.setTimeout(() => mia === genCita && cursor.remove(), 900);
+        };
+        falta.textContent = txt; requestAnimationFrame(paso);
+      };
       const poner = (n: number) => {
-        k = (n + citas.length) % citas.length;
-        citas.forEach((c, i) => { c.classList.toggle('on', i === k); c.setAttribute('aria-hidden', String(i !== k)); });
-        quienes.forEach((q, i) => { q.classList.toggle('on', i === k); q.setAttribute('aria-hidden', String(i !== k)); });
-        piezas.forEach((p) => p.classList.toggle('citado', p.dataset.slug === citas[k].dataset.de));
-        const hay = !!citas[k].dataset.video; camara.classList.toggle('apagada', !hay); camara.tabIndex = hay ? 0 : -1; camara.setAttribute('aria-hidden', String(!hay));
-        t = 0; t0 = performance.now();
+        k = (n + grupos[0].length) % grupos[0].length;
+        grupos.forEach((g) => g.forEach((el, i) => { el.classList.toggle('on', i === k); if (el.hasAttribute('aria-hidden')) el.setAttribute('aria-hidden', String(i !== k)); }));
+        escribir(k, true);
+        pintarRetrato(k);
       };
-      const paso = (ahora: number) => {
-        raf = 0;
-        if (!visible || reducido) return;
-        if (quieto || viendo) t0 = ahora - t * DUR;
-        else { t = (ahora - t0) / DUR; if (t >= 1) poner(k + 1); }
-        raf = requestAnimationFrame(paso);
-      };
-      caja.querySelectorAll<HTMLButtonElement>('[data-voz]').forEach((b) => b.addEventListener('click', () => poner(k + Number(b.dataset.voz))));
-      // ── RONDA 46 · EL REPRODUCTOR
-      const dlg = document.querySelector<HTMLDialogElement>('[data-reproductor]')!, panel = dlg.querySelector<HTMLElement>('[data-rep-panel]')!;
-      const vid = dlg.querySelector<HTMLVideoElement>('[data-rep-video]')!, hilo = dlg.querySelector<HTMLElement>('[data-rep-hilo]')!;
-      const bPlay = dlg.querySelector<HTMLButtonElement>('[data-rep-play]')!, bSon = dlg.querySelector<HTMLButtonElement>('[data-rep-son]')!;
-      const tTxt = dlg.querySelector<HTMLElement>('[data-rep-t]')!, grande = dlg.querySelector<HTMLButtonElement>('[data-rep-grande]')!;
-      const mmss = (x: number) => { const n = Math.max(0, Math.floor(x || 0)); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
-      const pintarT = () => {
-        const d = vid.duration || 0, p = d ? vid.currentTime / d : 0;
-        hilo.style.setProperty('--p', p.toFixed(4)); hilo.setAttribute('aria-valuenow', String(Math.round(p * 100)));
-        tTxt.textContent = `${mmss(vid.currentTime)} / ${mmss(d)}`;
-      };
-      const estado = () => {
-        dlg.classList.toggle('suena', !vid.paused);
-        bPlay.setAttribute('aria-label', vid.paused ? 'Reproducir' : 'Pausar');
-        dlg.classList.toggle('mudo', vid.muted); bSon.setAttribute('aria-label', vid.muted ? 'Activar el sonido' : 'Silenciar');
-      };
-      ['play', 'pause', 'ended', 'volumechange'].forEach((ev) => vid.addEventListener(ev, estado));
-      ['timeupdate', 'loadedmetadata', 'seeked'].forEach((ev) => vid.addEventListener(ev, pintarT));
-      const alternar = () => (vid.paused ? vid.play().catch(() => {}) : vid.pause());
-      bPlay.addEventListener('click', alternar); grande.addEventListener('click', alternar); vid.addEventListener('click', alternar);
-      bSon.addEventListener('click', () => (vid.muted = !vid.muted));
-      // el hilo: clic o arrastre para buscar; flechas ±5 s
-      const buscar = (x: number) => { const r = hilo.getBoundingClientRect(); if (vid.duration) vid.currentTime = Math.min(1, Math.max(0, (x - r.left) / r.width)) * vid.duration; };
-      hilo.addEventListener('pointerdown', (e) => { hilo.setPointerCapture(e.pointerId); buscar(e.clientX); const mv = (m: PointerEvent) => buscar(m.clientX); hilo.addEventListener('pointermove', mv); hilo.addEventListener('pointerup', () => hilo.removeEventListener('pointermove', mv), { once: true }); });
-      hilo.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); vid.currentTime = Math.max(0, vid.currentTime + (e.key === 'ArrowRight' ? 5 : -5)); } });
-      let origen: [number, number] = [innerWidth / 2, innerHeight / 2], cerrando = false;
-      const punto = new Map<string, number>();
-      const abrir = () => {
-        const c = citas[k], q = quienes[k];
-        if (!c.dataset.video) return;
-        const rb = camara.getBoundingClientRect(); origen = [rb.left + rb.width / 2, rb.top + rb.height / 2];
-        dlg.style.setProperty('--ar', c.dataset.ar || '1.7778'); dlg.classList.toggle('vertical', Number(c.dataset.ar || 2) < 1);
-        dlg.querySelector('[data-rep-n]')!.textContent = q.querySelector('.nombre-v')!.textContent;
-        dlg.querySelector('[data-rep-r]')!.textContent = q.querySelector('.rol')!.textContent;
-        // RONDA 47 · «al cerrarlos empiezan de 0; tienen que seguir donde los habías dejado»: cada vídeo recuerda su punto (también si abres otro)
-        if (vid.getAttribute('src') !== c.dataset.video) {
-          const src = c.dataset.video!, desde = punto.get(src) || 0;
-          vid.src = src; if (c.dataset.poster) vid.poster = c.dataset.poster; else vid.removeAttribute('poster');
-          if (desde) vid.addEventListener('loadedmetadata', () => { vid.currentTime = desde; }, { once: true });
-        } else if (vid.ended) vid.currentTime = 0;
-        vid.muted = false; pintarT(); estado();
-        viendo = true; cerrando = false;
-        dlg.showModal(); dlg.classList.add('on');
-        dibujar(panel, { estacion: true, abrir: true, origen, color: 'rgb(234 221 231 / 0.5)' });
-        vid.play().catch(() => {});
-        bPlay.focus({ preventScroll: true });
-      };
-      const cerrar = () => {
-        if (!dlg.open || cerrando) return;
-        cerrando = true; vid.pause(); punto.set(vid.getAttribute('src')!, vid.ended ? 0 : vid.currentTime); dlg.classList.remove('on');
-        dibujar(panel, { estacion: true, abrir: false, origen, color: 'rgb(234 221 231 / 0.5)', alTerminar: () => { dlg.close(); cerrando = false; viendo = false; camara.focus({ preventScroll: true }); } });
-      };
-      camara.addEventListener('click', abrir);
-      // RONDA 47 · la gota del «Enviar» del pie: cae donde entra el puntero, llena el botón de Naranja y se recoge hacia donde sale
-      const caeGota = (e: PointerEvent) => { const r = camara.getBoundingClientRect(); camara.style.setProperty('--gx', `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`); camara.style.setProperty('--gy', `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`); };
-      camara.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'mouse') return; caeGota(e); camara.classList.add('mojado'); });
-      camara.addEventListener('pointerleave', (e) => { if (e.pointerType !== 'mouse') return; caeGota(e); camara.classList.remove('mojado'); });
-      camara.addEventListener('focus', () => { if (camara.matches(':focus-visible')) { camara.style.setProperty('--gx', '50%'); camara.style.setProperty('--gy', '50%'); camara.classList.add('mojado'); } });
-      camara.addEventListener('blur', () => camara.classList.remove('mojado'));
-      dlg.querySelector('[data-rep-cerrar]')!.addEventListener('click', cerrar);
-      dlg.addEventListener('cancel', (e) => { e.preventDefault(); cerrar(); }); // Esc: se recoge en vez de desaparecer
-      dlg.addEventListener('click', (e) => { if (!panel.contains(e.target as Node)) cerrar(); });
-      dlg.addEventListener('keydown', (e) => { if (e.key === ' ' && !(e.target as HTMLElement).closest('button, [role="slider"]')) { e.preventDefault(); alternar(); } });
-      (window as any).__reproductor = () => ({ abierto: dlg.open, suena: !vid.paused, src: vid.getAttribute('src'), t: vid.currentTime, mudo: vid.muted, camara: !camara.classList.contains('apagada') });
-      caja.addEventListener('pointerenter', () => (quieto = true));
-      caja.addEventListener('pointerleave', () => (quieto = false));
-      new IntersectionObserver((e) => { visible = e[0].isIntersecting; if (visible && !raf) { t0 = performance.now() - t * DUR; raf = requestAnimationFrame(paso); } }, { threshold: 0.3 }).observe(caja);
-      poner(0);
+      // la primera vez, al asomar: el retrato se dibuja y la cita se escribe
+      new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { pintarRetrato(0); escribir(0, true); o.disconnect(); } }, { threshold: 0.35 }).observe(voz);
+      addEventListener('resize', () => { const img = fuentes[k], cv = lienzos[frente]; if (!img.naturalWidth || innerWidth === anchoR) return; anchoR = innerWidth; gen++; const P = preparar(img, cv); if (P) pintar(cv, P, 1); });
+      const programar = () => { clearTimeout(reloj); if (visible && !quieto && !reducido) reloj = window.setTimeout(() => { poner(k + 1); programar(); }, 9000); };
+      voz.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => b.addEventListener('click', () => { poner(k + Number(b.dataset.paso)); programar(); }));
+      voz.addEventListener('pointerenter', () => { quieto = true; programar(); });
+      voz.addEventListener('pointerleave', () => { quieto = false; programar(); });
+      new IntersectionObserver((e) => { visible = e[0].isIntersecting; programar(); }, { threshold: 0.3 }).observe(voz);
     }
   }
   // ENTRADA de cada pieza al asomar (sin JS o con movimiento reducido están ya puestas: los estados ocultos cuelgan de html.anima)
@@ -406,370 +462,201 @@ function escenaQuad(k: string) {
     transform-style: flat;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: calc(var(--spacing) * 16) calc(var(--spacing) * 6);
+    gap: calc(var(--spacing) * 24) calc(var(--spacing) * 6);
   }
   .pieza {
     display: block;
     min-width: 0;
   }
-  /* RONDA 40 · LAS VOCES QUE ROTAN: la cita en Family (voz editorial), sus palabras suben desde una máscara al entrar y se desenfocan al irse;
-     debajo, quién la dice (se puede elegir), con un hilo de savia que mide su tiempo */
-  .voces {
+  /* ── LA CUADRÍCULA · RONDA 67 · «que los contornos salgan de las propias líneas guía de la web; más sutiles; el contenido más pequeño, con más aire;
+     y que roten mucho más tranquilos»: las líneas son las de los carriles (horizontales a todo el ancho, verticales finas, cruces «+» en los cruces; los
+     bordes de fuera coinciden con los carriles, que son los bordes del contenido) y se TRAZAN al llegar */
+  .banda { grid-column: 1 / -1; }
+  .cuadricula {
     position: relative;
-    grid-column: 1 / -1;
-    justify-self: center;
-    margin: 0;
-    padding-block: calc(var(--spacing) * 16); /* ronda 44 · «al testimonio darle más espacio por arriba y por abajo» (+64 px a cada lado, sobre el hueco de fila) */
-    max-width: 44rem;
-    text-align: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    --linea: color-mix(in oklab, var(--fg) 20%, transparent);
+    --cruz: color-mix(in oklab, var(--fg) 55%, transparent);
   }
-  .quien-fila {
+  .guias { display: none; }
+  .celda {
+    position: relative;
+    display: grid;
+    min-height: calc(var(--spacing) * 64);
+    padding: calc(var(--spacing) * 12) calc(var(--spacing) * 8);
+    border-top: 1px solid var(--linea);
+    overflow: hidden;
+  }
+  .item {
+    grid-area: 1 / 1;
+    align-self: center;
+    justify-self: center;
+    max-width: 22rem;
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    opacity: 0;
+    filter: blur(8px);
+    translate: 0 calc(var(--spacing) * 3);
+    transition: opacity 1.2s ease, filter 1.3s ease, translate 1.5s var(--ease-out-expo);
+    pointer-events: none;
+  }
+  .item.on { opacity: 1; filter: none; translate: 0 0; transition-delay: 0.5s; }
+  .item.sale { translate: 0 calc(var(--spacing) * -3); }
+  .item.marca,
+  .item.cifra { justify-items: center; text-align: center; }
+  @media (width >= 48rem) {
+    .cuadricula { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .celda { border-top: 0; }
+    .guias { display: block; position: absolute; inset: 0; pointer-events: none; }
+    /* horizontales: a todo el ancho de la ventana, como las filas de los carriles */
+    .gh {
+      position: absolute;
+      top: calc(var(--r) * 50%);
+      left: calc(50% - 50vw);
+      width: 100vw;
+      height: 1px;
+      background: var(--linea);
+      transform-origin: 0 50%;
+      transform: scaleX(0);
+      transition: transform 1.6s cubic-bezier(0.65, 0, 0.35, 1) calc(var(--r) * 0.2s);
+    }
+    .gv {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(var(--c) * 100% / 3);
+      width: 1px;
+      background: var(--linea);
+      transform-origin: 50% 0;
+      transform: scaleY(0);
+      transition: transform 1.4s cubic-bezier(0.65, 0, 0.35, 1) calc(0.5s + var(--c) * 0.15s);
+    }
+    .gx {
+      position: absolute;
+      top: calc(var(--r) * 50%);
+      left: calc(var(--c) * 100% / 3);
+      width: 9px;
+      height: 9px;
+      translate: -4px -4px;
+      background:
+        linear-gradient(var(--cruz), var(--cruz)) 50% 0 / 1px 100% no-repeat,
+        linear-gradient(var(--cruz), var(--cruz)) 0 50% / 100% 1px no-repeat;
+      opacity: 0;
+      transition: opacity 0.6s ease calc(1.2s + var(--c) * 0.08s);
+    }
+    .cuadricula.trazada .gh { transform: scaleX(1); }
+    .cuadricula.trazada .gv { transform: scaleY(1); }
+    .cuadricula.trazada .gx { opacity: 1; }
+  }
+  :global(html:not(.anima)) .gh, :global(html:not(.anima)) .gv { transform: none; }
+  :global(html:not(.anima)) .gx { opacity: 1; }
+  .cq { font-size: var(--text-ui); line-height: 1.45; color: var(--fg); text-wrap: pretty; }
+  .cn, .cr { font-size: var(--text-aux); }
+  .cn { margin-top: calc(var(--spacing) * 2); color: var(--fg); font-weight: 500; }
+  .cr { color: var(--fg2); }
+  .mk {
+    display: block;
+    background: var(--fg);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+  }
+  .mk.grande { width: min(12rem, 75%); height: calc(var(--spacing) * 10); }
+  .marca-txt {
     display: inline-flex;
     align-items: center;
-    gap: calc(var(--spacing) * 4);
+    gap: calc(var(--spacing) * 2);
+    font-size: calc(var(--spacing) * 6);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--fg);
   }
-  .flecha-v {
-    width: calc(var(--spacing) * 8);
-    height: calc(var(--spacing) * 8);
+  .marca-txt .mk { width: 0.8em; height: 0.8em; }
+  .cv { font-size: var(--text-h2); line-height: 1; color: var(--fg); }
+  @media (width >= 48rem) {
+    .cuadricula { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* ── EL TESTIMONIO que rota (ronda 66): el retrato al carboncillo a la izquierda, la cita en Family y quién la dice entre dos flechas finas; en claro */
+  .voz {
     display: grid;
-    place-items: center;
-    border-radius: 50%;
-    color: var(--fg2);
-    opacity: 0.6;
-    cursor: pointer;
-    transition: opacity 0.3s ease, translate 0.4s var(--ease-out-expo);
-  }
-  .flecha-v:hover,
-  .flecha-v:focus-visible {
-    opacity: 1;
-  }
-  .flecha-v:first-child:hover { translate: -2px 0; }
-  .flecha-v:last-child:hover { translate: 2px 0; }
-  .flecha-v svg {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  /* RONDA 47 · la cámara del testimonio, centrada bajo el nombre (donde estaba el hilo de tiempo): sin fondo, filo fino y el icono en el color
-     secundario del texto; al pasar, el filo y el icono toman el color del texto */
-  .vid-voz {
-    --gx: 50%;
-    --gy: 50%;
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-    display: grid;
-    place-items: center;
-    width: calc(var(--spacing) * 8);
-    height: calc(var(--spacing) * 8);
-    margin-top: calc(var(--spacing) * 4);
-    border-radius: var(--radius-full);
-    box-shadow: inset 0 0 0 1px var(--rule);
-    color: var(--fg2);
-    cursor: pointer;
-    transition: scale 0.5s var(--ease-out-expo), color 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease, filter 0.4s ease;
-  }
-  /* sin ningún testimonio en vídeo, no existe; si alguno lo tiene, el hueco se queda (la cita no salta al cambiar de voz) */
-  .voces:not([data-alguno]) .vid-voz { display: none; }
-  .vid-voz.apagada { opacity: 0; filter: blur(4px); scale: 0.7; pointer-events: none; animation: none; }
-  /* al pasar: la GOTA (el efecto del «Enviar» del pie) — un disco Naranja nace donde entra el puntero y llena el botón; la ONDA se abre y se apaga */
-  .vid-voz .gota,
-  .vid-voz .onda {
-    position: absolute;
-    left: var(--gx);
-    top: var(--gy);
-    width: 5rem;
-    height: 5rem;
-    margin: -2.5rem 0 0 -2.5rem;
-    border-radius: 50%;
-    pointer-events: none;
-    transform: scale(0);
-  }
-  .vid-voz .gota {
-    z-index: -1;
-    background: var(--color-naranja);
-    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .vid-voz .onda {
-    width: 1.5rem;
-    height: 1.5rem;
-    margin: -0.75rem 0 0 -0.75rem;
-    border: 1.5px solid var(--color-cacao);
-    opacity: 0;
-  }
-  .vid-voz.mojado {
-    color: var(--color-niebla); /* ronda 47: «el icono pasa a fill y blanco» (el blanco de la paleta es Rosa niebla) */
-    box-shadow: inset 0 0 0 1px transparent;
-    transition-delay: 0.08s;
-  }
-  .vid-voz.mojado .gota {
-    transform: scale(1);
-    transition: transform 0.6s var(--ease-out-expo);
-  }
-  .vid-voz.mojado .onda {
-    animation: onda-cam 0.6s var(--ease-out-expo) both;
-  }
-  .vid-voz svg { transition: fill 0.3s ease 0.08s; }
-  .vid-voz.mojado svg { fill: currentColor; }
-  @keyframes onda-cam {
-    from { transform: scale(0.2); opacity: 0.8; }
-    to { transform: scale(2.4); opacity: 0; }
-  }
-  .vid-voz svg {
-    position: relative;
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linejoin: round;
-  }
-  .citas {
-    display: grid;
-  }
-  .cita {
-    grid-area: 1 / 1;
-    font-family: var(--font-display);
-    font-size: var(--text-h3);
-    line-height: var(--text-h3--line-height);
-    letter-spacing: -0.01em;
-    text-wrap: balance;
-  }
-  .cita .pal > span {
-    translate: 0 112%;
-    transition: translate 0.5s ease, opacity 0.4s ease, filter 0.4s ease;
-  }
-  .cita.on .pal > span {
-    translate: 0 0;
-    transition: translate 0.9s var(--ease-out-expo);
-    transition-delay: calc(var(--n) * 28ms);
-  }
-  .cita:not(.on) .pal > span {
-    opacity: 0;
-    filter: blur(6px);
-    translate: 0 -30%;
-  }
-  .autor {
-    display: flex;
-    flex-direction: column;
+    gap: calc(var(--spacing) * 8);
     align-items: center;
-    margin-top: calc(var(--spacing) * 8);
+    margin-block: calc(var(--spacing) * 8);
   }
-  .quienes {
+  .retratos {
     display: grid;
+    width: min(100%, 22rem);
+    aspect-ratio: 1 / 1;
+    justify-self: center;
   }
-  .quien {
+  .fuente-r { display: none; }
+  .retratos { position: relative; }
+  .retrato-cv {
     grid-area: 1 / 1;
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--spacing) * 1);
-    opacity: 0;
-    filter: blur(4px);
-    transition: opacity 0.4s ease, filter 0.5s ease;
-  }
-  .quien.on {
-    opacity: 1;
-    filter: none;
-    transition-delay: 0.3s;
-  }
-  .nombre-v {
-    font-size: var(--text-ui);
-    font-weight: 500;
-  }
-  .rol {
-    font-family: var(--font-mono);
-    font-size: var(--text-detail);
-    line-height: var(--text-detail--line-height);
-    color: var(--fg2);
-  }
-  /* el proyecto del que se habla: un punto de savia antes de su dominio */
-  .pieza .pie::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 0;
-    border-radius: 50%;
-    background: var(--color-naranja);
-    vertical-align: 0.1em;
-    scale: 0;
-    width: 0;
-    transition: scale 0.5s var(--ease-out-expo), width 0.5s var(--ease-out-expo), margin-right 0.5s var(--ease-out-expo);
-  }
-  .pieza.citado .pie::before {
-    scale: 1;
-    width: 6px;
-    margin-right: calc(var(--spacing) * 2);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .cita .pal > span { transition: none; }
-    .vid-voz, .vid-voz .gota { transition: none; }
-    .vid-voz .onda { animation: none; }
-  }
-  /* ── RONDA 46 · EL REPRODUCTOR: el <dialog> ocupa la ventana y es transparente; la tarjeta (Cacao con grano, radio 8) se pinta desde la cámara */
-  .reproductor {
-    position: fixed;
-    inset: 0;
     width: 100%;
     height: 100%;
-    max-width: none;
-    max-height: none;
-    margin: 0;
-    padding: calc(var(--spacing) * 6);
-    border: 0;
-    background: transparent;
-    display: none;
-    place-items: center;
-    overscroll-behavior: contain;
+    opacity: 0;
+    transition: opacity 0.8s ease;
   }
-  .reproductor[open] { display: grid; }
-  .reproductor::backdrop {
-    background: color-mix(in oklab, #1a1210 72%, transparent);
+  .retrato-cv.on { opacity: 1; transition-duration: 0.2s; }
+  .retrato-cv { mix-blend-mode: multiply; } /* ronda 69: la tinta se hunde en el grano del papel */
+  .citas { display: grid; }
+  .vq {
+    grid-area: 1 / 1;
+    font-size: var(--text-h3);
+    line-height: 1.2;
+    text-wrap: pretty;
     opacity: 0;
     transition: opacity 0.5s ease;
   }
-  .reproductor.on::backdrop { opacity: 1; }
-  .rep-panel {
-    position: relative;
-    width: min(100%, 60rem);
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--spacing) * 4);
-    padding: calc(var(--spacing) * 4);
-    border-radius: var(--radius-lg);
-    color: var(--fg);
+  .vq.on { opacity: 1; }
+  /* RONDA 68 · la cita se escribe: lo que falta ocupa su sitio sin verse; un cursor fino de savia en la punta */
+  .vq :global(.falta-cita) { color: transparent; }
+  .vq :global(.cursor-cita) {
+    display: inline-block;
+    width: 2px;
+    height: 0.9em;
+    margin-inline: 1px -3px;
+    vertical-align: -0.08em;
+    background: var(--color-coral);
+    animation: cursor-cita 0.9s steps(1) infinite;
   }
-  .rep-cab {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: calc(var(--spacing) * 4);
-    padding-inline: calc(var(--spacing) * 1);
-  }
-  .rep-quien {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
-  }
-  .rep-x,
-  .rep-bt {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: calc(var(--spacing) * 8);
-    height: calc(var(--spacing) * 8);
-    border-radius: var(--radius-full);
-    color: var(--fg);
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  .rep-x:hover, .rep-x:focus-visible,
-  .rep-bt:hover, .rep-bt:focus-visible { background: color-mix(in oklab, var(--color-niebla) 12%, transparent); }
-  .rep-x svg,
-  .rep-bt svg,
-  .rep-grande svg {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .rep-vista {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-    background: #1a1210;
-    aspect-ratio: var(--ar, 1.7778);
-  }
-  /* los testimonios grabados en vertical: la tarjeta se estrecha para que el vídeo quepa entero en la ventana (lo que no es vídeo, ~11 rem) */
-  .reproductor.vertical .rep-panel {
-    width: min(100%, calc((100dvh - 14rem) * var(--ar) + 2rem));
-  }
-  .reproductor.vertical .rep-quien { flex-direction: column; gap: calc(var(--spacing) * 1); }
-  .rep-video {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    cursor: pointer;
-  }
-  /* el botón grande del centro: solo con el vídeo parado */
-  .rep-grande {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    translate: -50% -50%;
-    display: grid;
-    place-items: center;
-    width: calc(var(--spacing) * 16);
-    height: calc(var(--spacing) * 16);
-    border-radius: var(--radius-full);
-    background: color-mix(in oklab, #1a1210 55%, transparent);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    color: var(--color-niebla);
-    cursor: pointer;
-    transition: opacity 0.4s ease, scale 0.5s var(--ease-out-expo), filter 0.4s ease;
-  }
-  .rep-grande svg { width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); fill: currentColor; stroke: none; }
-  .reproductor.suena .rep-grande { opacity: 0; scale: 0.8; filter: blur(4px); pointer-events: none; }
-  .rep-mandos {
+  @keyframes cursor-cita { 50% { opacity: 0; } }
+  .autor {
     display: flex;
     align-items: center;
     gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 8);
   }
-  .rep-bt .ic-play { fill: currentColor; stroke: none; }
-  .rep-bt .ic-pausa,
-  .reproductor.suena .rep-bt .ic-play,
-  .rep-bt .ic-mudo,
-  .reproductor.mudo .rep-bt .ic-son { display: none; }
-  .reproductor.suena .rep-bt .ic-pausa,
-  .reproductor.mudo .rep-bt .ic-mudo { display: block; }
-  /* el hilo de savia que mide el vídeo (el mismo de la voz que rota); se pincha o se arrastra para buscar */
-  .rep-hilo {
-    position: relative;
-    flex: 1;
-    height: calc(var(--spacing) * 6);
-    cursor: pointer;
-    touch-action: none;
+  .quienes { display: grid; min-width: 0; }
+  .quien {
+    grid-area: 1 / 1;
+    display: grid;
+    gap: calc(var(--spacing) * 1);
+    opacity: 0;
+    transition: opacity 0.6s ease;
   }
-  .rep-hilo::before,
-  .rep-hilo i {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 1.5px;
-    margin-top: -0.75px;
-    background: var(--rule-strong, var(--rule));
-    transition: height 0.3s var(--ease-out-expo), margin-top 0.3s var(--ease-out-expo);
-  }
-  .rep-hilo i {
-    background: var(--color-naranja);
-    transform-origin: 0 50%;
-    transform: scaleX(var(--p, 0));
-  }
-  .rep-hilo:hover::before, .rep-hilo:hover i,
-  .rep-hilo:focus-visible::before, .rep-hilo:focus-visible i { height: 3px; margin-top: -1.5px; }
-  .rep-hilo:focus-visible { outline: none; }
-  .rep-hilo:focus-visible i { box-shadow: 0 0 0 2px var(--color-naranja); }
-  .rep-t {
-    flex: none;
-    font-variant-numeric: tabular-nums;
+  .quien.on { opacity: 1; transition-delay: 0.3s; }
+  .quien b { font-weight: 500; color: var(--fg); }
+  .quien span { color: var(--fg2); }
+  .flecha-v {
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 10);
+    height: calc(var(--spacing) * 10);
+    border-radius: 0;
     color: var(--fg2);
+    transition: color 0.3s ease, background-color 0.3s ease;
   }
-  @media (width < 48rem) {
-    .reproductor { padding: calc(var(--spacing) * 3); }
-    .rep-panel { padding: calc(var(--spacing) * 3); gap: calc(var(--spacing) * 3); }
-    .rep-mandos { gap: calc(var(--spacing) * 2); }
+  .flecha-v:hover { color: var(--fg); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+  .flecha-v svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+  @media (width >= 64rem) {
+    .voz { grid-template-columns: 5fr 7fr; gap: calc(var(--spacing) * 16); margin-block: calc(var(--spacing) * 16); }
+    .retratos { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .item, .retrato-cv, .vq, .quien { transition: none; }
   }
   .lamina {
     position: relative;
@@ -788,7 +675,7 @@ function escenaQuad(k: string) {
     .mosaico {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       align-items: start;
-      row-gap: calc(var(--spacing) * 32);
+      row-gap: calc(var(--spacing) * 48); /* ronda 67: «más aire entre todo el contenido verticalmente» (antes 32) */
     }
     .pieza {
       grid-column: var(--col);
@@ -957,7 +844,7 @@ function escenaQuad(k: string) {
     border-radius: 2px;
   }
   .movil .mesa .pantalla.quad {
-    border-radius: 6% / 3%;
+    border-radius: 12.5% / 5.8%; /* el redondeo de la pantalla del móvil, medido en la lámina (~30 px sobre 241) */
   }
   .escena .lamina::before,
   .movil .lamina::before,
@@ -981,29 +868,25 @@ function escenaQuad(k: string) {
       0 24px 48px -12px rgb(30 16 8 / 0.55);
     transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
   }
-  /* mancha: ladeado, saliéndose por abajo y por un lado (como los teléfonos de la referencia) */
-  .mancha .mockup {
+  /* RONDA 67 · «el proyecto de Cubbo salía como de un lado, y ahora no; me gustaba como estaba y aplicarlo en otros proyectos»: vuelve el navegador que
+     ASOMA ladeado y se sale por un lado y por abajo (la ronda 18), en todas las piezas con navegador; el lado alterna (`izq`) */
+  .mancha .mockup,
+  .claro .mockup {
     left: 14%;
     top: 34%;
     width: 118%;
     rotate: var(--giro, -6deg);
     transform-origin: 0 0;
   }
-  /* claro: recto, centrado, cortado por abajo */
+  .pieza.izq .mockup {
+    left: auto;
+    right: 14%;
+    transform-origin: 100% 0;
+  }
   .claro .mockup {
-    left: 10%;
-    top: 30%;
-    width: 80%;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
     box-shadow:
       0 0 0 1px rgb(48 32 24 / 0.14),
       0 18px 40px -14px rgb(48 32 24 / 0.4);
-  }
-  .claro .mockup :global(.vid) {
-    aspect-ratio: 960 / 900; /* más alto que el vídeo: llega siempre al borde de la pieza */
-    object-fit: cover;
-    object-position: 50% 0;
   }
   .mockup :global(.vid) {
     display: block;
@@ -1052,7 +935,7 @@ function escenaQuad(k: string) {
   }
   .claro:hover .mockup,
   .claro:focus-visible .mockup {
-    translate: 0 -5%;
+    translate: 0 -3%;
   }
   .escena:hover .mesa,
   .escena:focus-visible .mesa,
@@ -1108,7 +991,7 @@ function escenaQuad(k: string) {
     transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
   }
   :global(html.anima) .mancha.visto:hover .mockup { translate: -3% -4%; }
-  :global(html.anima) .claro.visto:hover .mockup { translate: 0 -5%; }
+  :global(html.anima) .claro.visto:hover .mockup { translate: 0 -3%; }
   :global(html.anima) .escena.visto:hover .mesa,
   :global(html.anima) .movil.visto:hover .mesa,
   :global(html.anima) .roble.visto:hover .mesa { scale: 1.06; transition: scale 1.6s var(--ease-out-expo); }

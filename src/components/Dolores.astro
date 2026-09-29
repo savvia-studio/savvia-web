@@ -63,7 +63,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
             </div>
           </div>
           <div class="lado">
-            <div class={`rama ${tarjetas ? 'oleo' : ''}`} style={`--prop:${tarjetas ? 968 / 640 : PROP[RAMAS[k]]}`} aria-hidden="true" data-rama data-k={k}>
+            <div class={`rama ${tarjetas ? 'oleo' : ''}`} style={`--prop:${tarjetas ? 960 / 640 : PROP[RAMAS[k]]}`} aria-hidden="true" data-rama data-k={k}>
               <img src={tarjetas ? `/media/tarjetas/otono-${k}-v.webp` : `/media/flora/${RAMAS[k]}.webp`} alt="" loading="lazy" decoding="async" data-lamina />
               <canvas data-lienzo></canvas>
             </div>
@@ -77,6 +77,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
 
 <script>
   import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
+  import { tinta } from '../scripts/tinta';
   import { NOCHE, estacionActual } from '../scripts/estacion';
   import { dibujar } from '../scripts/dibujar';
   import { salpicar } from '../scripts/gota';
@@ -122,7 +123,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       if (!t) return;
       const d = t.querySelector('.demo'); d?.replaceWith(d.cloneNode(true));
       t.classList.add('viva');
-      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, origen: impacto, color: 'rgb(234 221 231 / 0.6)' });
+      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, origen: impacto, color: tinta('niebla', 0.6) });
     };
     // el óleo de la estación de hoy (y, al cambiarla, el nuevo: lienzo nuevo sobre la lámina nueva; el viejo suelta su contexto)
     const EST_N = ['otono', 'invierno', 'primavera', 'verano'];

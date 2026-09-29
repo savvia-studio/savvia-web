@@ -1,0 +1,564 @@
+---
+// RONDA 62 · TODOS LOS PROYECTOS (referencia: focuslab.agency/work). RONDA 63 (Andoni): «en light mode; los destacados, como en "Más proyectos";
+// los filtros más elegantes y un buscador inteligente». En claro (Rosa niebla); los destacados son PIEZAS (degradado de su web + navegador, o la mesa
+// con la web en el monitor) en un mosaico asimétrico; debajo, un BUSCADOR que entiende sinónimos, acentos y erratas, y filtros tipográficos con
+// recuento. Todo se filtra y se pagina en la página; el estado va en la dirección (?q=&servicio=&sector=&p=).
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Carriles from '../../components/Carriles.astro';
+import Pie from '../../components/Pie.astro';
+import Pieza from '../../components/obra/Pieza.astro';
+import { proyectos, SERVICIOS } from '../../data/proyectos';
+
+const destacados = proyectos.filter((p) => p.destacado);
+// el mosaico de los destacados: tipo de pieza y sitio en la retícula de 12 (escalonado, con aire, como «Más proyectos»)
+type Sitio = { tipo: 'mancha' | 'claro' | 'escena' | 'telefono'; col: string; ratio: string; baja: number; est?: string; zoom?: number; cy?: number; giro?: number };
+const SITIO: Record<string, Sitio> = {
+  multiverse: { tipo: 'mancha', col: '1 / span 7', ratio: '5 / 4', baja: 0, giro: -5 },
+  amarra: { tipo: 'escena', col: '9 / span 4', ratio: '4 / 5', baja: 32, est: 'verano', zoom: 3.2, cy: 0.6 },
+  playground: { tipo: 'mancha', col: '2 / span 5', ratio: '4 / 5', baja: 0, giro: 6 },
+  neety: { tipo: 'claro', col: '8 / span 5', ratio: '5 / 4', baja: 24 },
+};
+const servicios = SERVICIOS.map((s) => [s, proyectos.filter((p) => p.servicios.includes(s)).length] as const).filter(([, n]) => n);
+const sectores = [...new Set(proyectos.map((p) => p.sector).filter(Boolean))].sort((a, b) => a!.localeCompare(b!, 'es')) as string[];
+const POR_PAGINA = 6;
+// el tipo de pieza de cada proyecto en la rejilla: web móvil → teléfono; fondo de marca claro → navegador recto; oscuro → navegador ladeado
+const luz = (hex: string) => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150; };
+const tipoDe = (p: (typeof proyectos)[number]) => (p.portada.movil ? 'telefono' : luz(p.colores[0]) ? 'claro' : 'mancha') as 'telefono' | 'claro' | 'mancha';
+// lo que el buscador lee de cada proyecto (se normaliza en el navegador)
+const texto = (p: (typeof proyectos)[number]) =>
+  [p.nombre, p.sector, p.ubicacion, p.con, p.servicios.join(' '), (p.stack ?? []).join(' '), p.resumen, p.entradilla, p.contexto.join(' '), p.apartados.map((a) => a.titulo + ' ' + a.texto.join(' ')).join(' ')].filter(Boolean).join(' · ');
+---
+
+<Base title="Proyectos — savvia" description="Webs a medida, de principio a fin: los proyectos de savvia, el estudio web de Eric y Andoni." carga={false}>
+  <Nav />
+  <Carriles />
+  <main id="contenido" class="obras surface-light">
+    <header class="wrap cabecera">
+      <h1 class="font-display titular" data-entra>Webs a medida, de principio a fin.</h1>
+      <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Para equipos que viven de su web. Estos son algunos de ellos.</p>
+    </header>
+
+    <section class="wrap destacados" aria-label="Proyectos destacados">
+      {
+        destacados.map((p) => {
+          const s = SITIO[p.slug] ?? { tipo: 'mancha', col: '1 / -1', ratio: '16 / 9', baja: 0 };
+          return (
+            <div class="sitio" style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja}`} data-enfoca>
+              <Pieza p={p} tipo={s.tipo} est={s.est} zoom={s.zoom} cy={s.cy} giro={s.giro} transicion />
+            </div>
+          );
+        })
+      }
+    </section>
+
+    <section class="wrap todos section-y" aria-labelledby="todos-h" data-todos data-por-pagina={POR_PAGINA}>
+      <!-- RONDA 64 · «dejamos solo el buscador; en el buscador está escrito por defecto "Todos los proyectos": el titular se convierte en el propio
+           buscador». El h2 es el campo: en Family, del tamaño de un titular; al escribir, busca. A la derecha, discretos: «Filtros» (se despliegan)
+           y el orden de la rejilla (ordenada / libre). -->
+      <div class="cabeza-todos">
+        <h2 id="todos-h" class="sr-only">Todos los proyectos</h2>
+        <label class="titular-buscador">
+          <span class="sr-only">Buscar proyectos</span>
+          <input id="buscar" type="search" autocomplete="off" spellcheck="false" placeholder="Todos los proyectos." aria-describedby="todos-ayuda" data-buscar />
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>
+        </label>
+        <div class="mandos detail">
+          <span id="todos-ayuda" class="ayuda text-fg2">Escribe para buscar</span>
+          <button type="button" class="mando" aria-expanded="false" aria-controls="filtros" data-abrir-filtros>Filtros<sup data-n-filtros></sup></button>
+          <span class="orden" role="group" aria-label="Orden de la rejilla">
+            <button type="button" class="mando" aria-pressed="true" data-orden="rejilla" aria-label="Ordenado"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" /><rect x="9" y="1.5" width="5.5" height="5.5" /><rect x="1.5" y="9" width="5.5" height="5.5" /><rect x="9" y="9" width="5.5" height="5.5" /></svg></button>
+            <button type="button" class="mando" aria-pressed="false" data-orden="libre" aria-label="Libre"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="6" height="4.5" transform="rotate(-6 4 4.75)" /><rect x="9.5" y="1" width="5" height="6.5" transform="rotate(5 12 4.25)" /><rect x="3" y="9.5" width="5.5" height="5" transform="rotate(4 5.75 12)" /><rect x="10.5" y="10" width="4" height="4" transform="rotate(-8 12.5 12)" /></svg></button>
+          </span>
+        </div>
+      </div>
+
+      <!-- LOS FILTROS, plegados bajo «Filtros»: dos líneas tipográficas con recuento -->
+      <div id="filtros" class="filtros" data-filtros hidden>
+        <div class="fila-f" role="group" aria-label="Servicio">
+          <span class="etq detail">Servicio</span>
+          <button type="button" class="op" aria-pressed="true" data-servicio="">Todos<sup>{proyectos.length}</sup></button>
+          {servicios.map(([s, n]) => <button type="button" class="op" aria-pressed="false" data-servicio={s}>{s}<sup>{n}</sup></button>)}
+        </div>
+        <div class="fila-f" role="group" aria-label="Sector">
+          <span class="etq detail">Sector</span>
+          <button type="button" class="op" aria-pressed="true" data-sector="">Todos</button>
+          {sectores.map((s) => <button type="button" class="op" aria-pressed="false" data-sector={s}>{s}</button>)}
+        </div>
+      </div>
+      <p class="detail text-fg2 cuenta" aria-live="polite" data-cuenta></p>
+
+      <!-- cada proyecto, dentro de SU degradado (la pieza de «Más proyectos»), no la web a sangre -->
+      <ul class="rejilla" data-rejilla-obras data-orden-actual="rejilla">
+        {
+          proyectos.map((p, i) => (
+            <li data-obra data-slug={p.slug} data-servicios={p.servicios.join('|')} data-sector={p.sector ?? ''} data-texto={texto(p)} data-nombre={p.nombre} style={`view-transition-name: t-${p.slug}`}>
+              <Pieza p={p} tipo={tipoDe(p)} giro={i % 2 ? 5 : -5} transicion={!p.destacado} />
+            </li>
+          ))
+        }
+      </ul>
+      <p class="vacio text-fg2" data-vacio hidden>Nada con esa búsqueda. <button type="button" class="link" data-limpiar>Ver todos</button></p>
+      <nav class="paginas" aria-label="Páginas" data-paginas></nav>
+    </section>
+  </main>
+  <Pie />
+</Base>
+
+<script>
+  // ── EL BUSCADOR «inteligente», todo en el navegador (sin IA detrás): normaliza (minúsculas, sin acentos), amplía cada palabra con SINÓNIMOS del
+  // oficio, acepta prefijos y una errata en palabras de 5 letras o más, y ordena por dónde aparece (nombre > sector y servicios > el resto del caso).
+  const SINONIMOS: Record<string, string[]> = {
+    multidioma: ['idioma', 'idiomas', 'multilingue', 'multilenguaje', 'traduccion', 'traducir', 'i18n', 'localizacion', 'internacional', 'ingles', 'coreano', 'japones', 'chino', 'portugues'],
+    fintech: ['finanzas', 'financiero', 'banca', 'banco', 'bancos', 'nominas', 'nomina', 'pagos', 'facturacion', 'factura', 'facturas', 'payroll'],
+    ia: ['inteligencia', 'artificial', 'ai', 'agentico', 'agentica', 'agentes', 'llm', 'modelos', 'cuantica'],
+    migracion: ['migrar', 'mudanza', 'unificar', 'unificadas', 'redirecciones'],
+    cms: ['contenido', 'contenidos', 'colecciones', 'fichas', 'blog'],
+    animacion: ['animaciones', 'motion', 'movimiento', 'interaccion', 'interacciones'],
+    desarrolladores: ['developers', 'api', 'programadores'],
+    educacion: ['colegios', 'escuelas', 'profesores', 'alumnos', 'edtech'],
+    renovables: ['energia', 'solar', 'eolica', 'sostenible'],
+    ventas: ['b2b', 'comercial', 'comerciales', 'saas', 'crm'],
+    logistica: ['ecommerce', 'envios', 'almacen', 'fulfillment'],
+    publicidad: ['anuncios', 'ads', 'marketing', 'apps', 'movil'],
+  };
+  const norma = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9#+ ]/g, ' ');
+  const inverso = new Map<string, string[]>();
+  for (const [k, vs] of Object.entries(SINONIMOS)) { const g = [k, ...vs]; g.forEach((w) => inverso.set(w, g)); }
+  const errata1 = (a: string, b: string) => { // distancia de edición ≤ 1
+    if (Math.abs(a.length - b.length) > 1) return false;
+    let i = 0, j = 0, d = 0;
+    while (i < a.length && j < b.length) { if (a[i] === b[j]) { i++; j++; continue; } if (++d > 1) return false; if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; } }
+    return d + (a.length - i) + (b.length - j) <= 1;
+  };
+  type Campo = { palabras: string[]; peso: number };
+  // cada término: lo que se escribió (admite una errata) y sus sinónimos (solo exactos o como principio de palabra)
+  const puntuar = (terminos: { orig: string; variantes: string[] }[], campos: Campo[]) => {
+    let total = 0;
+    for (const { orig, variantes } of terminos) {
+      let mejor = 0;
+      for (const c of campos) for (const w of c.palabras) for (const v of variantes) {
+        const s = w === v ? 1 : w.startsWith(v) && v.length >= 3 ? 0.8 : v === orig && v.length >= 5 && errata1(w, v) ? 0.6 : 0;
+        if (s * c.peso > mejor) mejor = s * c.peso;
+      }
+      if (!mejor) return 0; // todas las palabras tienen que aparecer (en alguna de sus formas)
+      total += mejor;
+    }
+    return total;
+  };
+
+  const caja = document.querySelector<HTMLElement>('[data-todos]')!;
+  const POR = Number(caja.dataset.porPagina) || 6;
+  const lista = caja.querySelector<HTMLElement>('[data-rejilla-obras]')!;
+  const items = [...caja.querySelectorAll<HTMLElement>('[data-obra]')];
+  const palabras = (s: string) => norma(s).split(/\s+/).filter(Boolean);
+  const indice = items.map((it) => ({
+    it,
+    campos: [
+      { palabras: palabras(it.dataset.nombre!), peso: 5 },
+      { palabras: palabras(it.dataset.sector + ' ' + it.dataset.servicios!.replace(/\|/g, ' ')), peso: 3 },
+      { palabras: palabras(it.dataset.texto!), peso: 1 },
+    ] as Campo[],
+  }));
+  const input = caja.querySelector<HTMLInputElement>('[data-buscar]')!;
+  const filtros = caja.querySelector<HTMLElement>('[data-filtros]')!, abrirF = caja.querySelector<HTMLButtonElement>('[data-abrir-filtros]')!, nF = caja.querySelector<HTMLElement>('[data-n-filtros]')!;
+  const ordenes = [...caja.querySelectorAll<HTMLButtonElement>('[data-orden]')];
+  const opsServ = [...caja.querySelectorAll<HTMLButtonElement>('[data-servicio]')], opsSec = [...caja.querySelectorAll<HTMLButtonElement>('[data-sector]')];
+  const paginas = caja.querySelector<HTMLElement>('[data-paginas]')!, cuenta = caja.querySelector<HTMLElement>('[data-cuenta]')!, vacio = caja.querySelector<HTMLElement>('[data-vacio]')!;
+  const q = new URLSearchParams(location.search);
+  let busca = q.get('q') || '', servicio = q.get('servicio') || '', sector = q.get('sector') || '', pagina = Math.max(1, Number(q.get('p')) || 1), orden = q.get('orden') === 'libre' ? 'libre' : 'rejilla';
+  input.value = busca;
+
+  const pintar = (mover = false) => {
+    const terminos = palabras(busca).map((w) => ({ orig: w, variantes: inverso.get(w) ?? [w] }));
+    const pasan = indice
+      .filter(({ it }) => (!servicio || it.dataset.servicios!.split('|').includes(servicio)) && (!sector || it.dataset.sector === sector))
+      .map((x, n) => ({ ...x, n, s: terminos.length ? puntuar(terminos, x.campos) : 1 }))
+      .filter((x) => x.s > 0)
+      .sort((a, b) => b.s - a.s || a.n - b.n);
+    const total = Math.max(1, Math.ceil(pasan.length / POR));
+    pagina = Math.min(pagina, total);
+    items.forEach((it) => (it.hidden = true));
+    pasan.forEach(({ it }) => lista.append(it)); // el orden, por relevancia
+    pasan.slice((pagina - 1) * POR, pagina * POR).forEach(({ it }, i) => { it.hidden = false; it.style.setProperty('--i', String(i)); it.dataset.pos = String(i % 6); });
+    opsServ.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.servicio === servicio)));
+    opsSec.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sector === sector)));
+    nF.textContent = [servicio, sector].filter(Boolean).length ? String([servicio, sector].filter(Boolean).length) : '';
+    lista.dataset.ordenActual = orden;
+    ordenes.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.orden === orden)));
+    vacio.hidden = pasan.length > 0;
+    cuenta.textContent = busca || servicio || sector ? `${String(pasan.length).padStart(2, '0')} de ${String(items.length).padStart(2, '0')}` : '';
+    paginas.innerHTML = '';
+    if (total > 1) {
+      const boton = (txt: string, n: number, extra = '') => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pag ' + extra; b.innerHTML = txt; b.disabled = n < 1 || n > total; if (n === pagina && !extra) b.setAttribute('aria-current', 'page'); b.addEventListener('click', () => { pagina = n; animar(() => pintar(true)); }); return b; };
+      paginas.append(boton('<span class="sr-only">Anterior</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M10 7l-5 5 5 5"/></svg>', pagina - 1, 'flecha'));
+      for (let n = 1; n <= total; n++) paginas.append(boton(String(n).padStart(2, '0'), n));
+      paginas.append(boton('<span class="sr-only">Siguiente</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>', pagina + 1, 'flecha'));
+    }
+    const u = new URL(location.href);
+    ([['q', busca], ['servicio', servicio], ['sector', sector], ['p', pagina > 1 ? String(pagina) : ''], ['orden', orden === 'libre' ? 'libre' : '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
+    history.replaceState(null, '', u);
+    if (mover) caja.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  };
+  // RONDA 64 · los cambios que pide el visitante (orden, filtros, página) se ANIMAN: cada tarjeta viaja a su sitio nuevo (View Transitions en el
+  // mismo documento; cada <li> lleva su nombre). Al escribir no: la lista cambia al ritmo de las teclas.
+  const reducidoV = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // html.vt-local: en estas transiciones dentro de la página no se rasga la página entera (eso es solo al cambiar de página)
+  const animar = (f: () => void) => { const d = document as any; if (!d.startViewTransition || reducidoV) return f(); document.documentElement.classList.add('vt-local'); d.startViewTransition(f).finished.finally(() => document.documentElement.classList.remove('vt-local')); };
+  let reloj = 0;
+  input.addEventListener('input', () => { clearTimeout(reloj); reloj = window.setTimeout(() => { busca = input.value.trim(); pagina = 1; pintar(); }, 120); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Escape' && input.value) { input.value = busca = ''; pagina = 1; pintar(); } });
+  abrirF.addEventListener('click', () => { const si = filtros.hidden; filtros.hidden = !si; abrirF.setAttribute('aria-expanded', String(si)); });
+  ordenes.forEach((b) => b.addEventListener('click', () => { if (b.dataset.orden === orden) return; orden = b.dataset.orden!; animar(() => pintar()); }));
+  opsServ.forEach((b) => b.addEventListener('click', () => { servicio = b.dataset.servicio!; pagina = 1; animar(() => pintar()); }));
+  opsSec.forEach((b) => b.addEventListener('click', () => { sector = b.dataset.sector!; pagina = 1; animar(() => pintar()); }));
+  caja.querySelector('[data-limpiar]')!.addEventListener('click', () => { input.value = busca = servicio = sector = ''; pagina = 1; animar(() => pintar()); });
+  if (servicio || sector) { filtros.hidden = false; abrirF.setAttribute('aria-expanded', 'true'); }
+  pintar();
+  (window as any).__obras = () => ({ visibles: items.filter((i) => !i.hidden).map((i) => i.dataset.slug), busca, servicio, sector, pagina, orden, paginas: paginas.querySelectorAll('.pag:not(.flecha)').length });
+  (window as any).__buscar = (x: string) => { input.value = busca = x; pagina = 1; pintar(); return (window as any).__obras(); };
+</script>
+
+<style>
+  .obras {
+    padding-top: calc(var(--spacing) * 32);
+  }
+  .titular {
+    font-size: clamp(3rem, 1.2rem + 6vw, 7.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  /* LOS DESTACADOS: mosaico asimétrico sobre 12 columnas (como «Más proyectos») */
+  .destacados {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--spacing) * 16) calc(var(--spacing) * 6);
+    margin-top: calc(var(--spacing) * 24);
+  }
+  @media (width >= 64rem) {
+    .destacados {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+      row-gap: calc(var(--spacing) * 24);
+    }
+    .sitio {
+      grid-column: var(--col);
+      margin-top: calc(var(--spacing) * var(--baja, 0));
+    }
+  }
+  .todos {
+    scroll-margin-top: calc(var(--spacing) * 24);
+  }
+  /* RONDA 64 · EL TITULAR ES EL BUSCADOR: un campo en Family del tamaño de un h2 que dice «Todos los proyectos.» hasta que escribes */
+  .cabeza-todos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 4) calc(var(--spacing) * 8);
+    padding-bottom: calc(var(--spacing) * 4);
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .titular-buscador {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 4);
+    flex: 1 1 22rem;
+    min-width: 0;
+    cursor: text;
+  }
+  .titular-buscador input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    outline: none;
+    padding: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+    color: var(--fg);
+  }
+  .titular-buscador input::placeholder {
+    color: var(--fg);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+  .titular-buscador input:focus::placeholder {
+    opacity: 0.3;
+  }
+  .titular-buscador input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .titular-buscador svg {
+    flex: none;
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    opacity: 0.35;
+    transition: opacity 0.3s ease;
+  }
+  .titular-buscador:focus-within svg,
+  .titular-buscador:hover svg {
+    opacity: 0.8;
+  }
+  /* el filete de abajo se llena de savia mientras buscas */
+  .cabeza-todos::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--color-coral);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.7s var(--ease-out-expo);
+  }
+  .cabeza-todos:focus-within::after {
+    transform: scaleX(1);
+  }
+  .mandos {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 4);
+    padding-bottom: calc(var(--spacing) * 2);
+  }
+  .ayuda {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .cabeza-todos:focus-within .ayuda {
+    opacity: 1;
+  }
+  .mando {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--fg2);
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  .mando:hover,
+  .mando[aria-expanded='true'],
+  .mando[aria-pressed='true'] {
+    color: var(--fg);
+  }
+  .mando sup {
+    font-size: 0.625rem;
+    color: var(--color-coral);
+  }
+  .orden {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 2);
+  }
+  .orden svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.2;
+  }
+  .filtros[hidden] {
+    display: none !important;
+  }
+  .filtros {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 6);
+    animation: filtros-llegan 0.6s var(--ease-out-expo);
+  }
+  @keyframes filtros-llegan {
+    from { opacity: 0; translate: 0 calc(var(--spacing) * -2); filter: blur(4px); }
+  }
+  .fila-f {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+  }
+  .etq {
+    width: 6rem;
+    flex: none;
+    color: var(--fg2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .op {
+    position: relative;
+    font-size: var(--text-ui);
+    line-height: 1.4;
+    color: color-mix(in oklab, var(--fg) 55%, transparent);
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  .op sup {
+    margin-left: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--fg2);
+  }
+  .op::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: var(--fg);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+  .op:hover,
+  .op[aria-pressed='true'] {
+    color: var(--fg);
+  }
+  .op[aria-pressed='true']::after {
+    transform: scaleX(1);
+  }
+  .op[aria-pressed='true']::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    margin-top: -2px;
+    border-radius: 50%;
+    background: var(--color-coral);
+  }
+  @media (width < 48rem) {
+    .etq {
+      width: 100%;
+    }
+  }
+  .cuenta {
+    margin-top: calc(var(--spacing) * 4);
+    min-height: 1.4em;
+    font-variant-numeric: tabular-nums;
+  }
+  .rejilla {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 16) calc(var(--spacing) * 6);
+    margin-top: calc(var(--spacing) * 12);
+  }
+  @media (width < 64rem) {
+    .rejilla {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (width < 48rem) {
+    .rejilla {
+      grid-template-columns: 1fr;
+      gap: calc(var(--spacing) * 12);
+    }
+  }
+  .rejilla li {
+    --ratio: 4 / 3;
+  }
+  /* LIBRE: seis sitios que se repiten, con anchos, alturas, proporciones y giros distintos */
+  @media (width >= 64rem) {
+    .rejilla[data-orden-actual='libre'] {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      row-gap: calc(var(--spacing) * 8);
+      align-items: start;
+    }
+    .rejilla[data-orden-actual='libre'] li { transition: rotate 0.8s var(--ease-out-expo); }
+    .rejilla[data-orden-actual='libre'] li[data-pos='0'] { grid-column: 1 / span 5; --ratio: 4 / 5; rotate: -2deg; }
+    .rejilla[data-orden-actual='libre'] li[data-pos='1'] { grid-column: 7 / span 4; --ratio: 1 / 1; margin-top: calc(var(--spacing) * 24); rotate: 3deg; }
+    .rejilla[data-orden-actual='libre'] li[data-pos='2'] { grid-column: 3 / span 4; --ratio: 5 / 4; margin-top: calc(var(--spacing) * -12); rotate: 2deg; }
+    .rejilla[data-orden-actual='libre'] li[data-pos='3'] { grid-column: 8 / span 5; --ratio: 4 / 5; margin-top: calc(var(--spacing) * 6); rotate: -3deg; }
+    .rejilla[data-orden-actual='libre'] li[data-pos='4'] { grid-column: 1 / span 4; --ratio: 1 / 1; margin-top: calc(var(--spacing) * -16); rotate: 4deg; }
+    .rejilla[data-orden-actual='libre'] li[data-pos='5'] { grid-column: 6 / span 6; --ratio: 16 / 10; margin-top: calc(var(--spacing) * 12); rotate: -1deg; }
+    .rejilla[data-orden-actual='libre'] li:hover { rotate: 0deg; }
+  }
+  .rejilla li:not([hidden]) {
+    animation: llega 0.7s var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+  @keyframes llega {
+    from { opacity: 0; translate: 0 calc(var(--spacing) * 4); filter: blur(4px); }
+  }
+  .tarjeta {
+    display: block;
+    color: inherit;
+  }
+  .tarjeta :global(.medio) {
+    transition: scale 0.8s var(--ease-out-expo);
+  }
+  .tarjeta:hover :global(.medio) {
+    scale: 0.985;
+  }
+  .pie-tarjeta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 4);
+  }
+  .nombre-t {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  .vacio {
+    margin-top: calc(var(--spacing) * 12);
+  }
+  .paginas {
+    display: flex;
+    justify-content: center;
+    gap: calc(var(--spacing) * 1);
+    margin-top: calc(var(--spacing) * 16);
+  }
+  .paginas :global(.pag) {
+    display: grid;
+    place-items: center;
+    min-width: calc(var(--spacing) * 12);
+    height: calc(var(--spacing) * 12);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+    color: var(--fg2);
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease;
+  }
+  .paginas :global(.pag:hover:not(:disabled)) {
+    color: var(--fg);
+  }
+  .paginas :global(.pag[aria-current='page']) {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .paginas :global(.pag:disabled) {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .paginas :global(.pag svg) {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  :global(::view-transition-group(*)) {
+    animation-duration: 0.9s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rejilla li:not([hidden]) {
+      animation: none;
+    }
+  }
+</style>

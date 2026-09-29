@@ -1,7 +1,10 @@
 ---
 import { receta } from '../data/home';
-import Flora from './Flora.astro';
 const pad = (n: number) => String(n + 1).padStart(2, '0');
+// RONDA 66 · «en el md de referencia hay cosas que cambian de color como si tuviesen un link; eso lo trasladamos»: en cada línea, los valores de la receta
+// (colores en hexadecimal, archivos .md, tokens de espacio, medidas en px) van en el color de enlace, subrayados con puntos
+const TOKEN = /(#[0-9A-Fa-f]{6}|\b[\w/-]+\.md\b|\b(?:xtiny|xxhuge)\b|\d+(?:\s*\/\s*\d+)?\s*px|\d+%)/g;
+const trozos = (l: string) => l.split(TOKEN).map((t, i) => ({ t, tok: i % 2 === 1 }));
 // la tinta A MANO (Coral): trazos con pulso (no geométricos), en una caja de 100 × 20 que se estira a la línea que marcan
 const TRAZO: Record<string, string> = {
   circulo: 'M10 5 C 34 -1, 82 0, 96 7 C 103 13, 86 19.5, 50 19 C 17 18.6, 0 15.5, 3 9.5 C 5.5 4.5, 15 2.2, 32 2.4',
@@ -26,7 +29,7 @@ const TRAZO: Record<string, string> = {
     <h2 id="receta-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
     <p class="text-sub arnes mt-6 lg:mt-8 max-w-[34ch]" data-enfoca>{receta.arnes}</p>
     <!-- RONDA 56 · el ticket va ENGANCHADO a la boca de la impresora y sale hacia arriba; la impresora, fija mientras dura (escenario sticky) -->
-    <div class="imprenta mt-16 lg:mt-24" data-imprenta>
+    <div class="imprenta" data-imprenta>
       <div class="escenario" data-escenario>
         <div class="boca" data-boca>
           <div class="ticket" data-ticket>
@@ -46,7 +49,7 @@ const TRAZO: Record<string, string> = {
                         return (
                           <span class="ln">
                             <span class="tx">
-                              {l || ' '}
+                              {l ? trozos(l).map((q) => (q.tok ? <span class="tok">{q.t}</span> : q.t)) : ' '}
                               {m && m !== 'visto' && (
                                 <svg class={`tinta ${m}`} viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d={TRAZO[m]} pathLength="1" /></svg>
                               )}
@@ -58,15 +61,25 @@ const TRAZO: Record<string, string> = {
                         );
                       })}
                     </div>
-                    <div class={`dig dig-${t.digital.tipo}`} aria-hidden="true">
-                      {t.digital.tipo === 'muestras' && (
+                    <div class={`dig dig-${t.digital.tipo}`} aria-hidden={t.digital.tipo === 'boton' ? undefined : 'true'}>
+                      {t.digital.tipo === 'tabla' && (
                         <>
-                          <span class="sws">{t.digital.colores!.map((c, k) => <i style={`--c:${c};--k:${k}`} />)}</span>
-                          <b>{t.digital.txt}</b>
+                          <span class="dig-cab">{t.digital.txt}</span>
+                          <span class="tabla-d">
+                            {t.digital.filas!.map((f, k) => (
+                              <>
+                                <i class="sw" style={`--c:${t.digital.colores![k]}`} />
+                                <span>{f[0]}</span>
+                                <code>{f[1]}</code>
+                                <code class="tk">{f[2]}</code>
+                              </>
+                            ))}
+                          </span>
                         </>
                       )}
                       {t.digital.tipo === 'bloqueo' && (
                         <>
+                          <span class="dig-cab">{t.digital.cab}</span>
                           <span class="fila-d"><i class="x">✕</i>{t.digital.txt}</span>
                           <span class="fin">→ {t.digital.fin}</span>
                         </>
@@ -74,13 +87,19 @@ const TRAZO: Record<string, string> = {
                       {t.digital.tipo === 'agente' && (
                         <>
                           <span class="fila-d trabaja"><i class="giro-d" />{t.digital.txt}</span>
+                          {t.digital.pasos!.map((q, k) => <span class="paso-d" style={`--k:${k}`}>✓ {q}</span>)}
                           <span class="fila-d listo">{t.digital.fin}</span>
                         </>
                       )}
-                      {t.digital.tipo === 'commit' && (
-                        <span class="fila-d"><i class="punto" />{t.digital.txt}<b class="mas">{t.digital.fin}</b></span>
+                      {t.digital.tipo === 'diff' && (
+                        <>
+                          <span class="dig-cab"><i class="punto" />{t.digital.txt}<b class="mas">{t.digital.fin}</b></span>
+                          {t.digital.pasos!.map((q, k) => <code class="diff-l" style={`--k:${k}`}>{q}</code>)}
+                        </>
                       )}
-                      {t.digital.tipo === 'toast' && <span class="fila-d">{t.digital.txt} <b>{t.digital.fin}</b></span>}
+                      {t.digital.tipo === 'boton' && (
+                        <a class="btn btn-primary boton-lib" href={t.digital.href} target="_blank" rel="noopener"><svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg>{t.digital.txt}</a>
+                      )}
                     </div>
                     {i < receta.tiras.length - 1 && <p class="raya sep" aria-hidden="true">- - - - - - - - - - - - - - -</p>}
                   </section>
@@ -97,17 +116,11 @@ const TRAZO: Record<string, string> = {
             <span class="detail">sonido</span>
           </button>
         </div>
-        <!-- RONDA 57 · «los detalles florales, que salgan como envolviendo el ticket, como si fueran parte de la naturaleza»: la impresora está metida en
-             la maleza; el papel sale entre las ramas (unas por delante, otras por detrás) -->
-        <Flora lamina="helecho" fondo="niebla" opacidad={0.62} soloEscritorio estilo="left:calc(50% - 26rem);top:calc(72lvh - 10rem);width:17rem;z-index:4" />
-        <Flora lamina="brezo" fondo="niebla" opacidad={0.55} voltear soloEscritorio estilo="left:calc(50% + 8rem);top:calc(72lvh - 8.5rem);width:15rem;z-index:4" />
-        <Flora lamina="rama-roble-bellotas" fondo="niebla" opacidad={0.4} soloEscritorio estilo="left:calc(50% - 17rem);top:calc(72lvh - 4rem);width:13rem;z-index:-1" />
-        <Flora lamina="acebo-bayas-rojas" fondo="niebla" opacidad={0.36} voltear soloEscritorio estilo="left:calc(50% + 5rem);top:calc(72lvh - 2rem);width:12rem;z-index:-1" />
+        <!-- RONDA 74 · «quitamos los detalles florales de las secciones, las dejamos limpias»: fuera la maleza de la impresora (ronda 57) -->
       </div>
     </div>
     <p class="nota detail mt-16 lg:mt-24">
       <span>{receta.nota}</span>
-      <a class="link" href={receta.enlace.href} target="_blank" rel="noopener">{receta.enlace.label} →</a>
     </p>
   </div>
 </section>
@@ -255,7 +268,11 @@ const TRAZO: Record<string, string> = {
   .imprenta {
     position: relative;
     height: calc(var(--alto, 110rem) + 100lvh);
+    /* RONDA 67 · «una vez impresa, que no quede tanto espacio entre la receta y el titular»: la imprenta arranca 40 lvh más arriba (la impresora, a tres
+       cuartos de su escenario, sigue cayendo bajo el titular; el ticket sale hacia arriba siempre por debajo de él) */
+    margin-top: -52lvh;
   }
+  .sin-imprenta .imprenta { margin-top: calc(var(--spacing) * 16); }
   .escenario {
     position: sticky;
     top: 0;
@@ -404,10 +421,16 @@ const TRAZO: Record<string, string> = {
     justify-content: center;
     padding-top: calc(var(--spacing) * 2);
   }
+  .tok {
+    color: var(--color-cobalto);
+    text-decoration: underline dotted;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
   .logo-t {
     display: block;
-    height: 1.9rem;
-    aspect-ratio: 1118 / 348;
+    height: 2.5rem;
+    aspect-ratio: 1275 / 439;
     background: currentColor;
     -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
     mask: url('/savvia-logo.svg') center / contain no-repeat;
@@ -552,7 +575,7 @@ const TRAZO: Record<string, string> = {
     opacity: 0;
   }
   .marcado .dig-agente .listo {
-    animation: listo 0.4s ease 1.8s both;
+    animation: listo 0.4s ease 2.1s both;
   }
   @keyframes listo { to { opacity: 1; } }
   .punto {
@@ -565,14 +588,65 @@ const TRAZO: Record<string, string> = {
     font-weight: 400;
     color: var(--color-cobalto);
   }
-  .dig-toast {
-    background: var(--color-cacao);
-    color: var(--color-niebla);
-    border-radius: 99px;
+  /* RONDA 65 · las piezas con más sustancia: la tabla de tokens, la cabecera del archivo, los pasos del agente, el diff y el botón */
+  .dig-cab {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: color-mix(in oklab, var(--color-cacao) 60%, transparent);
+    padding-bottom: calc(var(--spacing) * 1.5);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-cacao) 10%, transparent);
   }
-  .dig-toast b {
-    font-weight: 400;
-    color: var(--color-coral);
+  .tabla-d {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    align-items: center;
+    gap: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+  }
+  .tabla-d code {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+  }
+  .tabla-d .tk { color: var(--color-cobalto); }
+  .sw {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+  }
+  .paso-d {
+    font-size: 0.78rem;
+    color: color-mix(in oklab, var(--color-cacao) 75%, transparent);
+    opacity: 0;
+  }
+  .marcado .paso-d {
+    animation: listo 0.3s ease both;
+    animation-delay: calc(0.7s + var(--k) * 0.28s);
+  }
+  .diff-l {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: #1f7a4d;
+    background: color-mix(in oklab, #2fbf71 12%, transparent);
+    padding: 2px calc(var(--spacing) * 1.5);
+    border-radius: 3px;
+    opacity: 0;
+  }
+  .marcado .diff-l {
+    animation: listo 0.3s ease both;
+    animation-delay: calc(0.8s + var(--k) * 0.22s);
+  }
+  .dig.dig-boton {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .dig-boton .boton-lib {
+    pointer-events: auto;
+    white-space: nowrap;
   }
   /* aterriza cuando su paso ya ha salido (con un pequeño golpe de escala) */
   .con-imprenta .dig {

@@ -1,0 +1,303 @@
+---
+// RONDA 63 · «los proyectos destacados, representarlos como en la sección "Más proyectos"»: la PIEZA de Anteriores.astro, reutilizable. Tipos:
+//   · mancha: degradado de aerógrafo con los tres colores de la web del cliente y un navegador LADEADO que se sale por abajo y por un lado
+//   · claro: degradado pálido y el navegador RECTO, cortado por abajo; el nombre en Cacao
+//   · escena: la mesa de Andoni en una estación, con la web DENTRO del monitor (pantalla medida en la lámina)
+//   · telefono: degradado y la web móvil en un teléfono de pie
+// El nombre, grande, arriba a la izquierda; el vídeo real de la web corre al pasar (o a la vista en táctil). Enlaza al caso.
+import type { Proyecto } from '../../data/proyectos';
+interface Props {
+  p: Proyecto;
+  tipo: 'mancha' | 'claro' | 'escena' | 'telefono';
+  est?: string; // estación de la mesa (escena)
+  zoom?: number; // escena: cuántas veces se amplía la lámina
+  cy?: number; // escena: a qué altura de la pieza cae el centro de la pantalla
+  giro?: number;
+  transicion?: boolean; // lleva el nombre de la transición compartida con la portada del caso
+}
+const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false } = Astro.props;
+const [c1, c2, c3] = p.colores;
+const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // la pantalla del monitor en la lámina (ronda 26)
+const left = 50 - (PANT.x + PANT.w / 2) * zoom * 100, py = PANT.y + PANT.h / 2;
+const video = p.portada;
+---
+
+<a href={`/proyectos/${p.slug}`} class={`pieza ${tipo}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra>
+  <div class={`lamina ${tipo === 'escena' ? '' : 'g-marca'}`} style={transicion ? `view-transition-name: obra-${p.slug}` : undefined}>
+    {
+      tipo === 'escena' ? (
+        <div class="mesa" style={`--z:${zoom};--left:${left.toFixed(2)};--cy:${cy};--py:${py}`}>
+          <img class="foto" src={`/media/estudio/${est}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
+          <span class="pantalla"><video class="vid" muted loop playsinline preload="none" poster={video.poster} data-src={video.src} aria-label={`La web de ${p.nombre}`} /></span>
+        </div>
+      ) : tipo === 'telefono' ? (
+        <div class="telefono-m"><video class="vid" muted loop playsinline preload="none" poster={video.poster} data-src={video.src} aria-label={`La web de ${p.nombre}`} /></div>
+      ) : (
+        <div class="mockup">
+          <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{p.dominio ?? p.nombre.toLowerCase()}</b></span>
+          <video class="vid" muted loop playsinline preload="none" poster={video.poster} data-src={video.src} aria-label={`La web de ${p.nombre}`} />
+        </div>
+      )
+    }
+    <h3 class="nombre font-display">{p.nombre}</h3>
+    <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>
+  </div>
+  <p class="pie detail text-fg2">{p.sector && <span class="text-fg">{p.sector}</span>}{p.sector && ' · '}{p.servicios.slice(0, 3).join(', ')}</p>
+</a>
+
+<script>
+  // el vídeo: al pasar el cursor (o al enfocar); en táctil, mientras la pieza está a la vista
+  const tactil = matchMedia('(hover: none)').matches, reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tocar = (v: HTMLVideoElement, si: boolean) => { if (si) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!reducido) v.play().catch(() => {}); } else v.pause(); };
+  const io = new IntersectionObserver((es) => es.forEach((e) => tocar(e.target.querySelector('video')!, e.isIntersecting)), { threshold: 0.5 });
+  document.querySelectorAll<HTMLElement>('[data-pieza-obra]').forEach((pz) => {
+    const v = pz.querySelector('video')!;
+    v.addEventListener('playing', () => pz.classList.add('suena'));
+    v.addEventListener('pause', () => pz.classList.remove('suena'));
+    if (tactil) { io.observe(pz); return; }
+    pz.addEventListener('pointerenter', () => tocar(v, true));
+    pz.addEventListener('pointerleave', () => tocar(v, false));
+    pz.addEventListener('focus', () => tocar(v, true));
+    pz.addEventListener('blur', () => tocar(v, false));
+  });
+</script>
+
+<style>
+  .pieza {
+    display: block;
+    min-width: 0;
+    color: inherit;
+  }
+  .lamina {
+    position: relative;
+    aspect-ratio: var(--ratio, 4 / 5);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    isolation: isolate;
+    container-type: size;
+  }
+  /* los fondos de degradado: manchas muy desenfocadas (aerógrafo) con los colores de la web del cliente + el grano de la web */
+  .g-marca::before {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    z-index: -2;
+    background: radial-gradient(70% 60% at 72% 22%, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96%, var(--c3), transparent 70%), var(--c1);
+    filter: blur(34px);
+    transition: transform 1.6s var(--ease-out-expo);
+  }
+  .lamina::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: url('/media/grano.png') 0 0 / 240px 240px;
+  }
+  .nombre {
+    position: absolute;
+    z-index: 2;
+    left: calc(var(--spacing) * 4);
+    top: calc(var(--spacing) * 3);
+    right: calc(var(--spacing) * 4);
+    font-size: var(--text-h3);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--tinta, var(--color-niebla));
+    text-wrap: balance;
+  }
+  .claro {
+    --tinta: var(--color-cacao);
+  }
+  .escena .nombre,
+  .mancha .nombre,
+  .telefono .nombre {
+    text-shadow: 0 1px 18px color-mix(in oklab, var(--color-cacao) 55%, transparent);
+  }
+  .pie {
+    margin-top: calc(var(--spacing) * 4);
+  }
+  /* el icono de vídeo, abajo a la derecha; se retira mientras suena */
+  .vid-ic {
+    position: absolute;
+    z-index: 3;
+    right: calc(var(--spacing) * 3);
+    bottom: calc(var(--spacing) * 3);
+    display: inline-flex;
+    padding: calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #1a1210 55%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--color-niebla);
+    transition: opacity 0.4s ease, scale 0.5s var(--ease-out-expo), filter 0.4s ease;
+  }
+  .vid-ic svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .pieza.suena .vid-ic {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  /* el navegador */
+  .mockup {
+    position: absolute;
+    border-radius: calc(var(--spacing) * 2);
+    overflow: hidden;
+    background: #fbfbfa;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.18), 0 24px 48px -12px rgb(30 16 8 / 0.55);
+    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
+  }
+  /* RONDA 68 · «revisar que las miniaturas estén bien encajadas y la web no se vea cortada»: el navegador, ENTERO dentro de su pieza, bajo el nombre
+     (lo más ancho que quepa en el 62 % de abajo), con la web a su proporción real (16:9, la de las grabaciones: ya no se recorta por los lados); la
+     mancha, apenas ladeada; el claro, recto */
+  .mancha .mockup,
+  .claro .mockup {
+    left: 50%;
+    bottom: 9%;
+    width: min(84%, calc((62cqh - 14px) * 16 / 9));
+    translate: -50% 0;
+  }
+  .mancha .mockup {
+    rotate: calc(var(--giro) * 0.4);
+  }
+  .claro .mockup {
+    box-shadow: 0 0 0 1px rgb(48 32 24 / 0.14), 0 18px 40px -14px rgb(48 32 24 / 0.4);
+  }
+  .mockup .vid {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+  .cromo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 14px;
+    padding-inline: calc(var(--spacing) * 2);
+    background: linear-gradient(#f7f6f5, #ebe9e8);
+    box-shadow: inset 0 -1px 0 #d2d0ce;
+  }
+  .cromo i {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #d5d2cf;
+  }
+  .cromo b {
+    margin-inline: auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 calc(var(--spacing) * 3);
+    height: 8px;
+    line-height: 8px;
+    border-radius: 2px;
+    background: #fff;
+    font-weight: 400;
+    font-size: 0.4rem;
+    color: #5c5a58;
+  }
+  /* la mesa, con la web dentro del monitor */
+  .mesa {
+    position: absolute;
+    width: calc(var(--z) * 100cqw);
+    aspect-ratio: 16 / 9;
+    left: calc(var(--left) * 1cqw);
+    top: calc(var(--cy) * 100cqh - var(--py) * var(--z) * 56.25cqw);
+    transition: scale 1.6s var(--ease-out-expo);
+    transform-origin: 50% var(--py);
+  }
+  .mesa .foto {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mesa .pantalla {
+    position: absolute;
+    z-index: 2;
+    left: 39.03%;
+    top: 36.96%;
+    width: 21.78%;
+    height: 21.04%;
+    overflow: hidden;
+    background: #fbfbfa;
+  }
+  .mesa .vid {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+  .escena .lamina::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(to bottom, color-mix(in oklab, var(--color-cacao) 55%, transparent), transparent 34%);
+  }
+  /* el teléfono de pie */
+  .telefono-m {
+    position: absolute;
+    left: 50%;
+    bottom: 7%;
+    height: 68%; /* ronda 68: por el alto, así entra entero en cualquier proporción de pieza */
+    aspect-ratio: 390 / 844;
+    translate: -50% 0;
+    padding: 1.2%;
+    border-radius: 4.2cqh;
+    background: #1a110c;
+    box-shadow: 0 30px 60px -20px rgb(30 16 8 / 0.6);
+    transition: translate 0.9s var(--ease-out-expo);
+  }
+  .telefono-m .vid {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 3.6cqh;
+  }
+  /* al pasar */
+  .mancha:hover .mockup,
+  .mancha:focus-visible .mockup {
+    translate: -50% -4%;
+    rotate: 0deg;
+  }
+  .claro:hover .mockup,
+  .claro:focus-visible .mockup {
+    translate: -50% -4%;
+  }
+  .telefono:hover .telefono-m {
+    translate: -50% -5%;
+  }
+  .escena:hover .mesa,
+  .escena:focus-visible .mesa {
+    scale: 1.06;
+  }
+  .pieza:hover .g-marca::before {
+    transform: scale(1.15) rotate(8deg);
+  }
+  .pieza:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: calc(var(--spacing) * 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mockup,
+    .mesa,
+    .telefono-m,
+    .g-marca::before {
+      transition: none;
+    }
+  }
+</style>

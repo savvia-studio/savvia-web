@@ -26,7 +26,9 @@ const { lamina, estilo, fondo = 'noche', voltear = false, opacidad = 0.5, espera
 <script>
   import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
   import { NOCHE, estacionActual } from '../scripts/estacion';
-  const FONDOS: Record<string, [number, number, number] | null> = { noche: null, niebla: [234, 221, 231], arcilla: [229, 172, 158] };
+  import { rgbDe } from '../scripts/tinta';
+  // ronda 61: el fondo claro se lee de la paleta activa
+  const FONDOS: Record<string, [number, number, number] | null> = { noche: null, niebla: rgbDe('niebla'), arcilla: [229, 172, 158] };
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll<HTMLElement>('[data-flora]:not([data-lista])').forEach((el) => {
     el.dataset.lista = '1';

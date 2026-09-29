@@ -47,14 +47,40 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
               </div>
             )}
             {i === 2 && (
-              <div class="liquido">
-                <!-- RONDA 13 · «darle un toque savvia, como líquido»: el marco del documento es SAVIA que corre (gotas que lo recorren
-                   y engordan al pasar) y, abajo, una gota que se descuelga -->
-                <div class="savia-goo"><i class="marco" /><i class="gota g1" /><i class="gota g2" /><i class="gota g3" /><i class="cae" /></div>
-                <div class="doc detail">
-                  <p class="cab"><span>{laSavvia.doc.archivo}</span><span>fuente de verdad</span></p>
-                  {doc.map((l, k) => <p class={l.k === 'h' ? 'h' : 'l'} style={`--k:${k}`}>{l.v}</p>)}
+              <div class="arnes">
+                <!-- RONDA 65 · «unir las ilustraciones 3 y 4»: la RECETA (savvia.md, en su marco de savia líquida) y, debajo, la IA que construye con ella:
+                     la orden se escribe, la receta se enciende (el arnés) y la landing sale con el estilo de la marca. Un solo reloj de 7 s. -->
+                <div class="liquido">
+                  <div class="savia-goo"><i class="marco" /><i class="gota g1" /><i class="gota g2" /><i class="gota g3" /></div>
+                  <div class="doc detail">
+                    <p class="cab"><span>{laSavvia.doc.archivo}</span><span>el arnés</span></p>
+                    {doc.slice(1, 5).map((l, k) => <p class={l.k === 'h' ? 'h' : 'l'} style={`--k:${k}`}>{l.v}</p>)}
+                  </div>
                 </div>
+                <div class="ias">
+                  {IAS.map((ia, k) => (
+                    <svg class="ia-ic" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" style={`--k:${k}`} aria-label={ia.n} set:html={ia.svg} />
+                  ))}
+                </div>
+                <div class="metal">
+                  <span class="orden detail"><span class="l1">Hazme la landing de campaña</span><span class="l2">de otoño, con nuestro estilo</span></span>
+                  <span class="boton-ia" aria-hidden="true"><svg class="flecha-ia" viewBox="0 0 24 24"><path d="M12 18V6M6.5 11.5L12 6l5.5 5.5" /></svg><i class="parar-ia"></i></span>
+                </div>
+                <div class="vista">
+                  <span class="vbarra"><i /><i /><i /></span>
+                  <span class="v-antes">
+                    <span class="vtit">La web de siempre.</span>
+                    <span class="vlin" /><span class="vlin corta" />
+                  </span>
+                  <span class="v-nueva">
+                    <span class="v-etq">Campaña · otoño</span>
+                    <span class="vtit">Otoño, a medida.</span>
+                    <span class="v-cta">Ver la colección</span>
+                    <span class="v-cards"><i style="--k:0" /><i style="--k:1" /><i style="--k:2" /></span>
+                  </span>
+                  <span class="v-genera detail">Leyendo la receta…</span>
+                </div>
+                <p class="hecho detail tabular-nums">con tu receta · publicada <b>✓</b></p>
               </div>
             )}
             {i === 3 && (
@@ -769,6 +795,71 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
     80%, 94% { opacity: 1; translate: 0 0; }
     100% { opacity: 0; }
   }
+
+  /* RONDA 65 · 03 + 04 en una: la receta arriba, la orden y la landing debajo, con el mismo reloj (7 s) */
+  .tarjeta.t2 { --ch: calc(var(--cw) * 1.62); }
+  .arnes {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+  }
+  .arnes .liquido { width: 100%; }
+  .arnes .doc { font-size: 0.625rem; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); }
+  .arnes .doc .h,
+  .arnes .doc .l { animation-duration: 7s; animation-delay: calc(var(--k) * 0.25s); }
+  /* la receta se ENCIENDE mientras la IA la lee: el arnés actúa */
+  .arnes .marco { animation: arnes-lee 7s ease infinite both; }
+  @keyframes arnes-lee {
+    0%, 36% { border-color: color-mix(in oklab, var(--color-naranja) 55%, transparent); }
+    42%, 58% { border-color: var(--color-naranja); box-shadow: 0 0 18px -2px var(--color-naranja); }
+    66%, 100% { border-color: color-mix(in oklab, var(--color-naranja) 55%, transparent); }
+  }
+  .arnes .ias { gap: calc(var(--spacing) * 2); }
+  .arnes .ia-ic { width: calc(var(--spacing) * 3); height: calc(var(--spacing) * 3); }
+  .arnes .vista { aspect-ratio: 16 / 9; }
+  /* RONDA 66 · «el botón de enviar a la IA tiene que parecer más botón de enviar a la IA»: el de los chats (círculo lleno, flecha hacia arriba); al
+     mandar se hunde y, mientras genera, es el cuadrado de «parar»; al terminar vuelve la flecha */
+  .boton-ia {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    border-radius: var(--radius-full);
+    background: var(--color-niebla);
+    color: var(--color-cacao);
+    animation: enviar-ia 7s var(--ease-out-expo) infinite;
+  }
+  .boton-ia .flecha-ia {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: flecha-ia 7s ease infinite;
+  }
+  .boton-ia .parar-ia {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0;
+    animation: parar-ia 7s ease infinite;
+  }
+  @keyframes enviar-ia {
+    0%, 30% { scale: 1; background: color-mix(in oklab, var(--color-niebla) 45%, transparent); }
+    34% { scale: 1; background: var(--color-niebla); }
+    37% { scale: 0.86; }
+    41%, 100% { scale: 1; background: var(--color-niebla); }
+  }
+  @keyframes flecha-ia { 0%, 38% { opacity: 1; translate: 0 0; } 41% { opacity: 0; translate: 0 -6px; } 41.1%, 60% { opacity: 0; translate: 0 6px; } 64%, 100% { opacity: 1; translate: 0 0; } }
+  @keyframes parar-ia { 0%, 40% { opacity: 0; scale: 0.4; } 43%, 58% { opacity: 1; scale: 1; } 62%, 100% { opacity: 0; scale: 0.4; } }
 
   @media (prefers-reduced-motion: reduce) {
     .tarjeta,

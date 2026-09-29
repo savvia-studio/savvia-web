@@ -2048,3 +2048,439 @@ en mono en el pie.
 - **PUBLICADA (25/09) en https://savvia.studio** (Andoni: «sube a GitHub y publica»): rondas 53–59 en un commit, push de `6eeef92` → Vercel. Medido EN VIVO:
   `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 (una primera pasada dio un 404 de un script de la versión anterior mientras
   se propagaba el despliegue; a los 20 s, limpio) · `tools/r59-sonidos.cjs` en vivo: mp3 200, ambiente y impresora suenan. Sigue `noindex`.
+
+### Ronda 60 — 2026-09-28 · el REEL de proyectos (primer corte, en local; el menú aún no se toca)
+- **Andoni (textual):** «me gustaría hacer un reel chulo de todos los proyectos que hay en la web y que salga en el menú superior cuando se abre; si clicas lo ves en
+  grande» · «entran los 6-7 mejores» · «tenemos permiso de todos; Zernio se puede poner ya como marca blanca, con otro nombre» · «propón tú un nombre» · «de momento
+  usamos la primera de Pixabay, Distant Miles».
+- **Hecho:** `tools/reel/grabar.cjs`: dos tomas por web en Chrome real a 1920×1080 (Remerge a 390 px ×3): VIVO (screencast CDP remuestreado a 30 fps; 31–57 fps
+  reales) y SCROLL (paso a paso, 8 s). Siete webs: Multiverse, Zernio → **Amarra** (marca blanca: texto y logotipo cambiados en la página al grabar; su intro
+  con el símbolo se corta), Playground IEP, Neety, Invopop, Isotrol, Remerge. Fuera: Business Online Payroll y Cubbo. `tools/reel/montar.cjs` → `tools/reel/hf/`
+  (HyperFrames): 26,8 s cortados al pulso de la música (92 BPM, medido con librosa): gota que cae y abre la primera web con el papel rasgado · cinco webs con su
+  nombre en píldora · «Webs a medida.» (Family) · Remerge en móvil · Multiverse en el golpe · seis cortes a pulso · la cámara sale de la pantalla a la mesa de
+  otoño · el logotipo se descubre + «savvia.studio · reel 2026».
+- **Fallo propio cazado:** el cambio de nombre de Zernio reescribía el título de la página dentro de su propio observador: bucle infinito que colgaba la
+  grabación → solo si el título aún dice «Zernio».
+- **Medido:** `hyperframes check` sin errores (contraste 3/3) · render 1920×1080 a 30 fps en 52 s · sin fotogramas negros; congelados solo donde se quiere (antes
+  de la gota, titular, cierre) · audio −15,9 dB de media, pico −1,9 dB. `renders/reel-savvia-v1-ver.mp4` (20 MB) para verlo.
+- **Pendiente de Andoni:** el primer corte; el nombre «Amarra» (alternativas: Dársena, Pontón); la música definitiva; después, el reel en el menú (miniatura en
+  bucle sin sonido + reproductor grande que se pinta desde ella).
+- **A media ronda (Andoni):** «quiero verlo ya en la web puesto, pero en local» → `Nav.astro`: en la fila de «Más» del menú, a la derecha (en móvil, debajo a
+  todo el ancho), la MINIATURA del reel (`public/media/reel/reel-mini.mp4`, 7 s del golpe de Multiverse al montaje, 640 px, 238 KB, en bucle y sin sonido; se
+  pide al abrir el menú y se para al cerrarlo) con la píldora «▶ Reel · 0:27». Al pulsarla, el menú se recoge y el REEL (`reel.mp4`, 1600 px, 7,5 MB) se pinta
+  en una tarjeta oscura desde la miniatura (como el reproductor de testimonios), con sonido; pausa, hilo de savia que mide y busca, silencio, ×; Esc o clic
+  fuera lo recogen. Medido (`tools/r60-reel.cjs`, Chrome 1280 y 390, WebKit 1280): miniatura en marcha con el menú abierto → reel abierto, sonando y con
+  sonido, menú cerrado, tarjeta 1024×631 (366×260 en móvil), desborde 0 → Esc lo cierra; consola limpia · `astro check` 0 errores · `spacing-lint` en escala.
+  No publicado ni subido.
+- **A media ronda (Andoni):** «el reel hay que mejorarlo: repetimos demasiadas veces las mismas animaciones; buscar de cada web más momentos característicos, no
+  solo el hero, animaciones de otras secciones, e intercalarlos. El resto me gusta» → `tools/reel/momentos.cjs` (+ `grabar-comun.cjs`): en cada web se miden sus
+  secciones y se graba EN VIVO cada una mientras entra en pantalla (scroll lento y real: se disparan sus animaciones de entrada), 46 tomas con hoja de contactos
+  (`tools/grab/reel-m/hoja-*.jpg`). Reel v2 (misma estructura, misma música): cada web sale 2–3 veces con momentos distintos (Amarra: los iconos que atracan en
+  su API y la sección oscura · Playground: el cohete, «Twenty-one tools» y las notas adhesivas · Neety: las cifras que cuentan y el flujo de señales · Isotrol:
+  el mapa y su hero en la mesa · Invopop: el globo y los casos · Multiverse: los cubos isométricos, la esfera en el golpe y la pila roja · Remerge: su bloque
+  amarillo en el móvil); ninguna animación se repite. Rótulo solo la primera vez (y la píldora ya no asoma vacía). Menú actualizado (`reel.mp4` 7,8 MB,
+  `reel-mini.mp4` 258 KB). Medido: `hyperframes check` OK, render 57 s, sin negros; `tools/r60-reel.cjs` OK en los tres.
+
+### Ronda 61 — 2026-09-28 · PALETA 3 a prueba (en local)
+- **Andoni (textual):** «también quiero probar otra paleta de colores»: Vandyke Brown #362304 · Seashell Pink #FFCFC4 · Grenadine Pink #FF616B · Pale Lemon Yellow
+  #FFF59E · Salvia Blue #96BFE6 · Violet Blue #202D85; base Seashell + Vandyke; botones Grenadine con texto Vandyke (sustituye a #F65340); texto Vandyke sobre
+  rosa, coral, amarillo y azul claro; Seashell sobre marrón; Lemon sobre Violet; un acento dominante por sección; nada de coral o amarillo como texto pequeño
+  sobre claro; mismas tipografías, estructura y espaciados · «en las diferentes estaciones mantenemos lo que coincide entre estaciones».
+- **Interpretación:** mismos papeles, colores nuevos; lo que cambia con la estación (fondo oscuro y árbol) se queda; cambia lo que es igual todo el año.
+- **Hecho:** CONMUTABLE: `html[data-paleta]` desde el `<head>` (por defecto 3; `?paleta=2` la anterior). `global.css`: en la 3, Cacao → Vandyke, Rosa niebla →
+  Seashell, Coral → Grenadine, Cobalto → Violet (Servicios, con texto y detalles en Lemon; su botón principal pasa a Grenadine), Nogal → mezcla de Vandyke y
+  Seashell; «Más proyectos» sobre Salvia Blue (el fondo alternativo, el de las tarjetas de proyectos). Los colores que estaban escritos a mano ahora leen la
+  paleta activa (`src/scripts/tinta.ts`): la gota y su salpicadura, el filo de savia del shader del árbol, las líneas con que se dibujan menú, reel, tarjetas
+  y pie, la flora sobre claro, los carriles y los puntos del marco del hero.
+- **Medido:** contraste Vandyke/Seashell 10,70 · Vandyke/Grenadine 5,13 · Vandyke/Salvia 7,79 · Lemon/Violet 10,59 · Seashell sobre la noche de otoño 10,38 y de
+  verano 9,35 · Grenadine/Violet 4,04 (solo en el botón grande) · `astro check` 0 errores · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390)
+  limpio, desborde 0 · `tools/r61-paleta.cjs`: las nueve secciones capturadas en la 3 y en la 2 (`tools/shots/r61-p3-*`, `r61-p2-*`).
+- **Pendiente de Andoni:** verla; si «Más proyectos» en Salvia le encaja (o qué sección lleva el fondo alternativo); dónde entra el Lemon además de Servicios;
+  favicon e imagen para compartir siguen con la paleta 2; no publicado ni subido.
+
+### Ronda 62 — 2026-09-28 · paleta combinada, la página de PROYECTOS y el CASO DE ESTUDIO de cada uno (en local)
+- **Andoni (textual):** 1 «combinar ambas paletas: de la nueva me gusta el nuevo naranja más suave y para servicios el azul clarito; el resto, la paleta
+  anterior» · 2 «una página con todos nuestros proyectos, estilo focuslab.agency/work: algunos destacados y luego todos, paginado y con filtros» · 3 «página en
+  detalle de cada proyecto con su caso de estudio, como focuslab.agency/work/marketo» · «por el momento los que tenemos en la web; ya iremos añadiendo los de
+  treseiscero poco a poco».
+- **Referencia medida (`tools/ref62/`):** /work = titular serif enorme; destacados en ritmo entera · mitades · entera, con nombre y lista de servicios; banda
+  de cifras; rejilla de todos; «Let's talk». /work/marketo = nombre enorme; entradilla + dos columnas con «Services provided» a la derecha; imágenes a sangre
+  alternadas con rejillas; frases grandes; apartados por disciplina; testimonio; siguiente caso en grande.
+- **Hecho:**
+  · **Paleta:** fuera la paleta 3 y su conmutador. Queda la 2 con `--color-coral` = Grenadine #FF616B (todo lo que era savia y acción) y Servicios
+    (`surface-warm`) en Salvia Blue #96BFE6 con texto Cacao (7,1:1); sobre él la barra va en Cacao (se trata como superficie clara). Cobalto sigue en los
+    detalles pequeños de las ilustraciones. `src/scripts/tinta.ts` se queda: los scripts leen los colores de los tokens.
+  · **Datos (`src/data/proyectos.ts`):** una ficha por proyecto (nombre, sector, lugar, servicios, herramientas, resumen, entradilla, contexto, frase, apartados,
+    cifras, cita, color, portada y galería). SOLO HECHOS: textos de los casos de la web anterior (`../savvia_inspo/assets/treseiscero/proyectos.json`, que
+    venían recortados), el registro de rondas y lo que se ve en cada web. Nueve proyectos: los cuatro destacados (Multiverse, **Amarra** = Zernio en marca
+    blanca, Playground IEP, Neety) y los cinco de «Más proyectos». Citas reales: Sean Klamm (Playground) e Inés López-Pita (Isotrol, traducida).
+  · **Medios (`tools/reel/obra.cjs` → `public/media/obra/<slug>/`):** portada y 3–4 momentos por proyecto, sacados de las grabaciones del reel (Business Online
+    Payroll y Cubbo, grabados ahora); 1440 px (móvil 600), sin sonido, con póster; 12,7 MB en total. Se descargan al verse (o al pasar, en el listado).
+  · **`/proyectos`:** titular «Webs a medida, de principio a fin.»; los cuatro destacados en el ritmo de la referencia; «Todos los proyectos.» con filtros por
+    servicio (píldoras) y sector (desplegable), recuento, 6 por página con paginación numerada, y el estado en la dirección (`?servicio=&sector=&p=`).
+  · **`/proyectos/<slug>`:** «← Proyectos», el nombre enorme, entradilla y contexto a dos columnas con la ficha (servicios, sector, lugar, con quién,
+    herramientas, «Ver la web»), portada a todo el ancho, la frase en Coral, galería intercalada con los apartados, cifras, cita en claro y «Siguiente proyecto».
+  · **Común:** `Medio.astro` (vídeo sobre el color de su web; las webs móviles, en un teléfono); `Base.astro` gana `carga` (solo la home tiene la animación
+    de carga); el menú lleva «Proyectos» a /proyectos y el resto a `/#…`; «Ver caso de estudio +» de los destacados lleva a su caso (Zernio → /proyectos/amarra).
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · `astro build` OK (10 páginas nuevas) · `tools/verify.cjs` en /, /proyectos y
+  /proyectos/remerge (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r62-obras.cjs`: 6 visibles y 2 páginas; filtro «Migración» →
+  2; página 2 → 3 y `?p=2`; casos de Multiverse, Remerge y Playground sin desborde · el pie se dibuja también en las páginas nuevas.
+- **Pendiente de Andoni:** los textos de los casos (de Nilo, con hechos reales; revisarlos); en la home el destacado sigue llamándose «Zernio» (¿pasa a Amarra
+  también ahí?); años de cada proyecto (no constan); más imágenes propias para los casos (procesos, bocetos, sistema) cuando las haya; no publicado ni subido.
+
+### Ronda 63 — 2026-09-28 · proyectos en claro, destacados como «Más proyectos», buscador, casos a fondo, transiciones entre páginas y el hero que se quedaba en blanco (en local)
+- **Andoni (textual):** 1 «estas páginas las haría en light mode; los destacados, representarlos como en "Más proyectos"» · 2 «los filtros más elegantes y un
+  buscador inteligente donde puedas buscar los que quieras» · 3 «los casos de estudio tienen que tener bastante más información, que veas cada proyecto al detalle;
+  en las métricas no pondría las rondas, cosas relevantes sobre el proyecto» · (a media ronda) «quiero tener transiciones animadas entre diferentes páginas» ·
+  «al hacer scroll hasta abajo y volver arriba, las imágenes del hero salen en blanco, como si no cargasen» (la home).
+- **Hecho:**
+  · **En claro:** `/proyectos` y `/proyectos/<slug>` sobre Rosa niebla (`surface-light`); la cita del cliente, en oscuro para marcar el ritmo.
+  · **Destacados (`src/components/obra/Pieza.astro`):** la pieza de «Más proyectos», reutilizable: mancha (degradado con los tres colores de SU web y el navegador
+    ladeado), claro (navegador recto), escena (la mesa con la web en el monitor) y teléfono; el nombre grande encima y el vídeo al pasar. Mosaico asimétrico en 12
+    columnas: Multiverse (mancha) · Amarra (escena de verano) · Playground (mancha) · Neety (claro). `proyectos.ts` gana `colores` por proyecto.
+  · **Buscador y filtros:** una línea grande en Family sin caja, cuyo subrayado se llena de savia; ejemplos para probar; filtros tipográficos (Servicio y Sector)
+    con recuento en voladita y el activo subrayado con un punto Coral. El buscador, todo en el navegador: sin acentos ni mayúsculas, SINÓNIMOS del oficio
+    («multilingüe» → multidioma, «fintech» → banca y facturación, «IA» → agéntico…), prefijos, UNA errata en lo que se escribe (no en los sinónimos: «blanco»
+    casaba con «banco») y orden por relevancia (nombre > sector y servicios > el resto del caso). Estado en la dirección (`?q=&servicio=&sector=&p=`).
+  · **Casos a fondo:** cuatro agentes leyeron las fuentes (registros de Multiverse y Playground, makingof de Neety y Zernio, los casos completos de
+    treseiscero.com). Cada caso: el reto · la web SECCIÓN A SECCIÓN · EL SISTEMA (paleta en muestras y tipografías) · ilustración, movimiento, contenido… · POR
+    DENTRO (técnica) y LO QUE SE DESCARTÓ · cifras del PROYECTO (Multiverse: 11 secciones, 13 ilustraciones isométricas, 512 cubos, 0 % de fotogramas lentos; Playground:
+    21 herramientas, 13 pegatinas, 3,9 MB; Remerge: +30 páginas, +350 fichas, 4 idiomas, 2 meses…) · la cita. Nuevas citas reales: Juan Moliner (Invopop), Ignasi
+    Vegas (Cubbo), Guilherme Escobar (Remerge), traducidas. Ciudades que constan: Madrid, Rochester, Ciudad de México, Berlín, Sevilla, Chicago.
+  · **Transiciones (`global.css`):** las nativas entre documentos (`@view-transition`, sin ClientRouter: ningún script de la home cambia). La página que se va se
+    hunde y se desenfoca; la que llega se descubre desde abajo como una gota que se ensancha; el vídeo de un proyecto viaja de su tarjeta a la portada de su caso
+    (`view-transition-name: obra-<slug>`). Movimiento reducido: sin animación.
+  · **El hero en blanco (causa medida):** la home llegaba a 18 contextos WebGL y Chrome y Safari mantienen 16: tiraban los más antiguos, el árbol y las raíces.
+    `estela.ts`: cada lienzo suelta su contexto a más de una pantalla (WEBGL_lose_context) y lo recupera al acercarse, rehaciendo programa, textura y estado
+    (estación, fondo, origen, luz) sin repetir la aparición. Fallo propio cazado: `setTimeout(dormir, 0)` leía `dormir` antes de declararlo y rompía el lienzo.
+- **Medido:** `tools/r63-hero-contextos.cjs` (Chrome y WebKit): bajar hasta el pie y volver → árbol y raíces con contexto y pintados (antes: perdidos); lienzos vivos
+  a la vez, de 18 a ~4 · `tools/r63-obras.cjs`: «multilingüe» → Invopop, Cubbo, Remerge, Isotrol · «fintech» → Invopop, Business Online Payroll · «webflw» → los de
+  Webflow · «migración coreano» → Cubbo, Remerge · la pieza suena al pasar · `pagereveal` con transición en listado → caso → listado → home · `tools/verify.cjs` en /,
+  /proyectos y dos casos (Chrome y WebKit, 1280 y 390): limpio, desborde 0 · estaciones del árbol y óleos sin regresión · `astro check` 0 · `spacing-lint` OK · build OK.
+- **Pendiente de Andoni:** revisar los textos (citas traducidas; Neety y Amarra, de los makingof); ¿«Zernio» pasa a Amarra también en la home?; no publicado ni subido.
+
+### Ronda 64 — 2026-09-28 · el titular-buscador, orden libre, casos con la marca intercalada y la transición de savia (en local)
+- **Andoni (textual):** 1 «en "Todos los proyectos" dejamos solo el buscador; en el buscador está escrito por defecto "Todos los proyectos": el titular se convierte en
+  el propio buscador. Quitamos los filtros, o los ponemos mucho más sutiles bajo un botón de filtros. Y poder cambiar el layout de uno ordenado a uno desordenado.
+  Los proyectos, dentro de su gradiente, no con el hero al completo» · 2 «dentro de cada proyecto, quitamos métricas en grande; más estilo agencia creativa:
+  ir intercalando detalles de la web + detalles de la marca (colores puestos de forma animada, tipografía, etc.)» · 3 «la animación de cambio de página, más
+  notable y más savvia».
+- **Hecho:**
+  · **Listado:** el h2 ES el buscador (campo en Family a tamaño h2, «Todos los proyectos.» escrito; al enfocar se atenúa y el filete se llena de savia; Esc
+    borra). A la derecha, discretos: «Filtros» (despliega las dos líneas; un número Coral dice cuántos hay puestos) y el ORDEN: rejilla o LIBRE (seis sitios en 12
+    columnas con anchos, proporciones, alturas y giros distintos; al pasar, la pieza se endereza). Cada proyecto, dentro de SU degradado (la `Pieza` de «Más
+    proyectos»: navegador ladeado si su marca es oscura, recto si es clara, teléfono si es móvil). Los cambios de orden, filtros y página se animan (View
+    Transitions en la misma página, un nombre por tarjeta; `html.vt-local` evita el rasgado de página entera). Fuera las sugerencias y el botón «Borrar».
+  · **Casos:** fuera las cifras en grande (pasan, pequeñas, a la ficha: «En cifras»). La marca se intercala con el texto: COLOR (bandas verticales de su paleta
+    que suben una tras otra y se ensanchan al pasar) · un DETALLE de la web junto al reto · TIPOGRAFÍA (su muestra, escrita en SU web con SU fuente y capturada
+    como imagen —Söhne, Untitled Sans, GT America, Editorial New o Politetype son de pago: no se sirven desde savvia—, que se imprime de abajo arriba) · otro
+    DETALLE junto al primer apartado. Detalles (`tools/r64-detalles.py`): en cada momento grabado se busca la ventana cuadrada con más detalle (energía de bordes,
+    sin la barra) y se recorta el vídeo. Marca de los cinco proyectos anteriores MEDIDA en su web en vivo (`tools/r64-marca.cjs` → paleta y tipografías).
+  · **Transición (`src/scripts/transicion.ts` + `global.css`):** al pulsar un enlace a otra página, la SAVIA (Coral con grano) nace donde pulsas y se extiende con
+    canto de papel rasgado (`rasgo-circulo.png`) hasta cubrir la pantalla, con el logotipo en el centro (0,62 s); la página nueva se abre RASGANDO ese papel desde
+    el centro (1 s). Sin soporte: la capa se retira sola (`html.vt-llega`). No se intercepta: otra web, anclas, nueva pestaña, modificadores, movimiento reducido.
+- **Fallos propios cazados:** los momentos más cortos de lo previsto (Cubbo m01 dura 1,9 s): ffmpeg no escribía el fotograma y se reutilizaba el anterior (todos los
+  recortes en el mismo sitio) → duración real con ffprobe; el segundo detalle de Multiverse caía en una zona oscura vacía → otro momento; restos de la página del
+  cliente en dos muestras (menú de BOP, raya de Remerge) → se oculta todo menos la muestra.
+- **Medido:** `tools/r64-obras.cjs` (Chrome 1280 y 390, WebKit 1280): placeholder «Todos los proyectos.»; filtros plegados que se abren; orden libre con 6 piezas;
+  «fintech» → Invopop y BOP; la savia capturada a 180 / 380 / 600 ms y llegada al caso sin restos; desborde 0 · `tools/verify.cjs` en /, /proyectos y tres casos
+  (Chrome y WebKit, 1280 y 390): limpio · el hero sigue volviendo pintado · `astro check` 0 · `spacing-lint` OK · build OK.
+- **Pendiente de Andoni:** verlo y decidir la duración de la savia (0,62 s + 1 s); ¿la transición también al entrar en la home (ahora la home tiene además su
+  carga)?; no publicado ni subido.
+
+### Ronda 65 · 2026-09-29 · feedback por secciones: hero, 3 dolores, destacados sin ficha, más proyectos con hechos y testimonios, servicios en tres formas, la receta en DESIGN.md, el pie partido y la barra (en local)
+- **Andoni (textual, resumido por secciones):** HERO «H1: Elevamos tu web con IA · H2: Especializados en orquestar el diseño y desarrollo agéntico · la gota de la
+  animación inicial, en vez de naranja, una gota más realista de agua/savia · sustituimos desde 2020 por la hora y la estación por desde 2020 · en invierno el
+  árbol sin hojas y en verano con más tonalidades de verde» · SECCIÓN 2 el copy nuevo (tres dolores) y «unir las ilustraciones animadas 3 y 4» · DESTACADOS
+  «el titular: Proyectos destacados con desarrollo agéntico; quitamos toda la info de los proyectos y que la escena solo te incite a sentarte y cambiar de
+  estación; los proyectos no tienen su propia estación; al entrar en detalle, información reducida y botón de ver case study» · MÁS PROYECTOS «más proyectos;
+  entre medias, métricas y logos de empresas con las que hemos trabajado, estilo Minimum Run; testimonios con el estilo de la captura (te haré yo las
+  imágenes); quitamos los detalles florales» · SERVICIOS «Trabajamos de tres formas contigo. En función de lo que necesites: End-to-end, Colaboración,
+  Consultoría», sus etiquetas, «quitar lo del hover y que las etiquetas encajen en cada uno» · LA RECETA «un md estilo los design.md de styles.refero.design,
+  más resumido; lo superpuesto con más sustancia; y lo de publicado en Neety, un botón a su librería» · PIE «quitamos la iluminación del punto; que entre una
+  luz como en el hero en todos los escenarios y que ilumine el Contáctanos; el Contáctanos dividido, la primera parte delante de las montañas y la última
+  detrás; al pasar, se transforma en un botón como teníamos antes, que llevará a un cal.com» · GENERAL «el logo solo con letras; en el hero el logo y el menú
+  se ven azul claro: tiene que ser el claro de la paleta; iconos de estación que parezcan más cada estación; el logo cambia mal de color entre secciones».
+- **Hecho:**
+  · **Hero:** copy nuevo (`home.ts`); `--roble-h` vuelve a `100lvh − 26,5rem` (titular de una línea). Esquinas del marco: la HORA de Donostia al minuto
+    (`Intl`, Europe/Madrid) y «desde 2020». La GOTA de la carga es de agua/savia: cuerpo translúcido (degradado radial), canto que refracta, luz transmitida
+    abajo y brillo especular que no gira con la gota (`data-brillo` contra-rotado); rastro, anillo, cuello, satélite y salpicadura en el mismo tono.
+    Árbol: INVIERNO con raleo 1 = sin hojas (la hoja se mide en el color ORIGINAL de la lámina, saturación > 0,13–0,23; queda la madera) y sin el halo de
+    copa; VERANO: cada mata vira entre verde amarillento, hondo azulado y oliva (ruido a dos escalas) con luces lima (`estela.ts`, solo si la estación es verde).
+  · **Sección 2:** tres dolores con el copy de Andoni («AI slop» y «savvia agentic» en minúscula). La demo 3 une la receta y la landing (`TarjetaPaso` i = 2,
+    `.arnes`): `savvia.md` en su marco líquido que se ENCIENDE mientras la IA lo lee, la orden, «Leyendo la receta…» y la landing, un solo reloj de 7 s.
+    Fuera de la página las pruebas A y B (queda `Dolores.astro` con `tarjetas`; `DoloresB.astro` guardada).
+  · **Destacados (`Proyectos.astro`):** titular «Proyectos destacados con desarrollo agéntico.». De pie: ni ficha, ni dial, ni flechas; «Siéntate a ver los
+    proyectos» y, junto al (+), «Cambia la estación». La escena lleva la ESTACIÓN DE LA WEB (y la sigue si se cambia en el hero o la barra, sin recargar la web del
+    monitor). SENTADO: ficha de cristal al lado del monitor (sector, nombre, una frase y «Ver caso de estudio», botón Coral; en móvil sin la frase).
+  · **Más proyectos (`Anteriores.astro`):** cuatro proyectos más del portfolio (Monad, Routal, THX, Naterra: sector y lugar de sus casos, colores medidos, vídeo
+    de su grabación real a 960×600). Tras la primera fila, HECHOS Y LOGOTIPOS (referencia minimum.run, `tools/ref65/`): «Han confiado su web a Eric y Andoni.»,
+    01 Más de 40 webs publicadas · 02 Clientes en seis países · 03 Desde 2020 (reales: 41 webs en el portfolio + las agénticas; España, EE. UU., Reino Unido,
+    Austria, México, Alemania) y 12 logotipos en baldosas (sacados de la cabecera de cada web, `tools/r65-logos.cjs` → `public/media/logos/`). Tras la tercera,
+    TESTIMONIOS a sangre en oscuro (la captura de Andoni): línea arriba, RETRATO (hueco listo: `retrato` en `home.ts`, vacío hasta que lleguen sus imágenes),
+    cita, nombre y cargo: Sean Klamm, Ignasi Vegas, Juan Moliner, Guilherme Escobar. Fuera la flora, las voces que rotaban y el reproductor dormido.
+  · **Servicios (reescrito):** «Trabajamos de tres formas contigo.» / «En función de lo que necesites.» · 01 End-to-end (15 etiquetas: todas) · 02 Colaboración
+    (8) · 03 Consultoría (6). Ampliadas por Nilo: sistema de diseño, desarrollo agéntico, arquitectura de contenidos, SEO técnico, accesibilidad y rendimiento,
+    la receta (savvia.md), formación, auditoría. Mismo orden en las tres; al asomar la fila las etiquetas ENCAJAN una a una. Sin hover.
+  · **La receta:** el paso 01 es un DESIGN.md resumido (formato refero: título, frase, color con nombre y valor, tipografía con medidas, espacio), todo de la
+    librería REAL de Neety leída hoy (Naranja Core, Azul bebé, Berenjena, Ciruela, Base cálida; Bricolage/Switzer; H1 112/64; xtiny…xxhuge; 96·128·224).
+    Piezas digitales con sustancia: tabla de tokens (`app/globals.css · @theme`), el arnés de `CLAUDE.md`, los cuatro pasos del agente, el diff de
+    `docs/decisiones.md`; la última es el BOTÓN «Ver la librería de Neety →» (clicable).
+  · **Pie:** fuera el punto de luz y el FORMULARIO. El haz del hero entra en TODAS las estaciones y, donde cruza la palabra, la ilumina (copia en luz cálida con
+    máscara de la banda del haz, calculada con el ratón). «Contáctanos» PARTIDO: «Contác» delante de las montañas (el enlace, entre árboles y hierba) y «tanos»
+    detrás (antes de los montes en el DOM: las montañas lo tapan). Al pasar sale ENTERA por delante de todo, en Coral, con el destino encima (hoy el correo;
+    `pie.cal` para el cal.com cuando exista). La tenuidad va en el color del texto (no en la opacidad), para que la luz brille más que la palabra.
+  · **General:** logotipo SOLO LETRAS (vuelve el de las rondas 10–49; el de la 50, en `tools/retirados/savvia-logo.r64.svg`) y con él el recorrido de la gota
+    por las dos v en la carga. La barra deja la mezcla por diferencia (sobre Cacao daba azul pálido): Rosa niebla, Cacao sobre lo claro. El cambio de color
+    ya no se retrasa: se mira bajo el LOGOTIPO y contando con la gota de color de la sección que llega (`entradas.ts › __subeEn`), que cubría la barra antes
+    que la sección. ICONOS DE ESTACIÓN (`src/scripts/formas-estacion.ts`): hoja de roble lobulada con rabillo, copo con ramas, flor de cerezo con pétalos
+    mellados, sol con rayos largos y cortos; en la barra siguen transformándose (160 puntos remuestreados, mismo sentido, desde arriba) y en el (+) van rellenos.
+- **Fallos propios cazados:** comentarios HTML dentro de expresiones JSX (otra vez, en Anteriores) → al frontmatter; un comentario `//` pegado delante de `];`
+  (el selector del cilindro) → en su línea; el cilindro deformaba la franja oscura a sangre en trapecio → la franja va plana; etiquetas largas desbordando la
+  columna en móvil → a todo el ancho; la ficha sentado pisaba el monitor a 1280 → más estrecha y más a la derecha; la copia iluminada heredaba la opacidad 0,22.
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · `astro build` OK (11 páginas) · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome
+  y WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r65a.cjs` (Chrome 1280 y 390, WebKit 1280): hero de 720/844, hora, 3 paradas, ficha oculta
+  de pie y visible sentado con enlace al caso · `tools/r65-pie.cjs` (Chrome 1280 y 390, WebKit 1280): corte medido, al pasar Coral y recorte abierto, la parte de
+  detrás se retira, luz a 1 · `tools/r65-barra.cjs` (Chrome y WebKit): 0 desajustes entre el color del logotipo y el fondo real en 5 fronteras × 20 posiciones
+  (fuera de la escena de Proyectos, donde va en claro a propósito) · capturas de cada sección en `tools/shots/r65-*`.
+- **Backup:** `../savvia-web.bak-r64-2026-09-29/`.
+- **Pendiente de Andoni:** las imágenes de los retratos (grabado a contraluz, fondo transparente); el enlace de cal.com; el invierno sale del mismo cuadro sin
+  hojas (quedan tronco, ramas y algún resto oscuro): un roble de invierno pintado por Andoni sería lo definitivo; ¿«Zernio» pasa a Amarra también en la
+  home? (el monitor enseña zernio.treseiscero.app); casos de estudio de los cuatro proyectos nuevos (hoy enlazan a su web); no publicado ni subido.
+
+## Rechazado — añadidos de la ronda 65 (NO VOLVER)
+- El FORMULARIO de contacto del pie (rondas 32–59) y la LUZ del punto final (58–59): «Contáctanos» es un botón (cal.com).
+- Proyectos destacados con ficha, dial y estación propia por proyecto: de pie, la escena solo invita a sentarse y a cambiar de estación.
+- Las demos de proceso al pasar por Servicios (rondas 53–54) y los nombres «Web a medida · Cambios con IA · Equipos con IA».
+- La flora y las voces que rotaban en «Más proyectos».
+- El logotipo de la ronda 50 (el trazo que salía de la «a»): solo letras.
+- La mezcla por diferencia en la barra.
+
+### Ronda 66 · 2026-09-29 · carga por estación con la palabra, robles por estación, logotipo tipográfico, Donostia en los pasos, cuadrícula que rota, un testimonio con retrato, etiquetas tachadas, CTA único (en local)
+- **Andoni (textual, 14 puntos + tres zip: robles v02, retratos al carboncillo, Donostia en cuatro estaciones):** 1 «la animación inicial también tiene que depender de la
+  estación» · 2 «en el hero, los nuevos árboles; solo la hora, sin Donostia» · 3 «el logo: savvia con la tipografía; luego añadiremos otro» · 4 «los paisajes
+  nuevos van dentro de los 3 pasos de la sección 2» · 5 «en el tercer paso, el botón de enviar a la IA tiene que parecer más botón de enviar a la IA; y quitamos
+  "hecho en Donostia"» · 6 «en proyectos destacados quitamos el navegador; no puedes hacer scroll hasta que no te sientas» · 7 «las métricas de más proyectos
+  como la captura; todas van rotando de manera animada» · 8 «los testimonios destacados, uno como teníamos antes, rotando; te paso las imágenes: José Luis,
+  Alberto de Transcend y Danny Saltaren; y no hagas cambio de color» · 9 «revisa que todos los proyectos encajan bien en el navegador; sin cortar» · 10 «en
+  Trabajamos de tres formas contigo, que los tags sean compartidos y, según vas pasando de uno a otro, se van tachando los que no aplican; más presencia» ·
+  11 «en el md de referencia hay cosas que cambian de color como un link; eso lo trasladamos» · 12 «la gota del footer, transparente como la de la carga» ·
+  13 «el Contáctanos: "Conta" por delante de las montañas y el resto por detrás; y se tiene que transformar en un CTA con el estilo del formulario de antes» ·
+  14 «los CTAs, todos con el estilo del footer y una animación de hover original».
+- **Hecho:**
+  · **1 · 3 · `Cargador.astro`:** la palabra «savvia» en Family (apenas visible) y la gota que RUEDA por encima de sus letras entintándola a su paso (el camino se
+    mide en el navegador: un Range por letra, la altura de x de Family y la línea base de la fuente), cuelga de la última «a» y cae. Por ESTACIÓN: el fondo (la
+    noche de la estación), el tono de la gota (savia ámbar · hielo · rocío verde · miel) y lo que cae alrededor (hojas · nieve · pétalos · motas de luz que suben).
+    Logotipo tipográfico también en la barra (26/32 px), el titular del pie (se dibuja y de su «a» cae la gota), el ticket y la transición entre páginas.
+  · **2 · `Hero.astro` + `Raices.astro`:** los cuatro robles de Andoni recortados como el de la ronda 13 (`tools/r66-robles.py` → `/media/hero/arbol-*` y
+    `raices-*`, mismo suelo y eje; alineados). Se elige la lámina de la estación al parsear; el motor ya no tiñe (intensidad 0). Al cambiar de estación el roble
+    nuevo se DIBUJA y PINTA encima del viejo (2,4 s, las raíces 0,7 s después) y el viejo suelta su contexto. Halo y grano recortados con la lámina de la estación.
+    La esquina, solo la hora.
+  · **4 · sección 2:** los paisajes de Donostia (0 La Concha · 1 Peine del Viento · 2 Urumea) de la estación de la web, a 640 × 960 con el borde deshilachado
+    (`tools/r66-oleos.cjs`); los anteriores, en `tools/retirados/tarjetas-r65/`. **5:** botón de enviar como el de los chats (círculo claro con flecha hacia
+    arriba; al mandar se hunde y es el cuadrado de «parar» mientras genera); «La web de siempre.» en lugar de «Hecho en Donostia.».
+  · **6 · destacados:** sin navegador (la web ocupa la pantalla del monitor) y sin la píldora «desliza dentro»; la web solo coge el puntero sentado.
+  · **7 · la CUADRÍCULA (la captura):** 3 × 2 celdas de trazo discontinuo con punto en los cruces; cada celda releva su contenido cada 4,8 s, escalonadas: citas
+    cortas (Olga Tintoré, Juan Moliner, Sean Klamm, Félix Gonzalo, Ignasi Vegas, Guilherme Escobar), «Colaboramos con Minimum», «Mención de honor · Awwwards» (×2;
+    símbolo de Simple Icons, CC0: awwwards.com bloquea la descarga automática), cifras (+40 webs, 6 países, desde 2020) y logotipos de clientes.
+  · **8 · el TESTIMONIO:** uno a la vez, cada 9 s, con flechas finas; retrato al carboncillo de Andoni a la izquierda (`/media/testimonios/`), la cita en Family, en
+    claro (sin cambio de color): José Luis Antúnez (Routal), Alberto Arenaza (Transcend Network) y Danny Saltaren (Minimum), traducidas y sin el nombre del estudio anterior.
+  · **9:** los navegadores de las piezas «mancha» y «claro», ENTEROS dentro de su pieza (80 % de ancho, centrados; la mancha apenas ladeada). Medido: 0 px fuera en las nueve.
+  · **10 · Servicios:** una sola nube de etiquetas (las 15), grandes (16 px, filo fuerte), FIJA a la derecha mientras pasan las tres formas; la activa (la de media
+    pantalla o la del puntero) tacha con un trazo de savia, una tras otra, las que no le tocan. En móvil, la nube bajo cada forma, ya tachada.
+  · **11 · la receta:** los valores (hex, archivos .md, tokens de espacio, medidas) en Cobalto y subrayado de puntos, como los enlaces del DESIGN.md de refero.
+  · **12:** `caerRealista({ agua: true })`: la gota del pie translúcida, con canto, luz transmitida y brillo, y salpicadura clara.
+  · **13 · el pie:** «Contá» delante de las montañas y «ctanos» detrás. Al pasar (o enfocar; con el dedo, primer toque) la palabra se retira y SUBE desde detrás de
+    las montañas el panel de CRISTAL del formulario de antes (velo de la noche, desenfoque, filo y cruces), entre los árboles y la hierba: «Contáctanos · Cuéntanos
+    qué necesita tu web.» y el CTA (hoy al correo; `pie.cal` para el cal.com).
+  · **14 · el CTA único (`global.css › .btn-primary` + `src/scripts/cta.ts`):** el contrario de su superficie con el icono «↳»; al pasar, una GOTA Coral cae donde entra
+    el puntero, llena el botón y abre una onda; al salir se recoge hacia donde sale; con teclado, desde el centro. En el pie, la ficha de los destacados y la receta.
+- **Fallos propios cazados:** al sustituir los datos de «Más proyectos» se fue el enlace «Todos los proyectos» (repuesto); otro `//` pegado delante de código en la
+  misma línea (la hora); el lienzo nuevo del cambio de estación, creado con `createElement`, no llevaba el atributo de ámbito de Astro y salía a 300 × 150 en una
+  esquina → clonado del lienzo actual.
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · `astro build` OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y
+  390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r66-carga.cjs` (otoño e invierno): la gota rueda y entinta, cae, el hero carga su roble · `tools/r65a.cjs`
+  (Chrome y WebKit): 3 paradas, roble de invierno y de verano tras cambiar · `tools/r66-piezas.cjs`: 0 px fuera en las 9 piezas · `tools/r66-pie.cjs` (Chrome 1280 y
+  390, WebKit 1280): corte medido, panel arriba, CTA mojado.
+- **Backup:** `../savvia-web.bak-r65-2026-09-29/`.
+- **Pendiente de Andoni:** el enlace de cal.com; el logotipo definitivo («luego añadiremos otro»); el logotipo de Awwwards oficial si lo tiene (hoy su símbolo +
+  el nombre); qué proyectos ganaron las dos menciones (hoy sin nombrar); no publicado ni subido.
+
+## Rechazado — añadidos de la ronda 66 (NO VOLVER)
+- El navegador (barra de Safari) sobre la web del monitor en los destacados, y poder recorrerla sin sentarse.
+- Etiquetas de servicios separadas por forma: son compartidas y se tachan.
+- La franja oscura de testimonios en «Más proyectos» (sin cambio de color) y los cuatro a la vez: uno que rota, con retrato.
+- El roble único recoloreado por el motor: cada estación tiene su lámina.
+
+### Ronda 67 · 2026-09-29 · cambio de estación sin salto (y cerezo en primavera), hoja, retratos tramados, cuadrícula de líneas guía, destacados que rotan y cargan, CTA de cristal, el pie y las v de la carga (en local)
+- **Andoni (textual):** 1 «los cambios de estación del árbol tienen un salto raro; en primavera me gustaba el tono rosáceo estilo cerezo» · 2 «el icono de otoño, una hoja» ·
+  3 «a los retratos, el estilo dithering, que se mimeticen con el fondo; el cambio de testimonios, animado con el estilo de savvia» · 4 «el cuadro que alterna testimonios,
+  métricas y logos: que los contornos salgan de las líneas guía de la web, más sutiles, el contenido más pequeño con más aire, y que roten mucho más tranquilos» · 5 «en
+  más proyectos, más aire vertical; al final solo 2 proyectos» · 6 «en destacados, antes de sentarte, que rote entre los proyectos de manera orgánica y tranquila; al
+  sentarte carga un proyecto; al cambiar, una animación de carga; tiene una línea blanca por arriba; el botón de ver caso de estudio, más sutil» · 7 «en la receta, una vez
+  impresa, que no quede tanto espacio con el titular» · 8 «en el footer: el "Conta" por delante de todo, incluso del prado, y el resto entre medias como antes; al pasar se
+  convierte en un CTA estilo la captura [cristal esmerilado, "↳", cruces fuera de las esquinas]; y todos los CTAs con ese estilo» · 9 «la luz del footer tiene que salir
+  desde arriba del todo» · 10 «los tags de "Trabajamos de tres formas contigo", más animados y con más presencia» · (a media ronda) «Cubbo salía como de un lado y me gustaba:
+  aplicarlo a otros proyectos» · «quitamos lo de mención de honor de Awwwards; la línea de Isotrol, Monad y Naterra, como la primera» · «Remerge hay que encajarlo bien
+  dentro del móvil» · «en la animación de carga, que se creen las dos v como antes».
+- **Hecho:**
+  · **1 · Hero y raíces:** el salto era el roble viejo, que se transparentaba bajo el nuevo y desaparecía de golpe al final (y un destello de líneas al empezar). Ahora el
+    lienzo nuevo llega ya pintado y se DESCUBRE con el canto de papel rasgado desde la base del tronco (2,6 s, `mask` con `rasgo-circulo.png`) mientras el viejo se apaga
+    detrás del frente (raíces: desde el cuello). PRIMAVERA vuelve a teñirse de rosa cerezo (el motor tiñe la hoja solo en primavera, intensidad 0,9).
+  · **2:** hoja clásica (punta, lomo y rabillo) en `formas-estacion.ts`, en la barra y en el (+).
+  · **3 · Testimonio:** el retrato al carboncillo se pinta como TRAMA de puntos (retícula a 45°, celda de 5 px) en el color del texto, en un lienzo 2D; el relevo es el
+    PINTADO RASGADO de savvia (`dibujar`, modo estación, con el filo de savia) desde abajo al centro.
+  · **4 · Cuadrícula:** sus líneas son las de los carriles (horizontales a todo el ancho de la ventana, verticales finas, cruces «+» en cada cruce; los bordes de fuera, los
+    carriles), al 20 %, y se TRAZAN al llegar. Contenido a 16/13 px con más relleno; releva cada 9 s (escalonado 1,5 s, fundido de 1,2–1,5 s). Fuera las menciones de Awwwards
+    (en su sitio, Monad y Routal).
+  · **5 · Más proyectos:** `row-gap` 32 → 48 (escritorio) y 16 → 24 (móvil). Naterra sube a la fila de Isotrol y Monad, que ahora repite la composición de la primera (cuadrada
+    · 3 : 4 · 4 : 5 bajada); la última fila, Routal y THX. Vuelve el navegador que ASOMA ladeado por un lado y por abajo (ronda 18) en todas las piezas con navegador, alternando
+    el lado (`izq`). REMERGE: la pantalla del móvil se midió de nuevo ajustando rectas a sus cuatro bordes (antes eran las esquinas de dentro del redondeo: asomaba el blanco
+    de la lámina) y con su redondeo real (12,5 % / 5,8 %).
+  · **6 · Destacados:** de pie, las CAPTURAS de los cuatro proyectos rotan cada 7 s con un fundido desenfocado (se para con el puntero sobre el monitor); al sentarse se
+    CARGA la web real con una PANTALLA DE CARGA (noche con grano, «savvia», una línea de savia que corre y el dominio; mínimo 0,8 s) y lo mismo al cambiar de proyecto
+    sentado; ya no se teclea la dirección. La línea blanca de arriba era el blanco de la pantalla de la lámina: un filo del color del bisel lo tapa. El botón de la ficha, el
+    CTA de cristal en pequeño.
+  · **7 · Receta:** la imprenta arranca 52 lvh más arriba: impresa, el ticket queda a ~230 px del titular (antes, cerca de 600).
+  · **8 · Pie:** «Contá» va DELANTE DE TODO (el enlace, después de la hierba, recortado); «ctanos», entre los árboles y la hierba. Al pasar, la palabra entera se recoge un poco
+    y se hace CTA: cristal esmerilado, «↳» y cruces que se cierran. **14 · CTA único (`.btn-primary`):** el de la captura: cristal (sin radio), «↳», cuatro cruces fuera de
+    las esquinas; al pasar, las cruces se cierran sobre las esquinas y la gota de savia llena el cristal desde el puntero (`clip-path: circle` en el pseudo).
+  · **9:** la capa de luz del pie sube hasta el borde de arriba de la ventana mientras el pie asoma (`--arriba`), sin fundido arriba.
+  · **10 · Servicios:** etiquetas de 18 px, LLENAS las que aplican (el color del texto en píldora) y, al cambiar de forma, cada una salta a su estado con un rebote, una tras
+    otra; las que no aplican se tachan, encogen y se apagan.
+  · **Carga · «las dos v como antes»:** la palabra en Family como SVG (un solo `<text>` en dos capas): «sa» e «ia» aparecen y la gota DIBUJA cada v (baja por el trazo grueso,
+    sube por el fino; la plumada con `stroke-dashoffset`), luego rueda por la «i» y la «a» y cae. Todo medido en el navegador (`getExtentOfChar`).
+- **Fallos propios cazados:** `mask-image` no admite la máscara completa (posición y tamaño): el revelado no se veía → `mask`; `getExtentOfChar` devuelve un SVGRect sin
+  `.right` (NaN en el camino de la gota); otro comentario HTML dentro de una expresión (Pie).
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · `astro build` OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390):
+  consola limpia, 0 ≥ 400, desborde 0 · `tools/r67-salto.cjs`: el cambio de estación fotograma a fotograma · `tools/r67-destacados.cjs` (Chrome y WebKit): rota 1 → 2 de pie,
+  web montada sentado, pantalla de carga al cambiar · `tools/r67-pie.cjs` (Chrome 1280 y 390, WebKit): «Contá» delante (z 4), CTA de cristal al pasar · `tools/r67-receta.cjs`:
+  hueco 232 px · `tools/r67-mas.cjs`: retratos tramados y relevo · carga: la gota dibuja las dos v (capturas).
+- **Backup:** `../savvia-web.bak-r66-2026-09-29/`.
+- **Pendiente de Andoni:** el enlace de cal.com; el logotipo definitivo; no publicado ni subido.
+
+### Ronda 68 · 2026-09-29 · la vista sentado en el idioma del CTA, la × que abría el menú, retratos dibujados y citas escritas, etiquetas atadas a su forma, «Contáctanos» con aire y fuera el resplandor del estudio (en local)
+- **Andoni (textual, con dos capturas):** 1 «el CTA y el resto no hablan el mismo idioma por los redondeos: que todo hable el idioma del CTA» · 2 «en esa pantalla, al darle a
+  la (X) abres el menú» · 3 «los retratos de los testimonios, menos dithering y como estaban, como dibujadas, más mimetizadas; y el cambio se bugea: al cambiar, que se
+  dibujen los retratos y se escriba el testimonio» · 4 «los tags, más parecidos a los CTAs; no encajan en cada servicio y parece que pertenecen al siguiente» · 5 «al botón
+  de Contáctanos, más padding por todos lados y que la flecha se vea más» · 6 «en Eric y Andoni abajo se ve un rayo de luz, es un bug».
+- **Hecho:**
+  · **1 · sentado (`Proyectos.astro`) + clase global `.cruces` (`global.css`, las cruces del CTA para cualquier caja):** todo RECTO y con cruces: el aviso de esc y la ×
+    (juntos), el selector de proyecto, la ficha, `kbd`, los rótulos del abanico; flechas y × con puntas rectas. Las flechas del testimonio, rectas.
+  · **2:** la × estaba EN EL MISMO SITIO que el botón del menú (arriba a la derecha). Ahora vive arriba en el centro, en el mismo cristal que «esc para levantarte».
+    Medido: × + cuatro clics más en el mismo punto (0,3 · 0,7 · 1,1 · 1,5 s) → el menú no se abre (Chrome, WebKit, 390).
+  · **3 · `Anteriores.astro`:** el CARBONCILLO tal cual (sin trama), en la tinta del texto de la sección (alfa = lo oscuro del trazo: el papel es el fondo) y que se DIBUJA en
+    2,4 s: primero lo más oscuro, luego los medios tonos, en rayas diagonales como su sombreado. La cita se ESCRIBE letra a letra (≤ 2,6 s, el hueco reservado para que el
+    alto no baile, cursor de savia). El fallo del relevo era una carrera (dos lienzos y un `dibujar` asíncrono que, con clics seguidos, apagaba el que ya estaba delante):
+    ahora cada relevo lleva su número y el anterior se abandona.
+  · **4 · `Servicios.astro`:** etiquetas rectas de cristal con cruces; las que aplican, con las cruces cerradas y un salto al entrar; las que no, sin cristal, tachadas y
+    apagadas. La nube ya no va fija a media pantalla: VIAJA hasta la altura de la forma activa con su rótulo «02 · Colaboración incluye 8/16». «Auditoría de tu web» entra en
+    la lista común (Consultoría la tenía y no se veía).
+  · **5 · `Pie.astro`:** más cristal alrededor de la palabra (y cruces más abiertas), la palabra un poco más recogida (0,66) y «↳» más grande y a plena tinta (la regla que
+    apagaba la palabra también apagaba la flecha).
+  · **6 · `Estudio.astro`:** era el RESPLANDOR del suelo (rondas 27–29): una elipse más alta que el lienzo, cortada en seco por arriba. Fuera; la estela son las briznas.
+- **Medido:** `astro check` 0 errores y 0 avisos · `spacing-lint` en escala · `astro build` OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit,
+  1280 y 390): limpio, 0 ≥ 400, desborde 0 · `tools/r68.cjs` (Chrome 1280 y 390, WebKit 1280): menú cerrado tras la ×, retrato dibujándose y cita a medio escribir, nube a la
+  altura de su forma (dy 48 px en las dos primeras; la última asoma bajo su fila), CTA con la flecha a plena tinta.
+- **Backup:** `../savvia-web.bak-r67-2026-09-29/`.
+- **Pendiente de Andoni:** el enlace de cal.com; el logotipo definitivo; el (+) de estaciones sigue siendo redondo (gotas líquidas): ¿también recto?; no publicado ni subido.
+- **A media ronda (Andoni, `~/Desktop/Logo_savvia_def.svg` + `isotiposavvia_def.svg`):** «te adjunto el logo e isotipo».
+- **Hecho:** `public/savvia-logo.svg` = el logotipo DEFINITIVO (isotipo, la v caligráfica, + «savvia»; 1275×439) y `public/savvia-isotipo.svg`. El logotipo, como máscara en el
+  color del texto, en la barra (34 px de alto en móvil, 42 en escritorio: las letras a la altura de la palabra de antes), la cabecera del ticket y la transición entre
+  páginas. FAVICON y `apple-touch-icon.png`: el isotipo en Rosa niebla sobre Cacao (`?v=68`). Imagen para compartir rehecha (`tools/r68-og.cjs`, sin la hora; `?v=68`). Lo
+  anterior, en `tools/retirados/*.r67.*`. Sin tocar: la animación de carga (la gota sigue dibujando las dos v sobre la palabra) y «La savvia de tu web.» del pie (la palabra
+  dentro de la frase).
+- **Medido:** `tools/r68-logo.cjs` (Chrome 1280 y 390, WebKit 1280): logotipo 122×42 / 99×34, Rosa niebla sobre oscuro y Cacao sobre claro, ticket y transición con el
+  logotipo nuevo, sin errores · `astro check` 0 · build OK · `tools/verify.cjs` limpio.
+
+### Ronda 69 · 2026-09-29 · la carga dibuja el isotipo y lo encaja en la barra, destacados que cargan sin teclear, CTA de la ficha sin cruces, transición líquida entre páginas y miniaturas enteras (en local)
+- **Andoni (textual):** 1 «que la animación de carga dibuje el isotipo únicamente, cae la gota y el isotipo se encaja arriba con savvia» · (a media ronda) «en la animación de
+  carga solo quiero que se vea "dibuja un círculo" como estado inicial, y de ahí ya se dibuja el isotipo» · 2 «cuando llegas a proyectos destacados, una animación de carga,
+  pero no se escribe la url» · 3 «en la vista en detalle de destacados quitamos del CTA los + de alrededor» · 4 «la animación de transición entre páginas, algo más orgánico» ·
+  5 «revisamos las miniaturas de todos los proyectos en la página de proyectos: que estén bien encajadas y la web no se vea cortada».
+- **Interpretación:** «arriba a la derecha con savvia» = el sitio del isotipo en el logotipo de la barra (delante de «savvia», arriba a la izquierda).
+- **Hecho:**
+  · **1 · `Cargador.astro`:** estado inicial = solo «dibuja un círculo» (y «saltar») en el centro. Al cerrar el círculo, la gota DIBUJA el isotipo por su eje (medido sobre el
+    dibujo, 23 puntos; con la plumada de 50 cubre el 99,8 % de la forma: `tools/r68-iso` en el scratch): sube por la colita, baja por el trazo grueso, sube por el fino,
+    remata en la bola, se descuelga de ella y cae al roble. Mientras cae, el isotipo VUELA a la barra (translate + scale al rectángulo del isotipo del logotipo) y ahí se
+    encaja delante de «savvia», que aparece con la barra. Fuera la palabra «sa ia» de la carga.
+  · **2 · `Proyectos.astro`:** el estreno ya no teclea la dirección en un buscador: el titular de la pantalla se funde en la PANTALLA DE CARGA (noche con grano, el logotipo
+    nuevo y la línea de savia) y la web se descubre cargada (mínimo 1,4 s). La pantalla de carga de sentado también lleva el logotipo.
+  · **3:** el «Ver caso de estudio» de la ficha, sin cruces (la ficha ya las lleva).
+  · **4 · `transicion.ts` (reescrito) + `global.css` + `Base.astro`:** la savia es un LÍQUIDO (`clip-path: path()` por fotograma): al pulsar, una mancha con el canto
+    ondulante (cuatro ondas que se mueven a su ritmo) crece desde el dedo con gotitas por delante que se traga; en la página nueva, que nace cubierta (html.vt-llega con el
+    logotipo, desde el <head>; salvavidas 3 s), la mancha se ESCURRE hacia abajo con las últimas gotas. Fuera las transiciones nativas entre documentos (siguen dentro de
+    /proyectos: orden, filtros y páginas).
+  · **5 · `obra/Pieza.astro`:** el navegador ENTERO dentro de la pieza (lo más ancho que quepa bajo el nombre, centrado, la mancha apenas ladeada) y la web a su proporción real
+    (16:9, la de las grabaciones: antes 16:10 recortaba los lados, y el claro, 1:1, la cortaba por abajo); el teléfono se dimensiona por el alto (se salía por abajo en las
+    piezas bajas).
+- **Medido:** `astro check` 0 errores y 0 avisos · `spacing-lint` en escala · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/remerge (Chrome y WebKit, 1280 y 390): limpio,
+  desborde 0 · `tools/r68-carga.cjs` (Chrome otoño e invierno, WebKit): inicio solo con la pista → isotipo dibujándose → gota → isotipo en la barra junto a «savvia» ·
+  `tools/r68-estreno.cjs` (Chrome y WebKit): pantalla de carga a 1 sin dirección y web descubierta · `tools/r68-transicion.cjs` (Chrome 1280 y 390, WebKit): llega al caso, sin
+  capas colgadas · `tools/r68-obras.cjs` (Chrome 1280 y 390, WebKit): 0 px fuera en rejilla y en orden libre.
+- **Pendiente de Andoni:** el enlace de cal.com; el (+) de estaciones sigue redondo; no publicado ni subido.
+
+### Ronda 70 · 2026-09-29 · transición en marrón, la carga solo la primera vez, retratos más fundidos, Servicios sin números y con aire, FAQ rectas (en local)
+- **Andoni (textual):** «la animación entre pantallas, que no vaya al naranja, que vaya al marrón» · «la animación de carga inicial, que solo se ejecute la primera vez» · «los
+  retratos, más mimetizados con el fondo aún» · «en Trabajamos de tres formas contigo, quitar la numeración y dejar más aire entre servicios para que los tags entren mejor»
+  · «actualizar el chat de FAQs para que mantenga la estética sin redondeos de los CTA».
+- **Hecho:** la savia de la transición (salida, llegada y la capa del <head>) en Cacao con grano y el logotipo en Rosa niebla · la carga se recuerda en este navegador
+  (`localStorage` «savvia:carga», al terminarla o saltarla); `?carga=1` la fuerza para revisarla · retratos: tinta al 62 % (antes 86 %), en `multiply` sobre el grano, y el
+  dibujo se deshace hacia los bordes · Servicios: fuera los números (también en el rótulo de la nube) y cada forma con 96 px arriba y abajo en escritorio (48 en móvil) ·
+  FAQ: caras, burbujas, sugerencias, campo y botón rectos; el campo y el botón, un solo bloque con las cruces del CTA y la flecha «↳».
+- **Medido:** `astro check` 0 · `spacing-lint` en escala · build OK · `tools/verify.cjs` en / y /proyectos (Chrome y WebKit, 1280 y 390): limpio, desborde 0 · `tools/r69.cjs`
+  (Chrome y WebKit): carga la primera vez, no al recargar, sí con `?carga=1`; FAQ y transición capturadas.
+- **Pendiente de Andoni:** el enlace de cal.com; el (+) de estaciones sigue redondo; no publicado ni subido.
+
+### Ronda 71 · 2026-09-29 · caras redondas en el chat y la transición, más elegante (en local)
+- **Andoni (textual):** «en el chat, nuestras caras que vayan con redondeo» · «la animación de transición entre páginas, que se vea más elegante; ahora se ve algo infantil».
+- **Hecho:** FAQ: las caras (cabecera y conversación) vuelven a ser redondas; lo demás sigue recto · `transicion.ts`: fuera la mancha ondulante y las gotitas. La savia es una
+  CORTINA de Cacao con grano que SUBE con el borde en campana suave (la curva de la transición entre secciones), más alta donde pulsas, y el logotipo entra enfocándose
+  (0,82 s); en la página nueva la cortina sigue subiendo y se va por arriba, la campana por el centro (1 s).
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en / y /proyectos (Chrome y WebKit, 1280 y 390): limpio · `tools/r68-transicion.cjs` (Chrome 1280 y 390, WebKit): llega
+  al caso sin capas colgadas; fotogramas revisados.
+- **Pendiente de Andoni:** el enlace de cal.com; el (+) de estaciones sigue redondo; no publicado ni subido.
+
+### Ronda 72 · 2026-09-29 · retratos: menos fundidos y con el semitono de la casa, suave (en local)
+- **Andoni (textual):** «los retratos algo menos mimetizados con el fondo y con el efecto dithering del resto de la web, pero no tan exagerado».
+- **Hecho (`Anteriores.astro`):** tinta al 80 % (antes 62 %), el difuminado del borde empieza más lejos y es más corto, y encima de la tinta continua un SEMITONO de puntos a
+  45° (celda de 3,5 px, como los cantos del roble) mezclado al 28–82 % según el tono (más en los medios tonos y hacia los bordes). Se sigue dibujando igual al cambiar.
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en / limpio · `tools/r68.cjs` (Chrome y WebKit) sin errores; retrato capturado (`tools/shots/r72-retrato.png`).
+- **Pendiente de Andoni:** el enlace de cal.com; el (+) de estaciones sigue redondo; no publicado ni subido.
+
+### Ronda 73 · 2026-09-29 · la transición sin logotipo y Servicios en tabla (en local)
+- **Andoni (textual):** «en las transiciones entre páginas no pongas el logo de savvia todo el rato» · «la sección de tres maneras de trabajar contigo tenemos que mejorarla,
+  no me gusta; démosle una vuelta».
+- **Diagnóstico de Servicios:** desde la ronda 66 lo que no funcionaba era la NUBE de etiquetas compartida: viajaba de una forma a otra y nunca quedaba claro de cuál era
+  (tres rondas parcheándolo). La información es una comparación (tres formas × dieciséis cosas): su forma natural es una tabla, no una nube.
+- **Hecho:** `transicion.ts` + `global.css`: la cortina de Cacao va sin logotipo (al salir y al llegar). `Servicios.astro` (reescrito): TABLA. Cabecera con las tres formas
+  (nombre en Family, qué es y «16 de 16 / 8 de 16 / 6 de 16»); filas con las dieciséis cosas en cuatro grupos (Estrategia · Diseño y movimiento · Desarrollo · Después);
+  donde una forma lo incluye, una gota de savia (caen fila a fila al llegar); donde no, un filete. Una BANDA de cristal con las cruces del CTA marca la columna que
+  miras (sigue al puntero; por defecto End-to-end) y las otras bajan a media tinta. En móvil, tres fichas rectas con cruces, cada una con su lista. Fuera la nube, el
+  tachado y la tinta que se llenaba.
+- **Medido:** `astro check` 0 · `spacing-lint` en escala · build OK · `tools/verify.cjs` en / y /proyectos (Chrome y WebKit, 1280 y 390): limpio, desborde 0 · `tools/r73-serv.cjs`
+  (Chrome 1280 y 390, WebKit 1280): columna 3 al pasar por Consultoría, sin errores · `tools/r68-transicion.cjs`: cortina lisa, sin logotipo.
+- **Pendiente de Andoni:** los grupos de la tabla y sus nombres son de Nilo; el enlace de cal.com; el (+) de estaciones sigue redondo; no publicado ni subido.
+
+### Ronda 74 · 2026-09-29 · transición en tres capas de ola, cabecera de Servicios que acompaña el scroll y fuera la flora (en local)
+- **Andoni (textual):** «trabajemos mejor la transición entre páginas, sigue sin convencerme; elegante pero vistoso» · «me gusta cómo has planteado los servicios, pero que los
+  titulares sigan el scroll para que puedas seguir leyendo lo que incluye cada uno» · (a media ronda) «quitamos los detalles florales que hay en diferentes secciones, los
+  dejamos limpios».
+- **Hecho:**
+  · **Transición (`transicion.ts`, `global.css › .vt-capa`):** probadas en la ronda y descartadas: vetas por las columnas de la retícula (con cúpulas parecían dedos; planas, un
+    gráfico de barras). Queda: TRES CAPAS de savia (Coral, Nogal y Cacao con grano) que suben una tras otra (95 ms de desfase, 0,72 s cada una), con el borde en ola suave
+    que se desplaza y un bulto más alto donde pulsas; al llegar salen en orden inverso (el Cacao descubre el Nogal, luego el Coral, luego la página), la ola más alta en el
+    centro. Sin logotipo.
+  · **Servicios:** la cabecera de la tabla (las tres formas) se queda PEGADA bajo la barra mientras pasan las filas y, pegada, se recoge a nombre y cuenta; su fondo tapa el
+    hueco bajo la barra; la columna activa conserva su tinte.
+  · **Flora:** fuera las ramas de LaReceta (la maleza de la impresora), Estudio y Preguntas. Se queda el tiempo de cada estación del pie (es el paisaje).
+- **Medido:** `astro check` 0 · `spacing-lint` en escala · build OK · `tools/verify.cjs` en / y /proyectos (Chrome y WebKit, 1280 y 390): limpio · `tools/r73-serv.cjs` (Chrome 1280 y 390,
+  WebKit): cabecera pegada y recogida, sin errores · `tools/r68-transicion.cjs` (Chrome 1280 y 390, WebKit): sin capas colgadas; fotogramas en `tools/shots/r74-vt-hoja.jpg`.
+- **Pendiente de Andoni:** el enlace de cal.com; el (+) de estaciones sigue redondo; no publicado ni subido.
+
+### Ronda 75 · 2026-09-29 · la transición entre páginas, como la de secciones · PUBLICADA
+- **Andoni (textual):** «la transición entre pantallas es demasiado larga y no me gusta; dejamos algo como tenemos de transición entre secciones y listo. Y con eso ya publicas» ·
+  «haces commit a GitHub y publicas».
+- **Hecho (`transicion.ts`, `global.css`):** la GOTA de `data-sube`: una capa de Cacao con grano asoma por el centro de abajo con el perfil de campana, se ensancha y cubre
+  (0,5 s); en la página nueva, la página asoma igual y el Cacao se retira (0,55 s). Fuera las tres capas de ola.
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390): limpio · `tools/r68-transicion.cjs` (Chrome y WebKit).

@@ -5,8 +5,7 @@ import Carriles from '../components/Carriles.astro';
 import Cargador from '../components/Cargador.astro';
 import Hero from '../components/Hero.astro';
 import Raices from '../components/Raices.astro';
-import Dolores from '../components/Dolores.astro'; // ronda 51 · dirección A «el roble que sana» (a prueba; la anterior sigue en Recorrido.astro)
-import DoloresB from '../components/DoloresB.astro'; // ronda 51 · dirección B «tachado» (a prueba)
+import Dolores from '../components/Dolores.astro'; // ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
 import LaSavvia from '../components/LaSavvia.astro'; // ronda 53: guardada (la sustituye LaReceta)
 import LaReceta from '../components/LaReceta.astro';
 import Proyectos from '../components/Proyectos.astro';
@@ -26,12 +25,9 @@ import Pie from '../components/Pie.astro';
          tu web > equipo > FAQs > footer» -->
     <Hero />
     <Raices />
-    <!-- RONDA 51 · PRUEBA de la sección 2: sin parámetro → la A2 (tarjetas de agua; publicada en la ronda 52) · `?s2=b` → la B (tachado) · `?s2=a` → la A (el roble que sana).
-         Se decide antes del primer pintado. -->
-    <script is:inline>document.documentElement.dataset.s2 = new URLSearchParams(location.search).get('s2') || 'a2';</script>
-    <Dolores />
+    <!-- RONDA 65 · la sección 2 elegida es la A2; `data-s2` se queda porque el CSS del titular generado cuelga de él -->
+    <script is:inline>document.documentElement.dataset.s2 = 'a2';</script>
     <Dolores id="recorrido-a2" tarjetas />
-    <DoloresB />
     <Proyectos />
     <Anteriores />
     <Servicios />

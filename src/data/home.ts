@@ -5,11 +5,11 @@
 
 export const nav = {
   links: [
-    { label: 'Proyectos', href: '#proyectos' },
-    { label: 'Servicios', href: '#servicios' },
-    { label: 'La savvia', href: '#la-savvia' },
-    { label: 'Estudio', href: '#estudio' },
-    { label: 'Hablemos', href: '#contacto' },
+    { label: 'Proyectos', href: '/proyectos' },
+    { label: 'Servicios', href: '/#servicios' },
+    { label: 'La savvia', href: '/#la-savvia' },
+    { label: 'Estudio', href: '/#estudio' },
+    { label: 'Hablemos', href: '/#contacto' },
   ],
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete). El correo se añade solo desde `pie.correo`.
   mas: { titulo: 'Más', links: [{ label: 'Carta fundacional', href: '/carta' }] },
@@ -21,8 +21,8 @@ export const hero = {
   // a menor coste». El titular responde al primero; el subtítulo es el segundo, con el cómo (criterio + IA).
   // RONDA 53 · «el H1 es muy amplio y no dice nada: más específico, que el cliente diga hostia, esto pueden hacer por mí». Lo concreto del Keynote: web
   // a medida (no un lavado de cara) + tu equipo la cambia con IA (formación + todo documentado) + el ARNÉS (la receta hace que la IA no se salga de tu marca).
-  h1: 'Una web a medida que tu equipo cambia con IA, fiel a tu marca.', // ronda 53: «sin romperla no me gusta, es muy despectivo»
-  h2: 'Eleva tu web con criterio.', // ronda 41 (Andoni: «el subtítulo del hero tiene que ser eleva tu web con criterio»)
+  h1: 'Elevamos tu web con IA.', // ronda 65 (Andoni). Antes (r53): «Una web a medida que tu equipo cambia con IA, fiel a tu marca.»
+  h2: 'Especializados en orquestar el diseño y desarrollo agéntico.', // ronda 65 (Andoni)
   // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
   vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
   vocabularioRaiz: ['raíz', 'briefing', 'entender', 'qué vendes', 'a quién', 'decisiones', 'savvia', 'fuente de verdad', 'documentado', 'criterio', 'la savia', 'desde la raíz'],
@@ -42,30 +42,25 @@ export const recorrido = {
   pregunta: '¿Te suena alguno?',
   // RONDA 53 · más cerca del Keynote: los cuatro problemas de su diapositiva «Web anclada en paradigma anterior» (ya no te representa · genérica e
   // impersonal · difícil de gestionar y mal documentada · infraestructura vieja y cara + equipo que no domina la IA) y, en el tercero, el ARNÉS.
+  // RONDA 65 · copy de Andoni: tres dolores (el 3 y el 4 de antes se funden: la demo de la receta y la de la landing van juntas)
   pasos: [
     {
-      corto: 'Ya no te representa',
-      dolor: 'Tu web ya no te representa.',
-      t: 'Empezamos por entenderte.',
-      d: 'Antes de diseñar nada: qué vendes, a quién y qué ha cambiado desde que se hizo tu web.',
+      corto: 'No se alinea con tu marca',
+      dolor: 'Tu web no se alinea con tu marca.',
+      t: 'Mano a mano.',
+      d: 'Pasamos tiempo contigo entendiendo lo que necesita tu proyecto.',
     },
     {
-      corto: 'Genérica',
-      dolor: 'Podría ser la web de cualquiera.',
+      corto: 'AI slop',
+      dolor: 'Se ve como AI slop puro.',
       t: 'Creatividad a medida.',
-      d: 'Ves direcciones de diseño reales desde los primeros días y eliges la tuya. Nada de plantillas ni lavados de cara.',
+      d: 'Con tu dirección y nuestro criterio generamos skills únicas.',
     },
     {
-      corto: 'Sin receta',
-      dolor: 'Nadie sabe cómo cambiarla.',
-      t: 'Todo, en su receta.',
-      d: 'Cada decisión queda escrita en la savvia: el arnés que hace que la IA te lleve a donde quieres ir, y no a otro sitio.',
-    },
-    {
-      corto: 'Cada cambio, una espera',
-      dolor: 'Cada cambio es un presupuesto y una espera.',
-      t: 'Tu equipo, con agentes.',
-      d: 'Formamos a tu gente para que pida una landing de campaña a un agente y salga con tu estilo, en horas y no en semanas.',
+      corto: 'Difícil de mantener',
+      dolor: 'Es difícil de mantener.',
+      t: 'savvia agentic: el arnés de tu web.',
+      d: 'Tu librería que construye la web con IA.',
     },
   ],
 };
@@ -122,22 +117,25 @@ export const receta = {
   // pasa en cada uno; también es un proceso de izquierda a derecha, mostrarlo mejor; el árbol de fondo va fuera». El orden es el del proceso: qué es tu
   // marca → qué no se puede hacer (el arnés) → qué pide tu equipo → qué queda escrito → la cuenta. `marcas`: la tinta a mano sobre una línea (índice →
   // círculo · subraya · tacha · visto). `digital`: la pieza de interfaz que aterriza encima cuando el ticket ya está impreso.
+  // RONDA 65 · «mostrar en la receta más un md estilo los design.md de styles.refero.design, pero más resumido; lo que superponemos, con algo más de
+  // sustancia; y al final, lo de publicado en neety, un botón que te lleva a la librería de Neety». Todo sale de la librería REAL de Neety
+  // (neety.treseiscero.app/library, leída el 29/09): su paleta con sus nombres, sus tipografías y medidas, su escala de espacio, sus reglas y su CLAUDE.md.
   tiras: [
     {
       paso: 'tu marca',
-      t: 'fundamentos',
+      t: 'DESIGN.md',
       raya: '=-=-=-=-=-=-=-=-=-=-=-=',
-      lineas: ['Naranja Core ... #FE8238', 'Azul bebé ...... #A7C5F9', 'Berenjena ...... #431B44', 'Ciruela ........ #2A0E2C', 'Base cálida .... #F8F7EC', '', 'titulares  Bricolage', 'texto      Switzer'],
-      marcas: [[0, 'circulo'], [6, 'subraya']],
-      digital: { tipo: 'muestras', colores: ['#FE8238', '#A7C5F9', '#431B44', '#2A0E2C', '#F8F7EC'], txt: 'token · naranja-core' },
+      lineas: ['# Neety · la receta', '> la web se genera de', '  su propio código', '', '## color', 'Naranja Core   #FE8238', 'Azul bebé      #A7C5F9', 'Berenjena      #431B44', 'Ciruela        #2A0E2C', 'Base cálida    #F8F7EC', '', '## tipografía', 'titulares  Bricolage', 'cuerpo     Switzer', 'H1  112 / 64 px · 120%', '', '## espacio', 'xtiny 4 … xxhuge 160', 'sección 96·128·224 px'],
+      marcas: [[5, 'circulo'], [12, 'subraya']],
+      digital: { tipo: 'tabla', txt: 'app/globals.css · @theme', filas: [['Naranja Core', '#FE8238', 'bg-naranja'], ['Berenjena', '#431B44', 'text-plum'], ['Base cálida', '#F8F7EC', 'bg-base']], colores: ['#FE8238', '#431B44', '#F8F7EC'] },
     },
     {
       paso: 'el arnés',
       t: 'guardarraíles',
       raya: '·x·x·x·x·x·x·x·x·x·x·x·',
-      lineas: ['nada de colores', '   ni fuentes nuevas', '', 'ni un hero distinto:', '   se reutiliza uno', '', 'ni botones inventados', '', 'ni publicar sin', '   mirarla en el móvil'],
-      marcas: [[0, 'subraya'], [6, 'visto'], [8, 'visto']],
-      digital: { tipo: 'bloqueo', txt: '#FF2E9A no está en la receta', fin: 'usa Naranja Core' },
+      lineas: ['nada de colores', '   ni fuentes nuevas', '', 'ni un hero distinto:', '   se reutiliza uno', '', 'ni botones inventados', '', 'un cambio por petición', '', 'ni publicar sin', '   mirarla en el preview'],
+      marcas: [[0, 'subraya'], [6, 'visto'], [8, 'visto'], [10, 'visto']],
+      digital: { tipo: 'bloqueo', txt: '#FF2E9A no está en la receta', fin: 'usa el token Naranja Core', cab: 'CLAUDE.md · el arnés' },
     },
     {
       paso: 'tu equipo pide',
@@ -145,7 +143,7 @@ export const receta = {
       raya: "`'. .'`'. .'`'. .'`'. .'`",
       lineas: ['«Añade una sección de', 'testimonios en la home,', 'entre Cómo funciona', 'e Integraciones: tres', 'citas con nombre, cargo', 'y empresa, con el estilo', 'de tarjeta blanca.»'],
       marcas: [[6, 'subraya']],
-      digital: { tipo: 'agente', txt: 'agente · leyendo la receta', fin: 'sección lista ✓' },
+      digital: { tipo: 'agente', txt: 'agente · leyendo la receta', pasos: ['lee CLAUDE.md', 'reutiliza la tarjeta blanca', 'la añade en ES y EN', 'la revisa en el preview'], fin: 'sección lista ✓' },
     },
     {
       paso: 'queda escrito',
@@ -153,7 +151,7 @@ export const receta = {
       raya: '·_·~·_·~·_·~·_·~·_·~·_·',
       lineas: ['el borde izquierdo', '   siempre con el logo', '', 'imágenes nuevas', '   en AVIF', '', 'bilingüe desde', '   el primer día'],
       marcas: [[0, 'visto'], [3, 'visto'], [6, 'visto']],
-      digital: { tipo: 'commit', txt: 'docs/decisiones.md', fin: '+3 líneas' },
+      digital: { tipo: 'diff', txt: 'docs/decisiones.md', pasos: ['+ borde izquierdo con el logo', '+ imágenes nuevas en AVIF', '+ bilingüe desde el día 1'], fin: '+3' },
     },
     {
       paso: 'la cuenta',
@@ -161,16 +159,16 @@ export const receta = {
       raya: '.......................',
       lineas: ['Web a medida ..... hecha', 'Cada decisión .. escrita', 'Tu IA ...... con arnés', 'Tu equipo ..... al mando', '', 'Lavado de cara ..... 0 €', '', '   gracias por venir'],
       marcas: [[5, 'tacha'], [2, 'circulo']],
-      digital: { tipo: 'toast', txt: 'publicado · neety.com', fin: '✓' },
+      digital: { tipo: 'boton', txt: 'Ver la librería de Neety', href: 'https://neety.treseiscero.app/library' },
     },
-  ] as { paso: string; t: string; raya: string; lineas: string[]; marcas: [number, string][]; digital: { tipo: string; txt: string; fin?: string; colores?: string[] } }[],
+  ] as { paso: string; t: string; raya: string; lineas: string[]; marcas: [number, string][]; digital: { tipo: string; txt: string; fin?: string; cab?: string; href?: string; colores?: string[]; filas?: string[][]; pasos?: string[] } }[],
 };
 
 export const proyectos = {
   pregunta: '¿Qué ha hecho esta gente?',
   // RONDA 44 · «lo que has puesto para finalizar la segunda sección va como titular de los destacados y se mete en el ordenador; el titular, todo en la
   // misma tipografía»: el puente deja de ser una sección y es el titular-pantalla de Proyectos, en Family (sin logotipo ni mono)
-  titulo: 'Para eso está savvia agentic.',
+  titulo: 'Proyectos destacados con desarrollo agéntico.', // ronda 65 (Andoni); antes «Para eso está savvia agentic.»
   // Los cuatro proyectos hechos con desarrollo agéntico (los de la web anterior, ronda 28). Cada uno trae SU estación:
   // al cambiar de proyecto cambia el paisaje de la ventana y el ambiente sonoro.
   // `d` y `dato` salen de la propia web de cada cliente y del registro de rondas; PENDIENTES de visto bueno.
@@ -244,40 +242,83 @@ export const proyectos = {
     { n: 'Cubbo', slug: 'cubbo', dominio: 'cubbo.com', sector: '', logo: 'cubbo', color: ['#1b40d6', '#4963e2', '#788ae8'] },
     { n: 'Remerge', slug: 'remerge', dominio: 'remerge.io', sector: '', logo: 'remerge', color: ['#eceed9', '#f2ff71', '#ffffff'] },
     { n: 'Isotrol', slug: 'isotrol', dominio: 'isotrol.com', sector: 'Renovables', logo: 'isotrol', color: ['#19171d', '#635850', '#8d8478'] },
+    // RONDA 65 · «añadir más proyectos»: cuatro del portfolio de Eric y Andoni (sector y lugar, de sus casos; colores medidos en su web; vídeo, de la grabación real)
+    { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#efeee8', '#c9cfbf', '#9fd39a'] },
+    { n: 'Naterra', slug: 'naterra', dominio: 'naterra.pro', sector: 'Vivienda ecológica', logo: '', color: ['#593c28', '#9e6f47', '#caae8d'] },
+    { n: 'Routal', slug: 'routal', dominio: 'routal.com', sector: 'Logística', logo: '', color: ['#3d6360', '#557a76', '#9dc7b5'] },
+    { n: 'THX', slug: 'thx', dominio: 'thx.vision', sector: 'Consultoría', logo: '', color: ['#1e3953', '#195f8e', '#95acbb'] },
+  ],
+  // RONDA 66 · «las métricas de más proyectos, como la captura que te paso; todas van rotando de manera animada» (la captura: una cuadrícula 3 × 2 de
+  // trazo discontinuo con citas cortas, «Collaborated with Minimum» y «Honorable mention · awwwards»). Cada celda releva su contenido. Todo real: citas
+  // (extractos de sus casos, traducidos y sin el nombre del estudio anterior), la colaboración con Minimum (ronda 67: fuera las menciones de Awwwards), cifras
+  // del portfolio y logotipos de clientes (sacados de su web). `tipo`: cita · marca (rótulo + logotipo) · cifra.
+  celdas: [
+    [
+      { tipo: 'cita', q: 'Trabajar con el equipo hizo que el proyecto se desarrollara sin problemas…', n: 'Olga Tintoré', r: 'Cofundadora de Ikon' },
+      { tipo: 'cita', q: 'Responden en minutos y despliegan en horas…', n: 'Juan Moliner', r: 'Cofundador de Invopop' },
+      { tipo: 'cita', q: '…juntos construimos algo precioso.', n: 'Sean Klamm', r: 'CEO de Playground IEP' },
+    ],
+    [
+      { tipo: 'marca', rotulo: 'Colaboramos con', logo: '/media/logos/minimum.svg', n: 'Minimum' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/multiverse.svg', n: 'Multiverse Computing' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/codely.svg', n: 'Codely' },
+    ],
+    [
+      { tipo: 'cita', q: '…ha sido un placer absoluto…', n: 'Félix Gonzalo', r: 'Webflow Developer · Monad' },
+      { tipo: 'cita', q: '…venían a mí con soluciones.', n: 'Ignasi Vegas', r: 'Cofundador y CEO de Cubbo' },
+      { tipo: 'cita', q: '…con una precisión sólida.', n: 'Guilherme Escobar', r: 'Marketing global · Remerge' },
+    ],
+    [
+      { tipo: 'cifra', v: '+40', l: 'webs publicadas' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/monad.svg', n: 'Monad' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/anteriores/logos/cubbo.svg', n: 'Cubbo' },
+    ],
+    [
+      { tipo: 'cifra', v: '6', l: 'países con clientes' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/anteriores/logos/invopop.svg', n: 'Invopop' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/casavo.png', n: 'Casavo' },
+    ],
+    [
+      { tipo: 'cifra', v: '2020', l: 'desde' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/routal.png', n: 'Routal' },
+      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/anteriores/logos/remerge.svg', n: 'Remerge' },
+    ],
+  ] as { tipo: 'cita' | 'marca' | 'cifra'; q?: string; n?: string; r?: string; rotulo?: string; logo?: string; texto?: string; v?: string; l?: string }[][],
+  // RONDA 66 · «los testimonios destacados, que sean uno como teníamos antes y que vayan rotando; te paso las imágenes (José Luis, Alberto de Transcend
+  // y Danny Saltaren); y no hagas cambio de color». Citas reales de sus casos, traducidas del inglés y sin el nombre del estudio anterior.
+  testimonios: [
+    { n: 'José Luis Antúnez', r: 'Strategy Partner · Routal', retrato: '/media/testimonios/jl-antunez.webp', q: 'Habla con Eric y Andoni cuando necesites rediseñar tu web. Un gran trabajo y un gran proceso de documentación, diseño, desarrollo y entrega. Calidad, cercanía y rapidez.' },
+    { n: 'Alberto Arenaza', r: 'Cofundador de Transcend Network', retrato: '/media/testimonios/alberto.webp', q: 'Ha sido un placer trabajar con ellos. Su dedicación, su rapidez y su proactividad lo ponen muy fácil. Los recomiendo sin dudarlo.' },
+    { n: 'Danny Saltaren', r: 'Fundador de Minimum', retrato: '/media/testimonios/danny.webp', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.' },
   ],
 
   enlace: { label: 'Todos los proyectos', href: '/proyectos' },
 };
 
-// RONDA 39 · referencia: athleticsnyc.com («Our specialties»): lista tipográfica enorme con letra de índice. RONDA 40 · «al hacer hover no usamos lo
-// mismo que la referencia: pensemos qué puede salir que tenga sentido con lo que se cuenta. Y fuera el savvia agentic de aquí»: al pasar sale una
-// pequeña DEMO de lo que es cada servicio (`demo`): de boceto a web · un cambio publicado · tu equipo aprendiendo. Y sin «crecer» (Keynote: elevar).
 export const servicios = {
-  pregunta: '¿Qué puede hacer savvia por ti?',
-  titulo: 'Tres maneras de elevar tu web.',
-  // RONDA 53 · copy del Keynote (diapositiva de servicios: orquestación con desarrollo agéntico · procesos que elevan la calidad y reducen costes ·
-  // todo documentado para que cualquiera sepa cambiar la web · formación a tus equipos) y, al pasar, un EJEMPLO REAL de cada uno (`ejemplo`).
+  pregunta: '¿Cómo trabajamos contigo?',
+  // RONDA 65 · copy de Andoni: «Trabajamos de tres formas contigo. En función de lo que necesites. 1. End-to-end. 2. Colaboración. 3. Consultoría», con sus
+  // etiquetas («Diseño digital, Ilustraciones animadas Lotties, Animaciones 3D, Interacciones GSAP, Migraciones de Webflow/WordPress a IA, Integraciones con
+  // CMS (Sanity, Supabase…), Multilenguaje, Narrativa de la web») y «que esos tags se encajen en cada uno: end-to-end serían todos, colaboración algo menos
+  // y consultoría algo menos; también te dejo que los amplíes». Fuera la demo al pasar. Ampliadas por Nilo: sistema de diseño, desarrollo agéntico, la
+  // receta (savvia.md), formación, auditoría, arquitectura de contenidos, SEO técnico, accesibilidad y rendimiento (lo que ya se hace en cada web).
+  titulo: 'Trabajamos de tres formas contigo.',
+  sub: 'En función de lo que necesites.',
   lista: [
     {
-      corto: 'Web a medida', // ronda 54: «cambiar los nombres grandes, no me convencen: algo más comercial»
-      t: 'Rehecha de principio a fin.',
-      d: 'No es un lavado de cara: estrategia, diseño y desarrollo agéntico a medida, contigo dentro. Mejor web, en menos tiempo y a menor coste.',
-      demo: 'nueva',
-      ejemplo: { de: 'Zernio', que: 'Así se hizo su home: del briefing a publicada.' },
+      corto: 'End-to-end',
+      d: 'De la primera conversación a la web publicada: la pensamos, la diseñamos y la construimos contigo, y te la dejamos lista para que tu equipo la lleve con IA.',
+      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje', 'Migraciones de Webflow y WordPress a IA', 'SEO técnico', 'Accesibilidad y rendimiento', 'Auditoría de tu web', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
     {
-      corto: 'Cambios con IA',
-      t: 'Cambios en horas, no en presupuestos.',
-      d: 'Agentes que trabajan sobre la receta de tu web: cada cambio respeta tu marca y queda documentado.',
-      demo: 'evolucion',
-      ejemplo: { de: 'Neety', que: 'Una petición de su equipo, de principio a fin.' },
+      corto: 'Colaboración',
+      d: 'Nos sumamos a tu equipo o a tu agencia en la parte que más lo necesite: el diseño, el movimiento o el desarrollo.',
+      tags: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje'],
     },
     {
-      corto: 'Equipos con IA',
-      t: 'Tu equipo, al mando de la IA.',
-      d: 'Formamos a tu gente en desarrollo agéntico, con su manual al lado, para que toque la web sin miedo y sin llamar a nadie.',
-      demo: 'formacion',
-      ejemplo: { de: 'Neety', que: 'El recorrido de su equipo por el manual de su web.' },
+      corto: 'Consultoría',
+      d: 'Te ayudamos a decidir qué necesita tu web y a ordenarla para que tu equipo la cambie con IA sin salirse de tu marca.',
+      tags: ['Narrativa de la web', 'Auditoría de tu web', 'Arquitectura de contenidos', 'Migraciones de Webflow y WordPress a IA', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
   ],
 };
@@ -340,6 +381,7 @@ export const pie = {
   tagline: 'La savia de tu web.',
   pitch: 'El estudio que orquesta la IA, con criterio.', // ronda 24: «lo dejamos solo en esto»; ronda 48: sin «tu web» (ya lo dice el titular del pie)
   correo: 'hola@savvia.studio',
+  cal: '', // ronda 65: «Contáctanos» llevará a un cal.com (falta el enlace); mientras, al correo
   faltaCorreo: '¿hola@savvia.com o @savvia.studio?',
   lugar: 'Donostia',
   desde: 'desde 2020',

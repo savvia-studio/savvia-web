@@ -1,5 +1,4 @@
 ---
-import Flora from './Flora.astro';
 import { estudio } from '../data/home';
 const [A, E] = estudio.personas;
 ---
@@ -16,9 +15,6 @@ const [A, E] = estudio.personas;
   · Con movimiento reducido: la pose final, sin paseo. Los textos de cada uno son FALTA (datos de Andoni y Eric: no se inventan).
 -->
 <section id="estudio" class="surface-dark section-y relative" aria-label={estudio.pregunta} data-equipo data-sube>
-  <!-- RONDA 42 · flora sutil, pintada en el color de la estación -->
-  <Flora lamina="helecho" opacidad={0.55} soloEscritorio estilo="left:3%;top:9%;width:min(15vw,13rem)" />
-  <Flora lamina="brezo" opacidad={0.5} voltear soloEscritorio estilo="right:4%;top:22%;width:min(12vw,10rem)" />
   <div class="wrap flex flex-col items-center text-center">
     <h2 class="text-h2 max-w-[18ch]" data-entra>{estudio.titulo}</h2>
     <p class="text-sub text-fg2 measure mt-4 lg:mt-6" data-enfoca style="--d:2">{estudio.texto}</p>
@@ -117,28 +113,8 @@ const [A, E] = estudio.personas;
       xaU = xa; xeU = xe;
       for (const x of [cx, cx2]) { x.clearRect(0, 0, VW, VH); x.globalCompositeOperation = 'source-over'; }
       const suelo = VH - 1;
-      // RONDA 27 · «algo muy sintetizado con el fondo, que no parezca un pegote, sin líneas de corte; muy limpio»: un SUELO blando (una elipse
-      // de Nogal muy tenue, sin bordes) que se descubre por donde ya han pasado, y encima pocas briznas cortas y pálidas
-      {
-        // RONDA 29: el resplandor va BAJO LOS PIES de cada uno (antes estaba centrado en el paseo, donde aún no habían pasado, y la máscara lo
-        // borraba): una elipse de Nogal por andador, que la máscara de abajo recorta a lo que queda detrás
-        for (const x0 of [xa, xe]) {
-          const g = cx.createRadialGradient(x0, VH / 0.42, 0, x0, VH / 0.42, VW * 0.42);
-          g.addColorStop(0, `rgba(${paleta.suelo},1)`); g.addColorStop(0.45, `rgba(${paleta.suelo},0.55)`); g.addColorStop(1, `rgba(${paleta.suelo},0)`);
-          cx.save(); cx.scale(1, 0.42); cx.fillStyle = g; cx.fillRect(0, 0, VW, VH / 0.42); cx.restore();
-        }
-        cx.globalCompositeOperation = 'destination-in';
-        // RONDA 28 · «que desaparezca según avanzamos hasta que estemos en el centro y ya queda limpio»: solo queda un tramo detrás de cada uno, que se
-        // funde hacia atrás, y todo se apaga con el avance (a 0 cuando se juntan)
-        const fade = Math.max(0, 1 - Math.pow(avanceU / 0.98, 3)); // ronda 29: curva más plana: se ve casi entera hasta media marcha y se apaga al juntarse
-        const m = cx.createLinearGradient(0, 0, VW, 0);
-        const a = Math.min(1, Math.max(0, (xa - 30) / VW)), b = Math.min(1, Math.max(0, (xe + 30) / VW));
-        const F = `rgba(0,0,0,${fade.toFixed(3)})`;
-        if (a < b) { m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(Math.max(0, a - 0.45), 'rgba(0,0,0,0)'); m.addColorStop(Math.max(0, a - 0.04), F); m.addColorStop(a, 'rgba(0,0,0,0)'); m.addColorStop(b, 'rgba(0,0,0,0)'); m.addColorStop(Math.min(1, b + 0.04), F); m.addColorStop(Math.min(1, b + 0.45), 'rgba(0,0,0,0)'); m.addColorStop(1, 'rgba(0,0,0,0)'); }
-        else { m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(1, 'rgba(0,0,0,0)'); }
-        cx.fillStyle = m; cx.fillRect(0, 0, VW, VH);
-        cx.globalCompositeOperation = 'source-over';
-      }
+      // RONDA 68 · «abajo se ve un rayo de luz, es un bug»: era el RESPLANDOR del suelo (rondas 27–29), una elipse más alta que el lienzo cortada en seco
+      // por su borde de arriba. Fuera: la estela son solo las briznas.
       for (const b of briznas) {
         // brota cuando el que viene por su lado ya la dejó atrás (margen para que nazca DETRÁS de sus pies)
         const g = Math.min(1, Math.max(0, b.x < VW / 2 ? (xa - b.x - 20) / 110 : (b.x - xe - 20) / 110));

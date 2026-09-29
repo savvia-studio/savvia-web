@@ -4,7 +4,8 @@
 //   y se limpia solo. Coordenadas en píxeles dentro de `padre` (que debe estar posicionado).
 // · `formaGota`: cómo se deforma una gota que cae: recién descolgada TIEMBLA (oscilación amortiguada ancho/alto) y con la velocidad se alarga
 //   un poco. Una gota real cae casi redonda; la «lágrima» solo existe mientras cuelga.
-const NARANJA = '#f65340'; // ronda 50: Coral (el nombre se queda: es «la savia»)
+import { tinta } from './tinta';
+const NARANJA = () => tinta('coral'); // ronda 50: Coral; ronda 61: leído de la paleta activa (el nombre se queda: es «la savia»)
 
 export function formaGota(msDesdeSoltar: number, velPxPorFrame: number) {
   const tiembla = Math.sin(msDesdeSoltar * 0.034) * Math.exp(-msDesdeSoltar / 260) * 0.22;
@@ -13,7 +14,7 @@ export function formaGota(msDesdeSoltar: number, velPxPorFrame: number) {
 }
 
 export function salpicar(padre: HTMLElement, x: number, y: number, op: { n?: number; fuerza?: number; color?: string } = {}) {
-  const n = op.n ?? 9, F = op.fuerza ?? 1, color = op.color ?? NARANJA;
+  const n = op.n ?? 9, F = op.fuerza ?? 1, color = op.color ?? NARANJA();
   const G = 1700; // px/s²
   const hacer = (w: number, h: number) => {
     const el = document.createElement('i');
@@ -55,8 +56,9 @@ export function salpicar(padre: HTMLElement, x: number, y: number, op: { n?: num
 // misma física que la de la carga: cuelga y ENGORDA mientras un CUELLO la sujeta y se estrangula; al romperse queda un RESTO que se retrae y
 // se suelta un SATÉLITE detrás; cae con gravedad, tiembla, se estira y su ESTELA se desenfoca en la dirección del movimiento. Al tocar `y1`
 // salpica y avisa. Todo en píxeles dentro de `padre` (posicionado); se limpia sola.
-export function caerRealista(padre: HTMLElement, x: number, y0: number, y1: number, op: { alImpacto?: () => void; color?: string } = {}) {
-  const color = op.color ?? NARANJA, id = 'g' + Math.random().toString(36).slice(2, 8);
+export function caerRealista(padre: HTMLElement, x: number, y0: number, y1: number, op: { alImpacto?: () => void; color?: string; agua?: boolean } = {}) {
+  // RONDA 66 · `agua`: la gota translúcida de la carga (cuerpo que deja ver el fondo, canto que refracta, luz transmitida y brillo), no pintura
+  const color = op.agua ? 'rgba(246, 228, 204, .42)' : op.color ?? NARANJA(), id = 'g' + Math.random().toString(36).slice(2, 8);
   const ns = 'http://www.w3.org/2000/svg';
   const svg = (w: number, h: number, vb: string, ox: number, oy: number) => {
     const s = document.createElementNS(ns, 'svg');
@@ -71,7 +73,10 @@ export function caerRealista(padre: HTMLElement, x: number, y0: number, y1: numb
   cuello.style.transform = `translate3d(${x}px, ${y0}px, 0)`;
   // la gota: estela con desenfoque de movimiento + cabeza (el x del viewBox es la dirección de avance: la svg gira)
   const gota = svg(42, 16, '-34 -8 42 16', 34, 8);
-  gota.innerHTML = `<defs><filter id="${id}a" filterUnits="userSpaceOnUse" x="-160" y="-60" width="220" height="120"><feGaussianBlur stdDeviation="0 0"/></filter><filter id="${id}b" filterUnits="userSpaceOnUse" x="-40" y="-40" width="80" height="80"><feGaussianBlur stdDeviation="0 0"/></filter></defs><path filter="url(#${id}a)" d="M0 -2.4C-22 -1.8 -70 -0.6 -110 0C-70 0.6 -22 1.8 0 2.4Z" transform="scale(0,1)" style="opacity:0"/><circle r="6" filter="url(#${id}b)"/>`;
+  gota.innerHTML = `<defs><filter id="${id}a" filterUnits="userSpaceOnUse" x="-160" y="-60" width="220" height="120"><feGaussianBlur stdDeviation="0 0"/></filter><filter id="${id}b" filterUnits="userSpaceOnUse" x="-40" y="-40" width="80" height="80"><feGaussianBlur stdDeviation="0 0"/></filter></defs><path filter="url(#${id}a)" d="M0 -2.4C-22 -1.8 -70 -0.6 -110 0C-70 0.6 -22 1.8 0 2.4Z" transform="scale(0,1)" style="opacity:0"/>${op.agua
+    ? `<defs><radialGradient id="${id}g" cx="0" cy="0" r="6" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f3dcc0" stop-opacity=".1"/><stop offset=".62" stop-color="#e9c9a3" stop-opacity=".18"/><stop offset=".86" stop-color="#f6e4cc" stop-opacity=".5"/><stop offset="1" stop-color="#fff3e4" stop-opacity=".85"/></radialGradient><radialGradient id="${id}t" cx="0" cy="3.4" r="4.6" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffd9a8" stop-opacity=".62"/><stop offset="1" stop-color="#ffd9a8" stop-opacity="0"/></radialGradient></defs><g filter="url(#${id}b)"><circle r="6" fill="url(#${id}g)"/><g class="brillo"><circle r="4.6" fill="url(#${id}t)" transform="translate(0 .4)"/><ellipse cx="-2.1" cy="-2.6" rx="1.7" ry="1.05" transform="rotate(-35 -2.1 -2.6)" fill="#fff" fill-opacity=".92"/><circle cx="2.4" cy="-1.2" r=".45" fill="#fff" fill-opacity=".6"/></g></g>`
+    : `<circle r="6" filter="url(#${id}b)"/>`}`;
+  const brilloG = gota.querySelector<SVGGElement>('.brillo');
   const estela = gota.querySelector('path')!, mb = gota.querySelector(`#${id}a feGaussianBlur`)!, mbc = gota.querySelector(`#${id}b feGaussianBlur`)!;
   const sat = document.createElement('i');
   sat.style.cssText = `position:absolute;left:-1.7px;top:-1.7px;width:3.4px;height:3.4px;border-radius:50%;background:${color};opacity:0;pointer-events:none;z-index:5`;
@@ -110,9 +115,10 @@ export function caerRealista(padre: HTMLElement, x: number, y0: number, y1: numb
     }
     py = y;
     gota.style.transform = `translate3d(${x + dx}px, ${Math.min(y, y1)}px, 0) rotate(${ang}rad) scale(${(gordo * sy).toFixed(3)}, ${(gordo * sx).toFixed(3)})`;
+    brilloG?.setAttribute('transform', `rotate(${((-ang * 180) / Math.PI).toFixed(1)})`);
     if (t < FIN) return void requestAnimationFrame(paso);
     gota.remove(); cuello.remove();
-    salpicar(padre, x, y1, { n: 11, fuerza: 0.95, color });
+    salpicar(padre, x, y1, { n: 11, fuerza: 0.95, color: op.agua ? 'rgba(246, 228, 204, .7)' : color });
     op.alImpacto?.();
     setTimeout(() => sat.remove(), 800);
   };

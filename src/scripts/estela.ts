@@ -1,3 +1,4 @@
+import { rgbDe } from './tinta';
 // ESTELA (rondas 13–15) · la acuarela del roble de Andoni, viva. Un lienzo WebGL por mitad (árbol en el hero, raíces debajo).
 // Ronda 15 (referencias de Andoni):
 //   · Shopify Editions «Agentic»: la imagen entra primero como DIBUJO (las líneas del grabado, claras) y la pintura la va llenando con un
@@ -21,7 +22,7 @@ const FS = [
   'float lum(vec4 c){return dot(c.rgb,vec3(.299,.587,.114));}',
   'void main(){',
   '  vec2 px=v*R/dpr;vec2 W=R/dpr;float asp=R.x/R.y;vec2 u1=1./R;',
-  '  vec3 naranja=vec3(.965,.325,.251);vec3 claro=vec3(.95,.9,.87);',
+  '  vec3 naranja=vec3(NARANJA_RGB);vec3 claro=vec3(.95,.9,.87);',
   // HERVIR (clusia): a saltos de ~12 por segundo, cada celda de 3 px se corre un píxel; solo en reposo
   '  float paso=floor(ti*12.);',
   '  vec2 q=v+(vec2(h2(floor(px/3.)+paso),h2(floor(px/3.)+paso+17.))-.5)*1.3*dpr*u1*soplo;',
@@ -50,9 +51,20 @@ const FS = [
   // (el color hundido), el tono y la luz (el color aclarado), según la luz de la acuarela; un 14 % de la lámina original le deja la textura
   '  float yl=clamp((dot(col,vec3(.299,.587,.114))-.12)/.72,0.,1.);',
   '  vec3 ce=mix(mix(es.rgb*.42,es.rgb,smoothstep(0.,.5,yl)),mix(es.rgb,vec3(.98,.95,.9),.5),smoothstep(.5,1.,yl));',
+  // RONDA 65 · «en verano el árbol con más tonalidades de verde»: si el color de la estación es verde, cada mata de hojas vira entre un verde
+  // amarillento, uno hondo azulado y uno de oliva (ruido a dos escalas), y las luces tiran a verde lima
+  '  float verde=smoothstep(.05,.14,es.g-max(es.r,es.b));',
+  '  float nv=n2(px*.022+11.)*.7+n2(px*.09+5.)*.3;',
+  '  vec3 vv=nv<.5?mix(vec3(.62,.82,.42),vec3(1.),nv*2.):mix(vec3(1.),vec3(.55,.9,.86),nv*2.-1.);',
+  '  ce=mix(ce,clamp(ce*vv*vec3(1.08,1.06,1.)+vec3(.05,.07,0.)*smoothstep(.55,1.,yl),0.,1.),verde);',
   '  col=mix(col,clamp(mix(ce,col,.14),0.,1.),ek>1.5?1.:hoja*ek);',  // ronda 42: intensidad > 1,5 = se tiñe TODA la lámina (la flora: el helecho es verde pálido y el umbral de hoja no lo cogía)
   '  if(ev>=0.)col=mix(col,naranja,(1.-smoothstep(.02,.22,ev*1.45-d0-.1+rz))*fe*.5*hoja);',
-  '  a*=1.-hoja*es.w*smoothstep(.35,.75,dot(c.rgb/max(a0,.001),vec3(.299,.587,.114))+h2(floor(px/2.))*.25);',
+  // RONDA 65 · «en invierno el árbol sin hojas»: con raleo 1 se van TODAS (no solo las claras); queda la madera
+  // con raleo 1 la hoja se mide en el color ORIGINAL de la lámina (antes de hundirlo en la noche): también las hojas en sombra tienen tono; la madera es gris
+  '  vec3 co=c.rgb/max(c.a,.001);float so=max(co.r,max(co.g,co.b))-min(co.r,min(co.g,co.b));',
+  '  float desnudo=smoothstep(.7,1.,es.w);',
+  '  a*=1.-hoja*es.w*(1.-desnudo)*smoothstep(.35,.75,dot(co,vec3(.299,.587,.114))+h2(floor(px/2.))*.25);',
+  '  a*=1.-desnudo*smoothstep(.13,.23,so);',
   '  col=clamp(tono(col,.1*sin(ti*.21+v.x*2.4-v.y*3.1)*soplo),0.,1.);',
   // LUZ: haces diagonales desde arriba a la derecha hasta el tronco, solo sobre el árbol, al terminar de pintarse
   '  float lv=soplo*lz*smoothstep(.85,1.,gr);', // lz: ronda 47, las raíces hierven pero no reciben la luz
@@ -104,52 +116,62 @@ const FS = [
 
 // el color del árbol por estación (la paleta de Andoni, ronda 40), en el orden de src/scripts/estacion.ts: otoño · invierno · primavera · verano
 const c = (h: string, raleo = 0) => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255, raleo];
-export const ESTACIONES_ARBOL = [c('#c65c2d'), c('#6e7b91', 0.5), c('#c76b83'), c('#67834d')];
+export const ESTACIONES_ARBOL = [c('#c65c2d'), c('#6e7b91', 1), c('#c76b83'), c('#67834d')]; // ronda 65: invierno sin hojas (raleo 1)
 export const ESTACIONES_SIN_RALEO = ESTACIONES_ARBOL.map((e) => [e[0], e[1], e[2], 0]);
 
 export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void };
 
 // RONDA 23 · opciones nuevas: `radial` (el frente sale en círculo desde `origen`, sin gota), `paisaje` (una lámina completa, no el árbol: sin
 // hundir el color, sin elipse de cobertura ni bordes desvanecidos) y `estaciones` (tabla propia: el paisaje del pie no ralea en invierno).
+// RONDA 63 · «al hacer scroll hasta abajo y volver arriba, las imágenes del hero salen en blanco»: la página llegó a 18 contextos WebGL y los
+// navegadores solo mantienen 16 (Chrome y Safari tiran el más antiguo: el árbol del hero y las raíces). Ahora cada lienzo SUELTA su contexto
+// cuando queda a más de una pantalla (WEBGL_lose_context) y lo recupera al acercarse: se vuelve a montar (programa, textura y el estado que tenía:
+// estación, fondo, origen, luz), sin repetir su aparición. Así nunca se llega al límite, y lo lejano no gasta memoria de GPU.
 export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number }): Estela | null {
   const ctx = { premultipliedAlpha: true, alpha: true, antialias: false };
   const gl2 = cv.getContext('webgl2', ctx) as WebGL2RenderingContext | null;
   const gl = (gl2 ?? cv.getContext('webgl', ctx)) as WebGLRenderingContext | null;
   if (!gl) return null;
-  const sh = (tipo: number, src: string) => { const s = gl.createShader(tipo)!; gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s)); return s; };
-  const pr = gl.createProgram()!;
-  gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr);
-  if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
-  gl.useProgram(pr);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-  const la = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
-  const U = (k: string) => gl.getUniformLocation(pr, k);
-  const uR = U('R'), uT = U('ti'), uG = U('gr'), uD = U('dpr'), uGT = U('gt'), uM = U('M'), uMK = U('mk'), uE = U('est'), uEB = U('estB'), uEV = U('ev');
-  // estaciones: [giro de tono (rad), saturación, aclarado, raleo] · otoño (la lámina) · invierno · primavera · verano (ronda 20: verdes de verdad)
-  // RONDA 40 · estaciones: [r, g, b del color del árbol (0–1), raleo] · otoño Cobre naranja · invierno Azul grisáceo (la copa ralea) · primavera
-  // Rosa flor · verano Verde hoja. `intensidad`: cuánto se pinta la hoja en el color de la estación (el paisaje del pie, algo menos)
   const ESTACIONES = op.estaciones ?? ESTACIONES_ARBOL;
-  gl.uniform1f(U('ek'), op.intensidad ?? 0.9);
-  gl.uniform1f(U('rad'), op.radial ? 1 : 0); gl.uniform1f(U('pai'), op.paisaje ? 1 : 0);
-  const uO = U('O'), uLX = U('lx'); gl.uniform1f(uLX, 0);
-  // RONDA 39: el fondo de la estación (el color hacia el que se hunde el árbol para mimetizarse) y de dónde sale el frente del cambio de
-  // estación (el árbol: la base del tronco; las raíces: el cuello, arriba)
-  const uFO = U('fo'); gl.uniform3f(uFO, 0.188, 0.125, 0.094);
-  const eo = op.origenEstacion ?? [0.5, 1]; gl.uniform2f(U('EO'), eo[0], eo[1]);
-  { const e0 = ESTACIONES[0]; gl.uniform4f(uE, e0[0], e0[1], e0[2], e0[3]); gl.uniform4f(uEB, e0[0], e0[1], e0[2], e0[3]); } gl.uniform1f(uEV, -1);
-  // RONDA 22: el cambio de estación se PINTA: estB avanza sobre est con el frente rasgado (ev 0 → 1 en 2,2 s); al acabar, est = estB
-  let virando = false, ev0 = 0, estB = ESTACIONES[0];
-  const PINTA = 2.2;
-  let mx = 0.5, my = 0.5, mk = 0, mkMeta = 0;
-  gl.uniform2f(uO, op.origen[0], op.origen[1]);
-  gl.uniform1f(U('dir'), op.dir);
+  // el ESTADO que hay que volver a poner si el contexto se suelta y se recupera
+  let foV: [number, number, number] = [0.188, 0.125, 0.094], oV: [number, number] = [op.origen[0], op.origen[1]], lxV = 0;
+  let eV = ESTACIONES[0], estB = ESTACIONES[0], virando = false, ev0 = 0;
+  let U: (k: string) => WebGLUniformLocation | null;
+  let uR: WebGLUniformLocation | null, uT: WebGLUniformLocation | null, uG: WebGLUniformLocation | null, uD: WebGLUniformLocation | null, uGT: WebGLUniformLocation | null, uM: WebGLUniformLocation | null, uMK: WebGLUniformLocation | null, uE: WebGLUniformLocation | null, uEB: WebGLUniformLocation | null, uEV: WebGLUniformLocation | null, uO: WebGLUniformLocation | null, uLX: WebGLUniformLocation | null, uFO: WebGLUniformLocation | null;
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const vivo = !!op.soplo && !reducido;
   const gota = !!op.gota && !reducido;
-  gl.uniform1f(U('soplo'), vivo ? 1 : 0);
-  gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1);
-  gl.uniform1f(U('gota'), op.gota ? 1 : 0);
+  const sh = (tipo: number, src: string) => { const s = gl.createShader(tipo)!; gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS) && !gl.isContextLost()) console.error(gl.getShaderInfoLog(s)); return s; };
+  // montar el programa y los uniformes (al crear y cada vez que el contexto vuelve)
+  const montar = () => {
+    const pr = gl.createProgram()!;
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS.replace('NARANJA_RGB', rgbDe('coral').map((v) => (v / 255).toFixed(3)).join(',')))); gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return false;
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const la = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
+    U = (k: string) => gl.getUniformLocation(pr, k);
+    uR = U('R'); uT = U('ti'); uG = U('gr'); uD = U('dpr'); uGT = U('gt'); uM = U('M'); uMK = U('mk'); uE = U('est'); uEB = U('estB'); uEV = U('ev'); uO = U('O'); uLX = U('lx'); uFO = U('fo');
+    // RONDA 40 · estaciones: [r, g, b del color del árbol (0–1), raleo]; `intensidad`: cuánto se pinta la hoja en el color de la estación
+    gl.uniform1f(U('ek'), op.intensidad ?? 0.9);
+    gl.uniform1f(U('rad'), op.radial ? 1 : 0); gl.uniform1f(U('pai'), op.paisaje ? 1 : 0);
+    gl.uniform1f(uLX, lxV);
+    // RONDA 39: el fondo de la estación (hacia el que se hunde el árbol) y de dónde sale el frente del cambio de estación
+    gl.uniform3f(uFO, foV[0], foV[1], foV[2]);
+    const eo = op.origenEstacion ?? [0.5, 1]; gl.uniform2f(U('EO'), eo[0], eo[1]);
+    gl.uniform4f(uE, eV[0], eV[1], eV[2], eV[3]); gl.uniform4f(uEB, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, virando ? 0 : -1);
+    gl.uniform2f(uO, oV[0], oV[1]);
+    gl.uniform1f(U('dir'), op.dir);
+    gl.uniform1f(U('soplo'), vivo ? 1 : 0);
+    gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1);
+    gl.uniform1f(U('gota'), op.gota ? 1 : 0);
+    return true;
+  };
+  if (!montar()) return null;
+  // RONDA 22: el cambio de estación se PINTA: estB avanza sobre est con el frente rasgado (ev 0 → 1 en 2,2 s); al acabar, est = estB
+  const PINTA = 2.2;
+  let mx = 0.5, my = 0.5, mk = 0, mkMeta = 0;
   // manual: el reloj de la gota no arranca hasta `soltar()` (la trae la carga)
   let listo = false, g = reducido && op.gota ? 1 : 0, raf = 0, ve = true, t0 = 0, ult = 0, suelta = !gota || !op.manual;
   const INTRO = 1.05, CRECE = 3.6; // s: la gota cae y corre por el suelo; luego el árbol se dibuja y se pinta
@@ -175,7 +197,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     if (virando) {
       const k = Math.min(1, (ahora - ev0) / 1000 / PINTA);
       gl.uniform1f(uEV, k);
-      if (k >= 1) { virando = false; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, -1); }
+      if (k >= 1) { virando = false; eV = estB; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, -1); }
     }
     if (!enIntro && !virando && mk === 0 && ahora - ult < 30) { if (vivo && ve) raf = requestAnimationFrame(pintar); return; }
     ult = ahora;
@@ -195,7 +217,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.viewport(0, 0, w, hh); gl.uniform2f(uR, w, hh); gl.uniform1f(uD, dpr);
     ult = 0; pedir();
   };
-  const arrancar = () => {
+  const textura = () => {
     gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
@@ -203,14 +225,38 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl2 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  };
+  let cargada = false;
+  const arrancar = () => {
+    cargada = true;
+    textura();
     listo = true;
     medir();
     cv.classList.add('listo');
+    setTimeout(() => dormir(), 0); // si ya está lejos cuando termina de cargar, a dormir
   };
   img.complete && img.naturalWidth ? arrancar() : img.addEventListener('load', arrancar, { once: true });
   new ResizeObserver(() => listo && medir()).observe(cv);
+  // soltar y recuperar el contexto según la distancia a la pantalla (ver arriba)
+  const ext = gl.getExtension('WEBGL_lose_context');
+  let dormido = false;
+  cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); listo = false; if (raf) { cancelAnimationFrame(raf); raf = 0; } });
+  cv.addEventListener('webglcontextrestored', () => {
+    dormido = false;
+    if (!montar()) return;
+    // lo que estaba a medio aparecer vuelve ya aparecido (el visitante no lo estaba viendo)
+    if (gota) { t0 = performance.now() - (INTRO + CRECE + 1) * 1000; suelta = true; }
+    if (cargada) { textura(); listo = true; medir(); }
+  });
+  let lejos = false;
+  const dormir = () => { if (ext && lejos && !dormido && listo && !gl.isContextLost()) { dormido = true; ext.loseContext(); } };
+  if (ext) new IntersectionObserver(([e]) => {
+    lejos = !e.isIntersecting;
+    if (lejos) dormir();
+    else if (dormido) ext.restoreContext();
+  }, { rootMargin: '100% 0px' }).observe(cv);
   return {
-    fondo(r, g2, b) { gl.uniform3f(uFO, r / 255, g2 / 255, b / 255); ult = 0; pedir(); },
+    fondo(r, g2, b) { foV = [r / 255, g2 / 255, b / 255]; gl.uniform3f(uFO, foV[0], foV[1], foV[2]); ult = 0; pedir(); },
     crecer(x) { if (gota) return; const k = Math.min(1, Math.max(0, x)); if (Math.abs(k - g) > 0.0005 || (k === 1 && g !== 1)) { g = k; ult = 0; pedir(); } },
     visible(si) { ve = si; if (si) pedir(); },
     // la gota de la carga acaba de tocar el suelo: el reloj arranca ya en el impacto (0,95 s)
@@ -218,15 +264,15 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     mirar(x, y, si) { mx = x; my = y; mkMeta = si ? 1 : 0; pedir(); },
     // RONDA 21: cambiar de estación = virar el color despacio (sin redibujar)
     renacer(n) {
-      if (virando) gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); // un cambio a medio pintar: la vieja pasa a ser la que estaba llegando
+      if (virando) { eV = estB; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); } // un cambio a medio pintar: la vieja pasa a ser la que estaba llegando
       estB = ESTACIONES[n % ESTACIONES.length]; gl.uniform4f(uEB, estB[0], estB[1], estB[2], estB[3]);
       ev0 = performance.now(); virando = true; ult = 0; pedir();
     },
     // el ciclo solo arranca con el árbol ya pintado y si no hay otro en marcha
     ciclo() { if (cic || g < 1 || !suelta) return false; cic = performance.now(); ult = 0; pedir(); return true; },
-    origen(x, y) { gl.uniform2f(uO, x, y); ult = 0; pedir(); },
-    luz(x) { gl.uniform1f(uLX, x); ult = 0; pedir(); },
+    origen(x, y) { oV = [x, y]; gl.uniform2f(uO, x, y); ult = 0; pedir(); },
+    luz(x) { lxV = x; gl.uniform1f(uLX, x); ult = 0; pedir(); },
     // RONDA 24: fijar la estación de golpe (la de hoy, al cargar), sin pintar
-    estacion(n) { estB = ESTACIONES[n % ESTACIONES.length]; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); gl.uniform4f(uEB, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, -1); virando = false; ult = 0; pedir(); },
+    estacion(n) { estB = ESTACIONES[n % ESTACIONES.length]; eV = estB; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); gl.uniform4f(uEB, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, -1); virando = false; ult = 0; pedir(); },
   };
 }

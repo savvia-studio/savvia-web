@@ -19,7 +19,8 @@
   --color-cacao: #302018;
   --color-nogal: #63402f;
   --color-niebla: #eadde7;
-  --color-coral: #f65340;
+  --color-coral: #ff616b; /* ronda 62: Grenadine Pink (de la paleta 3: «el nuevo naranja, más suave»; antes #F65340) */
+  --color-salvia: #96bfe6; /* ronda 62: Salvia Blue, el fondo de Servicios (de la paleta 3) */
   --color-cobalto: #3456d3;
   --color-cereza: #b52c4c;
   --color-naranja: var(--color-coral); /* nombre histórico: todo lo que era la savia en Naranja pasa a Coral */
@@ -130,15 +131,16 @@ html[data-estacion='invierno'] { --noche: #2a2932; --arbol: #6e7b91; }
     --link: var(--color-cacao);
     --mark: var(--color-cacao);
   }
+  /* RONDA 62 · «para la parte de servicios, el azul clarito de la nueva»: surface-warm = SALVIA BLUE con texto Cacao (7,1:1) */
   .surface-warm {
-    --bg: var(--color-cobalto);
-    --fg: var(--color-niebla);
-    --fg2: color-mix(in oklab, var(--color-niebla) 72%, transparent);
-    --rule: color-mix(in oklab, var(--color-niebla) 24%, transparent);
-    --rule-strong: color-mix(in oklab, var(--color-niebla) 60%, transparent);
-    --hole: color-mix(in oklab, var(--color-niebla) 10%, transparent);
-    --link: var(--color-niebla);
-    --mark: var(--color-niebla);
+    --bg: var(--color-salvia);
+    --fg: var(--color-cacao);
+    --fg2: color-mix(in oklab, var(--color-cacao) 78%, var(--color-salvia));
+    --rule: color-mix(in oklab, var(--color-cacao) 18%, transparent);
+    --rule-strong: var(--color-cacao);
+    --hole: color-mix(in oklab, var(--color-cacao) 10%, transparent);
+    --link: var(--color-cacao);
+    --mark: var(--color-cacao);
   }
   .surface-dark,
   .surface-light,
@@ -247,7 +249,7 @@ html.estudio-sentado .marcas {
 }
 @media (width >= 48rem) {
   :root {
-    --roble-h: clamp(12rem, 100lvh - 31.5rem, 30rem); /* ronda 16: «un poco más grande» (a 1280×720: 640×296); ronda 53: el H1 nuevo ocupa una línea más (−5 rem) */
+    --roble-h: clamp(12rem, 100lvh - 26.5rem, 30rem); /* ronda 16: «un poco más grande»; ronda 53 −5 rem (H1 de 3 líneas); ronda 65: H1 corto, vuelve */
     --roble-w: min(calc(var(--roble-h) * 2.1612), 84vw);
   }
 }
@@ -338,22 +340,81 @@ html.tipo-antes {
       background-color 0.25s var(--ease-out-expo),
       color 0.25s var(--ease-out-expo);
   }
+  /* RONDA 67 · EL CTA DE LA CAPTURA de Andoni, para todos: un rectángulo de CRISTAL esmerilado (sin radio), la flecha «↳» y cuatro CRUCES fuera de las
+     esquinas. Al pasar (animación propia): las cruces se CIERRAN sobre las esquinas y una GOTA de savia Coral cae donde entra el puntero y llena el
+     cristal (src/scripts/cta.ts pone --gx/--gy y .mojado); al salir, se recoge hacia donde sale y las cruces vuelven a abrirse. */
   .btn-primary {
-    background: var(--color-naranja);
-    color: var(--color-cacao);
+    --gx: 50%;
+    --gy: 50%;
+    --cz: color-mix(in oklab, var(--fg) 70%, transparent);
+    --abre: 14px;
+    position: relative;
+    isolation: isolate;
+    border-radius: 0;
+    min-height: calc(var(--spacing) * 14);
+    padding-inline: calc(var(--spacing) * 6) calc(var(--spacing) * 8);
+    background: color-mix(in oklab, var(--fg) 8%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    color: var(--fg);
+    font-weight: 500;
+    transition: color 0.35s ease 0.1s;
   }
-  .btn-primary:hover {
-    background: var(--fg);
-    color: var(--bg);
+  /* las cruces: cuatro «+» (dos trazos cada una) en las esquinas de una caja más grande que el botón.
+     RONDA 68 · .cruces lleva las mismas a cualquier caja (paneles, pastillas, etiquetas): el idioma del CTA. */
+  .cruces { --cz: color-mix(in oklab, var(--fg, var(--color-niebla)) 55%, transparent); --abre: 10px; position: relative; border-radius: 0; }
+  .btn-primary::before,
+  .cruces::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--abre) * -1);
+    pointer-events: none;
+    background:
+      linear-gradient(var(--cz), var(--cz)) 4px 0 / 1px 9px no-repeat,
+      linear-gradient(var(--cz), var(--cz)) 0 4px / 9px 1px no-repeat,
+      linear-gradient(var(--cz), var(--cz)) calc(100% - 4px) 0 / 1px 9px no-repeat,
+      linear-gradient(var(--cz), var(--cz)) 100% 4px / 9px 1px no-repeat,
+      linear-gradient(var(--cz), var(--cz)) 4px 100% / 1px 9px no-repeat,
+      linear-gradient(var(--cz), var(--cz)) 0 calc(100% - 4px) / 9px 1px no-repeat,
+      linear-gradient(var(--cz), var(--cz)) calc(100% - 4px) 100% / 1px 9px no-repeat,
+      linear-gradient(var(--cz), var(--cz)) 100% calc(100% - 4px) / 9px 1px no-repeat;
+    transition: inset 0.6s var(--ease-out-expo);
   }
-  /* Sobre Cobalto el Coral no se despega del fondo (1,82:1): ahí la acción principal va en Cacao (ronda 50; antes, sobre Rosa arcilla). */
-  .surface-warm .btn-primary {
-    background: var(--color-cacao);
-    color: var(--color-niebla);
+  /* la gota: recortada al botón (clip-path en el propio pseudo) */
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--color-coral);
+    clip-path: circle(0 at var(--gx) var(--gy));
+    transition: clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .surface-warm .btn-primary:hover {
-    background: var(--color-naranja);
-    color: var(--color-cacao);
+  .btn-primary.mojado { color: var(--color-cacao); }
+  .btn-primary.mojado::before { inset: -4px; }
+  :is(button, a).cruces:hover::before { inset: -3px; }
+  .btn-primary.mojado::after {
+    clip-path: circle(150% at var(--gx) var(--gy));
+    transition: clip-path 0.75s var(--ease-out-expo);
+  }
+  .btn-primary .btn-ic { transition: translate 0.5s var(--ease-out-expo); }
+  .btn-primary.mojado .btn-ic { translate: 3px 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-primary::before, .btn-primary::after, .btn-primary .btn-ic { transition: none; }
+  }
+  .btn-ic {
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: square;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-primary::before { transition: none; }
+    .btn-primary::after { animation: none !important; }
   }
   .btn-secondary {
     border-color: var(--fg);
@@ -525,4 +586,76 @@ html:not([data-s2='b']) #recorrido-b {
 @keyframes onda-agua {
   0% { width: 0.5rem; height: 0.5rem; opacity: 0.95; }
   100% { width: 190vmax; height: 190vmax; opacity: 0; }
+}
+
+/* ── RONDA 63 · TRANSICIONES ENTRE PÁGINAS: las nativas del navegador ENTRE DOCUMENTOS (@view-transition): cada página sigue cargando entera
+   (sin ClientRouter: ningún script de la home cambia). Chrome 126+ y Safari 18.2+.
+   RONDA 64 · «más notable y más savvia» (src/scripts/transicion.ts): al pulsar, la SAVIA se extiende desde el dedo con canto de papel rasgado y cubre
+   la pantalla (con el logotipo en el centro); la página nueva se abre RASGANDO ese papel desde el centro. Lo que tiene nombre viaja por encima
+   (el vídeo de un proyecto, de su tarjeta a la portada del caso: view-transition-name obra-<slug>). */
+/* RONDA 68 · «más orgánico»: entre páginas ya no hay transición nativa; la hace la savia líquida de transicion.ts (sale como una mancha, llega y se
+   escurre). Las transiciones nativas quedan solo DENTRO de /proyectos (orden, filtros, páginas: html.vt-local). */
+@view-transition {
+  navigation: none;
+}
+::view-transition-group(*) {
+  animation-duration: 0.9s;
+  animation-timing-function: var(--ease-out-expo);
+}
+/* dentro de una misma página (el orden del listado): solo viajan las piezas con nombre; la página no se rasga */
+html.vt-local::view-transition-new(root),
+html.vt-local::view-transition-old(root) {
+  -webkit-mask: none;
+  mask: none;
+  animation: none;
+}
+/* la capa de SAVIA (la pone transicion.ts; la máscara crece desde donde pulsas) */
+/* RONDA 69 · «que la animación entre pantallas no vaya al naranja, que vaya al marrón»: la savia de la transición es Cacao con grano y el logotipo, en claro */
+.vt-savia {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: var(--color-cacao) url('/media/grano.png') 0 0 / 240px 240px;
+  -webkit-mask: var(--m, none);
+  mask: var(--m, none);
+}
+.vt-logo {
+  /* ronda 68: el logotipo definitivo (isotipo + savvia) */
+  height: clamp(4.5rem, 2.5rem + 7vw, 9rem);
+  aspect-ratio: 1275 / 439;
+  background: var(--color-niebla);
+  -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
+  mask: url('/savvia-logo.svg') center / contain no-repeat;
+  opacity: 0;
+  scale: 0.92;
+  filter: blur(6px);
+  transition: opacity 0.35s ease, scale 0.6s var(--ease-out-expo), filter 0.4s ease;
+}
+.vt-savia.con-logo .vt-logo {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0);
+}
+/* la página nueva nace cubierta de savia, con el logotipo (transicion.ts la escurre; salvavidas en el <head>) */
+html.vt-llega::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  background: var(--color-cacao) url('/media/grano.png') 0 0 / 240px 240px;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  ::view-transition-new(root) {
+    -webkit-mask: none;
+    mask: none;
+  }
 }

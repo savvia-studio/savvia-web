@@ -32,3 +32,15 @@ tools/retirados/voces/
 
 # Vercel (el enlace al proyecto se copia en dist/ al publicar)
 .vercel/
+# reel (ronda 60): planos grabados, copias en el proyecto de HyperFrames, renders y capturas (se regeneran con tools/reel/grabar.cjs y montar.cjs)
+tools/reel/planos/
+tools/reel/hf/assets/*.mp4
+tools/reel/hf/renders/
+tools/reel/hf/snapshots/
+
+# ronda 75: material en bruto (láminas originales de Andoni, tomas del reel, capturas): se queda en local
+tools/r66/
+tools/reel/momentos/
+tools/reel/hf/
+tools/reel/*.mp3
+tools/tools/

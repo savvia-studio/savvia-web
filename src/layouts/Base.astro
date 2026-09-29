@@ -5,8 +5,10 @@ import { Font } from 'astro:assets';
 interface Props {
   title?: string;
   description?: string;
+  carga?: boolean; // ronda 62: solo la home tiene la animación de carga (las páginas de proyectos, no)
 }
 const {
+  carga = true,
   title = 'savvia — Tu web, a la altura de lo que haces',
   description = 'Tu web, a la altura de lo que haces. savvia es el estudio web de Eric y Andoni que orquesta la IA. Desde Donostia.',
 } = Astro.props;
@@ -14,7 +16,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" data-carga={carga ? '1' : '0'}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -28,18 +30,18 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL('/og.jpg?v=50', Astro.site)} />
+    <meta property="og:image" content={new URL('/og.jpg?v=68', Astro.site)} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="savvia: el roble en acuarela bajo el titular «Tu web, a la altura de lo que haces»" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL('/og.jpg?v=50', Astro.site)} />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=53" />
+    <meta name="twitter:image" content={new URL('/og.jpg?v=68', Astro.site)} />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=68" />
     <!-- Borrador: no indexar hasta tener licencias de fuentes y visto bueno. -->
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=53" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=68" />
     <meta name="theme-color" content="#3b231b" />
     <Font cssVariable="--font-family-display" preload />
     <Font cssVariable="--font-areal" preload />
@@ -60,10 +62,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       })();
       // RONDA 39 · la tipografía de texto está a prueba (ABC Areal): ?tipo=antes enseña la pareja anterior (Manrope + IBM Plex Mono)
       if (/[?&]tipo=antes/.test(location.search)) document.documentElement.classList.add('tipo-antes');
+      // RONDA 64/68 · la transición de savia: la página nueva nace CUBIERTA de savia (html.vt-llega) y transicion.ts la escurre; salvavidas a los 3 s
+      try { var vt = +sessionStorage.getItem('savvia:vt') || 0; sessionStorage.removeItem('savvia:vt'); if (Date.now() - vt < 4000 && !matchMedia('(prefers-reduced-motion: reduce)').matches) { document.documentElement.classList.add('vt-llega'); setTimeout(function () { document.documentElement.classList.remove('vt-llega'); }, 3000); } } catch (e) {}
       // RONDA 16 · los carriles cargan SIEMPRE puestos (ya no se recuerda si se quitaron) y se trazan al posarse la carga.
       // La carga: el hero nace desplazado 100 lvh (sube desde abajo). Con movimiento reducido no hay carga. Salvavidas: si el script
       // de la carga no llegara a correr, a los 8 s el hero vuelve a su sitio.
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // RONDA 69 · «la animación de carga inicial, que solo se ejecute la primera vez»: se recuerda en este navegador (localStorage) al terminarla o saltarla;
+      // ?carga=1 la fuerza (para revisarla)
+      var cargaVista = false; try { cargaVista = localStorage.getItem('savvia:carga') === '1' && !/[?&]carga=1/.test(location.search); } catch (e) {}
+      if (document.documentElement.dataset.carga === '1' && !cargaVista && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('cargando');
         // RONDA 19: la carga la ARRANCA el visitante (mantener pulsado), así que el salvavidas ya no mira si la gota cayó: solo si el script de la carga no llegó a correr
         setTimeout(function () { if (!window.__cargaViva) document.documentElement.classList.remove('cargando'); }, 8000);
@@ -77,6 +84,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <slot />
     <script>
       import '../scripts/entradas';
+      import '../scripts/transicion';
+      import '../scripts/cta';
     </script>
     <!-- RONDA 38 · Modo revisión · Agentation (portado de la web anterior, ronda 57): Eric abre savvia.studio/?feedback=1, clica un elemento, escribe la
          nota y Agentation devuelve un markdown con el selector CSS real. Sin ?feedback=1 no se pide ni un byte a la CDN. Sin import map a propósito: los

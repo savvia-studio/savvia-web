@@ -7,36 +7,61 @@
      sigue por la que llega más abajo hasta su punta. Por él resbala la gota que despierta las tarjetas (Recorrido.astro). -->
 <div class="raices" aria-hidden="true" data-raices data-carril-fila data-eje="[[0.507,0],[0.505,0.18],[0.501,0.36],[0.497,0.52],[0.4937,0.6787],[0.5063,0.7064],[0.4984,0.7341],[0.5048,0.7618],[0.5087,0.7895],[0.5056,0.8172],[0.5095,0.8449],[0.5087,0.8726],[0.5071,0.8892]]">
   <div class="caja" data-raices-caja>
-    <img src="/media/hero-raices.webp" alt="" width="1260" height="361" decoding="async" loading="lazy" data-lamina />
+    <img alt="" width="1260" height="361" decoding="async" loading="lazy" data-lamina />
+    <script is:inline>document.currentScript.previousElementSibling.src = '/media/hero/raices-' + (document.documentElement.dataset.estacion || 'otono') + '.webp';</script>
     <canvas data-lienzo></canvas>
   </div>
 </div>
 
 <script>
   import { crearEstela, ESTACIONES_SIN_RALEO } from '../scripts/estela';
-  import { NOCHE, estacionActual } from '../scripts/estacion';
+  import { EST, NOCHE, estacionActual } from '../scripts/estacion';
   // RONDA 39 · «en el hero las raíces se sincronizan con cada estación del año y ya no aparecen en scroll, son fijas; en scroll mantenemos solo
   // la gota»: las raíces están PINTADAS desde el principio (sin frente atado al scroll) y viran con la estación de la web, con el mismo frente
   // rasgado que la copa, que aquí baja desde el cuello. Son las mismas estelas de la acuarela: viran como las hojas, pero no ralean en invierno.
   const raiz = document.querySelector<HTMLElement>('[data-raices]');
   if (raiz) {
-    const cv = raiz.querySelector<HTMLCanvasElement>('[data-lienzo]')!, img = raiz.querySelector<HTMLImageElement>('[data-lamina]')!;
+    let cv = raiz.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
+    const img = raiz.querySelector<HTMLImageElement>('[data-lamina]')!;
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // RONDA 47 · «el árbol tiene como un dithering, movimiento: ¿podemos ponerlo en las raíces también?»: `soplo` = el hervor de la copa (celdas de
-    // 3 px que saltan un píxel 12 veces por segundo, destellos en los cantos y la deriva de color lenta); `sinLuz`: bajo tierra no entran los haces.
-    const t = crearEstela(cv, img, { origen: [0.5, 0], dir: 1, soplo: true, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, origenEstacion: [0.5, 0] });
+    // RONDA 47 · `soplo` = el hervor de la copa; `sinLuz`: bajo tierra no entran los haces. RONDA 66 · la lámina de cada estación (intensidad 0: el color
+    // ya viene pintado); al cambiar, las raíces nuevas se pintan desde el cuello encima de las viejas, 0,7 s después que la copa.
+    const OPC = { origen: [0.5, 0] as [number, number], dir: 1 as const, soplo: true, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: 0 };
+    let t = crearEstela(cv, img, OPC);
     if (!t) raiz.classList.add('sin-gl');
     else {
-      let est = estacionActual(), visible = false;
+      let est = estacionActual(), visible = false, pedida = -1;
       t.crecer(1);
-      t.estacion(est); t.fondo(...NOCHE[est]);
-      new IntersectionObserver((e) => { visible = e[0].isIntersecting; t.visible(visible); }, { rootMargin: '10% 0px' }).observe(raiz);
+      t.fondo(...NOCHE[est]);
+      new IntersectionObserver((e) => { visible = e[0].isIntersecting; t?.visible(visible); }, { rootMargin: '10% 0px' }).observe(raiz);
+      const soltarLienzo = (c: HTMLCanvasElement) => { (c.getContext('webgl') || c.getContext('webgl2'))?.getExtension('WEBGL_lose_context')?.loseContext(); c.remove(); };
       addEventListener('savvia:estacion', (ev) => {
         const n = (ev as CustomEvent).detail.n as number;
         if (n === est) return;
-        est = n; t.fondo(...NOCHE[n]);
-        // el árbol se pinta desde la base del tronco (2,2 s); las raíces siguen al cuello un instante después, como si la estación bajara por ellas
-        if (visible && !reducido) setTimeout(() => t.renacer(n), 700); else t.estacion(n);
+        est = n; pedida = n;
+        const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/raices-${EST[n]}.webp`;
+        nueva.onload = () => setTimeout(() => {
+          if (pedida !== n) return;
+          const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2); // clonado: con el atributo de ámbito de Astro
+          const t2 = crearEstela(cv2, nueva, OPC);
+          if (!t2) { cv2.remove(); return; }
+          const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
+          t2.fondo(...NOCHE[n]); t2.visible(visible);
+          t2.crecer(1);
+          if (!visible || reducido) return soltarLienzo(viejo);
+          // ronda 67: se descubre con el canto rasgado desde el cuello (sin el destello de líneas), como la copa
+          let a = 0;
+          const pon = (m: string) => { cv2.style.setProperty('-webkit-mask', m); cv2.style.setProperty('mask', m); };
+          pon(`url('/media/rasgo-circulo.png') 0 0 / 0 0 no-repeat`);
+          const paso = (ahora: number) => {
+            if (!a) a = ahora;
+            const k = Math.min(1, (ahora - a) / 2600), e = k * k * (3 - 2 * k), w = cv2.offsetWidth, h = cv2.offsetHeight, S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
+            pon(`url('/media/rasgo-circulo.png') ${(w / 2 - S / 2).toFixed(1)}px ${(-S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
+            viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
+            if (k < 1) requestAnimationFrame(paso); else { pon(''); soltarLienzo(viejo); }
+          };
+          requestAnimationFrame(paso);
+        }, visible && !reducido ? 700 : 0);
       });
     }
   }
