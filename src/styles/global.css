@@ -215,6 +215,8 @@ html[data-estacion='invierno'] { --noche: #2a2932; --arbol: #6e7b91; }
 }
 
 /* Colores interpolables (Otros trabajos: el degradado de la pieza de logotipos vira de un proyecto a otro) */
+@property --rev { syntax: '<percentage>'; inherits: false; initial-value: -30%; } /* ronda 81: la aparición del «Contáctanos» */
+@property --brillo { syntax: '<number>'; inherits: true; initial-value: 0; } /* ronda 79: la luz del «Contáctanos» */
 @property --c1 { syntax: '<color>'; inherits: true; initial-value: #302018; }
 @property --c2 { syntax: '<color>'; inherits: true; initial-value: #63402f; }
 @property --c3 { syntax: '<color>'; inherits: true; initial-value: #eadde7; }

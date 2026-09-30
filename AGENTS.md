@@ -2557,10 +2557,66 @@ en mono en el pie.
   `estrenando` nunca se pone a lo largo de la entrada; la web del monitor visible al llegar (`tools/shots/r77-destacados.jpg`).
 - **Pendiente de Andoni:** Juanjo Velaz (cita y retrato); menciones de Awwwards; 3D del estudio; cal.com.
 
+### Ronda 78 · 2026-09-30 · eyebrows sin punto, heroes legibles con relevo, «Escríbenos» que brota de la tilde (en local)
+- **Andoni (textual):** «a los eyebrows les quitamos el punto» · «en más proyectos, los que van rotando: que todos los títulos se lean sobre el fondo y que al
+  cambiar entre proyectos tenga alguna animación» · «el Escríbenos del Contáctanos me gusta, pero si podemos hacer que salga de manera que parece que sale del
+  propio Contáctanos, sería top».
+- **Hecho:** · Dolores: fuera el punto del eyebrow. · Heroes: si el primer color de su web es claro (luminancia > 0,5: Amarra y Neety), el nombre va en Cacao
+  y sin sombra (clase `tinta-oscura`, la pone el relevo). RELEVO: el navegador que se va baja y se desenfoca; el nuevo SUBE desde abajo (22 %) y enfoca; el
+  nombre sale palabra a palabra por arriba y el nuevo sube desde su máscara. · «Contáctanos»: la píldora BROTA de la TILDE de la «á»: una gota de savia
+  en el acento, un hilo que sube (0–0,4 s) y en su punta la píldora se abre como una gota que se ensancha (círculo → píldora, 0,3–0,9 s); al irse, al revés.
+  El centro y la altura de la tilde los mide el JS con un Range sobre la «á».
+- **Medido:** `astro check` 0 · build OK · `spacing-lint` en escala · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio, desborde 0 · `tools/r78.cjs`
+  (Chrome 1280 y 390, WebKit 1280): los cuatro nombres capturados legibles (claros: Multiverse no, Amarra sí, Playground no, Neety sí); la gota apoyada
+  en la tilde · secuencia medida por fotograma: hilo scaleY 0 → 0,53 (128 ms) → 1 (≈500 ms); píldora circle 0 → 22 % (394 ms) → 75 % (≈1 s).
+- **Pendiente:** publicar cuando Andoni lo pida.
+
+### Ronda 79 · 2026-09-30 · «Contáctanos» se ilumina en degradado (en local)
+- **Andoni (textual):** «el contáctanos se me hace raro que se ilumine más una parte que la otra; que se ilumine como si fuera un gradiente».
+- **Hecho (`Pie.astro`, `global.css › @property --brillo`):** las dos mitades llevan el MISMO degradado radial (texto con `background-clip: text`) en la misma
+  caja: la luz nace en la tilde de la «á» (de donde brota el «Escríbenos») y se apaga hacia los extremos (78 % → 50 % → 16 % sobre la tinta tenue); --brillo
+  0 → 1 en 0,9 s la enciende. En reposo, la tinta de siempre (22 %), igual en toda la palabra.
+- **Medido:** build OK · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · capturas al pasar en Chrome y WebKit: degradado continuo entre «Contá» y
+  «ctanos».
+- **Pendiente:** publicar cuando Andoni lo pida.
+
+### Ronda 80 · 2026-09-30 · el ticket sin «0 €», la librería como mensaje a la IA y la PUERTA del «Contáctanos» (en local)
+- **Andoni (textual):** «en la receta, quitamos lo de 0 €» · «el botón a la librería, que parezca el típico de mandar un mensaje a la IA» · «el Contáctanos al hacer
+  hover: la iluminación entre Contá y el resto queda rara, más progresiva y natural» · «el Escríbenos, que salga como una extensión del Contáctanos, como si
+  fuera una puerta o algo así, relacionado con savvia».
+- **Hecho:** · Ticket: fuera «Lavado de cara ..... 0 €» (y su tachado). · Librería: un cuadro de chat («✦ Enséñame la librería de Neety») con el botón redondo de
+  enviar (flecha hacia arriba; al pasar, Coral y sube). · «Contáctanos»: la luz sale de ARRIBA, de la puerta, en un degradado ancho de cinco pasos (1,2 s)
+  igual en las dos mitades. LA PUERTA: la tilde de la «á» es la bisagra; al pasar se traza una línea de savia sobre ella, la puerta GIRA hacia arriba sobre
+  su borde de abajo (rotateX −96° → 0, 0,2–0,8 s) y se LLENA DE SAVIA desde la bisagra (0,5–1,2 s); el texto pasa a Cacao. Al irse: se vacía, se cierra y la
+  línea se recoge. (Trampa: el minificador fundía `translate` con `transform` y perdía el desplazamiento: todo dentro de `transform`.)
+- **Medido:** `astro check` 0 · `spacing-lint` en escala · build OK · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · `tools/r80.cjs` (Chrome y WebKit):
+  sin «€» en la receta; apertura medida por fotograma (giro 342 ms → 0,76, 675 ms → 1; llenado 675 ms → 69 %, 1 s → 99 %); la puerta apoyada sobre la tilde.
+- **Pendiente:** publicar cuando Andoni lo pida.
+
+### Ronda 81 · 2026-09-30 · heroes en tira, «Contáctanos» en degradado y que aparece, Eric y Andoni tras la puerta, raíces por estación (en local)
+- **Andoni (textual):** 1 «En más proyectos no me gusta cómo rotan; una animación más fluida» · 2 «el Contá se sigue iluminando más que el actanos: que sea un
+  gradiente de izquierda a derecha, a la izquierda más iluminado y a la derecha menos; y cuando aparece el footer el Contáctanos aparece de golpe, tiene que
+  salir más orgánico» · 3 «en vez de Escríbenos, que es lo mismo que Contáctanos, que salgamos Eric y yo diciendo haz clic para agendar una reunión con
+  nosotros» · 4 «las raíces del hero ahora no se ajustan con la estación».
+- **Hecho:** · 1 · los heroes van en TIRA: el que está sale por la izquierda y el siguiente entra por la derecha a la vez (1,4 s, curva lenta de entrada y
+  salida), sin desenfoque; el nombre sale por arriba y el nuevo sube; el degradado vira con la misma curva; cada 4,6 s. · 2 · la luz del hover es un
+  degradado LINEAL de izquierda (plena) a derecha (poco más que la tinta de reposo) sobre la palabra entera; la mitad de detrás lleva un 18 % más (las
+  montañas la apagan) para que no haya escalón en «á|c». APARICIÓN: las letras se descubren de izquierda a derecha con canto blando (máscara, --rev) y salen
+  del desenfoque en 2,2–2,6 s; la mitad de detrás, 0,3 s después; la copia iluminada por el haz entra al final (antes la máscara de aparición sustituía a la
+  del haz y la copia cubría la palabra entera). · 3 · tras la puerta, las CARAS de Eric y Andoni (se asoman al abrirse) y «Haz clic para agendar una reunión
+  con nosotros» (hoy el enlace sigue yendo al correo: falta el cal.com). · 4 · medido: las raíces salían del MISMO marrón rojizo en las cuatro estaciones
+  mientras la copa se nevaba, florecía o reverdecía; ahora el motor tiñe la raíz en el color de la estación (invierno 0,8 · primavera 0,65 · verano 0,5;
+  otoño, la lámina tal cual).
+- **Medido:** `astro check` 0 · `spacing-lint` en escala · build OK · `tools/verify.cjs` en / y /proyectos (Chrome y WebKit, 1280 y 390) limpio · capturas de las
+  raíces en las cuatro estaciones (antes y después) · posición de los heroes por fotograma: el que sale 70 → −308 px y el que entra 447 → 70 px a la vez · la
+  aparición del «Contáctanos» a 0,3 / 0,9 / 1,6 / 3 s · la puerta con las caras en Chrome y WebKit.
+- **Pendiente:** el enlace de cal.com (la puerta ya dice «agendar»); publicar cuando Andoni lo pida.
+
 ## Rechazado — añadidos de la ronda 77 (NO VOLVER)
 - La pantalla de carga al llegar a Proyectos destacados (rondas 68–76).
 - El reel como pieza de «Más proyectos» (ronda 76) y el teléfono de Remerge sobre su amarillo (ronda 76).
 - El «Contáctanos» que se recogía en un CTA de cristal al pasar (rondas 67–76): «parece que se rompe».
+- La luz del «Contáctanos» más fuerte en una mitad que en la otra (ronda 77) y la píldora que brotaba de un hilo (ronda 78): ahora, una puerta.
 - «Orquestamos tu web con IA.» en el H1 (ronda 76).
 
 ## Rechazado — añadidos de la ronda 76 (NO VOLVER)

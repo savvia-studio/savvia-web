@@ -25,6 +25,8 @@ import { proyectos as OBRA } from '../data/proyectos';
 // RONDA 77 · Andoni: «donde estaban los logos pusimos el reel, pero prefiero HEROES que van rotando con el estilo del resto, rotando entre varios»: la
 // pieza de entrada es una pieza de marca más (degradado de su web + navegador que asoma), que rota entre los heroes de los destacados
 const HEROES = ['multiverse', 'amarra', 'playground', 'neety'].map((slug) => OBRA.find((o) => o.slug === slug)!).filter(Boolean);
+// RONDA 78 · «que todos los títulos se lean sobre el fondo»: si el fondo de su web es claro (luminancia relativa del primer color > 0,5), el nombre va en Cacao
+const claro = (hex: string) => { const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5; };
 const A = proyectos.anteriores;
 const CELDAS = proyectos.celdas, T = proyectos.testimonios;
 // RONDA 76 · «los logos, más grandes y proporcionales cada uno a su logo»: mismo PESO ÓPTICO para todos (área constante): ancho ∝ √proporción,
@@ -105,14 +107,14 @@ function escenaQuad(k: string) {
            logotipos se relevan fundiéndose como gotas (filtro gooey solo durante el relevo: en reposo el logotipo se ve limpio) y el degradado
            de detrás vira a los colores de cada proyecto (@property: los colores se interpolan). -->
       <div class="pieza entrada mancha" data-pieza style={`--i:0;--giro:5deg`}>
-        <a class="lamina g-marca rota" href="/proyectos" aria-label="Ver todos los proyectos" data-rota data-colores={JSON.stringify(HEROES.map((h) => h.colores))} style={`--c1:${HEROES[0].colores[0]};--c2:${HEROES[0].colores[1]};--c3:${HEROES[0].colores[2]}`}>
+        <a class={`lamina g-marca rota ${claro(HEROES[0].colores[0]) ? 'tinta-oscura' : ''}`} href="/proyectos" aria-label="Ver todos los proyectos" data-rota data-claros={JSON.stringify(HEROES.map((h) => claro(h.colores[0])))} data-colores={JSON.stringify(HEROES.map((h) => h.colores))} style={`--c1:${HEROES[0].colores[0]};--c2:${HEROES[0].colores[1]};--c3:${HEROES[0].colores[2]}`}>
           {HEROES.map((h, i) => (
             <div class={`mockup heroe ${i === 0 ? 'on' : ''}`} data-heroe>
               <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{h.dominio ?? h.slug}</b></span>
               <img src={`/media/obra/${h.slug}/portada.jpg`} alt={`Portada de la web de ${h.nombre}`} width="1440" height="810" loading="lazy" decoding="async" />
             </div>
           ))}
-          <h3 class="nombre font-display" aria-live="off">{HEROES.map((h, i) => <span class={i === 0 ? 'on' : ''} data-heroe-n>{h.nombre}</span>)}</h3>
+          <h3 class="nombre font-display" aria-live="off">{HEROES.map((h, i) => <span class={i === 0 ? 'on' : ''} data-heroe-n>{h.nombre.split(' ').map((p) => <span class="pal"><span>{p}</span></span>)}</span>)}</h3>
         </a>
         <p class="pie text-aux text-fg2 mt-4">{proyectos.intro2}</p>
       </div>
@@ -395,13 +397,18 @@ function escenaQuad(k: string) {
   // la casa) y el degradado vira a los colores de su web (@property --c1…3)
   const rota = document.querySelector<HTMLElement>('[data-rota]');
   if (rota && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const hs = [...rota.querySelectorAll<HTMLElement>('[data-heroe]')], ns = [...rota.querySelectorAll<HTMLElement>('[data-heroe-n]')], colores: string[][] = JSON.parse(rota.dataset.colores!);
+    const hs = [...rota.querySelectorAll<HTMLElement>('[data-heroe]')], ns = [...rota.querySelectorAll<HTMLElement>('[data-heroe-n]')], colores: string[][] = JSON.parse(rota.dataset.colores!), claros: boolean[] = JSON.parse(rota.dataset.claros!);
     let k = 0, reloj = 0;
+    // RONDA 78 · «al cambiar entre proyectos, que tenga alguna animación»: el navegador que se va se hunde y se desenfoca; el nuevo SUBE desde abajo a su
+    // sitio (como entran las piezas); el nombre sale palabra a palabra por arriba y el nuevo sube desde su máscara (el gesto de los titulares)
     const sig = () => {
-      hs[k].classList.remove('on'); ns[k].classList.remove('on'); k = (k + 1) % hs.length; hs[k].classList.add('on'); ns[k].classList.add('on');
+      const va = k; hs[va].classList.remove('on'); hs[va].classList.add('sale'); ns[va].classList.remove('on'); ns[va].classList.add('sale');
+      setTimeout(() => { hs[va].classList.remove('sale'); ns[va].classList.remove('sale'); }, 1500);
+      k = (k + 1) % hs.length; hs[k].classList.add('on'); ns[k].classList.add('on');
       colores[k].forEach((c, i) => rota.style.setProperty(`--c${i + 1}`, c));
+      rota.classList.toggle('tinta-oscura', claros[k]);
     };
-    new IntersectionObserver((e) => { clearInterval(reloj); if (e[0].isIntersecting) reloj = window.setInterval(sig, 4200); }, { threshold: 0.3 }).observe(rota);
+    new IntersectionObserver((e) => { clearInterval(reloj); if (e[0].isIntersecting) reloj = window.setInterval(sig, 4600); }, { threshold: 0.3 }).observe(rota);
   }
 </script>
 
@@ -625,14 +632,27 @@ function escenaQuad(k: string) {
     place-items: center;
   }
   .entrada .lamina { display: block; }
-  /* los que no están, fuera (con !important: la entrada de las piezas, html.anima .pieza.visto .mockup, pone opacidad 1 a todos los navegadores) */
-  .heroe { transition: opacity 0.9s ease 0.25s, filter 1.1s ease 0.25s, translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo); }
-  .heroe:not(.on) { opacity: 0 !important; filter: blur(14px) !important; transition-delay: 0s; }
+  /* los que no están, fuera (con !important: la entrada de las piezas, html.anima .pieza.visto .mockup, pone opacidad y posición a todos los navegadores).
+     RONDA 78 · el relevo: el nuevo sube desde abajo (18 %) y enfoca; el que se va baja un poco y se desenfoca */
+  /* RONDA 81 · Andoni: «no me gusta cómo rotan; una animación más fluida»: sin desenfoque ni saltos. Los navegadores van en FILA, como una tira que avanza:
+     el que está se desliza hacia la izquierda y el siguiente entra por la derecha a la vez, con la misma curva lenta (1,4 s, entrada y salida suaves) */
+  .heroe { transition: translate 1.4s cubic-bezier(0.65, 0, 0.35, 1), opacity 1.4s ease, rotate 0.9s var(--ease-out-expo); }
+  .heroe:not(.on) { translate: 115% 0 !important; opacity: 0 !important; transition: none; }
+  .heroe.sale { translate: -115% 0 !important; opacity: 0.4 !important; transition: translate 1.4s cubic-bezier(0.65, 0, 0.35, 1), opacity 1.4s ease; }
+  .heroe.on { opacity: 1 !important; translate: 0 0 !important; }
   .heroe img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 0; }
-  .entrada .nombre { display: grid; }
-  .entrada .nombre span { grid-area: 1 / 1; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.9s ease; }
-  .entrada .nombre span.on { opacity: 1; filter: none; transition-delay: 0.3s; }
-  .rota { transition: --c1 1.4s ease, --c2 1.4s ease, --c3 1.4s ease; }
+  .entrada .nombre { display: grid; transition: color 0.8s ease; }
+  .entrada .nombre > span { grid-area: 1 / 1; }
+  .entrada .pal { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-right: 0.25em; }
+  .entrada .pal > span { display: inline-block; translate: 0 110%; transition: translate 1.1s cubic-bezier(0.65, 0, 0.35, 1); }
+  .entrada .nombre > span.on .pal > span { translate: 0 0; transition-delay: calc(0.25s + var(--n, 0) * 0.06s); }
+  .entrada .nombre > span.sale .pal > span { translate: 0 -110%; transition: translate 0.9s cubic-bezier(0.65, 0, 0.35, 1); }
+  .entrada .nombre .pal:nth-child(2) > span { --n: 1; }
+  .entrada .nombre .pal:nth-child(3) > span { --n: 2; }
+  /* sobre el fondo claro de su web (Playground, Neety…), el nombre en Cacao y sin sombra */
+  .rota.tinta-oscura .nombre { color: var(--color-cacao); text-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { .entrada .pal > span { translate: none !important; } }
+  .rota { transition: --c1 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c2 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c3 1.4s cubic-bezier(0.65, 0, 0.35, 1); }
   @media (width >= 64rem) {
     .mosaico {
       grid-template-columns: repeat(12, minmax(0, 1fr));

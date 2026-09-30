@@ -26,8 +26,12 @@
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     // RONDA 47 · `soplo` = el hervor de la copa; `sinLuz`: bajo tierra no entran los haces. RONDA 66 · la lámina de cada estación (intensidad 0: el color
     // ya viene pintado); al cambiar, las raíces nuevas se pintan desde el cuello encima de las viejas, 0,7 s después que la copa.
-    const OPC = { origen: [0.5, 0] as [number, number], dir: 1 as const, soplo: true, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: 0 };
-    let t = crearEstela(cv, img, OPC);
+    // RONDA 81 · Andoni: «las raíces del hero ahora no se ajustan con la estación» (medido: las cuatro salían del mismo marrón rojizo mientras la copa se
+    // nieva, florece o reverdece). Ahora el motor tiñe la raíz en el color de la estación, más suave que la copa (en otoño, la lámina tal cual)
+    const TINTE = [0, 0.8, 0.65, 0.5]; // otoño · invierno · primavera · verano
+    const OPC = (n: number) => ({ origen: [0.5, 0] as [number, number], dir: 1 as const, soplo: true, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: TINTE[n] });
+    let t = crearEstela(cv, img, OPC(estacionActual()));
+    t?.estacion(estacionActual());
     if (!t) raiz.classList.add('sin-gl');
     else {
       let est = estacionActual(), visible = false, pedida = -1;
@@ -43,8 +47,9 @@
         nueva.onload = () => setTimeout(() => {
           if (pedida !== n) return;
           const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2); // clonado: con el atributo de ámbito de Astro
-          const t2 = crearEstela(cv2, nueva, OPC);
+          const t2 = crearEstela(cv2, nueva, OPC(n));
           if (!t2) { cv2.remove(); return; }
+          t2.estacion(n);
           const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
           t2.fondo(...NOCHE[n]); t2.visible(visible);
           t2.crecer(1);

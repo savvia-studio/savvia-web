@@ -157,9 +157,9 @@ export const receta = {
       paso: 'la cuenta',
       t: 'ticket',
       raya: '.......................',
-      lineas: ['Web a medida ..... hecha', 'Cada decisión .. escrita', 'Tu IA ...... con arnés', 'Tu equipo ..... al mando', '', 'Lavado de cara ..... 0 €', '', '   gracias por venir'],
-      marcas: [[5, 'tacha'], [2, 'circulo']],
-      digital: { tipo: 'boton', txt: 'Ver la librería de Neety', href: 'https://neety.treseiscero.app/library' },
+      lineas: ['Web a medida ..... hecha', 'Cada decisión .. escrita', 'Tu IA ...... con arnés', 'Tu equipo ..... al mando', '', '   gracias por venir'], // ronda 80: fuera «Lavado de cara ..... 0 €»
+      marcas: [[2, 'circulo']],
+      digital: { tipo: 'boton', txt: 'Enséñame la librería de Neety', href: 'https://neety.treseiscero.app/library' }, // ronda 80: un mensaje a la IA
     },
   ] as { paso: string; t: string; raya: string; lineas: string[]; marcas: [number, string][]; digital: { tipo: string; txt: string; fin?: string; cab?: string; href?: string; colores?: string[]; filas?: string[][]; pasos?: string[] } }[],
 };

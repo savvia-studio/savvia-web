@@ -55,9 +55,10 @@ const [antes, despues] = pie.tagline.split('savia');
         </div>
         {i === 1 && <span class="contacta contacta-tras font-display" aria-hidden="true" data-contacta-tras><span>Contáctanos</span><span class="contacta-luz" data-contacta-luz>Contáctanos</span></span>}
         {i === 2 && (
-          <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`Contáctanos · ${pie.cal ? 'agenda una llamada' : pie.correo}`} data-contacta>
+          <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`Contáctanos · agenda una reunión con Eric y Andoni${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
             <span data-contacta-txt>Contáctanos</span>
-            <span class="cta-pastilla" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg>{pie.cal ? 'Agenda una llamada' : 'Escríbenos'}</span>
+            <span class="cta-hilo" aria-hidden="true"></span>
+            <span class="cta-pastilla" aria-hidden="true"><span class="cta-caras"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /></span><span class="cta-dice">Haz clic para agendar una reunión con nosotros</span></span>
             <span class="contacta-luz" aria-hidden="true" data-contacta-luz>Contáctanos</span>
           </a>
         )}
@@ -112,6 +113,12 @@ const [antes, despues] = pie.tagline.split('savia');
       const rg = document.createRange(); rg.setStart(n, 0); rg.setEnd(n, PARTE);
       const rt = texto.getBoundingClientRect(), x = rg.getBoundingClientRect().right - rt.left;
       contacta.style.setProperty('--corte', `${x.toFixed(1)}px`); tras.style.setProperty('--corte', `${x.toFixed(1)}px`);
+      // RONDA 78 · el «Escríbenos» BROTA de la tilde de la «á»: su centro y la altura de la línea de mayúsculas (el acento queda justo encima)
+      const ra = document.createRange(); ra.setStart(n, 4); ra.setEnd(n, 5);
+      const r4 = ra.getBoundingClientRect(), fs = parseFloat(contacta.style.fontSize) || 100;
+      const ax = `${(r4.left + r4.width * 0.56 - rt.left).toFixed(1)}px`, ay = `${(r4.top - rt.top + r4.height * 0.5 - fs * 0.36).toFixed(1)}px`;
+      const ab = `${(r4.top - rt.top + r4.height * 0.5 - fs * 0.39).toFixed(1)}px`; // la bisagra de la puerta: justo encima de la tilde (que se sigue viendo)
+      [contacta, tras].forEach((e) => { e.style.setProperty('--ax', ax); e.style.setProperty('--ay', ay); e.style.setProperty('--ab', ab); }); // las dos mitades: la misma luz, en el mismo sitio
     };
     document.fonts.ready.then(() => requestAnimationFrame(partir)); addEventListener('resize', () => requestAnimationFrame(partir));
     // RONDA 67 · el CTA: al pasar (o enfocar) la palabra entera se convierte en el CTA de cristal; con el dedo, el primer toque la convierte y el segundo va
@@ -468,7 +475,7 @@ const [antes, despues] = pie.tagline.split('savia');
     opacity: 0; /* ronda 29: sale DESPUÉS de que el paisaje se haya pintado */
     white-space: nowrap;
     pointer-events: none;
-    transition: color 0.5s ease, opacity 1.6s ease, clip-path 0.9s var(--ease-out-expo);
+    transition: color 0.5s ease, opacity 0.8s ease, clip-path 0.9s var(--ease-out-expo);
   }
   .contacta-tras {
     z-index: 0; /* antes que los montes en el DOM: las montañas la tapan */
@@ -480,9 +487,23 @@ const [antes, despues] = pie.tagline.split('savia');
     text-decoration: none;
   }
   /* la tenuidad va en el COLOR (no en la opacidad del bloque): así la copia iluminada puede brillar más que la palabra */
+  /* RONDA 81 · «cuando aparece el footer, el Contáctanos aparece de golpe: que salga más orgánico»: se DESCUBRE de izquierda a derecha con un canto blando
+     (--rev, máscara) mientras sale del desenfoque, en 2,6 s; la mitad de detrás, un poco después (asoma tras las montañas) */
   .pintado .contacta { opacity: 1; }
+  /* (solo las LETRAS: la máscara sobre el enlace recortaría la puerta, que sobresale por arriba) */
   .contacta-tras > span:first-child,
-  .contacta [data-contacta-txt] { color: color-mix(in oklab, var(--color-niebla) 22%, transparent); transition: color 0.5s ease; }
+  .contacta-delante [data-contacta-txt] {
+    --rev: -30%;
+    filter: blur(14px);
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--rev) - 30%), transparent var(--rev));
+    mask-image: linear-gradient(90deg, #000 calc(var(--rev) - 30%), transparent var(--rev));
+    transition: --brillo 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) 0.25s, filter 2.2s cubic-bezier(0.22, 0.61, 0.36, 1), --rev 2.6s cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  .pintado .contacta-tras > span:first-child,
+  .pintado .contacta-delante [data-contacta-txt] { --rev: 130%; filter: blur(0); }
+  /* la copia iluminada por el haz entra cuando la palabra ya se ha descubierto */
+  .contacta .contacta-luz { opacity: 0; transition: opacity 1.2s ease 1.6s; }
+  .pintado .contacta .contacta-luz { opacity: 1; }
 
   .pintado .contacta-delante { pointer-events: auto; cursor: pointer; }
   /* RONDA 67 · delante de TODO (también de la hierba, z 3) va «Contá»; la de detrás, entre los árboles y la hierba (como antes de la ronda 66) */
@@ -494,18 +515,58 @@ const [antes, despues] = pie.tagline.split('savia');
   .contacta-delante { clip-path: none !important; }
   .contacta-delante [data-contacta-txt],
   .contacta-delante .contacta-luz { clip-path: inset(-40% calc(100% - var(--corte, 50%)) -10% -10%); }
-  .contacta-delante { transition: opacity 1.6s ease; }
-  .cta-abierto .contacta-delante [data-contacta-txt] { color: var(--color-niebla); }
-  .cta-abierto .contacta-tras > span:first-child { color: color-mix(in oklab, var(--color-niebla) 75%, transparent); }
+  /* RONDA 79 · Andoni: «se me hace raro que se ilumine más una parte que la otra: que se ilumine como un gradiente». Las dos mitades llevan el MISMO
+     degradado en la misma caja: una luz que nace en la tilde de la «á» (de donde brota el «Escríbenos») y se apaga hacia los extremos; --brillo (0 → 1)
+     la enciende. En reposo, la tinta tenue de siempre (22 %), igual en toda la palabra. */
+  /* la mitad de detrás pasa tras las montañas, que la apagan: un poco más de luz para que el degradado se lea continuo en «á|c» */
+  .contacta-tras > span:first-child { display: block; --mas: 18%; }
+  .contacta-tras > span:first-child,
+  .contacta [data-contacta-txt] {
+    color: transparent;
+    /* RONDA 81 · Andoni: «el Contá se sigue iluminando más que el resto; que sea un degradado de izquierda a derecha: a la izquierda más iluminado y a la
+       derecha menos». Un degradado LINEAL sobre la palabra entera (las dos mitades comparten caja, así que es continuo): de la luz plena a la izquierda a
+       poco más que la tinta de reposo a la derecha */
+    background: linear-gradient(90deg,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (78% + var(--mas, 0%))), transparent) 0%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (62% + var(--mas, 0%))), transparent) 30%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (44% + var(--mas, 0%))), transparent) 55%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (28% + var(--mas, 0%))), transparent) 80%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (18% + var(--mas, 0%))), transparent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    transition: --brillo 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) 0.25s, filter 2.2s cubic-bezier(0.22, 0.61, 0.36, 1), --rev 2.6s cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  .contacta-tras > span:first-child { transition-delay: 0.25s, 0.3s, 0.3s; }
+  .cta-abierto .contacta-tras > span:first-child,
+  .cta-abierto .contacta [data-contacta-txt] { --brillo: 1; }
+  /* RONDA 80 · Andoni: «el Escríbenos, que salga como una extensión del Contáctanos, como si fuera una PUERTA; relacionado con savvia». La tilde de la «á»
+     es la BISAGRA (--ax, --ay: su centro, lo mide el JS): al pasar, una línea de savia se traza sobre ella (el marco) y desde ahí la puerta se ABRE hacia
+     arriba (gira sobre su borde de abajo) y se LLENA DE SAVIA desde la bisagra, como la gota que sube; la luz de la palabra sale de esa puerta. Al irse,
+     se vacía, se cierra y el marco se recoge. */
+  .cta-hilo {
+    position: absolute;
+    left: var(--ax, 50%);
+    top: var(--ab, 0px);
+    width: 14rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-coral);
+    transform: translate(-50%, -1px) scaleX(0); /* translate dentro de transform: el minificador fundía las dos propiedades y perdía el desplazamiento */
+    transition: transform 0.35s cubic-bezier(0.5, 0, 0.75, 0) 0.35s;
+    pointer-events: none;
+  }
+  .cta-abierto .cta-hilo { transform: translate(-50%, -1px) scaleX(1); transition: transform 0.45s var(--ease-out-expo); }
   .cta-pastilla {
     position: absolute;
-    left: 50%;
-    bottom: calc(100% + var(--spacing) * 2);
+    left: var(--ax, 50%);
+    top: var(--ab, 0px);
     display: inline-flex;
     align-items: center;
-    gap: calc(var(--spacing) * 2);
-    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 5) calc(var(--spacing) * 2) calc(var(--spacing) * 4);
-    border-radius: var(--radius-full);
+    justify-content: center;
+    gap: calc(var(--spacing) * 3);
+    width: max-content;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 5) calc(var(--spacing) * 2) calc(var(--spacing) * 2);
+    border-radius: 16px 16px 2px 2px;
     background: color-mix(in oklab, var(--color-niebla) 14%, transparent);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 24%, transparent);
     -webkit-backdrop-filter: blur(16px);
@@ -517,13 +578,35 @@ const [antes, despues] = pie.tagline.split('savia');
     line-height: 1.2;
     letter-spacing: 0;
     white-space: nowrap;
+    isolation: isolate;
+    overflow: hidden;
+    transform-origin: 50% 100%;
+    transform: translate(-50%, -100%) perspective(520px) rotateX(-96deg);
     opacity: 0;
-    translate: -50% 10px;
     pointer-events: none;
-    transition: opacity 0.4s ease, translate 0.6s var(--ease-out-expo), background-color 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.5, 0, 0.75, 0) 0.15s, opacity 0.2s ease 0.45s, color 0.3s ease;
   }
-  .cta-pastilla svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .cta-abierto .cta-pastilla { opacity: 1; translate: -50% 0; }
+  /* la savia que llena la puerta desde la bisagra */
+  .cta-pastilla::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-coral);
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.3s ease;
+  }
+  /* RONDA 81 · Andoni: «en vez de Escríbenos, que es lo mismo que Contáctanos, que salgamos Eric y yo diciendo: haz clic para agendar una reunión con
+     nosotros»: tras la puerta, las dos caras (se asoman al abrirse) y lo que dicen */
+  .cta-caras { display: flex; flex: none; }
+  .cta-caras img { width: 2.25rem; height: 2.25rem; border-radius: 50%; object-fit: cover; background: var(--color-nogal); box-shadow: 0 0 0 2px var(--color-coral); translate: 0 60%; opacity: 0; transition: translate 0.3s ease, opacity 0.2s ease; }
+  .cta-caras img + img { margin-left: calc(var(--spacing) * -2); }
+  .cta-abierto .cta-caras img { translate: 0 0; opacity: 1; transition: translate 0.7s var(--ease-out-expo) 0.7s, opacity 0.4s ease 0.7s; }
+  .cta-abierto .cta-caras img + img { transition-delay: 0.8s; }
+  .cta-dice { max-width: 15rem; white-space: normal; text-wrap: balance; }
+  .cta-abierto .cta-pastilla { transform: translate(-50%, -100%) perspective(520px) rotateX(0deg); opacity: 1; color: var(--color-cacao); transition: transform 0.8s var(--ease-out-expo) 0.2s, opacity 0.15s ease 0.2s, color 0.4s ease 0.75s; }
+  .cta-abierto .cta-pastilla::before { clip-path: inset(0 0 0 0); transition: clip-path 0.8s var(--ease-out-expo) 0.5s; }
+  @media (prefers-reduced-motion: reduce) { .cta-hilo, .cta-pastilla, .cta-pastilla::before { transition: none !important; } }
   .cta-abierto .contacta-delante .contacta-luz { opacity: 0; }
   /* la LUZ sobre la palabra: una copia en luz cálida recortada a la banda del haz (--bt: su posición en el eje del degradado; --bw: su ancho) */
   .contacta-luz {

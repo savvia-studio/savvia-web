@@ -402,7 +402,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
   .rama.sin-gl img { opacity: 0.35; filter: grayscale(1); }
   .sana .rama.sin-gl img { filter: none; opacity: 0.6; }
   /* RONDA 77 · Andoni: «los problemas se tienen que ver más como un eyebrow» (petición expresa: «eyebrows encima de titulares» estaba en lo rechazado):
-     el dolor, en mono pequeño con un punto de savia, encima de la respuesta, que es el titular */
+     el dolor, en mono pequeño (ronda 78: sin el punto), encima de la respuesta, que es el titular */
   .dolor {
     display: flex;
     align-items: baseline;
@@ -410,15 +410,6 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     font-family: var(--font-mono);
     color: var(--fg);
     transition: color 0.9s ease 0.2s;
-  }
-  .dolor::before {
-    content: '';
-    flex: none;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-coral);
-    translate: 0 -1px;
   }
   /* resuelto: el dolor se apaga y la respuesta sube desde el desenfoque */
   .sana .dolor { color: var(--fg2); }
