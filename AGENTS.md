@@ -2534,7 +2534,7 @@ en mono en el pie.
   mención de Awwwards (hoy sin nombrar); «el 3D del estudio, mejorarlo» (hacen falta modelos o fotos nuevas de los dos); el copy de «Hemos hecho la web de»
   (alternativa: «Su web es nuestra»); el enlace de cal.com.
 
-### Ronda 77 · 2026-09-30 · eyebrows, destacados directos, «Ver caso de estudio» en texto, heroes que rotan, «Contáctanos» estable · PUBLICADA
+### Ronda 77 · 2026-09-30 · eyebrows, destacados directos, «Ver caso de estudio» en texto, heroes que rotan, «Contáctanos» estable · PUBLICADA (con la 76, commit 5732beb; verificada en vivo: Chrome y WebKit, 1280 y 390, limpia, desborde 0; sigue noindex)
 - **Andoni (textual):** «Los problemas se tienen que ver más como un eyebrow» · «Cuando llegas a proyectos destacados quitamos la animación de carga, que salgan
   directamente los proyectos» · «En vista en detalle, el botón de ver case study, sin card: que sea solo texto» · «Más proyectos: fuera el botón de ver todos
   los proyectos; donde estaban los logos pusimos el reel pero prefiero heros que van rotando con el estilo del resto, rotando entre varios» · «El botón de
