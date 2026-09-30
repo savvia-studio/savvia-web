@@ -2610,7 +2610,10 @@ en mono en el pie.
 - **Medido:** `astro check` 0 · `spacing-lint` en escala · build OK · `tools/verify.cjs` en / y /proyectos (Chrome y WebKit, 1280 y 390) limpio · capturas de las
   raíces en las cuatro estaciones (antes y después) · posición de los heroes por fotograma: el que sale 70 → −308 px y el que entra 447 → 70 px a la vez · la
   aparición del «Contáctanos» a 0,3 / 0,9 / 1,6 / 3 s · la puerta con las caras en Chrome y WebKit.
-- **Pendiente:** el enlace de cal.com (la puerta ya dice «agendar»); publicar cuando Andoni lo pida.
+- **PUBLICADA (30/09)** con las rondas 78–80 (commit `9104d05`, Andoni: «publica ya»). Verificada EN VIVO: `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse
+  (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 (una primera pasada de la home pilló el despliegue a medias: HTML nuevo con sus archivos aún en 404;
+  a los 20 s, limpio). Sigue `noindex`.
+- **Pendiente:** el enlace de cal.com (la puerta ya dice «agendar»).
 
 ## Rechazado — añadidos de la ronda 77 (NO VOLVER)
 - La pantalla de carga al llegar a Proyectos destacados (rondas 68–76).
