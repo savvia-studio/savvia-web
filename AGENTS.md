@@ -2569,7 +2569,7 @@ en mono en el pie.
 - **Medido:** `astro check` 0 · build OK · `spacing-lint` en escala · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio, desborde 0 · `tools/r78.cjs`
   (Chrome 1280 y 390, WebKit 1280): los cuatro nombres capturados legibles (claros: Multiverse no, Amarra sí, Playground no, Neety sí); la gota apoyada
   en la tilde · secuencia medida por fotograma: hilo scaleY 0 → 0,53 (128 ms) → 1 (≈500 ms); píldora circle 0 → 22 % (394 ms) → 75 % (≈1 s).
-- **Pendiente:** publicar cuando Andoni lo pida.
+- **PUBLICADA (30/09)** a petición de Andoni («sí, publícalo»).
 
 ### Ronda 79 · 2026-09-30 · «Contáctanos» se ilumina en degradado (en local)
 - **Andoni (textual):** «el contáctanos se me hace raro que se ilumine más una parte que la otra; que se ilumine como si fuera un gradiente».
@@ -2578,7 +2578,7 @@ en mono en el pie.
   0 → 1 en 0,9 s la enciende. En reposo, la tinta de siempre (22 %), igual en toda la palabra.
 - **Medido:** build OK · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · capturas al pasar en Chrome y WebKit: degradado continuo entre «Contá» y
   «ctanos».
-- **Pendiente:** publicar cuando Andoni lo pida.
+- **PUBLICADA (30/09)** a petición de Andoni («sí, publícalo»).
 
 ### Ronda 80 · 2026-09-30 · el ticket sin «0 €», la librería como mensaje a la IA y la PUERTA del «Contáctanos» (en local)
 - **Andoni (textual):** «en la receta, quitamos lo de 0 €» · «el botón a la librería, que parezca el típico de mandar un mensaje a la IA» · «el Contáctanos al hacer
@@ -2591,7 +2591,7 @@ en mono en el pie.
   línea se recoge. (Trampa: el minificador fundía `translate` con `transform` y perdía el desplazamiento: todo dentro de `transform`.)
 - **Medido:** `astro check` 0 · `spacing-lint` en escala · build OK · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · `tools/r80.cjs` (Chrome y WebKit):
   sin «€» en la receta; apertura medida por fotograma (giro 342 ms → 0,76, 675 ms → 1; llenado 675 ms → 69 %, 1 s → 99 %); la puerta apoyada sobre la tilde.
-- **Pendiente:** publicar cuando Andoni lo pida.
+- **PUBLICADA (30/09)** a petición de Andoni («sí, publícalo»).
 
 ### Ronda 81 · 2026-09-30 · heroes en tira, «Contáctanos» en degradado y que aparece, Eric y Andoni tras la puerta, raíces por estación (en local)
 - **Andoni (textual):** 1 «En más proyectos no me gusta cómo rotan; una animación más fluida» · 2 «el Contá se sigue iluminando más que el actanos: que sea un
@@ -2614,6 +2614,14 @@ en mono en el pie.
   (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 (una primera pasada de la home pilló el despliegue a medias: HTML nuevo con sus archivos aún en 404;
   a los 20 s, limpio). Sigue `noindex`.
 - **Pendiente:** el enlace de cal.com (la puerta ya dice «agendar»).
+
+### Ronda 82 · 2026-09-30 · el nombre anterior que reaparecía en los heroes (en local)
+- **Andoni (textual):** «en más proyectos, cuando cambian los proyectos parece que hay un minibug con el titular anterior que se vuelve a ver».
+- **Causa:** al quitar `.sale` (1,5 s después del relevo), las palabras del nombre anterior volvían a su sitio de espera (abajo) con la transición de 1,1 s y
+  cruzaban la máscara. **Hecho:** el regreso es instantáneo; solo se animan la entrada (`.on`) y la salida (`.sale`).
+- **Medido:** sonda por fotograma durante 14 s (tres relevos): palabras de un nombre que no es el activo ni el que sale, dentro de su máscara → publicada 21
+  fotogramas, local 0.
+- **PUBLICADA (30/09)** a petición de Andoni («sí, publícalo»).
 
 ## Rechazado — añadidos de la ronda 77 (NO VOLVER)
 - La pantalla de carga al llegar a Proyectos destacados (rondas 68–76).
