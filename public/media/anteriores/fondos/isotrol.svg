@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" preserveAspectRatio="xMidYMid slice">
+  <!-- Isotrol · el atardecer con aerogeneradores de su propia portada (renovables), redibujado en silueta con sus tonos -->
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1a21"/>
+      <stop offset="0.45" stop-color="#4a423f"/>
+      <stop offset="0.7" stop-color="#a1826a"/>
+      <stop offset="0.8" stop-color="#d9a877"/>
+      <stop offset="1" stop-color="#2a2320"/>
+    </linearGradient>
+    <radialGradient id="sol" cx="0.68" cy="0.76" r="0.42">
+      <stop offset="0" stop-color="#f3c68d" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#f3c68d" stop-opacity="0"/>
+    </radialGradient>
+    <g id="rotor" fill="#16141a">
+      <circle r="7"/>
+      <path d="M-3 0 L-1 -170 L3 -166 L3 0 Z"/>
+      <path d="M-3 0 L-1 -170 L3 -166 L3 0 Z" transform="rotate(120)"/>
+      <path d="M-3 0 L-1 -170 L3 -166 L3 0 Z" transform="rotate(240)"/>
+    </g>
+  </defs>
+  <rect width="900" height="900" fill="url(#cielo)"/>
+  <rect width="900" height="900" fill="url(#sol)"/>
+  <g transform="translate(640 470) scale(0.55)" opacity="0.7"><path d="M-3 0 L3 0 L6 900 L-6 900 Z" fill="#16141a"/><use href="#rotor" transform="rotate(18)"/></g>
+  <g transform="translate(470 560) scale(0.38)" opacity="0.55"><path d="M-3 0 L3 0 L6 900 L-6 900 Z" fill="#16141a"/><use href="#rotor" transform="rotate(64)"/></g>
+  <g transform="translate(190 330) scale(1.05)" opacity="1"><path d="M-3 0 L3 0 L6 900 L-6 900 Z" fill="#16141a"/><use href="#rotor" transform="rotate(-8)"/></g>
+  <path d="M0 760 C 180 735 320 750 470 742 C 640 732 760 748 900 738 L900 900 L0 900 Z" fill="#1a1719"/>
+</svg>

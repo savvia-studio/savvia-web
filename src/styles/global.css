@@ -340,46 +340,27 @@ html.tipo-antes {
       background-color 0.25s var(--ease-out-expo),
       color 0.25s var(--ease-out-expo);
   }
-  /* RONDA 67 · EL CTA DE LA CAPTURA de Andoni, para todos: un rectángulo de CRISTAL esmerilado (sin radio), la flecha «↳» y cuatro CRUCES fuera de las
-     esquinas. Al pasar (animación propia): las cruces se CIERRAN sobre las esquinas y una GOTA de savia Coral cae donde entra el puntero y llena el
-     cristal (src/scripts/cta.ts pone --gx/--gy y .mojado); al salir, se recoge hacia donde sale y las cruces vuelven a abrirse. */
+  /* RONDA 67 · el CTA de cristal con la flecha «↳» y la GOTA de savia que cae donde entra el puntero (src/scripts/cta.ts pone --gx/--gy y .mojado).
+     RONDA 76 · Eric y Andoni: «recuperamos los redondeos que teníamos»: el CTA vuelve a ser una PÍLDORA y se van las cruces de sus esquinas (y de
+     todo lo que las llevaba: .cruces ya solo redondea). */
   .btn-primary {
     --gx: 50%;
     --gy: 50%;
-    --cz: color-mix(in oklab, var(--fg) 70%, transparent);
-    --abre: 14px;
     position: relative;
     isolation: isolate;
-    border-radius: 0;
+    overflow: hidden;
+    border-radius: var(--radius-full);
     min-height: calc(var(--spacing) * 14);
     padding-inline: calc(var(--spacing) * 6) calc(var(--spacing) * 8);
-    background: color-mix(in oklab, var(--fg) 8%, transparent);
+    background: color-mix(in oklab, var(--fg) 10%, transparent);
     -webkit-backdrop-filter: blur(18px) saturate(1.2);
     backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 22%, transparent);
     color: var(--fg);
     font-weight: 500;
     transition: color 0.35s ease 0.1s;
   }
-  /* las cruces: cuatro «+» (dos trazos cada una) en las esquinas de una caja más grande que el botón.
-     RONDA 68 · .cruces lleva las mismas a cualquier caja (paneles, pastillas, etiquetas): el idioma del CTA. */
-  .cruces { --cz: color-mix(in oklab, var(--fg, var(--color-niebla)) 55%, transparent); --abre: 10px; position: relative; border-radius: 0; }
-  .btn-primary::before,
-  .cruces::before {
-    content: '';
-    position: absolute;
-    inset: calc(var(--abre) * -1);
-    pointer-events: none;
-    background:
-      linear-gradient(var(--cz), var(--cz)) 4px 0 / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 0 4px / 9px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) calc(100% - 4px) 0 / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 100% 4px / 9px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 4px 100% / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 0 calc(100% - 4px) / 9px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) calc(100% - 4px) 100% / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 100% calc(100% - 4px) / 9px 1px no-repeat;
-    transition: inset 0.6s var(--ease-out-expo);
-  }
+  .cruces { position: relative; border-radius: var(--radius-lg); }
   /* la gota: recortada al botón (clip-path en el propio pseudo) */
   .btn-primary::after {
     content: '';
@@ -392,8 +373,6 @@ html.tipo-antes {
     transition: clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .btn-primary.mojado { color: var(--color-cacao); }
-  .btn-primary.mojado::before { inset: -4px; }
-  :is(button, a).cruces:hover::before { inset: -3px; }
   .btn-primary.mojado::after {
     clip-path: circle(150% at var(--gx) var(--gy));
     transition: clip-path 0.75s var(--ease-out-expo);
@@ -401,7 +380,7 @@ html.tipo-antes {
   .btn-primary .btn-ic { transition: translate 0.5s var(--ease-out-expo); }
   .btn-primary.mojado .btn-ic { translate: 3px 0; }
   @media (prefers-reduced-motion: reduce) {
-    .btn-primary::before, .btn-primary::after, .btn-primary .btn-ic { transition: none; }
+    .btn-primary::after, .btn-primary .btn-ic { transition: none; }
   }
   .btn-ic {
     width: calc(var(--spacing) * 6);
@@ -410,10 +389,10 @@ html.tipo-antes {
     fill: none;
     stroke: currentColor;
     stroke-width: 2;
-    stroke-linecap: square;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   @media (prefers-reduced-motion: reduce) {
-    .btn-primary::before { transition: none; }
     .btn-primary::after { animation: none !important; }
   }
   .btn-secondary {
@@ -536,57 +515,8 @@ html:not([data-s2='b']) #recorrido-b {
   display: none;
 }
 
-/* RONDA 51 · con la dirección A con tarjetas (`?s2=a2`), «Para eso está savvia agentic.» NO EXISTE hasta que llega la gota de los dolores.
-   Andoni: «al llegar a savvia agentic la onda tiene que empezar desde la raíz y esa onda genera el titular, como si se crease en agua». Dolores.astro pone
-   `.generado` y mete las ONDAS (`.pulso-agua`) que nacen arriba al centro (donde acaba la raíz y cae la gota); la primera DESCUBRE el titular (máscara radial
-   desde ese punto, atada a `--onda`) y el texto sale ONDULADO (filtro #agua-titular, cuyo desplazamiento apaga el JS) hasta asentarse. */
-@property --onda { syntax: '<length>'; inherits: false; initial-value: 0px; }
-@media (prefers-reduced-motion: no-preference) {
-  html.anima[data-s2='a2'] [data-titulo] h2:not(.generado) {
-    visibility: hidden;
-  }
-  html.anima[data-s2='a2'] [data-titulo] h2.generado {
-    -webkit-mask: radial-gradient(circle at 50% -60%, #000 calc(var(--onda) - 5rem), transparent var(--onda));
-    mask: radial-gradient(circle at 50% -60%, #000 calc(var(--onda) - 5rem), transparent var(--onda));
-    animation: generar-titular 2.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-  }
-  html.anima[data-s2='a2'] [data-titulo] h2.generado:not(.asentado) {
-    filter: url(#agua-titular);
-  }
-}
-@keyframes generar-titular {
-  from { --onda: 0px; }
-  to { --onda: 160vmax; }
-}
-/* las ondas: anillos finos que nacen arriba al centro (la punta de la raíz) y se abren, uno tras otro, como una gota en un charco */
-.pulso-agua {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 3;
-}
-.pulso-agua i {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 0.5rem;
-  height: 0.5rem;
-  translate: -50% -50%;
-  border-radius: 50%;
-  border: 1.5px solid color-mix(in oklab, var(--color-niebla) 60%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-coral) 30%, transparent), inset 0 0 18px color-mix(in oklab, var(--color-niebla) 12%, transparent);
-  opacity: 0;
-  animation: onda-agua 3s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
-}
-.pulso-agua i:nth-child(2) { animation-delay: 0.25s; }
-.pulso-agua i:nth-child(3) { animation-delay: 0.55s; }
-.pulso-agua i:nth-child(4) { animation-delay: 0.95s; }
-/* crece el TAMAÑO, no la escala: con `scale` el borde engordaba con el anillo; así se queda fino, como en el agua */
-@keyframes onda-agua {
-  0% { width: 0.5rem; height: 0.5rem; opacity: 0.95; }
-  100% { width: 190vmax; height: 190vmax; opacity: 0; }
-}
+/* RONDA 76 · fuera el titular de Proyectos que se generaba en el agua con ondas (rondas 51–75): Eric, «las líneas que salen ahí no me convencen;
+   con el titular y la transición, perfecto». */
 
 /* ── RONDA 63 · TRANSICIONES ENTRE PÁGINAS: las nativas del navegador ENTRE DOCUMENTOS (@view-transition): cada página sigue cargando entera
    (sin ClientRouter: ningún script de la home cambia). Chrome 126+ y Safari 18.2+.

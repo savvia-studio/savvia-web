@@ -59,8 +59,8 @@ import { rich } from '../lib/rich';
     let cv = hero.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
     // RONDA 67 · «en primavera me gustaba el tono rosáceo, estilo cerezo»: en primavera el motor vuelve a teñir la hoja (su color de la tabla, rosa)
     const tinte = (n: number) => (n === 2 ? 0.9 : 0);
-    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true, intensidad: tinte(estacionActual()) });
-    if (t && estacionActual() === 2) t.estacion(2);
+    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true, hd: true, intensidad: tinte(estacionActual()) });
+    if (t && (estacionActual() === 2 || estacionActual() === 1)) t.estacion(estacionActual()); // ronda 76: el invierno, sin hojas (raleo) y nevado
     const w = window as any;
     // RONDA 30: al caer la gota, primero ENTRA EL HAZ desde arriba (luz-entra); la luz sobre el árbol la pone el shader al terminar de pintarse
     const suelta = () => { t?.soltar(); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
@@ -97,7 +97,7 @@ import { rich } from '../lib/rich';
       pon(`url('/media/rasgo-circulo.png') 0 0 / 0 0 no-repeat`);
       requestAnimationFrame(paso);
     };
-    const soltarLienzo = (c: HTMLCanvasElement) => { (c.getContext('webgl') || c.getContext('webgl2'))?.getExtension('WEBGL_lose_context')?.loseContext(); c.remove(); };
+    const soltarLienzo = (c: HTMLCanvasElement) => { { const g = (c.getContext('webgl') || c.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } c.remove(); };
     const cambiarLamina = (n: number) => {
       pedida = n;
       const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/arbol-${EST[n]}.webp`;
@@ -105,9 +105,9 @@ import { rich } from '../lib/rich';
         if (pedida !== n || !t) return;
         // clonado del lienzo actual: así lleva el atributo de ámbito de Astro (con createElement los estilos del componente no le llegan)
         const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2);
-        const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: true, intensidad: tinte(n) });
+        const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: true, hd: true, intensidad: tinte(n) });
         if (!t2) { cv2.remove(); return; }
-        if (n === 2) t2.estacion(2);
+        if (n === 2 || n === 1) t2.estacion(n);
         const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
         t2.fondo(...NOCHE[n]); t2.luz(luzV); t2.visible(heroVisible); t2.crecer(1);
         if (!heroVisible || reducido || !hero.classList.contains('crecido')) return soltarLienzo(viejo);

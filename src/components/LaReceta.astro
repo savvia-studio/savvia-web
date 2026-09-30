@@ -146,7 +146,7 @@ const TRAZO: Record<string, string> = {
     // impresora.mp3 = 7,6 s de impresión continua, en bucle mientras la impresora tira (desde un punto al azar, para que no se repita);
     // cuchilla.mp3 = el corte del papel al terminar. Entre línea y línea, un microcorte de volumen que lo ata a los tirones de la pantalla.
     let ac: AudioContext | null = null, bufImp: AudioBuffer | null = null, bufCorte: AudioBuffer | null = null;
-    const callado = () => { try { return localStorage.getItem('savvia:sonido') === '0'; } catch { return false; } };
+    const callado = () => { try { return localStorage.getItem('savvia:son') !== '1'; } catch { return true; } };
     const cargar = async (url: string) => { const r = await fetch(url); return ac!.decodeAudioData(await r.arrayBuffer()); };
     const despertar = () => {
       if (ac || callado()) return;
@@ -193,7 +193,7 @@ const TRAZO: Record<string, string> = {
     const pintarAltavoz = () => { const on = !callado(); altavoz.setAttribute('aria-pressed', String(on)); altavoz.setAttribute('aria-label', on ? 'Quitar el sonido de la impresora' : 'Poner el sonido de la impresora'); altavoz.classList.toggle('mudo', !on); };
     altavoz.addEventListener('click', () => {
       const on = callado();
-      try { localStorage.setItem('savvia:sonido', on ? '1' : '0'); } catch {}
+      try { localStorage.setItem('savvia:son', on ? '1' : '0'); } catch {}
       if (on) { despertar(); ac?.resume(); } else parar();
       pintarAltavoz();
     });
@@ -284,7 +284,7 @@ const TRAZO: Record<string, string> = {
     left: 0;
     right: 0;
     top: -300lvh;
-    bottom: 28lvh;
+    bottom: 14lvh; /* la boca, a ras de la impresora (100 − 86) */
     clip-path: inset(0 -100vw 0 -100vw); /* solo recorta por abajo (la boca); por los lados, las piezas digitales salen libres */
     pointer-events: none;
   }
@@ -309,7 +309,7 @@ const TRAZO: Record<string, string> = {
   .impresora {
     position: absolute;
     left: 50%;
-    top: 72lvh;
+    top: 86lvh; /* ronda 76 · Eric: «que la impresora empiece aquí abajo, no en medio» (antes 72) */
     translate: -50% -7px;
     z-index: 5; /* por delante de las ramas (que sí van por delante del papel): el altavoz, siempre a la vista */
     width: min(92vw, 27rem);

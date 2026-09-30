@@ -120,11 +120,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="ui ui-info" aria-live="polite">
           {
             P.map((p, i) => (
-              <div class="ficha cruces" data-hechos={i} hidden={i !== 0}>
+              <div class="ficha" data-hechos={i} hidden={i !== 0}>
                 <p class="detail ficha-cat">{p.cat}</p>
                 <p class="ficha-n font-display">{p.n}</p>
                 <p class="text-aux mt-3 ficha-d">{p.d}</p>
-                <a class="btn btn-primary ficha-ver mt-6" href={`/proyectos/${p.slug === 'zernio' ? 'amarra' : p.slug}`}><svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg>Ver caso de estudio</a>
+                <a class="ficha-ver mt-6" href={`/proyectos/${p.slug === 'zernio' ? 'amarra' : p.slug}`}><span>Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5" /></svg></a>
               </div>
             ))
           }
@@ -199,14 +199,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="barra" data-barra hidden>
           <!-- RONDA 68 · «cuando le das a la (X) abres el menú»: la × estaba justo donde el botón del menú. Ahora va ARRIBA EN EL CENTRO, pegada al aviso
                de esc, en un solo cristal recto con cruces (el idioma del CTA); en la esquina ya no hay nada que clicar dos veces. -->
-          <div class="arriba cristal cruces">
+          <div class="arriba cristal">
             <p class="salir detail"><kbd>esc</kbd> para levantarte</p>
             <button type="button" class="cerrar" data-levantarse aria-label="Levantarse y volver">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
           </div>
           <!-- RONDA 14 · «en la vista sentado de proyectos que también puedas ver otros»: sin levantarte, anterior · proyecto · siguiente -->
-          <div class="otros cristal cruces" role="group" aria-label="Cambiar de proyecto">
+          <div class="otros cristal" role="group" aria-label="Cambiar de proyecto">
             <button type="button" class="paso" data-otro="-1" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg></button>
             <p class="cual" aria-live="polite"><span class="detail tabular-nums" data-otro-n>01/{pad(P.length)}</span><span data-otro-nombre>{P[0].n}</span></p>
             <button type="button" class="paso" data-otro="1" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></button>
@@ -406,14 +406,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     function estrenar() {
       estrenado = true;
       const yo = ++turno, w = webs[activo], host = new URL(datos[activo].url).host;
+      // RONDA 77 · Andoni: «cuando llegas a proyectos destacados quitamos la animación de carga, que salgan directamente los proyectos»: sin pantalla de
+      // carga; el titular se funde y debajo ya está la web (la captura, de pie). La pantalla de carga queda solo al sentarse y al cambiar sentado.
       cargaUrl.textContent = '';
-      pantallaTinte.classList.add('estrenando');
       inicio.classList.add('fuera');
-      const desde = performance.now();
-      cuandoListo(w, () => setTimeout(() => {
-        if (yo !== turno) return;
-        urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); pantallaTinte.classList.remove('estrenando'); avisarScroll();
-      }, Math.max(0, 1400 - (performance.now() - desde))));
+      urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); avisarScroll();
+      cuandoListo(w, () => { if (yo === turno) tintar(w); });
     }
 
     function pintar(primera = false) {
@@ -1074,10 +1072,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
   @keyframes carga-linea { 0% { transform: scaleX(0); } 60% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
   [data-estudio].sentado .pantalla:has(.web.cargando:not([hidden])) .carga-web { opacity: 1; transition-duration: 0.2s; }
   /* el botón de la ficha, más sutil */
-  .ficha .ficha-ver { min-height: calc(var(--spacing) * 10); padding-inline: calc(var(--spacing) * 4) calc(var(--spacing) * 5); font-size: var(--text-aux); }
-  .ficha .ficha-ver .btn-ic { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); }
-  /* RONDA 68 · «en la vista en detalle quitamos del CTA los + de alrededor» (la ficha ya lleva las suyas) */
-  .ficha .ficha-ver::before { display: none; }
+  /* RONDA 77 · Andoni: «el botón de ver case study, sin card: que sea solo texto»: texto con el subrayado que crece y la flecha que avanza */
+  .ficha .ficha-ver {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 1);
+    color: var(--color-niebla);
+    font-size: var(--text-ui);
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 0.5s var(--ease-out-expo);
+  }
+  .ficha .ficha-ver svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.5s var(--ease-out-expo); }
+  .ficha .ficha-ver:hover, .ficha .ficha-ver:focus-visible { background-size: 100% 1px; }
+  .ficha .ficha-ver:hover svg { translate: calc(var(--spacing) * 1) 0; }
   /* RONDA 66 · «en proyectos destacados, quitamos el navegador» (y con él la píldora «desliza dentro») */
   .cromo,
   .tras-cromo,
@@ -1235,7 +1243,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     box-shadow:
       inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 16%, transparent),
       0 12px 32px -12px rgb(0 0 0 / 0.45);
-    border-radius: 0;
+    border-radius: calc(var(--spacing) * 4);
     text-shadow: none;
   }
   /* la barra inferior: píldora recogida con iconos */
@@ -1440,7 +1448,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     bottom: calc(100% + var(--spacing) * 3);
     translate: -50% 4px;
     padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
-    border-radius: 0;
+    border-radius: calc(var(--spacing) * 2);
     background: var(--color-niebla);
     color: var(--color-cacao);
     white-space: nowrap;
@@ -1463,9 +1471,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .barra > * {
     pointer-events: auto;
   }
-  /* RONDA 68 · «el CTA y el resto no hablan el mismo idioma por los redondeos»: todo lo de la vista sentado, RECTO (radio 0) y con las cruces del CTA
-     (clase global .cruces). Arriba en el centro, un solo cristal: esc + la ×. */
+  /* RONDA 68 · arriba en el centro, un solo cristal: esc + la × (en la esquina estaba el botón del menú). RONDA 76 · vuelven los redondeos:
+     píldoras y botones redondos, sin cruces. */
   .arriba {
+    border-radius: var(--radius-full);
     position: absolute;
     left: 50%;
     top: max(calc(var(--spacing) * 6), env(safe-area-inset-top));
@@ -1477,6 +1486,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     white-space: nowrap;
   }
   .cerrar {
+    border-radius: 50%;
     width: calc(var(--spacing) * 10);
     height: calc(var(--spacing) * 10);
     display: grid;
@@ -1497,9 +1507,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     fill: none;
     stroke: currentColor;
     stroke-width: 1.6;
-    stroke-linecap: square;
+    stroke-linecap: round;
   }
   .otros {
+    border-radius: var(--radius-full);
     position: absolute;
     left: 50%;
     bottom: max(calc(var(--spacing) * 6), env(safe-area-inset-bottom));
@@ -1512,6 +1523,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     white-space: nowrap;
   }
   .otros .paso {
+    border-radius: 50%;
     width: calc(var(--spacing) * 12);
     height: calc(var(--spacing) * 12);
     display: grid;
@@ -1531,8 +1543,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     fill: none;
     stroke: currentColor;
     stroke-width: 1.6;
-    stroke-linecap: square;
-    stroke-linejoin: miter;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .cual {
     display: flex;
@@ -1555,6 +1567,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border-right: 1px solid color-mix(in oklab, var(--color-niebla) 18%, transparent);
   }
   kbd {
+    border-radius: 6px;
     font: inherit;
     padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
     background: color-mix(in oklab, var(--color-niebla) 16%, transparent);
@@ -1923,7 +1936,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .ficha {
     padding: calc(var(--spacing) * 6);
-    border-radius: 0;
+    border-radius: calc(var(--spacing) * 4);
     background: color-mix(in oklab, var(--color-cacao) 58%, transparent);
     -webkit-backdrop-filter: blur(16px) saturate(1.2);
     backdrop-filter: blur(16px) saturate(1.2);

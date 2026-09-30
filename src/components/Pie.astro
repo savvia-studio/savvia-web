@@ -56,8 +56,8 @@ const [antes, despues] = pie.tagline.split('savia');
         {i === 1 && <span class="contacta contacta-tras font-display" aria-hidden="true" data-contacta-tras><span>Contáctanos</span><span class="contacta-luz" data-contacta-luz>Contáctanos</span></span>}
         {i === 2 && (
           <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`Contáctanos · ${pie.cal ? 'agenda una llamada' : pie.correo}`} data-contacta>
-            <span class="cta-flecha" aria-hidden="true"><svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg></span>
             <span data-contacta-txt>Contáctanos</span>
+            <span class="cta-pastilla" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg>{pie.cal ? 'Agenda una llamada' : 'Escríbenos'}</span>
             <span class="contacta-luz" aria-hidden="true" data-contacta-luz>Contáctanos</span>
           </a>
         )}
@@ -77,7 +77,7 @@ const [antes, despues] = pie.tagline.split('savia');
 
 
 <script>
-  import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
+  import { crearEstela, ESTACIONES_PIE, type Estela } from '../scripts/estela';
   import { tinta } from '../scripts/tinta';
   import { caerRealista } from '../scripts/gota';
     import { EST as NOMBRES_EST, estacionActual } from '../scripts/estacion';
@@ -116,6 +116,11 @@ const [antes, despues] = pie.tagline.split('savia');
     document.fonts.ready.then(() => requestAnimationFrame(partir)); addEventListener('resize', () => requestAnimationFrame(partir));
     // RONDA 67 · el CTA: al pasar (o enfocar) la palabra entera se convierte en el CTA de cristal; con el dedo, el primer toque la convierte y el segundo va
     const hacerCta = (si: boolean) => pie.classList.toggle('cta-abierto', si);
+    // RONDA 76 · Eric: «la interacción parpadea». Al abrirse, la palabra se recoge (scale 0,66) y su recorte cambia: el borde se iba de debajo del puntero,
+    // saltaba el `pointerleave`, se cerraba, volvía a crecer bajo el puntero… Ahora se cierra solo cuando el puntero sale de la caja que tenía la palabra
+    // ENTERA al abrirse (con 24 px de margen), medida una vez: la zona no cambia mientras dura
+    // RONDA 77 · Andoni: «que se pueda hacer hover fácil y no parezca que se rompe al hacer hover». La palabra ya no se recoge ni se recoloca: su caja
+    // entera (las dos mitades) es la zona de hover y no cambia; al pasar, la palabra se enciende y encima sube una píldora con a dónde lleva
     contacta.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hacerCta(true); });
     contacta.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hacerCta(false); });
     contacta.addEventListener('focus', () => hacerCta(true));
@@ -150,7 +155,7 @@ const [antes, despues] = pie.tagline.split('savia');
       estelas = capas.map((c) => {
         const img = c.querySelector<HTMLImageElement>('[data-lamina]')!, cv = c.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
         if (!img.complete) img.loading = 'eager';
-        const t = crearEstela(cv, img, { origen: [0.5, 1], dir: 1, radial: true, paisaje: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: 0.62 });
+        const t = crearEstela(cv, img, { origen: [0.5, 1], dir: 1, radial: true, paisaje: true, estaciones: ESTACIONES_PIE, intensidad: 0.62 });
         if (!t) c.classList.add('sin-gl');
         t?.estacion(est);
         return t;
@@ -268,12 +273,19 @@ const [antes, despues] = pie.tagline.split('savia');
 
       nacio = performance.now();
     };
-    const FLORES = ['255,255,255', '250,232,238', '244,214,222', '255,255,255', '236,176,196', '250,232,238', '199,107,131'];
-    const florecilla = (k: CanvasRenderingContext2D, x: number, y: number, r: number, col: string, a: number) => {
-      const gr = k.createRadialGradient(x, y, 0, x, y, r * 1.6);
-      gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(0.55, `rgba(${col},${a * 0.8})`); gr.addColorStop(1, `rgba(${col},0)`);
-      k.fillStyle = gr; k.beginPath(); k.ellipse(x, y, r * 1.6, r * 1.15, 0, 0, 6.283); k.fill();
-      if (r > 2) { k.fillStyle = `rgba(214,160,70,${a * 0.7})`; k.beginPath(); k.arc(x, y, r * 0.3, 0, 6.283); k.fill(); }
+    // RONDA 76 · Eric: «en primavera, que salgan flores: margaritas, azules»: MARGARITAS (pétalos blancos y botón amarillo) y flores AZULES (cinco pétalos,
+    // centro claro), con alguna rosa pálida; lejos, solo la mancha de color; cerca, se leen los pétalos
+    const FLORES = ['margarita', 'margarita', 'margarita', 'margarita', 'azul', 'azul', 'azul', 'rosa'];
+    const florecilla = (k: CanvasRenderingContext2D, x: number, y: number, r: number, tipo: string, a: number) => {
+      const col = tipo === 'azul' ? '110,140,214' : tipo === 'rosa' ? '244,200,214' : '252,251,246';
+      if (r < 1.8) { k.fillStyle = `rgba(${col},${a})`; k.beginPath(); k.ellipse(x, y, r * 1.3, r, 0, 0, 6.283); k.fill(); return; }
+      const n = tipo === 'margarita' ? 11 : 5, largo = tipo === 'margarita' ? r * 1.25 : r * 0.95, ancho = tipo === 'margarita' ? r * 0.3 : r * 0.55;
+      k.save(); k.translate(x, y); k.scale(1, 0.62); // vistas un poco desde arriba: el disco se aplana
+      k.fillStyle = `rgba(${col},${a})`;
+      for (let i = 0; i < n; i++) { const g = (i / n) * 6.283 + x; k.beginPath(); k.ellipse(Math.cos(g) * largo * 0.6, Math.sin(g) * largo * 0.6, largo * 0.55, ancho, g, 0, 6.283); k.fill(); }
+      k.fillStyle = tipo === 'margarita' ? `rgba(236,184,58,${a})` : `rgba(248,236,190,${a})`;
+      k.beginPath(); k.arc(0, 0, tipo === 'margarita' ? r * 0.36 : r * 0.24, 0, 6.283); k.fill();
+      k.restore();
     };
     const HOJAS = ['#c65c2d', '#e0a03a', '#7a2e16', '#d98b3a', '#9c3b1c', '#efc070']; // ronda 43: más variedad (ocres claros y rojos hondos): posadas se distinguen del prado
     const hoja = (k: CanvasRenderingContext2D, x: number, y: number, s: number, a: number, col: string, plana = 1) => {
@@ -349,7 +361,7 @@ const [antes, despues] = pie.tagline.split('savia');
     let flores: Fl[] = [], nacF = 0, rafF = 0, dprF = 1, WF = 0, HF = 0;
     const sembrarF = () => {
       const centros = Array.from({ length: 60 }, () => [Math.random(), Math.pow(Math.random(), 1.4)]); // x, profundidad bajo el borde del prado (0 = lejos)
-      flores = Array.from({ length: 280 }, (_, i) => { const [cx0, cd] = centros[i % centros.length]; const d = Math.min(1, Math.max(0, cd + (Math.random() - 0.5) * 0.05)); return { x: cx0 + (Math.random() - 0.5) * (0.012 + d * 0.02), d, z: Math.random(), v: Math.random(), c: FLORES[Math.floor(Math.random() * FLORES.length)] }; });
+      flores = Array.from({ length: 340 }, (_, i) => { const [cx0, cd] = centros[i % centros.length]; const d = Math.min(1, Math.max(0, cd + (Math.random() - 0.5) * 0.05)); return { x: cx0 + (Math.random() - 0.5) * (0.012 + d * 0.02), d, z: Math.random(), v: Math.random(), c: FLORES[Math.floor(Math.random() * FLORES.length)] }; });
     };
     const bordeF = (x: number) => { const i = Math.min(1, Math.max(0, x)) * (HZ.length - 1), a0 = Math.floor(i), a1 = Math.min(HZ.length - 1, a0 + 1); return HZ[a0] + (HZ[a1] - HZ[a0]) * (i - a0); };
     const pintarF = (ahora: number) => {
@@ -365,8 +377,8 @@ const [antes, despues] = pie.tagline.split('savia');
         if (abre < 1) pendientes = true;
         if (!abre) continue;
         const top = bordeF(f.x) + 0.015, y = (top + f.d * (0.97 - top)) * HF;
-        const rr = (1.3 + f.d * 3.4) * (0.75 + f.z * 0.5) * (1 - Math.pow(1 - abre, 3)) * (WF / 1280);
-        florecilla(fx, f.x * WF, y, Math.max(0.6, rr), f.c, 0.7 + f.d * 0.28);
+        const rr = (1.5 + f.d * 4.6) * (0.75 + f.z * 0.5) * (1 - Math.pow(1 - abre, 3)) * (WF / 1280);
+        florecilla(fx, f.x * WF, y, Math.max(0.6, rr), f.c, 0.78 + f.d * 0.2);
       }
       if (pendientes && visC) rafF = requestAnimationFrame(pintarF);
     };
@@ -477,60 +489,41 @@ const [antes, despues] = pie.tagline.split('savia');
   .contacta-delante { z-index: 4; }
   .contacta-tras { z-index: 1; }
   .contacta [data-contacta-txt] { display: block; }
-  /* EL CTA (la captura): al pasar, la palabra entera, a plena tinta, sobre un cristal esmerilado con cuatro cruces fuera de las esquinas y «↳» a la
-     izquierda; las cruces se cierran sobre las esquinas */
-  .contacta-delante::before,
-  .contacta-delante::after {
-    content: '';
-    position: absolute;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.5s ease, inset 0.7s var(--ease-out-expo);
-  }
-  /* RONDA 68 · «más padding por todos lados y que la flecha se vea más» */
-  .contacta-delante::before {
-    inset: -0.2em -0.34em -0.22em -0.92em;
-    z-index: -1;
-    background: color-mix(in oklab, var(--color-niebla) 16%, transparent);
-    -webkit-backdrop-filter: blur(22px) saturate(1.25);
-    backdrop-filter: blur(22px) saturate(1.25);
-  }
-  .contacta-delante::after {
-    --cz: color-mix(in oklab, var(--color-niebla) 75%, transparent);
-    inset: -0.34em -0.48em -0.36em -1.06em;
-    background:
-      linear-gradient(var(--cz), var(--cz)) 6px 0 / 1px 13px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 0 6px / 13px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) calc(100% - 6px) 0 / 1px 13px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 100% 6px / 13px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 6px 100% / 1px 13px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 0 calc(100% - 6px) / 13px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) calc(100% - 6px) 100% / 1px 13px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 100% calc(100% - 6px) / 13px 1px no-repeat;
-  }
-  .cta-flecha {
-    position: absolute;
-    left: -0.74em;
-    top: 50%;
-    width: 0.46em;
-    height: 0.46em;
-    translate: -0.2em -50%;
-    color: var(--color-niebla);
-    opacity: 0;
-    transition: opacity 0.5s ease 0.1s, translate 0.7s var(--ease-out-expo) 0.1s;
-  }
-  .cta-flecha .btn-ic { width: 100%; height: 100%; stroke-width: 2.2; stroke-linecap: square; }
-  .pintado .contacta-delante { isolation: isolate; }
-  .cta-abierto .contacta-delante {
-    clip-path: inset(-80% -30% -80% -40%);
-    scale: 0.66; /* la palabra ocupa todo el ancho: al hacerse CTA se recoge para que quepan el cristal, la flecha y las cruces */
-  }
-  .contacta-delante { transform-origin: 56% 60%; transition: color 0.5s ease, opacity 1.6s ease, clip-path 0.9s var(--ease-out-expo), scale 0.8s var(--ease-out-expo); }
+  /* RONDA 77 · «hover fácil y que no parezca que se rompe»: el ENLACE ocupa la palabra entera (sin recorte: toda su caja recibe el puntero) y lo que se
+     recorta es su texto (la mitad de delante); al pasar no cambia ni de tamaño ni de sitio: las dos mitades se encienden y sube la píldora */
+  .contacta-delante { clip-path: none !important; }
+  .contacta-delante [data-contacta-txt],
+  .contacta-delante .contacta-luz { clip-path: inset(-40% calc(100% - var(--corte, 50%)) -10% -10%); }
+  .contacta-delante { transition: opacity 1.6s ease; }
   .cta-abierto .contacta-delante [data-contacta-txt] { color: var(--color-niebla); }
-  .cta-abierto .contacta-delante::before { opacity: 1; }
-  .cta-abierto .contacta-delante::after { opacity: 1; inset: -0.24em -0.38em -0.26em -0.96em; }
-  .cta-abierto .cta-flecha { opacity: 1; translate: 0 -50%; }
-  .cta-abierto .contacta-tras { opacity: 0 !important; transition: opacity 0.3s ease; }
+  .cta-abierto .contacta-tras > span:first-child { color: color-mix(in oklab, var(--color-niebla) 75%, transparent); }
+  .cta-pastilla {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + var(--spacing) * 2);
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 5) calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, var(--color-niebla) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 24%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    color: var(--color-niebla);
+    font-family: var(--font-sans);
+    font-size: var(--text-ui);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0;
+    white-space: nowrap;
+    opacity: 0;
+    translate: -50% 10px;
+    pointer-events: none;
+    transition: opacity 0.4s ease, translate 0.6s var(--ease-out-expo), background-color 0.3s ease;
+  }
+  .cta-pastilla svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cta-abierto .cta-pastilla { opacity: 1; translate: -50% 0; }
   .cta-abierto .contacta-delante .contacta-luz { opacity: 0; }
   /* la LUZ sobre la palabra: una copia en luz cálida recortada a la banda del haz (--bt: su posición en el eje del degradado; --bw: su ancho) */
   .contacta-luz {

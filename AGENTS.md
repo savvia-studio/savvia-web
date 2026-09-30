@@ -2486,3 +2486,86 @@ en mono en el pie.
 - **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390): limpio · `tools/r68-transicion.cjs` (Chrome y WebKit).
 - **PUBLICADA (29/09) en https://savvia.studio:** commit `bcdb29b` → Vercel. Fuera del repositorio (`.gitignore`) el material en bruto de `tools/` (láminas originales, tomas del reel, música): 250 → 45 MB. Medido EN VIVO: `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0; logotipo, favicon, imagen para compartir y reel responden 200; la transición llega al caso sin capas colgadas. Sigue `noindex`.
 - **Pendiente de Andoni:** el enlace de cal.com; el (+) de estaciones sigue redondo.
+
+### Ronda 76 · 2026-09-30 · el feedback de Eric (vídeo del 29/09): redondeos de vuelta, Donostia más discreto, cuadrícula con Farco y Awwwards, fondos de marca, reel, sin cilindro y rendimiento (en local)
+- **Eric (vídeo de 11 min, transcrito y ubicado fotograma a fotograma; resumen confirmado por Andoni):** invierno sin hojas y nevado; primavera con rosas más
+  hondos y variados; «orquestar queda muy bien en grande»; Donostia distrae; la respuesta más grande que el problema y fuera el «01»; fuera las ondas del
+  titular de los destacados; sonido apagado de inicio; prefiere los botones redondeados; la web va a trompicones (mañana la ve José Luis); la pieza de logotipos
+  parece que hacemos logos (mejor el reel); «Todos los proyectos» no encaja; el giro en el eje (cilindro) no convence y en la cuadrícula las cruces no casan;
+  logotipos más grandes y proporcionales; citas de 2–3 líneas; «Han confiado su web» suena raro; falta Farco; son más de 80; Awwwards; Monad con otro tono;
+  Naterra, Isotrol y Remerge con algo de su marca; THX en su azul; un cuarto testimonio (Juanjo Velaz); quitar «8 de 16» y afinar el cambio de columna;
+  la impresora más abajo; el 3D del estudio, a mejorar; el CTA del pie parpadea; en el pie, invierno todo nevado y primavera con margaritas y flores azules.
+- **Andoni (textual):** «Vamos a recuperar los redondeos que teníamos y ajustamos todo a eso» · «Dejamos las de Donostia pero que tengan menos presencia» ·
+  «Ponemos Awwwards pero con su logo, lo puedes sacar de su web» · «Tenemos 80; te pasé datos del CMS y no están todos subidos ahí».
+- **Hecho:**
+  · **Redondeos:** el CTA (`.btn-primary`) vuelve a ser PÍLDORA de cristal con la gota y sin cruces; `.cruces` ya solo redondea. Vuelven los radios de antes de la
+    ronda 68: chat de las FAQ (burbujas 18/4, sugerencias y campo en píldora, botón redondo), vista sentado (barras en píldora, botones redondos, ficha y
+    cristal a 16, rótulos a 8, `kbd` a 6), flechas del testimonio redondas, banda y fichas de Servicios a 16, CTA del pie en píldora. Trazos con punta redonda.
+  · **Hero:** «Orquestamos tu web con IA.» (antes «Elevamos…»). INVIERNO: el motor ralea todas las hojas y pone NIEVE en los cantos de la madera que miran al
+    cielo (`estela.ts`, `nieve`). PRIMAVERA: cada mata vira entre frambuesa hondo, cerezo y blanco rosado (ruido a dos escalas, como los verdes del verano).
+  · **Dolores:** el dolor en `text-h3` y la respuesta en `text-h1`; fuera el «01». Óleos de Donostia al 30 % (antes 52) y fundidos hacia los bordes.
+  · **Destacados:** fuera el titular que se generaba en el agua con ondas (queda el titular y la entrada al monitor). SONIDO apagado de inicio para todos
+    (clave nueva `savvia:son`: quien lo encendió antes también empieza apagado; la impresora de la receta, igual).
+  · **Más proyectos:** la pieza de entrada es el REEL en bucle y mudo (`reel-bucle.mp4`, 22 s, 750 KB); al pulsarla se abre el reel grande (el mismo reproductor
+    de la barra, pintado desde la pieza). «Todos los proyectos» es el CTA de la casa. Fuera el CILINDRO (en `tools/retirados/cilindro.r75.txt`). CUADRÍCULA: citas
+    largas (extractos fieles), «Hemos hecho la web de», «Colaboramos con» Minimum y **Farco Studio** (logotipo de su web), «Mención de honor» con el logotipo
+    oficial de **Awwwards** (sacado de awwwards.com), **+80** webs, logotipos al mismo peso óptico (área constante, proporción leída con sharp). FONDOS de marca:
+    Isotrol, su atardecer con aerogeneradores redibujado en silueta (`fondos/isotrol.svg`); Naterra, la madera de su propia web; Remerge, su amarillo con la web
+    en un teléfono; Monad en su verde; THX en azul claro.
+  · **Servicios:** fuera «N de 16»; la columna cambia por intención (90 ms sobre ella), no al rozarla en diagonal.
+  · **Receta:** la impresora a 86 lvh (antes 72).
+  · **Pie:** el CTA ya no parpadea (la zona de cierre es la caja de la palabra entera, medida al abrir; antes el recogerse sacaba el borde de debajo del
+    puntero). INVIERNO: el paisaje se pinta en blanco de nieve entero (`ESTACIONES_PIE`). PRIMAVERA: margaritas (pétalos y botón amarillo), flores azules y
+    alguna rosa, dibujadas con pétalos de cerca.
+  · **Rendimiento (web-perf-forensics):** tres causas medidas. (1) Cada lienzo WebGL dormido se REHACÍA (programa + textura) al volver a su sección: con 8
+    contextos en la home (antes 18) ya no hace falta dormir en Chrome (`LIMITE` 12); en Safari se sigue durmiendo (no libera enseguida los retirados). (2) El
+    retrato del testimonio se calculaba y repintaba píxel a píxel a densidad retina (~520.000 px por fotograma, 2,4 s cada 9 s): a 1,25 y a 30 fps, con la
+    imagen reutilizada. (3) El paisaje del pie, los óleos y las raíces se pintan a DPR 1,5 (el árbol del hero sigue a 2). Además, los óleos de los dolores
+    solo cambian de lienzo al acercarse (antes, cada cambio de estación desde el hero creaba tres contextos). Si el navegador tira un contexto, se recupera.
+- **Medido:** `astro check` 0 errores · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit,
+  1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r76.cjs` (Chrome 1280 y 390, WebKit 1280): CTA abierto en los 10 movimientos sobre la palabra
+  (antes se abría y cerraba) y cerrado al salir; las capturas de cada punto en `tools/shots/r76-*` · `tools/r76-vuelta.cjs` (Chrome real, DPR 2, CPU ×4, bajar
+  y volver a subir la home), dos pasadas: publicada → local: bajando, bloqueo 2037/790 ms → 523/667 ms y tarea máxima 645/417 → 226/228 ms; SUBIENDO, 4
+  tareas largas (84–115 ms) y 8 contextos rehechos → 0 y 0 · WebKit: tras seis cambios de estación y un viaje entero, el árbol del hero sigue pintado (el aviso
+  «too many active WebGL contexts» ya salía en la publicada con la misma prueba). **SIN medir:** fluidez en la GPU real del Mac de Eric (el entorno sin ventana
+  se estrangula a 30 fps a DPR 2 incluso con una página vacía: no sirve para eso).
+- **Backup:** `../savvia-web.bak-r75-2026-09-30/`.
+- **Pendiente de Andoni:** el testimonio de **Juanjo Velaz** (no hay cita suya en ningún material: hace falta el texto y su retrato); qué proyectos ganaron la
+  mención de Awwwards (hoy sin nombrar); «el 3D del estudio, mejorarlo» (hacen falta modelos o fotos nuevas de los dos); el copy de «Hemos hecho la web de»
+  (alternativa: «Su web es nuestra»); el enlace de cal.com.
+
+### Ronda 77 · 2026-09-30 · eyebrows, destacados directos, «Ver caso de estudio» en texto, heroes que rotan, «Contáctanos» estable · PUBLICADA
+- **Andoni (textual):** «Los problemas se tienen que ver más como un eyebrow» · «Cuando llegas a proyectos destacados quitamos la animación de carga, que salgan
+  directamente los proyectos» · «En vista en detalle, el botón de ver case study, sin card: que sea solo texto» · «Más proyectos: fuera el botón de ver todos
+  los proyectos; donde estaban los logos pusimos el reel pero prefiero heros que van rotando con el estilo del resto, rotando entre varios» · «El botón de
+  contáctanos: que se pueda hacer hover fácil y no parezca que se rompe» · (a media ronda) «Remerge, ponlo con el mockup que teníamos antes, me gustaba más» ·
+  «el H1, déjalo en Elevamos tu web con IA como estaba» · «Y una vez hayas hecho esto, publica».
+- **Hecho:**
+  · **Dolores:** el dolor es un EYEBROW (mono pequeño con un punto de savia) encima de la respuesta, que es el titular. Petición expresa: «eyebrows encima de
+    titulares» estaba en lo rechazado; aquí sí.
+  · **Destacados:** sin pantalla de carga al llegar: el titular se funde y debajo ya está la web (su captura). La carga queda solo al sentarse. En la ficha,
+    «Ver caso de estudio» es texto con subrayado que crece y flecha (sin botón).
+  · **Más proyectos:** fuera «Todos los proyectos» de la cabecera. La pieza de entrada es una pieza de marca más (degradado + navegador que asoma) que ROTA entre
+    los heroes de los cuatro destacados (Multiverse, Amarra, Playground, Neety) cada 4,2 s con el relevo de desenfoque y el degradado virando a los colores de
+    cada web; lleva a /proyectos. Remerge vuelve al móvil sobre la mesa (el teléfono de la ronda 76, fuera).
+  · **Hero:** vuelve «Elevamos tu web con IA.».
+  · **«Contáctanos»:** ya no se recoge ni se recoloca al pasar. El enlace ocupa la palabra entera (se recorta su texto, no su caja): la zona de hover es grande
+    y no cambia. Al pasar, las dos mitades se encienden (la de detrás, tras las montañas) y encima sube una píldora de cristal «↳ Escríbenos» (con cal.com,
+    «Agenda una llamada»).
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · `astro build` OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit,
+  1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r76.cjs` (Chrome y WebKit): CTA abierto en los 10 movimientos y cerrado al salir · destacados:
+  `estrenando` nunca se pone a lo largo de la entrada; la web del monitor visible al llegar (`tools/shots/r77-destacados.jpg`).
+- **Pendiente de Andoni:** Juanjo Velaz (cita y retrato); menciones de Awwwards; 3D del estudio; cal.com.
+
+## Rechazado — añadidos de la ronda 77 (NO VOLVER)
+- La pantalla de carga al llegar a Proyectos destacados (rondas 68–76).
+- El reel como pieza de «Más proyectos» (ronda 76) y el teléfono de Remerge sobre su amarillo (ronda 76).
+- El «Contáctanos» que se recogía en un CTA de cristal al pasar (rondas 67–76): «parece que se rompe».
+- «Orquestamos tu web con IA.» en el H1 (ronda 76).
+
+## Rechazado — añadidos de la ronda 76 (NO VOLVER)
+- Los botones y paneles RECTOS con cruces (rondas 67–75): vuelven los redondeos.
+- El titular de Proyectos que se generaba en el agua con ondas (rondas 51–75).
+- El CILINDRO de «Más proyectos» (ronda 53) y la pieza de logotipos que rotaban (parecía que hacemos logos).
+- «Han confiado su web» y la cifra de 40 webs (son más de 80).
+- El sonido encendido al llegar.

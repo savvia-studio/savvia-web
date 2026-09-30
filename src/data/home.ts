@@ -21,7 +21,7 @@ export const hero = {
   // a menor coste». El titular responde al primero; el subtítulo es el segundo, con el cómo (criterio + IA).
   // RONDA 53 · «el H1 es muy amplio y no dice nada: más específico, que el cliente diga hostia, esto pueden hacer por mí». Lo concreto del Keynote: web
   // a medida (no un lavado de cara) + tu equipo la cambia con IA (formación + todo documentado) + el ARNÉS (la receta hace que la IA no se salga de tu marca).
-  h1: 'Elevamos tu web con IA.', // ronda 65 (Andoni). Antes (r53): «Una web a medida que tu equipo cambia con IA, fiel a tu marca.»
+  h1: 'Elevamos tu web con IA.', // ronda 65 (Andoni); ronda 77: vuelve tras probar «Orquestamos…» en la 76 Antes (r53): «Una web a medida que tu equipo cambia con IA, fiel a tu marca.»
   h2: 'Especializados en orquestar el diseño y desarrollo agéntico.', // ronda 65 (Andoni)
   // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
   vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
@@ -243,45 +243,47 @@ export const proyectos = {
     { n: 'Remerge', slug: 'remerge', dominio: 'remerge.io', sector: '', logo: 'remerge', color: ['#eceed9', '#f2ff71', '#ffffff'] },
     { n: 'Isotrol', slug: 'isotrol', dominio: 'isotrol.com', sector: 'Renovables', logo: 'isotrol', color: ['#19171d', '#635850', '#8d8478'] },
     // RONDA 65 · «añadir más proyectos»: cuatro del portfolio de Eric y Andoni (sector y lugar, de sus casos; colores medidos en su web; vídeo, de la grabación real)
-    { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#efeee8', '#c9cfbf', '#9fd39a'] },
+    { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#26352a', '#4d7a52', '#9fd39a'] }, // ronda 76: su verde (antes, el crema de su fondo: se perdía en la página)
     { n: 'Naterra', slug: 'naterra', dominio: 'naterra.pro', sector: 'Vivienda ecológica', logo: '', color: ['#593c28', '#9e6f47', '#caae8d'] },
     { n: 'Routal', slug: 'routal', dominio: 'routal.com', sector: 'Logística', logo: '', color: ['#3d6360', '#557a76', '#9dc7b5'] },
-    { n: 'THX', slug: 'thx', dominio: 'thx.vision', sector: 'Consultoría', logo: '', color: ['#1e3953', '#195f8e', '#95acbb'] },
+    { n: 'THX', slug: 'thx', dominio: 'thx.vision', sector: 'Consultoría', logo: '', color: ['#3f86bd', '#7fb3dc', '#c9dff0'] }, // ronda 76: Eric, «con este azulito»
   ],
   // RONDA 66 · «las métricas de más proyectos, como la captura que te paso; todas van rotando de manera animada» (la captura: una cuadrícula 3 × 2 de
   // trazo discontinuo con citas cortas, «Collaborated with Minimum» y «Honorable mention · awwwards»). Cada celda releva su contenido. Todo real: citas
   // (extractos de sus casos, traducidos y sin el nombre del estudio anterior), la colaboración con Minimum (ronda 67: fuera las menciones de Awwwards), cifras
   // del portfolio y logotipos de clientes (sacados de su web). `tipo`: cita · marca (rótulo + logotipo) · cifra.
+  // RONDA 76 · Eric: «logos más grandes y proporcionales; dos o tres líneas por cita; "Han confiado su web" suena raro; falta Farco; son más de 80; y
+  // Awwwards» → Andoni: «Awwwards con su logo (de su web); tenemos 80, el CMS no los tiene todos». Citas más largas (extractos fieles de sus casos).
   celdas: [
     [
-      { tipo: 'cita', q: 'Trabajar con el equipo hizo que el proyecto se desarrollara sin problemas…', n: 'Olga Tintoré', r: 'Cofundadora de Ikon' },
-      { tipo: 'cita', q: 'Responden en minutos y despliegan en horas…', n: 'Juan Moliner', r: 'Cofundador de Invopop' },
-      { tipo: 'cita', q: '…juntos construimos algo precioso.', n: 'Sean Klamm', r: 'CEO de Playground IEP' },
+      { tipo: 'cita', q: 'Lo que de verdad destaca es su conocimiento y su capacidad de mejorar nuestra idea inicial.', n: 'Inés López-Pita', r: 'Directora de marketing · Isotrol' },
+      { tipo: 'cita', q: 'Eric y Andoni responden en minutos y despliegan en horas. Superaron nuestras expectativas.', n: 'Juan Moliner', r: 'Cofundador de Invopop' },
+      { tipo: 'cita', q: 'Se comunicaron constantemente conmigo durante todo el proceso y juntos construimos algo precioso.', n: 'Sean Klamm', r: 'CEO de Playground IEP' },
     ],
     [
       { tipo: 'marca', rotulo: 'Colaboramos con', logo: '/media/logos/minimum.svg', n: 'Minimum' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/multiverse.svg', n: 'Multiverse Computing' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/codely.svg', n: 'Codely' },
+      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/multiverse.svg', n: 'Multiverse Computing' },
+      { tipo: 'marca', rotulo: 'Colaboramos con', logo: '/media/logos/farco.svg', n: 'Farco Studio' },
     ],
     [
-      { tipo: 'cita', q: '…ha sido un placer absoluto…', n: 'Félix Gonzalo', r: 'Webflow Developer · Monad' },
-      { tipo: 'cita', q: '…venían a mí con soluciones.', n: 'Ignasi Vegas', r: 'Cofundador y CEO de Cubbo' },
-      { tipo: 'cita', q: '…con una precisión sólida.', n: 'Guilherme Escobar', r: 'Marketing global · Remerge' },
+      { tipo: 'cita', q: 'Un equipo fiable y comprometido, con talento, profesionalidad y un flujo de trabajo impecable.', n: 'Félix Gonzalo', r: 'Webflow Developer · Monad' },
+      { tipo: 'cita', q: 'Nunca tuve que ir detrás de ellos: venían a mí con soluciones. Entendieron desde el primer día quiénes somos.', n: 'Ignasi Vegas', r: 'Cofundador y CEO de Cubbo' },
+      { tipo: 'cita', q: 'Un proyecto complejo, con varios idiomas y una migración de contenido extensa, llevado con una precisión sólida.', n: 'Guilherme Escobar', r: 'Marketing global · Remerge' },
     ],
     [
-      { tipo: 'cifra', v: '+40', l: 'webs publicadas' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/monad.svg', n: 'Monad' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/anteriores/logos/cubbo.svg', n: 'Cubbo' },
+      { tipo: 'cifra', v: '+80', l: 'webs publicadas' },
+      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/monad.svg', n: 'Monad' },
+      { tipo: 'marca', rotulo: 'Mención de honor', logo: '/media/logos/awwwards.svg', n: 'Awwwards', texto: 'Awwwards' },
     ],
     [
       { tipo: 'cifra', v: '6', l: 'países con clientes' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/anteriores/logos/invopop.svg', n: 'Invopop' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/casavo.png', n: 'Casavo' },
+      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/anteriores/logos/invopop.svg', n: 'Invopop' },
+      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/codely.svg', n: 'Codely' },
     ],
     [
       { tipo: 'cifra', v: '2020', l: 'desde' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/logos/routal.png', n: 'Routal' },
-      { tipo: 'marca', rotulo: 'Han confiado su web', logo: '/media/anteriores/logos/remerge.svg', n: 'Remerge' },
+      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/routal.png', n: 'Routal' },
+      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/anteriores/logos/cubbo.svg', n: 'Cubbo' },
     ],
   ] as { tipo: 'cita' | 'marca' | 'cifra'; q?: string; n?: string; r?: string; rotulo?: string; logo?: string; texto?: string; v?: string; l?: string }[][],
   // RONDA 66 · «los testimonios destacados, que sean uno como teníamos antes y que vayan rotando; te paso las imágenes (José Luis, Alberto de Transcend

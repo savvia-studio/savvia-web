@@ -34,7 +34,7 @@
       t.crecer(1);
       t.fondo(...NOCHE[est]);
       new IntersectionObserver((e) => { visible = e[0].isIntersecting; t?.visible(visible); }, { rootMargin: '10% 0px' }).observe(raiz);
-      const soltarLienzo = (c: HTMLCanvasElement) => { (c.getContext('webgl') || c.getContext('webgl2'))?.getExtension('WEBGL_lose_context')?.loseContext(); c.remove(); };
+      const soltarLienzo = (c: HTMLCanvasElement) => { { const g = (c.getContext('webgl') || c.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } c.remove(); };
       addEventListener('savvia:estacion', (ev) => {
         const n = (ev as CustomEvent).detail.n as number;
         if (n === est) return;

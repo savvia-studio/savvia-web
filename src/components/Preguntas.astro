@@ -50,7 +50,7 @@ const NOMBRE = ['Andoni', 'Eric'];
             {preguntas.lista.map((x, i) => i > 0 && <button type="button" class="chip" data-q={i}>{x.q}</button>)}
           </div>
         </div>
-        <form class="compositor cruces" data-libre novalidate>
+        <form class="compositor" data-libre novalidate>
           <label for="otra" class="sr-only">{preguntas.libre.etiqueta}</label>
           <input id="otra" name="otra" type="text" autocomplete="off" maxlength="160" placeholder="Escribe otra pregunta…" class="campo text-ui" aria-describedby="otra-ayuda" />
           <button type="submit" class="mandar" aria-label={preguntas.libre.boton}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg></button>
@@ -183,7 +183,7 @@ const NOMBRE = ['Andoni', 'Eric'];
   .burbuja.tu {
     align-self: flex-end;
     max-width: 82%;
-    border-radius: 0;
+    border-radius: 18px 18px 4px 18px;
     background: var(--color-cacao);
     color: var(--color-niebla);
     font-weight: 500;
@@ -208,7 +208,7 @@ const NOMBRE = ['Andoni', 'Eric'];
     background: var(--color-nogal);
   }
   .burbuja.ellos {
-    border-radius: 0;
+    border-radius: 18px 18px 18px 4px;
     background: color-mix(in oklab, #fff 58%, transparent);
     box-shadow: inset 0 0 0 1px var(--rule);
     color: var(--color-cacao);
@@ -270,7 +270,7 @@ const NOMBRE = ['Andoni', 'Eric'];
   }
   .chip {
     padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
-    border-radius: 0;
+    border-radius: var(--radius-full);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 30%, transparent);
     font-size: var(--text-aux);
     font-weight: 500;
@@ -287,7 +287,7 @@ const NOMBRE = ['Andoni', 'Eric'];
   .compositor {
     display: flex;
     align-items: center;
-    gap: 0; /* ronda 69: campo y botón, un solo bloque recto con cruces */
+    gap: calc(var(--spacing) * 3); /* ronda 76: vuelven los redondeos: campo en píldora y botón redondo */
     margin-top: calc(var(--spacing) * 6);
   }
   .campo {
@@ -295,7 +295,7 @@ const NOMBRE = ['Andoni', 'Eric'];
     min-width: 0;
     min-height: calc(var(--spacing) * 12);
     padding-inline: calc(var(--spacing) * 4);
-    border-radius: 0;
+    border-radius: var(--radius-full);
     background: color-mix(in oklab, #fff 50%, transparent);
     box-shadow: inset 0 0 0 1px var(--rule);
     font-size: max(1rem, var(--text-ui)); /* nunca por debajo de 16 px: iOS hace zoom */
@@ -310,7 +310,7 @@ const NOMBRE = ['Andoni', 'Eric'];
     height: calc(var(--spacing) * 12);
     display: grid;
     place-items: center;
-    border-radius: 0;
+    border-radius: 50%;
     background: var(--color-cacao);
     color: var(--color-niebla);
     cursor: pointer;

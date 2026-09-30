@@ -157,16 +157,19 @@ import { nav, pie } from '../data/home';
   dlg.querySelector('[data-reel-play]')!.addEventListener('click', alternarReel);
   dlg.querySelector('[data-reel-son]')!.addEventListener('click', () => (vid.muted = !vid.muted));
   hilo.addEventListener('pointerdown', (e) => { const r = hilo.getBoundingClientRect(); if (vid.duration) vid.currentTime = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * vid.duration; });
-  reelBt.addEventListener('click', () => {
-    const r = reelBt.getBoundingClientRect(); origenReel = [r.left + r.width / 2, r.top + r.height / 2];
+  // RONDA 76 · también lo abre la pieza del reel en «Más proyectos» ([data-abre-reel]): se pinta desde ella
+  const abrirReel = (desde: HTMLElement) => {
+    const r = desde.getBoundingClientRect(); origenReel = [r.left + r.width / 2, r.top + r.height / 2];
     if (!vid.src) vid.src = '/media/reel/reel.mp4';
     vid.currentTime = 0; vid.muted = false; estadoReel();
     cerrandoReel = false;
     dlg.showModal(); dlg.classList.add('on');
     dibujar(panel, { estacion: true, abrir: true, origen: origenReel, color: LINEA_REEL() });
     vid.play().catch(() => {});
-    poner(false);
-  });
+    if (abierto) poner(false);
+  };
+  reelBt.addEventListener('click', () => abrirReel(reelBt));
+  document.addEventListener('click', (e) => { const d = (e.target as HTMLElement).closest?.<HTMLElement>('[data-abre-reel]'); if (d) abrirReel(d); });
   const cerrarReel = () => {
     if (!dlg.open || cerrandoReel) return;
     cerrandoReel = true; vid.pause(); dlg.classList.remove('on');

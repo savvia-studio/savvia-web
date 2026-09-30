@@ -9,7 +9,7 @@
 // el fundido a 0 y la limpieza de temporizadores corren siempre.
 
 type Estacion = 'primavera' | 'verano' | 'otono' | 'invierno';
-const CLAVE = 'savvia:sonido';
+const CLAVE = 'savvia:son'; // ronda 76: clave nueva: el sonido arranca APAGADO para todos, también para quien lo encendió antes (Eric)
 // RONDA 46 · «cuando te sientas, el sonido muy de fondo, como si estuvieses en modo focus con unos cascos puestos: los escuchas, pero más de fondo»:
 // sentado, el ambiente pasa por unos CASCOS: paso bajo que cierra de 18 kHz a 480 Hz (se va el aire, quedan el cuerpo y el grave), un pico suave en
 // 180 Hz (la presión de la almohadilla) y la mitad de volumen. Entra y sale en el tiempo del viaje de cámara (~1,5 s). Los efectos de interfaz no

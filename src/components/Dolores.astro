@@ -5,7 +5,6 @@ import TarjetaPaso from './TarjetaPaso.astro'; // ronda 54: «la animación de d
 interface Props { id?: string; tarjetas?: boolean }
 const { id = 'recorrido', tarjetas = false } = Astro.props;
 const pasos = recorrido.pasos;
-const pad = (n: number) => String(n).padStart(2, '0');
 // cada dolor, su rama (láminas de Andoni, public/media/flora/): el fruto que no se ve · el patrón de cualquiera · la mata sin porqué · la espera del invierno
 const RAMAS = ['rama-roble-bellotas', 'helecho', 'brezo', 'acebo-bayas-rojas'];
 // y su estación (el óleo de fondo de cada tarjeta): el recorrido pasa por el año
@@ -28,10 +27,6 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
   · La flora, mucho más sutil. Sin fijar el scroll. Móvil: una columna. Movimiento reducido: todo vivo y el trazo entero.
 -->
 <section id={id} class={`dolores surface-dark ${tarjetas ? 'con-tarjetas' : ''}`} aria-label={recorrido.pregunta} data-dolores data-sin-fila>
-  <!-- el agua del titular de Proyectos: ruido suave y ancho → desplazamiento que el JS apaga (el titular «se crea en agua») -->
-  {tarjetas && (
-    <svg width="0" height="0" class="absolute" aria-hidden="true"><filter id="agua-titular" x="-10%" y="-40%" width="120%" height="180%"><feTurbulence type="fractalNoise" baseFrequency="0.018 0.028" numOctaves="1" seed="1" /><feDisplacementMap in="SourceGraphic" scale="22" xChannelSelector="G" yChannelSelector="R" /></filter></svg>
-  )}
   <svg class="hilo" aria-hidden="true" data-hilo>
     <defs>
       <!-- el trazo pasa POR DETRÁS de cada bloque de texto (no tacha lo que se lee) -->
@@ -55,10 +50,9 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       pasos.map((p, k) => (
         <li class={`parada ${k % 2 ? 'derecha' : ''}`} data-parada={k}>
           <div class="texto">
-            <p class="num detail">{pad(k + 1)}</p>
-            <h2 class="dolor text-h1 font-display">{p.dolor}</h2>
+            <h2 class="dolor detail">{p.dolor}</h2>
             <div class="respuesta">
-              <p class="t text-h3 font-display">{p.t}</p>
+              <p class="t text-h1 font-display">{p.t}</p>
               <p class="d text-sub mt-3">{p.d}</p>
             </div>
           </div>
@@ -90,7 +84,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     let est = estacionActual();
     const ramas = [...sec.querySelectorAll<HTMLElement>('[data-parada]')].map((li) => {
       const el = li.querySelector<HTMLElement>('[data-rama]')!;
-      return { li, el, img: el.querySelector<HTMLImageElement>('[data-lamina]')!, cv: el.querySelector<HTMLCanvasElement>('[data-lienzo]')!, tarjeta: li.querySelector<HTMLElement>('[data-tarjeta]'), t: null as Estela | null, sana: false, dibujada: false };
+      return { li, el, img: el.querySelector<HTMLImageElement>('[data-lamina]')!, cv: el.querySelector<HTMLCanvasElement>('[data-lienzo]')!, tarjeta: li.querySelector<HTMLElement>('[data-tarjeta]'), t: null as Estela | null, sana: false, dibujada: false, cerca: false, pendiente: false };
     });
     type Rama = (typeof ramas)[number];
     const crear = (r: Rama) => {
@@ -140,7 +134,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
         r.cv = cv; r.img = nuevo; r.t = null;
         crear(r);
         const t = r.t as Estela | null; // crear() lo pone (TypeScript no lo ve)
-        const soltar = () => { (viejo.getContext('webgl') || viejo.getContext('webgl2'))?.getExtension('WEBGL_lose_context')?.loseContext(); viejo.remove(); };
+        const soltar = () => { { const g = (viejo.getContext('webgl') || viejo.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } viejo.remove(); };
         if (!t || !dibujado || reducido) { t?.crecer(dibujado ? 1 : 0); return soltar(); }
         t.visible(true); t.crecer(0);
         let a = 0;
@@ -150,14 +144,15 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     };
     ramas.forEach((r) => {
       if (r.tarjeta) new IntersectionObserver((e) => r.tarjeta!.classList.toggle('fuera', !e[0].isIntersecting)).observe(r.tarjeta);
-      new IntersectionObserver((e) => { if (e[0].isIntersecting) crear(r); }, { rootMargin: '600px 0px' }).observe(r.el);
+      // RONDA 76 · el óleo nuevo de un cambio de estación solo se monta si la rama está cerca: desde el hero, cada cambio creaba tres contextos WebGL más
+      new IntersectionObserver((e) => { r.cerca = e[0].isIntersecting; if (r.cerca) { if (r.pendiente && !r.t) { r.pendiente = false; r.img.src = `/media/tarjetas/${EST_N[est]}-${r.el.dataset.k}-v.webp`; } crear(r); if (r.pendiente) { r.pendiente = false; cambiarOleo(r); } } }, { rootMargin: '600px 0px' }).observe(r.el);
       new IntersectionObserver((e) => { r.t?.visible(e[0].isIntersecting); if (e[0].isIntersecting) dibujarRama(r); }, { threshold: 0.2 }).observe(r.el);
     });
     addEventListener('savvia:estacion', (ev) => {
       const n = (ev as CustomEvent).detail.n as number;
       if (n === est) return;
       est = n;
-      if (conTarjetas) return ramas.forEach((r) => cambiarOleo(r));
+      if (conTarjetas) return ramas.forEach((r) => (r.cerca ? cambiarOleo(r) : (r.pendiente = true)));
       ramas.forEach((r) => { if (!r.t) return; r.t.fondo(...NOCHE[n]); if (r.sana) r.t.renacer(n); });
     });
 
@@ -280,25 +275,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       if (l >= total - 2 && !hecho) { hecho = true; }
       titular();
     };
-    // EL TITULAR de Proyectos: solo lo genera la dirección con tarjetas, cuando la gota ha terminado y el titular asoma
-    const h2 = document.querySelector<HTMLElement>('[data-titulo] h2');
-    const titular = () => {
-      if (!conTarjetas || !hecho || !h2 || h2.classList.contains('generado')) return;
-      const r = h2.getBoundingClientRect();
-      if (r.top + r.height / 2 >= innerHeight * 0.78) return;
-      // el PULSO DE AGUA nace donde acaba la RAÍZ (arriba al centro del titular-pantalla: ahí cae la gota) y, al llegar, el titular SE FORMA EN EL AGUA:
-      // una onda lo descubre y el texto sale ondulado (desplazamiento con ruido, SVG) y se asienta (global.css › .pulso-agua, h2.generado)
-      const pulso = document.createElement('div'); pulso.className = 'pulso-agua'; pulso.setAttribute('aria-hidden', 'true'); pulso.innerHTML = '<i></i><i></i><i></i><i></i>';
-      h2.parentElement!.append(pulso); setTimeout(() => pulso.remove(), 4200);
-      h2.classList.add('generado');
-      const onda = document.querySelector<SVGFEDisplacementMapElement>('#agua-titular feDisplacementMap'), ruido = document.querySelector<SVGFETurbulenceElement>('#agua-titular feTurbulence');
-      if (onda && ruido) {
-        // ondulado redondo y corto (con más desplazamiento lateral las letras parecían cursivas: rechazado)
-        let a = 0;
-        const paso = (ahora: number) => { if (!a) a = ahora; const k = Math.min(1, (ahora - a) / 2600); onda.setAttribute('scale', (22 * Math.pow(1 - k, 1.6)).toFixed(2)); ruido.setAttribute('seed', String(1 + Math.floor(k * 18))); if (k < 1) requestAnimationFrame(paso); else h2.classList.add('asentado'); };
-        requestAnimationFrame(paso);
-      }
-    };
+    const titular = () => {}; // ronda 76: el titular de Proyectos ya no se genera con ondas (ver global.css)
     let raf = 0;
     const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
     addEventListener('scroll', pedir, { passive: true });
@@ -306,7 +283,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     ramas.forEach((r) => r.img.addEventListener('load', () => medir(), { once: true }));
     document.fonts.ready.then(medir);
     medir();
-    const sonda = () => ({ sanas: ramas.map((r) => r.sana), vivas: ramas.map((r) => !!r.tarjeta?.classList.contains('viva')), total: Math.round(total), llegadas: llegadas.map((k) => Math.round(acum[k])), dibujado: Math.round(total + 20 - parseFloat(guia.style.strokeDashoffset || '0')), hecho, titular: !!h2?.classList.contains('generado') });
+    const sonda = () => ({ sanas: ramas.map((r) => r.sana), vivas: ramas.map((r) => !!r.tarjeta?.classList.contains('viva')), total: Math.round(total), llegadas: llegadas.map((k) => Math.round(acum[k])), dibujado: Math.round(total + 20 - parseFloat(guia.style.strokeDashoffset || '0')), hecho });
     ((window as any).__dolores ??= {})[sec.id] = sonda;
   });
 </script>
@@ -395,7 +372,11 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     top: 50%;
     width: 104%; /* ronda 55: el óleo, bajo la demo (portrait 640 × 968) */
     translate: -50% -46%;
-    opacity: 0.52; /* ronda 55: el óleo ya viene hundido en la noche por el motor */
+    /* RONDA 76 · Eric: «me despista ver Donostia; me fijo en lo de atrás» → Andoni: «las dejamos, con menos presencia»: más tenue y fundido hacia
+       los bordes (antes 0,52) */
+    opacity: 0.3;
+    -webkit-mask-image: radial-gradient(closest-side, #000 45%, transparent);
+    mask-image: radial-gradient(closest-side, #000 45%, transparent);
     transition: opacity 1.4s ease;
   }
   .con-tarjetas .parada:not(.sana) .rama {
@@ -420,20 +401,32 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
   .rama img { opacity: 0; } /* es la textura del motor; sin WebGL, la lámina tenue */
   .rama.sin-gl img { opacity: 0.35; filter: grayscale(1); }
   .sana .rama.sin-gl img { filter: none; opacity: 0.6; }
-  .num {
-    color: var(--color-coral);
-    margin-bottom: calc(var(--spacing) * 4);
-  }
+  /* RONDA 77 · Andoni: «los problemas se tienen que ver más como un eyebrow» (petición expresa: «eyebrows encima de titulares» estaba en lo rechazado):
+     el dolor, en mono pequeño con un punto de savia, encima de la respuesta, que es el titular */
   .dolor {
-    max-width: 13ch;
-    text-wrap: balance;
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 2);
+    font-family: var(--font-mono);
+    color: var(--fg);
     transition: color 0.9s ease 0.2s;
+  }
+  .dolor::before {
+    content: '';
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-coral);
+    translate: 0 -1px;
   }
   /* resuelto: el dolor se apaga y la respuesta sube desde el desenfoque */
   .sana .dolor { color: var(--fg2); }
+  /* RONDA 76 · Eric: «la respuesta tiene que ser más grande que el problema»: el dolor, pequeño (h3); la respuesta, el titular (h1) */
+  .respuesta .t { max-width: 13ch; text-wrap: balance; }
   .respuesta {
-    max-width: 30rem;
-    margin-top: calc(var(--spacing) * 8);
+    max-width: 34rem;
+    margin-top: calc(var(--spacing) * 4);
     opacity: 0;
     filter: blur(8px);
     translate: 0 12px;
@@ -447,7 +440,6 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     .parada { display: flex; flex-direction: column; align-items: stretch; min-height: 0; gap: calc(var(--spacing) * 8); }
     .lado { width: 78%; align-self: center; }
     .con-tarjetas .lado { width: 100%; }
-    .dolor { max-width: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .dolor, .respuesta, .con-tarjetas .rama { transition: none; }

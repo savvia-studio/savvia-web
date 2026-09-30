@@ -57,12 +57,24 @@ const FS = [
   '  float nv=n2(px*.022+11.)*.7+n2(px*.09+5.)*.3;',
   '  vec3 vv=nv<.5?mix(vec3(.62,.82,.42),vec3(1.),nv*2.):mix(vec3(1.),vec3(.55,.9,.86),nv*2.-1.);',
   '  ce=mix(ce,clamp(ce*vv*vec3(1.08,1.06,1.)+vec3(.05,.07,0.)*smoothstep(.55,1.,yl),0.,1.),verde);',
-  '  col=mix(col,clamp(mix(ce,col,.14),0.,1.),ek>1.5?1.:hoja*ek);',  // ronda 42: intensidad > 1,5 = se tiñe TODA la lámina (la flora: el helecho es verde pálido y el umbral de hoja no lo cogía)
+  // RONDA 76 · Eric: «en primavera, tonos de rosa algo más oscuros y variados, como los verdes del verano; más explosivo»: si el color de la estación es
+  // rosa, cada mata vira entre un rosa hondo (casi frambuesa), el del cerezo y un blanco rosado de flor, con el mismo ruido a dos escalas
+  '  float rosa=smoothstep(.1,.2,es.r-es.g)*smoothstep(.04,.1,es.b-es.g);',
+  '  float nr=clamp((n2(px*.013+23.)*.6+n2(px*.06+9.)*.4-.5)*1.7+.5,0.,1.);',
+  '  vec3 vr=nr<.5?mix(vec3(.46,.17,.33),vec3(.9,.72,.84),nr*2.):mix(vec3(.9,.72,.84),vec3(1.2,1.06,1.12),nr*2.-1.);',
+  '  ce=mix(ce,clamp(ce*vr,0.,1.),rosa);',
+  '  col=mix(col,clamp(mix(ce,col,.14),0.,1.),ek>1.5?1.:hoja*(min(es.r,min(es.g,es.b))>.9?1.:ek));', // ronda 76: la nieve (color casi blanco) cubre entera  // ronda 42: intensidad > 1,5 = se tiñe TODA la lámina (la flora: el helecho es verde pálido y el umbral de hoja no lo cogía)
   '  if(ev>=0.)col=mix(col,naranja,(1.-smoothstep(.02,.22,ev*1.45-d0-.1+rz))*fe*.5*hoja);',
   // RONDA 65 · «en invierno el árbol sin hojas»: con raleo 1 se van TODAS (no solo las claras); queda la madera
   // con raleo 1 la hoja se mide en el color ORIGINAL de la lámina (antes de hundirlo en la noche): también las hojas en sombra tienen tono; la madera es gris
   '  vec3 co=c.rgb/max(c.a,.001);float so=max(co.r,max(co.g,co.b))-min(co.r,min(co.g,co.b));',
   '  float desnudo=smoothstep(.7,1.,es.w);',
+  // RONDA 76 · Eric: «en invierno, quitarle las hojitas y que parezca más nevado»: con el árbol desnudo, NIEVE en lo que mira al cielo: donde la madera
+  // tiene encima vacío (o solo hoja, que se va), su canto de arriba se cubre de blanco frío
+  '  vec4 cn=texture2D(T,v-vec2(0.,2.5*dpr*u1.y));vec3 cno=cn.rgb/max(cn.a,.001);float sno=max(cno.r,max(cno.g,cno.b))-min(cno.r,min(cno.g,cno.b));',
+  '  float vacio=1.-smoothstep(.15,.55,cn.a)*(1.-smoothstep(.13,.23,sno));',
+  '  float nieve=desnudo*vacio*smoothstep(.25,.6,c.a)*(1.-smoothstep(.13,.23,so))*(.75+.25*n2(px*.3));',
+  '  col=mix(col,vec3(.9,.93,.97),nieve*.9);',
   '  a*=1.-hoja*es.w*(1.-desnudo)*smoothstep(.35,.75,dot(co,vec3(.299,.587,.114))+h2(floor(px/2.))*.25);',
   '  a*=1.-desnudo*smoothstep(.13,.23,so);',
   '  col=clamp(tono(col,.1*sin(ti*.21+v.x*2.4-v.y*3.1)*soplo),0.,1.);',
@@ -118,6 +130,8 @@ const FS = [
 const c = (h: string, raleo = 0) => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255, raleo];
 export const ESTACIONES_ARBOL = [c('#c65c2d'), c('#6e7b91', 1), c('#c76b83'), c('#67834d')]; // ronda 65: invierno sin hojas (raleo 1)
 export const ESTACIONES_SIN_RALEO = ESTACIONES_ARBOL.map((e) => [e[0], e[1], e[2], 0]);
+// RONDA 76 · Eric: «en invierno, las hierbas todo nevado, nieve pura»: el paisaje del pie en invierno se pinta en blanco de nieve (con su sombra azulada)
+export const ESTACIONES_PIE = ESTACIONES_SIN_RALEO.map((e, i) => (i === 1 ? [0.95, 0.96, 0.99, 0] : e));
 
 export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void };
 
@@ -127,11 +141,19 @@ export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: n
 // navegadores solo mantienen 16 (Chrome y Safari tiran el más antiguo: el árbol del hero y las raíces). Ahora cada lienzo SUELTA su contexto
 // cuando queda a más de una pantalla (WEBGL_lose_context) y lo recupera al acercarse: se vuelve a montar (programa, textura y el estado que tenía:
 // estación, fondo, origen, luz), sin repetir su aparición. Así nunca se llega al límite, y lo lejano no gasta memoria de GPU.
-export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number }): Estela | null {
+// RONDA 76 · Eric: «la web se ralentiza; la primera vez iba a trompicones». Medido: al volver a una sección cada lienzo dormido rehacía programa y
+// textura en pleno scroll (tareas de 60–180 ms). Hoy la home tiene 8 contextos (antes 18: se fueron flora y tarjetas de agua): solo se duerme si hay
+// más de LIMITE vivos a la vez; por debajo, cada lienzo conserva el suyo y volver no cuesta nada.
+// Safari (WebKit) no libera enseguida los contextos de los lienzos retirados al cambiar de estación y llega a su tope: ahí se sigue durmiendo lo lejano.
+const LIMITE = typeof navigator !== 'undefined' && /Apple/.test(navigator.vendor) ? 0 : 12;
+let vivos = 0;
+export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean }): Estela | null {
   const ctx = { premultipliedAlpha: true, alpha: true, antialias: false };
   const gl2 = cv.getContext('webgl2', ctx) as WebGL2RenderingContext | null;
   const gl = (gl2 ?? cv.getContext('webgl', ctx)) as WebGLRenderingContext | null;
   if (!gl) return null;
+  vivos++;
+  cv.addEventListener('webglcontextlost', () => { if (!cv.isConnected) vivos--; }, { once: true });
   const ESTACIONES = op.estaciones ?? ESTACIONES_ARBOL;
   // el ESTADO que hay que volver a poner si el contexto se suelta y se recupera
   let foV: [number, number, number] = [0.188, 0.125, 0.094], oV: [number, number] = [op.origen[0], op.origen[1]], lxV = 0;
@@ -211,7 +233,9 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   };
   const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
   const medir = () => {
-    const r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    // RONDA 76 · rendimiento en pantallas retina: el paisaje del pie (tres lienzos a todo el ancho), los óleos y las raíces se pintan a 1,5 (son
+    // acuarela blanda: no se nota) y solo el árbol del hero a 2. En un Mac, 2,25 → 1,5 = un 44 % menos de píxeles por fotograma en esos lienzos
+    const r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, op.hd ? 2 : 1.5);
     const w = Math.max(1, Math.round(r.width * dpr)), hh = Math.max(1, Math.round(r.height * dpr));
     if (w !== cv.width || hh !== cv.height) { cv.width = w; cv.height = hh; }
     gl.viewport(0, 0, w, hh); gl.uniform2f(uR, w, hh); gl.uniform1f(uD, dpr);
@@ -240,7 +264,11 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   // soltar y recuperar el contexto según la distancia a la pantalla (ver arriba)
   const ext = gl.getExtension('WEBGL_lose_context');
   let dormido = false;
-  cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); listo = false; if (raf) { cancelAnimationFrame(raf); raf = 0; } });
+  cv.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault(); listo = false; if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    // si lo ha tirado el NAVEGADOR (tope de contextos) y no nosotros: se recupera en cuanto se pueda (a la vista, ya; lejos, al acercarse)
+    if (!dormido && cv.isConnected) { dormido = true; if (!lejos) setTimeout(() => ext?.restoreContext(), 120); }
+  });
   cv.addEventListener('webglcontextrestored', () => {
     dormido = false;
     if (!montar()) return;
@@ -249,7 +277,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     if (cargada) { textura(); listo = true; medir(); }
   });
   let lejos = false;
-  const dormir = () => { if (ext && lejos && !dormido && listo && !gl.isContextLost()) { dormido = true; ext.loseContext(); } };
+  const dormir = () => { if (ext && lejos && vivos > LIMITE && !dormido && listo && !gl.isContextLost()) { dormido = true; ext.loseContext(); } };
   if (ext) new IntersectionObserver(([e]) => {
     lejos = !e.isIntersecting;
     if (lejos) dormir();

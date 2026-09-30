@@ -21,14 +21,26 @@
 //     dependen del tamaño real de la lámina en pantalla: el JS mide la mesa y deja la escala en `--s`.
 //   · Barras de navegador a 16 px (antes 24).
 import { proyectos } from '../data/home';
+import { proyectos as OBRA } from '../data/proyectos';
+// RONDA 77 · Andoni: «donde estaban los logos pusimos el reel, pero prefiero HEROES que van rotando con el estilo del resto, rotando entre varios»: la
+// pieza de entrada es una pieza de marca más (degradado de su web + navegador que asoma), que rota entre los heroes de los destacados
+const HEROES = ['multiverse', 'amarra', 'playground', 'neety'].map((slug) => OBRA.find((o) => o.slug === slug)!).filter(Boolean);
 const A = proyectos.anteriores;
 const CELDAS = proyectos.celdas, T = proyectos.testimonios;
-const pad = (n: number) => String(n).padStart(2, '0');
+// RONDA 76 · «los logos, más grandes y proporcionales cada uno a su logo»: mismo PESO ÓPTICO para todos (área constante): ancho ∝ √proporción,
+// alto ∝ 1/√proporción, con la proporción leída del archivo (viewBox del SVG o cabecera del PNG) al compilar.
+import sharp from 'sharp';
+const PROP: Record<string, number> = {};
+for (const url of new Set(CELDAS.flat().map((it) => it.logo).filter(Boolean) as string[])) {
+  try { const m = await sharp(`public${url}`).metadata(); PROP[url] = (m.width ?? 3) / (m.height ?? 1); } catch { PROP[url] = 3; }
+}
+const proporcion = (url: string) => PROP[url] ?? 3;
+const talla = (url: string) => { const r = Math.sqrt(proporcion(url)); return `--lw:${(3.1 * r).toFixed(2)}rem;--lh:${(3.1 / r).toFixed(2)}rem`; };
 // RONDA 65 · dos FRANJAS entre filas del mosaico: HECHOS Y LOGOTIPOS tras la primera (estilo minimum.run: una línea, la frase a la izquierda, los hechos
 // numerados a la derecha y el muro de logotipos en baldosas, cada logotipo una máscara en el color del texto) y TESTIMONIOS tras la tercera (la captura de
 // Andoni: franja oscura a sangre, una línea sobre cada uno, el RETRATO grabado —la imagen la prepara Andoni; sin ella, la tarjeta empieza por la cita—,
 // el nombre y el cargo). Fuera las voces que rotaban, el reproductor dormido y la flora.
-type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean };
+type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble' | 'tel'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean; fondo?: string };
 // Los DEGRADADOS salen de los colores de la web de cada cliente (home.ts › color); las escenas no llevan degradado (llevan la mesa).
 // RONDA 40 · «los testimonios ponemos menos cantidad y que sean animados y vayan rotando; si se nos ocurre alguna manera original de mostrarlos,
 // mejor»: TRES voces en un solo sitio del mosaico, junto a Isotrol. Cada cita entra palabra a palabra (el gesto de los titulares), un hilo de savia
@@ -37,17 +49,17 @@ const SITIO: Sitio[] = [
   { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'escena', est: 'otono', zoom: 3.3, cy: 0.6 },
   { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5 },
   { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6 }, // ronda 20: «Cubbo lo dejamos como estaba con el fondo de gradiente» (el iMac de roble queda en QUAD, sin uso)
-  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'movil', zoom: 1.9, cy: 0.5 }, // ronda 30: con 1,35 la lámina (16:9) no cubría la pieza cuadrada (ni redondeaba)
+  // RONDA 76 · Eric: «Remerge, Isotrol y Naterra: detrás algo con su marca en vez de las estaciones». Remerge, su amarillo con la web en un teléfono;
+  // Isotrol, el atardecer con aerogeneradores de su portada (redibujado en silueta); Naterra, la madera de su propia web.
+  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'movil', zoom: 1.9, cy: 0.5 }, // ronda 77: Andoni, «Remerge con el mockup que teníamos antes, me gustaba más» (el teléfono de la ronda 76, fuera)
   // RONDA 67 · «al final solo 2 proyectos, no 3» (Naterra sube) y «la línea de Isotrol, Monad y Naterra, como la primera»: la misma composición que la
   // primera fila (cuadrada a la izquierda, 3 : 4 en el centro, 4 : 5 bajada a la derecha)
-  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'escena', est: 'invierno', zoom: 2.9, cy: 0.56 },
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'claro', g: 'g-marca', giro: 5, izq: true },
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'escena', est: 'primavera', zoom: 3.1, cy: 0.58 },
+  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, fondo: '/media/anteriores/fondos/isotrol.svg' },
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, izq: true }, // ronda 76: Monad sobre su verde (en claro se confundía con la página)
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: -5, izq: true, fondo: '/media/anteriores/fondos/naterra.jpg' },
   { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -5 },
   { col: '8 / span 4', ratio: '4 / 5', baja: 40, tipo: 'mancha', g: 'g-marca', giro: 4, izq: true },
 ];
-// los logotipos que rotan en la pieza de entrada: solo los proyectos que tienen el suyo
-const AL = A.filter((c) => c.logo);
 // RONDA 42 · «los testimonios no van antes de nuestros proyectos, van entre medias, y que puedas cambiar de testimonio con unas flechas muy sutiles»:
 // una fila entera en medio del mosaico (tras la primera fila de proyectos), centrada; el nombre de quien habla entre dos flechas finas.
 // la pantalla del monitor dentro de la lámina de la mesa (medida en la ronda 6)
@@ -86,19 +98,22 @@ function escenaQuad(k: string) {
          naranja, y la flecha más minimalista» -->
     <div class="cabecera flex flex-wrap items-end justify-between gap-6">
       <h2 id="ant-h" class="text-h1 max-w-[12ch]" data-entra>{proyectos.titulo2}</h2>
-      <a href={proyectos.enlace.href} class="todos text-ui font-medium"><span>{proyectos.enlace.label}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5" /></svg></a>
     </div>
     <div class="mosaico mt-24 lg:mt-32">
       <!-- la pieza de entrada: solo degradado, con el símbolo (la gota) y el texto debajo -->
       <!-- RONDA 18 · «el logo que está encima del gradiente, ser los de los proyectos rotando con un efecto líquido de transición»: los cinco
            logotipos se relevan fundiéndose como gotas (filtro gooey solo durante el relevo: en reposo el logotipo se ve limpio) y el degradado
            de detrás vira a los colores de cada proyecto (@property: los colores se interpolan). -->
-      <div class="pieza entrada" data-pieza style="--i:0">
-        <div class="lamina g-marca rota" data-rota data-colores={JSON.stringify(AL.map((c) => c.color))} style={`--c1:${AL[0].color[0]};--c2:${AL[0].color[1]};--c3:${AL[0].color[2]}`}>
-          <div class="logos" role="img" aria-label={`Logotipos: ${AL.map((c) => c.n).join(', ')}`}>
-            {AL.map((c, i) => <i class={i === 0 ? 'on' : ''} style={`--logo:url('/media/anteriores/logos/${c.logo}.svg')`} data-logo />)}
-          </div>
-        </div>
+      <div class="pieza entrada mancha" data-pieza style={`--i:0;--giro:5deg`}>
+        <a class="lamina g-marca rota" href="/proyectos" aria-label="Ver todos los proyectos" data-rota data-colores={JSON.stringify(HEROES.map((h) => h.colores))} style={`--c1:${HEROES[0].colores[0]};--c2:${HEROES[0].colores[1]};--c3:${HEROES[0].colores[2]}`}>
+          {HEROES.map((h, i) => (
+            <div class={`mockup heroe ${i === 0 ? 'on' : ''}`} data-heroe>
+              <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{h.dominio ?? h.slug}</b></span>
+              <img src={`/media/obra/${h.slug}/portada.jpg`} alt={`Portada de la web de ${h.nombre}`} width="1440" height="810" loading="lazy" decoding="async" />
+            </div>
+          ))}
+          <h3 class="nombre font-display" aria-live="off">{HEROES.map((h, i) => <span class={i === 0 ? 'on' : ''} data-heroe-n>{h.nombre}</span>)}</h3>
+        </a>
         <p class="pie text-aux text-fg2 mt-4">{proyectos.intro2}</p>
       </div>
       {
@@ -108,7 +123,7 @@ function escenaQuad(k: string) {
           const Z = s.zoom ?? 3;
           const quad = s.tipo === 'movil' || s.tipo === 'roble' ? escenaQuad(s.tipo) : null;
           const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
-          const esMovil = s.tipo === 'movil';
+          const esMovil = s.tipo === 'movil' || s.tipo === 'tel';
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
           const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}.mp4" type="video/mp4" /></video>`;
           return (
@@ -137,7 +152,7 @@ function escenaQuad(k: string) {
                             {it.texto ? (
                               <p class="marca-txt"><i class="mk" style={`--logo:url('${it.logo}')`} aria-hidden="true" />{it.texto}</p>
                             ) : (
-                              <i class="mk grande" role="img" aria-label={it.n} style={`--logo:url('${it.logo}')`} />
+                              <i class="mk grande" role="img" aria-label={it.n} style={`--logo:url('${it.logo}');${talla(it.logo!)}`} />
                             )}
                           </>
                         )}
@@ -178,7 +193,7 @@ function escenaQuad(k: string) {
               </figure>
             )}
             <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
-              <div class={`lamina ${s.g ?? ''}`}>
+              <div class={`lamina ${s.g ?? ''} ${s.fondo ? 'con-fondo' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : undefined}>
                 {s.tipo === 'escena' ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
                     <img class="foto" src={`/media/estudio/${s.est}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
@@ -189,6 +204,8 @@ function escenaQuad(k: string) {
                     <img class="foto" src={`/media/anteriores/${QUAD[s.tipo].foto}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
                     <span class="pantalla quad" style={`left:${((quad.x0 / LAM.w) * 100).toFixed(3)}%;top:${((quad.y0 / LAM.h) * 100).toFixed(3)}%;width:${((quad.W / LAM.w) * 100).toFixed(3)}%;height:${((quad.H / LAM.h) * 100).toFixed(3)}%;transform:${quad.matriz}`}><Fragment set:html={video} /></span>
                   </div>
+                ) : s.tipo === 'tel' ? (
+                  <div class="tel-m"><span class="tel-pant"><Fragment set:html={video} /></span></div>
                 ) : (
                   <div class="mockup">
                     <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{c.dominio}</b></span>
@@ -208,44 +225,6 @@ function escenaQuad(k: string) {
     </div>
   </div>
 </section>
-
-<script>
-  // RONDA 53 · EL CILINDRO. Andoni: «la sección de más proyectos: al hacer scroll, que parezca como que la página está curvada hacia dentro, como si fuese
-  // un cilindro». Cada bloque (cabecera, piezas, voces) se coloca sobre la cara INTERIOR de un cilindro horizontal de radio R centrado en la pantalla:
-  // a un ángulo φ = d / R de la mitad de la pantalla, se acerca R·(1 − cos φ) (translateZ), se recoge hacia el centro (R·sen φ − d) y se inclina φ para mirar
-  // a quien lee (rotateX: por debajo del centro, su borde de abajo se acerca; por encima, el de arriba). El centro de cada bloque se mide SIN transformar
-  // (al cargar, al cambiar de tamaño la sección y al redimensionar) y el scroll solo escribe `transform`. Solo con la sección a la vista; sin movimiento reducido.
-  {
-    const sec = document.getElementById('anteriores');
-    if (sec && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const els = [...sec.querySelectorAll<HTMLElement>('.cabecera, .mosaico > .pieza, .mosaico > .banda')];
-      let centros: number[] = [], vista = false, raf = 0;
-      const medir = () => {
-        els.forEach((e) => (e.style.transform = ''));
-        centros = els.map((e) => { const r = e.getBoundingClientRect(); return r.top + scrollY + r.height / 2; });
-        pintar();
-      };
-      const pintar = () => {
-        raf = 0;
-        const vh = innerHeight, R = vh * (innerWidth < 768 ? 1.25 : 0.95), P = vh * 1.6;
-        els.forEach((e, k) => {
-          const d = centros[k] - scrollY - vh / 2;
-          const dc = Math.max(-1.25 * R, Math.min(1.25 * R, d)), phi = dc / R; // más allá del tope, el bloque se queda como en el tope (sin volver a entrar)
-          const z = R * (1 - Math.cos(phi)) * 0.55, dy = (R * Math.sin(phi) - dc) * 0.55, rx = (phi * 180) / Math.PI * 0.62;
-          e.style.transform = `perspective(${P.toFixed(0)}px) translate3d(0, ${dy.toFixed(1)}px, ${z.toFixed(1)}px) rotateX(${rx.toFixed(2)}deg)`;
-        });
-      };
-      const pedir = () => { if (vista && !raf) raf = requestAnimationFrame(pintar); };
-      new IntersectionObserver((es) => { vista = es[0].isIntersecting; pedir(); }, { rootMargin: '50% 0px' }).observe(sec);
-      addEventListener('scroll', pedir, { passive: true });
-      addEventListener('resize', medir);
-      new ResizeObserver(() => medir()).observe(sec);
-      addEventListener('load', medir);
-      document.fonts?.ready.then(medir);
-      (window as any).__cilindro = () => els.map((e) => e.style.transform);
-    }
-  }
-</script>
 
 <script>
   // RONDA 19 · el VÍDEO de cada web: al pasar el cursor o enfocar la pieza; en táctil (sin hover), mientras la pieza está a la vista.
@@ -310,9 +289,11 @@ function escenaQuad(k: string) {
           return (g(xi, yi) * (1 - sx) + g(xi + 1, yi) * sx) * (1 - sy) + (g(xi, yi + 1) * (1 - sx) + g(xi + 1, yi + 1) * sx) * sy;
         };
       })();
-      type Prep = { W: number; H: number; d: Float32Array; t: Float32Array; rgb: number[] };
+      type Prep = { W: number; H: number; d: Float32Array; t: Float32Array; rgb: number[]; im?: ImageData };
       const preparar = (img: HTMLImageElement, cv: HTMLCanvasElement): Prep | null => {
-        const dpr = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect(), W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+        // RONDA 76 · rendimiento («la web se ralentiza»): el retrato se calculaba y se repintaba píxel a píxel a densidad retina (≈520.000 px por
+        // fotograma durante 2,4 s en un Mac). A 1,25 el carboncillo se ve igual (es trazo blando) y cuesta 2,6 veces menos
+        const dpr = Math.min(1.25, devicePixelRatio || 1), r = cv.getBoundingClientRect(), W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
         if (!W || !img.naturalWidth) return null;
         cv.width = W; cv.height = H;
         const o = document.createElement('canvas'); o.width = W; o.height = H; const oc = o.getContext('2d')!;
@@ -339,7 +320,7 @@ function escenaQuad(k: string) {
         return { W, H, d, t, rgb: [m[0], m[1], m[2]] };
       };
       const pintar = (cv: HTMLCanvasElement, P: Prep, p: number) => {
-        const c = cv.getContext('2d')!, im = c.createImageData(P.W, P.H), o = im.data, [R, G, B] = P.rgb, n = P.W * P.H, lo = p * 1.18 - 0.14;
+        const c = cv.getContext('2d')!, im = (P.im ??= c.createImageData(P.W, P.H)), o = im.data, [R, G, B] = P.rgb, n = P.W * P.H, lo = p * 1.18 - 0.14;
         for (let i = 0; i < n; i++) {
           const di = P.d[i]; if (di < 0.02) continue;
           const q = (lo - P.t[i]) / 0.14, e = q <= 0 ? 0 : q >= 1 ? 1 : q * q * (3 - 2 * q);
@@ -361,10 +342,12 @@ function escenaQuad(k: string) {
         viejo.classList.remove('on'); nuevo.classList.add('on');
         if (!dibujado || reducido) { pintar(nuevo, P, 1); return; }
         const t0 = performance.now(), DUR = 2400;
+        let impar = false;
         const paso = (ahora: number) => {
           if (mia !== gen) return;
           const p = Math.min(1, (ahora - t0) / DUR);
-          pintar(nuevo, P, 1 - Math.pow(1 - p, 2.2));
+          impar = !impar;
+          if (impar || p >= 1) pintar(nuevo, P, 1 - Math.pow(1 - p, 2.2)); // a 30 fps: el dibujo avanza igual y el hilo queda libre la mitad de los fotogramas
           if (p < 1) requestAnimationFrame(paso);
         };
         requestAnimationFrame(paso);
@@ -408,53 +391,23 @@ function escenaQuad(k: string) {
   // ENTRADA de cada pieza al asomar (sin JS o con movimiento reducido están ya puestas: los estados ocultos cuelgan de html.anima)
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
   document.querySelectorAll('[data-pieza]').forEach((p) => io.observe(p));
-  // los logotipos que rotan: relevo cada 2,8 s, solo a la vista; el filtro gooey se enciende durante el relevo
+  // RONDA 77 · los HEROES que rotan en la pieza de entrada: cada 4,2 s, solo a la vista; el que se va se desenfoca y el que llega enfoca (el relevo de
+  // la casa) y el degradado vira a los colores de su web (@property --c1…3)
   const rota = document.querySelector<HTMLElement>('[data-rota]');
   if (rota && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const logos = [...rota.querySelectorAll<HTMLElement>('[data-logo]')], colores: string[][] = JSON.parse(rota.dataset.colores!);
-    let k = 0, reloj = 0, fin = 0;
+    const hs = [...rota.querySelectorAll<HTMLElement>('[data-heroe]')], ns = [...rota.querySelectorAll<HTMLElement>('[data-heroe-n]')], colores: string[][] = JSON.parse(rota.dataset.colores!);
+    let k = 0, reloj = 0;
     const sig = () => {
-      // RONDA 22 · «entren con blur y se vayan con blur»: el que se va se desenfoca y se apaga; el que llega viene desenfocado y enfoca
-      logos[k].classList.remove('on'); k = (k + 1) % logos.length; logos[k].classList.add('on');
+      hs[k].classList.remove('on'); ns[k].classList.remove('on'); k = (k + 1) % hs.length; hs[k].classList.add('on'); ns[k].classList.add('on');
       colores[k].forEach((c, i) => rota.style.setProperty(`--c${i + 1}`, c));
-      void fin;
     };
-    new IntersectionObserver((e) => { clearInterval(reloj); if (e[0].isIntersecting) reloj = window.setInterval(sig, 2800); }, { threshold: 0.3 }).observe(rota);
+    new IntersectionObserver((e) => { clearInterval(reloj); if (e[0].isIntersecting) reloj = window.setInterval(sig, 4200); }, { threshold: 0.3 }).observe(rota);
   }
 </script>
 
 <style>
-  /* RONDA 27 · «mucho más sutil, como el de ver documento»: texto con subrayado que crece desde la izquierda y la flecha avanza (sin píldora) */
-  .todos {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    padding-block: calc(var(--spacing) * 1);
-    margin-bottom: calc(var(--spacing) * 2);
-    background-image: linear-gradient(currentColor, currentColor);
-    background-repeat: no-repeat;
-    background-size: 0 1px;
-    background-position: 0 100%;
-    transition: background-size 0.5s var(--ease-out-expo);
-  }
-  .todos svg {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transition: translate 0.5s var(--ease-out-expo);
-  }
-  .todos:hover,
-  .todos:focus-visible {
-    background-size: 100% 1px;
-  }
-  .todos:hover svg {
-    translate: calc(var(--spacing) * 1) 0;
-  }
-  /* el cilindro acerca los bloques de los bordes: que nunca generen scroll lateral (clip solo en x: la gota de la transición sube por arriba) */
+  /* RONDA 77 · fuera «Todos los proyectos» de la cabecera (Andoni); la pieza de entrada lleva a /proyectos */
+  /* RONDA 76 · fuera el cilindro (Eric: «no me convence; en la cuadrícula las cruces no encajan mientras gira»; guardado en tools/retirados/cilindro.r75.txt) */
   #anteriores {
     overflow-x: clip;
   }
@@ -551,7 +504,7 @@ function escenaQuad(k: string) {
   }
   :global(html:not(.anima)) .gh, :global(html:not(.anima)) .gv { transform: none; }
   :global(html:not(.anima)) .gx { opacity: 1; }
-  .cq { font-size: var(--text-ui); line-height: 1.45; color: var(--fg); text-wrap: pretty; }
+  .cq { font-size: var(--text-ui); line-height: 1.5; min-height: 4.5em; color: var(--fg); text-wrap: pretty; }
   .cn, .cr { font-size: var(--text-aux); }
   .cn { margin-top: calc(var(--spacing) * 2); color: var(--fg); font-weight: 500; }
   .cr { color: var(--fg2); }
@@ -561,7 +514,7 @@ function escenaQuad(k: string) {
     -webkit-mask: var(--logo) center / contain no-repeat;
     mask: var(--logo) center / contain no-repeat;
   }
-  .mk.grande { width: min(12rem, 75%); height: calc(var(--spacing) * 10); }
+  .mk.grande { width: min(var(--lw), 90%); height: var(--lh); max-height: 5rem; }
   .marca-txt {
     display: inline-flex;
     align-items: center;
@@ -572,7 +525,7 @@ function escenaQuad(k: string) {
     line-height: 1;
     color: var(--fg);
   }
-  .marca-txt .mk { width: 0.8em; height: 0.8em; }
+  .marca-txt .mk { width: 1.4em; height: 0.75em; }
   .cv { font-size: var(--text-h2); line-height: 1; color: var(--fg); }
   @media (width >= 48rem) {
     .cuadricula { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -645,7 +598,7 @@ function escenaQuad(k: string) {
     place-items: center;
     width: calc(var(--spacing) * 10);
     height: calc(var(--spacing) * 10);
-    border-radius: 0;
+    border-radius: 50%;
     color: var(--fg2);
     transition: color 0.3s ease, background-color 0.3s ease;
   }
@@ -671,6 +624,15 @@ function escenaQuad(k: string) {
     display: grid;
     place-items: center;
   }
+  .entrada .lamina { display: block; }
+  /* los que no están, fuera (con !important: la entrada de las piezas, html.anima .pieza.visto .mockup, pone opacidad 1 a todos los navegadores) */
+  .heroe { transition: opacity 0.9s ease 0.25s, filter 1.1s ease 0.25s, translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo); }
+  .heroe:not(.on) { opacity: 0 !important; filter: blur(14px) !important; transition-delay: 0s; }
+  .heroe img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 0; }
+  .entrada .nombre { display: grid; }
+  .entrada .nombre span { grid-area: 1 / 1; opacity: 0; filter: blur(8px); transition: opacity 0.8s ease, filter 0.9s ease; }
+  .entrada .nombre span.on { opacity: 1; filter: none; transition-delay: 0.3s; }
+  .rota { transition: --c1 1.4s ease, --c2 1.4s ease, --c3 1.4s ease; }
   @media (width >= 64rem) {
     .mosaico {
       grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -717,9 +679,35 @@ function escenaQuad(k: string) {
   .rota {
     transition: --c1 1.4s ease, --c2 1.4s ease, --c3 1.4s ease;
   }
-  .claro {
+  .claro,
+  .tel {
     --tinta: var(--color-cacao);
   }
+  /* RONDA 76 · el fondo de MARCA con imagen (la madera de Naterra, los aerogeneradores de Isotrol) en lugar de las manchas */
+  .lamina.con-fondo::before {
+    inset: 0;
+    background: var(--fondo) center / cover no-repeat;
+    filter: none;
+  }
+  .pieza:hover .lamina.con-fondo::before { transform: scale(1.04); }
+  /* el TELÉFONO de Remerge: de pie en el centro, algo ladeado, con su web móvil */
+  .tel-m {
+    position: absolute;
+    left: 50%;
+    top: 16%;
+    width: 38%;
+    aspect-ratio: 390 / 844;
+    translate: -50% 0;
+    rotate: var(--giro, -4deg);
+    padding: 2.4%;
+    border-radius: 14% / 6.5%;
+    background: #141214;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3), 0 28px 50px -14px rgb(40 36 10 / 0.55);
+    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
+  }
+  .tel-pant { display: block; width: 100%; height: 100%; overflow: hidden; border-radius: 11.5% / 5.3%; background: #fbfbfa; }
+  .tel-pant :global(.vid) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+  .pieza:hover .tel-m { translate: -50% -3%; rotate: 0deg; }
 
   /* los LOGOTIPOS que rotan: cada uno es una máscara (se pinta en Rosa niebla, o en Cacao sobre el amarillo de Remerge) */
   .logos {

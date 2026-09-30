@@ -33,7 +33,6 @@ let fila = 0;
             <div class="celda col" role="columnheader" data-c={k}>
               <h3 class="nombre font-display">{s.corto}</h3>
               <p class="d text-aux mt-3">{s.d}</p>
-              <p class="cuenta detail tabular-nums mt-4">{s.tags.length} de {GRUPOS.flatMap((g) => g.items).length}</p>
             </div>
           ))
         }
@@ -61,7 +60,7 @@ let fila = 0;
     <div class="fichas mt-12">
       {
         L.map((s) => (
-          <article class="ficha-s cruces">
+          <article class="ficha-s">
             <h3 class="nombre font-display">{s.corto}</h3>
             <p class="d text-aux mt-3">{s.d}</p>
             <ul class="lista-s mt-6">
@@ -83,10 +82,15 @@ let fila = 0;
       const k = Number(tabla.dataset.col || 0), c = cabezas[k], t = tabla.getBoundingClientRect(), r = c.getBoundingClientRect();
       banda.style.transform = `translateX(${(r.left - t.left).toFixed(1)}px)`; banda.style.width = `${r.width.toFixed(1)}px`;
     };
+    // RONDA 76 · Eric: «la interacción del cambio, no sé si está muy fina»: la columna cambia por INTENCIÓN (el puntero se queda 90 ms en ella), no al
+    // rozarla al cruzar en diagonal; y al salir de la tabla vuelve a la que se miraba (sin saltos)
+    let intento = 0;
     tabla.addEventListener('pointerover', (e) => {
       const c = (e.target as HTMLElement).closest<HTMLElement>('[data-c]');
-      if (c && c.dataset.c !== tabla.dataset.col) { tabla.dataset.col = c.dataset.c; colocar(); }
+      clearTimeout(intento);
+      if (c && c.dataset.c !== tabla.dataset.col) intento = window.setTimeout(() => { tabla.dataset.col = c.dataset.c; colocar(); }, 90);
     });
+    tabla.addEventListener('pointerleave', () => clearTimeout(intento));
     addEventListener('resize', colocar); document.fonts?.ready.then(colocar); colocar();
     // pegada: cuando el centinela (justo encima de la cabecera) pasa bajo la barra
     const cab = tabla.querySelector<HTMLElement>('[data-cabeza]')!;
@@ -132,8 +136,7 @@ let fila = 0;
   .tabla[data-col='0'] .cabeza [data-c='0'],
   .tabla[data-col='1'] .cabeza [data-c='1'],
   .tabla[data-col='2'] .cabeza [data-c='2'] { background: color-mix(in oklab, var(--fg) 6%, transparent); align-self: stretch; }
-  .cabeza .d,
-  .cabeza .cuenta { overflow: hidden; }
+  .cabeza .d { overflow: hidden; }
   .cabeza .d { max-height: 12em; transition: max-height 0.5s var(--ease-out-expo), opacity 0.3s ease, margin 0.5s var(--ease-out-expo); }
   .cabeza.pegada { border-bottom-color: var(--rule-strong, var(--rule)); }
   /* pegada, el fondo sube hasta el borde de la pantalla: las filas no asoman bajo la barra */
@@ -147,7 +150,6 @@ let fila = 0;
     background: inherit;
   }
   .cabeza.pegada .d { max-height: 0; opacity: 0; margin-top: 0; }
-  .cabeza.pegada .cuenta { margin-top: calc(var(--spacing) * 2); }
   .cabeza.pegada .col { padding-top: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 3); }
   .nombre {
     font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem);
@@ -155,7 +157,6 @@ let fila = 0;
     letter-spacing: -0.02em;
   }
   .d { color: var(--fg2); text-wrap: pretty; }
-  .cuenta { color: var(--fg2); }
   .grupo {
     padding-top: calc(var(--spacing) * 8);
     padding-bottom: calc(var(--spacing) * 3);
@@ -191,13 +192,13 @@ let fila = 0;
   }
   :global(html.anima) .item.llega .si { scale: 1; translate: 0 0; }
   /* la columna que miras: menos tinta en las demás */
-  .col, .marca { transition: opacity 0.4s ease; }
+  .col, .marca { transition: opacity 0.6s var(--ease-out-expo); }
   .tabla[data-col='0'] [data-c]:not([data-c='0']),
   .tabla[data-col='1'] [data-c]:not([data-c='1']),
   .tabla[data-col='2'] [data-c]:not([data-c='2']) { opacity: 0.5; }
-  /* la BANDA de cristal con las cruces del CTA, sobre la columna activa */
+  /* la BANDA de cristal sobre la columna activa (ronda 76: redondeada, sin cruces) */
   .banda {
-    --cz: color-mix(in oklab, var(--fg) 60%, transparent);
+    border-radius: calc(var(--spacing) * 4);
     position: absolute;
     z-index: 0;
     top: 0;
@@ -208,23 +209,10 @@ let fila = 0;
     pointer-events: none;
     transition: transform 0.7s var(--ease-out-expo), width 0.7s var(--ease-out-expo);
   }
-  .banda::before {
-    content: '';
-    position: absolute;
-    inset: -10px;
-    background:
-      linear-gradient(var(--cz), var(--cz)) 4px 0 / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 0 4px / 9px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) calc(100% - 4px) 0 / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 100% 4px / 9px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 4px 100% / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 0 calc(100% - 4px) / 9px 1px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) calc(100% - 4px) 100% / 1px 9px no-repeat,
-      linear-gradient(var(--cz), var(--cz)) 100% calc(100% - 4px) / 9px 1px no-repeat;
-  }
   /* ── LAS FICHAS (móvil) */
   .fichas { display: grid; gap: calc(var(--spacing) * 12); }
   .ficha-s {
+    border-radius: calc(var(--spacing) * 4);
     padding: calc(var(--spacing) * 6);
     background: color-mix(in oklab, var(--fg) 7%, transparent);
   }
