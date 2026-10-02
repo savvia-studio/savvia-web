@@ -43,23 +43,25 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=68" />
     <meta name="theme-color" content="#3b231b" />
+    <!-- RONDA 99 · «quiero probar un marrón más oscuro para el hero y demás»: el fondo oscuro, más hondo (`?fondo=antes` vuelve al de siempre) -->
+    <script is:inline>if (!/[?&]fondo=antes/.test(location.search)) { document.documentElement.dataset.fondo = 'hondo'; document.querySelector('meta[name="theme-color"]').content = '#211510'; }</script>
     <Font cssVariable="--font-family-display" preload />
     <Font cssVariable="--font-areal" preload />
     <Font cssVariable="--font-areal-mono" />
     <Font cssVariable="--font-manrope" />
     <Font cssVariable="--font-plex-mono" />
+    <Font cssVariable="--font-bricolage" />
+    <Font cssVariable="--font-switzer" />
+    <Font cssVariable="--font-vt323" />
     <!-- Todo lo que deba correr durante el parseo va aquí, en línea (los <script> de Astro son diferidos). -->
     <script is:inline>
       document.documentElement.classList.add('js');
-      // La ESTACIÓN de la web (ronda 39; ronda 40: por meses y con la paleta de Andoni): fondo oscuro, árbol y raíces. Antes del primer pintado
-      // (regla dura 3). Primavera mar–may · verano jun–ago · otoño sep–nov · invierno dic–feb. `?estacion=invierno` la fuerza (para revisar).
-      (function () {
-        var q = /[?&]estacion=(otono|invierno|primavera|verano)/.exec(location.search), m = new Date().getMonth() + 1;
-        var e = q ? q[1] : m >= 3 && m <= 5 ? 'primavera' : m >= 6 && m <= 8 ? 'verano' : m >= 9 && m <= 11 ? 'otono' : 'invierno';
-        document.documentElement.dataset.estacion = e;
-        var c = { otono: '#3b231b', invierno: '#2a2932', primavera: '#382a2d', verano: '#1f352a' }[e];
-        document.querySelector('meta[name="theme-color"]').setAttribute('content', c);
-      })();
+      // RONDA 85 · «vamos a desligarnos de las 4 estaciones en toda la web y solo dejarlas en el mockup (Las cuatro estaciones de Vivaldi)»: la web ya no
+      // tiene estación. html[data-estacion] queda fijo en «otono» (su --noche es el Cacao de siempre) para no tocar el CSS que cuelga de él.
+      document.documentElement.dataset.estacion = 'otono';
+      // RONDA 91 · PRUEBA DE PALETA CLARA («quiero probar una versión donde el hero va en light mode», con la paleta de Andoni): `?paleta=clara`
+      // RONDA 111 · y la versión para Eric con las tres primeras secciones en claro vive en su propia dirección (/musica-clara, /clara)
+      if (/[?&]paleta=clara/.test(location.search) || /clara\/?$/.test(location.pathname)) document.documentElement.dataset.paleta = 'clara';
       // RONDA 39 · la tipografía de texto está a prueba (ABC Areal): ?tipo=antes enseña la pareja anterior (Manrope + IBM Plex Mono)
       if (/[?&]tipo=antes/.test(location.search)) document.documentElement.classList.add('tipo-antes');
       // RONDA 64/68 · la transición de savia: la página nueva nace CUBIERTA de savia (html.vt-llega) y transicion.ts la escurre; salvavidas a los 3 s
@@ -69,7 +71,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       // de la carga no llegara a correr, a los 8 s el hero vuelve a su sitio.
       // RONDA 69 · «la animación de carga inicial, que solo se ejecute la primera vez»: se recuerda en este navegador (localStorage) al terminarla o saltarla;
       // ?carga=1 la fuerza (para revisarla)
-      var cargaVista = false; try { cargaVista = localStorage.getItem('savvia:carga') === '1' && !/[?&]carga=1/.test(location.search); } catch (e) {}
+      // RONDA 84 · Andoni: «vuelve a poner la carga que se ejecute todo el rato»: en cada visita (se deja de mirar «savvia:carga»; las pruebas lo siguen poniendo)
+      var cargaVista = false; try { cargaVista = /[?&]carga=0/.test(location.search) || (navigator.webdriver && localStorage.getItem('savvia:carga') === '1'); } catch (e) {}
       if (document.documentElement.dataset.carga === '1' && !cargaVista && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('cargando');
         // RONDA 19: la carga la ARRANCA el visitante (mantener pulsado), así que el salvavidas ya no mira si la gota cayó: solo si el script de la carga no llegó a correr
@@ -86,6 +89,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       import '../scripts/entradas';
       import '../scripts/transicion';
       import '../scripts/cta';
+      import '../scripts/seleccion'; // ronda 89: seleccionar texto suena
+      import '../scripts/suave'; // ronda 90: scroll suave (Lenis), con frenos
+      import '../scripts/cursor'; // ronda 103: el cursor es un punto con un rastro de ondas
     </script>
     <!-- RONDA 38 · Modo revisión · Agentation (portado de la web anterior, ronda 57): Eric abre savvia.studio/?feedback=1, clica un elemento, escribe la
          nota y Agentation devuelve un markdown con el selector CSS real. Sin ?feedback=1 no se pide ni un byte a la CDN. Sin import map a propósito: los

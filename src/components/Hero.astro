@@ -1,6 +1,6 @@
 ---
 import { hero } from '../data/home';
-import { rich } from '../lib/rich';
+import { rich, isoV } from '../lib/rich';
 ---
 
 <!--
@@ -14,129 +14,373 @@ import { rich } from '../lib/rich';
   · Regla dura 3: el lienzo nace invisible. Sin WebGL queda la lámina como imagen. Con movimiento reducido, ya compuesto y quieto.
 -->
 <section class="hero relative flex flex-col items-center overflow-hidden" aria-labelledby="h1" data-hero>
-  <!-- RONDA 27 · «ese rayo de luz que entre desde arriba afectando a todo el hero, como si entrase por una ventana desde la naturaleza, con sombras
-       muy sutiles, y que se mueva siguiendo al ratón»: dos haces oblicuos de Rosa niebla, más fuertes arriba, que se desplazan con el puntero;
-       el titular proyecta una sombra que se mueve al contrario, y los haces del árbol (en el shader) siguen la misma luz -->
+  <!-- RONDA 27–31 · el haz de luz que entra desde arriba y sigue al ratón -->
   <div class="luz" aria-hidden="true" data-luz><i class="haz a"></i></div>
   <div class="wrap titular flex flex-col items-center text-center">
     <h1 id="h1" class="text-h1 max-w-[20ch]" set:html={rich(hero.h1)} />
-    <p class="text-lead text-fg2 mt-4 lg:mt-6">{hero.h2}</p>
+    <p class="text-lead text-fg2 mt-4 lg:mt-6" set:html={isoV(hero.h2)} />
   </div>
   <div class="pie-arbol">
-    <!-- EL MARCO (rondas 15–17, captura de sythera): el recuadro de detrás del árbol, entre los dos carriles. RONDA 17: «lo hacemos más alto,
-         que llegue hasta estar a 40 px del subtítulo» → ocupa toda la caja del pie (que empieza a 40 px del subtítulo) hasta el pie del hero.
-         Puntos Rosa niebla al 10 % → 0 %. Arriba, su fila de carriles con cruces ([data-carril-fila]). -->
-    <div class="marco" aria-hidden="true" data-carril-fila></div>
-    <!-- RONDA 25 · en las esquinas de abajo DEL RECUADRO (en su misma caja, pero fuera de su máscara, que se desvanece a 0 abajo y los borraba):
-         «desde 2020» y la estación (la de HOY al cargar; el clic en el árbol la cambia) -->
-    <!-- RONDA 65 · «sustituimos desde 2020 por la hora y la estación por desde 2020»: la hora de Donostia (el estudio), en vivo -->
+    <!-- EL MARCO (rondas 15–17): retícula de puntos Rosa niebla al 10 % → 0 %. Ronda 89: las ondas de los atriles la recorren -->
+    <!-- RONDA 91 · «el fondo que teníamos para el director lo quitamos» (la terraza: public/media/hero/fondo.webp, sin uso) -->
+    <div class="marco" aria-hidden="true" data-carril-fila><canvas class="puntos" data-puntos></canvas></div>
     <p class="esquina desde detail tabular-nums" data-hora></p>
     <p class="esquina estacion detail">desde 2020</p>
-    <!-- RONDA 21 · «cuando clicas para cambiar de color que no haga la animación de redibujado; el redibujado solo con la carga»: el clic cambia
-         de ESTACIÓN (otoño → invierno → primavera → verano) con un viraje suave del color; nada se redibuja. El hover ya no hace nada. -->
+    <!-- RONDA 89 · «las diferentes partes del hero en diferentes capas: el director primero, luego atriles y luego fondo». La lámina de Andoni partida
+         (tools/r89/capas.py: máscara de persona + la batuta) en dos capas con la MISMA caja: los atriles detrás y el director delante; cada una con su
+         paralaje. «Después del hero el director queda cortado»: la escena se funde por abajo en la niebla del suelo y, al bajar, el director se hunde en ella -->
     <div class="arbol-caja" aria-hidden="true" data-arbol>
-      <!-- el HALO (clusia): el propio árbol muy desenfocado detrás; su color sangra en el fondo cuando ya está pintado -->
       <i class="halo" aria-hidden="true"></i>
-      <!-- RONDA 66 · el roble de CADA ESTACIÓN (láminas de Andoni, tools/r66-robles.py → /media/hero/arbol-<estación>.webp): se elige al parsear -->
-      <img alt="" width="1260" height="583" decoding="async" fetchpriority="high" data-lamina />
-      <script is:inline>document.currentScript.previousElementSibling.src = '/media/hero/arbol-' + (document.documentElement.dataset.estacion || 'otono') + '.webp';</script>
-      <canvas class="lienzo" data-lienzo></canvas>
+      <!-- RONDA 96 (2.ª) · «lo que sale del director tiene que pasar ENTRE los objetos»: un tercer plano, por detrás de los atriles (se cuela tras sus peanas) -->
+      <canvas class="magia fondo" aria-hidden="true" data-magia="fondo"></canvas>
+      <div class="capa atriles" data-capa="atriles">
+        <img alt="" width="1490" height="1105" decoding="async" data-atriles-lamina />
+        <canvas class="lienzo" data-atriles-lienzo></canvas>
+      </div>
+      <!-- RONDA 90 · «la magia tiene que parecer que pasa ENTRE los elementos»: dos planos de magia. El de en medio (entre los atriles y el director): lo que
+           viaja a las pantallas y cruza por detrás de su espalda; el de delante: lo que sale de sus manos y vuelve a ellas -->
+      <canvas class="magia medio" aria-hidden="true" data-magia="medio"></canvas>
+      <div class="capa director" data-capa="director">
+        <img alt="" width="1490" height="1105" decoding="async" fetchpriority="high" data-lamina />
+        <!-- ronda 96: las láminas pintadas solo las pide `?estilo=pintura` (los estilos papel y retrato traen las suyas) -->
+        <!-- ronda 96 (2.ª): el estilo de serie, EN COLOR con el motor del árbol, usa las láminas nuevas como textura -->
+        <script is:inline>(function () { var q = location.search, d = document.currentScript.previousElementSibling, a = d.closest('[data-arbol]').querySelector('[data-atriles-lamina]');
+          if (/[?&]estilo=pintura/.test(q)) { d.src = '/media/hero/director.webp'; a.src = '/media/hero/atriles.webp'; }
+          else if (/[?&]estilo=(color|retrato)/.test(q)) { d.src = '/media/hero/retrato-director.webp'; a.src = '/media/hero/retrato-atriles.webp'; }
+          else if (!/[?&]estilo=papel/.test(q)) d.src = '/media/hero/jazz-director.webp'; })();</script>
+        <canvas class="lienzo" data-lienzo></canvas>
+      </div>
+      <canvas class="magia frente" aria-hidden="true" data-magia="frente"></canvas>
     </div>
-    <!-- RONDA 20 · «al clicar el árbol me gusta que cambie de color, que cambien como de estaciones»: el nombre de la estación, en mono, al pasar -->
   </div>
+  <!-- RONDA 89 · LA MAGIA («como el mago que te paso»): una estela de polvo de estrellas con cabeza de cometa dorada sale de la batuta, pasa por cada atril
+       (que se ENCIENDE y suelta una onda por todo el hero) y vuelve a la mano del director; descansa y vuelve a empezar -->
 </section>
 
 <script>
-  import { crearEstela } from '../scripts/estela';
-  import { EST, NOCHE, estacionActual, fijarEstacion } from '../scripts/estacion';
+  import { crearEstela, type Estela } from '../scripts/estela';
+  import { crearPapel } from '../scripts/papel';
+  import { crearRetrato } from '../scripts/retrato';
+  import { crearAscii } from '../scripts/ascii';
+  import { bandas, fase } from '../scripts/jazz';
+  import { crearReticula } from '../scripts/reticula';
+  import { NOCHE } from '../scripts/estacion';
+  import { golpe, tocar, tecla } from '../scripts/musica';
+  // RONDA 96 (2.ª) · muestras de una lámina (para el manifiesto): trozos con tinta, su sitio y su color fundido con el fondo
+  function muestrasDe(src: string, caja: () => DOMRect) {
+    let lista: { i: number; x: number; y: number; w: number; h: number; a: number; col: string; pen: string }[] = [];
+    const img = new Image(); img.decoding = 'async'; img.src = src;
+    img.addEventListener('load', () => {
+      const W = 418, H = Math.round((W * img.naturalHeight) / img.naturalWidth), o = document.createElement('canvas'); o.width = W; o.height = H;
+      const oc = o.getContext('2d', { willReadFrequently: true })!; oc.drawImage(img, 0, 0, W, H); const px = oc.getImageData(0, 0, W, H).data;
+      let sem = 7; const az = () => { sem = (sem * 16807) % 2147483647; return sem / 2147483647; };
+      const out: typeof lista = [];
+      for (let k = 0, n = 0; k < 260 && n < 30000; n++) {
+        const x = Math.floor(az() * W), y = Math.floor(az() * H), j = (y * W + x) * 4; if (px[j + 3] < 200) continue;
+        const m = (q: number, f: number) => Math.round(px[j + q] * 0.78 + f * 0.22), w = 0.026 + az() * 0.022;
+        out.push({ i: k, x: x / W, y: y / H, w, h: w * (0.34 + az() * 0.12) * (W / H), a: (az() - 0.5) * 0.5, col: `rgb(${m(0, 59)},${m(1, 35)},${m(2, 27)})`, pen: 'rgba(36,28,25,0.62)' }); k++;
+      }
+      lista = out;
+    });
+    return { caja, muestras: (n: number) => lista.slice(0, n).sort((p, q) => q.y - p.y), huecos: () => {}, soloPalabras: /ascii/.test(src) || src.includes('jazz') };
+  }
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   if (hero) {
-    const img = hero.querySelector<HTMLImageElement>('[data-lamina]')!;
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // RONDA 15: la gota la trae la carga (Cargador.astro): resbala por las letras de «savvia», cae aquí y avisa con `savvia:gota`.
-    // Al tocar el suelo: la savia corre por la línea, el árbol se DIBUJA y se PINTA con canto rasgado; luego sangra el halo.
-    // RONDA 66 · cada estación tiene su lámina: el motor ya no tiñe la hoja (intensidad 0), el color viene pintado
-    let cv = hero.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
-    // RONDA 67 · «en primavera me gustaba el tono rosáceo, estilo cerezo»: en primavera el motor vuelve a teñir la hoja (su color de la tabla, rosa)
-    const tinte = (n: number) => (n === 2 ? 0.9 : 0);
-    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true, hd: true, intensidad: tinte(estacionActual()) });
-    if (t && (estacionActual() === 2 || estacionActual() === 1)) t.estacion(estacionActual()); // ronda 76: el invierno, sin hojas (raleo) y nevado
-    const w = window as any;
-    // RONDA 30: al caer la gota, primero ENTRA EL HAZ desde arriba (luz-entra); la luz sobre el árbol la pone el shader al terminar de pintarse
-    const suelta = () => { t?.soltar(); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
-    if (w.__gotaSuelta) suelta(); else addEventListener('savvia:gota', suelta, { once: true });
-    if (!t) hero.classList.add('sin-gl');
-    // HUEVO DE PASCUA (ronda 21): clic = la estación siguiente (solo vira el color).
-    // RONDA 39: la estación es de TODA la web (fondo oscuro, árbol y raíces: src/scripts/estacion.ts). El clic la cambia para todos; si la cambia
-    // otro (los botones de estación de Proyectos), el árbol la sigue (pintándose si se ve; de golpe si no).
     const caja = hero.querySelector<HTMLElement>('[data-arbol]')!;
-    let est = estacionActual(), heroVisible = true;
-    const rotular = () => { hero.dataset.estacion = EST[est]; };
+    // RONDA 96 · «en el hero quiero probar otro estilo, el de los retratos de los testimonios»: el RETRATO es el de serie (src/scripts/retrato.ts, con las
+    // láminas nuevas de Andoni: tools/r96/capas.py); el papel queda en `?estilo=papel` y el pintado en `?estilo=pintura`. La lámina nueva es más apaisada
+    // (1672 × 941): sus puntos (batuta, mano, atriles, pantallas) se midieron sobre ella; los de las otras dos siguen siendo los de 1490 × 1105
+    // RONDA 96 (2.ª) · «las quiero A COLOR, con el efecto que teníamos en el árbol, como que se distorsionaba; los ordenadores, más pequeños»: el de serie es
+    // `color` (las láminas nuevas, con los atriles encogidos sobre su base, pintadas por el motor del árbol: se dibujan desde la batuta, hierven, se deshacen
+    // en semitono por los cantos y las ondas las desplazan). El retrato en una tinta queda en `?estilo=retrato`
+    const q0 = location.search;
+    // RONDA 97 · «el director con ASCII, que reaccione a la música (jazz calmado de fondo) con pulsos»: el de serie es `ascii` (src/scripts/ascii.ts, con las
+    // mismas láminas nuevas); el color con el motor del árbol queda en `?estilo=color`
+    const estilo = /[?&]estilo=pintura/.test(q0) ? 'pintura' : /[?&]estilo=papel/.test(q0) ? 'papel' : /[?&]estilo=retrato/.test(q0) ? 'retrato' : /[?&]estilo=color/.test(q0) ? 'color' : 'ascii';
+    const retrato = estilo === 'retrato' || estilo === 'color' || estilo === 'ascii'; // usan la lámina nueva (sus puntos y su caja)
+    const clara = document.documentElement.dataset.paleta === 'clara';
+    hero.classList.add(`estilo-${estilo}`); if (!retrato) hero.classList.add('estilo-antiguo');
+    const BATUTA: [number, number] = retrato ? [0.583, 0.015] : [0.632, 0.02];
+    // las tres capas, pintadas por el motor. Todas nacen desde la batuta (la carga deja caer el isotipo ahí: `savvia:gota`)
+    const capa = (cv: string, img: string, extra: object) => crearEstela(hero.querySelector<HTMLCanvasElement>(cv)!, hero.querySelector<HTMLImageElement>(img)!, { origen: BATUTA, dir: -1, radial: true, sinGota: true, tramado: true, tramadoBpm: 0, soplo: true, gota: true, manual: true, intensidad: 0, ...extra });
+    // RONDA 90 · el director y los atriles hechos de etiquetas de papel (vídeo v0.mp4). RONDA 91 · «me mola el estilo papel»: es el de serie; el pintado de
+    // antes queda en `?estilo=pintura`. El papel se hace con las láminas NÍTIDAS (tools/r89/capas.py), que el collage necesita detalle
+    const papel = estilo === 'papel';
+    const nitida = (src: string) => { const i = new Image(); i.decoding = 'async'; i.src = src; return i; };
+    // RONDA 94 · «que el director mueva los brazos»: el rig (hombro → mano, en fracciones de la lámina; medido sobre director-nitido.webp) y el compás (92 BPM)
+    const BRAZOS = [{ hombro: [0.372, 0.33] as [number, number], mano: [0.205, 0.11] as [number, number], ancho: 0.1 }, { hombro: [0.578, 0.32] as [number, number], mano: [0.735, 0.15] as [number, number], ancho: 0.1 }]; // ronda 95: más anchos: la manga entera va con el brazo (si no, su borde se quedaba quieto detrás: «parece que se duplican»)
+    // RONDA 94 · «que se note la iluminación de la luz de arriba en el director (hero oscuro)»: `luzHaz` pinta el haz sobre el papel
+    const enPapel = (cv: string, src: string, sem: number, batuta?: [number, number, number, number], mueve = false) => crearPapel(hero.querySelector<HTMLCanvasElement>(cv)!, nitida(src), { origen: BATUTA, semilla: sem, batuta, luzHaz: !clara, ...(mueve ? { brazos: BRAZOS, bpm: 46, amplitud: 0.75 } : {}) }) as unknown as Estela; // ronda 95: «en claro, la ilustración del mismo color que el oscuro» (fuera el pop de las rondas 92–94: `pop` sigue en papel.ts) · brazos más tranquilos: a medio tiempo y con menos recorrido
+    const enRetrato = (cv: string, src: string, sem: number) => crearRetrato(hero.querySelector<HTMLCanvasElement>(cv)!, nitida(src), { origen: BATUTA, clara, semilla: sem }) as unknown as Estela;
+    const color = estilo === 'color', ascii = estilo === 'ascii';
+    // RONDA 103 · «que el director mueva los brazos como orquestando»: los dos hombros (medidos en jazz-director.webp) y una línea que deja fuera la cabeza;
+    // la batuta marca cada tiempo (cae en el tiempo y rebota; el 1, más hondo) y la mano izquierda la acompaña en espejo, más suave y respirando cada dos compases
+    const MIEMBROS = [
+      { p: [0.66, 0.3] as [number, number], t: [0.56, 0] as [number, number], lado: 0.03, r0: 0.02, r1: 0.12 },
+      { p: [0.34, 0.3] as [number, number], t: [0.44, 0] as [number, number], lado: -0.03, r0: 0.02, r1: 0.12 },
+    ];
+    // RONDA 104 · «que se note más y más orgánico, no a saltos»: curvas continuas (antes el golpe de cada tiempo arrancaba de cero: saltaba). La batuta baja al
+    // tiempo y sube entre tiempos (un coseno), más honda en el 1 y el 3, y deriva despacio con la frase; la izquierda, en espejo, más suave y algo detrás
+    // RONDA 107 · «este efecto de movimiento (ascii.fm)»: STOP-MOTION. La pose se toma en tres fotogramas por tiempo (abajo en el tiempo, rebote, arriba) y se
+    // sostiene hasta el siguiente, como el galope de ascii.fm; los cantos hierven en cada fotograma. `?mov=suave` vuelve al movimiento continuo de la ronda 104
+    const stop = !/[?&]mov=suave/.test(location.search);
+    const dirigir = (t: number) => {
+      const f = fase(t), b = stop ? Math.floor(f * 3) / 3 : f, T = Math.PI * 2, i = Math.floor(f * 3) % 3;
+      // en stop-motion, tres poses de verdad distintas por tiempo (abajo · a media subida · arriba); en continuo, el coseno
+      const golpe = stop ? [1, 0.42, 0][i] : 0.5 + 0.5 * Math.cos(T * b), acento = 0.78 + 0.22 * Math.cos(T * Math.floor(b) / 2);
+      const der = 0.24 * golpe * acento - 0.06 + 0.05 * Math.sin(T * b / 8);
+      const izq = -(0.15 * (stop ? [0.6, 1, 0.2][i] : 0.5 + 0.5 * Math.cos(T * b - 0.7)) * acento - 0.04) - 0.07 * Math.sin(T * b / 8 + 1.3);
+      return [der, izq];
+    };
+    const enAscii = (cv: string, img: string, celda?: number) => crearAscii(hero.querySelector<HTMLCanvasElement>(cv)!, hero.querySelector<HTMLImageElement>(img)!, { origen: BATUTA, clara, bandas, celda, miembros: MIEMBROS, angulos: dirigir, hueco: true, teclear: () => tecla({ vol: 0.028 }), // ronda 108: se escribe signo a signo, tecleando
+       fotogramas: stop ? (t: number) => Math.floor(fase(t) * 3) : undefined, vel: 190, vida: 6.5, texto: /[?&]ascii=rampa/.test(location.search) ? undefined : document.querySelector('[data-manifiesto] .texto')?.textContent || undefined }) as unknown as Estela | null;
+    // RONDA 100 · «¿el ASCII hecho con letras o palabras, para que tenga más sentido con la animación hacia la siguiente sección?»: el director está ESCRITO con el
+    // texto del manifiesto (que luego sale volando a su sitio); la rampa de caracteres, en `?ascii=rampa`
+    // RONDA 98 · «modificamos el director hacia algo más jazz»: la lámina nueva de Andoni (traje, ordenadores de los 80) es UNA capa en ASCII
+    const t = estilo === 'pintura' ? capa('[data-lienzo]', '[data-lamina]', { hd: true }) : color ? capa('[data-lienzo]', '[data-lamina]', { hd: true, tramado: false }) : ascii ? enAscii('[data-lienzo]', '[data-lamina]') : null;
+    const tA = papel ? enPapel('[data-atriles-lienzo]', '/media/hero/atriles-nitido.webp', 11) : ascii ? null : color ? capa('[data-atriles-lienzo]', '[data-atriles-lamina]', { hd: true, tramado: false }) : retrato ? enRetrato('[data-atriles-lienzo]', '/media/hero/retrato-atriles.webp', 11) : capa('[data-atriles-lienzo]', '[data-atriles-lamina]', { hd: true });
+    // la batuta, de la punta a la mano (en la lámina): una tira de papel
+    const tD = papel ? enPapel('[data-lienzo]', '/media/hero/director-nitido.webp', 7, [0.632, 0.02, 0.733, 0.132], true) : estilo === 'retrato' ? enRetrato('[data-lienzo]', '/media/hero/retrato-director.webp', 7) : null;
+    const capas = [t, tA, tD].filter(Boolean) as Estela[];
+    // ronda 92 · el manifiesto saca sus palabras de las etiquetas REALES del director
+    // en color, las tarjetas del manifiesto se desprenden de trozos REALES de la lámina (su sitio y su color); el lienzo WebGL no deja huecos
+    if (color || ascii) (window as any).__papelDirector = muestrasDe(ascii ? '/media/hero/jazz-director.webp' : '/media/hero/retrato-director.webp', () => hero.querySelector<HTMLCanvasElement>('[data-lienzo]')!.getBoundingClientRect());
+    else (window as any).__papelDirector = tD ? { caja: () => hero.querySelector<HTMLCanvasElement>('[data-lienzo]')!.getBoundingClientRect(), muestras: (n: number) => (tD as any).muestras(n), huecos: (l: number[]) => (tD as any).huecos(l) } : null;
+    const w = window as any;
+    const suelta = () => { capas.forEach((c) => c.soltar()); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
+    if (w.__gotaSuelta) suelta(); else addEventListener('savvia:gota', suelta, { once: true });
+    if ((estilo === 'pintura' || color || ascii) && !t) hero.classList.add('sin-gl');
+    // ronda 91 · en la paleta clara el fondo del hero es Neutro claro: las etiquetas se funden con él
+    if (clara) hero.classList.add('clara');
+    capas.forEach((c) => (clara ? c.fondo(245, 247, 255) : c.fondo(...NOCHE[0])));
     // la hora del estudio (Donostia), al minuto
     const hora = hero.querySelector<HTMLElement>('[data-hora]')!;
     const fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-    // ronda 66: «solo la hora, sin Donostia»
     const tic = () => { hora.textContent = fmt.format(new Date()); setTimeout(tic, 60000 - (Date.now() % 60000) + 50); };
     tic();
-    rotular();
-    if (t) t.fondo(...NOCHE[est]);
-    // CAMBIO DE ESTACIÓN (ronda 66): la lámina nueva se DIBUJA y se PINTA encima de la vieja (líneas y pintura rasgada desde la base, 2,4 s, el gesto de
-    // la carga) y al acabar la vieja suelta su contexto WebGL. Sin ver el hero o antes de crecer, de golpe.
-    let luzV = 0, pedida = -1;
-    const revelar = (el: HTMLElement, ox: number, oy: number, dur: number, fin: () => void, viejo?: HTMLElement) => {
-      let a = 0;
-      const pon = (m: string) => { el.style.setProperty('-webkit-mask', m); el.style.setProperty('mask', m); };
-      const paso = (ahora: number) => {
-        if (!a) a = ahora;
-        const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), w = el.offsetWidth, h = el.offsetHeight, S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
-        pon(`url('/media/rasgo-circulo.png') ${(ox * w - S / 2).toFixed(1)}px ${(oy * h - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
-        // el viejo se apaga detrás del frente (si no, se transparentaba y desaparecía de golpe al final: el «salto»)
-        if (viejo) viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
-        if (k < 1) requestAnimationFrame(paso); else { pon(''); fin(); }
-      };
-      pon(`url('/media/rasgo-circulo.png') 0 0 / 0 0 no-repeat`);
-      requestAnimationFrame(paso);
-    };
-    const soltarLienzo = (c: HTMLCanvasElement) => { { const g = (c.getContext('webgl') || c.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } c.remove(); };
-    const cambiarLamina = (n: number) => {
-      pedida = n;
-      const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/arbol-${EST[n]}.webp`;
-      nueva.onload = () => {
-        if (pedida !== n || !t) return;
-        // clonado del lienzo actual: así lleva el atributo de ámbito de Astro (con createElement los estilos del componente no le llegan)
-        const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2);
-        const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: true, hd: true, intensidad: tinte(n) });
-        if (!t2) { cv2.remove(); return; }
-        if (n === 2 || n === 1) t2.estacion(n);
-        const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
-        t2.fondo(...NOCHE[n]); t2.luz(luzV); t2.visible(heroVisible); t2.crecer(1);
-        if (!heroVisible || reducido || !hero.classList.contains('crecido')) return soltarLienzo(viejo);
-        // RONDA 67 · «en algunas estaciones tiene un salto raro»: el lienzo nuevo ya viene PINTADO y se descubre con el canto de papel rasgado que crece
-        // desde la base del tronco (2,4 s), sin el destello de líneas del dibujo; al acabar, el viejo se retira
-        revelar(cv2, 0.5, 1, 2600, () => soltarLienzo(viejo), viejo);
-      };
-    };
-    caja.addEventListener('click', () => { if (!hero.classList.contains('crecido')) return; fijarEstacion(est + 1, 'hero'); });
-    addEventListener('savvia:estacion', (ev) => {
-      const n = (ev as CustomEvent).detail.n as number;
-      if (n === est) return;
-      est = n; rotular();
-      if (!t) return;
-      cambiarLamina(n);
+    // ── LAS ONDAS: una onda nace en un punto de PANTALLA y recorre todas las capas y la retícula de puntos
+    const ondasPuntos: { x: number; y: number; t0: number; f: number }[] = [];
+    const onda = (x: number, y: number, f = 1) => { if (reducido) return; capas.forEach((c) => c.onda(x, y, f)); ondasPuntos.push({ x, y, t0: performance.now(), f }); despertarPuntos(); };
+    addEventListener('savvia:onda', (e) => { const d = (e as CustomEvent).detail; onda(d.x, d.y, d.f ?? 1); ret?.onda(d.x, d.y, 1, [1, 0.38, 0.42]); }); // ronda 110: la onda del aterrizaje recorre también la retícula
+    // RONDA 102 · «los pulsos, al ritmo de los del footer (una onda cada dos compases, lenta), siempre del mismo color (coral), siempre desde el mismo sitio:
+    // centrados desde abajo; a su paso REVELAN los colores del ASCII (ascii.ts) y lo mueven más». La retícula del recuadro lleva el anillo coral
+    // (antes, ronda 99–100: una onda por tiempo, de colores y desde cualquier punto de la figura)
+    if (ascii) addEventListener('savvia:pulso', (e) => {
+      const d = (e as CustomEvent).detail;
+      if (!heroVisto || !hero.classList.contains('crecido') || !t || d.k !== 0) return; // ronda 103 · «más ondas: un punto intermedio»: una por compás (antes, cada dos; en la 99, una por tiempo)
+      const mr = marco.getBoundingClientRect(), x = mr.left + mr.width / 2, y = mr.bottom - 4;
+      (t as unknown as { onda(x: number, y: number, f: number, c: number[]): void }).onda(x, y, 1, [1, 0.38, 0.42]);
+      ret?.onda(x, y, 0.9, [1, 0.38, 0.42]);
     });
-    new IntersectionObserver((e) => { heroVisible = e[0].isIntersecting; t?.visible(heroVisible); }).observe(hero);
-    // la luz sigue al ratón (con retraso); con movimiento reducido o en táctil se queda quieta
-    // RONDA 29 · «tiene que parecer que el haz incide en el árbol, no al revés»: el brillo del árbol (shader) se coloca EXACTAMENTE bajo el haz
-    // principal del hero: misma inclinación (18°: tan = 0,325, la del shader) y misma x a la altura de la copa, con el ratón incluido
+    // ── LOS PUNTOS del recuadro: quietos salvo cuando pasa una onda (ronda 89: fuera el pulso a tempo, «no tenía un porqué») o suena una nota
+    const marco = hero.querySelector<HTMLElement>('.marco')!, pc = marco.querySelector<HTMLCanvasElement>('[data-puntos]')!, px = pc.getContext('2d')!;
+    let heroVisto = true, rafP = 0, quietos = false;
+    const VEL = 380, VIDA = 3.4;
+    // RONDA 100 · «el pulso se tiene que propagar por todos los puntos del hero, por todo el recuadro»: en ASCII, la retícula del marco es la de reticula.ts
+    // ronda 103 · «que se expandan por todo el cuadrado de puntitos»: más rápida y más larga, llega a las esquinas de arriba
+    const ret = ascii ? crearReticula(pc, { alfa: 0.12, vel: 190, ancho: 56, vida: 6.5 }) : null;
+    const puntos = (ahora: number) => {
+      rafP = 0;
+      if (ret) return;
+      if (!heroVisto) return;
+      const r = marco.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+      if (pc.width !== Math.round(r.width * dpr) || pc.height !== Math.round(r.height * dpr)) { pc.width = Math.round(r.width * dpr); pc.height = Math.round(r.height * dpr); quietos = false; }
+      for (let i = ondasPuntos.length - 1; i >= 0; i--) if ((ahora - ondasPuntos[i].t0) / 1000 > VIDA) ondasPuntos.splice(i, 1);
+      const gl = reducido ? 0 : golpe();
+      if (!ondasPuntos.length && gl < 0.01 && quietos) return; // nada que mover: no se repinta
+      quietos = !ondasPuntos.length && gl < 0.01;
+      px.setTransform(dpr, 0, 0, dpr, 0, 0); px.clearRect(0, 0, r.width, r.height);
+      const os = ondasPuntos.map((o) => { const e = (ahora - o.t0) / 1000; return { x: o.x - r.left, y: o.y - r.top, rad: e * VEL, a: o.f * Math.pow(1 - e / VIDA, 1.6) * Math.min(1, e * 6) }; });
+      const cr = caja.getBoundingClientRect(), bx = cr.left - r.left + cr.width * 0.5, by = cr.top - r.top + cr.height * 0.4;
+      px.fillStyle = clara ? '#241c19' : '#eadde7';
+      for (let y = 4, fila = 0; y < r.height; y += 4, fila++) {
+        const baja = 1 - y / (r.height * 0.96); if (baja <= 0) break;
+        for (let x = fila % 2 ? 4 : 0; x < r.width; x += 8) {
+          let o = 0;
+          for (const w2 of os) { const d = Math.hypot(x - w2.x, y - w2.y); o += Math.exp(-Math.pow((d - w2.rad) / 48, 2)) * w2.a; }
+          const rr = 1.15 + o * 1.3 + gl * 0.9 * Math.exp(-Math.hypot(x - bx, y - by) / 420);
+          px.globalAlpha = Math.min(0.6, (0.1 + o * 0.3 + gl * 0.2) * baja);
+          px.beginPath(); px.arc(x, y, rr, 0, 6.283); px.fill();
+        }
+      }
+      px.globalAlpha = 1;
+      rafP = window.setTimeout(() => requestAnimationFrame(puntos), 33) as unknown as number;
+    };
+    const despertarPuntos = () => { quietos = false; if (!rafP && heroVisto) rafP = requestAnimationFrame(puntos); };
+    // ── LA MAGIA (el mago de la referencia: cometa dorado, polvo de estrellas que titila y cae, estrellas de cuatro puntas)
+    // El recorrido, en coordenadas de la lámina: batuta → atril 4 → 3 → 2 → 1 → mano izquierda → batuta. Cada tramo es una curva con su punto de
+    // control; al llegar a un atril, lo enciende y suelta la onda. En la batuta descansa y vuelve a empezar.
+    const P: Record<string, number[]> = retrato
+      ? { batuta: [0.583, 0.015], a1: [0.146, 0.689], a2: [0.328, 0.698], a3: [0.675, 0.698], a4: [0.851, 0.691], manoI: [0.281, 0.09] } // ronda 96 (2.ª): atriles al 74 % sobre su base (tools/r96/capas.py)
+      : { batuta: [0.632, 0.02], a1: [0.11, 0.66], a2: [0.305, 0.67], a3: [0.698, 0.672], a4: [0.89, 0.658], manoI: [0.21, 0.12] };
+    const BAT0 = [...P.batuta], MANO0 = [...P.manoI]; // ronda 94: la batuta y la mano se mueven con los brazos: la magia sale de donde están
+    // los rectángulos de las pantallas (para encenderlas)
+    const PANT = retrato
+      ? [[0.088, 0.626, 0.205, 0.752], [0.276, 0.644, 0.38, 0.752], [0.635, 0.644, 0.715, 0.752], [0.799, 0.626, 0.903, 0.755]]
+      : [[0.04, 0.6, 0.185, 0.72], [0.255, 0.62, 0.36, 0.72], [0.645, 0.625, 0.745, 0.72], [0.815, 0.6, 0.975, 0.712]];
+    // `frente(u)`: en qué plano va la cabeza en cada punto del tramo: 0 = detrás de los atriles · 1 = entre los atriles y el director · 2 = delante de todo.
+    // Ronda 96 (2.ª): el recorrido TEJE: se cuela tras las peanas, cruza por delante entre dos atriles, pasa tras la espalda y vuelve por delante a las manos
+    type Tramo = { de: readonly number[]; a: readonly number[]; c: number[]; dur: number; atril?: number; frente: (u: number) => number };
+    const TRAMOS: Tramo[] = [
+      { de: P.batuta, a: P.a4, c: [1.04, 0.16], dur: 1.5, atril: 3, frente: (u) => (u < 0.3 ? 2 : 1) },
+      { de: P.a4, a: P.a3, c: [0.8, 0.88], dur: 1.0, atril: 2, frente: (u) => (u > 0.12 && u < 0.45 ? 0 : 1) }, // tras la peana del cuarto atril
+      { de: P.a3, a: P.a2, c: [0.5, 0.46], dur: 1.6, atril: 1, frente: () => 1 }, // cruza por DETRÁS de su espalda
+      { de: P.a2, a: P.a1, c: [0.2, 0.88], dur: 1.0, atril: 0, frente: (u) => (u < 0.35 ? 0 : u < 0.65 ? 2 : 1) }, // tras la peana del segundo, por delante entre los dos
+      { de: P.a1, a: P.manoI, c: [-0.1, 0.3], dur: 1.4, frente: (u) => (u < 0.25 ? 0 : u > 0.62 ? 2 : 1) },
+      { de: P.manoI, a: P.batuta, c: [0.42, -0.18], dur: 1.3, frente: () => 2 },
+    ];
+    const PARADA = 0.35, DESCANSO = 1.8;
+    const NOTAS = [79, 76, 72, 67]; // al encender cada atril, una nota que baja (muy bajito, solo con el sonido encendido)
+    // los dos lienzos cubren la caja con margen (la magia sube por encima de la cabeza y sale por los lados)
+    const lienzos = [...hero.querySelectorAll<HTMLCanvasElement>('[data-magia]')];
+    const mgM = lienzos.find((c) => c.dataset.magia === 'medio')!, mgF = lienzos.find((c) => c.dataset.magia === 'frente')!, mgB = lienzos.find((c) => c.dataset.magia === 'fondo')!;
+    const cM = mgM.getContext('2d')!, cF = mgF.getContext('2d')!, cB = mgB.getContext('2d')!;
+    const PL = [cB, cM, cF];
+    type Mota = { x: number; y: number; vx: number; vy: number; v: number; vida: number; r: number; estrella: boolean; fase: number; dorada: boolean; f: boolean };
+    const aros: { x: number; y: number; t0: number; f: number }[] = []; // ronda 92: los aros de frecuencia de cada atril
+    const motas: Mota[] = [], estela: [number, number, number][] = [], luzAtril = [0, 0, 0, 0];
+    let ciclo0 = 0, tramoPrev = -1, ultM = 0, recarga = 0, ultBeat = -1;
+    const pulsos: { x: number; y: number; t0: number; f: number; fuerte: boolean }[] = [];
+    const bez = (a: readonly number[], c: number[], b: readonly number[], u: number) => [(1 - u) * (1 - u) * a[0] + 2 * (1 - u) * u * c[0] + u * u * b[0], (1 - u) * (1 - u) * a[1] + 2 * (1 - u) * u * c[1] + u * u * b[1]];
+    const suave = (u: number) => u * u * (3 - 2 * u);
+    const TOTAL = TRAMOS.reduce((s, x) => s + x.dur + (x.atril !== undefined ? PARADA : 0), 0) + DESCANSO;
+    const cabeza = (s: number): { p: number[]; k: number; f: number } | null => {
+      let t0 = 0;
+      for (let k = 0; k < TRAMOS.length; k++) {
+        const tr = TRAMOS[k];
+        if (s < t0 + tr.dur) { const u = (s - t0) / tr.dur; return { p: bez(tr.de, tr.c, tr.a, suave(u)), k, f: tr.frente(u) }; }
+        t0 += tr.dur;
+        if (tr.atril !== undefined) { if (s < t0 + PARADA) return { p: [...tr.a], k, f: 1 }; t0 += PARADA; }
+      }
+      return null;
+    };
+    const magia = (ahora: number) => {
+      if (!heroVisto || reducido || ascii) return; // ronda 98: «quitamos la animación de magia»
+      if (!hero.classList.contains('crecido')) { setTimeout(() => requestAnimationFrame(magia), 400); return; } // espera al director pintado
+      const lr = mgM.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+      for (const [cv, c] of [[mgB, cB], [mgM, cM], [mgF, cF]] as const) {
+        if (cv.width !== Math.round(lr.width * dpr) || cv.height !== Math.round(lr.height * dpr)) { cv.width = Math.round(lr.width * dpr); cv.height = Math.round(lr.height * dpr); }
+        c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, lr.width, lr.height); c.globalCompositeOperation = clara ? 'source-over' : 'lighter';
+      }
+      const dt = ultM ? Math.min(0.05, (ahora - ultM) / 1000) : 0; ultM = ahora;
+      if (!ciclo0) ciclo0 = ahora;
+      const s = ((ahora - ciclo0) / 1000) % TOTAL;
+      if (tD) { const pb = (tD as any).punto(1, BAT0[0], BAT0[1]), pm = (tD as any).punto(0, MANO0[0], MANO0[1]); P.batuta[0] = pb[0]; P.batuta[1] = pb[1]; P.manoI[0] = pm[0]; P.manoI[1] = pm[1]; }
+      // la caja de la lámina, en coordenadas del lienzo (que la desborda)
+      const cr = caja.getBoundingClientRect(), ox = cr.left - lr.left, oy = cr.top - lr.top;
+      const aPx = (q: readonly number[]) => [ox + q[0] * cr.width, oy + q[1] * cr.height];
+      const cab = cabeza(s);
+      const k = cab ? cab.k : TRAMOS.length;
+      if (k !== tramoPrev) { if (tramoPrev === TRAMOS.length - 1) recarga = 1; tramoPrev = k; } // vuelve al director
+      if (cab) {
+        const tr = TRAMOS[cab.k];
+        if (tr.atril !== undefined && luzAtril[tr.atril] < 0.5 && Math.hypot(cab.p[0] - tr.a[0], cab.p[1] - tr.a[1]) < 0.002) {
+          luzAtril[tr.atril] = 1;
+          const [sx, sy] = aPx(tr.a);
+          onda(lr.left + sx, lr.top + sy, 1);
+          tocar(NOTAS[3 - tr.atril], { vol: 0.035, dur: 2.4 });
+          aros.push({ x: sx, y: sy, t0: ahora, f: 1 }, { x: sx, y: sy, t0: ahora + 180, f: 1 });
+        }
+        const [x, y] = aPx(cab.p);
+        estela.push([x, y, cab.f]); if (estela.length > 26) estela.shift();
+      } else if (estela.length) estela.shift();
+      // las pantallas encendidas (en el plano de en medio: el director las tapa donde las tapa)
+      luzAtril.forEach((l, i) => {
+        if (l < 0.01) return;
+        const [x0, y0] = aPx([PANT[i][0], PANT[i][1]]), [x1, y1] = aPx([PANT[i][2], PANT[i][3]]), cw = x1 - x0, ch = y1 - y0;
+        // RONDA 93 · «la iluminación de los ordenadores desvela como un cuadrado alrededor donde se ve cortada»: el degradado (radio 0,9 del ancho) se pintaba
+        // en un rectángulo más bajo que él y se cortaba arriba y abajo. Ahora es una ELIPSE que acaba en transparente dentro de su propio contorno
+        const ccx = (x0 + x1) / 2, ccy = (y0 + y1) / 2, rx = cw * 1.05, ry = Math.max(ch * 1.6, cw * 0.62);
+        cM.save(); cM.translate(ccx, ccy); cM.scale(1, ry / rx);
+        const gr = cM.createRadialGradient(0, 0, 0, 0, 0, rx);
+        gr.addColorStop(0, `rgba(170,200,255,${0.3 * l})`); gr.addColorStop(0.35, `rgba(130,160,255,${0.15 * l})`); gr.addColorStop(0.7, `rgba(120,150,255,${0.04 * l})`); gr.addColorStop(1, 'rgba(120,150,255,0)');
+        cM.fillStyle = gr; cM.beginPath(); cM.arc(0, 0, rx, 0, 6.2832); cM.fill(); cM.restore();
+        const bx = x0 + cw * (1 - l) * 1.2 - cw * 0.1;
+        const gb = cM.createLinearGradient(bx - cw * 0.12, 0, bx + cw * 0.12, 0); gb.addColorStop(0, 'rgba(255,240,210,0)'); gb.addColorStop(0.5, `rgba(255,240,210,${0.4 * l})`); gb.addColorStop(1, 'rgba(255,240,210,0)');
+        cM.fillStyle = gb; cM.fillRect(x0, y0, cw, ch);
+        luzAtril[i] = l * Math.pow(0.5, dt / 1.1);
+      });
+      if (recarga > 0.01) {
+        [P.batuta, P.manoI].forEach((q) => { const [x, y] = aPx(q), R = cr.width * 0.12; const g2 = cF.createRadialGradient(x, y, 0, x, y, R); g2.addColorStop(0, `rgba(255,214,150,${0.3 * recarga})`); g2.addColorStop(1, 'rgba(255,214,150,0)'); cF.fillStyle = g2; cF.beginPath(); cF.arc(x, y, R, 0, 6.283); cF.fill(); });
+        recarga *= Math.pow(0.5, dt / 0.5);
+      }
+      // RONDA 92 · «que lo que salga del mago no sea tan literal musical: que sean ONDAS DE FRECUENCIA»: la estela son tres senos superpuestos (frecuencias
+      // distintas) que corren a lo largo del recorrido, con más amplitud junto a la cabeza y nada en la cola; la cabeza, un punto de luz; lo que se suelta,
+      // trenes de onda cortos que se alejan y se apagan (antes, ronda 91: pentagrama y notas)
+      // la estela se MUESTREA del propio recorrido (la cabeza hace 0,6 s): una curva lisa a cualquier ritmo de fotogramas
+      if (cab) {
+        const tras: [number, number, number][] = [];
+        for (let k2 = 36; k2 >= 0; k2--) { const ch = cabeza(s - k2 * 0.017); if (ch) { const [x, y] = aPx(ch.p); tras.push([x, y, ch.f]); } }
+        // RONDA 93 · «lo que sale de la batuta, un toque más musical sin ser muy literal»: siguen siendo ondas, pero ahora SUENAN. Tres senos en la proporción
+        // de un acorde mayor (4 : 5 : 6), cuyo tono sube y baja a cada tiempo siguiendo una frase (MELODIA) y cuya amplitud late a 92 BPM: ataque en el
+        // tiempo y caída hasta el siguiente (el 1 y el 3, más fuertes). Visto de lejos, una cuerda que vibra a compás
+        const BEAT = 60 / 92, tb = (ahora - ciclo0) / 1000 / BEAT, nb = Math.floor(tb), fb = tb - nb;
+        const MELODIA = [0, 2, 4, 2, 5, 4, 2, 0];
+        const kBase = 0.075 * Math.pow(2, MELODIA[nb % MELODIA.length] / 12 * 2.2);
+        const env = (nb % 2 === 0 ? 1 : 0.72) * (0.32 + 0.68 * Math.exp(-fb * 3.2));
+        const ONDAS = [[4, 6.5, 1.3, 1, 0], [5, 4.6, 0.95, 0.7, 1.7], [6, 3.4, 0.7, 0.5, 3.1]]; // [proporción, amplitud px, grosor, alfa, fase]
+        if (tras.length > 3) for (const [ra, A0, gro, al, fa] of ONDAS) {
+          const k = (kBase * ra) / 4, A = A0 * env;
+          let dist = 0;
+          for (let i = 1; i < tras.length; i++) {
+            const u = i / (tras.length - 1), [x0, y0, f0] = tras[i - 1], [x1, y1] = tras[i], dx = x1 - x0, dy = y1 - y0, dl = Math.hypot(dx, dy) || 1, c = PL[f0];
+            const nx = -dy / dl, ny = dx / dl, pasos = Math.max(1, Math.ceil(dl / 2));
+            c.strokeStyle = clara ? `rgba(${ra === 4 ? '255,97,107' : ra === 5 ? '32,45,133' : '36,28,25'},${(0.75 * al * u).toFixed(3)})` : `rgba(255,${Math.round(214 + 26 * u)},${Math.round(170 + 60 * u)},${(0.75 * al * u).toFixed(3)})`;
+            c.lineWidth = gro * (f0 === 2 ? 1 : 0.85); c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath();
+            for (let q = 0; q <= pasos; q++) {
+              const t = q / pasos, d = dist + dl * t, uu = (i - 1 + t) / (tras.length - 1), amp = A * Math.sin(Math.PI * Math.min(1, uu * 1.15)) * (f0 === 2 ? 1 : 0.8), o = amp * Math.sin(k * d - ahora / 110 + fa);
+              const px2 = x0 + dx * t + nx * o, py2 = y0 + dy * t + ny * o;
+              q === 0 ? c.moveTo(px2, py2) : c.lineTo(px2, py2);
+            }
+            c.stroke(); dist += dl;
+          }
+        }
+        // a cada tiempo, la cabeza suelta un PULSO: un anillo fino que se abre en el sitio (como el golpe de un metrónomo visto en el agua)
+        if (nb !== ultBeat) { ultBeat = nb; const [px3, py3, pf3] = tras[tras.length - 1]; pulsos.push({ x: px3, y: py3, t0: ahora, f: pf3, fuerte: nb % 2 === 0 }); }
+        const [hx, hy, hf] = tras[tras.length - 1] ?? estela[estela.length - 1], c = PL[hf], R = hf === 2 ? 16 : 12;
+        const gh = c.createRadialGradient(hx, hy, 0, hx, hy, R); gh.addColorStop(0, clara ? 'rgba(255,97,107,.6)' : 'rgba(255,244,225,.85)'); gh.addColorStop(0.35, clara ? 'rgba(255,97,107,.18)' : 'rgba(255,200,130,.25)'); gh.addColorStop(1, 'rgba(255,170,90,0)');
+        c.fillStyle = gh; c.beginPath(); c.arc(hx, hy, R, 0, 6.283); c.fill();
+      }
+      // los AROS DE FRECUENCIA: un círculo cuyo borde ondula (doce crestas) y se abre y se apaga desde el atril
+      for (let i = aros.length - 1; i >= 0; i--) {
+        const a = aros[i], e = (ahora - a.t0) / 1000; if (e < 0) continue; if (e > 1.6) { aros.splice(i, 1); continue; }
+        const R = 8 + e * 70, al = (1 - e / 1.6) * 0.7, c = PL[a.f];
+        c.strokeStyle = clara ? `rgba(36,28,25,${al * 0.7})` : `rgba(255,236,210,${al})`; c.lineWidth = 1; c.beginPath();
+        for (let q = 0; q <= 96; q++) { const th = (q / 96) * 6.2832, rr = R + Math.sin(th * 12 + ahora / 120) * (2.2 * (1 - e / 1.6)); q === 0 ? c.moveTo(a.x + Math.cos(th) * rr, a.y + Math.sin(th) * rr * 0.6) : c.lineTo(a.x + Math.cos(th) * rr, a.y + Math.sin(th) * rr * 0.6); }
+        c.stroke();
+      }
+      for (let i = pulsos.length - 1; i >= 0; i--) {
+        const p2 = pulsos[i], e = (ahora - p2.t0) / 1000; if (e > 0.9) { pulsos.splice(i, 1); continue; }
+        const c = PL[p2.f], R = 4 + e * (p2.fuerte ? 34 : 22), al = (1 - e / 0.9) * (p2.fuerte ? 0.5 : 0.3);
+        c.strokeStyle = clara ? `rgba(255,97,107,${al})` : `rgba(255,236,210,${al})`; c.lineWidth = p2.fuerte ? 1.2 : 0.8; c.beginPath(); c.arc(p2.x, p2.y, R, 0, 6.2832); c.stroke();
+      }
+      if (motas.length > 260) motas.splice(0, motas.length - 260);
+      requestAnimationFrame(magia);
+    };
+    new IntersectionObserver((e) => { if (e[0].isIntersecting) { ultM = 0; requestAnimationFrame(magia); } }).observe(mgM);
+    new IntersectionObserver((e) => { capas.forEach((c) => c.visible(e[0].isIntersecting)); heroVisto = e[0].isIntersecting; if (heroVisto) despertarPuntos(); }).observe(hero);
+    // ── la luz y las capas siguen al ratón (con retraso); el brillo del director va bajo el haz (ronda 29)
     const alinear = (mx: number) => {
+      // RONDA 94 · el haz sobre el papel: un punto de su eje (a media altura del hero: el centro del haz, que gira alrededor de él) y su semiancho
+      if (papel && !clara) {
+        const hr = hero.getBoundingClientRect(), xc = hr.left + hr.width * 0.57 + mx * 0.38 * innerWidth, yc = hr.top + hr.height * 0.5;
+        for (const [k, cvSel] of [[tD, '[data-lienzo]'], [tA, '[data-atriles-lienzo]']] as const) {
+          if (!k) continue; const lr = hero.querySelector<HTMLCanvasElement>(cvSel)!.getBoundingClientRect();
+          (k as any).luz(xc - lr.left, yc - lr.top, hr.width * 0.15);
+        }
+      }
       if (!t) return;
       const hr = hero.getBoundingClientRect(), cr = caja.getBoundingClientRect();
-      const base = hr.width * 0.57 + mx * 0.38 * innerWidth; // centro del haz «a» (left 40 % + ancho 34 %) en el hero
-      const xTop = base - 0.325 * (cr.top - hr.top - hr.height * 0.5); // el haz gira sobre su centro (a media altura del hero)
-      const d = (xTop - (cr.left - hr.left)) / cr.width; // en fracciones de la caja del árbol
-      luzV = 0.95 * d - 0.62; t.luz(luzV);
+      const base = hr.width * 0.57 + mx * 0.38 * innerWidth;
+      const xTop = base - 0.325 * (cr.top - hr.top - hr.height * 0.5);
+      t.luz(0.95 * ((xTop - (cr.left - hr.left)) / cr.width) - 0.62);
     };
     alinear(0); addEventListener('resize', () => alinear(0));
+    // AL BAJAR (punto 3): el director se hunde despacio en la niebla del suelo; los atriles algo menos; el fondo casi nada
+    let rafS = 0;
+    const alBajar = () => { rafS = 0; const k = Math.min(1, Math.max(0, scrollY / Math.max(1, hero.offsetHeight))); hero.style.setProperty('--baja', k.toFixed(4)); };
+    if (!reducido) { addEventListener('scroll', () => { if (!rafS) rafS = requestAnimationFrame(alBajar); }, { passive: true }); alBajar(); }
     if (!reducido && matchMedia('(hover: hover)').matches) {
       let mx = 0, my = 0, tx = 0, ty = 0, raf = 0;
       const seguir = () => {
@@ -149,6 +393,7 @@ import { rich } from '../lib/rich';
       hero.addEventListener('pointermove', (e) => { const r = hero.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width - 0.5; ty = (e.clientY - r.top) / r.height - 0.5; if (!raf) raf = requestAnimationFrame(seguir); }, { passive: true });
       hero.addEventListener('pointerleave', () => { tx = 0; ty = 0; if (!raf) raf = requestAnimationFrame(seguir); });
     }
+    (w as any).__heroMagia = () => ({ atriles: luzAtril.map((x) => +x.toFixed(2)), motas: motas.length });
   }
 </script>
 
@@ -215,7 +460,7 @@ import { rich } from '../lib/rich';
   .arbol-caja {
     position: relative;
     width: var(--roble-w);
-    aspect-ratio: 1260 / 583; /* el tronco ya está en el centro de la lámina */
+    aspect-ratio: 1672 / 941; /* ronda 96: la lámina nueva (estilo retrato). Antes, ronda 85: 1490 / 1105, que siguen usando papel y pintura */
   }
   .marco {
     --gutter: calc(var(--spacing) * 5);
@@ -228,9 +473,7 @@ import { rich } from '../lib/rich';
     width: min(100% - var(--gutter) * 2, 75rem);
     /* «el fondo detrás del árbol va de color sólido a nada […] replicarlo pero con puntos que son casi del color del fondo. Nuestro color
        claro al 10 % y que vaya a 0 %»: retícula de puntos a 45° (la misma del semitono del árbol) que se desvanece hacia abajo */
-    background:
-      radial-gradient(circle, var(--punto) 1.15px, transparent 1.7px) 0 0 / 8px 8px,
-      radial-gradient(circle, var(--punto) 1.15px, transparent 1.7px) 4px 4px / 8px 8px;
+    /* ronda 86: los puntos, en un lienzo que late con la música (antes, dos degradados radiales) */
     -webkit-mask-image: linear-gradient(to bottom, #000, transparent 96%);
     mask-image: linear-gradient(to bottom, #000, transparent 96%);
     border-inline: 1px dashed color-mix(in srgb, var(--color-niebla) 22%, transparent);
@@ -243,13 +486,10 @@ import { rich } from '../lib/rich';
     .marco { --gutter: calc(var(--spacing) * 12); }
   }
   /* ronda 66: el halo y el grano se recortan con la lámina de la estación */
-  .arbol-caja { --hoja-lamina: url('/media/hero/arbol-otono.webp'); }
-  .hero[data-estacion='invierno'] .arbol-caja { --hoja-lamina: url('/media/hero/arbol-invierno.webp'); }
-  .hero[data-estacion='primavera'] .arbol-caja { --hoja-lamina: url('/media/hero/arbol-primavera.webp'); }
-  .hero[data-estacion='verano'] .arbol-caja { --hoja-lamina: url('/media/hero/arbol-verano.webp'); }
+  .arbol-caja { --hoja-lamina: url('/media/hero/director.webp'); } /* ronda 83 */
   .arbol-caja {
     pointer-events: auto; /* el huevo de pascua */
-    cursor: pointer;
+    cursor: default; /* ronda 85: el clic ya no cambia de estación */
   }
   /* el MISMO grano de la página por encima del árbol: una sola materia */
   .arbol-caja::after {
@@ -265,6 +505,30 @@ import { rich } from '../lib/rich';
   }
   .crecido .arbol-caja::after {
     opacity: 0.9;
+  }
+  /* ronda 90 · en papel, sin halo ni grano recortado (la textura es el propio papel) */
+  .estilo-papel .halo, .estilo-papel .arbol-caja::after, .estilo-retrato .halo, .estilo-retrato .arbol-caja::after { display: none; }
+  /* ronda 96 (2.ª): en color, el halo y el grano se recortan con la lámina nueva (como el árbol) */
+  .estilo-color .arbol-caja { --hoja-lamina: url('/media/hero/retrato-director.webp'); }
+  .estilo-ascii .halo, .estilo-ascii .arbol-caja::after, .estilo-ascii .magia { display: none; }
+  /* ronda 96 · los estilos de antes, con su lámina de 1490 × 1105 */
+  .estilo-antiguo { --roble-w: min(calc(var(--roble-h) * 1.3484), 116vw); }
+  @media (width >= 48rem) { .estilo-antiguo { --roble-w: min(calc(var(--roble-h) * 1.3484), 84vw); } }
+  .estilo-antiguo .arbol-caja { aspect-ratio: 1490 / 1105; }
+  .puntos { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* RONDA 89 · la magia vuela por todo el hero (sale de la caja: por encima de la cabeza y fuera de los atriles) */
+  /* ronda 90 · los dos planos de magia, dentro de la caja (entre las capas) y desbordándola */
+  .magia { position: absolute; left: -26%; top: -32%; width: 152%; height: 142%; pointer-events: none; }
+  /* RONDA 89 · LAS CAPAS. Fondo (la terraza de Andoni) muy tenue, hundido en la noche arriba (bajo el titular) y abajo; atriles; director delante.
+     Paralaje con el ratón (--lx/--ly) y, al bajar, el director se hunde en la niebla del suelo (--baja) */
+  .hero { --baja: 0; }
+  .capa { position: absolute; inset: 0; }
+  .capa.atriles { translate: calc(var(--lx) * -9px) calc(var(--ly) * -5px + var(--baja) * 4%); }
+  .capa.director { translate: calc(var(--lx) * -18px) calc(var(--ly) * -10px + var(--baja) * 14%); }
+  /* PUNTO 3 · «después del hero el director queda como cortado»: la escena se funde por abajo (la niebla del suelo); al bajar se hunde en ella */
+  .capa {
+    -webkit-mask-image: linear-gradient(to bottom, #000 76%, rgb(0 0 0 / 0.6) 90%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 76%, rgb(0 0 0 / 0.6) 90%, transparent 100%);
   }
   .esquina {
     --gutter: calc(var(--spacing) * 5);
@@ -305,7 +569,7 @@ import { rich } from '../lib/rich';
     opacity: 0.05;
   }
   .lienzo,
-  .arbol-caja img {
+  .capa img {
     position: absolute;
     inset: 0;
     display: block;
@@ -319,10 +583,10 @@ import { rich } from '../lib/rich';
     opacity: 1;
   }
   /* La lámina es la textura del lienzo; como imagen solo se ve si no hay WebGL. */
-  .arbol-caja img[data-lamina] {
+  .capa img {
     opacity: 0;
   }
-  .sin-gl .arbol-caja img[data-lamina] {
+  .sin-gl .capa img {
     opacity: 1;
   }
 </style>

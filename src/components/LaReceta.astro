@@ -1,658 +1,418 @@
 ---
+// RONDA 87 · «La savvia es la partitura de tu web»: cómo enseñar que te damos una LIBRERÍA, con música → EL ARCHIVO DE LA ORQUESTA (elegida por Andoni). En una
+// orquesta, el archivero reparte a cada músico SU PARTE (la particella) sacada de la partitura general. Aquí: la carpeta se abre, la partitura general de Neety
+// queda arriba y, movimiento a movimiento, cada parte se separa y VUELA a su atril, uno por agente (diseño · código · contenido · documentación · tu equipo),
+// con lo que de verdad lee ese agente de la librería de Neety. Una sola fuente; cada agente, su parte. Lo hecho se queda hecho.
+// (Antes, ronda 86: la carpeta con las piezas digitales a los lados; tools/retirados/LaReceta.r86-carpeta.astro.txt)
+// LA PARTITURA · RONDA 85 (2.ª). Andoni: «lo de Neety me gusta mucho el estilo, pero podemos hacer que sea una PARTITURA y que salga de algo relacionado con la
+// música; un sobre no está muy relacionado. Y una vez hecha la animación, se queda como está y no vuelve a hacerla a la inversa cuando subes». Antes: la entrada
+// en su sobre lacrado (tools/retirados/LaReceta.r85-sobre.astro.txt) y, antes, la impresora (…r84-impresora…).
+// CONCEPTO: una CARPETA DE PARTITURAS de piel berenjena, atada con un cordón y con el isotipo grabado en naranja. Con el scroll: el cordón se suelta, la tapa se
+// ABRE como un libro y dentro está LA PARTITURA de la web de Neety: portada clásica (savvia presenta · Neety · La partitura de su web) y los cinco MOVIMIENTOS, cada
+// uno con su pentagrama y sus notas. Se recorren uno a uno (suenan y, al lado, su pieza digital: lo que hace esa parte en su web); al final se FIRMA (la v de
+// savvia, a pluma) y se cierra con la doble barra final. Lo hecho se queda hecho: el avance nunca retrocede (al subir, la partitura sigue abierta).
 import { receta } from '../data/home';
-const pad = (n: number) => String(n + 1).padStart(2, '0');
-// RONDA 66 · «en el md de referencia hay cosas que cambian de color como si tuviesen un link; eso lo trasladamos»: en cada línea, los valores de la receta
-// (colores en hexadecimal, archivos .md, tokens de espacio, medidas en px) van en el color de enlace, subrayados con puntos
-const TOKEN = /(#[0-9A-Fa-f]{6}|\b[\w/-]+\.md\b|\b(?:xtiny|xxhuge)\b|\d+(?:\s*\/\s*\d+)?\s*px|\d+%)/g;
-const trozos = (l: string) => l.split(TOKEN).map((t, i) => ({ t, tok: i % 2 === 1 }));
-// la tinta A MANO (Coral): trazos con pulso (no geométricos), en una caja de 100 × 20 que se estira a la línea que marcan
-const TRAZO: Record<string, string> = {
-  circulo: 'M10 5 C 34 -1, 82 0, 96 7 C 103 13, 86 19.5, 50 19 C 17 18.6, 0 15.5, 3 9.5 C 5.5 4.5, 15 2.2, 32 2.4',
-  subraya: 'M1 18.5 C 22 16.8, 48 19.6, 74 17.6 S 96 17, 99 16.2',
-  tacha: 'M1 11.5 C 24 9.4, 52 12.4, 76 10.2 S 95 10.6, 99 9.2',
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+const E = receta.entrada;
+const f = (n: number) => n.toFixed(2);
+// la GUILLOCHE de las bandas (la del papel moneda)
+const tira = (() => {
+  const W = 48, H = 12, ps: string[] = [];
+  for (const [fase, amp] of [[0, 4.6], [Math.PI, 4.6], [Math.PI / 2, 2.4], [(3 * Math.PI) / 2, 2.4]]) {
+    let d = ''; for (let x = 0; x <= W; x += 1) d += (x ? 'L' : 'M') + f(x) + ' ' + f(H / 2 + amp * Math.sin((x / W) * Math.PI * 4 + fase));
+    ps.push(`<path d='${d}' fill='none' stroke='%23431b44' stroke-width='.45' opacity='.75'/>`);
+  }
+  return `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>${ps.join('')}</svg>")`;
+})();
+// el INCIPIT de cada movimiento: un pentagrama corto con sus primeras notas (con semilla: siempre las mismas)
+const incipit = (k: number) => {
+  let sem = 31 + k * 97; const az = () => { sem = (sem * 16807) % 2147483647; return sem / 2147483647; };
+  const W = 220, g = 5, y0 = 6, out: string[] = [];
+  for (let l = 0; l < 5; l++) out.push(`<path class="l" d="M0 ${y0 + l * g}H${W}"/>`);
+  out.push(`<path class="l" d="M${W} ${y0}V${y0 + 4 * g}"/>`);
+  const n = 7 + Math.floor(az() * 4);
+  for (let i = 0; i < n; i++) {
+    const x = 18 + (i * (W - 30)) / n, p = Math.floor(az() * 9), y = y0 + 4 * g - (p * g) / 2, arriba = p < 4;
+    out.push(`<ellipse class="c" cx="${f(x)}" cy="${f(y)}" rx="2.9" ry="2.1" transform="rotate(-22 ${f(x)} ${f(y)})"/><path class="p" d="M${f(x + (arriba ? 2.6 : -2.6))} ${f(y)}V${f(y + (arriba ? -15 : 15))}"/>`);
+  }
+  return `<svg viewBox="-2 0 ${W + 4} ${y0 * 2 + 4 * g}" preserveAspectRatio="none" aria-hidden="true">${out.join('')}</svg>`;
 };
+const romano = (m: string) => (m.includes('.') ? m.split('.')[0] : '');
+const tempo = (m: string) => (m.includes('.') ? m.split('.')[1].trim() : m);
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 ---
 
-<!--
-  LA RECETA DE PAPEL (rondas 53–55). Ronda 55, Andoni: «la receta me gusta, pero igual podríamos hacer algo estilo que a medida que haces scroll se va
-  imprimiendo el ticket: un ticket continuo con los diferentes pasos, y por encima salen esos resaltes digitales».
-  · LA IMPRESORA: una ranura oscura que se queda fija a tres cuartos de la pantalla (sticky) mientras pasa la sección; el ticket SALE DE ELLA con el
-    scroll, a tirones de una línea (la cadencia de una térmica): lo que ya está por encima de la ranura está impreso; lo de debajo, aún no existe.
-  · UN SOLO TICKET, largo, con los cinco pasos seguidos (01 tu marca → 02 el arnés → 03 tu equipo pide → 04 queda escrito → 05 la cuenta), canto
-    dentado arriba y abajo. Es la receta REAL entregada a Neety (su library).
-  · HUMANO: la TINTA A MANO en Coral se dibuja sobre cada paso cuando termina de imprimirse (círculo, subrayado, tachado, vistos).
-  · DIGITAL: a la vez, a su lado (izquierda y derecha, alternando) aterriza la pieza de interfaz de ese paso, recta y nítida.
-  Sin JS o con movimiento reducido: el ticket entero, marcado y con sus piezas.
--->
-<section id="la-savvia" class="surface-light receta relative" aria-labelledby="receta-h" data-receta data-sube>
-  <div class="wrap section-y">
+<section id="la-savvia" class="surface-light partitura relative" aria-labelledby="receta-h" data-receta data-sube>
+  <div class="wrap section-y cabecera">
     <h2 id="receta-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
-    <p class="text-sub arnes mt-6 lg:mt-8 max-w-[34ch]" data-enfoca>{receta.arnes}</p>
-    <!-- RONDA 56 · el ticket va ENGANCHADO a la boca de la impresora y sale hacia arriba; la impresora, fija mientras dura (escenario sticky) -->
-    <div class="imprenta" data-imprenta>
-      <div class="escenario" data-escenario>
-        <div class="boca" data-boca>
-          <div class="ticket" data-ticket>
-            <div class="papel" data-papel>
-              <p class="cab"><span class="logo-t" role="img" aria-label="savvia"></span></p>
-              <p class="sub-cab">la receta de la web de Neety</p>
-              <p class="raya" aria-hidden="true">= = = = = = = = = = = = = =</p>
-              {
-                receta.tiras.map((t, i) => (
-                  <section class={`bloque ${i % 2 ? 'izq' : 'der'}`} aria-label={`${pad(i)} · ${t.paso}`} data-bloque>
-                    <p class="paso"><b>{pad(i)}</b> · {t.paso}</p>
-                    <p class="titulo-b">{t.t}</p>
-                    <p class="raya" aria-hidden="true">{t.raya}</p>
-                    <div class="cuerpo">
-                      {t.lineas.map((l, k) => {
-                        const m = t.marcas.find(([n]) => n === k)?.[1];
-                        return (
-                          <span class="ln">
-                            <span class="tx">
-                              {l ? trozos(l).map((q) => (q.tok ? <span class="tok">{q.t}</span> : q.t)) : ' '}
-                              {m && m !== 'visto' && (
-                                <svg class={`tinta ${m}`} viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d={TRAZO[m]} pathLength="1" /></svg>
-                              )}
-                              {m === 'visto' && (
-                                <svg class="tinta visto" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.2 8.6 C 3.6 9.6, 5 11.2, 6.1 13 C 8 8.6, 10.6 5, 14 2.4" pathLength="1" /></svg>
-                              )}
-                            </span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                    <div class={`dig dig-${t.digital.tipo}`} aria-hidden={t.digital.tipo === 'boton' ? undefined : 'true'}>
-                      {t.digital.tipo === 'tabla' && (
-                        <>
-                          <span class="dig-cab">{t.digital.txt}</span>
-                          <span class="tabla-d">
-                            {t.digital.filas!.map((f, k) => (
-                              <>
-                                <i class="sw" style={`--c:${t.digital.colores![k]}`} />
-                                <span>{f[0]}</span>
-                                <code>{f[1]}</code>
-                                <code class="tk">{f[2]}</code>
-                              </>
-                            ))}
-                          </span>
-                        </>
-                      )}
-                      {t.digital.tipo === 'bloqueo' && (
-                        <>
-                          <span class="dig-cab">{t.digital.cab}</span>
-                          <span class="fila-d"><i class="x">✕</i>{t.digital.txt}</span>
-                          <span class="fin">→ {t.digital.fin}</span>
-                        </>
-                      )}
-                      {t.digital.tipo === 'agente' && (
-                        <>
-                          <span class="fila-d trabaja"><i class="giro-d" />{t.digital.txt}</span>
-                          {t.digital.pasos!.map((q, k) => <span class="paso-d" style={`--k:${k}`}>✓ {q}</span>)}
-                          <span class="fila-d listo">{t.digital.fin}</span>
-                        </>
-                      )}
-                      {t.digital.tipo === 'diff' && (
-                        <>
-                          <span class="dig-cab"><i class="punto" />{t.digital.txt}<b class="mas">{t.digital.fin}</b></span>
-                          {t.digital.pasos!.map((q, k) => <code class="diff-l" style={`--k:${k}`}>{q}</code>)}
-                        </>
-                      )}
-                      {t.digital.tipo === 'boton' && (
-                        <a class="boton-lib" href={t.digital.href} target="_blank" rel="noopener" aria-label={`${t.digital.txt} (se abre en otra pestaña)`}>
-                          <svg class="ci-chispa" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.4 3.9 2.1 5.6 6 6-3.9.4-5.6 2.1-6 6-.4-3.9-2.1-5.6-6-6 3.9-.4 5.6-2.1 6-6z" /></svg>
-                          <span class="ci-txt">{t.digital.txt}</span>
-                          <span class="ci-env" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></span>
-                        </a>
-                      )}
-                    </div>
-                    {i < receta.tiras.length - 1 && <p class="raya sep" aria-hidden="true">- - - - - - - - - - - - - - -</p>}
-                  </section>
-                ))
-              }
-            </div>
-          </div>
-        </div>
-        <div class="impresora" data-impresora>
-          <i class="ranura" aria-hidden="true"></i><i class="led" aria-hidden="true" data-led></i>
-          <!-- RONDA 57 · «poner en esa sección para activar y quitar sonido»: el altavoz, en la propia impresora -->
-          <button type="button" class="altavoz" aria-pressed="true" aria-label="Quitar el sonido de la impresora" data-altavoz>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="caja" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" /><path class="ondas" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /><path class="tacha" d="M15.5 9.5l5 5M20.5 9.5l-5 5" /></svg>
-            <span class="detail">sonido</span>
-          </button>
-        </div>
-        <!-- RONDA 74 · «quitamos los detalles florales de las secciones, las dejamos limpias»: fuera la maleza de la impresora (ronda 57) -->
-      </div>
-    </div>
-    <p class="nota detail mt-16 lg:mt-24">
-      <span>{receta.nota}</span>
-    </p>
+    <p class="text-sub mt-6 lg:mt-8 max-w-[34ch] text-fg2" data-enfoca>{receta.arnes}</p>
   </div>
+
+  <div class="escena" data-sala-entrada>
+    <div class="escenario">
+      <div class="mesa-caja" data-mesa-caja>
+      <div class="mesa" data-mesa>
+        <!-- LA CARPETA: la contratapa (detrás), la partitura, la tapa (delante, se abre) con el isotipo grabado, y el cordón -->
+        <i class="contratapa" aria-hidden="true"></i>
+        <article class="hoja" aria-label={`Partitura: ${E.obra}, ${E.sub}`} style={`--guilloche:${tira}`} data-hoja>
+          <i class="banda arriba" aria-hidden="true"></i>
+          <p class="presenta"><span class="logo-t" role="img" aria-label="savvia"></span>presenta</p>
+          <p class="obra">{E.obra}</p>
+          <p class="subt">{E.sub}</p>
+          <p class="temporada">{E.subtitulo} · {E.temporada}</p>
+          <ol class="programa">
+            {receta.tiras.map((t, i) => (
+              <li data-mov={i}>
+                <p class="mov"><span class="rom">{romano(t.mov)}</span><span class="que">{cap(t.paso)}</span><span class="tempo">{tempo(t.mov)}</span></p>
+                <div class="incipit" set:html={incipit(i)} />
+              </li>
+            ))}
+          </ol>
+          <div class="pie-hoja">
+            <p class="sala">{E.datos.map(([k, v]) => `${k} ${v}`).slice(0, 1).join(' · ')} · {E.temporada}</p>
+            <span class="firma" aria-hidden="true"><svg viewBox="0 0 370 439"><defs><mask id="firma-m" maskUnits="userSpaceOnUse" x="-100" y="-100" width="600" height="700"><path fill="none" stroke="#fff" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" d="M3 225L45 172L72 160L88 178L86 214L56 330L46 385L54 424L80 420L112 382L148 314L188 228L220 154L270 46L298 18L332 14L358 32L352 58L334 62L324 48" data-firma /></mask></defs><path d={ISO} mask="url(#firma-m)" /></svg><span class="dir">dir. savvia</span></span>
+          </div>
+          <i class="banda abajo" aria-hidden="true"></i>
+          <i class="doble-barra" aria-hidden="true"></i>
+        </article>
+        <div class="tapa" aria-hidden="true" data-tapa>
+          <span class="grabado"><svg viewBox="0 0 370 439"><path d={ISO} /></svg></span>
+          <span class="rotulo">partituras</span>
+        </div>
+        <i class="cordon" aria-hidden="true" data-cordon></i>
+
+      </div>
+      </div>
+      <!-- LOS ATRILES: uno por agente; cada uno recibe su PARTE (la particella), que vuela desde su movimiento de la partitura general -->
+      <ol class="atriles" data-atriles>
+        {receta.tiras.map((t, i) => (
+          <li class="atril" data-atril={i}>
+            <div class="particella" data-parte={i}>
+              <p class="p-cab"><span class="p-agente">{t.agente}</span><span class="p-mov">{romano(t.mov) || 'Bis'} · {cap(t.paso)}</span></p>
+              <div class={`dig dig-${t.digital.tipo}`} data-dig={i} aria-hidden={t.digital.tipo === 'boton' ? undefined : 'true'}>
+              {t.digital.tipo === 'tabla' && (
+                <>
+                  <span class="dig-cab">{t.digital.txt}</span>
+                  <span class="tabla-d">
+                    {t.digital.filas!.map((fi, k) => (
+                      <>
+                        <i class="sw" style={`--c:${t.digital.colores![k]}`} />
+                        <span>{fi[0]}</span>
+                        <code>{fi[1]}</code>
+                        <code class="tk">{fi[2]}</code>
+                      </>
+                    ))}
+                  </span>
+                </>
+              )}
+              {t.digital.tipo === 'bloqueo' && (
+                <>
+                  <span class="dig-cab">{t.digital.cab}</span>
+                  <span class="fila-d"><i class="x">✕</i>{t.digital.txt}</span>
+                  <span class="fin">→ {t.digital.fin}</span>
+                </>
+              )}
+              {t.digital.tipo === 'agente' && (
+                <>
+                  <span class="fila-d trabaja"><i class="giro-d" />{t.digital.txt}</span>
+                  {t.digital.pasos!.map((q, k) => <span class="paso-d" style={`--k:${k}`}>✓ {q}</span>)}
+                  <span class="fila-d listo">{t.digital.fin}</span>
+                </>
+              )}
+              {t.digital.tipo === 'diff' && (
+                <>
+                  <span class="dig-cab"><i class="punto" />{t.digital.txt}<b class="mas">{t.digital.fin}</b></span>
+                  {t.digital.pasos!.map((q, k) => <code class="diff-l" style={`--k:${k}`}>{q}</code>)}
+                </>
+              )}
+              {t.digital.tipo === 'boton' && (
+                <a class="boton-lib" href={t.digital.href} target="_blank" rel="noopener" aria-label={`${t.digital.txt} (se abre en otra pestaña)`}>
+                  <svg class="ci-chispa" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.4 3.9 2.1 5.6 6 6-3.9.4-5.6 2.1-6 6-.4-3.9-2.1-5.6-6-6 3.9-.4 5.6-2.1 6-6z" /></svg>
+                  <span class="ci-txt">{t.digital.txt}</span>
+                  <span class="ci-env" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></span>
+                </a>
+              )}
+            </div>
+            </div>
+            <svg class="pie-atril" viewBox="0 0 120 150" aria-hidden="true"><path d="M8 6L112 6L104 34L16 34Z" /><path d="M60 34V118M60 118L28 148M60 118L92 148M60 118V148" /><path class="t2" d="M9 7L111 7L103 35L17 35Z" transform="translate(.8 .5)" /></svg>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+  <p class="wrap nota detail">{receta.nota}</p>
 </section>
 
 <script>
-  // RONDA 56 · «que parezca que se imprime de verdad: uno de verdad va más a tirones; y sonido de ticket que se imprime».
-  // · El SCROLL dice hasta dónde hay que imprimir (objetivo); la IMPRESORA va a su ritmo: ráfagas de líneas (28–40 ms cada una), pausas cortas cada
-  //   pocas líneas y una larga entre pasos; nunca «desimprime». Cada línea es un tirón: el papel sube una línea en dos golpes (con un rebote de 1 px) y
-  //   la impresora vibra. El ticket va enganchado a la boca: lo impreso sale hacia ARRIBA.
-  // · SONIDO: una grabación real de una térmica (ver «el sonido», ronda 59); solo después de un gesto en la página (el navegador no deja sonar antes)
-  //   y nunca si el sonido de la web está apagado (savvia:sonido = 0).
+  import { tocar, pizzicato, papel } from '../scripts/musica';
   const sec = document.querySelector<HTMLElement>('[data-receta]');
   if (sec) {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const imprenta = sec.querySelector<HTMLElement>('[data-imprenta]')!, ticket = sec.querySelector<HTMLElement>('[data-ticket]')!;
-    const imp = sec.querySelector<HTMLElement>('[data-impresora]')!;
-    const bloques = [...sec.querySelectorAll<HTMLElement>('[data-bloque]')];
-    const LINEA = 19;
-    let H = 0, impreso = 0, objetivo = 0, vista = false, raf = 0, hasta = 0, rafaga = 0, ultimo = 0;
-    // ── el sonido
-    // RONDA 59 · «el sonido de la receta, más realista; si hace falta, sácalo de internet». Una GRABACIÓN real de una térmica Epson (Pixabay,
-    // «freesound_community», licencia de Pixabay: uso libre, sin atribución; original en tools/fuente-impresora-pixabay-82477.mp3):
-    // impresora.mp3 = 7,6 s de impresión continua, en bucle mientras la impresora tira (desde un punto al azar, para que no se repita);
-    // cuchilla.mp3 = el corte del papel al terminar. Entre línea y línea, un microcorte de volumen que lo ata a los tirones de la pantalla.
-    let ac: AudioContext | null = null, bufImp: AudioBuffer | null = null, bufCorte: AudioBuffer | null = null;
-    const callado = () => { try { return localStorage.getItem('savvia:son') !== '1'; } catch { return true; } };
-    const cargar = async (url: string) => { const r = await fetch(url); return ac!.decodeAudioData(await r.arrayBuffer()); };
-    const despertar = () => {
-      if (ac || callado()) return;
-      try {
-        ac = new AudioContext();
-        cargar('/media/sonido/impresora.mp3').then((b) => (bufImp = b)).catch(() => {});
-        cargar('/media/sonido/cuchilla.mp3').then((b) => (bufCorte = b)).catch(() => {});
-      } catch { ac = null; }
+    const escena = sec.querySelector<HTMLElement>('[data-sala-entrada]')!, mesa = sec.querySelector<HTMLElement>('[data-mesa]')!;
+    const movs = [...sec.querySelectorAll<HTMLElement>('[data-mov]')], digs = [...sec.querySelectorAll<HTMLElement>('[data-dig]')];
+    const partes = [...sec.querySelectorAll<HTMLElement>('[data-parte]')];
+    const N = movs.length;
+    // RONDA 87 · LA PARTICELLA vuela de su movimiento (en la partitura general) a su atril: se coloca, invisible, sobre el movimiento y luego viaja a su sitio
+    const volada = new Set<number>();
+    const cajaM = sec.querySelector<HTMLElement>('[data-mesa-caja]')!;
+    const escalar = () => { const k = cajaM.clientHeight / mesa.offsetHeight; mesa.style.setProperty('--k', k.toFixed(4)); };
+    escalar(); addEventListener('resize', escalar); document.fonts.ready.then(escalar);
+    const colocar = (j: number) => {
+      const m = movs[j].getBoundingClientRect(), pr = partes[j];
+      pr.style.transition = 'none'; pr.style.transform = ''; const q = pr.getBoundingClientRect();
+      pr.style.setProperty('--dx', `${(m.left + m.width / 2 - (q.left + q.width / 2)).toFixed(1)}px`); pr.style.setProperty('--dy', `${(m.top + m.height / 2 - (q.top + q.height / 2)).toFixed(1)}px`);
+      pr.style.transition = '';
     };
-    ['pointerdown', 'keydown', 'touchend'].forEach((ev) => addEventListener(ev, despertar, { once: true, passive: true }));
-    const VOL = 0.28; // ronda 59: «la impresora, más bajo» (antes 0,55)
-    let motor: { m: GainNode; f: AudioBufferSourceNode } | null = null, pitado = false;
-    const listo = () => { if (!ac || callado()) return false; if (ac.state === 'suspended') ac.resume(); return ac.state === 'running'; };
-    const arrancar = () => {
-      if (motor || !listo() || !bufImp) return;
-      const a = ac!, t = a.currentTime, m = a.createGain();
-      m.gain.setValueAtTime(0, t); m.gain.linearRampToValueAtTime(VOL, t + 0.012); m.connect(a.destination);
-      const f = a.createBufferSource(); f.buffer = bufImp; f.loop = true; f.playbackRate.value = 0.97 + Math.random() * 0.06;
-      f.connect(m); f.start(t, Math.random() * (bufImp.duration - 0.5));
-      motor = { m, f };
+    const volar = (j: number, sinViaje = false) => {
+      if (volada.has(j)) return; volada.add(j);
+      const pr = partes[j];
+      if (sinViaje) { pr.classList.add('sale', 'llega'); return; }
+      colocar(j); void pr.offsetWidth;
+      pr.classList.add('sale'); requestAnimationFrame(() => requestAnimationFrame(() => pr.classList.add('llega')));
+      pizzicato(62 + j * 2, { vol: 0.06, cuando: 0.9 }); // se posa en su atril
     };
-    const parar = () => {
-      if (!motor || !ac) return;
-      const t = ac.currentTime, { m, f } = motor;
-      m.gain.cancelScheduledValues(t); m.gain.setValueAtTime(m.gain.value, t); m.gain.linearRampToValueAtTime(0, t + 0.04);
-      f.stop(t + 0.06);
-      motor = null;
-    };
-    const zrrt = () => {
-      arrancar();
-      if (!motor || !ac) return;
-      const t = ac.currentTime, g = motor.m.gain;
-      g.cancelScheduledValues(t); g.setValueAtTime(VOL * 0.55, t); g.linearRampToValueAtTime(VOL, t + 0.01); // el microcorte entre líneas
-    };
-    // la cuchilla: el corte grabado
-    const pitar = () => {
-      if (pitado || !listo() || !bufCorte) return;
-      pitado = true;
-      const a = ac!, f = a.createBufferSource(), g = a.createGain(); g.gain.value = 0.4;
-      f.buffer = bufCorte; f.connect(g).connect(a.destination); f.start(a.currentTime + 0.15);
-    };
-    // el ALTAVOZ: comparte la preferencia de la web (savvia:sonido); pulsarlo ya es el gesto que deja sonar
-    const altavoz = sec.querySelector<HTMLButtonElement>('[data-altavoz]')!;
-    const pintarAltavoz = () => { const on = !callado(); altavoz.setAttribute('aria-pressed', String(on)); altavoz.setAttribute('aria-label', on ? 'Quitar el sonido de la impresora' : 'Poner el sonido de la impresora'); altavoz.classList.toggle('mudo', !on); };
-    altavoz.addEventListener('click', () => {
-      const on = callado();
-      try { localStorage.setItem('savvia:son', on ? '1' : '0'); } catch {}
-      if (on) { despertar(); ac?.resume(); } else parar();
-      pintarAltavoz();
-    });
-    pintarAltavoz();
-    // ── la impresora
-    // RONDA 57 · «el ticket, cuando haces scroll hacia arriba una vez abierto, se buguea y se ve mal: una vez abierto lo dejamos abierto y puedes hacer
-    // scroll en él metiéndose por donde ha salido». Lo IMPRESO se queda impreso (no se reimprime ni suena), pero lo que ASOMA de la impresora sigue al
-    // scroll en los dos sentidos: al subir, el papel vuelve a meterse por la boca; al bajar, sale otra vez (ya impreso). Nunca asoma más de lo impreso.
-    let asoma = 0, abierto = false;
-    // RONDA 58 · «una vez hecha la animación de scroll no quiero secuestrar el scroll para volver arriba: el ticket se queda abierto y puedes scrollear
-    // sobre él». Al terminar de imprimir, el escenario deja de ir fijo: se ANCLA en la página justo donde está (sin salto) y el ticket queda fuera entero
-    const escenario = sec.querySelector<HTMLElement>('[data-escenario]')!;
-    const abrir = () => {
-      if (abierto) return;
-      abierto = true;
-      const r = imprenta.getBoundingClientRect(), p = Math.max(0, Math.min(r.height - innerHeight, -r.top));
-      escenario.style.position = 'absolute'; escenario.style.left = '0'; escenario.style.right = '0'; escenario.style.top = `${p}px`;
-      asoma = H; colocar(); sec.classList.add('abierta');
-    };
-    const colocar = () => {
-      ticket.style.setProperty('--impreso', `${asoma}px`);
-      bloques.forEach((b) => { if (b.offsetTop + b.offsetHeight <= impreso + 4) b.classList.add('marcado'); });
-      ticket.classList.toggle('acabado', impreso >= H - 1);
-    };
-    const medir = () => { H = ticket.offsetHeight; imprenta.style.setProperty('--alto', `${H}px`); pedir(); };
-    const bucle = (ahora: number) => {
-      raf = 0;
-      const r = imprenta.getBoundingClientRect();
-      const scroll = Math.max(0, Math.min(H, Math.round(-r.top + innerHeight * 0.18)));
-      objetivo = Math.max(objetivo, scroll);
-      if (!abierto) {
-        const antes = asoma;
-        asoma = Math.min(impreso, scroll);
-        if (asoma !== antes) colocar();
-      }
-      if (impreso < objetivo && ahora >= hasta) {
-        // un tirón: una línea, en dos golpes
-        const lejos = objetivo - impreso > LINEA * 14; // muy atrás: dos líneas por tirón (recupera, como una térmica a plena velocidad)
-        impreso = Math.min(H, impreso + LINEA * (lejos ? 2 : 1));
-        if (!abierto) asoma = Math.min(impreso, scroll);
-        ticket.classList.remove('tiron'); void ticket.offsetWidth; ticket.classList.add('tiron');
-        imp.classList.add('en-marcha');
-        zrrt(); colocar();
-        rafaga++;
-        const finDePaso = bloques.some((b) => Math.abs(b.offsetTop + b.offsetHeight - impreso) < LINEA);
-        const pausa = lejos ? 0 : finDePaso ? 300 + Math.random() * 160 : rafaga >= 4 + Math.floor(Math.random() * 5) ? 80 + Math.random() * 120 : 0;
-        if (pausa) rafaga = 0;
-        hasta = ahora + 28 + Math.random() * 12 + pausa;
-        ultimo = ahora;
-      } else if (ahora - ultimo > 140) { imp.classList.remove('en-marcha'); parar(); if (impreso >= H && H > 0) { pitar(); abrir(); } }
-      if (impreso < objetivo || imp.classList.contains('en-marcha')) raf = requestAnimationFrame(bucle); // termina lo que le toca aunque ya no se vea
-    };
-    const pedir = () => { if (vista && !raf) raf = requestAnimationFrame(bucle); };
-    if (reducido) { sec.classList.add('sin-imprenta'); bloques.forEach((b) => b.classList.add('marcado')); }
+    const MELODIA = [62, 66, 69, 71, 74]; // una nota por movimiento (sube y resuelve)
+    const final = () => { mesa.classList.add('abierta', 'fuera-carpeta', 'firmada'); movs.forEach((m) => m.classList.add('visto')); digs.forEach((d) => d.classList.add('on')); partes.forEach((_, j) => volar(j, true)); mesa.style.setProperty('--abrir', '1'); mesa.style.setProperty('--seva', '1'); };
+    if (reducido) { mesa.classList.add('quieta'); final(); }
     else {
-      sec.classList.add('con-imprenta');
-      new ResizeObserver(medir).observe(ticket);
-      new IntersectionObserver((e) => { vista = e[0].isIntersecting; pedir(); }, { rootMargin: '10% 0px' }).observe(imprenta);
-      addEventListener('scroll', pedir, { passive: true });
-      medir(); colocar();
+      // LO HECHO SE QUEDA HECHO: todo cuelga de pMax, el avance máximo alcanzado; al subir no se deshace nada
+      let pMax = 0, estado = { suelto: false, abierta: false, activo: -1, firmada: false }, raf = 0;
+      const clamp = (x: number) => Math.min(1, Math.max(0, x));
+      const pintar = () => {
+        raf = 0;
+        const r = escena.getBoundingClientRect(), recorrido = r.height - innerHeight;
+        pMax = Math.max(pMax, clamp(-r.top / Math.max(1, recorrido)));
+        const p = pMax;
+        // 1 · se suelta el cordón · 2 · se abre la tapa · 3 · la carpeta se retira y queda la partitura
+        const suelta = clamp((p - 0.02) / 0.06), abrir = clamp((p - 0.07) / 0.13), seva = clamp((p - 0.2) / 0.1);
+        mesa.style.setProperty('--suelta', suelta.toFixed(3)); mesa.style.setProperty('--abrir', abrir.toFixed(3)); mesa.style.setProperty('--seva', seva.toFixed(3));
+        if (suelta > 0.1 && !estado.suelto) { estado.suelto = true; pizzicato(57, { vol: 0.08 }); }
+        if (abrir > 0.05 && !estado.abierta) { estado.abierta = true; mesa.classList.add('abierta'); papel({ vol: 0.04, dur: 0.3 }); }
+        mesa.classList.toggle('fuera-carpeta', seva > 0.99);
+        // 4 · los movimientos, uno a uno (y su pieza al lado); el último se queda encendido
+        const k = p < 0.32 ? -1 : Math.min(N - 1, Math.floor((p - 0.32) / (0.52 / N)));
+        if (k > estado.activo) {
+          estado.activo = k;
+          movs.forEach((m, i) => { m.classList.toggle('on', i === k); m.classList.toggle('visto', i < k); });
+          for (let j = 0; j <= k; j++) { digs[j].classList.add('on'); volar(j); } // cada parte se queda en su atril
+          tocar(MELODIA[k], { vol: 0.08, dur: 2 });
+        }
+        // 5 · la firma y la doble barra final
+        if (p > 0.88 && !estado.firmada) { estado.firmada = true; mesa.classList.add('firmada'); [50, 62, 66, 69].forEach((m, i) => tocar(m, { vol: i ? 0.05 : 0.08, dur: 2.8, cuando: i * 0.06 })); }
+      };
+      const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
+      let cerca = false;
+      new IntersectionObserver((e) => { cerca = e[0].isIntersecting; if (cerca) pedir(); }, { rootMargin: '20% 0px' }).observe(escena);
+      addEventListener('scroll', () => cerca && pedir(), { passive: true });
+      addEventListener('resize', pedir);
+      // si la página se abre ya por debajo (recarga a media página), la partitura aparece hecha
+      if (escena.getBoundingClientRect().bottom < 0) { pMax = 1; final(); }
+      pintar();
     }
-    (window as any).__receta = () => ({ impreso: `${impreso}px`, asoma, alto: H, objetivo, marcados: bloques.map((b) => b.classList.contains('marcado')), sonido: ac?.state ?? 'sin gesto' });
+    (window as any).__partitura = () => ({ clases: mesa.className, activo: movs.findIndex((m) => m.classList.contains('on')), p: mesa.style.getPropertyValue('--abrir') });
   }
 </script>
 
 <style>
-  .arnes {
-    color: var(--fg2);
+  .partitura {
+    --n-naranja: #fe8238;
+    --n-berenjena: #431b44;
+    --n-ciruela: #2a0e2c;
+    --papel: #f7f1e3;
+    padding-bottom: calc(var(--spacing) * 24);
   }
-  /* LA IMPRENTA (ronda 56): tan alta como el ticket más una pantalla; dentro, un ESCENARIO fijo (sticky) con la impresora a tres cuartos de la pantalla
-     y, encima de su boca, el ticket que sale hacia arriba (lo que aún no ha salido queda recortado bajo la boca) */
-  .imprenta {
+  .cabecera { padding-bottom: 0; }
+  .escena { position: relative; height: 400lvh; }
+  .escenario { position: sticky; top: 0; height: 100lvh; display: grid; place-items: center; overflow: hidden; }
+  /* la mesa: la hoja en vertical (una partitura), a la altura de la pantalla */
+  .mesa {
+    --suelta: 0;
+    --abrir: 0;
+    --seva: 0;
     position: relative;
-    height: calc(var(--alto, 110rem) + 100lvh);
-    /* RONDA 67 · «una vez impresa, que no quede tanto espacio entre la receta y el titular»: la imprenta arranca 40 lvh más arriba (la impresora, a tres
-       cuartos de su escenario, sigue cayendo bajo el titular; el ticket sale hacia arriba siempre por debajo de él) */
-    margin-top: -52lvh;
+    height: min(84lvh, 50rem);
+    aspect-ratio: 0.72;
+    max-width: 88vw;
+    perspective: 1800px;
   }
-  .sin-imprenta .imprenta { margin-top: calc(var(--spacing) * 16); }
-  .escenario {
-    position: sticky;
-    top: 0;
-    height: 100lvh;
-    isolation: isolate; /* las ramas de detrás (z −1) quedan tras el papel sin irse detrás de la sección */
-  }
-  .boca {
+  /* ── LA CARPETA: piel berenjena con grano; la tapa se abre sobre su canto izquierdo; luego la carpeta se retira */
+  .contratapa, .tapa {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: -300lvh;
-    bottom: 14lvh; /* la boca, a ras de la impresora (100 − 86) */
-    clip-path: inset(0 -100vw 0 -100vw); /* solo recorta por abajo (la boca); por los lados, las piezas digitales salen libres */
-    pointer-events: none;
+    inset: -2.5% -3.5% -2.5% -2%;
+    border-radius: 6px 12px 12px 6px;
+    background: var(--n-berenjena) url('/media/grano.png') 0 0 / 240px 240px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05), inset 10px 0 18px -10px rgb(0 0 0 / 0.5);
   }
-  .ticket {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    width: min(84vw, 22rem);
-    translate: -50% calc(100% - var(--impreso, 0px));
-    pointer-events: auto;
-  }
-  /* un TIRÓN: el papel ya ha subido la línea; lo acaba de subir en dos golpes, con un rebote de 1 px */
-  .ticket.tiron .papel {
-    animation: tiron 0.07s steps(2, end);
-  }
-  @keyframes tiron {
-    0% { transform: translateY(10px); }
-    60% { transform: translateY(-1px); }
-    100% { transform: translateY(0); }
-  }
-  /* LA IMPRESORA: la ranura oscura con su labio y un piloto; vibra mientras imprime */
-  .impresora {
-    position: absolute;
-    left: 50%;
-    top: 86lvh; /* ronda 76 · Eric: «que la impresora empiece aquí abajo, no en medio» (antes 72) */
-    translate: -50% -7px;
-    z-index: 5; /* por delante de las ramas (que sí van por delante del papel): el altavoz, siempre a la vista */
-    width: min(92vw, 27rem);
-    height: 14px;
-    border-radius: 7px;
-    background: color-mix(in oklab, var(--color-cacao) 88%, #000);
-    box-shadow: 0 1px 0 color-mix(in oklab, var(--color-niebla) 60%, transparent) inset, 0 8px 18px -8px color-mix(in oklab, var(--color-cacao) 60%, transparent);
-  }
-  .impresora.en-marcha {
-    animation: vibra 0.05s linear infinite;
-  }
-  @keyframes vibra {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(0.6px); }
-  }
-  /* el ALTAVOZ, a la derecha de la impresora */
-  .altavoz {
-    position: absolute;
-    left: calc(100% + var(--spacing) * 3);
-    top: 50%;
-    translate: 0 -50%;
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 1.5);
-    color: var(--fg2);
-    cursor: pointer;
-    pointer-events: auto;
-  }
-  .altavoz:hover,
-  .altavoz:focus-visible {
-    color: var(--fg);
-  }
-  .altavoz svg {
-    width: 16px;
-    height: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .altavoz .tacha { display: none; }
-  .altavoz.mudo .ondas { display: none; }
-  .altavoz.mudo .tacha { display: inline; }
-  @media (width < 64rem) {
-    .altavoz { left: auto; right: 0; top: calc(100% + var(--spacing) * 3); translate: none; }
-  }
-  .ranura {
-    position: absolute;
-    left: 8%;
-    right: 8%;
-    top: 6px;
-    height: 2px;
-    border-radius: 2px;
-    background: #000;
-  }
-  .led {
-    position: absolute;
-    right: 3%;
-    top: 5px;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: color-mix(in oklab, var(--color-coral) 35%, #000);
-    transition: background 0.15s ease, box-shadow 0.15s ease;
-  }
-  .en-marcha .led {
-    background: var(--color-coral);
-    box-shadow: 0 0 6px var(--color-coral);
-  }
-  /* sin movimiento: el ticket entero, en su sitio, y la impresora encima */
-  .sin-imprenta .imprenta { height: auto; }
-  .sin-imprenta .escenario { position: relative; height: auto; display: flex; flex-direction: column; align-items: center; }
-  .sin-imprenta .boca { position: relative; inset: auto; clip-path: none; order: 2; }
-  .sin-imprenta .ticket { position: relative; left: auto; translate: none; }
-  .sin-imprenta .impresora { position: relative; left: auto; top: auto; translate: none; order: 1; margin-bottom: -7px; }
-  /* EL PAPEL: térmico, casi blanco, con grano; dentado arriba y abajo (arrancado de la bobina) */
-  .papel {
-    --diente: 7px;
-    position: relative;
-    isolation: isolate;
-    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 6) calc(var(--spacing) * 12);
-    color: var(--color-cacao);
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    line-height: 1.55;
-  }
-  /* el papel (y su canto dentado) es una capa: así la máscara no recorta las piezas digitales que salen por los lados */
-  .papel::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: color-mix(in oklab, var(--color-niebla) 22%, #fff) url('/media/grano.png') 0 0 / 240px 240px;
-    filter: drop-shadow(0 0 0 transparent);
-    -webkit-mask: conic-gradient(from 135deg at 50% 0, #0000, #000 1deg 89deg, #0000 90deg) top / calc(var(--diente) * 2) var(--diente) repeat-x, linear-gradient(#000 0 0) center / 100% calc(100% - var(--diente) * 2) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--diente) * 2) var(--diente) repeat-x;
-    mask: conic-gradient(from 135deg at 50% 0, #0000, #000 1deg 89deg, #0000 90deg) top / calc(var(--diente) * 2) var(--diente) repeat-x, linear-gradient(#000 0 0) center / 100% calc(100% - var(--diente) * 2) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--diente) * 2) var(--diente) repeat-x;
-  }
-  .ticket::before {
-    content: '';
-    position: absolute;
-    inset: 10px 4px;
-    z-index: -1;
-    box-shadow: 0 16px 30px -10px color-mix(in oklab, var(--color-cacao) 28%, transparent);
-  }
-  /* RONDA 59 · «en la receta sale el logo de savvia»: la cabecera del ticket es el logotipo, en la tinta del papel */
-  .cab {
-    display: flex;
-    justify-content: center;
-    padding-top: calc(var(--spacing) * 2);
-  }
-  .tok {
-    color: var(--color-cobalto);
-    text-decoration: underline dotted;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.2em;
-  }
-  .logo-t {
-    display: block;
-    height: 2.5rem;
-    aspect-ratio: 1275 / 439;
-    background: currentColor;
-    -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
-    mask: url('/savvia-logo.svg') center / contain no-repeat;
-  }
-  .sub-cab {
-    margin-top: calc(var(--spacing) * 2);
-    text-align: center;
-  }
-  .raya {
-    margin-top: calc(var(--spacing) * 3);
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    opacity: 0.8;
-  }
-  .raya.sep {
-    margin-top: calc(var(--spacing) * 8);
-    opacity: 0.5;
-  }
-  .bloque {
-    position: relative;
-    margin-top: calc(var(--spacing) * 8);
-  }
-  .paso {
-    color: var(--color-coral);
-  }
-  .paso b {
-    font-weight: 500;
-  }
-  .titulo-b {
-    margin-top: calc(var(--spacing) * 1);
-    font-size: 0.9rem;
-  }
-  .cuerpo {
-    margin-top: calc(var(--spacing) * 3);
-  }
-  .ln {
-    display: block;
-    white-space: pre;
-  }
-  .tx {
-    position: relative;
-    display: inline-block;
-  }
-  /* LA TINTA A MANO: Coral, trazo con pulso, que se dibuja cuando su paso ya ha salido */
-  .tinta {
-    position: absolute;
-    overflow: visible;
-    fill: none;
-    stroke: var(--color-coral);
-    stroke-width: 1.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    pointer-events: none;
-  }
-  .tinta path {
-    vector-effect: non-scaling-stroke;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    transition: stroke-dashoffset 0.9s cubic-bezier(0.55, 0.1, 0.3, 1) 0.15s;
-  }
-  .tinta.circulo { left: -0.6em; top: -0.5em; width: calc(100% + 1.3em); height: calc(100% + 0.95em); }
-  .tinta.subraya { left: -0.2em; bottom: -0.35em; height: 0.8em; width: calc(100% + 0.5em); }
-  .tinta.tacha { left: -0.3em; top: 0.05em; height: 1.2em; width: calc(100% + 0.6em); }
-  .tinta.visto { left: -1.35em; top: 0.1em; width: 1.05em; height: 1.05em; }
-  .marcado .tinta path { stroke-dashoffset: 0; }
-  .marcado .ln:nth-child(n + 4) .tinta path { transition-delay: 0.4s; }
-  .sin-imprenta .tinta path { transition: none; }
-
-  /* LO DIGITAL: a un lado del ticket, a la altura de su paso (derecha e izquierda, alternando), recto y nítido */
-  .dig {
-    position: absolute;
-    z-index: 2;
-    top: 38%;
-    display: grid;
-    gap: calc(var(--spacing) * 1.5);
-    padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 3);
-    border-radius: 10px;
-    background: #fff;
-    color: var(--color-cacao);
-    font-family: var(--font-sans);
-    font-size: 0.84rem;
-    line-height: 1.3;
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cacao) 10%, transparent), 0 12px 28px -12px color-mix(in oklab, var(--color-cacao) 40%, transparent);
-    white-space: nowrap;
-  }
-  /* montada sobre el canto del papel: medio dentro, medio fuera («por encima salen esos resaltes digitales») */
-  .der .dig { left: calc(100% - var(--spacing) * 1); }
-  .izq .dig { right: calc(100% - var(--spacing) * 1); }
-  .fila-d {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-  }
-  .sws {
-    display: flex;
-    gap: 4px;
-  }
-  .sws i {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    background: var(--c);
-    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
-  }
-  .sws i:first-child {
-    box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--color-cobalto);
-  }
-  .dig-muestras b,
-  .dig-commit,
-  .dig-toast {
-    font-family: var(--font-mono);
-    font-weight: 400;
-  }
-  .x {
+  .contratapa { z-index: 1; transform: translateY(calc(var(--seva) * 8%)); opacity: calc(1 - var(--seva)); box-shadow: 0 40px 60px -30px rgb(20 8 20 / 0.55); }
+  .tapa {
+    z-index: 4;
     display: grid;
     place-items: center;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--color-cereza);
-    color: #fff;
-    font-size: 0.6rem;
-    font-style: normal;
+    align-content: center;
+    gap: 6%;
+    transform-origin: 0 50%;
+    transform: rotateY(calc(var(--abrir) * -168deg));
+    backface-visibility: hidden;
+    opacity: calc(1 - var(--seva));
+    background:
+      linear-gradient(90deg, rgb(0 0 0 / 0.28), transparent 7%),
+      var(--n-berenjena) url('/media/grano.png') 0 0 / 240px 240px;
   }
-  .fin {
-    color: var(--color-cobalto);
-  }
-  .giro-d {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid color-mix(in oklab, var(--color-cobalto) 25%, transparent);
-    border-top-color: var(--color-cobalto);
-  }
-  .marcado .giro-d {
-    animation: gira 0.8s linear infinite;
-  }
-  @keyframes gira { to { rotate: 1turn; } }
-  .dig-agente .listo {
-    color: var(--color-cobalto);
-    opacity: 0;
-  }
-  .marcado .dig-agente .listo {
-    animation: listo 0.4s ease 2.1s both;
-  }
-  @keyframes listo { to { opacity: 1; } }
-  .punto {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-cobalto);
-  }
-  .mas {
-    font-weight: 400;
-    color: var(--color-cobalto);
-  }
-  /* RONDA 65 · las piezas con más sustancia: la tabla de tokens, la cabecera del archivo, los pasos del agente, el diff y el botón */
-  .dig-cab {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: color-mix(in oklab, var(--color-cacao) 60%, transparent);
-    padding-bottom: calc(var(--spacing) * 1.5);
-    border-bottom: 1px solid color-mix(in oklab, var(--color-cacao) 10%, transparent);
-  }
-  .tabla-d {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    align-items: center;
-    gap: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
-  }
-  .tabla-d code {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-  }
-  .tabla-d .tk { color: var(--color-cobalto); }
-  .sw {
-    width: 14px;
-    height: 14px;
+  /* el grabado: el isotipo y el rótulo en naranja, como estampados en caliente, con un filete */
+  .tapa::before {
+    content: '';
+    position: absolute;
+    inset: 6% 7% 6% 9%;
+    border: 1px solid color-mix(in oklab, var(--n-naranja) 55%, transparent);
     border-radius: 4px;
-    background: var(--c);
-    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
   }
-  .paso-d {
-    font-size: 0.78rem;
-    color: color-mix(in oklab, var(--color-cacao) 75%, transparent);
-    opacity: 0;
-  }
-  .marcado .paso-d {
-    animation: listo 0.3s ease both;
-    animation-delay: calc(0.7s + var(--k) * 0.28s);
-  }
-  .diff-l {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    color: #1f7a4d;
-    background: color-mix(in oklab, #2fbf71 12%, transparent);
-    padding: 2px calc(var(--spacing) * 1.5);
+  .grabado { width: 22%; }
+  .grabado svg { width: 100%; fill: var(--n-naranja); filter: drop-shadow(0 1px 0 rgb(255 200 160 / 0.35)) drop-shadow(0 -1px 0 rgb(0 0 0 / 0.4)); }
+  .rotulo { font-family: var(--font-mono); font-size: clamp(0.6rem, 1vw, 0.8rem); letter-spacing: 0.4em; text-transform: uppercase; color: var(--n-naranja); }
+  /* el CORDÓN que la ata: se suelta y cae */
+  .cordon {
+    position: absolute;
+    z-index: 5;
+    top: -3%;
+    bottom: -3%;
+    right: 12%;
+    width: 5px;
     border-radius: 3px;
+    background: linear-gradient(90deg, color-mix(in oklab, var(--n-naranja) 70%, #6b1d00), var(--n-naranja), color-mix(in oklab, var(--n-naranja) 70%, #6b1d00));
+    transform: translateY(calc(var(--suelta) * 40%)) rotate(calc(var(--suelta) * 14deg));
+    opacity: calc(1 - var(--suelta));
+  }
+  /* ── LA PARTITURA */
+  .hoja {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 9% 9% 7%;
+    border-radius: 3px;
+    background: var(--papel) url('/media/grano.png') 0 0 / 240px 240px;
+    color: var(--n-berenjena);
+    box-shadow: inset 0 0 0 12px var(--papel), inset 0 0 0 13px color-mix(in oklab, var(--n-berenjena) 70%, transparent), inset 0 0 0 16px var(--papel), inset 0 0 0 16.6px color-mix(in oklab, var(--n-berenjena) 40%, transparent), 0 22px 40px -18px rgb(40 12 30 / 0.35);
+    transform: translateY(calc((1 - var(--seva)) * 0%)) scale(calc(0.97 + var(--seva) * 0.03));
+  }
+  .hoja::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgb(67 27 68 / 0.03) 0 1px, transparent 1px 7px); pointer-events: none; border-radius: inherit; }
+  .banda { position: absolute; left: 26px; right: 26px; height: 12px; background: var(--guilloche) 0 0 / 48px 12px repeat-x; }
+  .banda.arriba { top: 24px; }
+  .banda.abajo { bottom: 24px; }
+  .presenta { display: flex; align-items: center; justify-content: center; gap: 0.6em; font-family: var(--font-mono); font-size: clamp(0.5rem, 0.8vw, 0.68rem); letter-spacing: 0.26em; text-transform: uppercase; margin-top: 3%; }
+  .logo-t { display: inline-block; height: 1.5em; aspect-ratio: 1275 / 439; background: currentColor; -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat; mask: url('/savvia-logo.svg') center / contain no-repeat; }
+  .obra { text-align: center; font-family: var(--font-display); font-size: clamp(2.4rem, 7lvh, 4.6rem); line-height: 0.95; letter-spacing: -0.02em; margin-top: 3%; }
+  .subt { text-align: center; font-family: var(--font-display); font-size: clamp(0.95rem, 2.2lvh, 1.35rem); margin-top: 1.5%; }
+  .temporada { text-align: center; font-family: var(--font-mono); font-size: clamp(0.48rem, 0.75vw, 0.62rem); letter-spacing: 0.22em; text-transform: uppercase; color: var(--n-naranja); margin-top: 2%; }
+  .programa { margin-top: 6%; display: grid; gap: 3.2%; flex: 1; align-content: start; }
+  .programa li { opacity: 0.45; transition: opacity 0.6s ease; }
+  .programa li.visto { opacity: 0.75; }
+  .programa li.on { opacity: 1; }
+  .mov { display: flex; align-items: baseline; gap: 0.7em; font-size: clamp(0.66rem, 1.7lvh, 0.95rem); }
+  .rom { width: 2.2em; font-family: var(--font-display); color: var(--n-naranja); }
+  .que { flex: 1; font-family: var(--font-display); }
+  .tempo { font-family: var(--font-mono); font-size: 0.8em; letter-spacing: 0.1em; font-style: normal; }
+  .incipit { margin-top: 0.5em; margin-left: 3em; height: clamp(18px, 3.2lvh, 30px); }
+  .incipit :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
+  .incipit :global(.l) { stroke: color-mix(in oklab, var(--n-berenjena) 45%, transparent); stroke-width: 0.5; vector-effect: non-scaling-stroke; }
+  .incipit :global(.c) { fill: var(--n-berenjena); }
+  .incipit :global(.p) { stroke: var(--n-berenjena); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
+  /* el movimiento que suena: su pentagrama se enciende en naranja */
+  .programa li.on .incipit :global(.c) { fill: var(--n-naranja); }
+  .programa li.on .incipit :global(.p) { stroke: var(--n-naranja); }
+  .pie-hoja { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4%; padding-top: 3%; border-top: 1px solid color-mix(in oklab, var(--n-berenjena) 30%, transparent); }
+  .sala { font-family: var(--font-mono); font-size: clamp(0.46rem, 0.72vw, 0.6rem); letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+  /* LA FIRMA: la v de savvia a pluma, que se escribe al final */
+  .firma { display: flex; flex-direction: column; align-items: center; width: 14%; color: var(--n-berenjena); }
+  .firma svg { width: 70%; fill: currentColor; overflow: visible; }
+  .firma :global([data-firma]) { transition: stroke-dashoffset 1.6s cubic-bezier(0.5, 0, 0.3, 1); }
+  .firmada .firma :global([data-firma]) { stroke-dashoffset: 0; }
+  .dir { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0; transition: opacity 0.6s ease 1.4s; margin-top: 4px; }
+  .firmada .dir { opacity: 0.7; }
+  /* la DOBLE BARRA final, en el canto derecho: se cierra al firmar */
+  .doble-barra { position: absolute; right: 5%; top: 30%; bottom: 30%; width: 6px; border-left: 1.2px solid var(--n-berenjena); border-right: 3.5px solid var(--n-berenjena); opacity: 0; transform: scaleY(0.2); transition: opacity 0.5s ease 1s, transform 0.7s var(--ease-out-expo) 1s; }
+  .firmada .doble-barra { opacity: 0.35; transform: none; }
+
+  /* ── RONDA 87 · LOS ATRILES y sus PARTICELLAS */
+  .escenario { grid-template-rows: auto auto; align-content: center; gap: calc(var(--spacing) * 6); }
+  .escena { height: 460lvh; }
+  /* la partitura general se maqueta a su tamaño (42 rem de alto) y se ESCALA a la caja: así su contenido nunca se sale de la hoja */
+  .mesa-caja { position: relative; height: min(44lvh, 27rem); aspect-ratio: 0.72; }
+  .mesa-caja .mesa { position: absolute; left: 0; top: 0; height: 42rem; max-width: none; transform-origin: 0 0; scale: var(--k, 0.6); }
+  .mesa-caja .mesa .hoja { font-size: 16px; }
+  /* dentro de la hoja a escala, las medidas son fijas (la escala la pone --k) */
+  .mesa-caja .obra { font-size: 4.2rem; }
+  .mesa-caja .subt { font-size: 1.3rem; }
+  .mesa-caja .presenta { font-size: 0.66rem; }
+  .mesa-caja .temporada { font-size: 0.6rem; }
+  .mesa-caja .mov { font-size: 0.95rem; }
+  .mesa-caja .incipit { height: 28px; }
+  .mesa-caja .sala { font-size: 0.58rem; }
+  .mesa-caja .rotulo { font-size: 0.8rem; }
+  .atriles {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 4);
+    width: min(92vw, 72rem);
+    align-items: end;
+  }
+  .atril { position: relative; display: flex; flex-direction: column; align-items: center; }
+  .pie-atril { width: 64%; margin-top: -10%; fill: none; stroke: color-mix(in oklab, var(--n-berenjena) 70%, transparent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; overflow: visible; filter: url(#a-mano); }
+  .pie-atril .t2 { stroke-width: 0.8; opacity: 0.5; }
+  /* la parte: una hoja con su agente y su movimiento; lo que lee ese agente de la librería, dentro */
+  .particella {
+    --dx: 0px;
+    --dy: 0px;
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    min-height: 9.5rem;
+    padding: calc(var(--spacing) * 3);
+    border-radius: 3px;
+    background: var(--papel) url('/media/grano.png') 0 0 / 240px 240px;
+    color: var(--n-berenjena);
+    box-shadow: inset 0 0 0 5px var(--papel), inset 0 0 0 5.6px color-mix(in oklab, var(--n-berenjena) 45%, transparent), 0 14px 26px -14px rgb(40 12 30 / 0.4);
+    transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(-6deg);
     opacity: 0;
+    transform-origin: 50% 50%;
   }
-  .marcado .diff-l {
-    animation: listo 0.3s ease both;
-    animation-delay: calc(0.8s + var(--k) * 0.22s);
-  }
-  .dig.dig-boton {
-    padding: 0;
-    background: none;
-    box-shadow: none;
-  }
-  /* RONDA 80 · Andoni: «el botón a la librería, que parezca el típico de mandar un mensaje a la IA»: un cuadro de chat con el mensaje escrito y el botón
-     redondo de enviar (flecha hacia arriba) */
-  .dig-boton .boton-lib {
-    pointer-events: auto;
-    white-space: nowrap;
+  .particella.sale { opacity: 1; }
+  .particella.llega { transform: rotateX(8deg); transition: transform 1.2s cubic-bezier(0.3, 0.1, 0.2, 1), opacity 0.3s ease; }
+  .p-cab { display: flex; flex-direction: column; gap: 2px; padding-bottom: calc(var(--spacing) * 2); margin-bottom: calc(var(--spacing) * 2); border-bottom: 1px solid color-mix(in oklab, var(--n-berenjena) 25%, transparent); }
+  .p-agente { font-family: var(--font-display); font-size: 1rem; line-height: 1.1; }
+  .p-mov { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--n-naranja); }
+  /* lo digital, dentro de la parte: sin tarjeta flotante, a escala de la hoja */
+  .particella .dig { position: static; display: grid; gap: calc(var(--spacing) * 1); padding: 0; background: none; box-shadow: none; opacity: 1; translate: none; scale: 1; white-space: normal; font-size: 0.66rem; color: var(--n-ciruela); }
+  .particella .dig-cab { font-size: 0.56rem; padding-bottom: 4px; }
+  .particella .tabla-d { gap: 4px 6px; grid-template-columns: auto 1fr; }
+  .particella .tabla-d code:not(.tk) { display: none; }
+  .particella .tabla-d .tk { grid-column: 2; font-size: 0.56rem; margin-top: -3px; }
+  .particella .tabla-d span { font-size: 0.64rem; }
+  .particella .boton-lib { font-size: 0.66rem; padding: 4px 4px 4px 10px; gap: 6px; width: auto; }
+  .particella .boton-lib .ci-env { width: 1.6rem; height: 1.6rem; }
+  .particella .diff-l, .particella .tabla-d code { font-size: 0.58rem; }
+  .fila-d { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); }
+  .x { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--color-cereza); color: #fff; font-size: 0.6rem; font-style: normal; }
+  .fin, .mas, .tabla-d .tk { color: var(--color-cobalto); }
+  .mas { font-weight: 400; }
+  .giro-d { width: 12px; height: 12px; border-radius: 50%; border: 2px solid color-mix(in oklab, var(--color-cobalto) 25%, transparent); border-top-color: var(--color-cobalto); }
+  .on .giro-d { animation: gira 0.8s linear infinite; }
+  @keyframes gira { to { rotate: 1turn; } }
+  .dig-agente .listo { color: var(--color-cobalto); opacity: 0; }
+  .on.dig-agente .listo { animation: listo 0.4s ease 1.8s both; }
+  @keyframes listo { to { opacity: 1; } }
+  .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--color-cobalto); }
+  .dig-cab { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); font-family: var(--font-mono); font-size: 0.72rem; color: color-mix(in oklab, var(--color-cacao) 60%, transparent); padding-bottom: calc(var(--spacing) * 1.5); border-bottom: 1px solid color-mix(in oklab, var(--color-cacao) 10%, transparent); }
+  .tabla-d { display: grid; grid-template-columns: auto auto auto auto; align-items: center; gap: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3); }
+  .tabla-d code { font-family: var(--font-mono); font-size: 0.74rem; }
+  .sw { width: 14px; height: 14px; border-radius: 4px; background: var(--c); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); }
+  .paso-d { font-size: 0.78rem; color: color-mix(in oklab, var(--color-cacao) 75%, transparent); opacity: 0; }
+  .on .paso-d { animation: listo 0.3s ease both; animation-delay: calc(0.4s + var(--k) * 0.28s); }
+  .diff-l { font-family: var(--font-mono); font-size: 0.74rem; color: #1f7a4d; background: color-mix(in oklab, #2fbf71 12%, transparent); padding: 2px calc(var(--spacing) * 1.5); border-radius: 3px; opacity: 0; }
+  .on .diff-l { animation: listo 0.3s ease both; animation-delay: calc(0.4s + var(--k) * 0.22s); }
+  .boton-lib {
     display: inline-flex;
     align-items: center;
     gap: calc(var(--spacing) * 3);
@@ -666,51 +426,23 @@ const TRAZO: Record<string, string> = {
     transition: box-shadow 0.3s ease;
   }
   .boton-lib .ci-chispa { width: 16px; height: 16px; flex: none; fill: var(--color-coral); }
-  .boton-lib .ci-txt { flex: 1; }
-  .boton-lib .ci-env {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 50%;
-    background: var(--color-cacao);
-    color: var(--color-niebla);
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
+  .boton-lib .ci-env { flex: none; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--color-cacao); color: var(--color-niebla); transition: background-color 0.3s ease, color 0.3s ease; }
   .boton-lib .ci-env svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.4s var(--ease-out-expo); }
-  .boton-lib:hover { box-shadow: 0 0 0 1px rgb(48 32 24 / 0.2), 0 16px 32px -10px rgb(48 32 24 / 0.36); }
   .boton-lib:hover .ci-env, .boton-lib:focus-visible .ci-env { background: var(--color-coral); color: var(--color-cacao); }
   .boton-lib:hover .ci-env svg { translate: 0 -2px; }
-  /* aterriza cuando su paso ya ha salido (con un pequeño golpe de escala) */
-  .con-imprenta .dig {
-    opacity: 0;
-    scale: 0.92;
-    translate: 0 8px;
-    transition: opacity 0.35s ease, scale 0.6s var(--ease-out-expo), translate 0.6s var(--ease-out-expo);
-  }
-  .con-imprenta .marcado .dig {
-    opacity: 1;
-    scale: 1;
-    translate: 0 0;
-    transition-delay: 0.5s;
-  }
-
-  .nota {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
-    align-items: baseline;
-    color: var(--fg2);
-  }
-  .nota .link {
-    color: var(--fg);
-  }
-  /* en móvil no hay sitio a los lados: la pieza asoma sobre el canto del ticket */
+  .nota { margin-top: calc(var(--spacing) * 16); text-align: center; color: var(--fg2); }
   @media (width < 64rem) {
-    .der .dig { left: auto; right: calc(var(--spacing) * -3); }
-    .izq .dig { right: auto; left: calc(var(--spacing) * -3); }
-    .dig { top: auto; bottom: -1.2rem; }
+    .mesa-caja { height: min(38lvh, 20rem); }
+    .atriles { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; width: 96vw; }
+    .particella { min-height: 6.5rem; padding: 6px; }
+    .p-agente { font-size: 0.62rem; }
+    .p-mov { font-size: 0.42rem; }
+    .particella .dig { display: none; } /* en móvil, la hoja lleva solo su agente y su movimiento */
+    .particella[data-parte='4'] .dig { display: grid; }
+    .particella .boton-lib .ci-txt { display: none; }
+    .incipit { margin-left: 2em; }
   }
+  .quieta .contratapa, .quieta .tapa, .quieta .cordon { display: none; }
+  .escena:has(.quieta) { height: auto; }
+  .escena:has(.quieta) .escenario { position: relative; height: auto; padding-block: calc(var(--spacing) * 16) calc(var(--spacing) * 24); }
 </style>

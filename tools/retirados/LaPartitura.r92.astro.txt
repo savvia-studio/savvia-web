@@ -1,0 +1,929 @@
+---
+// RONDA 91 · «La partitura de tu web tenemos que conseguir esto: agentic.littleplains.com/embeds/hero/index.html»: el VIAJE DE CÁMARA. Se acerca a lo que entra,
+// sigue a la partitura, ENTRA en ella, dentro se trabaja, sale volando y lo que se publica se construye otra vez, a golpe.
+// RONDA 92 · «me gusta pero tiene que tener más nuestro estilo, sin parecerse tanto a la referencia, y la web que creamos que sea la de Neety, no algo random».
+// · Se queda el guion de cámara; fuera todo lo que era de la referencia: las cajas de interfaz del mapa son ahora RÓTULOS de partitura (mono, sin caja) con
+//   su cabeza de nota donde se ata la cuerda; los cursores con flecha y píldora son BATUTAS con el punto de color del agente y su nombre en mono; y dentro
+//   no hay una ventana de app: la cámara se acerca a la PROPIA partitura, que resulta ser un cuaderno ABIERTO a dos páginas.
+// · Página izquierda, las PARTES de Neety (como los instrumentos de una partitura de orquesta, con su pentagrama): color, tipografía, espaciado, gradiente
+//   progresivo, botones y componentes, con lo que de verdad hay en su librería. Cada agente ESCRIBE su parte recorriendo el pentagrama.
+// · Página derecha, el ENSAYO: el hero real de la home de Neety (su gradiente, su logotipo, el eyebrow con el punto que respira, el H1 en Bricolage,
+//   la pastilla «Solicitar demo» y la tarjeta de empresas), montado pieza a pieza; cada pieza hace sonar la parte de la que sale.
+// · «Publicar» es la DOBLE BARRA FINAL de la partitura: la traza Tu equipo y se escribe «Fine».
+// · UNA escena, UNA cámara, UN reloj: todo es función pura del tiempo (`pintar(t)`). 20 tiempos a 92 BPM (13 s). Móvil: el mapa de arriba abajo y el cuaderno
+//   con las páginas una sobre otra. Movimiento reducido: el primer fotograma, quieto. Anteriores: tools/retirados/LaPartitura.r90 y .r91.
+import { receta, partitura } from '../data/home';
+const P = partitura;
+const L = P.libreria;
+// el logotipo de Neety, tal cual está en su web (components/Logo.tsx: wordmark en Ciruela #2A0E2C)
+const NEETY = ["M80.9055 4.77539C74.9463 4.77539 70.6392 8.79043 70.6392 14.3541C70.6392 19.9178 74.9075 23.9406 80.8745 23.9406C85.497 23.9406 89.2277 21.5155 90.6755 17.6814H85.3574C84.4164 19.0568 82.7876 19.8557 80.8771 19.8557C78.2374 19.8557 76.3165 18.3381 75.8512 16.0216H91.0736C91.9733 9.69013 87.5317 4.77539 80.9107 4.77539H80.9055ZM75.8072 12.7253C76.314 10.3778 78.2349 8.82146 80.9055 8.82146C83.5761 8.82146 85.5358 10.3468 86.0425 12.7253H75.8072Z", "M58.5315 4.77539C52.5645 4.77539 48.2651 8.79043 48.2651 14.3541C48.2651 19.9178 52.5335 23.9406 58.4927 23.9406C63.123 23.9406 66.8459 21.5155 68.2937 17.6814H62.9834C62.0424 19.0568 60.4136 19.8557 58.4953 19.8557C55.8557 19.8557 53.9425 18.3381 53.4694 16.0216H68.6918C69.6019 9.69013 65.1499 4.77539 58.5366 4.77539H58.5315ZM53.4332 12.7253C53.9399 10.3778 55.8505 8.82146 58.5315 8.82146C61.2125 8.82146 63.154 10.3468 63.6608 12.7253H53.4332Z", "M105.771 18.8032V23.3948C97.9635 24.1937 95.4325 22.4537 95.4325 16.6367V9.65885H92.2163V5.17069C92.2163 5.17069 93.814 4.13655 94.4061 3.54968C95.0783 2.893 95.6005 2.1355 96.0116 1.25648C96.2494 0.74975 96.4304 0.315412 96.5648 0H101.583C101.583 0.0956578 101.575 0.18873 101.567 0.284388C101.552 0.48863 101.521 0.695457 101.487 0.891943C101.33 1.94418 101.068 2.90851 100.626 3.84699C100.528 4.05641 100.414 4.27099 100.285 4.48299C99.9645 5.01557 100.484 5.65932 101.071 5.46025C101.257 5.3982 101.433 5.34649 101.591 5.31547C102.92 5.04659 104.23 5.08537 105.668 5.2922V9.65368H100.784V16.4118C100.784 18.7282 101.684 19.3048 105.771 18.798V18.8032Z", "M129.266 5.20898L121.347 23.9708V25.204C121.347 30.5557 118.604 32.5076 111.404 31.8897V27.337C115.166 27.6937 115.996 26.9724 115.996 24.5163V23.901L108.465 6.02337L108.377 5.83464L108.116 5.20898H113.902C116.43 10.6511 117.361 15.2841 118.023 18.0116C118.188 18.6967 119.165 18.6916 119.328 18.0039C120.15 14.5369 120.978 10.5374 123.48 5.20898H129.266Z", "M45.4319 5.20898V23.5649H39.814C39.858 23.128 39.8502 22.6833 39.8088 22.2387C39.6796 21.0106 39.0694 19.8834 38.2602 18.8855C37.4536 17.8746 36.4479 17.0292 35.344 16.3518L33.5911 15.2841C33.1439 15.0126 32.5699 15.3332 32.5699 15.858V23.5649H27.4897V5.20898H32.9293C32.9344 6.08542 33.1025 7.07043 33.3662 7.84087C33.6816 8.7354 34.1315 9.511 34.7338 10.2401C35.8998 11.6517 37.4226 12.5824 39.0126 13.4407L39.4185 13.6553C39.8683 13.8932 40.4086 13.5648 40.4035 13.0555L40.3492 5.20898H45.4293H45.4319Z", "M16.952 5.20898H7.63706C6.83044 5.20898 6.17635 5.86308 6.17635 6.6697L7.21565 10.6666C7.33975 11.1475 7.22599 11.6723 6.87439 12.024C6.84854 12.0498 6.8201 12.0782 6.78907 12.1015C6.44264 12.3988 5.96177 12.4841 5.51968 12.3704L1.46071 11.3259C0.654089 11.3259 0 11.98 0 12.7866V22.1042C0 22.9108 0.654089 23.5649 1.46071 23.5649H10.7782C11.5849 23.5649 12.2389 22.9108 12.2389 22.1042L11.2875 18.0582C11.1893 17.6419 11.2746 17.1946 11.5538 16.8715C11.5771 16.8456 11.6004 16.8172 11.6262 16.7939C11.9571 16.463 12.4509 16.3518 12.906 16.4604L16.9546 17.448C17.7612 17.448 18.4153 16.7939 18.4153 15.9873V6.6697C18.4153 5.86308 17.7612 5.20898 16.9546 5.20898H16.952Z"];
+const maxEsp = Math.max(...L.espaciado.map(([, v]) => v));
+---
+
+<section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube>
+  <div class="wrap section-y">
+    <h2 id="partitura-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
+    <p class="text-sub mt-6 lg:mt-8 max-w-[34ch] text-fg2" data-enfoca>{receta.arnes}</p>
+
+    <div
+      class="cine"
+      data-cine
+      data-entra-p={JSON.stringify(P.entra)}
+      data-sale-p={JSON.stringify(P.sale)}
+      data-titulo-p={JSON.stringify(P.carpeta)}
+      role="img"
+      aria-label="Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) viaja por cuerdas hasta la partitura; los agentes la abren y dentro está la partitura de Neety: sus colores, tipografías, espaciado, gradiente, botones y componentes, con los que se ensaya el hero de su web; al cerrar con la doble barra, lo que se publica (webs, landings, campañas…) se construye a compás."
+    >
+      <svg class="mapa" aria-hidden="true" data-mapa></svg>
+
+      <!-- LA PARTITURA DE CERCA: cuaderno abierto (escritorio 1360 × 720; móvil 540 × 760), escalado por la cámara -->
+      <div class="cuaderno" aria-hidden="true" data-ventana>
+        <div class="pag partes">
+          <header class="cab">
+            <p class="ruta">{L.ruta}</p>
+            <p class="tit">{L.titulo}</p>
+            <p class="aut">{L.autor}</p>
+            <p class="tem">{L.tempo}</p>
+          </header>
+          <ol class="sistemas">
+            {L.partes.map((n, q) => (
+              <li class="sis" data-sis={q}>
+                <span class="nom"><i class="cab-nota"></i>{n}</span>
+                <span class="pauta">
+                  <span class="dentro">
+                    {q === 0 && (
+                      <span class="colores">
+                        {L.color.map(([nombre, hex], j) => (
+                          <span class="sw" style={`--h: ${hex}; --y: ${[18, 6, 30, 38, 10, 24, 14, 2][j]}%`} title={nombre}><i></i><b>{hex}</b></span>
+                        ))}
+                      </span>
+                    )}
+                    {q === 1 && (
+                      <span class="tipos">
+                        {L.tipografia.map(([f, uso], j) => (
+                          <span class="tipo"><i class={j ? 'aa sw2' : 'aa bri'}>Aa</i><b>{f}</b><small>{uso}</small></span>
+                        ))}
+                      </span>
+                    )}
+                    {q === 2 && (
+                      <span class="ritmo">
+                        {L.espaciado.map(([n, v]) => <i style={`--v: ${v / maxEsp}`} title={`${n} ${v}`}></i>)}
+                        <small>{L.espaciado[0][0]} {L.espaciado[0][1]} → {L.espaciado[L.espaciado.length - 1][0]} {L.espaciado[L.espaciado.length - 1][1]} · {L.seccion}</small>
+                      </span>
+                    )}
+                    {q === 3 && (
+                      <span class="rail">
+                        <i style={`background: linear-gradient(90deg, ${L.gradiente.paradas.join(', ')})`}></i>
+                        <small>{L.gradiente.clase} · {L.gradiente.nota}</small>
+                      </span>
+                    )}
+                    {q === 4 && (
+                      <span class="botones">
+                        <span class="pill">{L.botones.primario}<i></i></span>
+                        <span class="pill out">{L.botones.contorno}<i></i></span>
+                        <small>{L.botones.ruta}</small>
+                      </span>
+                    )}
+                    {q === 5 && <span class="comps">{L.componentes.map((c) => <code>{c}</code>)}</span>}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div class="pag ensayo">
+          <header class="cab"><p class="ruta">{L.ensayo}</p></header>
+          <!-- el hero de Neety (sus colores, Bricolage Grotesque y su copy), a escala -->
+          <div class="neety">
+            <span class="n-fondo" data-pz="fondo"></span>
+            <span class="n-nav" data-pz="nav">
+              <svg class="n-logo" viewBox="0 0 130 32" aria-hidden="true"><g fill="#2A0E2C">{NEETY.map((d) => <path d={d} />)}</g></svg>
+              <span class="n-menu">{L.hero.nav.map((x) => <i>{x}</i>)}</span>
+              <span class="n-navcta">{L.hero.ctas[0]}</span>
+            </span>
+            <span class="n-eyebrow" data-pz="eyebrow"><i class="n-punto"></i>{L.hero.eyebrow.map((x, j) => <b class={j === 2 ? 'on' : ''}>{x}</b>)}</span>
+            <p class="n-h1" data-pz="h1">{L.hero.h1.split(' ').map((w) => <span data-palabra>{w} </span>)}<span class="b" data-palabra>{L.hero.h1b}</span></p>
+            <span class="n-ctas" data-pz="ctas"><span class="n-pill">{L.hero.ctas[0]}<i></i></span><span class="n-link">{L.hero.ctas[1]}</span></span>
+            <span class="n-card" data-pz="card">
+              <b>{L.hero.tarjeta.titulo}</b>
+              {L.hero.tarjeta.filas.map(([n, v]) => <span class="n-fila" data-fila data-v={v}><i></i>{n}<em>{v}%</em></span>)}
+            </span>
+            <p class="n-sub" data-pz="sub">{L.hero.sub}</p>
+          </div>
+          <span class="doble" data-doble><span class="fine">{L.fin[0]}</span><i></i><i></i><small>{L.fin[1]}</small></span>
+        </div>
+      </div>
+
+      {P.agentes.map(([n, c]) => (
+        <div class="cursor" style={`--c: var(--color-${c})`} aria-hidden="true" data-agente>
+          <i class="onda"></i>
+          <svg viewBox="-2 -22 24 24"><path class="vara" d="M0 0 L17 -17" /><circle class="punta" r="3.4" /></svg>
+          <span>{n.toLowerCase()}</span>
+        </div>
+      ))}
+    </div>
+
+    <p class="nota detail text-fg2" data-enfoca>{receta.nota} <a class="link" href={receta.enlace.href} target="_blank" rel="noopener">{receta.enlace.label}</a></p>
+  </div>
+</section>
+
+<script>
+  import { pizzicato, tocar, PENTA } from '../scripts/musica';
+
+  const sec = document.querySelector<HTMLElement>('[data-partitura]');
+  if (sec) iniciar(sec);
+
+  function iniciar(sec: HTMLElement) {
+    const cine = sec.querySelector<HTMLElement>('[data-cine]')!;
+    const svg = sec.querySelector<SVGSVGElement>('[data-mapa]')!;
+    const win = sec.querySelector<HTMLElement>('[data-ventana]')!;
+    const curs = [...sec.querySelectorAll<HTMLElement>('[data-agente]')];
+    const ENTRA: string[] = JSON.parse(cine.dataset.entraP!), SALE: string[] = JSON.parse(cine.dataset.saleP!), TIT: string[] = JSON.parse(cine.dataset.tituloP!);
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const NS = 'http://www.w3.org/2000/svg';
+
+    // ── el TIEMPO: 92 BPM, bucle de 20 tiempos (cinco compases de 4/4)
+    const BEAT = 60 / 92, b = (x: number) => x * BEAT, LOOP = b(20);
+    const curva = (x1: number, y1: number, x2: number, y2: number) => {
+      const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+      const X = (u: number) => ((ax * u + bx) * u + cx) * u, Y = (u: number) => ((ay * u + by) * u + cy) * u;
+      return (x: number) => {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        let lo = 0, hi = 1, u = x;
+        for (let i = 0; i < 22; i++) { const v = X(u); if (Math.abs(v - x) < 1e-5) break; if (v < x) lo = u; else hi = u; u = (lo + hi) / 2; }
+        return Y(u);
+      };
+    };
+    const EZ = {
+      lin: (x: number) => x,
+      fundido: curva(0.5, 0, 0.5, 1),
+      sube: curva(0, 0, 0.2, 1),
+      sale: curva(0.16, 1, 0.3, 1),
+      flujo: curva(0.6, 0, 0.4, 1),
+      mano: curva(0.42, 0, 0.24, 1),
+      deriva: curva(0.3, 0, 0.7, 1),
+      camara: curva(0.6, 0, 0.25, 1),
+      zambullida: curva(0.72, 0, 0.17, 1),
+      subida: curva(0.56, 0, 0.2, 1),
+    };
+    const clamp = (v: number, a = 0, c = 1) => Math.min(c, Math.max(a, v));
+    const prog = (t: number, a: number, c: number) => clamp((t - a) / (c - a));
+    const lerp = (a: number, c: number, p: number) => a + (c - a) * p;
+    const sm = (t: number, a: number, c: number) => EZ.fundido(prog(t, a, c));
+    const blip = (t: number, t0: number, d: number) => {
+      const p = prog(t, t0, t0 + d);
+      return p <= 0 || p >= 1 ? 0 : p < 0.25 ? EZ.sube(p / 0.25) : 1 - EZ.fundido((p - 0.25) / 0.75);
+    };
+
+    const AG = ['coral', 'cobalto', 'cereza', 'nogal'].map((c) => `var(--color-${c})`);
+
+    const ult = new WeakMap<Element, Record<string, string>>();
+    const pon = (e: Element, k: string, v: string) => {
+      let m = ult.get(e);
+      if (!m) ult.set(e, (m = {}));
+      if (m[k] === v) return;
+      m[k] = v;
+      if (k[0] === '@') e.setAttribute(k.slice(1), v);
+      else (e as HTMLElement).style.setProperty(k, v);
+    };
+    const f3 = (n: number) => n.toFixed(3), f2 = (n: number) => n.toFixed(2);
+    const el = <K extends keyof SVGElementTagNameMap>(tag: K, at: Record<string, string | number>, padre: Element) => {
+      const e = document.createElementNS(NS, tag);
+      for (const k in at) e.setAttribute(k, String(at[k]));
+      padre.appendChild(e);
+      return e;
+    };
+
+    // ── GUION (en tiempos de compás)
+    const CASC = ENTRA.map((_, i) => ({ i, t: b(0.25 + 0.25 * i), ag: i % 4 }));
+    const EDIT = [{ ag: 0, i: 2, at: 4 }, { ag: 1, i: 5, at: 4.25 }, { ag: 2, i: 4, at: 4.5 }, { ag: 3, i: 0, at: 4.75 }];
+    const ABRE = 6.1, ZAMB = [6.1, 7], SUBE = [14.9, 15.9], SEL_FIN = 6.6;
+    const CONS = [
+      { o: 0, i: 1, ag: 0 }, { o: 1, i: 5, ag: 2 }, { o: 2, i: 7, ag: 1 }, { o: 3, i: 4, ag: 3 }, { o: 4, i: 2, ag: 0 }, { o: 5, i: 3, ag: 2 },
+    ].map((c, j) => ({ ...c, A: b(17.2 + 0.42 * j) }));
+    // DENTRO · las partes que escribe cada agente (recorriendo su pentagrama) y las piezas del ensayo (y de qué parte salen)
+    const PARTE = [
+      { ag: 0, a: 7.3, z: 8.3 }, { ag: 1, a: 7.95, z: 8.75 }, { ag: 3, a: 8.65, z: 9.4 },
+      { ag: 2, a: 9.15, z: 9.8 }, { ag: 1, a: 9.85, z: 10.5 }, { ag: 0, a: 10.35, z: 11.0 },
+    ];
+    const PIEZA: Record<string, { at: number; de: number; ag: number }> = {
+      fondo: { at: 11.05, de: 3, ag: 2 }, nav: { at: 11.5, de: 5, ag: 0 }, eyebrow: { at: 11.85, de: 5, ag: 0 }, h1: { at: 12.1, de: 1, ag: 1 },
+      ctas: { at: 12.9, de: 4, ag: 1 }, card: { at: 13.3, de: 0, ag: 2 }, sub: { at: 13.75, de: 1, ag: 0 },
+    };
+    const DOBLE = 14.25, FINE = 14.55;
+
+    type Pulso = { lado: 'in' | 'out'; i: number; t0: number; d: number; ag: number };
+    const PULSOS: Pulso[] = [
+      ...CASC.map((c) => ({ lado: 'in' as const, i: c.i, t0: c.t + 0.02, d: 0.62, ag: c.ag })),
+      ...EDIT.map((e) => ({ lado: 'in' as const, i: e.i, t0: b(e.at) + 0.03, d: 0.72, ag: e.ag })),
+      ...CONS.flatMap((c) => [
+        { lado: 'in' as const, i: c.i, t0: c.A - 0.85, d: 0.5, ag: c.ag },
+        { lado: 'out' as const, i: c.o, t0: c.A - 0.35, d: 0.45, ag: c.ag },
+      ]),
+    ];
+    const GOLPES = PULSOS.filter((p) => p.lado === 'in').map((p) => ({ t: p.t0 + p.d, ag: p.ag })).sort((x, y) => x.t - y.t);
+
+    // ── la escena: modo h (escritorio, 1600 × 900) o v (móvil, 600 × 840)
+    const mqV = matchMedia('(width < 64rem)');
+    let modo: 'h' | 'v' = mqV.matches ? 'v' : 'h';
+    let W = 1600, H = 900, k = 1;
+    const SW = 236, SH = 160, HOLD = 40;
+    type Rotulo = { lado: 'in' | 'out'; i: number; g: SVGGElement; nota: SVGEllipseElement; x: number; y: number; w: number; h: number; ax: number; ay: number; P: number[]; tabla: number[]; cuerda: SVGPathElement; pulso: SVGPathElement; cabeza: SVGGElement };
+    let rots: Rotulo[] = [], ins: Rotulo[] = [], outs: Rotulo[] = [];
+    let cam: SVGGElement, filo: SVGRectElement, gTexto: SVGGElement, notas: SVGGElement[] = [];
+    type Vista = { S: number; cx: number; cy: number };
+    let REST: Vista, INS: Vista, INS2: Vista, FOLD: Vista, DENTRO: Vista;
+    let CAM: [number, Vista, (x: number) => number][] = [];
+
+    const bez = (P: number[], u: number) => {
+      const m = 1 - u, a = m * m * m, c = 3 * m * m * u, d = 3 * m * u * u, e = u * u * u;
+      return [a * P[0] + c * P[2] + d * P[4] + e * P[6], a * P[1] + c * P[3] + d * P[5] + e * P[7]];
+    };
+    const tablaArco = (P: number[]) => {
+      const n = 48, Lr = [0];
+      let [px, py] = bez(P, 0), tot = 0;
+      for (let q = 1; q <= n; q++) { const [x, y] = bez(P, q / n); tot += Math.hypot(x - px, y - py); Lr.push(tot); px = x; py = y; }
+      return Lr.map((v) => v / tot);
+    };
+    const uDe = (tab: number[], s: number) => {
+      const n = tab.length - 1;
+      let q = 1;
+      while (q < n && tab[q] < s) q++;
+      const a = tab[q - 1], c = tab[q];
+      return (q - 1 + (s - a) / (c - a || 1)) / n;
+    };
+    const dDe = (P: number[]) => `M${f2(P[0])} ${f2(P[1])}C${f2(P[2])} ${f2(P[3])} ${f2(P[4])} ${f2(P[5])} ${f2(P[6])} ${f2(P[7])}`;
+
+    const montar = () => {
+      modo = mqV.matches ? 'v' : 'h';
+      W = modo === 'h' ? 1600 : 600;
+      H = modo === 'h' ? 900 : 840;
+      cine.classList.toggle('v', modo === 'v');
+      win.classList.toggle('v', modo === 'v');
+      k = cine.clientWidth / W;
+      svg.innerHTML = '';
+      svg.setAttribute('viewBox', `0 0 ${cine.clientWidth} ${cine.clientHeight}`);
+      cam = el('g', { class: 'cam' }, svg);
+      const gC = el('g', {}, cam), gP = el('g', {}, cam), gH = el('g', { class: 'hoja' }, cam), gK = el('g', {}, cam), gN = el('g', {}, cam);
+      // LA HOJA: un cuaderno de música apaisado, cerrado (papel con grano, filo que late, título, tempo, «dir. savvia» y tres pentagramas)
+      const defs = el('defs', {}, cam);
+      const pat = el('pattern', { id: 'grano-p', width: 60, height: 60, patternUnits: 'userSpaceOnUse' }, defs);
+      el('image', { href: '/media/grano.png', width: 60, height: 60 }, pat);
+      el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 3, class: 'papel' }, gH);
+      el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 3, fill: 'url(#grano-p)', opacity: 0.6 }, gH);
+      el('line', { x1: 0, x2: 0, y1: -SH / 2 + 2, y2: SH / 2 - 2, class: 'lomo' }, gH);
+      gTexto = el('g', {}, gH);
+      el('text', { x: -SW / 2 + 12, y: -SH / 2 + 15, class: 'tempo' }, gTexto).textContent = 'Allegro con criterio';
+      el('text', { x: SW / 2 - 12, y: -SH / 2 + 15, class: 'autor', 'text-anchor': 'end' }, gTexto).textContent = 'dir. savvia';
+      TIT.forEach((s, q) => { el('text', { x: 0, y: -SH / 2 + 37 + q * 19, class: 'titulo', 'text-anchor': 'middle' }, gTexto).textContent = s; });
+      const PT = [-8, 22, 52];
+      PT.forEach((y0, s) => {
+        for (let l = 0; l < 5; l++) el('line', { x1: -100, x2: 100, y1: y0 + l * 3.2, y2: y0 + l * 3.2, class: 'pauta' }, gTexto);
+        el('line', { x1: -100, x2: -100, y1: y0, y2: y0 + 12.8, class: 'barra' }, gTexto);
+        el('line', { x1: 100, x2: 100, y1: y0, y2: y0 + 12.8, class: s === 2 ? 'barra fin' : 'barra' }, gTexto);
+      });
+      notas = GOLPES.map((g, q) => {
+        const s = Math.floor(q / 7) % 3, j = q % 7, l = (q * 5 + 3) % 9;
+        const x = -82 + j * 27, y = PT[s] + 12.8 - l * 1.6, arriba = l < 4;
+        const n = el('g', { class: 'nota', style: `--c: ${AG[g.ag]}` }, gTexto);
+        el('ellipse', { cx: x, cy: y, rx: 3.1, ry: 2.2, transform: `rotate(-20 ${x} ${y})` }, n);
+        el('line', { x1: arriba ? x + 2.8 : x - 2.8, x2: arriba ? x + 2.8 : x - 2.8, y1: y, y2: arriba ? y - 10 : y + 10 }, n);
+        return n;
+      });
+      filo = el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 3, class: 'filo' }, gH);
+
+      // LOS RÓTULOS (lo que entra, lo que sale): mono, sin caja, con su cabeza de nota donde se ata la cuerda
+      const BH = 22, GAP = 10;
+      const nuevo = (lado: 'in' | 'out', i: number, txt: string): Rotulo => {
+        const g = el('g', { class: 'rot' }, gK);
+        const tx = el('text', {}, g);
+        tx.textContent = txt.toUpperCase();
+        const nota = el('ellipse', { rx: 4, ry: 2.9, class: 'cab' }, g);
+        const w = tx.getComputedTextLength();
+        const cuerda = el('path', { class: 'cuerda', pathLength: 1 }, gC);
+        const pulso = el('path', { class: 'pulso', pathLength: 1 }, gP);
+        const cabeza = el('g', { class: 'cabeza' }, gN);
+        el('ellipse', { cx: 0, cy: 0, rx: 3.6, ry: 2.6, transform: 'rotate(-20)' }, cabeza);
+        el('line', { x1: 3.2, x2: 3.2, y1: 0, y2: -12 }, cabeza);
+        return { lado, i, g, nota, x: 0, y: 0, w, h: BH, ax: 0, ay: 0, P: [], tabla: [], cuerda, pulso, cabeza };
+      };
+      ins = ENTRA.map((s, i) => nuevo('in', i, s));
+      outs = SALE.map((s, i) => nuevo('out', i, s));
+      rots = [...ins, ...outs];
+      const curvaH = (x0: number, y0: number, x1: number, y1: number, c0: number, c1: number) => [x0, y0, x0 + (x1 - x0) * c0, y0, x0 + (x1 - x0) * c1, y1, x1, y1];
+      const curvaV = (x0: number, y0: number, x1: number, y1: number, c0: number, c1: number) => [x0, y0, x0, y0 + (y1 - y0) * c0, x1, y0 + (y1 - y0) * c1, x1, y1];
+      const colocarTexto = (r: Rotulo, tx: number, ty: number, anchor: string, nx: number, ny: number) => {
+        const t = r.g.querySelector('text')!;
+        t.setAttribute('x', f2(tx)); t.setAttribute('y', f2(ty)); t.setAttribute('text-anchor', anchor);
+        r.nota.setAttribute('cx', f2(nx)); r.nota.setAttribute('cy', f2(ny)); r.nota.setAttribute('transform', `rotate(-20 ${f2(nx)} ${f2(ny)})`);
+      };
+      if (modo === 'h') {
+        ins.forEach((r, i) => {
+          const y = (i - 4.5) * 44;
+          r.ax = -246; r.ay = y; r.x = -262 - r.w; r.y = y - BH / 2;
+          colocarTexto(r, -262, y + 4.2, 'end', -253, y);
+          r.P = curvaH(-249, y, -SW / 2 - 1, 0, 0.55, 0.5);
+        });
+        outs.forEach((r, j) => {
+          const y = (j - 2.5) * 48;
+          r.ax = 246; r.ay = y; r.x = 262; r.y = y - BH / 2;
+          colocarTexto(r, 262, y + 4.2, 'start', 253, y);
+          r.P = curvaH(SW / 2 + 1, 0, 249, y, 0.5, 0.55);
+        });
+      } else {
+        const filas = (rs: Rotulo[]) => {
+          const out: Rotulo[][] = [[]];
+          let ancho = 0;
+          for (const r of rs) { if (ancho && ancho + 26 + r.w > 440) { out.push([]); ancho = 0; } out[out.length - 1].push(r); ancho += (ancho ? 26 : 0) + r.w; }
+          return out;
+        };
+        const colocar = (fs: Rotulo[][], y0: number, dir: 1 | -1) => fs.forEach((fila, q) => {
+          const tw = fila.reduce((s, r) => s + r.w, 0) + (fila.length - 1) * 26;
+          let x = -tw / 2;
+          const yc = y0 + dir * (dir === 1 ? q : fs.length - 1 - q) * 44;
+          for (const r of fila) {
+            r.x = x; r.y = yc - BH / 2;
+            const cxm = x + r.w / 2;
+            if (dir === -1) { colocarTexto(r, cxm, yc, 'middle', cxm, yc + 9); r.ax = cxm; r.ay = yc + 12; }
+            else { colocarTexto(r, cxm, yc + 9, 'middle', cxm, yc - 4); r.ax = cxm; r.ay = yc - 7; }
+            x += r.w + 26;
+          }
+        });
+        colocar(filas(ins), -SH / 2 - 112, -1);
+        colocar(filas(outs), SH / 2 + 112, 1);
+        ins.forEach((r) => { r.P = curvaV(r.ax, r.ay, 0, -SH / 2 - 1, 0.55, 0.5); });
+        outs.forEach((r) => { r.P = curvaV(0, SH / 2 + 1, r.ax, r.ay, 0.5, 0.45); });
+      }
+      void GAP;
+      for (const r of rots) {
+        r.tabla = tablaArco(r.P);
+        r.cuerda.setAttribute('d', dDe(r.P));
+        r.pulso.setAttribute('d', dDe(r.P));
+      }
+
+      // ── LA CÁMARA: vistas calculadas de la geometría
+      const caja = (cs: { x: number; y: number; w: number; h: number }[]) => {
+        const x0 = Math.min(...cs.map((c) => c.x)), y0 = Math.min(...cs.map((c) => c.y)), x1 = Math.max(...cs.map((c) => c.x + c.w)), y1 = Math.max(...cs.map((c) => c.y + c.h));
+        return { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0 };
+      };
+      const hoja = { x: -SW / 2, y: -SH / 2, w: SW, h: SH };
+      const todo = caja([...rots, hoja]), ci = caja(ins);
+      const sR = Math.min((W * 0.9) / todo.w, (H * 0.84) / todo.h);
+      REST = { S: sR, cx: (todo.x0 + todo.x1) / 2, cy: (todo.y0 + todo.y1) / 2 };
+      if (modo === 'h') {
+        const s = Math.min(sR * 1.26, (H * 0.92) / ci.h);
+        INS = { S: s, cx: ci.x0 + (W * 0.42) / s, cy: (ci.y0 + ci.y1) / 2 };
+        INS2 = { S: s * 1.04, cx: INS.cx + 6, cy: INS.cy };
+        FOLD = { S: (W * 0.42) / SW, cx: 0, cy: 0 };
+      } else {
+        const s = Math.min(sR * 1.3, (W * 0.94) / ci.w);
+        INS = { S: s, cx: 0, cy: ci.y0 + (H * 0.36) / s };
+        INS2 = { S: s * 1.04, cx: 0, cy: INS.cy + 6 };
+        FOLD = { S: (W * 0.72) / SW, cx: 0, cy: 0 };
+      }
+      DENTRO = { S: HOLD, cx: 0, cy: 0 };
+      CAM = [
+        [0, REST, EZ.lin], [b(3), REST, EZ.lin], [b(4), INS, EZ.camara], [b(4.9), INS2, EZ.deriva], [b(5.8), FOLD, EZ.camara], [b(ABRE), FOLD, EZ.lin],
+        [b(ZAMB[1]), DENTRO, EZ.zambullida], [b(SUBE[0]), DENTRO, EZ.lin], [b(SUBE[1]), REST, EZ.subida], [LOOP, REST, EZ.lin],
+      ];
+      medirVentana();
+      for (const c of curs) ult.delete(c);
+    };
+
+    const camara = (t: number): Vista => {
+      let q = 0;
+      while (q < CAM.length - 2 && CAM[q + 1][0] <= t) q++;
+      const [t0, A] = CAM[q], [t1, B, ez] = CAM[q + 1];
+      const p = ez(prog(t, t0, t1));
+      return { S: Math.exp(lerp(Math.log(A.S), Math.log(B.S), p)), cx: lerp(A.cx, B.cx, p), cy: lerp(A.cy, B.cy, p) };
+    };
+    const sx = (v: Vista, x: number) => W / 2 + v.S * (x - v.cx), sy = (v: Vista, y: number) => H / 2 + v.S * (y - v.cy);
+
+    // ── EL CUADERNO por dentro
+    const Q = <T extends Element>(s: string) => [...win.querySelectorAll<T>(s)];
+    const sistemas = Q<HTMLElement>('[data-sis]');
+    const pz = Object.fromEntries(Q<HTMLElement>('[data-pz]').map((e) => [e.dataset.pz!, e])) as Record<string, HTMLElement>;
+    const palabras = Q<HTMLElement>('[data-palabra]'), filas = Q<HTMLElement>('[data-fila]');
+    const doble = win.querySelector<HTMLElement>('[data-doble]')!;
+    let WW = 1360, WH = 720;
+    const sitio = new Map<Element, { x: number; y: number; w: number; h: number }>();
+    const medirVentana = () => { WW = win.offsetWidth; WH = win.offsetHeight; sitio.clear(); };
+    const rectLocal = (e: HTMLElement) => {
+      let r = sitio.get(e);
+      if (r) return r;
+      let x = 0, y = 0, n: HTMLElement | null = e;
+      while (n && n !== win) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      r = { x, y, w: e.offsetWidth, h: e.offsetHeight };
+      sitio.set(e, r);
+      return r;
+    };
+    const ventanaEn = (v: Vista) => { const s = v.S / HOLD; return { s, x: sx(v, 0) - (WW * s) / 2, y: sy(v, 0) - (WH * s) / 2 }; };
+
+    // ── LAS BATUTAS: anclas (en unidades de la escena) y fotogramas clave en tiempos de compás
+    type Ancla = (t: number) => number[];
+    const Wp = (x: number, y: number): Ancla => (t) => { const v = camara(t); return [sx(v, x), sy(v, y)]; };
+    const congela = (a: Ancla, tb: number): Ancla => () => a(b(tb));
+    const enRot = (lado: 'in' | 'out', i: number): Ancla => (t) => {
+      const r = (lado === 'in' ? ins : outs)[i];
+      return Wp(r.ax + (modo === 'h' ? (lado === 'in' ? -8 : 8) : 0), r.ay + (modo === 'h' ? 0 : lado === 'in' ? -2 : 2))(t);
+    };
+    const Vp = (e: HTMLElement | (() => HTMLElement), fx = 0.7, fy = 0.6): Ancla => (t) => {
+      const r = rectLocal(typeof e === 'function' ? e() : e), w = ventanaEn(camara(t));
+      return [w.x + (r.x + r.w * fx) * w.s, w.y + (r.y + r.h * fy) * w.s];
+    };
+    const Of = (fx: number, fy: number): Ancla => () => [W * fx, H * fy];
+    const esquina = (ex: number, ey: number) => Wp(ex * (SW / 2 - 6), ey * (SH / 2 - 8));
+    // escribir una parte: la batuta recorre su pentagrama de principio a fin
+    const pauta = (q: number, p: number): Ancla => Vp(() => sistemas[q].querySelector<HTMLElement>('.pauta')!, 0.02 + p * 0.94, 0.62);
+    type Kf = [number, Ancla, (x: number) => number];
+    const M = EZ.mano, Ln = EZ.lin;
+    const escribe = (q: number): Kf[] => [[PARTE[q].a - 0.3, pauta(q, 0), M], [PARTE[q].a, pauta(q, 0), Ln], [PARTE[q].z, pauta(q, 1), Ln]];
+    const enPieza = (n: string, fx = 0.9, fy = 0.8): Kf[] => [[PIEZA[n].at - 0.3, Vp(() => pz[n], fx, fy), M], [PIEZA[n].at + 0.2, Vp(() => pz[n], fx, fy), Ln]];
+    const KF: Kf[][] = [
+      // Claude: «Voz», arriba a la izquierda; dentro escribe el COLOR y los COMPONENTES; en el ensayo pone el logotipo y el eyebrow, y el texto
+      [
+        [0, Of(0.46, -0.25), Ln], [3.15, Of(0.46, -0.25), Ln], [3.95, enRot('in', 2), M], [5.0, enRot('in', 2), Ln], [5.85, esquina(-1, -1), M], [ABRE, esquina(-1, -1), Ln],
+        [6.55, congela(esquina(-1, -1), ABRE), Ln], ...escribe(0), [9.6, Vp(() => sistemas[0], 0.98, 0.3), M], ...escribe(5), ...enPieza('nav', 0.3, 0.9), [12.0, Vp(() => pz.eyebrow, 1.05, 0.6), M],
+        ...enPieza('sub', 0.95, 0.4), [SUBE[0], Vp(() => pz.sub, 0.95, 0.4), Ln],
+        [SUBE[1] - 0.05, enRot('in', 1), M], [17.0, enRot('in', 1), Ln], [17.5, enRot('in', 2), M], [19.35, enRot('in', 2), Ln], [19.95, Of(0.46, -0.25), M],
+      ],
+      // Codex: «Componentes», arriba a la derecha; escribe la TIPOGRAFÍA y los BOTONES; en el ensayo, el titular y la pastilla
+      [
+        [0, Of(-0.3, 0.32), Ln], [3.25, Of(-0.3, 0.32), Ln], [4.2, enRot('in', 5), M], [5.0, enRot('in', 5), Ln], [5.85, esquina(1, -1), M], [ABRE, esquina(1, -1), Ln],
+        [6.55, congela(esquina(1, -1), ABRE), Ln], [7.4, Vp(() => sistemas[1], 0.98, 0.1), M], ...escribe(1), [9.2, Vp(() => sistemas[1], 0.98, 0.9), M], ...escribe(4),
+        ...enPieza('h1', 1.0, 0.5), ...enPieza('ctas', 0.62, 0.6), [SUBE[0], Vp(() => pz.ctas, 0.62, 0.6), Ln],
+        [16.6, enRot('in', 7), M], [19.35, enRot('in', 7), Ln], [19.95, Of(-0.3, 0.32), M],
+      ],
+      // Diseño: «Dirección de arte», abajo a la derecha; escribe el GRADIENTE; en el ensayo, el fondo y la tarjeta
+      [
+        [0, Of(-0.3, 0.86), Ln], [3.35, Of(-0.3, 0.86), Ln], [4.45, enRot('in', 4), M], [5.0, enRot('in', 4), Ln], [5.85, esquina(1, 1), M], [ABRE, esquina(1, 1), Ln],
+        [6.55, congela(esquina(1, 1), ABRE), Ln], [7.5, Vp(() => pz.fondo, 0.12, 0.2), M], ...escribe(3), ...enPieza('fondo', 0.15, 0.25), ...enPieza('card', 0.92, 0.85),
+        [SUBE[0], Vp(() => pz.card, 0.92, 0.85), Ln],
+        [16.25, enRot('in', 5), M], [17.4, enRot('in', 5), Ln], [17.95, enRot('in', 3), M], [19.35, enRot('in', 3), Ln], [19.95, Of(-0.3, 0.86), M],
+      ],
+      // Tu equipo: «Estrategia», abajo a la izquierda; escribe el ESPACIADO; y cierra con la DOBLE BARRA
+      [
+        [0, Of(0.3, 1.25), Ln], [3.45, Of(0.3, 1.25), Ln], [4.7, enRot('in', 0), M], [5.0, enRot('in', 0), Ln], [5.85, esquina(-1, 1), M], [ABRE, esquina(-1, 1), Ln],
+        [6.55, congela(esquina(-1, 1), ABRE), Ln], [7.6, Vp(() => sistemas[2], 0.5, 1.2), M], ...escribe(2), [10.2, Vp(() => sistemas[5], 0.6, 1.4), M],
+        [DOBLE - 0.35, Vp(doble, 0.62, 0.05), M], [DOBLE + 0.3, Vp(doble, 0.62, 0.95), Ln], [SUBE[0], Vp(doble, 0.62, 0.95), Ln],
+        [17.9, enRot('out', 3), M], [19.35, enRot('out', 3), Ln], [19.95, Of(0.3, 1.25), M],
+      ],
+    ];
+    KF.forEach((kf) => {
+      const q = kf.findIndex((x) => x[0] === SUBE[0]);
+      if (q > 0) kf.splice(q + 1, 0, [SUBE[0] + 0.05, congela(kf[q][1], SUBE[0]), Ln]);
+    });
+    const CLICS: number[][] = [0, 1, 2, 3].map((q) => [
+      EDIT.find((e) => e.ag === q)!.at, ABRE,
+      ...PARTE.filter((p) => p.ag === q).map((p) => p.a),
+      ...Object.values(PIEZA).filter((p) => p.ag === q).map((p) => p.at),
+      ...(q === 3 ? [DOBLE + 0.3] : []),
+      ...CONS.filter((c) => c.ag === q).map((c) => (q === 3 ? c.A / BEAT + 0.1 : (c.A - 0.85) / BEAT)),
+    ]);
+    const manoEn = (q: number, t: number) => {
+      const kf = KF[q], tb = t / BEAT;
+      let i = 0;
+      while (i < kf.length - 2 && kf[i + 1][0] <= tb) i++;
+      const [a0, A0] = kf[i], [a1, A1, ez] = kf[i + 1];
+      const p = ez(prog(tb, a0, a1)), P0 = A0(t), P1 = A1(t);
+      const arco = ez === Ln ? 0 : Math.sin(Math.PI * p) * -Math.min(40, Math.hypot(P1[0] - P0[0], P1[1] - P0[1]) * 0.12);
+      return [lerp(P0[0], P1[0], p), lerp(P0[1], P1[1], p) + arco];
+    };
+
+    // ── EL SONIDO, a compás
+    type Son = [number, () => void];
+    const SON: Son[] = [
+      ...CASC.map((c) => [c.t, () => pizzicato(PENTA[c.i], { vol: 0.02 })] as Son),
+      ...EDIT.map((e, q) => [b(e.at), () => pizzicato(PENTA[q + 5], { vol: 0.028 })] as Son),
+      [b(ABRE), () => [62, 66, 69, 74].forEach((m, q) => tocar(m, { vol: 0.018, dur: 2.2, cuando: q * 0.03 }))],
+      ...PARTE.map((p, q) => [b(p.a), () => tocar(PENTA[(q * 2 + 2) % PENTA.length] + 12, { vol: 0.016, dur: 1.4 })] as Son),
+      ...Object.values(PIEZA).map((p, q) => [b(p.at), () => pizzicato(PENTA[(q + 3) % PENTA.length] + 12, { vol: 0.014 })] as Son),
+      [b(FINE), () => [62, 69, 74, 78].forEach((m, q) => tocar(m, { vol: 0.02, dur: 2, cuando: q * 0.07 }))],
+      ...CONS.map((c, j) => [c.A + 0.1, () => pizzicato(PENTA[3 + j], { vol: 0.026 })] as Son),
+    ];
+    const sonar = (t0: number, t1: number) => {
+      for (const [ts, fn] of SON) if ((t1 >= t0 && ts > t0 && ts <= t1) || (t1 < t0 && (ts > t0 || ts <= t1))) fn();
+    };
+
+    // ── PINTAR el fotograma t (función pura del tiempo)
+    const pintar = (t: number) => {
+      const v = camara(t), K = k * v.S;
+      pon(cam, '@transform', `translate(${f2(k * (W / 2 - v.S * v.cx))} ${f2(k * (H / 2 - v.S * v.cy))}) scale(${K.toFixed(5)})`);
+      pon(cam, '--u', (1 / K).toFixed(5));
+      const tb = t / BEAT;
+      const fin = sm(tb, 19.4, 19.95);
+
+      for (const r of rots) {
+        let off = 0;
+        for (const p of PULSOS) {
+          if (p.lado !== r.lado || p.i !== r.i) continue;
+          const tp = r.lado === 'in' ? p.t0 : p.t0 + p.d, e = t - tp;
+          if (e > 0 && e < 1.6) off += (r.lado === 'in' ? 6 : 5) * Math.sin(e * 44) * Math.exp(-e * 3.4);
+        }
+        const P = r.P.slice();
+        if (modo === 'h') { P[3] += off; P[5] += off * 0.6; } else { P[2] += off; P[4] += off * 0.6; }
+        const d = off ? dDe(P) : dDe(r.P);
+        pon(r.cuerda, '@d', d);
+        let ver = 1, dib = 1;
+        if (r.lado === 'out') {
+          const cn = CONS.find((x) => x.o === r.i)!, p0 = cn.A - 0.35;
+          if (t >= b(ZAMB[1]) && t < p0) { ver = 0; dib = 0; }
+          else if (t >= p0 && t < cn.A + 0.1) { dib = EZ.flujo(prog(t, p0, cn.A + 0.1)); ver = 0; }
+          if (t >= cn.A + 0.1) ver = EZ.sale(prog(t, cn.A + 0.1, cn.A + 0.6));
+        }
+        pon(r.cuerda, 'stroke-dasharray', dib >= 1 ? 'none' : `${f3(dib)} 2`);
+        let act: Pulso | null = null;
+        for (const p of PULSOS) if (p.lado === r.lado && p.i === r.i && t >= p.t0 && t <= p.t0 + p.d + 0.08) act = p;
+        if (act) {
+          const h = EZ.flujo(prog(t, act.t0, act.t0 + act.d)), seg = 0.16;
+          pon(r.pulso, '@d', d);
+          pon(r.pulso, 'stroke', AG[act.ag]);
+          pon(r.pulso, 'stroke-dasharray', `${f3(Math.min(seg, h))} 2`);
+          pon(r.pulso, 'stroke-dashoffset', f3(-(h - Math.min(seg, h))));
+          pon(r.pulso, 'opacity', f3(1 - prog(t, act.t0 + act.d, act.t0 + act.d + 0.08)));
+          const [x, y] = bez(P, uDe(r.tabla, h));
+          pon(r.cabeza, '@transform', `translate(${f2(x)} ${f2(y)})`);
+          pon(r.cabeza, 'fill', AG[act.ag]);
+          pon(r.cabeza, 'stroke', AG[act.ag]);
+          pon(r.cabeza, 'opacity', f3(Math.min(1, prog(t, act.t0, act.t0 + 0.06)) * (1 - prog(t, act.t0 + act.d - 0.04, act.t0 + act.d + 0.04))));
+        } else {
+          pon(r.pulso, 'opacity', '0');
+          pon(r.cabeza, 'opacity', '0');
+        }
+        // el rótulo: su cabeza de nota se rellena del color de quien lo toca (cascada, edición, construcción) o queda tocada
+        let luz = 0, ag = 0;
+        const sube = (x: number, a: number) => { if (x > luz) { luz = x; ag = a; } };
+        if (r.lado === 'in') {
+          for (const q of CASC) if (q.i === r.i) sube(blip(t, q.t, 0.7) * 0.9, q.ag);
+          for (const e of EDIT) if (e.i === r.i) sube(sm(t, b(e.at), b(e.at) + 0.12) * (1 - sm(t, b(SEL_FIN), b(SEL_FIN) + 0.3)), e.ag);
+          for (const cn of CONS) if (cn.i === r.i) sube(blip(t, cn.A - 0.85, 0.9), cn.ag);
+        } else {
+          const cn = CONS.find((x) => x.o === r.i)!;
+          sube(blip(t, cn.A + 0.1, 0.9), cn.ag);
+          if (cn.o === 3) sube(sm(t, cn.A + 0.1, cn.A + 0.25) * (1 - fin), cn.ag);
+        }
+        pon(r.g, '--c', AG[ag]);
+        pon(r.g, '--l', f3(luz));
+        pon(r.g, 'opacity', f3(ver));
+      }
+
+      let fl = 0, fa = 0;
+      for (const g of GOLPES) { const x = blip(t, g.t, 0.6); if (x > fl) { fl = x; fa = g.ag; } }
+      pon(filo, 'stroke', `color-mix(in oklab, ${AG[fa]} ${Math.round(fl * 100)}%, var(--filo-reposo))`);
+      pon(filo, '--g', f3(fl));
+      const vT = 1 - clamp((Math.log(v.S) - Math.log(FOLD.S * 1.15)) / (Math.log(FOLD.S * 2.6) - Math.log(FOLD.S * 1.15)));
+      pon(gTexto, 'opacity', f3(vT));
+      GOLPES.forEach((g, q) => pon(notas[q], 'opacity', f3(sm(t, g.t - 0.02, g.t + 0.14) * (1 - fin))));
+
+      // el cuaderno: nace del propio papel de la hoja según la cámara se acerca
+      const wo = clamp((Math.log(v.S) - Math.log(8)) / (Math.log(24) - Math.log(8)));
+      const w = ventanaEn(v);
+      pon(win, 'visibility', wo > 0.001 ? 'visible' : 'hidden');
+      pon(win, 'opacity', f3(EZ.fundido(wo)));
+      if (wo > 0.001) {
+        pon(win, 'transform', `translate(${f2(w.x * k)}px, ${f2(w.y * k)}px) scale(${(w.s * k).toFixed(5)})`);
+        pintarCuaderno(tb);
+      }
+
+      curs.forEach((c, q) => {
+        const [x, y] = manoEn(q, t);
+        pon(c, 'transform', `translate3d(${f2(x * k)}px, ${f2(y * k)}px, 0)`);
+        let cl = 0, on = 0;
+        for (const tc of CLICS[q]) { cl = Math.max(cl, blip(tb, tc, 0.5)); const p = prog(tb, tc, tc + 0.7); if (p > 0 && p < 1) on = p; }
+        pon(c, '--clic', f3(cl));
+        pon(c, '--onda', f3(on));
+      });
+    };
+
+    const pintarCuaderno = (tb: number) => {
+      sistemas.forEach((e, q) => {
+        const p = PARTE[q];
+        let d = 0;
+        for (const x of Object.values(PIEZA)) if (x.de === q) d = Math.max(d, blip(tb, x.at, 0.9));
+        pon(e, '--p', f3(prog(tb, p.a, p.z)));
+        pon(e, '--o', f3(sm(tb, p.a - 0.05, p.a + 0.15)));
+        pon(e, '--c', AG[p.ag]);
+        pon(e, '--d', f3(d));
+      });
+      for (const [n, x] of Object.entries(PIEZA)) if (n !== 'h1') pon(pz[n], '--p', f3(EZ.sale(prog(tb, x.at, x.at + (n === 'fondo' ? 1.1 : 0.55)))));
+      palabras.forEach((e, q) => pon(e, '--p', f3(EZ.sale(prog(tb, PIEZA.h1.at + q * 0.09, PIEZA.h1.at + q * 0.09 + 0.5)))));
+      filas.forEach((e, q) => {
+        const a = PIEZA.card.at + 0.25 + q * 0.2, p = EZ.sale(prog(tb, a, a + 0.5));
+        pon(e, '--p', f3(p));
+        const num = e.querySelector('em')!, v = Math.round(+e.dataset.v! * EZ.sale(prog(tb, a, a + 0.9)));
+        if (num.textContent !== `${v}%`) num.textContent = `${v}%`;
+      });
+      pon(doble, '--p', f3(EZ.sale(prog(tb, DOBLE, DOBLE + 0.3))));
+      pon(doble, '--f', f3(sm(tb, FINE, FINE + 0.3)));
+    };
+
+    // ── el reloj
+    let t0 = 0, raf = 0, jugando = false, tPrev = -1, tQuieto = 0, quietoDesde = 0, buscado: number | null = null;
+    const tAhora = () => (((performance.now() - t0) / 1000) % LOOP + LOOP) % LOOP;
+    const tick = () => {
+      raf = 0;
+      if (!jugando || buscado !== null) return;
+      const t = tAhora();
+      if (tPrev >= 0 && ((t - tPrev + LOOP) % LOOP) < 0.25) sonar(tPrev, t);
+      tPrev = t;
+      pintar(t);
+      raf = requestAnimationFrame(tick);
+    };
+
+    montar();
+    pintar(0);
+    const rehacer = () => { montar(); pintar(buscado ?? (jugando ? tAhora() : 0)); };
+    mqV.addEventListener('change', rehacer);
+    let anchoPrevio = cine.clientWidth;
+    new ResizeObserver(() => { if (Math.abs(cine.clientWidth - anchoPrevio) > 1) { anchoPrevio = cine.clientWidth; rehacer(); } }).observe(cine);
+    document.fonts?.ready.then(rehacer);
+
+    (window as any).__partitura = {
+      LOOP, BEAT,
+      ir: (t: number) => { buscado = t; pintar(t); },
+      seguir: () => { buscado = null; t0 = performance.now(); tPrev = -1; if (jugando && !raf) raf = requestAnimationFrame(tick); },
+      t: () => (buscado ?? tAhora()),
+    };
+
+    if (reducido) { sec.classList.add('quieta'); return; }
+    new IntersectionObserver((e) => {
+      const ver = e[0].isIntersecting;
+      if (ver && !jugando) {
+        jugando = true;
+        t0 = performance.now() - (performance.now() - quietoDesde > 2000 ? 0 : tQuieto * 1000);
+        tPrev = -1;
+        if (!raf) raf = requestAnimationFrame(tick);
+      } else if (!ver && jugando) {
+        jugando = false;
+        tQuieto = tAhora();
+        quietoDesde = performance.now();
+      }
+    }, { rootMargin: '0px 0px -12% 0px' }).observe(cine);
+  }
+</script>
+
+<style>
+  .la-partitura { overflow-x: clip; }
+  .cine {
+    --tinta: var(--fg);
+    --filo-reposo: color-mix(in oklab, var(--tinta) 26%, transparent);
+    --hoja-papel: color-mix(in oklab, var(--color-niebla) 45%, #fff);
+    position: relative;
+    margin-top: calc(var(--spacing) * 16);
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    contain: layout paint;
+    pointer-events: none;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
+    mask-composite: intersect;
+  }
+  :global(html[data-paleta='clara']) .cine { --hoja-papel: #f7f7f5; }
+  .cine.v { aspect-ratio: 5 / 7; }
+  .mapa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .mapa :global(.cuerda) { fill: none; stroke: color-mix(in oklab, var(--tinta) 30%, transparent); stroke-width: calc(var(--u) * 1px); }
+  .mapa :global(.pulso) { fill: none; stroke-width: calc(var(--u) * 2px); stroke-linecap: round; }
+  .mapa :global(.cabeza) { stroke-width: calc(var(--u) * 1.2px); }
+  /* los rótulos: mono, versal, sin caja; su cabeza de nota es blanca (redonda) en reposo y se rellena del color de quien la toca */
+  .mapa :global(.rot text) {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.09em;
+    fill: color-mix(in oklab, var(--tinta) calc(62% + var(--l, 0) * 38%), transparent);
+  }
+  .mapa :global(.rot .cab) {
+    fill: color-mix(in oklab, var(--c) calc(var(--l, 0) * 100%), var(--hoja-papel));
+    stroke: color-mix(in oklab, var(--c) calc(var(--l, 0) * 100%), color-mix(in oklab, var(--tinta) 55%, transparent));
+    stroke-width: calc(var(--u) * 1.1px);
+  }
+  .mapa :global(.papel) { fill: var(--hoja-papel); }
+  .mapa :global(.lomo) { stroke: color-mix(in oklab, var(--tinta) 10%, transparent); stroke-width: calc(var(--u) * 1px); }
+  .mapa :global(.filo) { fill: none; stroke-width: calc(var(--u) * (1.2px + var(--g, 0) * 1.3px)); }
+  .mapa :global(.titulo) { font-family: var(--font-display); font-size: 17px; fill: var(--tinta); }
+  .mapa :global(.tempo) { font-family: var(--font-display); font-size: 6.4px; fill: color-mix(in oklab, var(--tinta) 70%, transparent); }
+  .mapa :global(.autor) { font-family: var(--font-mono); font-size: 5.6px; fill: color-mix(in oklab, var(--tinta) 70%, transparent); }
+  .mapa :global(.pauta) { stroke: color-mix(in oklab, var(--tinta) 28%, transparent); stroke-width: calc(var(--u) * 0.6px); }
+  .mapa :global(.barra) { stroke: color-mix(in oklab, var(--tinta) 40%, transparent); stroke-width: calc(var(--u) * 0.8px); }
+  .mapa :global(.barra.fin) { stroke-width: calc(var(--u) * 2px); }
+  .mapa :global(.nota) { fill: var(--c); stroke: var(--c); stroke-width: 0.9px; }
+
+  /* EL CUADERNO ABIERTO (la partitura vista de cerca). Escritorio 1360 × 720, en px de diseño; la cámara lo escala */
+  .cuaderno {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1360px;
+    height: 720px;
+    transform-origin: 0 0;
+    visibility: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 6px;
+    background: var(--hoja-papel) url('/media/grano.png') 0 0 / 240px 240px;
+    color: var(--tinta);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--tinta) 8%, transparent), 0 40px 80px -44px rgb(36 28 25 / 0.4);
+    font-family: var(--font-sans);
+  }
+  /* el lomo: la sombra suave del pliegue entre las dos páginas */
+  .cuaderno::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 64px;
+    translate: -50% 0;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--tinta) 7%, transparent) 46%, color-mix(in oklab, var(--tinta) 12%, transparent) 50%, color-mix(in oklab, var(--tinta) 7%, transparent) 54%, transparent);
+  }
+  .pag { position: relative; padding: 38px 52px 34px; min-width: 0; }
+  .cab { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; row-gap: 4px; padding-bottom: 18px; }
+  .ruta, .aut { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: color-mix(in oklab, var(--tinta) 66%, transparent); }
+  .aut { text-align: right; grid-column: 3; grid-row: 1; }
+  .ruta { grid-column: 1; grid-row: 1; }
+  .tit { grid-column: 2; grid-row: 1 / span 2; font-family: var(--font-display); font-size: 36px; line-height: 1.05; text-align: center; }
+  .tem { grid-column: 1; grid-row: 2; font-family: var(--font-display); font-size: 15px; color: color-mix(in oklab, var(--tinta) 75%, transparent); }
+  .ensayo .cab { grid-template-columns: 1fr; padding-bottom: 14px; }
+  /* LAS PARTES: nombre del «instrumento» a la izquierda y su pentagrama; lo que la parte contiene se escribe sobre él, de izquierda a derecha */
+  .sistemas { display: flex; flex-direction: column; gap: 8px; }
+  .sis { display: grid; grid-template-columns: 124px 1fr; align-items: center; height: 82px; }
+  .nom {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-right: 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--tinta) calc(55% + var(--o, 0) * 45%), transparent);
+  }
+  .cab-nota {
+    width: 11px;
+    height: 8px;
+    border-radius: 50%;
+    rotate: -20deg;
+    box-shadow: inset 0 0 0 1.2px color-mix(in oklab, var(--c, var(--tinta)) calc(var(--o, 0) * 100%), color-mix(in oklab, var(--tinta) 50%, transparent));
+    background: color-mix(in oklab, var(--c, transparent) calc(var(--o, 0) * 100%), transparent);
+    scale: calc(1 + var(--d, 0) * 0.6);
+  }
+  .pauta {
+    position: relative;
+    height: 100%;
+    background: repeating-linear-gradient(transparent 0 8px, color-mix(in oklab, var(--tinta) 22%, transparent) 8px 9px) 0 calc(50% - 22px) / 100% 45px no-repeat;
+    border-left: 1px solid color-mix(in oklab, var(--tinta) 32%, transparent);
+  }
+  .pauta::after { content: ''; position: absolute; right: 0; top: calc(50% - 14px); height: 36px; border-right: 1px solid color-mix(in oklab, var(--tinta) 32%, transparent); }
+  .dentro { position: absolute; inset: 0; display: flex; align-items: center; padding-left: 14px; clip-path: inset(-20px calc((1 - var(--p, 0)) * 100%) -20px 0); }
+  .dentro small, .colores b { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; color: color-mix(in oklab, var(--tinta) 72%, transparent); font-weight: 400; white-space: nowrap; }
+  /* color: cada tono de Neety es una nota sobre el pentagrama, con su hexadecimal debajo */
+  .colores { display: flex; width: 100%; justify-content: space-between; align-items: stretch; height: 100%; padding-right: 14px; }
+  .sw { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .sw i { position: absolute; top: calc(18% + var(--y) * 0.9); width: 22px; height: 17px; border-radius: 50%; rotate: -20deg; background: var(--h); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta) 30%, transparent); }
+  .sw b { position: absolute; bottom: 2px; font-size: 9.5px; }
+  .tipos { display: flex; gap: 22px; }
+  .tipo { display: grid; grid-template-columns: auto auto; column-gap: 12px; align-items: center; }
+  .tipo .aa { grid-row: 1 / span 2; font-style: normal; font-size: 40px; line-height: 1; color: #431b44; }
+  .tipo .bri { font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; }
+  .tipo .sw2 { font-family: var(--font-switzer), Inter, system-ui, sans-serif; }
+  .tipo b { font-size: 14px; font-weight: 500; }
+  .ritmo { display: flex; align-items: flex-end; gap: 6px; height: 46px; }
+  .ritmo i { width: 9px; height: calc(4px + var(--v) * 40px); border-radius: 2px; background: color-mix(in oklab, #fe8238 calc(30% + var(--v) * 60%), #431b44); }
+  .ritmo small { margin-left: 14px; align-self: center; white-space: normal; max-width: 15em; line-height: 1.5; }
+  .rail { display: flex; flex-direction: column; gap: 8px; width: 92%; }
+  .rail i { height: 12px; border-radius: 999px; }
+  .botones { display: flex; align-items: center; gap: 14px; }
+  .pill, .n-pill { display: inline-flex; align-items: center; gap: 16px; padding: 10px 14px 10px 20px; border-radius: 999px; background: #431b44; color: #fff; font-size: 14px; font-weight: 500; white-space: nowrap; font-family: var(--font-bricolage), system-ui, sans-serif; }
+  .pill i, .n-pill i { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+  .pill.out { background: transparent; color: #431b44; box-shadow: inset 0 0 0 1px #431b44; }
+  .pill.out i { background: #431b44; }
+  .comps { display: flex; flex-wrap: wrap; gap: 8px; }
+  .comps code { font-family: var(--font-mono); font-size: 12px; padding: 4px 9px; border-radius: 6px; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta) 22%, transparent); }
+
+  /* EL ENSAYO: el hero de la home de Neety, a escala (su gradiente de marca con grano, su logotipo, Bricolage Grotesque, su pastilla y su tarjeta) */
+  .neety {
+    position: relative;
+    height: 560px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f5f7f9;
+    color: #431b44;
+    font-family: var(--font-switzer), Inter, system-ui, sans-serif;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--tinta) 10%, transparent);
+  }
+  .neety > * { position: absolute; }
+  .n-fondo {
+    inset: 0 0 96px 0;
+    border-radius: 0 0 14px 14px;
+    opacity: var(--p, 0);
+    background:
+      radial-gradient(60% 70% at 100% 60%, #fe8238 0%, transparent 62%),
+      radial-gradient(55% 60% at 8% 4%, #a7c5f9 0%, transparent 70%),
+      radial-gradient(60% 50% at 0% 100%, #431b44 0%, transparent 70%),
+      radial-gradient(50% 50% at 55% 45%, #ffffff 0%, transparent 70%),
+      #f8f7ec;
+    clip-path: circle(calc(var(--p, 0) * 140%) at 12% 18%);
+  }
+  .n-fondo::after { content: ''; position: absolute; inset: 0; background: url('/media/grano.png') 0 0 / 180px 180px; opacity: 0.8; mix-blend-mode: multiply; }
+  .n-nav { left: 26px; right: 22px; top: 20px; display: flex; align-items: center; gap: 14px; opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * -8px); }
+  .n-logo { height: 18px; width: auto; }
+  .n-menu { margin-left: auto; display: flex; gap: 12px; font-size: 10.5px; }
+  .n-menu i { font-style: normal; }
+  .n-navcta { padding: 5px 11px; border-radius: 999px; background: color-mix(in oklab, #431b44 75%, transparent); color: #fff; font-size: 10.5px; font-family: var(--font-bricolage), system-ui, sans-serif; }
+  .n-eyebrow { left: 30px; top: 96px; display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in oklab, #431b44 55%, transparent); opacity: var(--p, 0); }
+  .n-eyebrow .on { color: #431b44; }
+  .n-eyebrow b { font-weight: 400; }
+  .n-punto { width: 5px; height: 5px; border-radius: 50%; background: #431b44; box-shadow: 0 0 0 calc(var(--p, 0) * 4px) color-mix(in oklab, #431b44 18%, transparent); margin-right: 4px; }
+  .n-h1 { left: 30px; top: 118px; width: 340px; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 31px; line-height: 1.12; letter-spacing: -0.01em; color: #431b44; }
+  .n-h1 span { display: inline-block; white-space: pre; opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 12px); filter: blur(calc((1 - var(--p, 0)) * 5px)); }
+  .n-h1 .b { color: color-mix(in oklab, #431b44 40%, transparent); }
+  .n-ctas { left: 30px; top: 290px; display: flex; align-items: center; gap: 18px; opacity: var(--p, 0); scale: calc(0.9 + var(--p, 0) * 0.1); transform-origin: 0 50%; }
+  .n-link { font-size: 13px; font-weight: 500; font-family: var(--font-bricolage), system-ui, sans-serif; }
+  .n-card {
+    right: 20px;
+    top: 196px;
+    width: 212px;
+    padding: 14px 14px 8px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(67 27 68 / 0.08), 0 14px 30px -18px rgb(67 27 68 / 0.45);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11.5px;
+    opacity: var(--p, 0);
+    translate: 0 calc((1 - var(--p, 0)) * 14px);
+  }
+  .n-card b { font-weight: 500; font-size: 12px; margin-bottom: 6px; }
+  .n-fila { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid rgb(67 27 68 / 0.07); opacity: var(--p, 0); }
+  .n-fila i { width: 18px; height: 18px; border-radius: 5px; background: rgb(167 197 249 / 0.4); }
+  .n-fila em { margin-left: auto; font-style: normal; font-variant-numeric: tabular-nums; padding: 2px 7px; border-radius: 999px; background: rgb(254 130 56 / 0.14); color: #431b44; }
+  .n-sub { left: 30px; bottom: 18px; width: 330px; font-size: 12.5px; line-height: 1.5; color: color-mix(in oklab, #2a0e2c 60%, transparent); opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 8px); }
+  /* «Publicar» = la DOBLE BARRA FINAL de la partitura, con «Fine» */
+  .doble { position: absolute; right: 52px; bottom: 22px; display: flex; align-items: flex-end; gap: 4px; height: 40px; }
+  .doble i { width: 1.5px; height: 100%; background: var(--tinta); transform-origin: 50% 0; scale: 1 var(--p, 0); }
+  .doble i + i { width: 5px; }
+  .doble .fine { font-family: var(--font-display); font-size: 22px; margin-right: 10px; opacity: var(--f, 0); }
+  .doble small { position: absolute; right: 0; top: 100%; margin-top: 4px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; white-space: nowrap; color: color-mix(in oklab, var(--tinta) 70%, transparent); opacity: var(--f, 0); }
+
+  /* MÓVIL: el cuaderno con las páginas una sobre otra, 540 × 760 */
+  .cuaderno.v { width: 540px; height: 760px; grid-template-columns: 1fr; grid-template-rows: 352px 1fr; }
+  .cuaderno.v::before { left: 0; right: 0; top: 352px; bottom: auto; width: auto; height: 40px; translate: 0 -50%; background: linear-gradient(transparent, color-mix(in oklab, var(--tinta) 9%, transparent) 50%, transparent); }
+  .cuaderno.v .pag { padding: 18px 20px 14px; }
+  .cuaderno.v .cab { padding-bottom: 8px; }
+  .cuaderno.v .tit { font-size: 22px; }
+  .cuaderno.v .tem { font-size: 11px; }
+  .cuaderno.v .ruta, .cuaderno.v .aut { font-size: 9.5px; }
+  .cuaderno.v .sistemas { gap: 2px; }
+  .cuaderno.v .sis { height: 44px; grid-template-columns: 84px 1fr; }
+  .cuaderno.v .nom { font-size: 8.5px; padding-right: 8px; gap: 5px; }
+  .cuaderno.v .cab-nota { width: 8px; height: 6px; }
+  .cuaderno.v .pauta { background-size: 100% 25px; background-position: 0 calc(50% - 12px); background-image: repeating-linear-gradient(transparent 0 5px, color-mix(in oklab, var(--tinta) 22%, transparent) 5px 6px); }
+  .cuaderno.v .pauta::after { top: calc(50% - 8px); height: 20px; }
+  .cuaderno.v .dentro { padding-left: 8px; }
+  .cuaderno.v .dentro small, .cuaderno.v .colores b { display: none; }
+  .cuaderno.v .sw i { width: 13px; height: 10px; top: calc(26% + var(--y) * 0.6); }
+  .cuaderno.v .tipos { gap: 14px; }
+  .cuaderno.v .tipo .aa { font-size: 22px; }
+  .cuaderno.v .tipo b { font-size: 10px; }
+  .cuaderno.v .ritmo { height: 26px; gap: 4px; }
+  .cuaderno.v .ritmo i { width: 6px; height: calc(3px + var(--v) * 22px); }
+  .cuaderno.v .rail i { height: 8px; }
+  .cuaderno.v .pill { font-size: 10px; padding: 5px 9px 5px 12px; gap: 10px; }
+  .cuaderno.v .comps { gap: 4px; }
+  .cuaderno.v .comps code { font-size: 8.5px; padding: 2px 5px; }
+  .cuaderno.v .ensayo .cab { padding-bottom: 6px; }
+  .cuaderno.v .neety { height: 330px; }
+  .cuaderno.v .n-menu { display: none; }
+  .cuaderno.v .n-logo { height: 14px; }
+  .cuaderno.v .n-eyebrow { left: 18px; top: 58px; font-size: 8.5px; }
+  .cuaderno.v .n-h1 { left: 18px; top: 74px; width: 250px; font-size: 24px; }
+  .cuaderno.v .n-ctas { left: 18px; top: 196px; gap: 10px; }
+  .cuaderno.v .n-pill { font-size: 10px; padding: 6px 9px 6px 13px; gap: 10px; }
+  .cuaderno.v .n-link { font-size: 10px; }
+  .cuaderno.v .n-card { right: 14px; top: 182px; width: 160px; padding: 8px 9px 4px; font-size: 8.5px; }
+  .cuaderno.v .n-card b { font-size: 9px; margin-bottom: 2px; }
+  .cuaderno.v .n-fila { padding: 4px 0; gap: 5px; }
+  .cuaderno.v .n-fila i { width: 11px; height: 11px; }
+  .cuaderno.v .n-sub { left: 18px; bottom: 8px; width: 250px; font-size: 9px; }
+  .cuaderno.v .n-fondo { bottom: 54px; }
+  .cuaderno.v .doble { right: 20px; bottom: 16px; height: 24px; }
+  .cuaderno.v .doble .fine { font-size: 15px; }
+  .cuaderno.v .doble small { font-size: 8px; }
+
+  /* LAS BATUTAS: una varilla fina con el punto de color del agente en la punta y su nombre en mono; al marcar, la punta se hunde y suelta una onda */
+  .cursor { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform; }
+  .cursor svg { position: absolute; left: -2px; top: -22px; width: 24px; height: 24px; overflow: visible; rotate: calc(var(--clic, 0) * 8deg); transform-origin: 2px 22px; }
+  .cursor .vara { stroke: var(--tinta); stroke-width: 1.4; stroke-linecap: round; fill: none; }
+  .cursor .punta { fill: var(--c); stroke: var(--hoja-papel); stroke-width: 1.2; scale: calc(1 + var(--clic, 0) * 0.5); }
+  .cursor span { position: absolute; left: 8px; top: 6px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; line-height: 1; white-space: nowrap; color: var(--tinta); padding: 3px 5px; border-radius: 4px; background: color-mix(in oklab, var(--hoja-papel) 82%, transparent); }
+  .cursor .onda { position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 1.2px solid var(--c); opacity: calc((1 - var(--onda, 0)) * min(1, var(--onda, 0) * 20)); scale: calc(0.2 + var(--onda, 0) * 1.4); }
+  .cine.v .cursor span { font-size: 0.625rem; }
+  .cine.v .cursor svg { scale: 0.8; }
+  .quieta .cursor { display: none; }
+  .nota { margin-top: calc(var(--spacing) * 12); max-width: 60ch; }
+</style>

@@ -229,6 +229,7 @@ function escenaQuad(k: string) {
 </section>
 
 <script>
+  import { tecla } from '../scripts/musica';
   // RONDA 19 · el VÍDEO de cada web: al pasar el cursor o enfocar la pieza; en táctil (sin hover), mientras la pieza está a la vista.
   // Con movimiento reducido no se reproduce solo. La fuente se carga la primera vez que hace falta (preload="none").
   {
@@ -259,10 +260,12 @@ function escenaQuad(k: string) {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const rejilla = document.querySelector<HTMLElement>('[data-cuadricula]');
     if (rejilla) new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { rejilla.classList.add('trazada'); o.disconnect(); } }, { threshold: 0.3 }).observe(rejilla);
+    const BEAT_C = 60000 / 92;
     if (rejilla && !reducido) {
       const celdas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')].map((el) => ({ items: [...el.querySelectorAll<HTMLElement>('[data-item]')], k: 0 }));
       let relojes: number[] = [];
       const girar = (c: (typeof celdas)[number]) => {
+        tecla({ vol: 0.012 }); // el tic del relevo (ronda 95: «más sutiles»: 0,025 → 0,009)
         c.items[c.k].classList.remove('on'); c.items[c.k].classList.add('sale'); c.items[c.k].setAttribute('aria-hidden', 'true');
         const viejo = c.items[c.k]; setTimeout(() => viejo.classList.remove('sale'), 1600);
         c.k = (c.k + 1) % c.items.length; c.items[c.k].classList.add('on'); c.items[c.k].setAttribute('aria-hidden', 'false');
@@ -270,7 +273,7 @@ function escenaQuad(k: string) {
       new IntersectionObserver((e) => {
         relojes.forEach(clearTimeout); relojes = [];
         if (!e[0].isIntersecting) return;
-        celdas.forEach((c, i) => { const t = window.setTimeout(function tic() { girar(c); relojes[i] = window.setTimeout(tic, 9000); }, 5000 + i * 1500); relojes[i] = t; });
+        celdas.forEach((c, i) => { const t = window.setTimeout(function tic() { girar(c); relojes[i] = window.setTimeout(tic, BEAT_C * 12); }, BEAT_C * (8 + i * 2)); relojes[i] = t; }); // a compás: cada 12 pulsos, escalonadas de 2 en 2
       }, { threshold: 0.2 }).observe(rejilla);
     }
     const voz = document.querySelector<HTMLElement>('[data-voz]');
@@ -391,8 +394,21 @@ function escenaQuad(k: string) {
     }
   }
   // ENTRADA de cada pieza al asomar (sin JS o con movimiento reducido están ya puestas: los estados ocultos cuelgan de html.anima)
-  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
-  document.querySelectorAll('[data-pieza]').forEach((p) => io.observe(p));
+  // RONDA 85 · «a Más proyectos le falta algo de música, de ritmo». (1) Las piezas entran A COMPÁS (92 BPM): las que asoman a la vez esperan su tiempo y cada una
+  // entra en un pulso con su nota. (2) El mosaico se TOCA como un xilófono: al pasar el puntero por cada pieza suena su nota (recorrerlo es una melodía).
+  // (3) La cuadrícula de hechos releva a compás y cada relevo da un tic de pizzicato suave.
+  const BEAT = 60000 / 92, piezas = [...document.querySelectorAll<HTMLElement>('[data-pieza]')];
+  let ultimoTiempo = 0;
+  const aCompas = (el: HTMLElement) => {
+    const ahora = performance.now(), t = Math.max(ahora, Math.ceil(ultimoTiempo / BEAT) * BEAT + (ultimoTiempo ? BEAT : 0));
+    ultimoTiempo = t;
+    setTimeout(() => el.classList.add('visto'), t - ahora); // ronda 86: «no hacen ruido al entrar, solo al hacer hover»
+  };
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { aCompas(e.target as HTMLElement); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+  piezas.forEach((p, i) => {
+    io.observe(p);
+    p.addEventListener('pointerenter', (ev) => { if (ev.pointerType === 'mouse') tecla({ vol: 0.025 }); }); // ronda 95: «los sonidos, más sutiles»: una octava más grave y a un tercio (0,05 → 0,018)
+  });
   // RONDA 77 · los HEROES que rotan en la pieza de entrada: cada 4,2 s, solo a la vista; el que se va se desenfoca y el que llega enfoca (el relevo de
   // la casa) y el degradado vira a los colores de su web (@property --c1…3)
   const rota = document.querySelector<HTMLElement>('[data-rota]');

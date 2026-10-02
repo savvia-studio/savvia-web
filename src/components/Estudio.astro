@@ -12,6 +12,8 @@ const [A, E] = estudio.personas;
     ~0,2 del ancho de la celda), así nunca patinan. El último 20 % frena; al llegar giran al frente y funden a la pose final.
   · La descripción de cada uno sale con el recurso de la web: la LÍNEA DE LLAMADA (la de «Sentarse»), y el otro se retira.
     Con ratón, al pasar; con teclado, al enfocar; en táctil, al tocar.
+  · RONDA 95 · «te paso para Eric y Andoni nuevos fotogramas»: la secuencia v03 (tools/r95/fundadores/, `tools/r95/convertir.cjs` →
+    andoni-paso.webp · eric-paso.webp · juntos-r95.webp), con la llegada y el fundido que pide su LEEME. Los de la ronda 11 siguen en la carpeta, sin uso.
   · Con movimiento reducido: la pose final, sin paseo. Los textos de cada uno son FALTA (datos de Andoni y Eric: no se inventan).
 -->
 <section id="estudio" class="surface-dark section-y relative" aria-label={estudio.pregunta} data-equipo data-sube>
@@ -21,16 +23,16 @@ const [A, E] = estudio.personas;
   </div>
 
   <div class="paseo mt-12 lg:mt-16" data-paseo>
-    <!-- RONDA 12 · «Eric y Andoni generan vegetación a su paso hasta juntarse»: hierba, helechos y alguna flor que BROTAN del suelo por
-         donde ya han pasado. Un lienzo; cada brizna crece según lo lejos que quedó el que la pisó. Lo mueve el mismo scroll. -->
-    <canvas class="verde" aria-hidden="true" data-verde></canvas>
-    <!-- RONDA 13: una segunda capa de briznas cortas DELANTE de los pies: los dos quedan dentro de la hierba, no encima -->
-    <canvas class="verde delante" aria-hidden="true" data-verde-delante></canvas>
+    <!-- RONDA 95 · «tenemos que dejar una estela más chula de la actual» (antes, ronda 90: una niebla casi invisible). LA RESONANCIA: cada
+         paso cae en el suelo como una nota en una sala: un eco elíptico que se abre en perspectiva y se apaga, un charco de luz que los sigue
+         y se deshace hacia atrás, y un hilo de onda tendido en el suelo que recoge cada pisada y la devuelve hacia el borde. Un lienzo 2D. -->
+    <canvas class="estela" aria-hidden="true" data-estela></canvas>
     <i class="andador a" aria-hidden="true" data-a></i>
     <i class="andador e" aria-hidden="true" data-e></i>
     <div class="juntos" data-juntos>
-      <img class="mitad ma" src="/media/equipo/juntos.webp" alt="" width="272" height="487" loading="lazy" decoding="async" />
-      <img class="mitad me" src="/media/equipo/juntos.webp" alt="Andoni y Eric, de pie, uno junto al otro" width="272" height="487" loading="lazy" decoding="async" />
+      <img class="mitad ma" src="/media/equipo/juntos-r95.webp" alt="" width="960" height="800" loading="lazy" decoding="async" />
+      <img class="mitad me" src="/media/equipo/juntos-r95.webp" alt="Andoni y Eric, de pie, uno junto al otro" width="960" height="800" loading="lazy" decoding="async" />
+      <!-- RONDA 90 · «quitamos los dibujos que salen al hacer hover en Eric y Andoni»: fuera los garabatos de bolígrafo (en tools/retirados/Estudio.r89.astro.txt) -->
       {
         [A, E].map((p, i) => (
           <button type="button" class={`quien q${i}`} aria-expanded="false" data-quien={i}>
@@ -52,7 +54,8 @@ const [A, E] = estudio.personas;
 </section>
 
 <script>
-  import { estacionActual } from "../scripts/estacion";
+  import { rgbDe } from '../scripts/tinta';
+  import { teclear } from '../scripts/musica';
   const raiz = document.querySelector<HTMLElement>('[data-equipo]');
   if (raiz) {
     const paseo = raiz.querySelector<HTMLElement>('[data-paseo]')!, a = raiz.querySelector<HTMLElement>('[data-a]')!, e = raiz.querySelector<HTMLElement>('[data-e]')!;
@@ -61,119 +64,168 @@ const [A, E] = estudio.personas;
     // descripciones: una abierta cada vez
     const abrir = (i: number | null) => { quienes.forEach((b, k) => b.setAttribute('aria-expanded', String(k === i))); juntos.dataset.mira = i === null ? '' : String(i); };
     quienes.forEach((b, i) => {
-      b.addEventListener('pointerenter', (ev) => ev.pointerType === 'mouse' && abrir(i));
+      // RONDA 85 · al mirar a uno suena su motivo: Andoni, más grave; Eric, más agudo (como en la conversación de las preguntas)
+      b.addEventListener('pointerenter', (ev) => { if (ev.pointerType !== 'mouse') return; abrir(i); teclear(i ? 4 : 3, { vol: 0.03 }); }); // ronda 98: al mirar a uno, unas teclas (antes, su motivo en el piano)
       b.addEventListener('pointerleave', (ev) => ev.pointerType === 'mouse' && abrir(null));
       b.addEventListener('focus', () => abrir(i));
       b.addEventListener('blur', () => abrir(null));
       b.addEventListener('click', () => abrir(b.getAttribute('aria-expanded') === 'true' ? null : i));
     });
-    // ── la vegetación (ronda 13 · «tiene que ser mucho más sintetizada con el fondo y orgánica; ahora parece un pegote»):
-    //   · COLOR: los de la acuarela del hero (oliva, ocre, hoja seca, nogal), nunca verde saturado; cada brizna con su propia opacidad.
-    //   · FORMA: briznas afiladas (un relleno que se estrecha hasta la punta), curvas, de grosor y altura desiguales; en MATAS, no en fila.
-    //   · FUNDIDO: sale de una sombra baja del propio Cacao; la punta se aclara y se pierde; los lados del paseo se desvanecen.
-    //   · VIDA: brisa lenta (solo mientras se ve y ya brotada); dos capas: detrás de ellos y, muy corta, delante de los pies.
-    // RONDA 24 · «que la estela que dejamos Eric y yo se parezca a las ilustraciones del hero y el footer»: en vez de briznas dibujadas, la HIERBA
-    // de la acuarela del pie (`/media/pie/hierba.webp`, su franja baja) se destapa por donde ya han pasado, con canto blando; delante de los pies,
-    // una franja más corta de la misma lámina. Sin brisa: es una acuarela.
-    const cv = raiz.querySelector<HTMLCanvasElement>('[data-verde]')!, cx = cv.getContext('2d')!;
-    const cv2 = raiz.querySelector<HTMLCanvasElement>('[data-verde-delante]')!, cx2 = cv2.getContext('2d')!;
-    type Brizna = { x: number; h: number; c: number; l: number; w: number; a: number; fase: number; flor: number; delante: boolean };
-    let briznas: Brizna[] = [], VW = 0, VH = 0, xaU = -1e6, xeU = 1e6, reloj = 0, avanceU = 0;
-    // RONDA 43 · «la estela que dejamos Eric y yo también se tiene que adaptar a las estaciones»: los tonos de las briznas, el resplandor del suelo y
-    // las flores de cada estación (en el orden de src/scripts/estacion.ts: otoño · invierno · primavera · verano). Otoño, los de la acuarela.
-    const PALETAS: { t: number[][]; suelo: string; flor: [string, string]; pFlor: number }[] = [
-      { t: [[112, 106, 58], [150, 128, 70], [136, 96, 58], [99, 64, 47], [168, 150, 92]], suelo: '126,84,60', flor: ['rgba(246,83,64,.55)', 'rgba(229,172,158,.6)'], pFlor: 0.955 },
-      { t: [[150, 160, 175], [190, 198, 210], [120, 128, 145], [210, 215, 225], [100, 108, 125]], suelo: '110,118,140', flor: ['rgba(255,255,255,.85)', 'rgba(230,236,245,.8)'], pFlor: 0.9 },
-      { t: [[120, 150, 80], [150, 170, 95], [100, 130, 70], [170, 185, 110], [130, 140, 85]], suelo: '150,95,110', flor: ['rgba(199,107,131,.8)', 'rgba(244,201,213,.85)'], pFlor: 0.88 },
-      { t: [[90, 125, 65], [120, 145, 75], [75, 105, 55], [160, 150, 80], [103, 131, 77]], suelo: '90,110,70', flor: ['rgba(242,201,90,.8)', 'rgba(255,236,190,.7)'], pFlor: 0.94 },
-    ];
-    let paleta = PALETAS[estacionActual()], TONOS = paleta.t;
-    addEventListener('savvia:estacion', (ev) => { paleta = PALETAS[(ev as CustomEvent).detail.n as number]; TONOS = paleta.t; pintarVerde(xaU, xeU, performance.now() / 1000); });
+    // ── RONDA 95 · «te paso para Eric y Andoni nuevos fotogramas» (tools/r95/fundadores/LEEME.md, v03): tiras de 5 celdas 600×1000 con su margen
+    //   transparente (NO se recorta: es lo que mantiene la escala) y la pose final de 1200×1000. Celda y pose final, MISMO alto CSS (--ch) y mismo
+    //   borde superior; celda = alto × 0,6 y pose final = alto × 1,2. Los centros de las celdas acaban en x = 477,253 (Andoni) y 705,270 (Eric) del
+    //   lienzo de la pose final. El paseo acaba al 94 % del avance; la celda 4 (de frente), desde el 93 %; el fundido al reposo, del 96,5 al 100 %, sin
+    //   tocar escala ni posición. Las celdas 0–3 son pasos (elegidos por lo ANDADO, así no patinan). Eric ya mira a la izquierda.
+    const LLEGA_A = 477.2528735632184, LLEGA_E = 705.2701149425287;
+    // ── RONDA 95 · «una estela más chula de la actual» → LA RESONANCIA (sustituye a la niebla de la ronda 90). Musical sin notas ni pentagrama: cada
+    //   PASO suena en el suelo como en una sala: un eco elíptico (tres aros que se abren en perspectiva y se apagan, el primero con un punto de
+    //   savia), un charco de luz que los sigue y se deshace hacia el borde, y un HILO DE ONDA tendido en el suelo que recoge cada pisada y la
+    //   devuelve hacia atrás como un pulso. Lo enciende el andar (scroll) y lo deja vibrar el tiempo; al juntarse se apaga del todo. Grano por encima.
+    const cv = raiz.querySelector<HTMLCanvasElement>('[data-estela]')!, cx = cv.getContext('2d')!;
+    let VW = 0, VH = 0, CH = 0, dpr = 1;
+    let grano: CanvasPattern | null = null, tinta: [number, number, number] = [234, 221, 231], savia: [number, number, number] = [255, 97, 107], oscuro = true;
+    const leerColores = () => {
+      const cs = getComputedStyle(raiz), m = (v: string) => (v.match(/[\d.]+/g) || []).slice(0, 3).map(Number) as [number, number, number];
+      const fg = m(cs.color); if (fg.length === 3) tinta = fg;
+      const bg = m(cs.backgroundColor); oscuro = bg.length < 3 || 0.2126 * bg[0] + 0.7152 * bg[1] + 0.0722 * bg[2] < 128;
+      savia = rgbDe('naranja');
+    };
     const sembrar = () => {
-      const r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2); VW = r.width; VH = r.height;
-      for (const [c, x] of [[cv, cx], [cv2, cx2]] as const) { c.width = Math.round(VW * dpr); c.height = Math.round(VH * dpr); x.setTransform(dpr, 0, 0, dpr, 0, 0); }
-      let sd = 31; const rnd = () => ((sd = (sd * 1664525 + 1013904223) % 4294967296) / 4294967296);
-      briznas = [];
-      // matas: centros sembrados; cada mata, un puñado de briznas abiertas en abanico
-      // más matas y más altas hacia el centro (donde se juntan); hacia los lados se aclara el prado
-      const matas = Math.round(VW / 16); // ronda 29: «que se note más» (27: VW/26)
-      for (let m = 0; m < matas; m++) {
-        const u = rnd(), mx = u < 0.55 ? VW / 2 + (rnd() + rnd() + rnd() - 1.5) * VW * 0.32 : rnd() * VW;
-        const n = 3 + Math.floor(rnd() * 7), alta = (0.45 + rnd() * 0.55) * (0.7 + 0.5 * Math.max(0, 1 - Math.abs(mx / VW - 0.5) * 2.2));
-        for (let j = 0; j < n; j++) {
-          const alto = rnd(), delante = rnd() < 0.22;
-          briznas.push({
-            x: mx + (rnd() - 0.5) * 16, h: (delante ? 7 + alto * 12 : 12 + alto * alto * 44) * alta, c: Math.floor(rnd() * TONOS.length),
-            l: (rnd() - 0.5) * 1.3 + (j - n / 2) * 0.08, w: 1.1 + rnd() * 1.6, a: 0.6 + rnd() * 0.3, fase: rnd() * 6.28, flor: rnd(), delante,
+      const r = cv.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 1.5); VW = r.width; VH = r.height; CH = paseo.offsetHeight;
+      cv.width = Math.round(VW * dpr); cv.height = Math.round(VH * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // grano: una tesela de ruido que se RESTA de lo pintado (destination-out): la luz queda con la misma textura que el papel de la página
+      const t = document.createElement('canvas'); t.width = t.height = 96; const tc = t.getContext('2d')!, d = tc.createImageData(96, 96);
+      for (let i = 0; i < d.data.length; i += 4) d.data[i + 3] = Math.random() < 0.5 ? Math.random() * 120 : 0;
+      tc.putImageData(d, 0, 0); grano = cx.createPattern(t, 'repeat');
+      leerColores();
+    };
+    // estado de cada andador (lo escribe el scroll; lo lee el dibujo)
+    type Andar = { x0: number; x: number; dir: number; suelo: number; paso: number; nacidos: Map<number, number> };
+    const pa: Andar = { x0: 0, x: 0, dir: 1, suelo: 0.969, paso: 1, nacidos: new Map() }, pe: Andar = { x0: 0, x: 0, dir: -1, suelo: 0.942, paso: 1, nacidos: new Map() };
+    let avanceU = 0;
+    const mezcla = (p: number[], q: number[], k: number) => [0, 1, 2].map((i) => p[i] + (q[i] - p[i]) * k);
+    const rgba = (c: number[], a: number) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(4)})`;
+    const smooth = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+    const VIDA = 2600; // ms que tarda un eco en abrirse y apagarse si te paras
+    // recorre los pasos dados: cada uno con su posición y su edad (0 recién pisado → 1 apagado). La edad es la mayor de dos: lo andado desde
+    // entonces (scroll) y el tiempo (así el eco sigue abriéndose aunque pares). Volver atrás «despisa»: el paso desaparece.
+    const pasos = (w: Andar, ahora: number, cada: (x: number, q: number, k: number) => void) => {
+      const d = Math.abs(w.x - w.x0), n = Math.floor(d / w.paso);
+      for (const k of w.nacidos.keys()) if (k > n) w.nacidos.delete(k);
+      for (let k = Math.max(1, n - 6); k <= n; k++) {
+        if (!w.nacidos.has(k)) w.nacidos.set(k, (n - k) > 2 ? -1e9 : ahora); // si se llega de golpe, los viejos nacen ya apagados
+        const qd = (d - k * w.paso) / (w.paso * 4.5), qt = (ahora - w.nacidos.get(k)!) / VIDA, q = Math.max(qd, qt);
+        if (q >= 1) continue;
+        // el pie que pisa va delante del centro y alterna un poco (izquierdo, derecho)
+        const x = w.x0 + w.dir * (k * w.paso + CH * 0.09) + (k % 2 ? 1 : -1) * CH * 0.018 + CH * 0.3;
+        cada(x, q, k);
+      }
+    };
+    const dibujar = (ahora: number) => {
+      cx.globalCompositeOperation = 'source-over'; cx.clearRect(0, 0, VW, VH);
+      const apaga = 1 - smooth(0.7, 0.95, avanceU);
+      if (apaga <= 0.002 || !CH) return false;
+      const t = ahora / 1000, luz = oscuro ? 'lighter' : 'source-over';
+      let vivos = false;
+      for (const w of [pa, pe]) {
+        const pie = w.x + CH * 0.3, suelo = w.suelo * CH, d = Math.abs(w.x - w.x0);
+        if (d < 1) continue;
+        cx.globalCompositeOperation = luz;
+        // 1 · EL CHARCO: manchas elípticas muy blandas bajo los pies que se abren y se deshacen hacia atrás (respiran despacio)
+        const L = Math.min(d, VW * 0.42), N = 16;
+        for (let i = 0; i < N; i++) {
+          const s = i / (N - 1), x = pie - w.dir * s * L, r = CH * (0.16 + 0.24 * s);
+          const a = apaga * 0.16 * Math.pow(1 - s, 1.5) * (0.85 + 0.15 * Math.sin(t * 0.7 + i * 1.3));
+          // junto a los pies la luz es cálida (savia); hacia atrás, el claro de la página
+          if (a < 0.002) continue;
+          cx.save(); cx.translate(x, suelo + CH * 0.006); cx.scale(1, 0.17);
+          const g = cx.createRadialGradient(0, 0, 0, 0, 0, r);
+          const c = s < 0.25 ? mezcla(savia, tinta, s / 0.25) : tinta;
+          g.addColorStop(0, rgba(c, a)); g.addColorStop(0.45, rgba(c, a * 0.4)); g.addColorStop(1, rgba(c, 0));
+          cx.fillStyle = g; cx.beginPath(); cx.arc(0, 0, r, 0, 6.2832); cx.fill(); cx.restore();
+        }
+        // 2 · LOS ECOS de cada pisada + los pulsos que recogerá el hilo
+        const pulsos: [number, number][] = [];
+        pasos(w, ahora, (x, q, k) => {
+          vivos = true;
+          const e = 1 - Math.pow(1 - q, 3), f = Math.pow(1 - q, 1.6) * apaga;
+          const rx = CH * (0.04 + 0.5 * e), ry = rx * 0.15;
+          [1, 0.74, 0.52].forEach((m, j) => {
+            cx.strokeStyle = rgba(j ? tinta : mezcla(savia, tinta, Math.min(1, q * 2.5)), f * [0.55, 0.3, 0.16][j]); cx.lineWidth = [1.4, 1, 0.8][j];
+            cx.beginPath(); cx.ellipse(x, suelo, rx * m, ry * m, 0, 0, 6.2832); cx.stroke();
           });
+          // el golpe: un punto de savia que se enciende en el sitio y se apaga enseguida
+          if (q < 0.35) {
+            const b = (1 - q / 0.35) * apaga, rr = CH * 0.07;
+            cx.save(); cx.translate(x, suelo); cx.scale(1, 0.3);
+            const g = cx.createRadialGradient(0, 0, 0, 0, 0, rr);
+            g.addColorStop(0, rgba(savia, 0.45 * b)); g.addColorStop(1, rgba(savia, 0));
+            cx.fillStyle = g; cx.beginPath(); cx.arc(0, 0, rr, 0, 6.2832); cx.fill(); cx.restore();
+          }
+          pulsos.push([x - w.dir * q * CH * 0.9, Math.pow(1 - q, 1.4) * (k % 2 ? 1 : 0.8)]);
+        });
+        // 3 · EL HILO DE ONDA: una línea finísima tendida en el suelo, de los pies hacia el borde; casi plana, y cada pisada le manda un pulso
+        //   que viaja hacia atrás y se amortigua. Dos trazos (el segundo, su eco desfasado).
+        const sig = CH * 0.1;
+        for (let h = 0; h < 2; h++) {
+          const gr = cx.createLinearGradient(pie, 0, pie - w.dir * L, 0);
+          gr.addColorStop(0, rgba(tinta, 0)); gr.addColorStop(0.08, rgba(tinta, apaga * (h ? 0.14 : 0.3))); gr.addColorStop(1, rgba(tinta, 0));
+          cx.strokeStyle = gr; cx.lineWidth = h ? 0.7 : 1;
+          cx.beginPath();
+          for (let u = 0; u <= L; u += 3) {
+            const x = pie - w.dir * u, s = u / L;
+            let A = CH * 0.004 * (1 - s);
+            for (const [px, a] of pulsos) { const z = (x - px) / sig; A += CH * 0.045 * a * Math.exp(-z * z); }
+            const y = suelo + CH * (h ? 0.012 : 0.006) - A * Math.sin(u * 0.11 - t * 2.6 + h * 1.9);
+            if (u === 0) cx.moveTo(x, y); else cx.lineTo(x, y);
+          }
+          cx.stroke();
         }
       }
+      // el grano, restado de todo lo pintado
+      if (grano) { cx.globalCompositeOperation = 'destination-out'; cx.fillStyle = grano; cx.fillRect(0, 0, VW, VH); }
+      cx.globalCompositeOperation = 'source-over';
+      return true;
     };
-    const pintarVerde = (xa: number, xe: number, t = 0) => {
-      xaU = xa; xeU = xe;
-      for (const x of [cx, cx2]) { x.clearRect(0, 0, VW, VH); x.globalCompositeOperation = 'source-over'; }
-      const suelo = VH - 1;
-      // RONDA 68 · «abajo se ve un rayo de luz, es un bug»: era el RESPLANDOR del suelo (rondas 27–29), una elipse más alta que el lienzo cortada en seco
-      // por su borde de arriba. Fuera: la estela son solo las briznas.
-      for (const b of briznas) {
-        // brota cuando el que viene por su lado ya la dejó atrás (margen para que nazca DETRÁS de sus pies)
-        const g = Math.min(1, Math.max(0, b.x < VW / 2 ? (xa - b.x - 20) / 110 : (b.x - xe - 20) / 110));
-        if (g <= 0) continue;
-        const k = 1 - Math.pow(1 - g, 3), h = b.h * k;
-        const lados = Math.min(1, b.x / (VW * 0.12), (VW - b.x) / (VW * 0.12)) * Math.max(0, 1 - Math.pow(avanceU / 0.98, 3)); // los extremos del paseo se desvanecen; todo, con el avance
-        if (lados <= 0) continue;
-        const brisa = Math.sin(t * 1.1 + b.fase + b.x * 0.012) * 0.06 + Math.sin(t * 0.47 + b.x * 0.004) * 0.05;
-        const tx = b.x + (b.l * 0.55 + brisa) * h, ty = suelo - h;
-        const px = b.x + (b.l * 0.12 + brisa * 0.3) * h, py = suelo - h * 0.62; // punto de control: la brizna se curva
-        const x = b.delante ? cx2 : cx, [R, G, B] = TONOS[b.c];
-        const gr = x.createLinearGradient(0, suelo, 0, ty);
-        gr.addColorStop(0, `rgba(${R * 0.6},${G * 0.6},${B * 0.6},0)`);
-        gr.addColorStop(0.35, `rgba(${R},${G},${B},${(b.a * lados).toFixed(3)})`);
-        gr.addColorStop(1, `rgba(${Math.min(255, R * 1.25)},${Math.min(255, G * 1.22)},${B * 1.1},${(b.a * lados * 0.35).toFixed(3)})`);
-        x.fillStyle = gr;
-        // brizna afilada: dos curvas que parten de una base de ancho w y se juntan en la punta
-        x.beginPath();
-        x.moveTo(b.x - b.w / 2, suelo);
-        x.quadraticCurveTo(px - b.w * 0.3, py, tx, ty);
-        x.quadraticCurveTo(px + b.w * 0.3, py, b.x + b.w / 2, suelo);
-        x.closePath(); x.fill();
-        if (!b.delante && b.flor > paleta.pFlor && k > 0.85) { x.fillStyle = b.flor > 0.98 ? paleta.flor[0] : paleta.flor[1]; x.beginPath(); x.arc(tx, ty, 1.6, 0, 6.283); x.fill(); }
-      }
-      // la sombra de la que salen: una franja baja del propio Cacao (sin borde) que se come la base de las briznas
-      for (const x of [cx, cx2]) {
-        x.globalCompositeOperation = 'destination-out';
-        const s = x.createLinearGradient(0, VH, 0, VH - 10);
-        s.addColorStop(0, 'rgba(0,0,0,.7)'); s.addColorStop(1, 'rgba(0,0,0,0)');
-        x.fillStyle = s; x.fillRect(0, VH - 10, VW, 10);
-        x.globalCompositeOperation = 'source-over';
-      }
+    // un solo reloj a ~30 fps mientras la sección se ve y queda algo vivo; el scroll también pide un dibujo
+    let viendo = false, reloj = 0, ultT = 0;
+    const latir = (ahora: number) => {
+      reloj = 0;
+      if (!viendo || reducido) return;
+      if (ahora - ultT < 31) { reloj = requestAnimationFrame(latir); return; }
+      ultT = ahora;
+      if (dibujar(ahora)) reloj = requestAnimationFrame(latir);
     };
-    // la brisa: solo mientras la sección se ve y ya ha brotado algo
-    let viendo = false;
-    const brisa = (ahora: number) => { reloj = 0; if (!viendo || reducido) return; pintarVerde(xaU, xeU, ahora / 1000); reloj = requestAnimationFrame(brisa); };
-    new IntersectionObserver((en) => { viendo = en[0].isIntersecting; if (viendo && !reloj) reloj = requestAnimationFrame(brisa); }).observe(cv);
+    const despertar = () => { if (viendo && !reloj && !reducido) reloj = requestAnimationFrame(latir); };
+    new IntersectionObserver((en) => { viendo = en[0].isIntersecting; despertar(); }).observe(cv);
     sembrar();
-    if (reducido) { raiz.classList.add('llegaron'); pintarVerde(1e6, -1e6); }
+    if (reducido) raiz.classList.add('llegaron');
     if (!reducido) {
       let visible = false, pedido = false, ult = -1;
       const pintar = () => {
         pedido = false;
-        const r = paseo.getBoundingClientRect(), vh = innerHeight, W = r.width, cw = a.offsetWidth;
+        const r = paseo.getBoundingClientRect(), vh = innerHeight, W = r.width, ch = paseo.offsetHeight, cw = ch * 0.6, fw = ch * 1.2;
         const lin = Math.min(1, Math.max(0, (vh * 0.96 - r.top) / (vh * 0.66)));
-        if (Math.abs(lin - ult) < 0.001) return;
+        if (Math.abs(lin - ult) < 0.0005) return;
         ult = lin;
-        // el último 20 % frena
-        const p = lin < 0.8 ? lin : 0.8 + (1 - Math.pow(1 - (lin - 0.8) / 0.2, 2)) * 0.2;
-        const fw = juntos.offsetWidth;
-        const xa0 = -cw * 1.1, xa1 = W / 2 - fw * 0.27 - cw / 2, xe0 = W + cw * 0.1, xe1 = W / 2 + fw * 0.23 - cw / 2;
+        // el paseo acaba al 94 %; su último 20 % frena
+        const tr = Math.min(1, lin / 0.94), p = tr < 0.8 ? tr : 0.8 + (1 - Math.pow(1 - (tr - 0.8) / 0.2, 2)) * 0.2;
+        const jl = W / 2 - fw / 2;
+        const xa0 = -cw * 1.1, xa1 = jl + (LLEGA_A * ch) / 1000 - cw / 2, xe0 = W + cw * 0.1, xe1 = jl + (LLEGA_E * ch) / 1000 - cw / 2;
         const xa = xa0 + (xa1 - xa0) * p, xe = xe0 + (xe1 - xe0) * p;
-        const paso = cw * 0.2, gira = lin > 0.93;
-        a.style.transform = `translateX(${xa.toFixed(1)}px)`; e.style.transform = `translateX(${xe.toFixed(1)}px)`;
-        a.style.backgroundPositionX = `${(gira ? 4 : Math.floor((xa - xa0) / paso) % 4) * 25}%`;
-        e.style.backgroundPositionX = `${(gira ? 4 : Math.floor((xe0 - xe) / paso) % 4) * 25}%`;
-        xaU = xa + cw / 2; xeU = xe + cw / 2; avanceU = lin; // ronda 28: la estela se desvanece con el avance
+        const paso = cw * 0.2, frente = lin >= 0.93;
+        a.style.transform = `translateX(${xa.toFixed(2)}px)`; e.style.transform = `translateX(${xe.toFixed(2)}px)`;
+        a.style.backgroundPositionX = `${(frente ? 4 : Math.floor((xa - xa0) / paso) % 4) * 25}%`;
+        e.style.backgroundPositionX = `${(frente ? 4 : Math.floor((xe0 - xe) / paso) % 4) * 25}%`;
+        // fundido al reposo: los andadores se van y la pose final llega, en el mismo sitio y a la misma escala
+        const f = lin <= 0.965 ? 1 : Math.max(0, 1 - (lin - 0.965) / 0.035);
+        a.style.opacity = e.style.opacity = String(f);
+        juntos.style.opacity = String(1 - f);
+        // la estela
+        pa.x0 = xa0; pa.x = xa; pa.paso = paso * 2; pe.x0 = xe0; pe.x = xe; pe.paso = paso * 2; avanceU = lin;
         raiz.classList.toggle('llegaron', lin >= 0.985);
         if (lin < 0.985) abrir(null);
+        dibujar(performance.now()); despertar();
       };
       const pedir = () => { if (visible && !pedido) { pedido = true; requestAnimationFrame(pintar); } };
       new IntersectionObserver((en) => { visible = en[0].isIntersecting; pedir(); }, { rootMargin: '10% 0px' }).observe(paseo);
@@ -184,22 +236,22 @@ const [A, E] = estudio.personas;
   }
 </script>
 
+
 <style>
   .paseo {
     --ch: clamp(15rem, 34vw, 25rem); /* alto de la celda de cada fotograma (400 px en el original) */
     position: relative;
     height: var(--ch);
-    overflow: clip;
+    /* RONDA 95 · solo se recorta en horizontal: la estela se tiende en el suelo por DEBAJO de sus pies y no puede quedar cortada en seco */
+    overflow-x: clip;
   }
-  .verde {
+  .estela {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(var(--ch) * 1.3);
     pointer-events: none;
-  }
-  .verde.delante {
-    z-index: 2; /* delante de los andadores y de la pose final */
   }
   /* el aviso sale cuando ya se han juntado */
   .aviso {
@@ -237,32 +289,33 @@ const [A, E] = estudio.personas;
     from { transform: scale(0.5); opacity: 0.9; }
     to { transform: scale(1.6); opacity: 0; }
   }
-  /* cada andador: una tira de 5 celdas (4 pasos + girando); el JS elige la celda según lo andado */
+  /* RONDA 95 · cada andador: una tira de 5 celdas de 600×1000 (4 pasos + de frente) con su margen transparente: la celda mide alto × 0,6 y el
+     mismo alto que la pose final; el JS elige la celda según lo andado */
   .andador {
     position: absolute;
     left: 0;
     bottom: 0;
-    width: calc(var(--ch) * 230 / 400);
+    width: calc(var(--ch) * 0.6);
     height: var(--ch);
     background-size: 500% 100%;
     background-repeat: no-repeat;
     /* Regla dura 3: los coloca el JS → por defecto, fuera de la vista */
     transform: translateX(-200%);
-    transition: opacity 0.35s ease;
+    will-change: transform;
   }
-  .andador.a { background-image: url('/media/equipo/andoni.webp'); }
-  .andador.e { background-image: url('/media/equipo/eric.webp'); }
-  /* la pose final: a la MISMA escala que los fotogramas (Eric mide 342 px en su celda de 400 y 487 en la pose final) */
+  .andador.a { background-image: url('/media/equipo/andoni-paso.webp'); }
+  .andador.e { background-image: url('/media/equipo/eric-paso.webp'); }
+  /* la pose final (1200×1000): MISMO alto y mismo borde superior que las celdas; ancho = alto × 1,2, centrada. Su opacidad la lleva el scroll
+     (fundido del 96,5 al 100 %); sin JS o con movimiento reducido, la pone .llegaron */
   .juntos {
     position: absolute;
     left: 50%;
-    bottom: calc(var(--ch) * 4 / 400);
-    height: calc(var(--ch) * 342 / 400);
-    aspect-ratio: 272 / 487;
+    bottom: 0;
+    height: var(--ch);
+    aspect-ratio: 1200 / 1000;
     translate: -50% 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.35s ease;
   }
   .llegaron .juntos {
     opacity: 1;
@@ -281,8 +334,9 @@ const [A, E] = estudio.personas;
       filter 0.5s var(--ease-out-expo);
   }
   /* la pose final va dos veces, recortada por la mitad, para poder retirar a uno cuando se mira al otro */
-  .ma { clip-path: inset(0 54% 0 0); }
-  .me { clip-path: inset(0 0 0 46%); }
+  /* el corte entre los dos, medido en el alfa de la pose final (el hueco más estrecho entre ellos está hacia x = 564 de 1200) */
+  .ma { clip-path: inset(0 53% 0 0); }
+  .me { clip-path: inset(0 0 0 47%); }
   .juntos[data-mira='0'] .me,
   .juntos[data-mira='1'] .ma {
     opacity: 0.3;
@@ -296,8 +350,9 @@ const [A, E] = estudio.personas;
     cursor: default;
     outline-offset: -4px;
   }
-  .q0 { left: 0; }
-  .q1 { right: 0; }
+  /* las zonas de cada uno: solo donde está su figura (la pose final lleva margen transparente: Andoni 354–564, Eric 564–845 de 1200) */
+  .q0 { left: 29.5%; width: 17.5%; }
+  .q1 { left: 47%; width: 23.5%; }
   /* LA NOTA: línea de llamada desde el hombro hacia fuera, y el nombre con su descripción. Mismo recurso que «Sentarse». */
   .nota {
     position: absolute;
@@ -362,7 +417,7 @@ const [A, E] = estudio.personas;
     .q1 .cuerpo { margin: 0; text-align: center; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .andador, .juntos, .mitad, .cuerpo, .hilo path, .aviso { transition: none; }
+    .mitad, .cuerpo, .hilo path, .aviso { transition: none; }
     .pulso::after { animation: none; }
   }
 </style>

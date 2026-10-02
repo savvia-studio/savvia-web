@@ -124,7 +124,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 <p class="detail ficha-cat">{p.cat}</p>
                 <p class="ficha-n font-display">{p.n}</p>
                 <p class="text-aux mt-3 ficha-d">{p.d}</p>
-                <a class="ficha-ver mt-6" href={`/proyectos/${p.slug === 'zernio' ? 'amarra' : p.slug}`}><span>Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5" /></svg></a>
+                <a class="ficha-ver mt-6" href={`/proyectos/${p.slug === 'zernio' ? 'amarra' : p.slug}`}><span>Ver caso de estudio</span><i class="punto" aria-hidden="true"></i></a>
               </div>
             ))
           }
@@ -167,12 +167,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="ui ui-mando" data-mando>
           <svg width="0" height="0" class="absolute" aria-hidden="true"><filter id="goo-estaciones" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="6" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" /></filter></svg>
           <div class="abanico" data-abanico>
-            <span class="blobs" aria-hidden="true"><i class="blob mas-blob"></i>{[0, 1, 2, 3, 4].map((k) => <i class="blob" style={`--i:${k}`} />)}</span>
+            <span class="blobs" aria-hidden="true"><i class="blob mas-blob"></i>{[0, 1, 2, 3].map((k) => <i class="blob" style={`--i:${k}`} />)}</span>
             <button type="button" class="mas" data-mas aria-expanded="false" aria-label="Cambiar de estación">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
             </button>
             <!-- RONDA 65 · la escena invita también a cambiar de estación -->
-            <span class="mas-rotulo detail detail-caps" aria-hidden="true">Cambia la estación</span>
+            <span class="mas-rotulo detail detail-caps">
+              <span aria-hidden="true">Las cuatro estaciones</span>
+              <!-- RONDA 90 · «los altavoces y el modulador de volumen van fuera; algo más integrado con el fondo»: un ecualizador de barras finas pegado al rótulo.
+                   Baila con el nivel real de la música y ES el volumen: arrastrar en horizontal, rueda, flechas; un clic sin arrastrar silencia y devuelve. -->
+              <span class="eq" role="slider" tabindex="0" aria-label="Volumen de la música" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75" data-eq>
+                <span class="eq-barras" aria-hidden="true"><i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i><i style="--k:3"></i><i style="--k:4"></i><i style="--k:5"></i><i style="--k:6"></i><i style="--k:7"></i><i style="--k:8"></i><i style="--k:9"></i><i style="--k:10"></i></span>
+                <b class="eq-pct tabular-nums" aria-hidden="true" data-eq-pct>75</b>
+              </span>
+            </span>
           <div class="grupo" role="group" aria-label="Estación y sonido" inert>
             <button type="button" class="est" data-est="primavera" aria-pressed="false" aria-label="Primavera" style="--i:0">
               <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={IC.primavera} /></svg><span class="rotulo detail">Primavera</span>
@@ -187,10 +195,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
               <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={IC.invierno} /></svg><span class="rotulo detail">Invierno</span>
             </button>
           <!-- RONDA 20 · «dentro del + también ponemos el sonido»: la quinta gota -->
-          <button type="button" class="est" aria-pressed="false" aria-label="Sonido" data-sonido style="--i:4">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" /><path class="ondas" d="M15.5 9a4.2 4.2 0 010 6M18 6.5a7.8 7.8 0 010 11" /><path class="mudo" d="M15.5 9.5l5 5m0-5l-5 5" /></svg>
-            <span class="rotulo detail">Sonido <span data-sonido-estado>off</span></span>
-          </button>
+          <!-- ronda 86: el sonido sale del (+): ahora se apaga en los ALTAVOCES de la mesa -->
           </div>
           </div>
         </div>
@@ -227,7 +232,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 <script>
   import { crearSonido } from '../scripts/sonido-estudio';
-  import { EST, fijarEstacion, estacionActual } from '../scripts/estacion';
+  import { volumenJazz, fijarVolumenJazz, nivel as nivelJazz, temaEstacion, sentarJazz } from '../scripts/jazz';
+  import { EST, estacionDeHoy } from '../scripts/estacion';
 
   const raiz0 = document.querySelector<HTMLElement>('[data-estudio]');
   if (raiz0) {
@@ -241,8 +247,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const sonido = crearSonido();
     // RONDA 65 · «los proyectos no tienen su propia estación, la cambias tú con los botones»: la escena lleva la estación de la web
-    let activo = 0, sentado = false, cargado = false, estManual: string | null = EST[estacionActual()];
-    const estActual = () => estManual ?? EST[estacionActual()];
+    // RONDA 85 · las estaciones viven SOLO aquí (Las cuatro estaciones de Vivaldi): la escena empieza en la de hoy (`?estacion=` la fuerza) y no toca la web
+    const qEst = /[?&]estacion=(otono|invierno|primavera|verano)/.exec(location.search);
+    let activo = 0, sentado = false, cargado = false, estManual: string = qEst ? qEst[1] : EST[estacionDeHoy()];
+    const estActual = () => estManual;
     const ests = $$<HTMLButtonElement>('[data-est]');
 
     // Las láminas se piden al acercarse la sección: primero la de la estación visible.
@@ -308,7 +316,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     new IntersectionObserver((e, o) => e.some((x) => x.isIntersecting) && (cargar(), o.disconnect()), { rootMargin: '900px 0px' }).observe(raiz);
 
     // Fuera de pantalla, el ambiente calla (y vuelve al entrar).
-    new IntersectionObserver((e) => sonido.visible(e[0].isIntersecting), { threshold: 0.15 }).observe(raiz);
+    // RONDA 100 · «al llegar a las cuatro estaciones, que la música cambie, una por estación, según su mood»: con la escena a la vista suena el tema de su estación
+    let escenaSuena = false;
+    const musicaEscena = () => temaEstacion(escenaSuena ? estActual() : null);
+    new IntersectionObserver((e) => { sonido.visible(e[0].isIntersecting); escenaSuena = e[0].isIntersecting; musicaEscena(); }, { threshold: 0.15 }).observe(raiz);
 
 
     // ── EL AIRE DE CADA ESTACIÓN: un detalle sutil en el paisaje, TRAS el cristal. Pocas piezas, pequeñas y lentas.
@@ -467,19 +478,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     let ultRueda = 0;
     $('[data-lista]').addEventListener('wheel', (ev) => { ev.preventDefault(); const t = performance.now(); if (t - ultRueda < 260 || Math.abs(ev.deltaY) < 4) return; ultRueda = t; rodar(ev.deltaY > 0 ? 1 : -1); }, { passive: false });
     ests.forEach((b) => b.addEventListener('click', () => {
-      estManual = b.dataset.est!; cargar(); capas.forEach(pedir); pintar();
-      fijarEstacion(EST.indexOf(estManual as any), 'proyectos'); // RONDA 39: elegir una estación aquí la elige para toda la web (fondo, árbol, raíces)
+      estManual = b.dataset.est!; cargar(); capas.forEach(pedir); pintar(); musicaEscena();
+      // ronda 85: la estación ya no se extiende a la web (antes, ronda 39, fijarEstacion)
     }));
-    // RONDA 65 · si la estación se cambia en otro sitio (el árbol del hero, el icono de la barra), la escena la sigue sin recargar la web del monitor
-    addEventListener('savvia:estacion', (ev) => {
-      const { n, origen } = (ev as CustomEvent).detail as { n: number; origen: string };
-      if (origen === 'proyectos') return;
-      estManual = EST[n]; cargar(); capas.forEach(pedir);
-      capas.forEach((c) => c.classList.toggle('on', c.dataset.capa === estActual()));
-      if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!);
-      ests.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.est === estActual())));
-      sonido.estacion(estActual()); aire.estacion(estActual());
-    });
     // ── EL (+) DE LAS ESTACIONES (ronda 19): abre y cierra el abanico; el filtro gooey solo mientras las gotas se separan o se juntan
     const abanico = $('[data-abanico]'), mas = $<HTMLButtonElement>('[data-mas]'), grupoEst = abanico.querySelector<HTMLElement>('.grupo')!;
     let abierto = false, finGoo = 0;
@@ -551,6 +552,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (si) setTimeout(() => { if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!); }, reducido ? 0 : 1650);
       sonido.fx(si ? 'sentarse' : 'levantarse');
       sonido.foco(si); // ronda 46: sentado, el ambiente se oye como con cascos puestos
+      sentarJazz(si); // ronda 103: y el jazz baja
       if (si) webs[activo].focus({ preventScroll: true });
       else $<HTMLButtonElement>('[data-sentarse]').focus({ preventScroll: true });
     }
@@ -633,7 +635,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
     // RONDA 20 · «savvia se tiene que ver con el color claro» sobre la escena: mientras la sección pasa bajo la barra, html.sobre-escena
     let sobre = false;
-    const mirarBarra = () => { const r = raiz.getBoundingClientRect(); const si = r.top <= 72 && r.bottom >= 72; if (si !== sobre) { sobre = si; document.documentElement.classList.toggle('sobre-escena', si); } };
+    // RONDA 94 · en la paleta clara, mientras la pantalla del titular (ahora en claro) cubre la barra, la barra se queda en tinta
+    const claraP = document.documentElement.dataset.paleta === 'clara';
+    const mirarBarra = () => {
+      const r = raiz.getBoundingClientRect(); let si = r.top <= 72 && r.bottom >= 72;
+      if (si && claraP && !titulo.hidden) { const tr = titulo.getBoundingClientRect(); if (tr.left <= 40 && tr.top <= 40 && tr.right >= innerWidth - 40) si = false; }
+      if (si !== sobre) { sobre = si; document.documentElement.classList.toggle('sobre-escena', si); }
+    };
     addEventListener('scroll', mirarBarra, { passive: true }); mirarBarra();
     if (reducido) { escenario.classList.add('dentro'); titulo.hidden = true; }
     else { addEventListener('scroll', pedirE, { passive: true }); addEventListener('resize', () => { e = -1; pedirE(); }); entrar(); }
@@ -643,12 +651,45 @@ const pad = (n: number) => String(n).padStart(2, '0');
     escenario.addEventListener('pointerleave', () => !sentado && escenario.classList.remove('viva'));
 
     // Sonido: nace con un gesto (este clic) y se recuerda.
-    const bs = $<HTMLButtonElement>('[data-sonido]');
+    // RONDA 86 · la música se apaga y se enciende en los ALTAVOCES (antes, la quinta gota del (+))
+    const eq = $<HTMLElement>('[data-eq]'), eqBarras = [...eq.querySelectorAll<HTMLElement>('.eq-barras i')], pct = eq.querySelector<HTMLElement>('[data-eq-pct]')!;
+    // RONDA 90 · el ecualizador: las barras encendidas = volumen; el nivel real de la música las hace bailar (solo con la escena a la vista)
     const pintarSonido = () => {
-      bs.setAttribute('aria-pressed', String(sonido.activo()));
-      $('[data-sonido-estado]').textContent = sonido.activo() ? 'on' : 'off';
+      const v = volumenJazz(), on = v > 0.01; // ronda 99: el volumen del jazz de la web (Vivaldi, fuera)
+      const n = Math.round(v * eqBarras.length);
+      eqBarras.forEach((l, i) => l.classList.toggle('on', on && i < n));
+      pct.textContent = String(Math.round(v * 100));
+      eq.setAttribute('aria-valuenow', String(Math.round(v * 100))); eq.setAttribute('aria-valuetext', on ? `${Math.round(v * 100)} %` : 'apagada');
+      eq.classList.toggle('muda', !on);
     };
-    bs.addEventListener('click', () => { sonido.alternar(); sonido.estacion(estActual()); pintarSonido(); });
+    {
+      let vistaEq = false, rafEq = 0, lvl = 0;
+      const bailar = (t: number) => {
+        rafEq = 0;
+        if (!vistaEq) return;
+        lvl += (Math.min(1, nivelJazz() * 1.4) - lvl) * 0.3;
+        const on = volumenJazz() > 0.01;
+        eqBarras.forEach((b, i) => {
+          const h = on && !reducido ? 0.18 + lvl * (0.45 + 0.37 * Math.sin(t / 210 + i * 1.7) * Math.sin(t / 530 + i * 0.9)) : 0.14;
+          b.style.setProperty('--h', Math.max(0.12, Math.min(1, h)).toFixed(3));
+        });
+        rafEq = requestAnimationFrame(bailar);
+      };
+      new IntersectionObserver((en) => { vistaEq = en[0].isIntersecting; if (vistaEq && !rafEq) rafEq = requestAnimationFrame(bailar); }).observe(eq);
+    }
+    {
+      let v0 = 0, x0 = 0, movido = false, antes = 0.75;
+      const fijar = (v: number) => { fijarVolumenJazz(v); pintarSonido(); };
+      const actual = () => volumenJazz();
+      eq.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); eq.setPointerCapture(e.pointerId); v0 = actual(); x0 = e.clientX; movido = false; eq.classList.add('arrastra'); });
+      eq.addEventListener('pointermove', (e) => { if (!eq.hasPointerCapture(e.pointerId)) return; const d = (e.clientX - x0) / eq.querySelector('.eq-barras')!.getBoundingClientRect().width; if (Math.abs(d) > 0.03) movido = true; if (movido) fijar(v0 + d); });
+      const soltar = (e: PointerEvent) => { if (!eq.hasPointerCapture(e.pointerId)) return; eq.releasePointerCapture(e.pointerId); eq.classList.remove('arrastra'); if (!movido) { const v = actual(); if (v > 0.01) { antes = v; fijar(0); } else fijar(antes > 0.02 ? antes : 0.75); } };
+      eq.addEventListener('pointerup', soltar); eq.addEventListener('pointercancel', soltar);
+      eq.addEventListener('click', (e) => e.stopPropagation());
+      eq.addEventListener('wheel', (e) => { e.preventDefault(); e.stopPropagation(); fijar(actual() - e.deltaY / 900); }, { passive: false });
+      eq.addEventListener('keydown', (e) => { const v = actual(), m: Record<string, number> = { ArrowUp: 0.05, ArrowRight: 0.05, ArrowDown: -0.05, ArrowLeft: -0.05, PageUp: 0.2, PageDown: -0.2 }; if (e.key in m) { e.preventDefault(); fijar(v + m[e.key]); } else if (e.key === 'Home') { e.preventDefault(); fijar(0); } else if (e.key === 'End') { e.preventDefault(); fijar(1); } });
+    }
+    sonido.pintar = pintarSonido; // el altavoz de la barra también lo cambia
     pintarSonido();
 
     pintar(true);
@@ -1080,12 +1121,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
     padding-block: calc(var(--spacing) * 1);
     color: var(--color-niebla);
     font-size: var(--text-ui);
-    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-    transition: background-size 0.5s var(--ease-out-expo);
+    /* ronda 104 · «quitar el subrayado»: al pasar, solo el punto (y el texto se enciende un poco) */
+    opacity: 0.86;
+    transition: opacity 0.4s var(--ease-out-expo);
   }
-  .ficha .ficha-ver svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.5s var(--ease-out-expo); }
-  .ficha .ficha-ver:hover, .ficha .ficha-ver:focus-visible { background-size: 100% 1px; }
-  .ficha .ficha-ver:hover svg { translate: calc(var(--spacing) * 1) 0; }
+  /* RONDA 103 · «en vez de una flecha, un punto, y cuando haces hover libera una onda»: el punto de savia; al pasar, crece un poco y suelta dos aros (los de las
+     ondas del hero) que se abren y se apagan */
+  .ficha .ficha-ver .punto { position: relative; width: 7px; height: 7px; border-radius: 50%; background: var(--color-coral); transition: scale 0.5s var(--ease-out-expo); }
+  .ficha .ficha-ver .punto::before, .ficha .ficha-ver .punto::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--color-coral); opacity: 0; pointer-events: none; }
+  .ficha .ficha-ver:hover, .ficha .ficha-ver:focus-visible { opacity: 1; }
+  .ficha .ficha-ver:hover .punto, .ficha .ficha-ver:focus-visible .punto { scale: 1.15; }
+  .ficha .ficha-ver:hover .punto::before, .ficha .ficha-ver:focus-visible .punto::before { animation: ver-onda 1.1s var(--ease-out-expo) both; }
+  .ficha .ficha-ver:hover .punto::after, .ficha .ficha-ver:focus-visible .punto::after { animation: ver-onda 1.3s 0.16s var(--ease-out-expo) both; }
+  @keyframes ver-onda { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(4); opacity: 0; } } /* ronda 104: más sutiles (antes 0,9 y ×6,5) */
+  @media (prefers-reduced-motion: reduce) { .ficha .ficha-ver .punto::before, .ficha .ficha-ver .punto::after { animation: none !important; } }
   /* RONDA 66 · «en proyectos destacados, quitamos el navegador» (y con él la píldora «desliza dentro») */
   .cromo,
   .tras-cromo,
@@ -1322,6 +1371,42 @@ const pad = (n: number) => String(n).padStart(2, '0');
     pointer-events: none;
     transition: opacity 0.4s ease, translate 0.5s var(--ease-out-expo);
   }
+  /* RONDA 90 · el ecualizador del rótulo: barras finas de 2 px en la tinta del rótulo; las encendidas son el volumen, las demás, tenues. Es el control. */
+  .mas-rotulo { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 3); }
+  .eq {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    height: 20px;
+    padding: 0 4px;
+    margin: 0 -4px;
+    cursor: ew-resize;
+    pointer-events: auto;
+    touch-action: none;
+    text-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .eq.arrastra { cursor: grabbing; }
+  .eq:focus-visible { outline: 1px solid var(--color-niebla); outline-offset: 2px; border-radius: 4px; }
+  .eq-barras { display: inline-flex; align-items: center; gap: 3px; height: 100%; }
+  .eq-barras i {
+    display: block;
+    width: 2px;
+    height: calc(var(--h, 0.14) * 16px);
+    border-radius: 1px;
+    background: var(--color-niebla);
+    opacity: 0.22;
+    transition: opacity 0.25s ease;
+  }
+  .eq-barras i.on { opacity: 0.85; }
+  .eq.muda .eq-barras i { opacity: 0.16; }
+  .eq-pct { font-weight: 400; min-width: 2.2em; opacity: 0; transition: opacity 0.25s ease; }
+  .eq:hover .eq-pct, .eq.arrastra .eq-pct, .eq:focus-visible .eq-pct { opacity: 0.8; }
+  .abanico.abierto .eq { pointer-events: none; }
+  [data-estudio].sentado .eq { pointer-events: none; }
+  /* en móvil el rótulo no cabe junto al (+): se queda solo el ecualizador (el control) */
+  @media (max-width: 640px) { .mas-rotulo > span:first-child { display: none; } }
   .abanico.abierto .mas-rotulo {
     opacity: 0;
     translate: 8px -50%;
@@ -1438,9 +1523,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     color: var(--color-cacao);
     background: var(--color-niebla);
   }
-  [data-sonido] .ondas { display: none; }
-  [data-sonido][aria-pressed='true'] .ondas { display: inline; }
-  [data-sonido][aria-pressed='true'] .mudo { display: none; }
   /* la etiqueta del botón: sale encima al pasar o enfocar */
   .rotulo {
     position: absolute;

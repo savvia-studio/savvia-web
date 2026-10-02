@@ -2623,6 +2623,641 @@ en mono en el pie.
   fotogramas, local 0.
 - **PUBLICADA (30/09)** a petición de Andoni («sí, publícalo»).
 
+### Ronda 83 · 2026-09-30 · GIRO A LA MÚSICA: «en savvia orquestamos» (en local, rama `musica`)
+- **Andoni (textual, resumido):** «hemos decidido cambiar el rumbo de la web hacia una temática musical: tiene más sentido ya que en savvia orquestamos; todo
+  nace de ese verbo» · HERO: el roble por algo que tenga sentido con orquestar (un director de orquesta; él buscará imagen/vídeo), el haz se queda, H1 «Orquestamos
+  tu web con desarrollo agéntico», H2 sin repetir «orquestar», la carga: «que el usuario tenga que dibujar una nota o tocar unos acordes», fuera las raíces ·
+  SECCIÓN 2: la unión con el hero, algo musical («una onda sonora que se propaga»); el segundo eyebrow «Evita el AI Slop»; titulares de solución con matiz musical;
+  fuera los fondos de Donostia; «savvia agentic: …» pasa a «La partitura de tu web» · DESTACADOS: «perder el mockup con naturaleza me dolería» · SERVICIOS: el
+  «necesites» animado con los tipos de cliente; un instrumento por servicio · LA SAVVIA: «es la partitura de tu web», una ENTRADA de concierto impresa con el estilo
+  de Neety · ERIC Y ANDONI: estela musical; al pasar, el nombre y garabatos «como en el colegio» para parecer directores · FAQ: toque musical · PIE: repensarlo
+  entero · GENERAL: el menú «como altavoces vibrando al son de una canción»; el isotipo en palabras con v «con sentido»; ¿paleta? · Decisiones tras la
+  propuesta de Nilo: «Vivaldi sí, la carga suena, pie A, arranca».
+- **Tesis:** savvia no toca todos los instrumentos: los dirige. La web es una partitura que se interpreta al bajar. Las ESTACIONES se quedan con otro sentido:
+  Las cuatro estaciones de Vivaldi.
+- **Hecho:**
+  · **Hero:** DIRECTOR de espaldas, provisional (`tools/r83/director.cjs`: aguada de tinta en SVG → `public/media/hero/director.webp`, 1200 × 874), pintado por
+    el mismo motor, que ahora lo DIBUJA desde la punta de la batuta (`radial`, opción nueva `sinGota`: el reloj de la carga sin la gota naranja). Una lámina todo
+    el año (sin tinte ni raleo). H1 de Andoni; H2 «Cada agente en su parte. Tu web, a una sola voz.» (la v de «voz», el isotipo). `--roble-w` = alto × 800/583.
+  · **Carga (`Cargador.astro`, reescrita), «toca el acorde»:** pentagrama con el isotipo de clave y un acorde en blanco: el de la estación de la web, el tono de
+    su concierto en Vivaldi (primavera mi mayor · verano sol menor · otoño fa mayor · invierno fa menor), rotulado en la pista. Cada nota se toca (clic, dedo,
+    espacio/intro), SUENA (piano sintetizado con sala: `src/scripts/musica.ts`, nuevo) y hace vibrar su línea; tocar fuera del acorde también suena. Completo:
+    acorde entero con bajo, plica, las líneas se estiran a todo el ancho y la cámara sube al hero; el director se dibuja desde la batuta. Solo la primera vez.
+  · **Fuera** las raíces (`Raices.astro` guardada).
+  · **Dolores (`Dolores.astro`; lo anterior en `tools/retirados/Dolores.r82.astro.txt`):** una CUERDA tensa en tramos rectos; por su punta viaja una onda con el
+    scroll; al llegar a un problema el tramo VIBRA, la tarjeta se dibuja y detrás se escribe a trazo una PARTITURA MANUSCRITA (SVG generado con semilla; sustituye
+    a los óleos de Donostia y ahorra tres contextos WebGL). Con el sonido encendido, cada problema resuelto da una nota. Titulares: «Afinamos contigo.» · «Una
+    obra, no una plantilla.» · «La partitura de tu web.»; eyebrow «Evita el AI Slop.».
+  · **Destacados:** la mesa se queda. El sonido de la escena es el MOVIMIENTO de Vivaldi de cada estación (John Harrison y los Wichita State University Chamber
+    Players, Wikimedia Commons, **CC BY-SA 4.0**; `public/media/sonido/vivaldi/`, 2–3,6 MB, solo con el sonido encendido y solo la estación que suena; fuentes en
+    `tools/fuentes-sonido.md`). Rótulos: «Las cuatro estaciones · Vivaldi», «Primavera · Allegro»… El crédito, en el pie.
+  · **Servicios:** «En función de …» rota: lo que necesites · si tu marca está cambiando · si eres una startup que despega · si tu equipo de marketing no da
+    abasto · si ya tienes estudio y te falta código (PROPUESTA de Nilo). Instrumentos de línea: piano (end-to-end), violín (colaboración), diapasón (consultoría),
+    que «suenan» en la columna activa. Lo incluido, cabezas de nota.
+  · **La partitura (`LaReceta.astro`):** la impresora saca una ENTRADA de concierto con la identidad de Neety (Base cálida, Berenjena, Naranja Core, Bricolage
+    Grotesque, nueva en `astro.config.mjs`): cartel «savvia presenta · neety · La partitura de su web, en cinco movimientos», sala/fila/asiento/función, PROGRAMA
+    (I. Allegro · la marca … Bis · la despedida) y la MATRIZ troquelada con código de barras. Subtítulo «Cada agente lee su parte, y tu web suena como tú quieres.».
+  · **Estudio:** la estela es un PENTAGRAMA que se escribe a su paso, con notas que brotan (fuera la hierba y sus paletas). Al pasar por uno: GARABATOS de
+    bolígrafo azul trazo a trazo — Andoni: pelo a lo Beethoven, bigote, pajarita, batuta · Eric: gafas redondas, pajarita, batuta y notas saliendo de la cabeza.
+  · **FAQ:** «escribiendo…» = tres corcheas que botan; cada respuesta, dos notas suaves (sonido encendido); titular «Pregunta. Te contestamos a dúo.».
+  · **Pie (reescrito; lo anterior en `tools/retirados/Pie.r82.astro.txt`), «FIN DE LA OBRA»:** «¿Tocamos juntos?» + enlaces; un pentagrama a todo el ancho que acaba
+    en la DOBLE BARRA FINAL, con «Contáctanos» escrito sobre él, bajo el foco. Al pasar: la cuerda vibra, se dibuja el CALDERÓN sobre la «á», la palabra se
+    ilumina de izquierda a derecha, sube la píldora con Eric y Andoni y (sonido encendido) suena el acorde de la estación. Línea mono con el crédito de Vivaldi.
+    Fuera el paisaje, el tiempo de cada estación y las flores del pie.
+  · **Menú:** la rejilla de 9 puntos es la de un ALTAVOZ: late a 92 BPM (acento en 1 y 3, onda del centro hacia fuera), en `scale` (el gooey del hover intacto).
+  · **Isotipo en la v (`rich.ts › isoV`, «{{v}}»):** «voz», «Evita», «Vivaldi». La letra sigue para lectores de pantalla.
+  · **Paleta:** sin cambios (Cacao = madera de instrumento, Rosa niebla = papel pautado, Coral = acción). No se toca sin Andoni.
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y
+  390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r83/carga.cjs` (Chrome 1280 y 390, WebKit 1280 y 390): tres notas → sube → hero crecido, sin velo ·
+  `tools/r83/dolores.cjs` (Chrome 1280 y 390, WebKit): tres problemas resueltos y tarjetas vivas · `tools/r83/vivaldi.cjs` (Chrome y WebKit): otoño.mp3 →
+  invierno.mp3 al cambiar, contexto «running» · `tools/r83/pie.cjs`, `estudio.cjs`, `entrada.cjs` (Bricolage cargada), `faq.cjs`: sin errores.
+  **SIN medir:** fluidez en GPU real; la escucha (piano sintetizado y nivel de Vivaldi, 0,3).
+- **Backup:** `../savvia-web.bak-r82-2026-09-30/`. Rama local `musica` (sin commit).
+- **Pendiente de Andoni:** la imagen/vídeo definitiva del director (entra cambiando `director.webp`); los tipos de cliente de Servicios; el nivel de Vivaldi y
+  el timbre del piano; si los garabatos se quedan así; «Hablemos» y «La savvia» del menú; el cal.com; no publicado.
+
+### Ronda 84 · 2026-09-30 · la carga, en cada visita (en local)
+- **Andoni (textual):** «vuelve a poner la carga que se ejecute todo el rato».
+- **Hecho (`Base.astro`):** la carga ya no mira `savvia:carga` (ronda 69: «solo la primera vez»): sale en cada visita y cada recarga. Excepciones: `?carga=0` y los
+  navegadores automatizados (`navigator.webdriver`) que tengan la clave puesta, para que las pruebas de la casa sigan pudiendo saltarla.
+- **Medido:** `tools/r83/cg.cjs` (Chrome, `webdriver` falso = un visitante): carga al entrar y otra vez al recargar · `tools/r83/carga.cjs` OK · `astro check` 0.
+
+### Ronda 85 · 2026-09-30 · sin estaciones (salvo Vivaldi), la nota que cae, la onda de sonido, la estela en forma de onda, «Contáctanos» con notas, sonido en toda la web y la entrada de concierto (en local)
+- **Andoni (textual):** 1 «desligarnos de las 4 estaciones en toda la web: solo en el mockup, haciendo alusión a Las cuatro estaciones de Vivaldi; la canción, más de fondo; el
+  isotipo de Vivaldi más arriba, que parezca la V mayúscula» · 2 «la carga de antes era muy buena: parecía que caía la gota desde arriba y el hero entraba; ¿algo tan orgánico con
+  lo musical?» · 3 «el isotipo, solo en v de titulares y con sentido» · 4 «la cuerda de uno a otro no me gusta: más como una onda de sonido» · 5 «la estela de Eric y
+  yo, un toque musical pero no tan literal» · 6 «el Contáctanos: notas que se vayan tocando y se quede finalmente el Contáctanos» · 7 «poner sonido a la web, toques
+  musicales a lo largo de ella; jugar mucho con el sonido» · 8 «el ticket, una entrada de concierto de verdad, estilo clásico, premium, hecha a medida; quitamos el
+  sonido de que se imprime: otro concepto».
+- **Hecho:**
+  · **1 · estaciones:** la web ya no tiene estación (`html[data-estacion]` fijo en «otono» = el Cacao de siempre; fuera el icono de la barra y el clic del hero). Solo la
+    escena de Proyectos las tiene (empieza en la de hoy; `?estacion=` la fuerza) con su movimiento de Vivaldi, ahora a 0,14 (antes 0,3). «Vivaldi» con el isotipo como V
+    mayúscula (`.v-iso.mayus`).
+  · **2 · carga:** al completar el acorde, la nota de arriba se DESCUELGA (tiembla, se estira) y CAE como la gota (gravedad, estirada con la velocidad, desenfoque, meciéndose);
+    la cámara baja con ella y el hero entra desde abajo; aterriza en la punta de la batuta: suena grave y se abre una ONDA (tres anillos) de la que se dibuja el director.
+    Acorde único (fa mayor), sin rótulo de estación.
+  · **3 · isotipo:** fuera de «voz» y «Evita»; queda en «Vivaldi». Ningún titular de la home tiene hoy una v con sentido.
+  · **4 · dolores:** la ONDA DE SONIDO: forma de onda viva (senoide con envolvente de audio que se desplaza) y su eco en Coral, por un camino curvo; golpe de volumen en cada
+    problema al llegar. Siempre viva mientras se ve (~30 fps).
+  · **5 · estudio:** la estela es una FORMA DE ONDA de audio: barras finas que brotan del suelo a su paso y respiran (fuera el pentagrama y las notas).
+  · **6 · pie:** tras trazarse el pentagrama, una NOTA por letra (una melodía) aparece sobre su letra, suena, se deshace y deja la letra; al final, doble barra y acorde.
+    Las letras llevan su tinta (el degradado de luz, por letra).
+  · **7 · sonido:** `src/scripts/musica.ts` gana el interruptor global (ENCENDIDO por defecto; `savvia:son` = '0' lo apaga; aviso `savvia:son`) e instrumentos: piano, pizzicato,
+    diapasón, arpegio y papel. En la barra, el ALTAVOZ (cuatro barras de ecualizador que bailan; planas apagado) sustituye al icono de estación. Toques: arpa al abrir y
+    cerrar el menú y una nota por opción · cada forma de Servicios suena con su instrumento al mirarla (piano · violín pizzicato · diapasón) · Eric y Andoni, su motivo
+    al pasar · CTA, una nota al mojarse · enlaces del pie, arpa · dolores, una nota por problema · FAQ, dos notas por respuesta · la entrada, su melodía · Vivaldi en la
+    escena. OJO: revierte la regla de la ronda 76 («el sonido encendido al llegar»): nada suena antes del primer gesto, que en la home es tocar el acorde.
+  · **8 · la entrada (`LaReceta.astro` reescrita; la impresora en `tools/retirados/LaReceta.r84-impresora.astro.txt`):** llega en un SOBRE LACRADO berenjena (lacre naranja con el
+    isotipo). Con el scroll (escena fija de 380 lvh): el lacre salta, la solapa se abre, la entrada SUBE por encima del sobre y baja a su sitio mientras el sobre se va; el
+    PROGRAMA se recorre movimiento a movimiento (cada uno suena y su pieza digital aparece al lado); la MATRIZ se rasga por el troquel (sonido de papel) y cae el sello
+    «admitido»; queda el botón a la librería. Entrada: papel verjurado crema, tinta berenjena, filete doble, bandas de GUILLOCHE y roseta generadas, serif de titulares,
+    versalitas en mono, detalles en naranja Neety. Móvil: vertical con la matriz abajo. Sin movimiento: todo quieto y a la vista.
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390): consola
+  limpia, 0 ≥ 400, desborde 0 · `tools/r83/carga2.cjs` (Chrome 1280, WebKit 1280 y 390): la nota cae y aterriza, velo fuera · `partitura.cjs` (Chrome 1280 y 390, WebKit 1280):
+  sobre → entrada → programa → rasgada → sellada · `pie2.cjs`: 11 letras dejadas por sus notas · `vivaldi.cjs` (Chrome y WebKit): encendido de serie tras un gesto, ganancia
+  0,14 · `dolores.cjs`, `estudio.cjs`, `faq.cjs` sin errores. **SIN medir:** la escucha y la fluidez en GPU real (la onda viva de los dolores).
+- **Pendiente de Andoni:** las ilustraciones que está preparando; escuchar el conjunto (¿demasiados toques?); si algún titular debe llevar una v con el isotipo; el director
+  definitivo; cal.com; no publicado.
+
+### Ronda 86 · 2026-09-30 · el director de Andoni con tramado musical, la partitura en su carpeta, instrumentos de un trazo, ritmo en Más proyectos, altavoces, la carga Guitar Hero y el pie con la sala (en local)
+- **Andoni (textual + dos ilustraciones: el director con sus atriles de pantallas, y la sala con el libro de partituras):** 1 «en el hero vamos a probar esto;
+  aplicarle el efecto dithering como tenemos y que vibre como si fuera musical» · 2 «lo de Neety me gusta mucho el estilo, pero que sea una partitura y salga de
+  algo relacionado con la música; un sobre no; y una vez hecha la animación se queda y no la hace a la inversa al subir» · 3 «los iconos de servicios más originales;
+  las líneas de servicio que parezcan una partitura sin sobrecargar; para indicar si ofrecemos el servicio, nuestro isotipo en oscuro» · 4 «en Más proyectos me falta
+  música, ritmo» · 5 «en el mockup, unos altavoces de donde sale la música» · 6 «la carga: al pulsar los acordes se genera nuestro isotipo; más visual, estilo Guitar
+  Hero, que te den ganas de pulsar» · 7 «en el footer, la imagen del libro integrada con el dithering; y el contacto, que las propias letras sean las notas».
+- **Hecho:**
+  · **1 · hero:** el DIRECTOR de Andoni (`tools/r85/director-andoni.webp` → recortado a la figura: `public/media/hero/director.webp`, 1490 × 1105, batuta en 0,632 · 0,02)
+    pintado por el motor en modo lámina entera con la opción nueva `tramado` (`estela.ts`): Bayer 4×4 en celdas de 2 px, 7 niveles, y a cada pulso (92 BPM) un
+    ANILLO sale de la batuta y desplaza el umbral de la trama: el dithering vibra en ondas. Medido: 18 % de los píxeles cambian en 250 ms.
+  · **2 · la partitura (`LaReceta.astro` reescrita; el sobre en `tools/retirados/LaReceta.r85-sobre.astro.txt`):** una CARPETA DE PARTITURAS de piel berenjena, atada con un
+    cordón naranja y el isotipo grabado. Con el scroll: el cordón cae, la tapa se abre como un libro y queda la PARTITURA (portada clásica + cinco movimientos, cada
+    uno con su pentagrama de notas generado); los movimientos suenan y se encienden uno a uno con su pieza digital al lado; al final se FIRMA (la v de savvia a pluma,
+    «dir. savvia») y aparece la doble barra. Todo cuelga del avance MÁXIMO: al subir no se deshace (medido: clases y apertura intactas tras volver).
+  · **3 · Servicios:** instrumentos de UN TRAZO rematados en el punto Coral: piano de cola (sus teclas se hunden en arpegio), violín (sus cuerdas vibran), diapasón (emite
+    ondas). La tabla, partitura sutil: barras de compás entre formas y doble barra final. Lo incluido: el ISOTIPO en Cacao.
+  · **4 · Más proyectos:** las piezas entran A COMPÁS (92 BPM) con su nota; el mosaico se TOCA como un xilófono al pasar el puntero; la cuadrícula de hechos releva cada
+    12 pulsos con un tic. (Ideas para más ritmo visual, si no basta: ver respuesta a Andoni.)
+  · **5 · altavoces:** dos monitores de estudio de nogal (SVG) sobre la mesa, a los lados del monitor; sus conos laten con el nivel REAL de lo que suena (AnalyserNode en
+    `sonido-estudio.ts › nivel()`) y en los golpes fuertes sueltan una nota que sube (una cada 1,1 s como mucho).
+  · **6 · carga (`Cargador.astro` reescrita; el acorde en `tools/retirados/Cargador.r84-acorde.astro.txt`):** un MÁSTIL de tres carriles en perspectiva que bajan desde el
+    isotipo hasta tres dianas; notas brillantes con estela que llegan a 92 BPM; se pulsa (clic, toque, A S D, flechas, espacio) cuando cruzan la diana: suena, saltan
+    chispas y la plumada DIBUJA un tramo del isotipo; fallar no penaliza. Seis aciertos: el isotipo brilla, suena el acorde y de su BOLA cae la nota a la batuta (como
+    la gota), la cámara baja, se abre la onda y el director se dibuja. Medido con un jugador automático: ~8–10 s de juego en Chrome y WebKit, 1280 y 390.
+  · **7 · pie:** la SALA del libro (`public/media/pie/sala.webp`) detrás del último sistema, pintada por el motor con el tramado musical desde la partitura abierta, fundida
+    con la noche. «Contáctanos»: las propias LETRAS son las notas: cada una entra a la altura de su nota con su plica y suena; al final bajan juntas a la línea (acorde).
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390):
+  consola limpia, 0 ≥ 400, desborde 0 · `juego.cjs`, `partitura.cjs` (con vuelta arriba), `pie2.cjs`, `altavoces.cjs` (vib 0,48–0,81, notas), `vibra.cjs` sin errores.
+- **Pendiente de Andoni:** si el director va más grande (hoy manda el titular: 248 px de alto a 1280 × 720); más ilustraciones; escucha general; cal.com; no publicado.
+
+### Ronda 87 · 2026-09-30 · director soñado, puntos que laten, altavoces de Blender, carga corta con el isotipo que cae, iconos a mano, cinta sonora, garabatos de director y pie en capas (en local)
+- **Andoni (textual + imagen de referencia de la estela: una cinta de líneas finas, amarillo → naranja, sobre negro):** «el director más como el árbol, más difuminado, no tan
+  literal, más imaginativo; los puntos de detrás también afectados por la música» · «los altavoces mucho más realistas y que puedas apagarlos para quitar la música; el
+  sonido de quitar la música sale de las 4 estaciones» · «Más proyectos no hacen ruido al entrar, solo al hover» · «la carga más corta; que caiga el isotipo, no una nota;
+  que del isotipo salgan ondas de sonido que generan la vida en la web» · «La savvia es la partitura de tu web no me acaba de convencer: ¿cómo mostrar que te damos una
+  librería, relacionado con música?» · «iconos de servicios como dibujados a mano» · «la estela, como la imagen; y lo que se nos dibuja, más de director de orquesta» ·
+  «el footer: bajar el Contáctanos para que se vea todo en oscuro sin cortes con la sección anterior, y el fondo con capas de profundidad».
+- **Hecho:**
+  · **Director:** `tools/r85/director-sueno.py` suaviza la lámina (pincelado: mediana + desenfoque), la deshace en ESTELAS horizontales a jirones y rompe el canto con
+    ruido (los atriles se disuelven); el motor vuelve al modo del roble (hundido en la noche, semitono en los cantos, halo) con el tramado musical. La original, en
+    `public/media/hero/director-andoni.webp`. **Puntos del recuadro:** lienzo propio; a cada pulso (92 BPM) un anillo sale de la batuta y los agranda, y cualquier nota que
+    suena en la web (`musica.ts › golpe()`) los enciende.
+  · **Altavoces:** modelados y renderizados en Blender (`tools/blender/altavoz.py`, Cycles: nogal con veta y barniz, frente negro, woofer con suspensión y tapa, tweeter
+    de cúpula, tornillos, piloto; luz cálida de la ventana) → `public/media/estudio/altavoz-{izq,der}.webp` + la capa de conos (`cono-*`) que late con el nivel real.
+    Son BOTONES: pulsar = Vivaldi on/off (`savvia:vivaldi`, aparte del sonido de la web). Fuera el sonido del (+) de las estaciones.
+  · **Más proyectos:** entran a compás, sin sonido; suenan solo al pasar el puntero.
+  · **Carga:** 4 notas (antes 6), viaje de 1,35 s, espera y caída más cortas (~3,7 s de juego medido). Cae el PROPIO ISOTIPO (encogiéndose, con brillo) y al posarse en la
+    batuta suelta cinco ondas de sonido que se abren por el hero y de ellas se dibuja el director.
+  · **Servicios:** iconos «a mano»: cada trazo repasado dos veces y el dibujo con un filtro de temblor de pulso (#a-mano).
+  · **Estudio:** la estela es una CINTA de 46 líneas finas que se retuerce (suman luz al juntarse), amarillo junto a ellos → naranja → rojo hacia el borde, ondulando.
+    Garabatos de director: un BRAZO dibujado que sube con la batuta (y sus líneas de movimiento), frac con faldones en cola de golondrina, pajarita, pelo, gafas, notas.
+  · **Pie:** ocupa la pantalla (100 lvh) con «Contáctanos» abajo; fondo en CAPAS (la sala desenfocada al fondo, la sala tramada en medio, un velo de noche arriba sin
+    corte y abajo) que se apartan a su ritmo con el scroll y el ratón.
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390): limpio,
+  0 ≥ 400, desborde 0 · `juego.cjs` (Chrome 390, WebKit 1280): ~3,7 s y hero crecido · `altavoces.cjs` (Chrome y WebKit): late, suelta notas, apagado → ganancia 0,007,
+  encendido → 0,12 · `vibra.cjs`: 18 % de píxeles cambian en 250 ms · `pie2.cjs`, `estudio.cjs` sin errores.
+- **Pendiente de Andoni:** el concepto de «La savvia es la partitura de tu web» (propuestas en la respuesta); no publicado.
+
+### Ronda 88 · 2026-09-30 · el archivo de la orquesta, magia de las manos, sombra sonora, ondas más suaves y altavoces integrados con su interruptor (en local)
+- **Andoni (textual):** «vamos con la 1» (el archivo de la orquesta) · «en el hero, vamos por buen camino: las ondas de sonido más suaves; que desde las manos del
+  director salga como magia hacia los atriles; y algo de naturaleza, o que lo parezca, por detrás de los atriles, muy sutil» · «al hacer scroll queda como cortado el
+  director: proyectar su sombra hacia ese lado, como ondas sonoras que se mueven, y de ellas sale la línea que une los problemas» · «en el footer, las ondas más
+  tranquilas» · «los altavoces quedan muy pegote: que encajen con la escena y que tengan un botón de apagar y encender, no que clicar encima sea el botón».
+- **Hecho:**
+  · **La partitura = EL ARCHIVO DE LA ORQUESTA (`LaReceta.astro`; la versión anterior en `tools/retirados/LaReceta.r86-carpeta.astro.txt`):** la carpeta se abre y la
+    partitura general de Neety queda arriba (maquetada a 42 rem y escalada a su caja: nunca se sale de la hoja); debajo, CINCO ATRILES dibujados a mano, uno por agente
+    (`home.ts › receta.tiras[].agente`: diseño · código · contenido · documentación · tu equipo). Movimiento a movimiento, su PARTICELLA sale de su fila en la partitura
+    y vuela a su atril con lo que ese agente lee de la librería de Neety (tokens, el arnés, los pasos, el diff, el botón a la librería); suena al posarse. Lo hecho se
+    queda hecho. Móvil: los cinco atriles en fila, cada hoja con su agente y su movimiento.
+  · **Hero:** ondas más suaves (tramado a 46 BPM y fuerza 0,55, anillos más anchos; los puntos del recuadro igual; las ondas del aterrizaje más tenues y lentas). MAGIA: un
+    lienzo con motas de luz cálida que salen de cada mano y viajan en curva hasta la pantalla de sus atriles, que se encienden al llegar. NATURALEZA: el roble de antes,
+    muy tenue (22 %), desenfocado y enmascarado, detrás de los atriles.
+  · **Sombra sonora (`Dolores.astro`):** bajo el hero, justo donde queda cortado el director, 14 líneas que ondulan (anchas arriba, cada vez más estrechas) y de su punta
+    nace la onda que une los problemas.
+  · **Pie:** el tramado de la sala a 24 BPM y fuerza 0,4.
+  · **Altavoces:** re-renderizados a contraluz (menos relleno delante, filo cálido de la ventana), más pequeños y un poco más al fondo, etalonados con la escena (sepia
+    suave, contraste bajo) y con sombra de contacto. Ya no son botones: el INTERRUPTOR es una píldora de cristal sobre la mesa («⏻ Vivaldi»), junto al altavoz derecho.
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · build OK · `tools/verify.cjs` en /, /proyectos y /proyectos/multiverse (Chrome y WebKit, 1280 y 390): limpio,
+  0 ≥ 400, desborde 0 · `partitura.cjs` (Chrome 1280 y 390, WebKit 1280): cinco partes en sus atriles y nada se deshace al subir · `altavoces.cjs`: el interruptor apaga
+  (ganancia 0,007) y enciende (0,12) · `juego.cjs`, `dolores.cjs`, `pie2.cjs`, `vibra.cjs` sin errores.
+- **Pendiente de Andoni:** verlo todo en local; no publicado.
+
+### Ronda 89 · 2026-10-01 · carga sin saltos, hero en tres capas con magia y ondas, manifiesto con capitular, selección musical, altavoces integrados con rueda de volumen y la partitura como og.mp4 (en local)
+- **Andoni (textual, resumido):** 1 «la animación de carga: el primer frame sale el isotipo de una forma rara; al terminar de pulsar las notas el isotipo tiene un frame
+  donde aparece a la derecha antes de caer» · 2 «el hero, más chicha: te paso un fondo [terraza al atardecer], muy sutil; las partes en capas: el director primero,
+  luego atriles y luego fondo; de las manos del director sale magia [vídeo del mago] que pasa por cada ordenador y los activa; cada vez que se activa uno genera
+  una onda que se propaga por todo el fondo, incluidos los puntos (quitamos las ondas actuales, que no tienen un porqué); la magia vuelve al director y empieza
+  de nuevo» · 3 «después del hero el director queda cortado» · 4 «la segunda sección, un texto centrado pero alineado a la izquierda, estilo manifiesto; la V
+  inicial, nuestro isotipo, como las capitulares de los libros antiguos» + el texto · «y en toda la web, al seleccionar un texto, que pase algo musical» ·
+  5 «en proyectos destacados, unos altavoces que no parezcan un pegote, integrados con el mockup; y controlar el volumen con algo como el vídeo [una rueda]» ·
+  6 «la partitura de tu web, muy parecido a og.mp4 pero con relación con la música».
+- **Hecho:**
+  · **1 · `Cargador.astro`:** el isotipo no existe hasta estar colocado (`visibility` hasta `.en-marcha`: antes salía a su tamaño por defecto en la esquina); al
+    resolver, su sitio pasa a transformación en el mismo fotograma (antes se quitaban `left/top` y la transformación llegaba 0,5 s después). Medido: salto máximo
+    entre fotogramas 10–15 px (la propia caída) en Chrome y WebKit, 1280 y 390.
+  · **2 · `Hero.astro` (anterior en `tools/retirados/Hero.r88.astro.txt`):** la lámina partida en CAPAS (`tools/r89/capas.py`: máscara de persona de rembg
+    `u2net_human_seg` + la batuta + las piernas) → `director.webp` y `atriles.webp`, misma caja, cada una con su «sueño» y su paralaje; detrás, el FONDO de Andoni
+    (`fondo.webp`, terraza) al 20 %, pintado también por el motor y fundido con la noche. Las tres nacen desde la batuta. LA MAGIA (lienzo en todo el hero):
+    cometa dorado con cabeza de estrella, polvo que titila y cae y estrellas de cuatro puntas (el mago); batuta → atril 4 → 3 → 2 → 1 → mano izquierda →
+    batuta, descanso de 1,8 s; cada atril se ENCIENDE (luz fría y una franja que lo barre) y suelta una ONDA (`estela.ts › onda()`, uniform `OW[4]`: anillo que
+    sube la trama y desplaza la pintura) que recorre director, atriles, fondo y la retícula de puntos; con el sonido encendido, una nota por atril. Fuera los
+    pulsos a tempo del tramado y de los puntos (los puntos ya no se repintan si no pasa nada). La carga, al posarse, manda la misma onda (`savvia:onda`).
+    `--roble-h` 100lvh − 23rem (escritorio, 352 px a 720) y 17rem en móvil: la escena pide sitio.
+  · **3:** la escena se funde por abajo (máscara del 76 % al 100 %) y al bajar el director se hunde despacio en la niebla (`--baja`), los atriles menos, el fondo casi nada.
+  · **4 · `Manifiesto.astro` (nuevo; `Dolores.astro` queda guardada):** columna centrada de 46 rem, Family a `text-h3`; la CAPITULAR: el isotipo en Coral en un
+    recuadro de doble filete con volutas y un pentagrama que se enrosca por detrás con sus notas; se DIBUJA al llegar (filetes y pauta a trazo, la v con la plumada
+    de la carga, notas al final, arpegio suave) y el texto la rodea cuatro renglones. Las palabras se ENTINTAN con el scroll. «Savvia Agentic» → «savvia agentic».
+    **Selección (`src/scripts/seleccion.ts`, en toda la web):** al arrastrar suenan cuerdas pulsadas que suben y bajan por la pentatónica; al soltar, suben notas
+    (♪ ♫) del final de la selección; la selección, en savvia.
+  · **5 · `Proyectos.astro` + `sonido-estudio.ts`:** altavoces más pequeños y al fondo, ETALONADOS (negros levantados al marrón, contraste y nitidez de la foto), con
+    el filo del atardecer por detrás (silueta como máscara), reflejo en el barniz y sombra de contacto. LA RUEDA sustituye al interruptor: pomo oscuro con marca
+    coral y anillo de 27 puntos que se encienden (y laten con lo que suena); arrastrar (arriba/derecha = más), rueda del ratón, flechas/Inicio/Fin; un clic silencia y
+    devuelve; 0 = música apagada; el valor sale al pasar. `fijarVolumen()` / `volumen()` (se recuerda: `savvia:vivaldi-vol`).
+  · **6 · `LaPartitura.astro` (nuevo; `LaReceta.astro`, el archivo de la orquesta, queda guardada):** la composición de og.mp4: a la izquierda lo que entra (10
+    piezas), en el centro la CARPETA «La partitura de tu web» con un pentagrama que se va escribiendo y la firma debajo, a la derecha lo que sale (6). Los hilos
+    son CUERDAS que convergen como en el puente de un violín: los agentes (Claude · Codex · Diseño · Tu equipo, cursores con etiqueta como en el vídeo) tocan una
+    pieza, la cuerda vibra y suena (pizzicato, una nota por cuerda), una NOTA de su color viaja a la partitura, que la escribe y se perfila de ese color, y otra
+    sale a lo que se publica. Móvil: de arriba abajo. Movimiento reducido: quieta.
+- **Medido:** `astro check` 0 errores · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400,
+  desborde 0 · `tools/r89/juego.cjs` (Chrome 1280 y 390, WebKit 1280 y 390): isotipo oculto hasta colocarse, sin salto al resolver, magia con atriles encendidos ·
+  `tools/r89/mesa.cjs`: rueda 75 → arrastrar 38 (ganancia 0,135 → 0,035) → rueda del ratón 54 → clic 0 → clic 54 · `tools/r89/partitura.cjs` (Chrome 1280 y 390,
+  WebKit 1280): piezas tocadas y notas escritas, desborde 0 · `tools/r89/manifiesto.cjs` · `tools/r89/seleccion.cjs` (Chrome y WebKit): 4 notas al soltar.
+  **SIN medir:** fluidez en GPU real (tres lienzos del motor en el hero en vez de uno) y la escucha.
+- **Pendiente de Andoni:** verlo; el copy del manifiesto va tal cual salvo «savvia agentic» en minúscula; las piezas de la partitura (qué entra y qué sale) son de
+  Nilo; los dolores salen de la home (¿vuelven en otra forma?); no publicado.
+
+### Ronda 90 · 2026-10-01 · magia entre capas, fondo en el recuadro, estilo papel a prueba, reflejo que escribe la V caligráfica, letras que forman Proyectos, partitura de verdad, volumen integrado, niebla, ondas al seleccionar, pie con color, Servicios a mano y Lenis (en local)
+- **Andoni (textual, resumido):** 1 «la magia tiene que parecer que pasa entre los elementos; no sé si darle este estilo [v0.mp4: llama de etiquetas de papel con palabras] al director y
+  ordenadores; el fondo mucho más sutil y sin salirse del recuadro» · 2 «antes de la segunda sección, que se vea el reflejo del director y que de él salga algo que
+  genere el manifiesto; la V del isotipo con esta estética [captura: capitular caligráfica con lazo]» · 3 «la partitura: que lo del medio parezca más una partitura y que
+  cada acción muestre lo que hace de manera realista» · 4 «los altavoces y el modulador de volumen, fuera; algo más integrado con el fondo» · 5 «fuera los dibujos al pasar
+  por Eric y Andoni; una estela muy orgánica y mimetizada» · 6 «al destacar textos, que generen ondas» · 7 «al terminar de leer la segunda sección, que desde esas letras
+  pase algo y generen la tercera» · 8 «iconos de servicios hechos a mano, imperfectos; la tabla como antes con un punto; "necesites" se tacha y debajo salen las opciones» ·
+  9 «al llegar al footer, animación de cambio de color» · (a media ronda) «meter un smooth scrolling como Lenis, cerciorándose de que no genere problemas».
+- **Hecho:**
+  · **1 · `Hero.astro`:** la magia en DOS PLANOS dentro de la caja (entre atriles y director, y delante): va a las pantallas y cruza por DETRÁS de su espalda; sale de y vuelve
+    a sus manos por delante. El fondo, dentro del recuadro (misma caja que el marco, al 10 %). **`?estilo=papel`** (`src/scripts/papel.ts`, prueba): director y atriles
+    hechos de etiquetas de papel con palabras de savvia (color de la lámina posterizado, apiladas de oscuro a claro, tiemblan a 6 fps, nacen desde la batuta y las ondas las levantan).
+  · **2 · `Manifiesto.astro`:** el REFLEJO del director y los atriles bajo el hero (al revés, desenfocado, ondas de agua con feTurbulence animado); de la pantalla reflejada sale
+    la magia, baja en curva hasta la bola de la v y la capitular se escribe. LA V: el isotipo en la tinta del texto, sin recuadro, más alto que la línea y apoyado en ella, con un
+    LAZO de pelo a la izquierda que se dibuja (como la captura). Fuera filetes, volutas y pentagrama.
+  · **7:** las letras de «Eso es savvia agentic…» se sueltan con el scroll y vuelan a formar el titular de Proyectos (lienzo fijo; atado al scroll, ida y vuelta).
+  · **3 · `LaPartitura.astro`:** el centro es una HOJA de partitura (papel, «Allegro con criterio», título, «dir. savvia») con SISTEMAS: cada pieza tocada escribe uno con el nombre
+    de la parte (como un instrumento), sus notas en el color del agente y lo que de verdad queda escrito (objetivo/KPI, la frase de posicionamiento, chips de voz, logo y
+    paleta, mood, el botón real, guías ✓/✗, tokens, fotos, una landing). Seis como mucho; empieza con tres.
+  · **4 · `Proyectos.astro` (agente, revisado):** fuera altavoces y rueda; un ECUALIZADOR de 11 barras dentro del rótulo «Las cuatro estaciones · Vivaldi» que baila con la música
+    y es el control de volumen (arrastrar, rueda, teclado, clic = silencio).
+  · **5 · `Estudio.astro`:** fuera los garabatos (en `tools/retirados/Estudio.r89.astro.txt`); la estela es una NIEBLA muy tenue del claro de la paleta que nace en sus pies y se deshace hacia atrás.
+  · **6 · `seleccion.ts`:** al seleccionar, anillos bajo el puntero con cada cuerda y tres ondas grandes al soltar (también llegan a las capas del hero). Fuera las notas que subían.
+  · **8 · `Servicios.astro` (agente, revisado):** iconos a mano trazo a trazo (más grandes), tabla sin barras de compás y con un punto por celda, «necesites» se tacha y salen las cuatro opciones.
+  · **9 · `Pie.astro`:** `overflow-x: clip` (el `hidden` de la ronda 83 recortaba la gota de la transición líquida; la trampa de la ronda 26).
+  · **Lenis 1.3.26 (`src/scripts/suave.ts`):** `autoToggle` (se para solo con la carga, el menú y sentado), `allowNestedScroll`, `anchors`, `prevent` en el dial, el ecualizador, la
+    carga, los diálogos y la pantalla del monitor; CSS propio SIN su regla `iframe { pointer-events: none }` (mataría la web del monitor). Sin Lenis: `?lenis=0`, movimiento
+    reducido y pantallas táctiles.
+- **Medido:** `astro check` 0 errores · `astro build` OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, desborde 0 · `tools/r90/lenis.cjs`: con Lenis
+  (Chrome) sentado + rueda sobre el monitor = 0 px de página y Lenis parado; menú abierto + rueda = 0 px; tras cerrar, la rueda vuelve; fotogramas >20 ms 0,4 % con Lenis frente a 1 %
+  sin él (p90 16,7 en ambos); WebKit igual de correcto (3,4 % lentos) · `tools/r90/vuelo.cjs`: 41/41 letras del titular llegan y 50/50 vuelven al subir · `tools/r90/seleccion.cjs`
+  (Chrome y WebKit) · `tools/r90/volumen.cjs` · `tools/r90/servicios.cjs` · `tools/r90/pie.cjs` · `tools/r89/juego.cjs` sin regresión.
+- **Pendiente de Andoni:** ¿estilo papel sí o no? (`?estilo=papel`); los fragmentos de la partitura son de Nilo; Lenis queda puesto (si molesta, se quita en una línea); no publicado.
+
+### Ronda 91 · 2026-10-01 · el papel de serie (rápido, con detalle y magia musical), paleta clara a prueba, el manifiesto sale de los papeles, transición más tarde, la partitura de Little Plains y el papel de Servicios (en local)
+- **Andoni (textual, resumido):** 1 «me mola el estilo papel, pero va muy ralentizada la web; más detalle para que se aprecie que es un director de orquesta; la magia,
+  que se asocie con música (si no parece un mago); los colores, que se mimeticen con el fondo; el fondo del director lo quitamos» · 2 «probar una versión donde el hero va
+  en light mode» con su paleta clara (#F7F7F5 · #241C19 · #E4EAF0 · #362304 · #FF616B · #96BFE6 · #FFF59E) · 3 «con papeles, al pasar a la segunda, que de esos papeles
+  salga el manifiesto» · 4 «la transición de la segunda a la tercera, algo más tarde para leer bien» · 5 «la partitura de tu web: conseguir esto:
+  agentic.littleplains.com/embeds/hero» · 6 «los papeles del hero, por la web: en Servicios, lo que necesites es un papel del que salen startups, SaaS, agencias…».
+- **Hecho:**
+  · **1 · `src/scripts/papel.ts` (reescrito) + `Hero.astro`:** el papel es el estilo de serie (`?estilo=pintura` = el de antes). Medido con la CPU ×4: 31,5 fps y picos de 1,2 s →
+    59 fps y máximo 33 ms: cada etiqueta se pinta UNA vez en un atlas y luego solo se coloca; el temblor son tres composiciones a 6 fps; una onda solo levanta su anillo.
+    Detalle: láminas NÍTIDAS (`director-nitido.webp`, `atriles-nitido.webp`, `tools/r89/capas.py`), etiquetas más pequeñas y densas donde hay contorno, la batuta como tira
+    de papel; colores posterizados y fundidos con el fondo. Fuera la terraza. LA MAGIA ES MÚSICA: estela = cinta de pentagrama (cinco líneas finas), cabeza = una nota que
+    brilla, lo que suelta son corcheas y negras. (Pillado: Safari no tiene `requestIdleCallback`; el papel no se pintaba en WebKit.)
+  · **2 · `?paleta=clara`:** tokens en `global.css` (base y hero en Neutro claro con Tinta cálida; `surface-light` Gris azulado; `surface-dark` Tinta cálida con señales en
+    Cítrico; Servicios en Azul salvia); la barra trata lo no oscuro como claro; carga, puntos, magia (sin suma de luz) y vuelo de letras con su tinta.
+  · **3 · `Manifiesto.astro`:** cada palabra llega como una etiqueta de papel que se suelta del director y se posa (atado al scroll, aterriza antes de la zona de lectura; si el
+    director ya quedó arriba, cae desde justo encima de su palabra). En papel no hay reflejo.
+  · **4:** el vuelo de letras hacia Proyectos empieza con Proyectos al 45 % de la pantalla (antes, al asomar).
+  · **5 · `LaPartitura.astro` (agente, revisado; la anterior en `tools/retirados/LaPartitura.r90.astro.txt`):** el guion de la referencia a 92 BPM (20 tiempos, 13 s) con un
+    solo reloj y una cámara: póster → cascada de entradas → zoom a las entradas, cuatro cursores editan → la abren → ×40 dentro: la LIBRERÍA (árbol en español, `voz.md`
+    con sus principios subrayados, `Insignia.tsx` + `tokens.css`, `direccion-de-arte.md` y la página «Plazas para los primeros socios» construida pieza a pieza, «Publicar»)
+    → sale volando y lo que se publica se construye a compás. Copy en `home.ts › partitura.libreria`.
+  · **6 · `Servicios.astro`:** «necesites» es una etiqueta de papel; se tacha y de ella salen volando seis etiquetas de cliente (`servicios.clientes`).
+- **Medido:** `astro check` 0 · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, desborde 0 · `tools/r91/perf.cjs` (hero, CPU ×4):
+  papel 58–59 fps, pintura 60, clara 59 · `tools/r91/partitura.cjs` (agente): 0/180 fotogramas lentos en Chrome 1280/390 y WebKit · `tools/r91/clara.cjs` (Chrome y WebKit) ·
+  `tools/r91/papeles.cjs` · `tools/r90/vuelo.cjs` 41/41 y 50/50 · `tools/r90/lenis.cjs` sin regresión · `tools/r89/juego.cjs` (WebKit).
+- **Pendiente de Andoni:** ¿la paleta clara se queda?; los clientes de Servicios y el copy de la librería son de Nilo; en móvil el texto dentro de la librería queda a 8–9 px;
+  no publicado.
+
+### Ronda 92 · 2026-10-01 · las dos paletas, papeles del collage al manifiesto, ondas de frecuencia, pop en la clara, la V pegada, entradas de concierto, partitura de Neety, pie de palabras y bocadillo (en local)
+- **Andoni (textual, resumido):** 1 «seguimos con las 2 paletas; la clara, que se vean bien detalles como la animación de carga» · 2 «los papeles salen de la ilustración del
+  hero y se convierten en el minimanifiesto; más rápido para que no distraiga» · 3 «en la transición a la tercera ves su texto antes de que se convierta en ese titular» ·
+  4 «lo que sale del mago, no tan literal musical: ondas de frecuencia» · 5 «en el hero claro, director y ordenadores con colores más pop, estilo wepresent.wetransfer.com» ·
+  6 «el sonido de arriba, ondas de frecuencia y sin tooltip» · 7 «la V, el isotipo sin florituras y el texto más pegado: que parezca parte del texto» · 8 «"necesites", una entrada
+  al concierto y pegadas salen las demás; los iconos de servicios con el estilo del isotipo» · 9 «la partitura, más nuestro estilo y la web que se crea, la de Neety» ·
+  10 «el fondo del footer con el estilo del hero, palabras que lo conforman» · 11 «de la tilde de Contáctanos sale un bocadillo de cómic elegante con agendar reunión».
+- **Hecho:**
+  · **1 · clara:** la carga (mástil, carriles, dianas, notas) en la tinta de la paleta (`--tinta-carga`, antes Rosa niebla fijo).
+  · **2 · `Manifiesto.astro` + `papel.ts › muestras()`:** cada palabra arranca de una etiqueta REAL del collage del director (sitio, tamaño, giro y color) y vuela en un 11 % de pantalla.
+  · **3:** cada letra del titular de Proyectos espera oculta a la suya también con p = 0.
+  · **4 · `Hero.astro`:** la estela son dos senos de frecuencia muestreados del propio recorrido (curva lisa), más amplios junto a la cabeza; en cada atril, AROS de frecuencia
+    (círculos que ondulan en su borde). Dos intentos previos se leían como electricidad (estela por fotogramas y chispas sueltas): fuera.
+  · **5 · `papel.ts` (`pop`):** en la clara, cada etiqueta toma un color pop por matiz y tono (capa coral/salmón, piel salmón, camisa mantequilla, peanas oro, pantallas
+    lavanda/salvia, pelo y sombras en tinta, toques de lima).
+  · **6 · `Nav.astro`:** el sonido son dos senos que corren; en silencio, una línea. Sin rótulo.
+  · **7:** la V sin lazo; el texto entra bajo su brazo (margen −1,85 em): «oz» junto al trazo fino.
+  · **8 · `Servicios.astro` (agente, revisado):** «necesites» es una ENTRADA de concierto (troquel, muescas, nº, isotipo de sello) que se tacha y de su matriz sale la tira de seis
+    entradas de cliente desplegándose sobre el troquel; iconos redibujados con `plumilla()` (pluma ancha, grueso/fino, bola) y escritos con máscara de trazo.
+  · **9 · `LaPartitura.astro` (agente, revisado; r91 en `tools/retirados/LaPartitura.r91.astro.txt`):** rótulos de partitura con cabeza de nota en vez de cajas; batutas con nombre
+    en vez de cursores; dentro, un CUADERNO abierto: «La partitura de Neety» (sus colores reales con hex, Bricolage + Switzer, espaciados, `.rail-gradient-x`, PillCta, componentes)
+    y el ENSAYO de su hero real (`neety.treseiscero.app/home`) montado pieza a pieza; cierra con la doble barra y «Fine · lista para neety.com». **Switzer** (Fontshare, ITF Free)
+    añadida a `astro.config.mjs` (`--font-switzer`).
+  · **10 · `Pie.astro`:** la sala del pie, hecha de etiquetas de papel (`crearPapel`), fundidas con el fondo.
+  · **11 · `Pie.astro`:** de la tilde de la «á» sale un trazo Coral que hace la cola y dibuja un BOCADILLO redondeado; se llena de cristal y aparecen las caras de Eric y Andoni con
+    «Agenda una reunión · con Eric y Andoni · 30 min»; un puente invisible evita que se cierre al ir de la palabra al bocadillo. Fuera el calderón y la píldora.
+- **Medido:** `astro check` 0 · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, desborde 0 (tras borrar `node_modules/.vite`: Vite servía un
+  Lenis caducado con 504 «Outdated Optimize Dep», solo en desarrollo) · `tools/r90/lenis.cjs` (Chrome y WebKit) sin regresión · `tools/r90/vuelo.cjs` 41/41 y 50/50 · `tools/r91/perf.cjs`:
+  55,5 fps (oscuro) y 57 (clara) con CPU ×4, picos aislados de 67–200 ms · `tools/r92/pie.cjs` (Chrome y WebKit clara) · `tools/r92/carga-clara.cjs` · `tools/r92/partitura.cjs` y
+  `tools/r92/servicios.cjs` (agentes).
+- **Pendiente de Andoni:** en móvil la tira de entradas queda casi en columna; los nº y filas de las entradas son decorativos (de Nilo); no publicado.
+
+### Ronda 93 · 2026-10-01 · pop de verdad en la clara, ondas a compás sin el recuadro, el director que se deshace en el manifiesto, la partitura con Neety grande, la tilde que es el bocadillo y el pie de etiquetas pequeñas (en local)
+- **Andoni (textual, resumido):** 1 «el hero en la versión clara, más colores pop y la ilustración con más contrastes de colores» · 2 «lo que sale de la batuta, un toque más musical sin
+  ser muy literal; y la iluminación de los ordenadores desvela un cuadrado alrededor donde se ve cortada» · 3 «la transición del hero a la segunda no la estamos consiguiendo: del
+  director se tienen que desprender las tarjetas con palabras y conformar el minimanifiesto» · 4 «la partitura: por fuera me gustaba más como estaba antes; al abrirse, mejor como
+  ahora, pero la web de Neety más grande y la librería con menos relevancia» · 5 «el bocadillo tiene que parecer una extensión de la tilde, que la tilde se transforma; ahora
+  parece un pegote» · 6 «el fondo del footer con el estilo del hero pero que se siga apreciando: tarjetitas más pequeñas».
+- **Hecho:**
+  · **1 · `papel.ts › popDe`:** cada zona con LUZ y SOMBRA saturadas de matiz distinto (capa coral → frambuesa → cobalto; camisa limón/amarillo; piel salmón/rosa → naranja;
+    peanas amarillo → naranja; pantallas celeste → lavanda → cobalto), un 10 % de acentos (lima, verde, rosa, cobalto, lavanda, amarillo) y lo oscuro en tinta o cobalto (no
+    agujeros negros). La palabra impresa, en limón sobre lo hondo.
+  · **2 · `Hero.astro`:** la luz del atril era un degradado de radio 0,9 del ancho pintado en un rectángulo más bajo: ahora una elipse que acaba en transparente. La estela: tres
+    senos en proporción de ACORDE MAYOR (4:5:6) cuyo tono sigue una frase de ocho tiempos y cuya amplitud late a 92 BPM (ataque y caída; 1 y 3 más fuertes); a cada tiempo la
+    cabeza suelta un PULSO (anillo fino). En la clara, coral · cobalto · tinta.
+  · **3 · `Manifiesto.astro` + `papel.ts` (`muestras` con índice, `huecos`):** el desprendimiento va atado a la SALIDA DEL HERO (antes, a cada palabra: el director ya no estaba). El
+    collage suelta 138 etiquetas reales, de los pies a la batuta (repartidas entre el 4 % y el 72 % del avance, 0,28 de vuelo cada una), dejando su HUECO recortado en el
+    collage; cada una cae en arco a su palabra creciendo hasta su tamaño y se funde en ella. Las de palabras aún fuera de pantalla esperan bajo el borde. El lienzo del vuelo va
+    por DEBAJO del texto. En papel, el manifiesto arranca a 64 px del hero (sin el hueco del reflejo).
+  · **4 · `LaPartitura.astro` (agente, revisado; r92 en `tools/retirados/LaPartitura.r92.astro.txt`):** por fuera vuelve la r91 (cajas, cursores con píldora, hoja lisa, cámara);
+    dentro el cuaderno r92 con el hero de Neety al 73 % del ancho (996×636 de 1360×720; titular a 52 px) y la librería en una columna de 300 px, tenue; en móvil Neety arriba y
+    la librería en franja. Guion: partes 7,2–9,4 y hero 9–11,5.
+  · **5 · `Pie.astro`:** la «á» se escribe «a» + NUESTRA tilde (la de la Family de prueba caía en Georgia), y la tilde y el bocadillo son la misma forma (180 puntos que se
+    corresponden): al pasar, el acento se estira desde la cola hasta el contorno del bocadillo (0,8 s; la copa al final), se aclara, se vuelve cristal y se perfila en Coral;
+    al salir se recoge en 0,45 s. Bocadillo más bajo (no pisa el subtítulo); en móvil, más ancho y con letra menor.
+  · **6:** la sala del pie con `densidad: 0.5` (antes 1,15) y al 58 % (antes 42 %).
+- **Medido:** `astro check` 0 errores · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r93/manifiesto.cjs`
+  (Chrome 1280, WebKit 1280, Chrome 390 clara): palabras llegadas 0 → 22 → 37 → 58 → 89 → 119 a lo largo de la salida · `tools/r93/pie.cjs` (Chrome y WebKit, 1280 y 390, clara):
+  morfo capturado, el bocadillo sigue abierto al ir a él · `tools/r93/perf-vuelo.cjs` (CPU ×4, bajar del hero al manifiesto): de 102/157 fotogramas lentos y p90 67 ms a 39–59 y
+  p90 33 (sin el vuelo: 25–40 y 33). Lo que costaba: leer 138 posiciones por fotograma (ahora en coordenadas de documento, medidas una vez), cambiar `font` y `fillText` por
+  tarjeta (ahora cada tarjeta se pinta una vez y se coloca con `drawImage`) y recomponer el collage para los huecos (ahora se recortan sobre la variante, a 15 por segundo) ·
+  `tools/r91/perf.cjs` hero 58,7 fps · `tools/r90/vuelo.cjs` 41/41 y 50/50 · `tools/r89/juego.cjs` OK · `tools/r93/partitura.cjs` (agente): 0/240 lentos en Chrome, 8–18 en WebKit.
+- **Pendiente de Andoni:** el desprendimiento es atado al scroll (al subir, las tarjetas vuelven al director); no publicado.
+
+### Ronda 94 · 2026-10-01 · la paleta del director en claro, el director que dirige (brazos a compás) y al que ilumina el haz, otro director en el pie, Proyectos en claro, la tilde que crece en caja y el hero de Neety fiel al real (en local)
+- **Andoni (textual, resumido):** 1 «en el hero claro, estos colores para el director: Blanco frío #F5F7FF (fondo principal claro) · Tinta cálida #241C19 · Azul eléctrico #3046FF · Rosa
+  pop #FF67C8 · Lima luminoso #E4FF57 · Mandarina #FF793F (detalles que conecten con el color del director)» · 2 «en ambos heros, que el director mueva los brazos» · 3 «en el
+  footer quitamos el efecto nuevo del fondo y superponemos un director con una postura diferente, a poder ser animado, dirigiendo el Contáctanos» · 4 «en la versión clara,
+  Proyectos destacados también va en claro» · 5 «tiene que ser la misma tilde del Contáctanos la que se transforma para albergar el "haz clic para agendar reunión"» · 6 «en la
+  partitura, la animación del hero de Neety, más fiel a la real» · (a media ronda) «importante que se note la iluminación de la luz de arriba en el director en el hero oscuro».
+- **Hecho:**
+  · **1 · `papel.ts › popDe`:** solo los seis colores: capa mandarina → rosa → azul; camisa lima con sombras azules; piel rosa/mandarina; peanas mandarina; pantallas azul con
+    destellos lima; lo oscuro en tinta o azul; 10 % de acentos; la palabra impresa en blanco frío sobre lo hondo. El fondo claro de la web pasa a Blanco frío (#F5F7FF).
+  · **2 · `papel.ts` (rig `brazos`, `bpm`, `pose`, `amplitud`):** cada brazo es un segmento hombro → mano (medido en `director-nitido.webp`: 0,372·0,33 → 0,205·0,11 y 0,578·0,32 →
+    0,735·0,15); sus etiquetas (y la batuta entera) giran alrededor del hombro con un peso que crece desde él, y el antebrazo un poco más alrededor del codo. A 92 BPM: la
+    batuta baja en cada tiempo y rebota; la otra mano respira cada dos. El cuerpo va en las variantes ya compuestas; los brazos se colocan en vivo a ~30 fps. La magia sale
+    de la batuta y de la mano donde estén (`punto()`).
+  · **(media ronda) · `luzHaz`:** en oscuro, el HAZ del hero se pinta sobre el papel (solo donde hay etiquetas, `source-atop`): una banda oblicua (−18°, la del haz) que sigue al
+    ratón, más un velo cenital que se apaga hacia los pies. Se ilumina la cabeza y el lado de la capa bajo el haz; el otro queda en sombra.
+  · **3 · `Pie.astro`:** fuera la sala de papel (rondas 86–93). El director de papel a la izquierda sobre «Con», con otra postura (la batuta baja y tendida hacia las letras, la
+    otra mano más alta; `pose: [0.18, 0.62]`, amplitud 1,7), marcando el compás; la palabra le tapa de la cintura abajo. En móvil se aparta mientras la tilde está abierta.
+  · **5 · `Pie.astro`:** la tilde se queda y por su extremo grueso CRECE una caja con su misma inclinación (un acento agudo enorme): los puntos de la caja nacen del canto superior
+    de la tilde y se despliegan (0,8 s); la tinta de la tilde se enciende y la caja es esa tinta, plena, con «Haz clic para agendar una reunión · con Eric y Andoni · 30 min» en tinta
+    de noche. Fuera el bocadillo con cola.
+  · **4 · `global.css` + `Proyectos.astro` + `Nav.astro`:** en clara, la sección, la pantalla del titular, la página de inicio y la pantalla de carga en Blanco frío con tinta (los
+    velos sobre la foto siguen oscuros); la barra en tinta sobre el titular claro.
+  · **6 · `LaPartitura.astro` (agente, revisado):** medido el hero real (neety.treseiscero.app/home): sin entradas por palabras (fundido), punto del eyebrow que late (2,4 s; ×1,35 y
+    halo ×3) y la tarjeta es una CINTA de 7 tarjetas que sube con esqueleto, cabecera y filas escalonadas (pastillas verdes). Aquí: fundidos, el punto a 4 tiempos y la cinta con las
+    3 primeras (empresas · personas clave con Jon · «Jon empieza a activarse»), máscara 14 %/72 %. Capturas del real en `tools/shots/r94-real/`.
+- **Medido:** `astro check` 0 · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r91/perf.cjs` hero (CPU ×4):
+  56,5 fps oscuro y 54,3 clara (antes 58,7: el coste de los brazos en vivo) · `tools/r94/pie.cjs` (Chrome y WebKit, 1280 y 390, clara): la tilde crece y la caja sigue abierta al
+  ir a ella · `tools/r94/proyectos-clara.cjs`: fondo 245·247·255 · `tools/r94/partitura.cjs` (agente): 0–8 fotogramas lentos de 240 · sin regresión en `r93/manifiesto`, `r90/vuelo`
+  (41/41 y 50/50), `r89/juego`, `r90/lenis`.
+- **Pendiente de Andoni:** el director del pie es el mismo dibujo con otra postura de brazos (una ilustración propia con otra pose sería lo definitivo); los logotipos y fotos de la cinta
+  de Neety van con iniciales (se pueden copiar de su web); la cinta enseña 3 de sus 7 tarjetas (alargar el guion para más); no publicado.
+
+### Ronda 95 · 2026-10-01 · hero claro en los colores del oscuro, brazos tranquilos sin copia, luz sutil, Servicios con selector, cabecera que se recoge suave, fotogramas nuevos con «la resonancia», el director de perfil en el pie y la palabra que se encaja (en local)
+- **Andoni (textual, resumido):** 1 «el hero en claro, la ilustración del mismo color que el oscuro» · 2 «los brazos más tranquilos y que por detrás no se vea la copia: parece que se
+  duplican» · 3 «la luz, más sutil» · 4 «en Servicios quitamos las entradas: algo más sutil, de interfaz moderna» · 5 «al hacer scroll se va la descripción y se queda el icono: más smooth» ·
+  6 «nuevos fotogramas de Eric y Andoni y una estela más chula» · 7 «el director de PERFIL orquestando las letras de Contáctanos; al pasar, la palabra más pequeña encajándose en
+  los pentagramas y debajo agenda reunión con Eric y Andoni» · 8 «hay un cambio de color en el footer entre arriba y abajo» · 9 «los sonidos de Más proyectos, más sutiles».
+- **Hecho:**
+  · **1–3 · `Hero.astro` + `papel.ts`:** fuera el `pop` en claro (mismos colores que el oscuro); brazos a 46 BPM y amplitud 0,75 (antes 92 y 1,3); el rig a `ancho: 0.1` (la manga entera va con el
+    brazo: su borde se quedaba quieto detrás, «se duplican»); el haz sobre el papel a menos de la mitad (banda 0,2, cenital 0,12).
+  · **4–5 · `Servicios.astro` (agente, revisado; r94 en `tools/retirados/Servicios.r94-entradas.astro.txt`):** «En función de [ lo que necesites ⌃⌄ ].»: una píldora-selector en la frase cuyos casos
+    ruedan (sube y se desenfoca el que sale, entra el nuevo; el ancho se ajusta, +4 px para que no se corte la última letra) cada 3,4 s, con un hilo de 1 px que mide el tiempo; botón real
+    (clic = siguiente, anunciado). La cabecera pegada se recoge ATADA AL SCROLL en 160 px (`--p`): recorte por abajo con `clip-path`, icono 64 → 40 px que se queda, descripción que se funde; su
+    alto en la página no cambia (las filas no dan tirón).
+  · **6 · `Estudio.astro` (agente, revisado; r94 en `tools/retirados/Estudio.r94.astro.txt`):** los fotogramas v03 montados como dice su LEEME (celda = alto × 0,6, pose final × 1,2, centros a 477,253 y
+    705,270 / 1000; paseo hasta el 94 %, celda 4 desde el 93 %, fundido 96,5–100 %). «La resonancia»: por cada pisada tres aros elípticos que se abren desde un punto de savia, un charco de luz
+    bajo los pies y un hilo de onda en el suelo que recibe cada pisada; se apaga entre el 70 y el 95 % (al juntarse, limpio).
+  · **7–8 · `Pie.astro` (r94 en `tools/retirados/Pie.r94.astro.txt`):** fuera las capas y su velo de noche lisa (tapaba el grano hasta un corte: el «cambio de color»; medido ahora 61·38·30 ±1 de arriba
+    abajo). El director de PERFIL de Andoni (`public/media/pie/director-perfil.webp`, ya con alfa) en papel, a la izquierda mirando a la palabra, con su rig (batuta y mano libre a 46 BPM) y las
+    letras meciéndose en ola a ese compás. Al pasar, el texto se escala ×0,44 desde la línea base y queda dentro del pentagrama; debajo sube «Agenda una reunión con Eric y Andoni · 30 min ·
+    videollamada». La tilde, nuestra, va ahora dentro de su letra (se encoge con ella). Fuera la caja-tilde de la ronda 94.
+  · **9 · `Anteriores.astro`:** la nota al pasar, una octava más grave y a 0,018 (antes 0,05); el tic del relevo a 0,009 (antes 0,025).
+- **Medido:** `astro check` 0 · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · hero 58 fps con CPU ×4 · `tools/r95/servicios.cjs`:
+  la parte visible de la cabecera baja ~0,92 px por px de scroll, sin retrocesos; alto en la página fijo · `tools/r95/estudio.cjs`: 0 px de salto de tamaño en 120 pasos, llegada a ±0,005 px del
+  LEEME · `tools/r94/pie.cjs` (Chrome y WebKit, 1280 y 390, clara) · `tools/r95/pie-color.cjs`.
+- **Pendiente de Andoni:** los cinco casos de Servicios (de Nilo); intensidad de «la resonancia» (más discreta: 0,55 → menos); el fantasma doble un instante en el fundido del Estudio (las poses
+  no coinciden del todo, como en su `transicion-comprobada.jpg`); los FALTA del equipo; no publicado.
+
+### Ronda 96 · 2026-10-02 · el director en el estilo de los retratos (hero y pie) y vuelve el calderón del «Contáctanos» (en local)
+- **Andoni (textual):** 1 «me gusta por donde vamos pero en el hero quiero probar otro estilo, el que hemos usado para los retratos de testimonios grandes» (+ dos láminas
+  nuevas: el director de espaldas con sus atriles, 1672 × 941, y el de perfil para el pie) · 2 «el footer, cuando haces hover en Contáctanos, volvemos a la versión donde
+  se dibujaba algo musical y de ahí salía el haz clic para agendar reunión con nosotros».
+- **Hecho:**
+  · **1 · `src/scripts/retrato.ts` (nuevo):** el tratamiento de los retratos de «Más proyectos» (rondas 68–72) llevado a la escena: UNA tinta (la del texto; en oscuro sale
+    de lo claro de la lámina, en la clara de lo oscuro), semitono de puntos a 45° encima (celda 3,5 px), cantos rotos con ruido, y se DIBUJA en 2,8 s (lo más entintado
+    primero, en rayas y desde la batuta). Las ondas de los atriles hacen VIBRAR la trama en su anillo (dos láminas ya hechas, la quieta y la vibrada, y un anillo de
+    degradado: sin recalcular). Misma API que el papel: la magia, las ondas y el manifiesto (las tarjetas que se desprenden y sus huecos) siguen igual.
+    `tools/r96/capas.py`: máscara de persona (rembg) + batuta → `public/media/hero/retrato-{director,atriles}.webp` y `pie/retrato-perfil.webp`. Puntos de la magia y las
+    pantallas medidos en la lámina nueva; la caja pasa a 1672 / 941. Es el estilo de serie; `?estilo=papel` y `?estilo=pintura` siguen (con su lámina de 1490 × 1105).
+    El director ya no mueve los brazos en este estilo (es un dibujo).
+  · **2 · `Pie.astro` (la r95 en `tools/retirados/Pie.r95.astro.txt`):** fuera el encogerse en el pentagrama. Al pasar: la palabra se ilumina, sobre la «á» se dibuja un
+    CALDERÓN Coral (arco y punto), sube un tallo y en su punta se abre la píldora de cristal con Eric y Andoni: «Haz clic para agendar una reunión con nosotros · 30 min ·
+    videollamada». Se abre hacia la derecha desde el tallo (a la izquierda está el subtítulo); un puente invisible la une a la palabra.
+- **Medido:** `astro check` 0 errores · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r96/ver.cjs` (Chrome y WebKit,
+  1280 y 390, clara): hero dibujado, atriles encendiéndose, píldora abierta al ir a ella, sin errores · hero con CPU ×4: 55,8 fps, p90 16,8 ms · manifiesto: las 138 tarjetas
+  salen del dibujo (138 → 19 ocultas a lo largo de la salida).
+- **Pendiente de Andoni:** si se queda el retrato o vuelve el papel; si el director debe moverse (en dibujo, solo vibra la trama); no publicado.
+- **A media ronda (Andoni):** «las quiero a color, con el efecto que teníamos en el árbol, como que se distorsionaba, y los ordenadores más pequeños. Lo que sale del
+  director tiene que pasar entre los objetos. Esto aplica también al footer. Y nuestras caras, más realistas, sacadas de los fotogramas nuevos».
+- **Hecho:** · el estilo de serie es `color`: las láminas nuevas pintadas por el MOTOR DEL ÁRBOL (`crearEstela`, sin el tramado de la r86: se dibujan desde la batuta,
+  hierven, se deshacen en semitono por los cantos, las ondas las desplazan, halo y grano recortados con la lámina); el retrato en una tinta, en `?estilo=retrato`.
+  · Atriles al 74 % sobre su base (`tools/r96/capas.py`; pantallas y puntos de la magia medidos de nuevo). · La magia TEJE en TRES planos (detrás de los atriles ·
+  entre ellos y el director · delante): se cuela tras las peanas, cruza por delante entre dos atriles, pasa tras la espalda y vuelve por delante a las manos.
+  · Las tarjetas del manifiesto salen de trozos reales de la lámina en color (sin huecos: el lienzo es WebGL). · Pie: el director de perfil, en color con el mismo
+  motor, y una estela que sale de su batuta y teje «Contáctanos» (por detrás de una letra, por delante de la siguiente) a su compás. · Caras (`cara-eric`, `cara-andoni`,
+  las de la FAQ, la píldora del pie y las demos) recortadas de `juntos.png` de la v03 (`tools/r96/caras.cjs`; las de antes en `tools/retirados/caras-r95/`).
+- **Medido:** `astro check` 0 errores · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · hero CPU ×4: 58,2 fps, p90 16,7 ms ·
+  manifiesto 138 tarjetas · `tools/r96/ver.cjs` sin errores en Chrome y WebKit.
+
+### Ronda 97 · 2026-10-02 · el director en ASCII que late con un jazz de fondo, «The Saints» en la carga y el «Contáctanos» en ASCII que se reordena (en local)
+- **Andoni (textual):** 1 «hacer el director de orquesta con ASCII y que reaccione a la música: una música de fondo estilo jazz calmada y que el ASCII reaccione a ella con pulsos» ·
+  2 «la animación de carga, las notas también de jazz, de alguna canción conocida para ver si tu mente la hila» · 3 «en el footer lo mismo: el Contáctanos es un ASCII que
+  reacciona a la música y cuando haces hover se reordena y se convierte en agendar reunión con nuestras caras».
+- **Hecho:**
+  · **`src/scripts/jazz.ts` (nuevo):** trío de balada sintetizado (68 BPM con swing): piano eléctrico FM que acompaña, contrabajo que camina, escobillas (plato de swing y
+    barrido en el 2 y el 4) sobre la armonía de «When the Saints Go Marching In» (tradicional, dominio público) rearmonizada; una vuelta de cada dos el piano cita su melodía.
+    Un solo reloj avisa cada tiempo (`savvia:pulso`) suene o no; `nivel()` = lo que suena (analizador) o la envolvente del pulso. Arranca al resolverse la carga (o con el
+    primer gesto), entra en fundido, se calla con la escena de Vivaldi a la vista, con el altavoz de la barra y con la pestaña oculta. `musica.ts` expone `bus` y `latido`.
+  · **`src/scripts/ascii.ts` (nuevo):** WebGL; la lámina se lee celda a celda (luz y color) y se pinta con la rampa « .,:-=+*xo%#@» en la mono de la web (atlas). El nivel del
+    jazz sube la densidad de toda la figura, cada pulso es un anillo que sale de la batuta (más fuerte en el 1 y en los cambios de acorde) y empuja y aclara los caracteres,
+    y un parpadeo al azar que se aviva con la música. Se dibuja desde la batuta. En la paleta clara, la rampa se invierte y el color se oscurece.
+  · **Hero:** el ASCII es el estilo de serie (dos capas: atriles y director; la magia sigue tejiendo en tres planos). `?estilo=color` (ronda 96, 2.ª), `retrato`, `papel`, `pintura`.
+  · **Carga:** las cuatro notas son «Oh, when the saints…» (do · mi · fa · sol, a la derecha la más aguda) y el acorde final, do 6/9 (el del jazz); pista «¿la reconoces?».
+  · **Pie:** el director de perfil en ASCII (late con los pulsos). «Contáctanos» es una nube de caracteres (partículas con dos casas): cada letra aparece con su nota al llegar,
+    cada pulso es una ola que la recorre y el nivel aviva la tinta; al pasar, las partículas viajan de izquierda a derecha en arco, barajando caracteres, y forman nuestras
+    CARAS en ASCII (en su color, caracteres más finos; `cara-*-recorte.webp`, sin fondo, de `juntos.png`) y «Agenda una / reunión», con «con Eric y Andoni · 30 min ·
+    videollamada ↳» en texto nítido. La palabra de verdad sigue siendo el enlace (sin tinta). En móvil, sin caras: «Agenda una reunión» a lo ancho. Fuera el calderón
+    y la píldora en este estilo (siguen con `?estilo=color`).
+- **Medido:** `astro check` 0 errores · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r97/jazz.cjs`
+  (Chrome y WebKit): contexto «running», ganancia 0,31–0,32, 6–7 pulsos en 5 s · hero con CPU ×4: 60 fps, p90 16,7 ms, 0 % de fotogramas lentos · `tools/r97/pie.cjs` (Chrome
+  1280 y 390, WebKit 1280 y 390, clara): reordenado al pasar, sin errores · `tools/r89/juego.cjs`: la carga se completa. **SIN medir:** la escucha (el jazz es sintetizado: Andoni decide).
+- **Pendiente de Andoni:** escuchar el jazz (tempo, nivel 0,32, timbres); en móvil «Agenda una reunión» en ASCII queda pequeño (allí un toque abre el enlace); no publicado.
+
+### Ronda 98 · 2026-10-02 · el ASCII de ascii.fm, colores que se encienden con las frecuencias, jazz lo-fi que calla con Vivaldi, sonidos de teclado y directores de jazz (en local)
+- **Andoni (textual, resumido):** «quiero que el ASCII se parezca más a esto» (x.com/dsaltaren: ascii.fm, «lo-fi radio, drawn live in ascii») · 1 «quitamos la magia; la animación
+  del hero vendrá únicamente de que los colores se encienden y apagan con las diferentes frecuencias de la música; que se note pero que transmita calma» · 2 «que salgan
+  del propio ASCII las palabras, ya solo palabras, sin el efecto papel» · 3 «cuando suena Vivaldi, el jazz a 0» · 4 «me gusta el estilo del vídeo; los sonidos al hacer hover,
+  de elementos de ordenador, teclado, clic» · 5 «en el footer quitamos el sonido al aparecer Contáctanos, o que tenga sentido con la música» · 6 «el director, hacia algo más
+  jazz» (dos láminas: el director con traje y ordenadores de los 80; un saxofonista de perfil).
+- **Referencia medida (ascii.fm, `tools/ref98/`):** rejilla gruesa, cinco caracteres « .-+#», VT323, gris 185 sobre 20·20·18, el dibujo quieto; «focus: lo-fi beat, 72–75 bpm».
+- **Hecho:** · `ascii.ts` rehecho (r97 en `tools/retirados/ascii.r97.ts.txt`): rampa « .-+#» en VT323 (Google Fonts, OFL; `astro.config.mjs`), celda gruesa, quieto; cada franja de la
+  figura (abajo el bajo, luego acorde, melodía, arriba platos) se enciende con su banda del jazz hacia el color de la ilustración y se apaga despacio. · `jazz.ts`: lo-fi (74 BPM,
+  bombo, caja apagada, vinilo, paso bajo cálido) y `bandas()` hechas de los golpes programados (laten aunque esté en silencio); calla con `savvia:vivaldi` (lo avisa
+  `sonido-estudio.ts` cuando Vivaldi suena de verdad). · Hero: una sola capa con la lámina nueva (`public/media/hero/jazz-director.webp`), sin magia. · Manifiesto: las palabras
+  salen de la lámina tal cual (su letra y su tinta), sin tarjeta. · `musica.ts`: `tecla`, `clic`, `teclear` (tecla mecánica sintetizada); sustituyen a las notas en menú, CTA,
+  Servicios, Estudio, Preguntas, selección, Más proyectos, la partitura y el pie. · Pie: el saxofonista en ASCII (`public/media/pie/saxo.webp`); «Contáctanos» en VT323 que se
+  enciende hacia el coral por tramos con las bandas; al llegar cada letra se TECLEA (fuera notas y acorde); al reordenarse, se teclea; fuera la estela (sin batuta).
+- **Medido:** `astro check` 0 errores · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · jazz 0,31 → 0 con
+  Vivaldi sonando (0,13) → 0,32 al volver · hero CPU ×4: 60 fps, 0 % lentos · manifiesto 138 palabras · pie (Chrome y WebKit, 1280 y 390) sin errores. **SIN medir:** la escucha.
+- **Pendiente de Andoni:** escuchar el lo-fi y las teclas; si el ASCII lleva el color de la ilustración al encenderse o se queda en un solo tono; no publicado.
+
+### Ronda 99 · 2026-10-02 · la carga a tempo del jazz, ASCII denso con ondas de color, fuera Vivaldi, la canción de la partitura y un marrón más hondo (en local)
+- **Andoni (textual):** 1 «las notas que tocas en la animación inicial, acordes con la música de la web» · 2 «el ASCII del hero más denso y con detalle, más animado: que la música
+  genere pulsos encima, como ondas de color que pintan ese ASCII» · 3 «quitamos Vivaldi y dejamos la de la web para esa parte» · 4 «en la partitura la música de la web se para
+  y esa partitura genera una canción del estilo pero diferente; cuando sigues vuelve la de la web» · 5 «en el footer lo mismo de densidad y colores» · (a media ronda) «quiero
+  probar un marrón más oscuro para el hero y demás».
+- **Hecho:** · Carga: las notas suenan con el piano eléctrico del jazz (`jazz.ts › rhodesSuelto`) y llegan a 74 BPM (su tempo); el acorde final es el do 6/9 del jazz con su bajo.
+  · `ascii.ts` (r98 en `tools/retirados/ascii.r98.ts.txt`): rejilla más fina (ancho/118) y rampa « .:-=+*#%@»; ONDAS DE COLOR: cada pulso abre un anillo que tiñe los
+  caracteres a su paso (y los aviva un escalón) y deja un poso; el 1 sale de la batuta en coral, los demás de la figura en salvia, ámbar, niebla o cobalto claro; las bandas
+  siguen encendiendo las franjas. · Pie: palabra más densa (fs/32), misma rampa y las mismas ondas (en 2D); el saxofonista, con ondas. · Vivaldi fuera (`sonido-estudio.ts`:
+  no se carga); el ecualizador de la escena controla el volumen del jazz (`fijarVolumenJazz`, se recuerda); rótulos «Las cuatro estaciones» y «Primavera»… sin Vivaldi; fuera
+  el crédito del pie. · `jazz.ts` (r98 en `tools/retirados/jazz.r98.ts.txt`): dos temas; `partitura` en fa a 92 BPM, con el reloj de la partitura (su bucle de 20 tiempos =
+  cinco compases) que SE MONTA compás a compás (platos y bombo → bajo → acordes → melodía generada en la pentatónica de fa); al irse, vuelve el de la web. · Fondo: `--noche`
+  #211510 (antes #3b231b, en `?fondo=antes`), `theme-color` a juego.
+- **Medido:** `astro check` 0 errores · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · temas: web 74 →
+  partitura 92 → web 74; Vivaldi a 0 en la escena · hero CPU ×4: 60 fps, 0 % lentos · carga completada (Chrome 1280, WebKit 390) · pie sin errores. **SIN medir:** la escucha.
+- **Pendiente de Andoni:** escuchar la carga, el tema de la partitura y el jazz en la escena de Proyectos; si el marrón hondo se queda; los mp3 de Vivaldi siguen en `public/` sin
+  usarse (se borran si no vuelven); no publicado.
+
+### Ronda 100 · 2026-10-02 · ondas por todo el recuadro y todo el pie, el director escrito con el manifiesto, una música por estación, la partitura que suena con sus efectos (en local)
+- **Andoni (textual):** 1 «el pulso se tiene que propagar por todos los puntos del hero, por todo el recuadro; y quitamos los destellos que hacen por arriba» · 2 «no sé si el ASCII
+  debería estar hecho con letras o palabras, para que tuviera más sentido con la animación hacia la siguiente sección» · 3 «en el footer lo mismo: el pulso por todo el footer» ·
+  4 «al llegar a las cuatro estaciones, que la música cambie, una por estación, según su mood» · 5 «en la partitura me gustaba cómo teníamos antes, que los efectos generaban su
+  propia partitura; llevado al estilo de ahora; muteamos la música de fondo y luego se recupera» · 6 «la música, más de fondo, que no tape los clics».
+- **Hecho:** · `src/scripts/reticula.ts` (nuevo): retícula de puntos dibujada una vez; cada onda de color la recorre (tiñe y engorda los puntos de su anillo, deja un poso). En el
+  marco del hero (sustituye a sus puntos) y en todo el pie (`.reticula-pie`). Las ondas ya no salen de la batuta («los destellos de arriba»): nacen en la figura. · `ascii.ts` modo
+  TEXTO: el director está escrito con el texto del manifiesto, fila a fila (la luz de la lámina decide la tinta); `?ascii=rampa` vuelve a la rampa. El saxofonista, con «agenda una
+  reunión con eric y andoni…». · `jazz.ts` (r99 en `tools/retirados/jazz.r99.ts.txt`): VOL 0,32 → 0,18; temas por estación con la escena a la vista (primavera: sol, ligera, 86 ·
+  verano: bossa en re, recta, 98 · otoño: el lo-fi de la web, 74 · invierno: la menor, lenta, sin batería, bajo en redondas, 60), al cambiar de estación cambia el tema; en la
+  partitura el jazz calla y sus efectos suenan con los instrumentos del jazz (cartas = notas, ediciones = bajo, abrir = acorde, partes y piezas = melodía, Fine = acorde) más una
+  sección rítmica muy baja a su compás.
+- **Medido:** `astro check` 0 errores · build OK · `spacing-lint` en escala · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · temas: invierno 60 en la
+  escena, jazz a 0,007 en la partitura, 0,18 al volver · hero CPU ×4: 59,8 fps, 0,3 % lentos · manifiesto: 138 palabras · pie y carga sin errores. **SIN medir:** la escucha.
+- **Pendiente de Andoni:** escuchar los cuatro temas y la partitura; si el director escrito con el manifiesto se queda; no publicado.
+
+### Ronda 101 · 2026-10-02 · las ondas hacen temblar el ASCII, el pie más tranquilo y los cambios de música en fundido (en local)
+- **Andoni (textual):** 1 «las ondas mueven el ASCII también, como si lo hicieran vibrar/temblar» · 2 «las ondas en el footer, menos frecuentes y más tranquilas» · 3 «los cambios de música,
+  mucho más fluidos».
+- **Hecho:** · `ascii.ts`: al paso del anillo cada punto de la lámina se desplaza (empujón radial que oscila + temblor fino; uniform `uT`): los caracteres se corren y tiemblan.
+  En el pie, lo mismo en las partículas de «Contáctanos». · Pie: una onda cada dos compases (antes, una por tiempo), más lenta (160 px/s, antes 260), más ancha y más larga
+  (4,5 s); el saxofonista, en los compases alternos; `reticula.ts` acepta `vel`, `ancho` y `vida`. · `jazz.ts`: el cambio de tema es un FUNDIDO (el que suena baja en ~1,3 s
+  sin dejar de tocar, el nuevo empieza en su compás 1 y sube en ~4 s; si se pide otro a medias manda el último); el volumen general sube y baja con τ 1,3 / 0,6 s (también
+  al callar y volver en la partitura); otoño es el tema de la web, así que entrar en la escena en otoño ya no corta nada.
+- **Medido:** `astro check` 0 errores · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · fundido medido: 0,07 → 0,009 (web) → 0,041 → 0,174
+  (nuevo tema) en 5,6 s · hero CPU ×4: 60 fps, 0 % lentos · temblor capturado (`tools/shots/r101-hero.jpg`). **SIN medir:** la escucha.
+- **Pendiente de Andoni:** escuchar los fundidos; no publicado.
+
+### Ronda 102 · 2026-10-02 · pulsos únicos, coral, desde el centro de abajo, que revelan los colores y mueven más el ASCII (en local)
+- **Andoni (textual):** «en el hero los pulsos mueven más el ASCII. Los pulsos son como los del footer a nivel ritmo. Y los pulsos siempre son del mismo color, pero a su paso revelan
+  colores en el ASCII. Y los pulsos siempre salen desde el mismo sitio, centrados desde abajo. En el footer también».
+- **Hecho:** · Hero: una onda cada dos compases (como el pie), lenta (160 px/s, ancho 56, vida 4,5 s), siempre CORAL y siempre desde el centro del borde de abajo del recuadro; la retícula
+  lleva el anillo coral y el ASCII, a su paso, REVELA el color de su propia lámina (`ascii.ts`: ya no se tiñe del color de la onda) y se mueve el doble (empujón 7 px, temblor 2,6).
+  `ascii.ts` acepta `vel`, `ancho`, `vida`. · Pie: la misma onda coral desde el centro de abajo del pie (retícula, palabra y saxofonista a la vez); la palabra revela los colores de
+  la casa de izquierda a derecha; el saxofonista, los suyos.
+- **Medido:** `astro check` 0 errores · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · hero CPU ×4: 60 fps · capturas de la onda en
+  `tools/shots/r102-*`.
+- **Pendiente de Andoni:** verlo; no publicado.
+
+### Ronda 103 · 2026-10-02 · el director dirige y el saxo toca, una onda por compás que llena el recuadro, el punto de «Ver caso de estudio», el cursor-punto y el jazz que baja al sentarse (en local)
+- **Andoni (textual):** 1 «que en el hero el director mueva los brazos como orquestando, y en el footer mueva el saxo como tocando» · 2 «en el hero, más ondas, un punto intermedio entre lo de ahora y lo que teníamos; y que se expandan por todo el
+  cuadrado de puntitos» · 3 «el botón de ver caso de estudio, en vez de una flecha, un punto, y cuando haces hover libera una onda» · 4 «transformamos el cursor a un punto que deja un rastro muy ligero de ondas» · 5 «al sentarse en
+  proyectos se baja la música».
+- **Hecho:** · `ascii.ts › rig()`: hasta tres MIEMBROS que giran la lámina alrededor de su pivote (el lado de una línea que sale del pivote, por encima de él, con un peso que nace en él): una deformación continua, sin
+  recorte, así que no queda la copia quieta detrás de la ronda 94. Hero: los dos hombros (0,66·0,30 y 0,34·0,30 en `jazz-director.webp`); la batuta cae en cada tiempo y rebota (el 1 más hondo, ~7°) y la izquierda la
+  acompaña en espejo, más suave, respirando cada dos compases. Pie: el saxofonista de la cadera para arriba se mece a medio tiempo y en cada tiempo el saxo da un golpe hacia arriba. A tempo de verdad: `jazz.ts › fase()`
+  (el tiempo del compás con decimales). · Ondas: una por compás (antes cada dos; en la 99, una por tiempo), 190 px/s y 6,5 s de vida en ASCII y retícula: llegan a las esquinas de arriba del recuadro. · Ficha sentado: «Ver
+  caso de estudio» con un punto Coral; al pasar crece y suelta dos aros. · `src/scripts/cursor.ts` (nuevo): punto Coral que sigue al ratón y suelta un aro fino cada 46 px de camino (y uno mayor al pulsar), en un lienzo
+  fijo; crece sobre lo que se pulsa. Solo con ratón y sin movimiento reducido (`?cursor=0` lo quita); vuelve el cursor del sistema con un diálogo abierto, en campos de texto y dentro del iframe del monitor. ·
+  `jazz.ts › sentarJazz()`: sentado, el jazz al 35 % (lo llama `Proyectos.astro` junto a los cascos del ambiente).
+- **Medido:** `astro check` 0 errores · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/ver.cjs` (Chrome 1280, WebKit 1280, Chrome 390 clara): brazos en seis
+  fotogramas de un tiempo (`tools/shots/r103-brazos-*`), cursor y rastro, el punto con su onda, jazz 0,18 de pie → 0,064 sentado → 0,178 al levantarse, sin errores · `tools/r103/saxo.cjs` · hero CPU ×4: 59,8 fps, 0,3 %
+  lentos. **SIN medir:** cómo se ve el balanceo en un monitor real (el del saxo es pequeño: sube si no se nota).
+- **Pendiente de Andoni:** verlo; no publicado.
+
+### Ronda 104 · 2026-10-02 · brazos y saxo orgánicos, el punto sin subrayado y el cursor con estela (en local)
+- **Andoni (textual):** 1 «el movimiento de los brazos se tiene que notar más y ser más orgánico, no a saltos» · 2 «en el footer el movimiento está bien pero va a saltos, tiene que ser orgánico» · 3 «el CTA de ver caso de estudio:
+  quitar el subrayado y hacer más sutiles las ondas que salen» · 4 «el cursor deja una estela, no va dejando ondas: una estela musical muy sutil».
+- **Causa de los saltos (medida en el código):** el golpe de cada tiempo era `(1 − f)³`, que pasa de 0 a 1 de golpe al empezar el tiempo; además el ASCII pintaba a 30 fps y la fase se recalculaba por aviso.
+- **Hecho:** · `jazz.ts › fase()` se lee del reloj continuo. · Hero: curvas de coseno (baja al tiempo, sube entre tiempos, más honda en 1 y 3, deriva con la frase), ~el doble de recorrido (batuta 0,24 rad, izquierda 0,15).
+  Pie: balanceo y golpe de saxo en coseno. · `ascii.ts`: los ángulos se suavizan (un cambio de tema no da tirón) y, con miembros, pinta a 60 fps. · «Ver caso de estudio»: sin subrayado (el texto se enciende al
+  pasar), aros al 40 % y ×4 (antes 90 % y ×6,5). · `cursor.ts`: fuera los aros; la estela es el camino de los últimos 0,75 s en dos hilos finos que ondulan uno contra otro, más claros junto al punto y apagándose hacia atrás.
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/ver104.cjs` (Chrome y WebKit): brazos en seis fotogramas (`tools/shots/r104-brazos-*`),
+  estela (`r104-cursor-*`), jazz sentado 0,064 · hero CPU ×4: 59,7 fps.
+- **Nota:** el ASCII avanza de celda en celda (es su naturaleza): el movimiento es continuo, pero cada carácter cambia de golpe al pasar a la celda vecina.
+- **Pendiente de Andoni:** verlo; no publicado.
+
+### Ronda 105 · 2026-10-02 · el ratón abre hueco en el ASCII del hero (en local)
+- **Andoni (textual):** «en el hero, si pasas el ratón por encima del ASCII se haga hueco: es como que las piezas se mueven y luego vuelven a su posición».
+- **Hecho (`ascii.ts`, opción `hueco`, solo en el hero):** remapeo radial alrededor del ratón, r' = r − H·e^(−r²/R²) (H 46 px, R 96 px): donde r' < 0 no hay pieza (un hueco de ~30 px) y alrededor los caracteres se apretujan;
+  monótono, así que nada se duplica. Posición suavizada (0,16 por fotograma) y fuerza que entra (0,09) y sale (0,05) con curva suave: al irte, las piezas vuelven a su sitio. Solo con ratón y sin movimiento reducido.
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/hueco.cjs` (Chrome y WebKit): hueco quieto, hueco en marcha y vuelta (`tools/shots/r105-hueco-*`), sin errores ·
+  hero CPU ×4 sin regresión.
+- **Pendiente de Andoni:** verlo; no publicado.
+
+### Ronda 106 · 2026-10-02 · el ASCII se aparta como texto alrededor de un objeto y el «Agenda una reunión» del pie, más callado (en local)
+- **Andoni (textual + `~/Desktop/1662x1080.mp4`):** 1 «se tienen que apartar como en el vídeo» · 2 «en el footer, cuando haces hover y sale con Eric y Andoni…, hacerlo más sutil: no en naranja, en color claro pero con opacidad, que no destaque tanto».
+- **Referencia medida (el vídeo, 21 s, hojas de contacto):** el texto se RECOLOCA alrededor de una figura, renglón a renglón: cada línea se parte y se aparta hacia los lados siguiendo el contorno (escalera de renglones), no se empuja en círculo.
+- **Hecho:** · `ascii.ts`: el hueco de la ronda 105 pasa de radial a HORIZONTAL y por FILA de caracteres: en cada fila el hueco tiene la anchura de un óvalo a esa altura (70 px de semiancho, 84 de semialto) y lo de cada lado se
+  aparta y se apretuja (x' = x − H·e^(−x²/S²), S 150 px, monótono). · `Pie.astro`: la línea «con Eric y Andoni · 30 min · videollamada ↳» en la tinta clara al 50 % (antes coral) y los caracteres de «Agenda una reunión» y de las caras al 72 % (antes 95 %).
+- **Medido:** `astro check` 0 errores y 0 avisos · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/hueco.cjs` (Chrome y WebKit) · `tools/r103/pie-hover.cjs` (antes/después en
+  `tools/shots/r106-pie-*`) · hero CPU ×4 sin regresión.
+- **Pendiente de Andoni:** verlo; no publicado.
+
+### Ronda 107 · 2026-10-02 · el movimiento de ascii.fm (stop-motion), el tema de la web en lo-fi hip hop y el hueco del cursor pequeño (en local)
+- **Andoni (textual):** «en los ASCII quiero conseguir este efecto de movimiento que tiene ascii.fm/stations» · «el estilo de música lo-fi me gusta mucho: necesitamos algo parecido» · «el efecto de pasar el ratón es raro, parece
+  que tiene un círculo enorme alrededor: tiene que ser del tamaño un poco más grande del cursor y que de verdad se aparten las letras, de arriba abajo y de izquierda a derecha».
+- **Referencia medida (`tools/ref107/`):** el caballo de /stations es una secuencia de dibujos (`refs/gallop/0..n.png` + máscara) pasada a ASCII; el lienzo cambia de golpe (~800 px de caracteres) cada ~0,27–0,33 s y entre
+  medias casi nada (3–5 px): STOP-MOTION a ~3–4 fotogramas por segundo, con los cantos que cambian en cada dibujo. La música son pistas grabadas (`/music/focus.mp3`, `focus-2`, `focus-3`): suyas, no se copian.
+- **Hecho:** · `ascii.ts` (r106 en `tools/retirados/ascii.r106.ts.txt`): opción `fotogramas` (el índice de fotograma lo da el compás: tres por tiempo, ~3,7/s a 74 BPM); la pose se SOSTIENE entre fotogramas (sin suavizar) y en
+  cada uno los cantos HIERVEN (umbral del canto y luz re-sorteados por celda). Hero: tres poses distintas por tiempo (abajo · media subida · arriba, el 1 y el 3 más hondos); pie: el saxo sube en el tiempo y baja. `?mov=suave`
+  vuelve al continuo de la ronda 104. · Hueco del cursor: radial y pequeño (H 15 px, R 40 px: ~13 px de hueco, letras empujadas ~8 px a 30 px y casi nada a 60), continuo en subcelda. · `jazz.ts` (r106 en
+  `tools/retirados/jazz.r106.ts.txt`): el tema de la web (y otoño) es LO-FI HIP HOP: 74 BPM, swing 0,58, ocho compases en do (Cmaj9 · Am9 · Dm9 · G13 · Cmaj9 · Am9 · Fmaj9 · Fm9–B♭13); boom-bap (bombo en el 1 y en el «y» del
+  2, a veces en el 3; caja 22 ms tarde en 2 y 4; charles a corcheas con swing; algún abierto); acordes de novena rasgueados con vaivén de cinta (dos LFO de 0,55 y 0,13 Hz, ±7 y ±11 cents) y hundidos por el bombo (sidechain al
+  55 %); bajo redondo (fundamental larga, quinta en el «y» del 2, anticipación en el «y» del 4); saturación de cinta y paso bajo a 3,6 kHz; vinilo más presente. The Saints sigue citándose una vuelta de cada dos.
+- **Medido:** `astro check` 0 errores y 0 avisos · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/ver107.cjs` (poses en `tools/shots/r107-brazos-*`, jazz 0,18 → 0,064
+  sentado) · `tools/r103/hueco107.cjs` (Chrome y WebKit) · hero CPU ×4: 60 fps, 0 lentos. **SIN medir:** la escucha del lo-fi (lo decide Andoni).
+- **Pendiente de Andoni:** escuchar el lo-fi; si el stop-motion se queda (o `?mov=suave`); no publicado.
+
+### Ronda 108 · 2026-10-02 · el director y «Contáctanos» se escriben signo a signo, tecleando (en local)
+- **Andoni (textual):** 1 «en la animación de carga, al caer la V se inicia el dibujado del director de orquesta signo a signo del ASCII y se escuchan como los tecleos» · 2 «lo mismo aplicamos al Contáctanos del footer».
+- **Hecho:** · `ascii.ts` (opción `teclear`): al soltar (la V cae en la batuta), la figura se escribe SIGNO A SIGNO en orden de lectura, contando solo las celdas con tinta (la lámina reducida a una celda por píxel; el turno de cada
+  una va en una textura de 16 bits), en 3,4 s; delante va el CURSOR, un bloque coral; mientras escribe suenan tecleos (`musica.ts › tecla`, ~13 por segundo). Sustituye al revelado radial desde la batuta. · `Pie.astro`: en
+  ASCII, «Contáctanos» se escribe igual (cada signo de la palabra con su turno de lectura, 2,6 s, cursor coral, tecleos) y acaba con el intro; fuera la entrada letra a letra a la altura de su nota.
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/teclea.cjs` (Chrome 1280 y 390, WebKit 1280): fotogramas del tecleo del director y de la
+  palabra (`tools/shots/r108-*`), palabra `entera` al acabar, sin errores · `tools/r89/juego.cjs`: la carga se completa y el hero crece · hero CPU ×4: 60 fps.
+- **Pendiente de Andoni:** verlo y oírlo; no publicado.
+
+### Ronda 109 · 2026-10-02 · la construcción del ASCII, aleatoria y a ráfagas; la partitura con la música de la web y sonidos de los agentes (en local)
+- **Andoni (textual):** «podemos aleatorizar la construcción de ambos, que no sea uniforme» · «la partitura de tu web: mantenemos el sonido de la web y ponemos sonidos a las acciones que hacen los agentes».
+- **Hecho:** · `ascii.ts` y `Pie.astro`: el turno de cada signo mezcla una tendencia (de arriba abajo en el director, de izquierda a derecha en la palabra), MANCHAS de ruido grueso (racimos que se escriben a la vez en
+  sitios distintos) y azar suelto; el ritmo va en tramos de velocidades distintas (ráfagas y alguna pausa: 10–12 tramos, uno de cada cinco casi parado) y los tecleos suenan más o menos según esa velocidad. Semilla nueva en
+  cada visita. · `LaPartitura.astro`: fuera `entrarPartitura` / `salirPartitura` (la música de la web sigue) y fuera su sección rítmica y sus notas (ronda 100). Las acciones suenan: las cartas que caen se POSAN (`musica.ts ›
+  posar`, nuevo: golpe sordo de papel grueso), las ediciones son clic + cuatro teclas, abrir el cuaderno es papel, cada parte que escribe un agente es un tecleo de su duración, cada pieza del hero que se monta un clic, lo
+  que sale un clic suave, y publicar (Fine) el intro y un timbre suave en do (el tono del lo-fi).
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/teclea109.cjs` (Chrome y WebKit): construcción a manchas (`tools/shots/r109-*`), palabra
+  `entera` al acabar · `tools/r103/partitura109.cjs`: jazz 0,161 antes y 0,18 dentro de la partitura (ya no calla), sin errores · hero CPU ×4 sin regresión.
+- **Pendiente de Andoni:** escuchar los sonidos de los agentes; no publicado.
+
+### Ronda 110 · 2026-10-02 · la V cae al pie del hero, abre la onda y el ASCII nace desde ahí, al azar (en local)
+- **Andoni (textual):** «ajustar la animación de carga: que la V caiga hasta donde termina el hero, genere una onda y que desde ahí se empiece a generar el ASCII de manera aleatoria».
+- **Hecho:** · `Cargador.astro`: la meta de la caída ya no es la batuta sino el centro del borde de abajo del recuadro (de donde salen los pulsos, ronda 102); allí suena, se abren los aros y sale `savvia:onda`. · `Hero.astro`: esa onda
+  recorre también la retícula de puntos. · `ascii.ts`: el turno de cada signo mezcla la DISTANCIA a ese punto (40 %), las manchas (40 %) y azar (20 %): el director brota desde abajo al centro, a racimos y a ráfagas.
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` (Chrome y WebKit, 1280 y 390; oscuro y clara) limpio, desborde 0 · `tools/r103/juego110.cjs` (Chrome 1280 tres veces, WebKit 390): la carga se juega entera, la V cae al pie,
+  salto máximo entre fotogramas 34–48 px (la propia caída; una pasada suelta de Chrome sin ventana dio un parón de 450 ms que no se repite), capturas en `tools/shots/r110-caida-*`.
+- **Pendiente de Andoni:** verlo; no publicado.
+
+## Rechazado — añadidos de la ronda 85 (NO VOLVER)
+- Las ESTACIONES en la web (fondo, icono de la barra, acordes por estación): solo en la escena de Vivaldi.
+- La cuerda recta entre problemas; el pentagrama con notas como estela del estudio («demasiado literal»); el ticket de impresora térmica y su sonido.
+- El isotipo en palabras que no sean de titulares («voz», «Evita»).
+- (Ronda 86) El sobre lacrado de la entrada («un sobre no está muy relacionado con la música») y que la escena se deshaga al subir.
+
+## Rechazado — añadidos de la ronda 83 (NO VOLVER, salvo que Andoni vuelva a la naturaleza)
+- El ROBLE del hero y las RAÍCES; la gota de savia de la carga (círculo + isotipo); la raíz con gota entre los dolores; los óleos de Donostia; el paisaje del pie
+  con sus estaciones, el «Contáctanos» partido entre montañas y la puerta; la hierba de Eric y Andoni. Todo guardado en `tools/retirados/` y en el backup r82.
+
 ## Rechazado — añadidos de la ronda 77 (NO VOLVER)
 - La pantalla de carga al llegar a Proyectos destacados (rondas 68–76).
 - El reel como pieza de «Más proyectos» (ronda 76) y el teléfono de Remerge sobre su amarillo (ronda 76).

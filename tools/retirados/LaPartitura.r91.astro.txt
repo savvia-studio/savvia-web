@@ -1,0 +1,884 @@
+---
+// RONDA 91 · «La partitura de tu web tenemos que conseguir esto: agentic.littleplains.com/embeds/hero/index.html». La ronda 89–90 imitaba solo su primer
+// fotograma (lo que entra · la partitura · lo que sale, cuerdas y cursores). Lo que hace grande a la referencia es el VIAJE DE CÁMARA: se acerca a lo que
+// entra, sigue a la carpeta, ENTRA en ella y dentro está el kit de la marca, donde los agentes abren archivos y con ellos se construye una página; luego
+// sale volando y lo que se publica se construye otra vez, a golpe. Aquí, con la MÚSICA:
+// · UNA escena, UNA cámara, UN reloj: todo es función pura del tiempo (`pintar(t)`); nada se anima por su cuenta. Bucle de 20 tiempos a 92 BPM (13 s):
+//   cada golpe (lo que entra, lo que sale) cae en el pulso; cada pulso es una NOTA que viaja por su cuerda; al llegar, la partitura la escribe en su
+//   pentagrama y su filo late del color del agente. Con el sonido encendido, cada golpe es una nota suave (pizzicato / piano, muy bajo).
+// · El centro es una hoja de partitura apaisada (cuaderno de música). Al abrirla, la cámara entra (escala en espacio logarítmico: cada duplicación tarda
+//   lo mismo) y la hoja se convierte en la LIBRERÍA de savvia: árbol de archivos, pestañas, voz.md con sus principios, las insignias que toman forma y
+//   color, y la página de ejemplo que se monta con lo que abren los agentes.
+// · El mapa es SVG dentro de un grupo con la transformación de la cámara (texto vectorial, nítido a cualquier escala; trazos de 1 px con `--u`). La
+//   ventana es HTML maquetada a su tamaño y escalada S/40: a escala 40 se ve a su tamaño real.
+// Móvil: el mismo guion con el mapa de arriba abajo (lo que entra · la partitura · lo que sale) en un lienzo vertical. Movimiento reducido: el primer
+// fotograma, quieto (el póster). Anterior: tools/retirados/LaPartitura.r90.astro.txt.
+import { receta, partitura } from '../data/home';
+const P = partitura;
+const L = P.libreria;
+const VARIANTES = ['defecto', 'fantasma', 'coral', 'cobalto', 'cereza', 'nogal', 'niebla', 'contorno', 'ia'];
+---
+
+<section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube>
+  <div class="wrap section-y">
+    <h2 id="partitura-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
+    <p class="text-sub mt-6 lg:mt-8 max-w-[34ch] text-fg2" data-enfoca>{receta.arnes}</p>
+
+    <div
+      class="cine"
+      data-cine
+      data-entra-p={JSON.stringify(P.entra)}
+      data-sale-p={JSON.stringify(P.sale)}
+      data-titulo-p={JSON.stringify(P.carpeta)}
+      role="img"
+      aria-label="Película en bucle: lo que entra en tu web (estrategia, voz, identidad, componentes…) viaja por cuerdas hasta la partitura; los agentes la abren y dentro está la librería: voz.md, las insignias, los tokens y una página que se construye con ellos; al salir, lo que se publica (webs, landings, campañas…) se construye a compás."
+    >
+      <svg class="mapa" aria-hidden="true" data-mapa></svg>
+
+      <!-- LA LIBRERÍA: lo que hay dentro de la partitura. Maquetada a su tamaño (escritorio 1360 × 720; móvil 540 × 760) y escalada por la cámara. -->
+      <div class="ventana" aria-hidden="true" data-ventana>
+        <header class="v-barra">
+          <p class="v-ruta"><span>{L.ruta[0]}</span> / <b>{L.ruta[1]}</b></p>
+          <div class="v-caras">
+            {P.agentes.map(([n, c]) => <i style={`--c: var(--color-${c})`} data-cara>{n.slice(0, 2)}</i>)}
+          </div>
+          <span class="v-publicar" data-publicar><span class="a">{L.publicar[0]}</span><span class="b">{L.publicar[1]}</span></span>
+        </header>
+        <aside class="v-arbol">
+          {L.arbol.map(([g, fs]) => (
+            <>
+              <p class="v-grupo">{g}</p>
+              <ul>{fs.map((f) => <li data-archivo={f}>{f}</li>)}</ul>
+            </>
+          ))}
+        </aside>
+        <div class="v-main">
+          <div class="v-pestanas">
+            {L.pestanas.map((p, i) => <span class="v-pest" data-pest={i}>{p}</span>)}
+            <span class="v-modo"><i data-modo="0">Vista previa</i><i data-modo="1">Código</i></span>
+          </div>
+          <div class="v-panel md" data-panel="0">
+            <p class="h">{L.voz.titulo}</p>
+            <p>{L.voz.intro}</p>
+            <p class="h">{L.voz.principiosTitulo}</p>
+            <p>{L.voz.principiosIntro}</p>
+            <ul class="principios">{L.voz.principios.map((x) => <li><span data-principio>- {x}</span></li>)}</ul>
+            <p class="h">{L.voz.tempoTitulo}</p>
+            <p>{L.voz.tempo}</p>
+          </div>
+          <div class="v-panel prev" data-panel="1">
+            <div class="insignias">{L.insignias.map((x, i) => <span class={`ins ${VARIANTES[i]}`} data-insignia>{x}</span>)}</div>
+          </div>
+          <div class="v-panel prev" data-panel="2">
+            <div class="pagina">
+              <span class="campo" data-pieza-p="campo"><i></i><i></i><i></i><i></i></span>
+              <span class="etiqueta" data-pieza-p="etiqueta">{L.pagina.etiqueta}</span>
+              <p class="titulo" data-pieza-p="titulo">{L.pagina.titulo.split(' ').map((w) => <span data-palabra>{w} </span>)}</p>
+              <p class="texto" data-pieza-p="texto">{L.pagina.texto}</p>
+              <span class="boton" data-pieza-p="boton">{L.pagina.boton}</span>
+              <span class="pie" data-pieza-p="pie">{L.pagina.pie}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {P.agentes.map(([n, c]) => (
+        <div class="cursor" style={`--c: var(--color-${c})`} aria-hidden="true" data-agente>
+          <i class="onda"></i>
+          <svg viewBox="0 0 16 16"><path d="M2 1.5 L14 7 L8.4 8.4 L6.2 14 Z" /></svg>
+          <span>{n}</span>
+        </div>
+      ))}
+    </div>
+
+    <p class="nota detail text-fg2" data-enfoca>{receta.nota} <a class="link" href={receta.enlace.href} target="_blank" rel="noopener">{receta.enlace.label}</a></p>
+  </div>
+</section>
+
+<script>
+  import { pizzicato, tocar, PENTA } from '../scripts/musica';
+
+  const sec = document.querySelector<HTMLElement>('[data-partitura]');
+  if (sec) iniciar(sec);
+
+  function iniciar(sec: HTMLElement) {
+    const cine = sec.querySelector<HTMLElement>('[data-cine]')!;
+    const svg = sec.querySelector<SVGSVGElement>('[data-mapa]')!;
+    const win = sec.querySelector<HTMLElement>('[data-ventana]')!;
+    const curs = [...sec.querySelectorAll<HTMLElement>('[data-agente]')];
+    const ENTRA: string[] = JSON.parse(cine.dataset.entraP!), SALE: string[] = JSON.parse(cine.dataset.saleP!), TIT: string[] = JSON.parse(cine.dataset.tituloP!);
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const NS = 'http://www.w3.org/2000/svg';
+
+    // ── el TIEMPO: 92 BPM, bucle de 20 tiempos (cinco compases de 4/4)
+    const BEAT = 60 / 92, b = (x: number) => x * BEAT, LOOP = b(20);
+    // curvas de tiempo (cubic-bezier resuelto por bisección)
+    const curva = (x1: number, y1: number, x2: number, y2: number) => {
+      const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+      const X = (u: number) => ((ax * u + bx) * u + cx) * u, Y = (u: number) => ((ay * u + by) * u + cy) * u;
+      return (x: number) => {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        let lo = 0, hi = 1, u = x;
+        for (let i = 0; i < 22; i++) { const v = X(u); if (Math.abs(v - x) < 1e-5) break; if (v < x) lo = u; else hi = u; u = (lo + hi) / 2; }
+        return Y(u);
+      };
+    };
+    const EZ = {
+      lin: (x: number) => x,
+      fundido: curva(0.5, 0, 0.5, 1),
+      sube: curva(0, 0, 0.2, 1),
+      sale: curva(0.16, 1, 0.3, 1),
+      flujo: curva(0.6, 0, 0.4, 1),
+      mano: curva(0.42, 0, 0.24, 1),
+      deriva: curva(0.3, 0, 0.7, 1),
+      camara: curva(0.6, 0, 0.25, 1),
+      zambullida: curva(0.72, 0, 0.17, 1),
+      subida: curva(0.56, 0, 0.2, 1),
+    };
+    const clamp = (v: number, a = 0, c = 1) => Math.min(c, Math.max(a, v));
+    const prog = (t: number, a: number, c: number) => clamp((t - a) / (c - a));
+    const lerp = (a: number, c: number, p: number) => a + (c - a) * p;
+    const sm = (t: number, a: number, c: number) => EZ.fundido(prog(t, a, c));
+    // 0 → 1 → 0 en [t0, t0 + d]: sube deprisa y cae despacio (un golpe)
+    const blip = (t: number, t0: number, d: number) => {
+      const p = prog(t, t0, t0 + d);
+      return p <= 0 || p >= 1 ? 0 : p < 0.25 ? EZ.sube(p / 0.25) : 1 - EZ.fundido((p - 0.25) / 0.75);
+    };
+
+    // ── los agentes (sus colores, los de la paleta)
+    const AG = ['coral', 'cobalto', 'cereza', 'nogal'].map((c) => `var(--color-${c})`);
+
+    // ── escrituras con memoria: solo se toca el DOM si el valor cambia
+    const ult = new WeakMap<Element, Record<string, string>>();
+    const pon = (e: Element, k: string, v: string) => {
+      let m = ult.get(e);
+      if (!m) ult.set(e, (m = {}));
+      if (m[k] === v) return;
+      m[k] = v;
+      if (k[0] === '@') e.setAttribute(k.slice(1), v);
+      else (e as HTMLElement).style.setProperty(k, v);
+    };
+    const f3 = (n: number) => n.toFixed(3), f2 = (n: number) => n.toFixed(2);
+    const el = <K extends keyof SVGElementTagNameMap>(tag: K, at: Record<string, string | number>, padre: Element) => {
+      const e = document.createElementNS(NS, tag);
+      for (const k in at) e.setAttribute(k, String(at[k]));
+      padre.appendChild(e);
+      return e;
+    };
+
+    // ── GUION (en tiempos de compás)
+    const CASC = ENTRA.map((_, i) => ({ i, t: b(0.25 + 0.25 * i), ag: i % 4 }));
+    const EDIT = [{ ag: 0, i: 2, at: 4 }, { ag: 1, i: 5, at: 4.25 }, { ag: 2, i: 4, at: 4.5 }, { ag: 3, i: 0, at: 4.75 }];
+    const ABRE = 6.1, ZAMB = [6.1, 7], SUBE = [14.9, 15.9], SEL_FIN = 6.6;
+    // lo que sale se construye otra vez: cada salida, alimentada por una entrada que atraviesa la partitura; A = cuando llega a su caja
+    const CONS = [
+      { o: 0, i: 1, ag: 0 }, { o: 1, i: 5, ag: 2 }, { o: 2, i: 7, ag: 1 }, { o: 3, i: 4, ag: 3 }, { o: 4, i: 2, ag: 0 }, { o: 5, i: 3, ag: 2 },
+    ].map((c, j) => ({ ...c, A: b(17.2 + 0.42 * j) }));
+    // dentro: archivos que se abren (quién y cuándo) y piezas de la página
+    const ABRIR = [
+      { f: 'voz.md', ag: 0, at: 7.25 }, { f: 'Insignia.tsx', ag: 1, at: 9.5 }, { f: 'tokens.css', ag: 0, at: 11 },
+      { f: 'direccion-de-arte.md', ag: 2, at: 12.5 }, { f: 'Boton.tsx', ag: 1, at: 13.75 },
+    ];
+    const PEST = [6.5, 9.5, 12.5];
+    const PRIN = (j: number) => b(7.6 + 0.4 * j), PRIN_D = b(0.36);
+    const FORMA = (j: number) => b(9.8 + 0.14 * j), COLOR = (j: number) => b(11.2 + 0.12 * j);
+    const PIEZA = { campo: 12.7, etiqueta: 13.0, titulo: 13.25, texto: 13.6, boton: 14.0, pie: 14.1 };
+    const DESTELLO = [{ f: 'Insignia.tsx', at: 13.0, ag: 1 }, { f: 'voz.md', at: 13.25, ag: 0 }, { f: 'voz.md', at: 13.6, ag: 0 }];
+    const PUBLICA = 14.55;
+
+    // los pulsos: [cuerda, salida, duración, agente]; los de entrada golpean la partitura al llegar
+    type Pulso = { lado: 'in' | 'out'; i: number; t0: number; d: number; ag: number };
+    const PULSOS: Pulso[] = [
+      ...CASC.map((c) => ({ lado: 'in' as const, i: c.i, t0: c.t + 0.02, d: 0.62, ag: c.ag })),
+      ...EDIT.map((e) => ({ lado: 'in' as const, i: e.i, t0: b(e.at) + 0.03, d: 0.72, ag: e.ag })),
+      ...CONS.flatMap((c) => [
+        { lado: 'in' as const, i: c.i, t0: c.A - 0.85, d: 0.5, ag: c.ag },
+        { lado: 'out' as const, i: c.o, t0: c.A - 0.35, d: 0.45, ag: c.ag },
+      ]),
+    ];
+    const GOLPES = PULSOS.filter((p) => p.lado === 'in').map((p) => ({ t: p.t0 + p.d, ag: p.ag })).sort((x, y) => x.t - y.t);
+
+    // ── la escena: modo h (escritorio, 1600 × 900) o v (móvil, 600 × 840)
+    const mqV = matchMedia('(width < 64rem)');
+    let modo: 'h' | 'v' = mqV.matches ? 'v' : 'h';
+    let W = 1600, H = 900, k = 1;
+    const SW = 236, SH = 160, HOLD = 40;
+    type Caja = { lado: 'in' | 'out'; i: number; g: SVGGElement; r: SVGRectElement; x: number; y: number; w: number; h: number; P: number[]; tabla: number[]; cuerda: SVGPathElement; pulso: SVGPathElement; cabeza: SVGGElement };
+    let cajas: Caja[] = [], ins: Caja[] = [], outs: Caja[] = [];
+    let cam: SVGGElement, papel: SVGRectElement, filo: SVGRectElement, gTexto: SVGGElement, notas: SVGGElement[] = [];
+    type Vista = { S: number; cx: number; cy: number };
+    let REST: Vista, INS: Vista, INS2: Vista, FOLD: Vista, DENTRO: Vista;
+    let CAM: [number, Vista, (x: number) => number][] = [];
+
+    const bez = (P: number[], u: number) => {
+      const m = 1 - u, a = m * m * m, c = 3 * m * m * u, d = 3 * m * u * u, e = u * u * u;
+      return [a * P[0] + c * P[2] + d * P[4] + e * P[6], a * P[1] + c * P[3] + d * P[5] + e * P[7]];
+    };
+    // tabla de longitud de arco: así la cabeza de la nota y su estela coinciden
+    const tablaArco = (P: number[]) => {
+      const n = 48, L = [0];
+      let [px, py] = bez(P, 0), tot = 0;
+      for (let q = 1; q <= n; q++) { const [x, y] = bez(P, q / n); tot += Math.hypot(x - px, y - py); L.push(tot); px = x; py = y; }
+      return L.map((v) => v / tot);
+    };
+    const uDe = (tab: number[], s: number) => {
+      const n = tab.length - 1;
+      let q = 1;
+      while (q < n && tab[q] < s) q++;
+      const a = tab[q - 1], c = tab[q];
+      return (q - 1 + (s - a) / (c - a || 1)) / n;
+    };
+    const dDe = (P: number[]) => `M${f2(P[0])} ${f2(P[1])}C${f2(P[2])} ${f2(P[3])} ${f2(P[4])} ${f2(P[5])} ${f2(P[6])} ${f2(P[7])}`;
+
+    const montar = () => {
+      modo = mqV.matches ? 'v' : 'h';
+      W = modo === 'h' ? 1600 : 600;
+      H = modo === 'h' ? 900 : 840;
+      cine.classList.toggle('v', modo === 'v');
+      win.classList.toggle('v', modo === 'v');
+      k = cine.clientWidth / W;
+      svg.innerHTML = '';
+      svg.setAttribute('viewBox', `0 0 ${cine.clientWidth} ${cine.clientHeight}`);
+      cam = el('g', { class: 'cam' }, svg);
+      const gC = el('g', {}, cam), gP = el('g', {}, cam), gH = el('g', { class: 'hoja' }, cam), gK = el('g', {}, cam), gN = el('g', {}, cam);
+      // LA HOJA: cuaderno de música apaisado (papel, filo que late, título, tempo, «dir. savvia» y tres pentagramas)
+      papel = el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 4, class: 'papel' }, gH);
+      gTexto = el('g', {}, gH);
+      el('text', { x: -SW / 2 + 12, y: -SH / 2 + 15, class: 'tempo' }, gTexto).textContent = 'Allegro con criterio';
+      el('text', { x: SW / 2 - 12, y: -SH / 2 + 15, class: 'autor', 'text-anchor': 'end' }, gTexto).textContent = 'dir. savvia';
+      TIT.forEach((s, q) => { el('text', { x: 0, y: -SH / 2 + 37 + q * 19, class: 'titulo', 'text-anchor': 'middle' }, gTexto).textContent = s; });
+      const PT = [-8, 22, 52];
+      PT.forEach((y0, s) => {
+        for (let l = 0; l < 5; l++) el('line', { x1: -100, x2: 100, y1: y0 + l * 3.2, y2: y0 + l * 3.2, class: 'pauta' }, gTexto);
+        el('line', { x1: -100, x2: -100, y1: y0, y2: y0 + 12.8, class: 'barra' }, gTexto);
+        el('line', { x1: 100, x2: 100, y1: y0, y2: y0 + 12.8, class: s === 2 ? 'barra fin' : 'barra' }, gTexto);
+      });
+      // las notas que la partitura escribe: una por golpe, en el color de quien la manda
+      notas = GOLPES.map((g, q) => {
+        const s = Math.floor(q / 7) % 3, j = q % 7, l = (q * 5 + 3) % 9;
+        const x = -82 + j * 27, y = PT[s] + 12.8 - l * 1.6, arriba = l < 4;
+        const n = el('g', { class: 'nota', style: `--c: ${AG[g.ag]}` }, gTexto);
+        el('ellipse', { cx: x, cy: y, rx: 3.1, ry: 2.2, transform: `rotate(-20 ${x} ${y})` }, n);
+        el('line', { x1: arriba ? x + 2.8 : x - 2.8, x2: arriba ? x + 2.8 : x - 2.8, y1: y, y2: arriba ? y - 10 : y + 10 }, n);
+        return n;
+      });
+      filo = el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 4, class: 'filo' }, gH);
+
+      // LAS CAJAS (lo que entra, lo que sale) y sus CUERDAS
+      const FS = 15, BH = 30, PAD = 12;
+      const nueva = (lado: 'in' | 'out', i: number, txt: string): Caja => {
+        const g = el('g', { class: 'caja' }, gK);
+        const r = el('rect', { rx: 6, height: BH }, g);
+        const tx = el('text', { class: 'rot' }, g);
+        tx.textContent = txt;
+        const w = tx.getComputedTextLength() + PAD * 2;
+        r.setAttribute('width', f2(w));
+        const cuerda = el('path', { class: 'cuerda', pathLength: 1 }, gC);
+        const pulso = el('path', { class: 'pulso', pathLength: 1 }, gP);
+        const cabeza = el('g', { class: 'cabeza' }, gN);
+        el('ellipse', { cx: 0, cy: 0, rx: 3.6, ry: 2.6, transform: 'rotate(-20)' }, cabeza);
+        el('line', { x1: 3.2, x2: 3.2, y1: 0, y2: -12 }, cabeza);
+        return { lado, i, g, r, x: 0, y: 0, w, h: BH, P: [], tabla: [], cuerda, pulso, cabeza };
+      };
+      ins = ENTRA.map((s, i) => nueva('in', i, s));
+      outs = SALE.map((s, i) => nueva('out', i, s));
+      cajas = [...ins, ...outs];
+      const curvaH = (x0: number, y0: number, x1: number, y1: number, c0: number, c1: number) => [x0, y0, x0 + (x1 - x0) * c0, y0, x0 + (x1 - x0) * c1, y1, x1, y1];
+      const curvaV = (x0: number, y0: number, x1: number, y1: number, c0: number, c1: number) => [x0, y0, x0, y0 + (y1 - y0) * c0, x1, y0 + (y1 - y0) * c1, x1, y1];
+      if (modo === 'h') {
+        ins.forEach((c, i) => { const y = (i - 4.5) * 44; c.x = -250 - c.w; c.y = y - BH / 2; c.P = curvaH(-250, y, -SW / 2 - 1, 0, 0.55, 0.5); });
+        outs.forEach((c, j) => { const y = (j - 2.5) * 48; c.x = 250; c.y = y - BH / 2; c.P = curvaH(SW / 2 + 1, 0, 250, y, 0.5, 0.55); });
+      } else {
+        // en filas que se reparten, centradas (las cuerdas bajan del pie de cada caja a la cabeza de la hoja, y salen de su pie)
+        const filas = (cs: Caja[]) => {
+          const out: Caja[][] = [[]];
+          let ancho = 0;
+          for (const c of cs) { if (ancho && ancho + 10 + c.w > 440) { out.push([]); ancho = 0; } out[out.length - 1].push(c); ancho += (ancho ? 10 : 0) + c.w; }
+          return out;
+        };
+        const colocar = (fs: Caja[][], y0: number, dir: 1 | -1) => fs.forEach((fila, r) => {
+          const tw = fila.reduce((s, c) => s + c.w, 0) + (fila.length - 1) * 10;
+          let x = -tw / 2;
+          const yc = y0 + dir * (dir === 1 ? r : fs.length - 1 - r) * 40;
+          for (const c of fila) { c.x = x; c.y = yc - BH / 2; x += c.w + 10; }
+        });
+        const fi = filas(ins), fo = filas(outs);
+        colocar(fi, -SH / 2 - 110 - BH / 2, -1);
+        colocar(fo, SH / 2 + 110 + BH / 2, 1);
+        ins.forEach((c) => { c.P = curvaV(c.x + c.w / 2, c.y + BH, 0, -SH / 2 - 1, 0.55, 0.5); });
+        outs.forEach((c) => { c.P = curvaV(0, SH / 2 + 1, c.x + c.w / 2, c.y, 0.5, 0.45); });
+      }
+      for (const c of cajas) {
+        c.g.setAttribute('transform', `translate(${f2(c.x)} ${f2(c.y)})`);
+        const tx = c.g.querySelector('text')!;
+        tx.setAttribute('x', String(PAD));
+        tx.setAttribute('y', f2(BH / 2 + FS * 0.34));
+        c.tabla = tablaArco(c.P);
+        c.cuerda.setAttribute('d', dDe(c.P));
+        c.pulso.setAttribute('d', dDe(c.P));
+      }
+
+      // ── LA CÁMARA: vistas calculadas de la geometría
+      const caja = (cs: { x: number; y: number; w: number; h: number }[]) => {
+        const x0 = Math.min(...cs.map((c) => c.x)), y0 = Math.min(...cs.map((c) => c.y)), x1 = Math.max(...cs.map((c) => c.x + c.w)), y1 = Math.max(...cs.map((c) => c.y + c.h));
+        return { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0 };
+      };
+      const hoja = { x: -SW / 2, y: -SH / 2, w: SW, h: SH };
+      const todo = caja([...cajas, hoja]), ci = caja(ins);
+      const sR = Math.min((W * 0.9) / todo.w, (H * 0.84) / todo.h);
+      REST = { S: sR, cx: (todo.x0 + todo.x1) / 2, cy: (todo.y0 + todo.y1) / 2 };
+      if (modo === 'h') {
+        const s = Math.min(sR * 1.24, (H * 0.92) / ci.h);
+        INS = { S: s, cx: ci.x0 + (W * 0.43) / s, cy: (ci.y0 + ci.y1) / 2 };
+        INS2 = { S: s * 1.04, cx: INS.cx + 6, cy: INS.cy };
+        FOLD = { S: (W * 0.42) / SW, cx: 0, cy: 0 };
+      } else {
+        const s = Math.min(sR * 1.3, (W * 0.94) / ci.w);
+        INS = { S: s, cx: 0, cy: ci.y0 + (H * 0.36) / s };
+        INS2 = { S: s * 1.04, cx: 0, cy: INS.cy + 6 };
+        FOLD = { S: (W * 0.72) / SW, cx: 0, cy: 0 };
+      }
+      DENTRO = { S: HOLD, cx: 0, cy: 0 };
+      CAM = [
+        [0, REST, EZ.lin], [b(3), REST, EZ.lin], [b(4), INS, EZ.camara], [b(4.9), INS2, EZ.deriva], [b(5.8), FOLD, EZ.camara], [b(ABRE), FOLD, EZ.lin],
+        [b(ZAMB[1]), DENTRO, EZ.zambullida], [b(SUBE[0]), DENTRO, EZ.lin], [b(SUBE[1]), REST, EZ.subida], [LOOP, REST, EZ.lin],
+      ];
+      medirVentana();
+      for (const c of curs) ult.delete(c);
+      for (const c of cajas) ult.delete(c.g);
+    };
+
+    // la cámara a tiempo t: la escala viaja en espacio logarítmico (cada duplicación tarda lo mismo), el centro en línea recta
+    const camara = (t: number): Vista => {
+      let q = 0;
+      while (q < CAM.length - 2 && CAM[q + 1][0] <= t) q++;
+      const [t0, A] = CAM[q], [t1, B, ez] = CAM[q + 1];
+      const p = ez(prog(t, t0, t1));
+      return { S: Math.exp(lerp(Math.log(A.S), Math.log(B.S), p)), cx: lerp(A.cx, B.cx, p), cy: lerp(A.cy, B.cy, p) };
+    };
+    const sx = (v: Vista, x: number) => W / 2 + v.S * (x - v.cx), sy = (v: Vista, y: number) => H / 2 + v.S * (y - v.cy);
+
+    // ── LA VENTANA: sus piezas y dónde están (en px de la propia ventana, sin la escala)
+    const Q = <T extends Element>(s: string) => [...win.querySelectorAll<T>(s)];
+    const caras = Q<HTMLElement>('[data-cara]'), pests = Q<HTMLElement>('[data-pest]'), paneles = Q<HTMLElement>('[data-panel]'), modos = Q<HTMLElement>('[data-modo]');
+    const archivos = new Map(Q<HTMLElement>('[data-archivo]').map((e) => [e.dataset.archivo!, e]));
+    const principios = Q<HTMLElement>('[data-principio]'), insignias = Q<HTMLElement>('[data-insignia]'), palabras = Q<HTMLElement>('[data-palabra]');
+    const piezas = Object.fromEntries(Q<HTMLElement>('[data-pieza-p]').map((e) => [e.dataset.piezaP!, e]));
+    const publicar = win.querySelector<HTMLElement>('[data-publicar]')!;
+    let WW = 1360, WH = 720;
+    const sitio = new Map<Element, { x: number; y: number; w: number; h: number }>();
+    const medirVentana = () => {
+      WW = win.offsetWidth;
+      WH = win.offsetHeight;
+      sitio.clear();
+    };
+    const rectLocal = (e: HTMLElement) => {
+      let r = sitio.get(e);
+      if (r) return r;
+      let x = 0, y = 0, n: HTMLElement | null = e;
+      while (n && n !== win) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      r = { x, y, w: e.offsetWidth, h: e.offsetHeight };
+      sitio.set(e, r);
+      return r;
+    };
+    // la ventana en la escena: centrada en la hoja, escala S/40 (a escala 40, su tamaño real)
+    const ventanaEn = (v: Vista) => { const s = v.S / HOLD; return { s, x: sx(v, 0) - (WW * s) / 2, y: sy(v, 0) - (WH * s) / 2 }; };
+
+    // ── los CURSORES: anclas (en unidades de la escena) y fotogramas clave en tiempos de compás
+    type Ancla = (t: number) => number[];
+    const Wp = (x: number, y: number): Ancla => (t) => { const v = camara(t); return [sx(v, x), sy(v, y)]; };
+    const congela = (a: Ancla, tb: number): Ancla => () => a(b(tb));
+    const enCaja = (lado: 'in' | 'out', i: number, fx = 0.66, fy = 0.64): Ancla => (t) => { const c = (lado === 'in' ? ins : outs)[i]; return Wp(c.x + c.w * fx, c.y + c.h * fy)(t); };
+    const Vp = (e: HTMLElement | (() => HTMLElement), fx = 0.7, fy = 0.6): Ancla => (t) => {
+      const r = rectLocal(typeof e === 'function' ? e() : e), w = ventanaEn(camara(t));
+      return [w.x + (r.x + r.w * fx) * w.s, w.y + (r.y + r.h * fy) * w.s];
+    };
+    const Of = (fx: number, fy: number): Ancla => () => [W * fx, H * fy];
+    const esquina = (ex: number, ey: number) => Wp(ex * (SW / 2 - 6), ey * (SH / 2 - 8));
+    // mientras Claude subraya un principio, su mano va con el final del subrayado
+    const subraya = (j: number, p: number): Ancla => (t) => Vp(principios[j], p, 0.72)(t);
+    type Kf = [number, Ancla, (x: number) => number];
+    const M = EZ.mano, Ln = EZ.lin;
+    const arch = (f: string) => archivos.get(f)!;
+    const panel = (q: number) => paneles[q];
+    // las cuatro manos: [tiempo de compás, ancla, curva para llegar]
+    const KF: Kf[][] = [
+      // Claude: edita «Voz», abre la esquina de arriba a la izquierda, dentro subraya los principios de voz.md y abre tokens.css; al salir, toca dos entradas
+      [
+        [0, Of(0.46, -0.25), Ln], [3.15, Of(0.46, -0.25), Ln], [3.95, enCaja('in', 2), M], [5.0, enCaja('in', 2), Ln], [5.85, esquina(-1, -1), M], [ABRE, esquina(-1, -1), Ln],
+        [6.55, congela(esquina(-1, -1), ABRE), Ln], [7.2, Vp(() => arch('voz.md')), M], [7.5, subraya(0, 0), M],
+        ...[0, 1, 2, 3].flatMap((j) => [[7.6 + 0.4 * j, subraya(j, 0), j ? M : Ln], [7.6 + 0.4 * j + 0.36, subraya(j, 1), Ln]] as Kf[]),
+        [9.9, Vp(() => panel(0), 0.82, 0.5), M], [10.6, Vp(() => panel(0), 0.82, 0.5), Ln], [10.95, Vp(() => arch('tokens.css')), M], [11.5, Vp(() => arch('tokens.css')), Ln],
+        [12.1, Vp(() => panel(1), 0.84, 0.3), M], [13.0, Vp(() => panel(1), 0.84, 0.3), Ln], [13.4, Vp(() => piezas.titulo, 1.02, 0.4), M], [SUBE[0], Vp(() => piezas.titulo, 1.02, 0.4), Ln],
+        [SUBE[1] - 0.05, enCaja('in', 1), M], [17.0, enCaja('in', 1), Ln], [17.5, enCaja('in', 2), M], [19.35, enCaja('in', 2), Ln], [19.95, Of(0.46, -0.25), M],
+      ],
+      // Codex: edita «Componentes», esquina de arriba a la derecha, abre Insignia.tsx (las insignias toman forma) y Boton.tsx (el botón de la página)
+      [
+        [0, Of(-0.3, 0.32), Ln], [3.25, Of(-0.3, 0.32), Ln], [4.2, enCaja('in', 5), M], [5.0, enCaja('in', 5), Ln], [5.85, esquina(1, -1), M], [ABRE, esquina(1, -1), Ln],
+        [6.55, congela(esquina(1, -1), ABRE), Ln], [7.3, Vp(() => panel(0), 0.9, 0.16), M], [9.15, Vp(() => panel(0), 0.9, 0.16), Ln],
+        [9.45, Vp(() => arch('Insignia.tsx')), M], [9.9, Vp(() => arch('Insignia.tsx')), Ln], [10.5, Vp(() => insignias[4], 0.8, 1.25), M], [13.3, Vp(() => insignias[4], 0.8, 1.25), Ln],
+        [13.7, Vp(() => arch('Boton.tsx')), M], [14.05, Vp(() => arch('Boton.tsx')), Ln], [14.45, Vp(() => piezas.boton, 0.92, 0.85), M], [SUBE[0], Vp(() => piezas.boton, 0.92, 0.85), Ln],
+        [16.6, enCaja('in', 7), M], [19.35, enCaja('in', 7), Ln], [19.95, Of(-0.3, 0.32), M],
+      ],
+      // Diseño: edita «Dirección de arte», esquina de abajo a la derecha, abre direccion-de-arte.md (el campo de la página)
+      [
+        [0, Of(-0.3, 0.86), Ln], [3.35, Of(-0.3, 0.86), Ln], [4.45, enCaja('in', 4), M], [5.0, enCaja('in', 4), Ln], [5.85, esquina(1, 1), M], [ABRE, esquina(1, 1), Ln],
+        [6.55, congela(esquina(1, 1), ABRE), Ln], [7.35, Vp(() => panel(0), 0.74, 0.9), M], [12.15, Vp(() => panel(0), 0.74, 0.9), Ln],
+        [12.45, Vp(() => arch('direccion-de-arte.md')), M], [12.9, Vp(() => arch('direccion-de-arte.md')), Ln], [13.35, Vp(() => piezas.campo, 0.18, 0.3), M], [SUBE[0], Vp(() => piezas.campo, 0.18, 0.3), Ln],
+        [16.25, enCaja('in', 5), M], [17.4, enCaja('in', 5), Ln], [17.95, enCaja('in', 3), M], [19.35, enCaja('in', 3), Ln], [19.95, Of(-0.3, 0.86), M],
+      ],
+      // Tu equipo: edita «Estrategia», esquina de abajo a la izquierda, mira el árbol y PUBLICA; al salir, elige «Campañas»
+      [
+        [0, Of(0.3, 1.25), Ln], [3.45, Of(0.3, 1.25), Ln], [4.7, enCaja('in', 0), M], [5.0, enCaja('in', 0), Ln], [5.85, esquina(-1, 1), M], [ABRE, esquina(-1, 1), Ln],
+        [6.55, congela(esquina(-1, 1), ABRE), Ln], [7.4, Vp(() => arch('Tarjeta.tsx'), 0.9, 1.6), M], [14.15, Vp(() => arch('Tarjeta.tsx'), 0.9, 1.6), Ln],
+        [14.5, Vp(publicar, 0.55, 0.62), M], [SUBE[0], Vp(publicar, 0.55, 0.62), Ln],
+        [17.9, enCaja('out', 3, 0.55, 0.62), M], [19.35, enCaja('out', 3, 0.55, 0.62), Ln], [19.95, Of(0.3, 1.25), M],
+      ],
+    ];
+    // al subir, cada mano se queda donde estaba en pantalla (no se encoge con la ventana) y vuela a su sitio del mapa
+    KF.forEach((kf) => {
+      const q = kf.findIndex((x) => x[0] === SUBE[0]);
+      if (q > 0) kf.splice(q + 1, 0, [SUBE[0] + 0.05, congela(kf[q][1], SUBE[0]), Ln]);
+    });
+    const CLICS: number[][] = [
+      [4, ABRE, 7.25, 11, ...CONS.filter((c) => c.ag === 0).map((c) => (c.A - 0.85) / BEAT)],
+      [4.25, ABRE, 9.5, 13.75, ...CONS.filter((c) => c.ag === 1).map((c) => (c.A - 0.85) / BEAT)],
+      [4.5, ABRE, 12.5, ...CONS.filter((c) => c.ag === 2).map((c) => (c.A - 0.85) / BEAT)],
+      [4.75, ABRE, PUBLICA, CONS[3].A / BEAT + 0.1],
+    ];
+    const manoEn = (q: number, t: number) => {
+      const kf = KF[q], tb = t / BEAT;
+      let i = 0;
+      while (i < kf.length - 2 && kf[i + 1][0] <= tb) i++;
+      const [a0, A0] = kf[i], [a1, A1, ez] = kf[i + 1];
+      const p = ez(prog(tb, a0, a1)), P0 = A0(t), P1 = A1(t);
+      const arco = Math.sin(Math.PI * p) * -Math.min(40, Math.hypot(P1[0] - P0[0], P1[1] - P0[1]) * 0.12);
+      return [lerp(P0[0], P1[0], p), lerp(P0[1], P1[1], p) + arco];
+    };
+
+    // ── EL SONIDO, a compás (solo mientras corre el reloj y la sección se ve)
+    const SON: [number, () => void][] = [
+      ...CASC.map((c) => [c.t, () => pizzicato(PENTA[c.i], { vol: 0.02 })] as [number, () => void]),
+      ...EDIT.map((e, q) => [b(e.at), () => pizzicato(PENTA[q + 5], { vol: 0.028 })] as [number, () => void]),
+      [b(ABRE), () => [62, 66, 69, 74].forEach((m, q) => tocar(m, { vol: 0.018, dur: 2.2, cuando: q * 0.03 }))],
+      ...ABRIR.map((a, q) => [b(a.at), () => tocar(PENTA[(q * 2 + 4) % PENTA.length] + 12, { vol: 0.016, dur: 1.4 })] as [number, () => void]),
+      ...[0, 2, 4, 6, 8].map((j) => [FORMA(j), () => pizzicato(PENTA[j] + 12, { vol: 0.012 })] as [number, () => void]),
+      [b(PUBLICA), () => [74, 78, 81].forEach((m, q) => tocar(m, { vol: 0.02, dur: 1.6, cuando: q * 0.08 }))],
+      ...CONS.map((c, j) => [c.A + 0.1, () => pizzicato(PENTA[3 + j], { vol: 0.026 })] as [number, () => void]),
+    ];
+    const sonar = (t0: number, t1: number) => {
+      for (const [ts, fn] of SON) if ((t1 >= t0 && ts > t0 && ts <= t1) || (t1 < t0 && (ts > t0 || ts <= t1))) fn();
+    };
+
+    // ── PINTAR el fotograma t (función pura del tiempo)
+    const pintar = (t: number) => {
+      const v = camara(t), K = k * v.S;
+      pon(cam, '@transform', `translate(${f2(k * (W / 2 - v.S * v.cx))} ${f2(k * (H / 2 - v.S * v.cy))}) scale(${K.toFixed(5)})`);
+      pon(cam, '--u', (1 / K).toFixed(5));
+      const tb = t / BEAT;
+      const fin = sm(tb, 19.4, 19.95);
+
+      // cuerdas: vibran cuando se pulsan (una cuerda pulsada: seno amortiguado); las de salida se borran dentro y se dibujan otra vez al construirse
+      for (const c of cajas) {
+        let off = 0;
+        for (const p of PULSOS) {
+          if (p.lado !== c.lado || p.i !== c.i) continue;
+          const tp = c.lado === 'in' ? p.t0 : p.t0 + p.d, e = t - tp;
+          if (e > 0 && e < 1.6) off += (c.lado === 'in' ? 6 : 5) * Math.sin(e * 44) * Math.exp(-e * 3.4);
+        }
+        const P = c.P.slice();
+        if (modo === 'h') { P[3] += off; P[5] += off * 0.6; } else { P[2] += off; P[4] += off * 0.6; }
+        const d = off ? dDe(P) : dDe(c.P);
+        pon(c.cuerda, '@d', d);
+        // ¿se ve la salida? (está en el póster; se borra dentro de la partitura; se construye cuando le llega su pulso)
+        let ver = 1, dib = 1;
+        if (c.lado === 'out') {
+          const cn = CONS.find((x) => x.o === c.i)!, p0 = cn.A - 0.35;
+          if (t >= b(ZAMB[1]) && t < p0) { ver = 0; dib = 0; }
+          else if (t >= p0 && t < cn.A + 0.1) { dib = EZ.flujo(prog(t, p0, cn.A + 0.1)); ver = 0; }
+          if (t >= cn.A + 0.1) ver = EZ.sale(prog(t, cn.A + 0.1, cn.A + 0.6));
+        }
+        pon(c.cuerda, 'stroke-dasharray', dib >= 1 ? 'none' : `${f3(dib)} 2`);
+        // el pulso activo (si lo hay): una nota que viaja con su estela
+        let act: Pulso | null = null;
+        for (const p of PULSOS) if (p.lado === c.lado && p.i === c.i && t >= p.t0 && t <= p.t0 + p.d + 0.08) act = p;
+        if (act) {
+          const h = EZ.flujo(prog(t, act.t0, act.t0 + act.d)), seg = 0.16;
+          pon(c.pulso, '@d', d);
+          pon(c.pulso, 'stroke', AG[act.ag]);
+          pon(c.pulso, 'stroke-dasharray', `${f3(Math.min(seg, h))} 2`);
+          pon(c.pulso, 'stroke-dashoffset', f3(-(h - Math.min(seg, h))));
+          pon(c.pulso, 'opacity', f3(1 - prog(t, act.t0 + act.d, act.t0 + act.d + 0.08)));
+          const [x, y] = bez(P, uDe(c.tabla, h));
+          pon(c.cabeza, '@transform', `translate(${f2(x)} ${f2(y)})`);
+          pon(c.cabeza, 'fill', AG[act.ag]);
+          pon(c.cabeza, 'stroke', AG[act.ag]);
+          pon(c.cabeza, 'opacity', f3(Math.min(1, prog(t, act.t0, act.t0 + 0.06)) * (1 - prog(t, act.t0 + act.d - 0.04, act.t0 + act.d + 0.04))));
+        } else {
+          pon(c.pulso, 'opacity', '0');
+          pon(c.cabeza, 'opacity', '0');
+        }
+        // la caja: se enciende con el color de quien la toca (cascada, edición, construcción) o queda seleccionada
+        let luz = 0, ag = 0;
+        const sube = (x: number, a: number) => { if (x > luz) { luz = x; ag = a; } };
+        if (c.lado === 'in') {
+          for (const q of CASC) if (q.i === c.i) sube(blip(t, q.t, 0.7) * 0.9, q.ag);
+          for (const e of EDIT) if (e.i === c.i) sube(sm(t, b(e.at), b(e.at) + 0.12) * (1 - sm(t, b(SEL_FIN), b(SEL_FIN) + 0.3)), e.ag);
+          for (const cn of CONS) if (cn.i === c.i) sube(blip(t, cn.A - 0.85, 0.9), cn.ag);
+        } else {
+          const cn = CONS.find((x) => x.o === c.i)!;
+          sube(blip(t, cn.A + 0.1, 0.9), cn.ag);
+          if (cn.o === 3) sube(sm(t, cn.A + 0.1, cn.A + 0.25) * (1 - fin), cn.ag);
+        }
+        pon(c.g, '--c', AG[ag]);
+        pon(c.g, '--l', f3(luz));
+        const pop = c.lado === 'out' ? lerp(0.9, 1, ver) : 1;
+        pon(c.g, 'opacity', f3(ver));
+        pon(c.g, '@transform', `translate(${f2(c.x + (c.w * (1 - pop)) / 2)} ${f2(c.y + (c.h * (1 - pop)) / 2)}) scale(${f3(pop)})`);
+      }
+
+      // la partitura: su filo late del color del último golpe; escribe las notas; el texto se va al entrar (no cruza la pantalla en grande)
+      let fl = 0, fa = 0;
+      for (const g of GOLPES) { const x = blip(t, g.t, 0.6); if (x > fl) { fl = x; fa = g.ag; } }
+      pon(filo, 'stroke', `color-mix(in oklab, ${AG[fa]} ${Math.round(fl * 100)}%, var(--filo-reposo))`);
+      pon(filo, '--g', f3(fl));
+      const vT = 1 - clamp((Math.log(v.S) - Math.log(FOLD.S * 1.15)) / (Math.log(FOLD.S * 2.6) - Math.log(FOLD.S * 1.15)));
+      pon(gTexto, 'opacity', f3(vT));
+      GOLPES.forEach((g, q) => pon(notas[q], 'opacity', f3(sm(t, g.t - 0.02, g.t + 0.14) * (1 - fin))));
+      pon(papel, '--g', f3(fl));
+
+      // la ventana: nace del blanco del papel según la cámara se acerca
+      const wo = clamp((Math.log(v.S) - Math.log(9)) / (Math.log(26) - Math.log(9)));
+      const w = ventanaEn(v);
+      pon(win, 'visibility', wo > 0.001 ? 'visible' : 'hidden');
+      pon(win, 'opacity', f3(EZ.fundido(wo)));
+      if (wo > 0.001) {
+        pon(win, 'transform', `translate(${f2(w.x * k)}px, ${f2(w.y * k)}px) scale(${(w.s * k).toFixed(5)})`);
+        pintarVentana(t, tb);
+      }
+
+      // las manos
+      curs.forEach((c, q) => {
+        const [x, y] = manoEn(q, t);
+        pon(c, 'transform', `translate3d(${f2(x * k)}px, ${f2(y * k)}px, 0)`);
+        let cl = 0;
+        for (const tc of CLICS[q]) cl = Math.max(cl, blip(tb, tc, 0.5));
+        pon(c, '--clic', f3(cl));
+        let on = 0;
+        for (const tc of CLICS[q]) { const p = prog(tb, tc, tc + 0.7); if (p > 0 && p < 1) on = p; }
+        pon(c, '--onda', f3(on));
+      });
+    };
+
+    const pintarVentana = (t: number, tb: number) => {
+      caras.forEach((e, q) => {
+        const pr = [7.25, 9.5, 12.5, 14.2][q];
+        pon(e, '--p', f3(sm(tb, pr, pr + 0.3)));
+      });
+      let activa = 0;
+      PEST.forEach((p0, q) => { pon(pests[q], '--p', f3(sm(tb, p0, p0 + 0.25))); if (tb >= p0) activa = q; });
+      pests.forEach((e, q) => pon(e, '--a', q === activa ? '1' : '0'));
+      paneles.forEach((e, q) => pon(e, '--a', f3(q === activa ? (q ? sm(tb, PEST[q], PEST[q] + 0.3) : 1) : q > activa ? 0 : 1 - sm(tb, PEST[q + 1], PEST[q + 1] + 0.3))));
+      pon(modos[0], '--a', activa ? '1' : '0');
+      pon(modos[1], '--a', activa ? '0' : '1');
+      // archivos: el contorno del agente que lo abrió; un destello cuando la página toma algo de él
+      archivos.forEach((e, f) => {
+        let o = 0, ag = 0, d = 0;
+        for (const a of ABRIR) if (a.f === f && tb >= a.at) { o = sm(tb, a.at, a.at + 0.2); ag = a.ag; }
+        for (const x of DESTELLO) if (x.f === f) d = Math.max(d, blip(tb, x.at, 0.8));
+        pon(e, '--o', f3(o));
+        pon(e, '--c', AG[ag]);
+        pon(e, '--d', f3(Math.max(d, o * 0.45)));
+      });
+      principios.forEach((e, j) => pon(e, '--p', f3(prog(t, PRIN(j), PRIN(j) + PRIN_D))));
+      insignias.forEach((e, j) => {
+        pon(e, '--f', f3(EZ.sale(prog(t, FORMA(j), FORMA(j) + 0.35))));
+        pon(e, '--k', f3(sm(t, COLOR(j), COLOR(j) + 0.3)));
+      });
+      for (const [n, at] of Object.entries(PIEZA)) if (n !== 'titulo') pon(piezas[n], '--p', f3(EZ.sale(prog(tb, at, at + (n === 'campo' ? 1.2 : 0.55)))));
+      palabras.forEach((e, q) => pon(e, '--p', f3(EZ.sale(prog(tb, PIEZA.titulo + q * 0.1, PIEZA.titulo + q * 0.1 + 0.5)))));
+      pon(publicar, '--p', f3(sm(tb, PUBLICA, PUBLICA + 0.2)));
+    };
+
+    // ── el reloj
+    let t0 = 0, raf = 0, jugando = false, tPrev = -1, tQuieto = 0, quietoDesde = 0, buscado: number | null = null;
+    const tick = (ahora: number) => {
+      raf = 0;
+      if (!jugando || buscado !== null) return;
+      const t = (((ahora - t0) / 1000) % LOOP + LOOP) % LOOP;
+      if (tPrev >= 0 && ((t - tPrev + LOOP) % LOOP) < 0.25) sonar(tPrev, t);
+      tPrev = t;
+      pintar(t);
+      raf = requestAnimationFrame(tick);
+    };
+    const tAhora = () => (((performance.now() - t0) / 1000) % LOOP + LOOP) % LOOP;
+
+    montar();
+    pintar(0);
+    const rehacer = () => { montar(); pintar(buscado ?? (jugando ? tAhora() : 0)); };
+    mqV.addEventListener('change', rehacer);
+    let anchoPrevio = cine.clientWidth;
+    new ResizeObserver(() => { if (Math.abs(cine.clientWidth - anchoPrevio) > 1) { anchoPrevio = cine.clientWidth; rehacer(); } }).observe(cine);
+    document.fonts?.ready.then(rehacer);
+
+    // sonda para las pruebas: __partitura.ir(t) congela el fotograma t; __partitura.seguir() vuelve al bucle
+    (window as any).__partitura = {
+      LOOP, BEAT,
+      ir: (t: number) => { buscado = t; pintar(t); },
+      seguir: () => { buscado = null; t0 = performance.now(); tPrev = -1; if (jugando && !raf) raf = requestAnimationFrame(tick); },
+      t: () => (buscado ?? tAhora()),
+    };
+
+    if (reducido) { sec.classList.add('quieta'); return; }
+    new IntersectionObserver((e) => {
+      const ver = e[0].isIntersecting;
+      if (ver && !jugando) {
+        jugando = true;
+        // si ha estado fuera más de 2 s, vuelve a empezar (siempre desde el póster); si no, sigue donde iba
+        t0 = performance.now() - (performance.now() - quietoDesde > 2000 ? 0 : tQuieto * 1000);
+        tPrev = -1;
+        if (!raf) raf = requestAnimationFrame(tick);
+      } else if (!ver && jugando) {
+        jugando = false;
+        tQuieto = tAhora();
+        quietoDesde = performance.now();
+      }
+    }, { rootMargin: '0px 0px -12% 0px' }).observe(cine);
+  }
+</script>
+
+<style>
+  .la-partitura { overflow-x: clip; }
+  /* LA ESCENA: un lienzo fijo (16:9 en escritorio, 5:7 en móvil) que la cámara recorre; los bordes se funden con la sección */
+  .cine {
+    --filo-reposo: color-mix(in oklab, var(--color-cacao) 26%, transparent);
+    --hoja-papel: color-mix(in oklab, var(--color-niebla) 45%, #fff);
+    position: relative;
+    margin-top: calc(var(--spacing) * 16);
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    contain: layout paint;
+    pointer-events: none;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
+    mask-composite: intersect;
+  }
+  .cine.v { aspect-ratio: 5 / 7; }
+  .mapa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .mapa :global(.cuerda) { fill: none; stroke: color-mix(in oklab, var(--color-cacao) 30%, transparent); stroke-width: calc(var(--u) * 1px); }
+  .mapa :global(.pulso) { fill: none; stroke-width: calc(var(--u) * 2px); stroke-linecap: round; }
+  .mapa :global(.cabeza) { stroke-width: calc(var(--u) * 1.2px); }
+  /* las cajas: papel, filo fino y radio; encendidas, el color del agente en el filo y un velo suyo */
+  .mapa :global(.caja rect) {
+    fill: color-mix(in oklab, var(--c) calc(var(--l, 0) * 12%), var(--hoja-papel));
+    stroke: color-mix(in oklab, var(--c) calc(var(--l, 0) * 100%), color-mix(in oklab, var(--color-cacao) 16%, transparent));
+    stroke-width: calc(var(--u) * (1px + var(--l, 0) * 0.6px));
+  }
+  .mapa :global(.rot) { font-family: var(--font-sans); font-size: 15px; fill: var(--color-cacao); }
+  .mapa :global(.papel) { fill: var(--hoja-papel); }
+  .mapa :global(.filo) { fill: none; stroke-width: calc(var(--u) * (1.2px + var(--g, 0) * 1.3px)); }
+  .mapa :global(.titulo) { font-family: var(--font-display); font-size: 17px; fill: var(--color-cacao); }
+  .mapa :global(.tempo) { font-family: var(--font-display); font-size: 6.4px; fill: var(--color-nogal); }
+  .mapa :global(.autor) { font-family: var(--font-mono); font-size: 5.6px; fill: var(--color-nogal); }
+  .mapa :global(.pauta) { stroke: color-mix(in oklab, var(--color-cacao) 28%, transparent); stroke-width: calc(var(--u) * 0.6px); }
+  .mapa :global(.barra) { stroke: color-mix(in oklab, var(--color-cacao) 40%, transparent); stroke-width: calc(var(--u) * 0.8px); }
+  .mapa :global(.barra.fin) { stroke-width: calc(var(--u) * 2px); }
+  .mapa :global(.nota) { fill: var(--c); stroke: var(--c); stroke-width: 0.9px; }
+
+  /* LA VENTANA (la librería). Maquetada en px de diseño; la cámara la escala. Escritorio: 1360 × 720 */
+  .ventana {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1360px;
+    height: 720px;
+    transform-origin: 0 0;
+    visibility: hidden;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: 58px 1fr;
+    border-radius: 16px;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--color-niebla) 16%, #fff);
+    color: var(--color-cacao);
+    box-shadow: 0 0 0 1px rgb(48 32 24 / 0.09), 0 40px 80px -40px rgb(48 32 24 / 0.38);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .v-barra { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 22px; border-bottom: 1px solid rgb(48 32 24 / 0.09); }
+  .v-ruta { font-size: 15px; color: var(--color-nogal); margin-right: auto; }
+  .v-ruta b { font-weight: 500; color: var(--color-cacao); }
+  .v-caras { display: flex; }
+  .v-caras i {
+    font-style: normal;
+    width: 28px;
+    height: 28px;
+    margin-left: -6px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--c);
+    box-shadow: 0 0 0 2px #fff;
+    opacity: var(--p, 0);
+    scale: calc(0.6 + var(--p, 0) * 0.4);
+  }
+  .v-publicar { position: relative; display: grid; padding: 6px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; background: var(--color-cacao); color: var(--color-niebla); }
+  .v-publicar span { grid-area: 1 / 1; text-align: center; }
+  .v-publicar .a { opacity: calc(1 - var(--p, 0)); }
+  .v-publicar .b { opacity: var(--p, 0); }
+  .v-publicar { background: color-mix(in oklab, var(--color-coral) calc(var(--p, 0) * 100%), var(--color-cacao)); color: color-mix(in oklab, var(--color-cacao) calc(var(--p, 0) * 100%), var(--color-niebla)); }
+  .v-arbol { padding: 20px 12px; border-right: 1px solid rgb(48 32 24 / 0.09); background: rgb(48 32 24 / 0.025); overflow: hidden; }
+  .v-grupo { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(48 32 24 / 0.45); margin: 14px 10px 6px; }
+  .v-grupo:first-child { margin-top: 0; }
+  .v-arbol li {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 calc(var(--o, 0) * 1.5px) var(--c, transparent);
+    background: color-mix(in oklab, var(--c, transparent) calc(var(--d, 0) * 16%), transparent);
+  }
+  .v-main { position: relative; display: flex; flex-direction: column; min-width: 0; }
+  .v-pestanas { display: flex; align-items: center; gap: 4px; padding: 0 16px; height: 50px; border-bottom: 1px solid rgb(48 32 24 / 0.09); }
+  .v-pest {
+    font-size: 14px;
+    padding: 5px 12px;
+    border-radius: 7px;
+    white-space: nowrap;
+    opacity: calc(var(--p, 0) * (0.45 + var(--a, 0) * 0.55));
+    background: rgb(48 32 24 / calc(var(--a, 0) * 0.06));
+    translate: 0 calc((1 - var(--p, 0)) * 6px);
+  }
+  .v-modo { margin-left: auto; display: flex; gap: 4px; font-size: 13px; }
+  .v-modo i { font-style: normal; padding: 5px 10px; border-radius: 7px; color: rgb(48 32 24 / calc(0.45 + var(--a, 0) * 0.55)); background: rgb(48 32 24 / calc(var(--a, 0) * 0.06)); }
+  .v-panel { position: absolute; inset: 50px 0 0 0; opacity: var(--a, 0); }
+  /* voz.md: el archivo tal cual (mono); Claude subraya los principios */
+  .md { padding: 26px 30px; font-family: var(--font-mono); font-size: 14px; line-height: 1.75; max-width: 76ch; }
+  .md p { margin-bottom: 10px; }
+  .md .h { margin-top: 4px; }
+  .principios { margin-bottom: 12px; }
+  .principios span {
+    background: linear-gradient(color-mix(in oklab, var(--color-coral) 26%, transparent), color-mix(in oklab, var(--color-coral) 26%, transparent)) no-repeat 0 0 / calc(var(--p, 0) * 100%) 100%;
+    border-radius: 3px;
+    padding: 1px 0;
+  }
+  .prev { padding: 18px; }
+  .insignias {
+    height: 100%;
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 1px rgb(48 32 24 / 0.08);
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    gap: 14px 16px;
+    padding: 40px 80px;
+  }
+  /* las insignias: primero la FORMA (gris), luego el COLOR (tokens.css) */
+  .ins {
+    --bg: #fff;
+    --tx: var(--color-cacao);
+    --bd: transparent;
+    font-family: var(--font-mono);
+    font-size: 19px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 9px 22px;
+    border-radius: 999px;
+    opacity: var(--f, 0);
+    scale: calc(0.82 + var(--f, 0) * 0.18);
+    background: color-mix(in oklab, var(--bg) calc(var(--k, 0) * 100%), rgb(48 32 24 / 0.06));
+    color: color-mix(in oklab, var(--tx) calc(var(--k, 0) * 100%), rgb(48 32 24 / 0.38));
+    box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--bd) calc(var(--k, 0) * 100%), transparent);
+  }
+  .ins.defecto { --bg: var(--color-cacao); --tx: var(--color-niebla); }
+  .ins.fantasma { --bg: rgb(48 32 24 / 0.05); --tx: var(--color-nogal); }
+  .ins.coral { --bg: color-mix(in oklab, var(--color-coral) 22%, #fff); --tx: #a3343b; }
+  .ins.cobalto { --bg: color-mix(in oklab, var(--color-cobalto) 16%, #fff); --tx: var(--color-cobalto); }
+  .ins.cereza { --bg: color-mix(in oklab, var(--color-cereza) 16%, #fff); --tx: var(--color-cereza); }
+  .ins.nogal { --bg: color-mix(in oklab, var(--color-nogal) 16%, #fff); --tx: var(--color-nogal); }
+  .ins.niebla { --bg: var(--color-niebla); --tx: var(--color-cacao); }
+  .ins.contorno { --bg: #fff; --tx: var(--color-cacao); --bd: var(--color-cacao); }
+  .ins.ia { --bg: var(--color-cobalto); --tx: #fff; }
+  /* la PÁGINA de ejemplo: se monta pieza a pieza con lo que abren los agentes */
+  .pagina {
+    position: relative;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--color-niebla) 30%, #fffaf6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+  }
+  .pagina > * { position: relative; }
+  .campo { position: absolute !important; inset: 0; opacity: var(--p, 0); }
+  .campo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--color-coral) 30%, transparent), transparent 34%),
+      radial-gradient(circle at 40% 62%, color-mix(in oklab, var(--color-cobalto) 16%, transparent), transparent 30%),
+      radial-gradient(circle at 60% 36%, color-mix(in oklab, var(--color-cereza) 14%, transparent), transparent 30%);
+    filter: blur(20px);
+    scale: calc(0.7 + var(--p, 0) * 0.3);
+  }
+  /* las ondas: cuatro círculos que se abren desde el centro (el «sonido» de la dirección de arte) */
+  .campo i { position: absolute; left: 50%; top: 50%; border-radius: 50%; border: 1px solid color-mix(in oklab, var(--color-coral) 30%, transparent); translate: -50% -50%; }
+  .campo i:nth-child(1) { width: calc(var(--p, 0) * 220px); height: calc(var(--p, 0) * 220px); }
+  .campo i:nth-child(2) { width: calc(var(--p, 0) * 360px); height: calc(var(--p, 0) * 360px); opacity: 0.7; }
+  .campo i:nth-child(3) { width: calc(var(--p, 0) * 500px); height: calc(var(--p, 0) * 500px); opacity: 0.45; }
+  .campo i:nth-child(4) { width: calc(var(--p, 0) * 640px); height: calc(var(--p, 0) * 640px); opacity: 0.25; }
+  .etiqueta, .pie { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; }
+  .etiqueta { font-size: 12px; padding: 4px 12px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px rgb(48 32 24 / 0.08); opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 8px); }
+  .titulo { font-family: var(--font-display); font-size: 52px; line-height: 1.04; max-width: 11ch; }
+  .titulo span { display: inline-block; white-space: pre; opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 14px); filter: blur(calc((1 - var(--p, 0)) * 6px)); }
+  .texto { font-size: 15px; max-width: 30ch; color: var(--color-nogal); opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 8px); }
+  .boton { margin-top: 6px; padding: 12px 26px; border-radius: 999px; background: var(--color-cacao); color: var(--color-niebla); font-weight: 600; font-size: 16px; opacity: var(--p, 0); scale: calc(0.8 + var(--p, 0) * 0.2); }
+  .pie { font-size: 11px; color: var(--color-nogal); opacity: var(--p, 0); }
+
+  /* MÓVIL: la ventana a 540 × 760 */
+  .ventana.v { width: 540px; height: 760px; grid-template-columns: 176px 1fr; grid-template-rows: 48px 1fr; font-size: 13px; border-radius: 14px; }
+  .ventana.v .v-barra { padding: 0 14px; gap: 10px; }
+  .ventana.v .v-ruta { font-size: 13px; }
+  .ventana.v .v-caras i { width: 22px; height: 22px; font-size: 9px; }
+  .ventana.v .v-publicar { font-size: 12px; padding: 4px 12px; }
+  .ventana.v .v-arbol { padding: 14px 8px; }
+  .ventana.v .v-grupo { font-size: 9.5px; margin: 10px 6px 4px; }
+  .ventana.v .v-arbol li { font-size: 11.5px; padding: 5px 6px; }
+  .ventana.v .v-pestanas { height: 42px; padding: 0 8px; gap: 2px; }
+  .ventana.v .v-pest { font-size: 11px; padding: 4px 6px; }
+  .ventana.v .v-pest:nth-child(3) { display: none; }
+  .ventana.v .v-modo { display: none; }
+  .ventana.v .v-panel { inset: 42px 0 0 0; }
+  .ventana.v .md { padding: 16px 16px; font-size: 12px; line-height: 1.6; }
+  .ventana.v .prev { padding: 10px; }
+  .ventana.v .insignias { padding: 20px 14px; gap: 10px; }
+  .ventana.v .ins { font-size: 13px; padding: 6px 13px; }
+  .ventana.v .titulo { font-size: 34px; }
+  .ventana.v .texto { font-size: 12.5px; max-width: 24ch; }
+  .ventana.v .boton { font-size: 13px; padding: 9px 18px; }
+
+  /* los cursores de los agentes: flecha de su color + etiqueta en píldora; al pulsar se hunden y sueltan una onda */
+  .cursor { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform; }
+  .cursor svg { position: relative; width: 18px; height: 18px; display: block; fill: var(--c); filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.18)); scale: calc(1 - var(--clic, 0) * 0.2); transform-origin: 2px 2px; }
+  .cursor span { position: absolute; left: 14px; top: 16px; padding: 0.15em 0.6em; border-radius: 999px; background: var(--c); color: #fff; font-size: 0.8125rem; line-height: 1.5; white-space: nowrap; }
+  .cursor .onda { position: absolute; left: 2px; top: 2px; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 1.5px solid var(--c); opacity: calc((1 - var(--onda, 0)) * min(1, var(--onda, 0) * 20)); scale: calc(0.2 + var(--onda, 0) * 1.3); }
+  .cine.v .cursor span { font-size: 0.6875rem; left: 11px; top: 13px; }
+  .cine.v .cursor svg { width: 14px; height: 14px; }
+  .quieta .cursor { display: none; }
+  .nota { margin-top: calc(var(--spacing) * 12); max-width: 60ch; }
+</style>

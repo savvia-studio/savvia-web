@@ -1,0 +1,511 @@
+---
+// LA PARTITURA · RONDA 85. Andoni: «el ticket tiene que parecer una entrada de concierto de verdad, estilo clásico y que parezca premium, como algo muy hecho a
+// medida; e igual quitamos el sonido de que se imprime: buscamos otro concepto». Antes (rondas 53–84): la impresora térmica y su ticket
+// (tools/retirados/LaReceta.r84-impresora.astro.txt).
+// CONCEPTO: la entrada llega en un SOBRE LACRADO (el lacre lleva el isotipo de savvia). Con el scroll: el lacre se rompe, la solapa se abre y la ENTRADA sale del
+// sobre; después se recorre su PROGRAMA, movimiento a movimiento (cada uno suena y, a su lado, aparece su pieza digital: lo que de verdad hace esa parte de
+// la partitura en la web de Neety); al final la MATRIZ se rasga por el troquel y cae el sello «admitido». Queda la entrada y el botón a la librería.
+// La entrada: papel verjurado crema, tinta berenjena de Neety, filete doble con una GUILLOCHE (la del papel moneda, generada aquí) y detalles en su naranja
+// como si fueran estampados en caliente; serif de titulares, versalitas espaciadas en mono. Móvil: vertical, con la matriz abajo. Sin movimiento: todo quieto.
+import { receta } from '../data/home';
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+const E = receta.entrada;
+const TOKEN = /(#[0-9A-Fa-f]{6}|\b[\w/-]+\.md\b)/g;
+// la GUILLOCHE: dos senoides entrelazadas en una tira (se repite a lo largo de la banda) y una ROSETA (curvas polares superpuestas) para la matriz
+const f = (n: number) => n.toFixed(2);
+const tira = (() => {
+  const W = 48, H = 12, ps: string[] = [];
+  for (const [fase, amp] of [[0, 4.6], [Math.PI, 4.6], [Math.PI / 2, 2.4], [(3 * Math.PI) / 2, 2.4]]) {
+    let d = ''; for (let x = 0; x <= W; x += 1) d += (x ? 'L' : 'M') + f(x) + ' ' + f(H / 2 + amp * Math.sin((x / W) * Math.PI * 4 + fase));
+    ps.push(`<path d='${d}' fill='none' stroke='%23431b44' stroke-width='.45' opacity='.75'/>`);
+  }
+  return `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>${ps.join('')}</svg>")`;
+})();
+const roseta = (() => {
+  const out: string[] = [];
+  for (let c = 0; c < 6; c++) {
+    let d = '';
+    for (let i = 0; i <= 360; i++) { const th = (i / 360) * Math.PI * 2, r = 30 + 9 * Math.sin(th * 12 + c * 0.52) + 3 * Math.sin(th * 36); d += (i ? 'L' : 'M') + f(50 + r * Math.cos(th)) + ' ' + f(50 + r * Math.sin(th)); }
+    out.push(`<path d="${d}Z" />`);
+  }
+  return out.join('');
+})();
+const romano = (m: string) => (m.includes('.') ? m.split('.')[0] : '');
+const tempo = (m: string) => (m.includes('.') ? m.split('.')[1].trim() : m);
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+---
+
+<section id="la-savvia" class="surface-light partitura relative" aria-labelledby="receta-h" data-receta data-sube>
+  <div class="wrap section-y cabecera">
+    <h2 id="receta-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
+    <p class="text-sub mt-6 lg:mt-8 max-w-[34ch] text-fg2" data-enfoca>{receta.arnes}</p>
+  </div>
+
+  <div class="escena" data-sala-entrada>
+    <div class="escenario">
+      <div class="mesa" data-mesa>
+        <!-- EL SOBRE: la trasera, la entrada dentro, el bolsillo delante y la solapa con el lacre -->
+        <div class="sobre" aria-hidden="true" data-sobre>
+          <i class="trasera"></i>
+          <i class="bolsillo"></i>
+          <i class="solapa" data-solapa></i>
+          <span class="lacre" data-lacre><svg viewBox="0 0 370 439"><path d={ISO} /></svg></span>
+        </div>
+
+        <!-- LA ENTRADA -->
+        <article class="entrada" aria-label={`Entrada: ${E.obra}, ${E.sub}`} data-entrada>
+          <div class="cuerpo" style={`--guilloche:${tira}`}>
+            <i class="banda arriba" aria-hidden="true"></i>
+            <p class="presenta"><span class="logo-t" role="img" aria-label="savvia"></span>presenta</p>
+            <p class="obra">{E.obra}</p>
+            <p class="subt">{E.sub}</p>
+            <p class="temporada">{E.subtitulo} · {E.temporada}</p>
+            <ol class="programa">
+              {receta.tiras.map((t, i) => (
+                <li data-mov={i}>
+                  <span class="rom">{romano(t.mov)}</span>
+                  <span class="que">{cap(t.paso)}</span>
+                  <i class="puntos" aria-hidden="true"></i>
+                  <span class="tempo">{tempo(t.mov)}</span>
+                </li>
+              ))}
+            </ol>
+            <dl class="datos">{E.datos.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+            <i class="banda abajo" aria-hidden="true"></i>
+          </div>
+          <div class="matriz" data-matriz>
+            <svg class="roseta" viewBox="0 0 100 100" aria-hidden="true" set:html={roseta} />
+            <p class="num">{E.numero}</p>
+            <p class="admite">{E.matriz}</p>
+            <span class="iso" aria-hidden="true"><svg viewBox="0 0 370 439"><path d={ISO} /></svg></span>
+            <span class="sello" aria-hidden="true" data-sello>{E.sello}</span>
+          </div>
+        </article>
+
+        <!-- LAS PIEZAS DIGITALES: una por movimiento, al lado de la entrada -->
+        <div class="piezas">
+          {receta.tiras.map((t, i) => (
+            <div class={`dig dig-${t.digital.tipo} ${i % 2 ? 'izq' : 'der'}`} data-dig={i} aria-hidden={t.digital.tipo === 'boton' ? undefined : 'true'}>
+              {t.digital.tipo === 'tabla' && (
+                <>
+                  <span class="dig-cab">{t.digital.txt}</span>
+                  <span class="tabla-d">
+                    {t.digital.filas!.map((fi, k) => (
+                      <>
+                        <i class="sw" style={`--c:${t.digital.colores![k]}`} />
+                        <span>{fi[0]}</span>
+                        <code>{fi[1]}</code>
+                        <code class="tk">{fi[2]}</code>
+                      </>
+                    ))}
+                  </span>
+                </>
+              )}
+              {t.digital.tipo === 'bloqueo' && (
+                <>
+                  <span class="dig-cab">{t.digital.cab}</span>
+                  <span class="fila-d"><i class="x">✕</i>{t.digital.txt}</span>
+                  <span class="fin">→ {t.digital.fin}</span>
+                </>
+              )}
+              {t.digital.tipo === 'agente' && (
+                <>
+                  <span class="fila-d trabaja"><i class="giro-d" />{t.digital.txt}</span>
+                  {t.digital.pasos!.map((q, k) => <span class="paso-d" style={`--k:${k}`}>✓ {q}</span>)}
+                  <span class="fila-d listo">{t.digital.fin}</span>
+                </>
+              )}
+              {t.digital.tipo === 'diff' && (
+                <>
+                  <span class="dig-cab"><i class="punto" />{t.digital.txt}<b class="mas">{t.digital.fin}</b></span>
+                  {t.digital.pasos!.map((q, k) => <code class="diff-l" style={`--k:${k}`}>{q}</code>)}
+                </>
+              )}
+              {t.digital.tipo === 'boton' && (
+                <a class="boton-lib" href={t.digital.href} target="_blank" rel="noopener" aria-label={`${t.digital.txt} (se abre en otra pestaña)`}>
+                  <svg class="ci-chispa" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.4 3.9 2.1 5.6 6 6-3.9.4-5.6 2.1-6 6-.4-3.9-2.1-5.6-6-6 3.9-.4 5.6-2.1 6-6z" /></svg>
+                  <span class="ci-txt">{t.digital.txt}</span>
+                  <span class="ci-env" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></span>
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="wrap nota detail">{receta.nota}</p>
+</section>
+
+<script>
+  import { tocar, pizzicato, papel } from '../scripts/musica';
+  const sec = document.querySelector<HTMLElement>('[data-receta]');
+  if (sec) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const escena = sec.querySelector<HTMLElement>('[data-sala-entrada]')!, mesa = sec.querySelector<HTMLElement>('[data-mesa]')!;
+    const movs = [...sec.querySelectorAll<HTMLElement>('[data-mov]')], digs = [...sec.querySelectorAll<HTMLElement>('[data-dig]')];
+    const N = movs.length;
+    // la melodía del programa: una nota por movimiento (sube y resuelve)
+    const MELODIA = [62, 66, 69, 71, 74];
+    if (reducido) { mesa.classList.add('quieta', 'abierta', 'fuera-sobre', 'rasgada', 'sellada'); movs.forEach((m) => m.classList.add('visto')); digs[N - 1].classList.add('on'); }
+    else {
+      let estado = { abierta: false, fuera: false, activo: -1, rasgada: false, sellada: false }, raf = 0;
+      const clamp = (x: number) => Math.min(1, Math.max(0, x));
+      const pintar = () => {
+        raf = 0;
+        const r = escena.getBoundingClientRect(), recorrido = r.height - innerHeight;
+        const p = clamp(-r.top / Math.max(1, recorrido));
+        mesa.style.setProperty('--p', p.toFixed(4));
+        // 1 · el lacre se rompe y la solapa se abre
+        const abrir = clamp((p - 0.03) / 0.09);
+        mesa.style.setProperty('--abrir', abrir.toFixed(3));
+        if (abrir > 0.05 && !estado.abierta) { estado.abierta = true; mesa.classList.add('abierta'); pizzicato(57, { vol: 0.09 }); papel({ vol: 0.05, dur: 0.18 }); }
+        if (abrir <= 0.05 && estado.abierta) { estado.abierta = false; mesa.classList.remove('abierta'); }
+        // 2 · la entrada sale del sobre y el sobre se va
+        const sale = clamp((p - 0.1) / 0.14), seVa = clamp((p - 0.2) / 0.1);
+        mesa.style.setProperty('--sale', sale.toFixed(3)); mesa.style.setProperty('--seva', seVa.toFixed(3));
+        const fuera = seVa > 0.99; if (fuera !== estado.fuera) { estado.fuera = fuera; mesa.classList.toggle('fuera-sobre', fuera); }
+        // 3 · el programa, movimiento a movimiento (y su pieza al lado)
+        const k = p < 0.32 ? -1 : Math.min(N - 1, Math.floor((p - 0.32) / (0.52 / N)));
+        if (k !== estado.activo) {
+          estado.activo = k;
+          movs.forEach((m, i) => { m.classList.toggle('on', i === k); m.classList.toggle('visto', i < k); });
+          digs.forEach((d, i) => d.classList.toggle('on', i === k));
+          if (k >= 0) tocar(MELODIA[k], { vol: 0.08, dur: 2 });
+        }
+        // 4 · la matriz se rasga por el troquel; 5 · cae el sello
+        const rasgada = p > 0.86, sellada = p > 0.91;
+        if (rasgada !== estado.rasgada) { estado.rasgada = rasgada; mesa.classList.toggle('rasgada', rasgada); if (rasgada) papel(); }
+        if (sellada !== estado.sellada) { estado.sellada = sellada; mesa.classList.toggle('sellada', sellada); if (sellada) { tocar(50, { vol: 0.1, dur: 2.4 }); tocar(62, { vol: 0.06, dur: 2.4 }); } }
+      };
+      const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
+      let cerca = false;
+      new IntersectionObserver((e) => { cerca = e[0].isIntersecting; if (cerca) pedir(); }, { rootMargin: '20% 0px' }).observe(escena);
+      addEventListener('scroll', () => cerca && pedir(), { passive: true });
+      addEventListener('resize', pedir);
+      pintar();
+    }
+    (window as any).__partitura = () => ({ clases: mesa.className, activo: movs.findIndex((m) => m.classList.contains('on')), p: mesa.style.getPropertyValue('--p') });
+  }
+</script>
+
+<style>
+  .partitura {
+    --n-naranja: #fe8238;
+    --n-berenjena: #431b44;
+    --n-ciruela: #2a0e2c;
+    --papel: #f7f1e3;
+    padding-bottom: calc(var(--spacing) * 24);
+  }
+  .cabecera { padding-bottom: 0; }
+  /* ── EL ESCENARIO: pegado a la pantalla mientras dura la escena */
+  .escena { position: relative; height: 380lvh; }
+  .escenario {
+    position: sticky;
+    top: 0;
+    height: 100lvh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .mesa {
+    --p: 0;
+    --abrir: 0;
+    --sale: 0;
+    --seva: 0;
+    position: relative;
+    width: min(48rem, 68vw);
+    aspect-ratio: 1000 / 570; /* lo que mide la entrada con su programa (medido: 1,8) */
+    perspective: 1400px;
+  }
+  /* ── EL SOBRE (papel berenjena con filo), bajo la entrada; se va hacia abajo cuando ella ha salido */
+  /* las piezas del sobre son hermanas de la entrada (display: contents) para que ella quede ENTRE la trasera y el bolsillo */
+  .sobre { display: contents; }
+  .sobre > * {
+    position: absolute;
+    display: block;
+    inset: 2% -4% -12%;
+    transform: translateY(calc(var(--seva) * 90%));
+    opacity: calc(1 - var(--seva));
+    pointer-events: none;
+  }
+  .trasera {
+    z-index: 1;
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--n-berenjena) 88%, #000) url('/media/grano.png') 0 0 / 240px 240px;
+    box-shadow: 0 30px 60px -30px rgb(20 8 20 / 0.6);
+  }
+  .bolsillo {
+    z-index: 3;
+    border-radius: 6px;
+    background: var(--n-berenjena) url('/media/grano.png') 0 0 / 240px 240px;
+    clip-path: polygon(0 18%, 50% 62%, 100% 18%, 100% 100%, 0 100%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+  }
+  .solapa {
+    bottom: calc(-12% + 110% * 0.4);
+    z-index: 4;
+    background: color-mix(in oklab, var(--n-berenjena) 92%, #fff) url('/media/grano.png') 0 0 / 240px 240px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0;
+    transform: translateY(calc(var(--seva) * 90%)) rotateX(calc(var(--abrir) * 178deg));
+    filter: brightness(calc(1 - var(--abrir) * 0.25));
+  }
+  /* abierta, la solapa pasa por detrás de la entrada */
+  .abierta .solapa { z-index: 0; }
+  /* el LACRE, con el isotipo estampado: se parte en dos al abrir */
+  .sobre > .lacre {
+    inset: auto;
+    z-index: 5;
+    left: 50%;
+    top: calc(2% + 110% * 0.6);
+    width: 9%;
+    height: auto;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    border-radius: 47% 53% 49% 51% / 52% 46% 54% 48%;
+    background: radial-gradient(circle at 38% 34%, color-mix(in oklab, var(--n-naranja) 70%, #fff) 0 8%, var(--n-naranja) 30%, color-mix(in oklab, var(--n-naranja) 70%, #6b1d00) 100%);
+    box-shadow: 0 3px 6px rgb(40 10 0 / 0.35), inset 0 0 0 3px color-mix(in oklab, var(--n-naranja) 80%, #7a2a00);
+    transition: opacity 0.4s ease, scale 0.5s var(--ease-out-expo), rotate 0.5s var(--ease-out-expo);
+  }
+  .lacre svg { width: 46%; fill: color-mix(in oklab, var(--n-naranja) 60%, #5a1a00); filter: drop-shadow(0 1px 0 rgb(255 220 190 / 0.5)); }
+  .abierta .sobre > .lacre { opacity: 0; scale: 1.25; rotate: -14deg; }
+
+  /* ── LA ENTRADA */
+  .entrada {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 26%;
+    filter: drop-shadow(0 22px 34px rgb(40 12 30 / 0.28));
+    /* sale del sobre: nace DENTRO (pequeña y un poco abajo, tapada por el bolsillo), SUBE por encima del sobre y, cuando el sobre se va, baja a su sitio */
+    transform: translateY(calc(9% - var(--sale) * 52% + var(--seva) * 43%)) scale(calc(0.88 + var(--seva) * 0.12));
+  }
+  .fuera-sobre .entrada, .quieta .entrada { z-index: 6; }
+  .cuerpo, .matriz {
+    position: relative;
+    background: var(--papel) url('/media/grano.png') 0 0 / 240px 240px;
+    color: var(--n-berenjena);
+  }
+  /* papel verjurado: las líneas finas del molde */
+  .cuerpo::before, .matriz::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, rgb(67 27 68 / 0.035) 0 1px, transparent 1px 7px);
+    pointer-events: none;
+  }
+  .cuerpo {
+    overflow: hidden;
+    border-radius: 10px 0 0 10px;
+    padding: 5.5% 6% 5%;
+    display: flex;
+    flex-direction: column;
+    /* el filete doble, dentro */
+    box-shadow: inset 0 0 0 10px var(--papel), inset 0 0 0 11px color-mix(in oklab, var(--n-berenjena) 70%, transparent), inset 0 0 0 14px var(--papel), inset 0 0 0 14.6px color-mix(in oklab, var(--n-berenjena) 45%, transparent);
+  }
+  .banda {
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    height: 12px;
+    background: var(--guilloche) 0 0 / 48px 12px repeat-x;
+  }
+  .banda.arriba { top: 20px; }
+  .banda.abajo { bottom: 20px; }
+  .presenta {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--font-mono);
+    font-size: clamp(0.55rem, 0.9vw, 0.72rem);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    margin-top: 2%;
+  }
+  .logo-t {
+    display: inline-block;
+    height: 1.5em;
+    aspect-ratio: 1275 / 439;
+    background: currentColor;
+    -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
+    mask: url('/savvia-logo.svg') center / contain no-repeat;
+  }
+  .obra {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 6.2vw, 5rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-top: 2.5%;
+  }
+  .subt { font-family: var(--font-display); font-size: clamp(0.9rem, 1.7vw, 1.35rem); line-height: 1.1; margin-top: 1.5%; }
+  .temporada { font-family: var(--font-mono); font-size: clamp(0.5rem, 0.8vw, 0.66rem); letter-spacing: 0.2em; text-transform: uppercase; color: var(--n-naranja); margin-top: 1.5%; }
+  .programa {
+    margin-top: auto;
+    display: grid;
+    gap: 0.15em;
+    font-size: clamp(0.62rem, 1.05vw, 0.88rem);
+  }
+  .programa li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    opacity: 0.55;
+    transition: opacity 0.5s ease, color 0.5s ease;
+  }
+  .programa li.visto { opacity: 0.8; }
+  .programa li.on { opacity: 1; color: var(--n-ciruela); }
+  .rom { width: 2.2em; font-family: var(--font-display); color: var(--n-naranja); }
+  .que { font-family: var(--font-display); }
+  .puntos { flex: 1; border-bottom: 1px dotted currentColor; opacity: 0.5; translate: 0 -0.25em; }
+  .tempo { font-family: var(--font-mono); font-size: 0.82em; letter-spacing: 0.08em; }
+  .programa li.on .rom::after { content: '♪'; margin-left: 0.2em; font-size: 0.8em; }
+  .datos {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    margin-top: 4%;
+    padding-top: 3%;
+    border-top: 1px solid color-mix(in oklab, var(--n-berenjena) 30%, transparent);
+  }
+  .datos dt { font-family: var(--font-mono); font-size: clamp(0.45rem, 0.7vw, 0.58rem); letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.6; }
+  .datos dd { font-family: var(--font-display); font-size: clamp(0.7rem, 1.2vw, 1rem); }
+  /* ── LA MATRIZ: el troquel (puntos y dos mordiscos) y lo que se queda el portero; al final se rasga y cae el sello */
+  .matriz {
+    border-radius: 0 10px 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6%;
+    padding: 6%;
+    text-align: center;
+    border-left: 2px dotted color-mix(in oklab, var(--n-berenjena) 45%, transparent);
+    transform-origin: 0 100%;
+    transition: transform 0.8s var(--ease-out-expo);
+  }
+  .matriz::after {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: -9px;
+    bottom: -9px;
+    width: 16px;
+    background: radial-gradient(circle at 50% 0, var(--bg) 8px, transparent 8.5px) 0 0 / 16px 100% no-repeat, radial-gradient(circle at 50% 100%, var(--bg) 8px, transparent 8.5px) 0 0 / 16px 100% no-repeat;
+  }
+  .rasgada .matriz { transform: translateX(3.5%) rotate(5deg); }
+  .roseta { width: 52%; fill: none; stroke: var(--n-naranja); stroke-width: 0.35; opacity: 0.9; }
+  .num { font-family: var(--font-mono); font-size: clamp(0.5rem, 0.85vw, 0.7rem); letter-spacing: 0.18em; }
+  .admite { font-family: var(--font-mono); font-size: clamp(0.42rem, 0.7vw, 0.56rem); letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.7; }
+  .iso { width: 16%; }
+  .iso svg { width: 100%; fill: var(--n-berenjena); opacity: 0.8; }
+  .sello {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    padding: 0.3em 0.8em;
+    border: 2px solid var(--n-naranja);
+    border-radius: 6px;
+    color: var(--n-naranja);
+    font-family: var(--font-mono);
+    font-size: clamp(0.6rem, 1.1vw, 0.9rem);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    mix-blend-mode: multiply;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-16deg) scale(1.8);
+    transition: opacity 0.2s ease, transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+  }
+  .sellada .sello { opacity: 0.85; transform: translate(-50%, -50%) rotate(-16deg) scale(1); }
+
+  /* ── LAS PIEZAS DIGITALES: una a la vez, a un lado de la entrada, sobre su canto */
+  .piezas { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+  .dig {
+    position: absolute;
+    top: 50%;
+    display: grid;
+    gap: calc(var(--spacing) * 1.5);
+    padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 3);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--color-cacao);
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    line-height: 1.3;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cacao) 10%, transparent), 0 12px 28px -12px color-mix(in oklab, var(--color-cacao) 40%, transparent);
+    white-space: nowrap;
+    opacity: 0;
+    translate: 0 calc(-50% + 10px);
+    scale: 0.94;
+    transition: opacity 0.35s ease, translate 0.6s var(--ease-out-expo), scale 0.6s var(--ease-out-expo);
+  }
+  .dig.der { left: calc(100% - var(--spacing) * 4); }
+  .dig.izq { right: calc(100% - var(--spacing) * 4); }
+  .dig.on { opacity: 1; translate: 0 -50%; scale: 1; }
+  .dig.dig-boton { padding: 0; background: none; box-shadow: none; top: auto; bottom: -3.6rem; left: 50%; right: auto; translate: -50% 10px; }
+  .dig.dig-boton.on { translate: -50% 0; pointer-events: auto; }
+  .fila-d { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); }
+  .x { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--color-cereza); color: #fff; font-size: 0.6rem; font-style: normal; }
+  .fin, .mas, .tabla-d .tk { color: var(--color-cobalto); }
+  .mas { font-weight: 400; }
+  .giro-d { width: 12px; height: 12px; border-radius: 50%; border: 2px solid color-mix(in oklab, var(--color-cobalto) 25%, transparent); border-top-color: var(--color-cobalto); }
+  .on .giro-d { animation: gira 0.8s linear infinite; }
+  @keyframes gira { to { rotate: 1turn; } }
+  .dig-agente .listo { color: var(--color-cobalto); opacity: 0; }
+  .on.dig-agente .listo { animation: listo 0.4s ease 1.8s both; }
+  @keyframes listo { to { opacity: 1; } }
+  .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--color-cobalto); }
+  .dig-cab { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); font-family: var(--font-mono); font-size: 0.72rem; color: color-mix(in oklab, var(--color-cacao) 60%, transparent); padding-bottom: calc(var(--spacing) * 1.5); border-bottom: 1px solid color-mix(in oklab, var(--color-cacao) 10%, transparent); }
+  .tabla-d { display: grid; grid-template-columns: auto auto auto auto; align-items: center; gap: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3); }
+  .tabla-d code { font-family: var(--font-mono); font-size: 0.74rem; }
+  .sw { width: 14px; height: 14px; border-radius: 4px; background: var(--c); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); }
+  .paso-d { font-size: 0.78rem; color: color-mix(in oklab, var(--color-cacao) 75%, transparent); opacity: 0; }
+  .on .paso-d { animation: listo 0.3s ease both; animation-delay: calc(0.4s + var(--k) * 0.28s); }
+  .diff-l { font-family: var(--font-mono); font-size: 0.74rem; color: #1f7a4d; background: color-mix(in oklab, #2fbf71 12%, transparent); padding: 2px calc(var(--spacing) * 1.5); border-radius: 3px; opacity: 0; }
+  .on .diff-l { animation: listo 0.3s ease both; animation-delay: calc(0.4s + var(--k) * 0.22s); }
+  .boton-lib {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    width: max-content;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2) calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+    border-radius: 1.5rem;
+    background: #fdfcfb;
+    box-shadow: 0 0 0 1px rgb(48 32 24 / 0.12), 0 12px 28px -10px rgb(48 32 24 / 0.3);
+    color: var(--color-cacao);
+    font-size: var(--text-ui);
+    transition: box-shadow 0.3s ease;
+  }
+  .boton-lib .ci-chispa { width: 16px; height: 16px; flex: none; fill: var(--color-coral); }
+  .boton-lib .ci-env { flex: none; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--color-cacao); color: var(--color-niebla); transition: background-color 0.3s ease, color 0.3s ease; }
+  .boton-lib .ci-env svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.4s var(--ease-out-expo); }
+  .boton-lib:hover .ci-env, .boton-lib:focus-visible .ci-env { background: var(--color-coral); color: var(--color-cacao); }
+  .boton-lib:hover .ci-env svg { translate: 0 -2px; }
+  .nota { margin-top: calc(var(--spacing) * 16); text-align: center; color: var(--fg2); }
+
+  /* ── MÓVIL: la entrada en vertical (la matriz abajo) y la pieza bajo ella */
+  @media (width < 64rem) {
+    .mesa { width: min(22rem, 86vw); aspect-ratio: 440 / 780; }
+    .entrada { grid-template-columns: 1fr; grid-template-rows: 1fr 24%; }
+    .cuerpo { border-radius: 10px 10px 0 0; padding: 12% 9% 10%; }
+    .obra { font-size: clamp(2.6rem, 14vw, 4rem); }
+    .programa { font-size: 0.78rem; margin-top: 8%; }
+    .datos { flex-wrap: wrap; }
+    .matriz { border-radius: 0 0 10px 10px; border-left: 0; border-top: 2px dotted color-mix(in oklab, var(--n-berenjena) 45%, transparent); flex-direction: row; justify-content: space-around; transform-origin: 0 0; }
+    .matriz::after { left: -9px; right: -9px; top: -9px; bottom: auto; width: auto; height: 16px; background: radial-gradient(circle at 0 50%, var(--bg) 8px, transparent 8.5px) 0 0 / 100% 16px no-repeat, radial-gradient(circle at 100% 50%, var(--bg) 8px, transparent 8.5px) 0 0 / 100% 16px no-repeat; }
+    .roseta { width: 26%; }
+    .rasgada .matriz { transform: translateY(4%) rotate(-3deg); }
+    .dig, .dig.der, .dig.izq { left: 50%; right: auto; top: auto; bottom: -1.5rem; translate: -50% 10px; white-space: normal; max-width: 84vw; }
+    .dig.on { translate: -50% 0; }
+    .dig.dig-boton { bottom: -4.5rem; }
+  }
+  /* sin movimiento: todo quieto y a la vista */
+  .quieta .sobre { display: none; }
+  .quieta .entrada { transform: none; }
+  .escena:has(.quieta) { height: auto; }
+  .escena:has(.quieta) .escenario { position: relative; height: auto; padding-block: calc(var(--spacing) * 16) calc(var(--spacing) * 24); }
+</style>

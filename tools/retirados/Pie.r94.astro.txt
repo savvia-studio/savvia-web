@@ -1,0 +1,465 @@
+---
+// EL PIE · RONDA 83 · giro a la música. Andoni: «footer toca repensarlo por completo» → dirección A, «FIN DE LA OBRA» (elegida el 30/09).
+// · La página es una partitura y aquí acaba: un PENTAGRAMA a todo el ancho del contenido que termina en la DOBLE BARRA FINAL (fina + gruesa).
+// · «Contáctanos», enorme en Family, está escrito SOBRE ese pentagrama (la línea de abajo es su línea base): es la última nota de la obra.
+// · El FOCO (el haz del hero) cae desde arriba sobre la palabra.
+// · Al llegar: las cinco líneas se trazan de izquierda a derecha, la palabra sale del desenfoque y al final se cierra la doble barra.
+// · Al pasar (o enfocar): la cuerda VIBRA, sobre la palabra se dibuja un CALDERÓN (la fermata: «sostener la nota») y de su punto sube la píldora con las
+//   caras de Eric y Andoni: «Haz clic para agendar una reunión con nosotros» (ronda 81). La palabra se ilumina en degradado de izquierda a derecha (ronda 81).
+//   Si el sonido de la web está encendido, suena el acorde final (el de la estación: el de la carga).
+// · Abajo, la línea mono y el CRÉDITO de la música de Proyectos (Vivaldi, CC BY-SA 4.0: la atribución es obligatoria).
+// Antes (rondas 20–82): el paisaje por capas con estaciones y el «Contáctanos» partido entre montañas (tools/retirados/Pie.r82.astro.txt).
+import { pie, nav } from '../data/home';
+const year = new Date().getFullYear();
+---
+
+<footer id="contacto" class="surface-dark pie" data-sube data-pie>
+  <!-- RONDA 86 · «que el fondo tenga como capas de profundidad, separando las diferentes partes»: al fondo, la SALA desenfocada; en medio, la sala tramada (el motor
+       del director, que se dibuja desde el libro); un velo de noche arriba (sin corte con la sección anterior) y abajo. Cada capa se aparta a su ritmo con el scroll
+       y con el ratón. -->
+  <div class="capas" aria-hidden="true" data-capas>
+    <!-- RONDA 94 · «quitamos el efecto nuevo del fondo» (la sala de papel de las rondas 86–93: public/media/pie/sala.webp, sin uso) -->
+    <i class="velo-pie"></i>
+  </div>
+  <div class="wrap contenido pt-24">
+    <div class="grid-12 gap-y-12">
+      <div class="col-span-4 lg:col-span-7">
+        <p class="text-h1 font-display tracking-[-0.02em] titular" data-entra>{pie.titulo}</p>
+        <p class="text-sub measure mt-4 lg:mt-6 text-fg2">{pie.pitch}</p>
+      </div>
+      <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
+        <ul class="enlaces text-ui flex flex-col gap-3 font-medium lg:items-end">
+          {[...nav.links.filter((l) => l.href !== '/#contacto'), ...nav.mas.links].map((l) => <li><a href={l.href} class="enlace-pie">{l.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EL ÚLTIMO SISTEMA: el pentagrama, la palabra sobre él y la doble barra final -->
+  <div class="wrap final" data-final>
+    <!-- RONDA 85 · la SALA del libro (ilustración de Andoni) detrás del último sistema, pintada por el mismo motor que el director: se DIBUJA desde la partitura
+         abierta al llegar y queda TRAMADA, con las ondas del tramado saliendo del libro a compás; fundida con la noche por los bordes -->
+    <div class="foco" aria-hidden="true"><i class="haz"></i></div>
+    <!-- RONDA 94 · «superponer el director de orquesta con una postura diferente y, a poder ser, animado, como dirigiendo el Contáctanos»: el mismo director de
+         papel del hero (src/scripts/papel.ts), a la izquierda (la batuta apunta a la palabra), con los brazos en otra postura (el rig: la batuta baja hacia las
+         letras, la otra mano arriba) y marcando el compás; detrás de la palabra, que le tapa los pies -->
+    <div class="director-pie" aria-hidden="true" data-director-pie><canvas></canvas></div>
+    <svg class="pauta" aria-hidden="true" data-pauta>
+      <g class="lineas" data-lineas></g>
+      <g class="barra" data-barra><path class="fina" d="" /><path class="gruesa" d="" /></g>
+      <g class="notas-fin" data-notas-fin></g>
+      <!-- RONDA 93 · «el bocadillo tiene que parecer una EXTENSIÓN de la tilde, que la tilde se transforma en eso; ahora parece un pegote»: la tilde de la «á» es
+           NUESTRA (la «á» se escribe «a» y su acento es este trazo) y es la MISMA forma que el bocadillo: al pasar, sus puntos se estiran desde el acento
+           hasta el contorno del bocadillo (primero la cola, al final la copa) y el acento se aclara, se abre en cristal y se perfila en Coral -->
+      <!-- RONDA 92 · «que de la TILDE de esa palabra parezca que se extiende y se convierte en un BOCADILLO estilo cómic pero elegante, y dentro, agendar
+           reunión»: el trazo nace en el acento de la «á», sube, hace la cola y dibuja el bocadillo (antes, ronda 85: el calderón y la píldora) -->
+      <g class="bocadillo" data-bocadillo><path class="b-medida" d="" visibility="hidden" /><path class="b-fondo" d="" /><path class="b-trazo" d="" /></g>
+    </svg>
+    <a class="contacta font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`Contáctanos · agenda una reunión con Eric y Andoni${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
+      <span class="txt" data-contacta-txt>{'Contáctanos'.split('').map((c, i) => <span class="l" style={`--i:${i}`}>{c}</span>)}</span>
+      <span class="cta-pastilla" aria-hidden="true" data-pastilla>
+        <span class="cta-caras"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /></span>
+        <span class="cta-dice"><b class="font-display">Haz clic para agendar una reunión</b><small>con Eric y Andoni · 30 min ↳</small></span>
+      </span>
+    </a>
+  </div>
+
+  <div class="wrap linea detail">
+    <span>savvia · {pie.lugar} · {pie.desde}</span>
+    <span>© {year}</span>
+    <span class="credito">{pie.credito}</span>
+  </div>
+</footer>
+
+<script>
+  import { tocar, sonidoEncendido, PENTA } from '../scripts/musica';
+  import { crearPapel } from '../scripts/papel';
+  const pie = document.querySelector<HTMLElement>('[data-pie]');
+  if (pie) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const NS = 'http://www.w3.org/2000/svg';
+    const final = pie.querySelector<HTMLElement>('[data-final]')!, pauta = pie.querySelector<SVGSVGElement>('[data-pauta]')!;
+    const gL = pie.querySelector<SVGGElement>('[data-lineas]')!, barra = pie.querySelector<SVGGElement>('[data-barra]')!, boc = pie.querySelector<SVGGElement>('[data-bocadillo]')!;
+    const contacta = pie.querySelector<HTMLAnchorElement>('[data-contacta]')!, txt = contacta.querySelector<HTMLElement>('[data-contacta-txt]')!;
+    const lineas: SVGPathElement[] = [];
+    for (let i = 0; i < 5; i++) { const l = document.createElementNS(NS, 'path'); l.setAttribute('pathLength', '1'); gL.appendChild(l); lineas.push(l); }
+    // GEOMETRÍA: la palabra a todo el ancho del contenido; el pentagrama desde su línea base hasta la altura de sus mayúsculas (la «C»)
+    let W = 0, x0 = 0, x1 = 0, yb = 0, g = 20, fs = 100, cx = 0, xsLetras: number[] = [];
+    const medir = () => {
+      const cw = final.clientWidth - 2 * parseFloat(getComputedStyle(final).paddingLeft);
+      const c = document.createElement('canvas').getContext('2d')!;
+      c.font = `100px ${getComputedStyle(contacta).fontFamily}`;
+      const tw = c.measureText('Contáctanos').width || 1; // (las letras van en spans: se mide la palabra entera)
+      fs = (100 * cw * 0.9) / tw; contacta.style.fontSize = `${fs}px`;
+      const real = txt.getBoundingClientRect().width; if (real > 0) { fs *= (cw * 0.9) / real; contacta.style.fontSize = `${fs}px`; }
+      const fr = final.getBoundingClientRect(), tr = txt.getBoundingClientRect();
+      W = fr.width; pauta.setAttribute('viewBox', `0 0 ${W} ${fr.height}`);
+      const pad = parseFloat(getComputedStyle(final).paddingLeft);
+      x0 = pad; x1 = W - pad;
+      // la línea base de Family ≈ el 78 % del alto de su caja de línea (line-height 1) · la altura de mayúscula ≈ 0,68 em
+      yb = tr.top - fr.top + fs * 0.8; g = (fs * 0.68) / 4;
+      cx = tr.left - fr.left + tr.width * 0.5;
+      pintar(performance.now());
+      // ronda 94: el director del pie, de pie sobre el pentagrama (la palabra le tapa de la cintura abajo), hacia el final de la palabra
+      // a la IZQUIERDA, sobre «Con»: la batuta apunta a la palabra (y no choca con los enlaces ni con la tilde crecida)
+      const dw = Math.min(fr.width * (fr.width < 600 ? 0.42 : 0.26), 400), dh = (dw * 1105) / 1490;
+      dirEl.style.width = `${dw.toFixed(0)}px`; dirEl.style.height = `${dh.toFixed(0)}px`;
+      dirEl.style.left = `${(x0 - dw * 0.08).toFixed(0)}px`; dirEl.style.top = `${(yb - 3 * g - dh * 0.7).toFixed(0)}px`;
+      // la doble barra final
+      const alto = `M0 ${(yb - 4 * g).toFixed(1)}V${yb.toFixed(1)}`;
+      barra.querySelector('.fina')!.setAttribute('d', alto); barra.querySelector('.gruesa')!.setAttribute('d', alto);
+      barra.setAttribute('transform', `translate(${x1.toFixed(1)} 0)`);
+      // RONDA 94 · «tiene que ser la MISMA tilde la que se transforma para albergar el "haz clic para agendar reunión"»: ya no hay bocadillo con cola. La tilde
+      // se queda donde está y por su extremo grueso CRECE una caja con su misma inclinación (un acento agudo enorme, un paralelogramo oblicuo): la tilde es
+      // el tallo y la caja, su cabeza. El morfo: los puntos de la caja nacen todos del canto superior de la tilde y se despliegan desde ahí
+      const letras = [...txt.querySelectorAll<HTMLElement>('.l')];
+      xsLetras = letras.map((l) => { const r = l.getBoundingClientRect(); return r.left - fr.left + r.width / 2; });
+      const q = letras[4]?.getBoundingClientRect();
+      const tcx = q ? q.left - fr.left + q.width * 0.5 : cx;
+      const B = [tcx + fs * 0.035, yb - fs * 0.58], T = [tcx + fs * 0.15, yb - fs * 0.8];
+      const dl = Math.hypot(T[0] - B[0], T[1] - B[1]), nx = -(T[1] - B[1]) / dl, ny = (T[0] - B[0]) / dl;
+      const wB = fs * 0.022 / 2, wT = fs * 0.072 / 2;
+      // las cuatro esquinas de la tilde (lado de arriba a la izquierda «i», de abajo a la derecha «d»)
+      const BI = [B[0] - nx * wB, B[1] - ny * wB], BD = [B[0] + nx * wB, B[1] + ny * wB], TI = [T[0] - nx * wT, T[1] - ny * wT], TD = [T[0] + nx * wT, T[1] + ny * wT];
+      const movil = fr.width < 600, bw = movil ? Math.min(300, fr.width * 0.86) : Math.min(400, fr.width * 0.6), bh = movil ? 86 : 96;
+      const sl = Math.min(0.42, (T[0] - B[0]) / (B[1] - T[1])); // la inclinación de la tilde (como mucho 0,42: que el texto quepa)
+      const yBase = Math.min(TI[1], TD[1]) + 1; // el canto de abajo de la caja, a la altura del extremo grueso de la tilde
+      const xMin = 4, xMax = fr.width - 4 - bw - sl * bh;
+      const q1x = Math.max(xMin, Math.min(xMax, TI[0] - (movil ? bw * 0.3 : fs * 0.04)));
+      const Q1 = [q1x, yBase], Q2 = [q1x + sl * bh, yBase - bh], Q3 = [q1x + sl * bh + bw, yBase - bh], Q4 = [q1x + bw, yBase];
+      // el contorno: tilde (subiendo por su lado izquierdo) → caja → tilde (bajando por su lado derecho); cada tramo dice de dónde nace
+      const tramos: [number[], number[], 'fijo' | 'caja'][] = [[BI, TI, 'fijo'], [TI, Q1, 'caja'], [Q1, Q2, 'caja'], [Q2, Q3, 'caja'], [Q3, Q4, 'caja'], [Q4, TD, 'caja'], [TD, BD, 'fijo'], [BD, BI, 'fijo']];
+      const largo = tramos.reduce((a2, [p0, p1]) => a2 + Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), 0);
+      const largoCaja = tramos.filter((t2) => t2[2] === 'caja').reduce((a2, [p0, p1]) => a2 + Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), 0);
+      bub = []; til = []; lag = [];
+      let recorrido = 0, enCaja = 0;
+      for (const [p0, p1, tipo] of tramos) {
+        const L2 = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), n = Math.max(1, Math.round((NB * L2) / largo));
+        for (let k = 0; k < n; k++) {
+          const u = k / n, x = p0[0] + (p1[0] - p0[0]) * u, y = p0[1] + (p1[1] - p0[1]) * u;
+          bub.push([x, y]);
+          if (tipo === 'fijo') { til.push([x, y]); lag.push(0); }
+          else { const f2 = (enCaja + L2 * u) / largoCaja; til.push([TI[0] + (TD[0] - TI[0]) * f2, TI[1] + (TD[1] - TI[1]) * f2]); lag.push(Math.sin(Math.PI * f2)); }
+        }
+        recorrido += L2; if (tipo === 'caja') enCaja += L2;
+      }
+      const bx = q1x + sl * bh * 0.5, by = yBase - bh;
+      morfo(pM);
+      contacta.style.setProperty('--bx', `${(bx - (tr.left - fr.left)).toFixed(1)}px`);
+      contacta.style.setProperty('--by', `${(by - (tr.top - fr.top)).toFixed(1)}px`);
+      contacta.style.setProperty('--bw', `${bw}px`); contacta.style.setProperty('--bh', `${bh}px`);
+    };
+    // RONDA 93 · EL MORFO tilde → bocadillo. pM: 0 = tilde, 1 = bocadillo. Cada punto se mueve con un retraso según lo lejos que esté de la cola (los
+    // extremos de la lista son la cola, pegada al acento): el acento se estira, la cola sale primero y la copa del bocadillo se hincha al final
+    const NB = 180;
+    let bub: number[][] = [], til: number[][] = [], lag: number[] = [], pM = 0, metaM = 0, rafM = 0, ultMf = 0;
+    const fondoB = boc.querySelector<SVGPathElement>('.b-fondo')!, trazoB = boc.querySelector<SVGPathElement>('.b-trazo')!;
+    const morfo = (P: number) => {
+      if (!bub.length) return;
+      let d = '';
+      for (let k = 0; k < bub.length; k++) {
+        const w = lag[k], u = Math.min(1, Math.max(0, (P - 0.3 * w) / 0.7)), e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+        const x = til[k][0] + (bub[k][0] - til[k][0]) * e, y = til[k][1] + (bub[k][1] - til[k][1]) * e;
+        d += (k ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+      d += 'Z';
+      fondoB.setAttribute('d', d); trazoB.setAttribute('d', d);
+      // ronda 94: la tinta de la tilde (la de la palabra: 22 % en reposo) se enciende con la palabra y la caja es esa misma tinta, plena: la tilde, crecida
+      fondoB.style.fillOpacity = (0.22 + 0.72 * Math.min(1, P / 0.45)).toFixed(3);
+    };
+    const correrM = (ahora: number) => {
+      const dt = ultMf ? Math.min(0.05, (ahora - ultMf) / 1000) : 0.016; ultMf = ahora;
+      const v = metaM > pM ? 1 / 0.8 : 1 / 0.45; // abre en 0,8 s, se recoge en 0,45
+      pM = metaM > pM ? Math.min(metaM, pM + dt * v) : Math.max(metaM, pM - dt * v);
+      morfo(pM);
+      rafM = pM !== metaM ? requestAnimationFrame(correrM) : 0; if (!rafM) ultMf = 0;
+    };
+    const irM = (m: number) => { metaM = m; if (reducido) { pM = m; morfo(pM); return; } if (!rafM) rafM = requestAnimationFrame(correrM); };
+    // la cuerda que vibra (como en la carga): onda estacionaria que se apaga
+    const vib = lineas.map(() => ({ a: 0, t: 0 }));
+    const pintar = (ahora: number) => {
+      lineas.forEach((l, i) => {
+        const y = yb - i * g, v = vib[i], t = (ahora - v.t) / 1000, A = v.a * Math.exp(-t * 2.6);
+        if (A < 0.05) { l.setAttribute('d', `M${x0.toFixed(1)} ${y.toFixed(1)}H${x1.toFixed(1)}`); return; }
+        let d = ''; const n = 64, L = x1 - x0;
+        for (let k = 0; k <= n; k++) { const x = x0 + (L * k) / n; d += (k ? 'L' : 'M') + x.toFixed(1) + ' ' + (y + A * Math.sin((Math.PI * k) / n) * Math.sin(k * 0.5 - t * 34) * Math.cos(t * 19)).toFixed(2); }
+        l.setAttribute('d', d);
+      });
+    };
+    let raf = 0;
+    const bucle = (ahora: number) => { pintar(ahora); raf = vib.some((v) => ahora - v.t < 2200) ? requestAnimationFrame(bucle) : 0; };
+    const pulsar = () => { if (reducido) return; const ahora = performance.now(); vib.forEach((v, i) => { v.a = g * (0.28 - i * 0.02); v.t = ahora + i * 40; }); if (!raf) raf = requestAnimationFrame(bucle); };
+    // el acorde final (ronda 85: uno solo, fa mayor: el de la carga; la web ya no tiene estaciones)
+    const ACORDE = [53, 65, 69, 72];
+    let sonado = 0;
+    const abrir = () => {
+      if (pie.classList.contains('cta-abierto')) return;
+      pie.classList.add('cta-abierto'); pulsar(); irM(1);
+      if (!reducido && sonidoEncendido() && performance.now() - sonado > 2500) {
+        sonado = performance.now();
+        ACORDE.forEach((m, i) => tocar(m, { vol: i ? 0.07 : 0.1, dur: 3.2, cuando: i * 0.05 }));
+      }
+    };
+    const cerrar = () => { pie.classList.remove('cta-abierto'); irM(0); };
+    // los enlaces del pie, como las cuerdas de un arpa (ronda 85)
+    pie.querySelectorAll<HTMLElement>('.enlace-pie').forEach((a, i) => a.addEventListener('pointerenter', () => tocar(PENTA[(i * 2) % PENTA.length] + 12, { vol: 0.04, dur: 1.3 })));
+    contacta.addEventListener('pointerenter', abrir);
+    contacta.addEventListener('pointerleave', cerrar);
+    contacta.addEventListener('focus', abrir);
+    contacta.addEventListener('blur', cerrar);
+    // RONDA 85 · «el Contáctanos del final: que sean NOTAS que se vayan tocando y se quede finalmente el Contáctanos». Al llegar se traza el pentagrama; luego,
+    // letra a letra, una nota aparece sobre el pentagrama encima de su letra (una melodía que sube y baja), SUENA, se deshace y deja su letra. Al final se
+    // cierra la doble barra y suena el acorde. Sin movimiento: la palabra, directamente.
+    const MELODIA = [1, 3, 5, 4, 6, 8, 7, 5, 6, 4, 2]; // posición en el pentagrama (medios espacios desde la primera línea)
+    const NATURAL = [64, 65, 67, 69, 71, 72, 74, 76, 77];
+    const letras = [...txt.querySelectorAll<HTMLElement>('.l')];
+    // ronda 93: cuando la palabra se asienta, la «á» pasa a «a» + nuestra tilde (la de la versión de prueba de Family caía en Georgia)
+    const tildeNuestra = () => { if (letras[4] && letras[4].textContent === 'á') { letras[4].textContent = 'a'; } requestAnimationFrame(() => { medir(); pie.classList.add('tilde'); }); };
+    const llegar = () => {
+      pie.classList.add('llega');
+      if (reducido) { letras.forEach((l) => l.classList.add('on')); pie.classList.add('entera'); tildeNuestra(); return; }
+      // RONDA 85 (2.ª) · «que las propias letras sean las notas y sean lo que se queda»: cada LETRA entra a la altura de su nota en el pentagrama (sube o baja
+      // según la melodía), con su plica, y suena; cuando han sonado todas, bajan juntas a la línea (el acorde) y queda la palabra
+      letras.forEach((l, i) => setTimeout(() => {
+        const p = MELODIA[i];
+        l.style.setProperty('--y', `${(-(p - 3) * g * 0.42).toFixed(1)}px`);
+        l.classList.add('on', 'nota');
+        tocar(NATURAL[p], { vol: 0.08, dur: 1.6 });
+        vib[Math.min(4, Math.round(p / 2))] = { a: g * 0.18, t: performance.now() }; if (!raf) raf = requestAnimationFrame(bucle);
+        if (i === letras.length - 1) setTimeout(() => {
+          pie.classList.add('entera'); tildeNuestra(); letras.forEach((q) => { q.style.setProperty('--y', '0px'); q.classList.remove('nota'); });
+          ACORDE.forEach((m, k) => tocar(m, { vol: k ? 0.06 : 0.09, dur: 3, cuando: k * 0.04 }));
+          for (let k = 0; k < 5; k++) vib[k] = { a: g * 0.26, t: performance.now() + k * 40 };
+          if (!raf) raf = requestAnimationFrame(bucle);
+        }, 650);
+      }, 1500 + i * 190));
+    };
+    // RONDA 94 · EL DIRECTOR del pie (se monta al acercarse; marca el compás solo a la vista)
+    const dirEl = pie.querySelector<HTMLElement>('[data-director-pie]')!;
+    let td: ReturnType<typeof crearPapel> | null = null;
+    const montarDirector = () => {
+      if (td) return;
+      const img = new Image(); img.decoding = 'async'; img.src = '/media/hero/director-nitido.webp';
+      const bg = (getComputedStyle(pie).backgroundColor.match(/\d+/g) || ['59', '35', '27']).slice(0, 3).map(Number) as [number, number, number];
+      td = crearPapel(dirEl.querySelector('canvas')!, img, {
+        origen: [0.632, 0.02], semilla: 19, densidad: 0.8, batuta: [0.632, 0.02, 0.733, 0.132], bpm: 92, amplitud: 1.7,
+        brazos: [{ hombro: [0.372, 0.33], mano: [0.205, 0.11], ancho: 0.07 }, { hombro: [0.578, 0.32], mano: [0.735, 0.15], ancho: 0.07 }],
+        // otra postura: la mano libre más alta y abierta; la de la batuta, baja y tendida hacia las letras (a su derecha)
+        pose: [0.18, 0.62],
+      });
+      td.fondo(bg[0], bg[1], bg[2]);
+      if (reducido) td.soltar();
+    };
+    new IntersectionObserver((e) => { if (e[0].isIntersecting) montarDirector(); td?.visible(e[0].isIntersecting); }, { rootMargin: '400px 0px' }).observe(dirEl);
+    // las CAPAS: se apartan a su ritmo con el scroll (según entra el pie) y con el ratón (con retraso)
+    const capasEl = [...pie.querySelectorAll<HTMLElement>('[data-prof]')];
+    let mx = 0, my = 0, tx = 0, ty = 0, rafC = 0;
+    const mover = () => {
+      rafC = 0;
+      const r = pie.getBoundingClientRect(), p = Math.min(1, Math.max(0, 1 - r.top / innerHeight)); // 0 al asomar, 1 con el pie arriba
+      mx += (tx - mx) * 0.08; my += (ty - my) * 0.08;
+      capasEl.forEach((c) => { const k = +c.dataset.prof!; c.style.transform = `translate3d(${(mx * 22 * k).toFixed(1)}px, ${((1 - p) * 90 * k + my * 12 * k).toFixed(1)}px, 0)`; });
+      if (Math.abs(tx - mx) + Math.abs(ty - my) > 0.002) rafC = requestAnimationFrame(mover);
+    };
+    if (!reducido) {
+      addEventListener('scroll', () => { if (!rafC) rafC = requestAnimationFrame(mover); }, { passive: true });
+      pie.addEventListener('pointermove', (e) => { tx = e.clientX / innerWidth - 0.5; ty = e.clientY / innerHeight - 0.5; if (!rafC) rafC = requestAnimationFrame(mover); }, { passive: true });
+      mover();
+    }
+    const pintarSala = () => td?.soltar(); // ronda 94: el director se compone desde la batuta al llegar
+    new IntersectionObserver((e, io) => { if (e[0].isIntersecting) { montarDirector(); pintarSala(); llegar(); io.disconnect(); } }, { threshold: 0.3 }).observe(final);
+    document.fonts.ready.then(medir); addEventListener('resize', medir); medir();
+  }
+</script>
+
+<style>
+  .pie {
+    position: relative;
+    /* RONDA 90 · «al llegar al footer, animación de cambio de color»: el `overflow: hidden` (ronda 83) recortaba la gota de la transición líquida, que
+       asoma por ENCIMA del borde de la sección (la trampa de la ronda 26). Solo se recorta en horizontal; las capas ya recortan lo suyo */
+    overflow-x: clip;
+    overflow-y: visible;
+    padding-bottom: calc(var(--spacing) * 12);
+    /* ronda 86 · «bajar más el Contáctanos»: el pie ocupa la pantalla y el último sistema va abajo del todo */
+    min-height: 100lvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .enlaces { margin-top: 0; }
+  @media (width >= 64rem) {
+    .enlaces { margin-top: calc(var(--text-h1) * 0.14); }
+  }
+  .enlace-pie {
+    display: inline-block;
+    transition: opacity 0.35s ease, filter 0.45s ease, translate 0.45s var(--ease-out-expo);
+  }
+  ul:has(.enlace-pie:hover) .enlace-pie:not(:hover) { opacity: 0.4; filter: blur(3px); }
+  .enlace-pie:hover { translate: 0.25em 0; }
+  /* ── EL ÚLTIMO SISTEMA */
+  .final {
+    position: relative;
+    margin-top: auto;
+    padding-block: calc(var(--spacing) * 12) calc(var(--spacing) * 12);
+  }
+  /* ── LAS CAPAS del fondo (ronda 86) */
+  .capas { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .capa { position: absolute; inset: -6% -4%; will-change: transform; }
+  .lejos { background: url('/media/pie/sala.webp') 50% 70% / cover no-repeat; filter: blur(14px) saturate(0.8); opacity: 0.28; transform: scale(1.08); }
+  .medio { display: flex; align-items: flex-end; justify-content: center; }
+  .sala {
+    position: relative;
+    width: max(100vw, 72rem);
+    aspect-ratio: 1916 / 821;
+    margin-bottom: 4%;
+    opacity: 0.58; /* ronda 92: 0,42 · ronda 93: con las etiquetas pequeñas, algo más presente para que la sala se reconozca */
+    -webkit-mask-image: radial-gradient(ellipse 60% 62% at 46% 56%, #000 30%, transparent 80%);
+    mask-image: radial-gradient(ellipse 60% 62% at 46% 56%, #000 30%, transparent 80%);
+  }
+  /* el velo: noche lisa arriba (sin corte con la sección de antes) y abajo */
+  .velo-pie { position: absolute; inset: 0; background: linear-gradient(to bottom, var(--noche) 0%, var(--noche) 12%, color-mix(in srgb, var(--noche) 55%, transparent) 38%, transparent 62%, color-mix(in srgb, var(--noche) 70%, transparent) 100%); }
+  .contenido, .final, .linea { position: relative; z-index: 1; }
+  /* RONDA 94 · el director del pie: en espejo, detrás de la palabra (z 2) y por delante del pentagrama; se funde por abajo */
+  .director-pie { position: absolute; z-index: 1; pointer-events: none; -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%); mask-image: linear-gradient(to bottom, #000 70%, transparent 100%); }
+  .director-pie canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; }
+  .director-pie canvas:global(.listo) { opacity: 0.92; }
+  .director-pie { transition: opacity 0.5s ease; }
+  @media (width < 48rem) { .cta-abierto .director-pie { opacity: 0.15; } } /* en móvil no caben los dos: se aparta mientras la tilde está abierta */
+  .sala img, .sala canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .sala img { opacity: 0; }
+  .sala.sin-gl img { opacity: 1; }
+  .pauta {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .lineas :global(path) {
+    fill: none;
+    stroke: color-mix(in srgb, var(--color-niebla) 26%, transparent);
+    stroke-width: 1.2;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .llega .lineas :global(path) { stroke-dashoffset: 0; transition: stroke-dashoffset 1.6s cubic-bezier(0.5, 0, 0.2, 1); }
+  .llega .lineas :global(path:nth-child(2)) { transition-delay: 0.06s; }
+  .llega .lineas :global(path:nth-child(3)) { transition-delay: 0.12s; }
+  .llega .lineas :global(path:nth-child(4)) { transition-delay: 0.18s; }
+  .llega .lineas :global(path:nth-child(5)) { transition-delay: 0.24s; }
+  /* la doble barra final: una fina y una gruesa, que se cierran al final */
+  .barra path { fill: none; stroke: color-mix(in srgb, var(--color-niebla) 60%, transparent); }
+  .barra .fina { stroke-width: 1.4; transform: translateX(-12px); }
+  .barra .gruesa { stroke-width: 6; transform: translateX(-3px); }
+  .barra { opacity: 0; transition: opacity 0.6s ease; }
+  .entera .barra { opacity: 1; }
+  /* el calderón: se dibuja al pasar */
+  /* RONDA 92 · el bocadillo: el trazo se dibuja desde la tilde (cola + contorno), luego se llena de cristal y aparece el texto */
+  /* RONDA 93 · la tilde ES el bocadillo (el morfo lo pinta el JS: fill-opacity y stroke-opacity) */
+  .bocadillo { opacity: 0; transition: opacity 0.5s ease; }
+  .tilde .bocadillo { opacity: 1; }
+  .bocadillo .b-trazo { fill: none; stroke: var(--color-coral); stroke-width: 1.6; stroke-linejoin: round; stroke-opacity: 0; }
+  .bocadillo .b-fondo { fill: var(--color-niebla); fill-opacity: 0.22; }
+  /* LA PALABRA: tenue en reposo; al pasar, luz en degradado de izquierda (plena) a derecha (suave) */
+  .contacta {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    cursor: pointer;
+    --brillo: 0;
+  }
+  /* la palabra, letra a letra: cada letra con su tinta (tenue en reposo; al pasar, luz de izquierda —plena— a derecha —suave—) */
+  .contacta .txt { display: inline-block; }
+  .contacta .l {
+    display: inline-block;
+    color: color-mix(in srgb, var(--color-niebla) calc(22% + var(--brillo) * (78% - var(--i) * 4.6%)), transparent);
+  }
+  /* RONDA 85 · cada letra la deja su nota: sale del desenfoque cuando la nota se deshace */
+  :global(html.anima) .contacta .l { --y: 0px; opacity: 0; filter: blur(10px); scale: 0.7; translate: 0 var(--y); transition: opacity 0.5s ease, filter 0.6s var(--ease-out-expo), scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), translate 1s cubic-bezier(0.5, 0, 0.2, 1.2); }
+  :global(html.anima) .contacta .l.on { opacity: 1; filter: none; scale: 1; }
+  /* cada letra, mientras es NOTA: lleva su plica (una línea fina que sube desde su lado derecho) */
+  .contacta .l { position: relative; }
+  .contacta .l::after { content: ''; position: absolute; right: 0.06em; bottom: 0.42em; width: max(1.2px, 0.012em); height: 0.46em; background: color-mix(in srgb, var(--color-niebla) 70%, transparent); opacity: 0; scale: 1 0; transform-origin: 50% 100%; transition: opacity 0.4s ease, scale 0.4s var(--ease-out-expo); }
+  .contacta .l.nota::after { opacity: 1; scale: 1 1; }
+  .notas-fin :global(.nf) { transition: opacity 0.6s ease; }
+  .notas-fin :global(.nf ellipse) { fill: var(--color-niebla); animation: nf-entra 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; transform-box: fill-box; transform-origin: center; }
+  .notas-fin :global(.nf path) { stroke: var(--color-niebla); stroke-width: 1.6; stroke-linecap: round; }
+  .notas-fin :global(.nf.fuera) { opacity: 0; }
+  @keyframes nf-entra { from { scale: 0.2; opacity: 0; } }
+  .contacta { transition: --brillo 1.1s var(--ease-out-expo); }
+  .cta-abierto .contacta { --brillo: 1; }
+  /* la píldora con Eric y Andoni: sube del punto del calderón */
+  .cta-pastilla {
+    position: absolute;
+    left: var(--bx, 0);
+    top: var(--by, 0);
+    width: var(--bw, 20rem);
+    height: var(--bh, 6rem);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 4);
+    padding: 0 calc(var(--spacing) * 6);
+    color: var(--noche); /* ronda 94: dentro de la tilde encendida (niebla), en la tinta de la noche */
+    font-family: var(--font-sans);
+    font-size: var(--text-ui);
+    letter-spacing: 0;
+    white-space: nowrap;
+    opacity: 0;
+    translate: 0 6px;
+    pointer-events: none;
+    transition: opacity 0.2s ease, translate 0.3s ease;
+  }
+  /* abierto, el bocadillo coge el puntero (es parte del enlace) y un puente invisible lo une a la palabra: ir de la palabra al bocadillo no lo cierra */
+  .cta-abierto .cta-pastilla { pointer-events: auto; }
+  .cta-pastilla::before { content: ''; position: absolute; left: -3rem; right: 30%; top: 100%; height: 6rem; }
+  .cta-abierto .cta-pastilla { opacity: 1; translate: 0 0; transition: opacity 0.4s ease 0.6s, translate 0.6s var(--ease-out-expo) 0.6s; }
+  .cta-dice { display: flex; flex-direction: column; line-height: 1.2; }
+  .cta-dice b { font-weight: 400; font-size: 1.3rem; letter-spacing: -0.01em; }
+  .cta-dice small { font-family: var(--font-mono); font-size: var(--text-detail); opacity: 0.7; margin-top: 0.3em; }
+  .cta-caras { display: inline-flex; }
+  .cta-caras img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--noche); }
+  .cta-caras img + img { margin-left: -8px; }
+  /* EL FOCO: el haz del hero, cayendo sobre la palabra; más vivo al pasar */
+  .foco {
+    position: absolute;
+    inset: calc(var(--spacing) * -48) 0 0;
+    pointer-events: none;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 80%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 80%, transparent);
+    opacity: 0.6;
+    transition: opacity 1.2s ease;
+  }
+  .cta-abierto .foco { opacity: 1; }
+  .foco .haz {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 33%;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-niebla) 3%, transparent) 30%, color-mix(in srgb, var(--color-niebla) 8%, transparent) 50%, color-mix(in srgb, var(--color-niebla) 3%, transparent) 70%, transparent);
+    transform: skewX(-12deg);
+  }
+  /* la línea de abajo, con el crédito de la música */
+  .linea {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+    color: var(--fg2);
+  }
+  .credito { flex-basis: 100%; opacity: 0.6; }
+  @media (width < 64rem) {
+    .final { margin-top: auto; padding-block: calc(var(--spacing) * 24) calc(var(--spacing) * 12); }
+    .cta-pastilla { white-space: normal; padding: 0 calc(var(--spacing) * 4); gap: calc(var(--spacing) * 3); }
+    .cta-dice b { font-size: 1.02rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contacta .l { filter: none; opacity: 1; transition: none; }
+    .lineas :global(path) { stroke-dashoffset: 0; }
+    .barra { opacity: 1; transition: none; }
+  }
+</style>

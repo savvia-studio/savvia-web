@@ -1,0 +1,379 @@
+---
+// LA CARGA · RONDA 83 · giro a la música. Andoni: «la gota de savvia ya no tiene sentido; algo musical en lo que el usuario tenga que dibujar una nota o
+// tocar unos acordes para entrar» · «la carga suena».
+// · EL ACORDE: un pentagrama de cinco líneas con el isotipo de clave y, a la derecha, un acorde en BLANCO (tres cabezas vacías). El visitante lo toca:
+//   clic o dedo en cada cabeza (o espacio / intro, la siguiente). Cada nota se rellena, SUENA (piano sintetizado, src/scripts/musica.ts) y hace vibrar
+//   su línea. Tocar el pentagrama fuera del acorde también suena (se puede trastear) pero no cuenta.
+// · Es el acorde de la ESTACIÓN de la web: el tono de su concierto en Las cuatro estaciones de Vivaldi (primavera mi mayor · verano sol menor · otoño fa
+//   mayor · invierno fa menor). La pista lo dice en pequeño.
+// · AL COMPLETARLO: suena el acorde entero con su bajo, las cinco líneas vibran, se estiran a todo el ancho y la cámara sube al hero (que nace 100 lvh
+//   más abajo, `html.cargando`); al posarse, `savvia:gota` (nombre heredado) → el director se DIBUJA desde la punta de la batuta y entran los carriles.
+// · «saltar», Escape o la rueda la saltan. Solo la primera vez (localStorage «savvia:carga»; `?carga=1` la fuerza). Movimiento reducido: sin carga.
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+---
+
+<div class="cargador" aria-hidden="true" data-cargador>
+  <div class="mundo" data-mundo>
+    <svg class="pauta" data-pauta>
+      <g class="lineas" data-lineas></g>
+      <g class="clave" data-clave><path d={ISO} /></g>
+      <g class="notas" data-notas></g>
+    </svg>
+    <p class="pista detail" data-carga-pista><span data-pista-txt>toca el acorde</span><button type="button" class="saltar" data-saltar>saltar</button></p>
+  </div>
+</div>
+
+<script>
+  import { tocar } from '../scripts/musica';
+  const velo = document.querySelector<HTMLElement>('[data-cargador]');
+  const w = window as any, raiz = document.documentElement;
+  w.__cargaViva = true; // el salvavidas del <head> solo actúa si este script no llega a correr
+  const soltar = () => { if (w.__gotaSuelta) return; w.__gotaSuelta = true; dispatchEvent(new Event('savvia:gota')); };
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const terminar = () => {
+    if (hero) hero.style.transform = '';
+    if (raiz.classList.contains('cargando')) { raiz.classList.remove('cargando', 'carriles-entran'); void raiz.offsetWidth; raiz.classList.add('carriles-entran'); }
+  };
+  if (!velo || !hero || !raiz.classList.contains('cargando') || scrollY > 40) { terminar(); velo?.remove(); soltar(); }
+  else {
+    const NS = 'http://www.w3.org/2000/svg';
+    const $ = <T extends Element>(s: string) => velo.querySelector<T>(s)!;
+    const pauta = $<SVGSVGElement>('[data-pauta]'), gLineas = $<SVGGElement>('[data-lineas]'), gNotas = $<SVGGElement>('[data-notas]'), clave = $<SVGGElement>('[data-clave]');
+    const mundo = $<HTMLElement>('[data-mundo]'), pista = $<HTMLElement>('[data-carga-pista]');
+    // EL ACORDE (ronda 85: la web ya no tiene estaciones → uno solo, fa mayor). Posición: 0 = primera línea (mi4), 1 = primer espacio (fa4)… 8 = quinta (fa5)
+    type Nota = { p: number; midi: number; alt?: string };
+    const acorde: { notas: Nota[]; bajo: number } = { notas: [{ p: 1, midi: 65 }, { p: 3, midi: 69 }, { p: 5, midi: 72 }], bajo: 41 };
+    // las notas de la escala natural por posición (para trastear fuera del acorde): mi4 fa4 sol4 la4 si4 do5 re5 mi5 fa5
+    const NATURAL = [64, 65, 67, 69, 71, 72, 74, 76, 77];
+    // GEOMETRÍA (se recalcula al redimensionar)
+    let W = 0, H = 0, x0 = 0, x1 = 0, yb = 0, g = 14, xc = 0;
+    const yDe = (p: number) => yb - (p * g) / 2; // p en medios espacios desde la primera línea
+    const lineas: SVGPathElement[] = [];
+    for (let i = 0; i < 5; i++) { const l = document.createElementNS(NS, 'path'); gLineas.appendChild(l); lineas.push(l); }
+    // la vibración de cada línea: amplitud, fase, cuándo empezó y desde qué x
+    const vib = lineas.map(() => ({ a: 0, t: 0, x: 0 }));
+    type Cabeza = { n: Nota; el: SVGGElement; hecha: boolean };
+    const cabezas: Cabeza[] = acorde.notas.map((n) => {
+      const el = document.createElementNS(NS, 'g'); el.setAttribute('class', 'cabeza');
+      el.innerHTML = `<ellipse class="halo" rx="1" ry="1"/><ellipse class="cuerpo" rx="1" ry="1"/>` + (n.alt ? `<text class="alt">${n.alt}</text>` : '');
+      gNotas.appendChild(el);
+      return { n, el, hecha: false };
+    });
+    const plica = document.createElementNS(NS, 'path'); plica.setAttribute('class', 'plica'); gNotas.appendChild(plica);
+    const medir = () => {
+      W = innerWidth; H = innerHeight;
+      pauta.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      g = Math.max(11, Math.min(18, H * 0.022));
+      const ancho = Math.min(W * 0.84, 640);
+      x0 = (W - ancho) / 2; x1 = x0 + ancho; yb = H / 2 + g * 2; xc = x0 + ancho * 0.64;
+      // la clave: el isotipo (la v de savvia, 370 × 439) a la altura de la pauta y un poco más
+      const hc = g * 5.4, k = hc / 439;
+      clave.setAttribute('transform', `translate(${x0 + g * 0.6} ${yb - g * 4 - g * 0.7}) scale(${k})`);
+      cabezas.forEach((c) => {
+        const y = yDe(c.n.p);
+        c.el.setAttribute('transform', `translate(${xc} ${y})`);
+        c.el.querySelectorAll('ellipse').forEach((e) => { e.setAttribute('rx', String(g * 0.66)); e.setAttribute('ry', String(g * 0.47)); e.setAttribute('transform', 'rotate(-22)'); });
+        const t = c.el.querySelector('text'); if (t) { t.setAttribute('x', String(-g * 1.75)); t.setAttribute('y', String(g * 0.42)); t.setAttribute('font-size', String(g * 1.35)); }
+      });
+      pintar(performance.now());
+    };
+    // una línea que vibra: onda estacionaria que se apaga (como una cuerda pulsada en x)
+    let xa = 0, xb = 0; // extremos (se estiran al final)
+    const pintar = (ahora: number) => {
+      const ia = x0 + (0 - x0) * xa, ib = x1 + (W - x1) * xb;
+      lineas.forEach((l, i) => {
+        const y = yb - i * g, v = vib[i], t = (ahora - v.t) / 1000, A = v.a * Math.exp(-t * 3.2);
+        if (A < 0.05) { l.setAttribute('d', `M${ia.toFixed(1)} ${y.toFixed(1)}H${ib.toFixed(1)}`); return; }
+        let d = '';
+        const L = ib - ia, n = 48;
+        for (let k = 0; k <= n; k++) {
+          const x = ia + (L * k) / n, env = Math.sin((Math.PI * k) / n), cerca = Math.exp(-Math.pow((x - v.x) / (L * 0.35), 2));
+          const yy = y + A * env * (0.35 + 0.65 * cerca) * Math.sin(k * 0.55 - t * 38) * Math.cos(t * 21);
+          d += (k ? 'L' : 'M') + x.toFixed(1) + ' ' + yy.toFixed(2);
+        }
+        l.setAttribute('d', d);
+      });
+    };
+    const pulsar = (i: number, x: number, fuerza = 1) => { if (i < 0 || i > 4) return; vib[i] = { a: Math.max(vib[i].a * 0.5, g * 0.42 * fuerza), t: performance.now(), x }; };
+    let hechas = 0, fin = false, parado = false;
+    const tocarCabeza = (c: Cabeza) => {
+      if (c.hecha || fin) return;
+      c.hecha = true; hechas++;
+      c.el.classList.add('hecha');
+      tocar(c.n.midi, { vol: 0.2, forzar: true });
+      // vibra la línea en la que está (o las dos de su espacio, a media fuerza)
+      const p = c.n.p;
+      if (p % 2 === 0) pulsar(p / 2, xc); else { pulsar((p - 1) / 2, xc, 0.6); pulsar((p + 1) / 2, xc, 0.6); }
+      clearTimeout(pistaT); pista.classList.add('ver');
+      if (hechas === acorde.notas.length) resolver();
+    };
+    // trastear: un toque en la pauta fuera del acorde suena su nota natural y la línea vibra, pero no cuenta
+    const trastear = (x: number, y: number) => {
+      const p = Math.round(((yb - y) * 2) / g);
+      if (p < -1 || p > 9 || x < x0 || x > x1) return;
+      const pp = Math.max(0, Math.min(8, p));
+      tocar(NATURAL[pp], { vol: 0.12, dur: 1.8, forzar: true });
+      if (pp % 2 === 0) pulsar(pp / 2, x, 0.8); else { pulsar((pp - 1) / 2, x, 0.45); pulsar((pp + 1) / 2, x, 0.45); }
+    };
+    const pulsarEn = (x: number, y: number) => {
+      if (fin) return;
+      // la cabeza más cercana dentro de un radio generoso (el dedo)
+      let mejor: Cabeza | null = null, dm = Infinity;
+      for (const c of cabezas) { if (c.hecha) continue; const d = Math.hypot(x - xc, y - yDe(c.n.p)); if (d < dm) { dm = d; mejor = c; } }
+      if (mejor && dm < Math.max(26, g * 1.6)) tocarCabeza(mejor); else trastear(x, y);
+    };
+    velo.addEventListener('pointerdown', (e) => { if ((e.target as Element).closest('[data-saltar]')) return; pulsarEn(e.clientX, e.clientY); });
+    // al pasar por encima de una cabeza, se asoma
+    velo.addEventListener('pointermove', (e) => {
+      for (const c of cabezas) c.el.classList.toggle('cerca', !c.hecha && Math.hypot(e.clientX - xc, e.clientY - yDe(c.n.p)) < Math.max(26, g * 1.6));
+    }, { passive: true });
+    // EL FINAL: el acorde entero (arpegiado y con su bajo), la plica, las líneas vibran todas, se estiran a todo el ancho y la cámara sube al hero
+    const cubica = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    // RONDA 85 · «la animación de antes era muy buena: parecía que caía la gota desde arriba y el hero entraba; ¿algo tan orgánico pero musical?». Al
+    // completar el acorde, suena entero; la nota de ARRIBA se DESCUELGA del pentagrama (tiembla, se estira colgando de su línea) y CAE como caía la gota:
+    // con gravedad, estirándose con la velocidad, desenfocada en la dirección del movimiento. La cámara baja con ella (el mundo sube, el hero entra desde
+    // abajo) y la nota aterriza en la PUNTA DE LA BATUTA del director: suena grave y se abre una ONDA desde allí, de la que se dibuja el director.
+    const COLGAR = 620, CAER = 1500;
+    const cae = document.createElementNS(NS, 'g'); cae.setAttribute('class', 'cae');
+    cae.innerHTML = '<ellipse class="c-cuerpo" rx="1" ry="1"/><path class="c-plica" d=""/>';
+    gNotas.appendChild(cae);
+    const ondaEn = (x: number, y: number) => {
+      const o = document.createElement('div'); o.className = 'onda-batuta'; o.setAttribute('aria-hidden', 'true');
+      o.style.left = `${x}px`; o.style.top = `${y}px`; o.innerHTML = '<i></i><i></i><i></i>';
+      hero.appendChild(o); setTimeout(() => o.remove(), 2600);
+    };
+    const resolver = () => {
+      fin = true;
+      setTimeout(() => {
+        acorde.notas.forEach((n, i) => tocar(n.midi, { vol: 0.15, dur: 3.6, cuando: i * 0.045, forzar: true }));
+        tocar(acorde.bajo, { vol: 0.2, dur: 4.2, forzar: true }); tocar(acorde.bajo + 12, { vol: 0.12, dur: 4, forzar: true });
+        const ys = acorde.notas.map((n) => yDe(n.p));
+        plica.setAttribute('d', `M${xc + g * 0.62} ${Math.max(...ys) - g * 0.1}V${Math.min(...ys) - g * 3.4}`);
+        velo.classList.add('resuelto');
+        for (let i = 0; i < 5; i++) pulsar(i, xc, 1.25);
+      }, 260);
+      const D = hero.getBoundingClientRect().top; // el hero nace desplazado: lo que baja la cámara
+      const caja = hero.querySelector<HTMLElement>('.arbol-caja')!.getBoundingClientRect();
+      const meta = { x: caja.left + caja.width * 0.632, y: caja.top + caja.height * 0.02 }; // la batuta (en el mundo: el hero aún lleva sumada D)
+      const arriba = acorde.notas[acorde.notas.length - 1], cabezaSup = cabezas[cabezas.length - 1];
+      const x0 = xc, y0 = yDe(arriba.p), rx = g * 0.66, ry = g * 0.47;
+      let t0 = 0, cSuelta = false, xp = x0, yp = y0;
+      const paso = (ahora: number) => {
+        if (parado) return;
+        pintar(ahora);
+        if (!t0) t0 = ahora + 1000; // deja sonar el acorde antes de descolgarse
+        const t = ahora - t0;
+        if (t < 0) return void requestAnimationFrame(paso);
+        if (!cSuelta) { cSuelta = true; cabezaSup.el.style.opacity = '0'; velo.classList.add('subiendo'); }
+        let x = x0, y = y0, sx = 1, sy = 1, ang = 0, cam = 0, blur = 0;
+        if (t < COLGAR) {
+          // DESCOLGARSE: tiembla, engorda y se estira hacia abajo colgando de su línea
+          const k = t / COLGAR, e = k * k * (3 - 2 * k);
+          x = x0 + Math.sin(k * 26) * 1.2 * (1 - k); y = y0 + e * g * 0.9;
+          sx = 1 - 0.1 * e; sy = 1 + 0.35 * e; ang = Math.sin(k * 18) * 6 * (1 - k);
+        } else {
+          // CAER: en pantalla acelera (gravedad); la cámara baja con curva suave y se posa a la vez que la nota toca la batuta
+          const k = Math.min(1, (t - COLGAR) / CAER);
+          cam = cubica(k);
+          const yI = y0 + g * 0.9, pant = yI + (meta.y - D - yI) * Math.pow(k, 2.1);
+          y = pant + cam * D;
+          x = x0 + (meta.x - x0) * (0.5 - 0.5 * Math.cos(Math.PI * k)) + Math.sin(k * Math.PI * 2) * 12 * (1 - k);
+          const v = Math.hypot(x - xp, y - cam * D - (yp - 0)) ;
+          sy = 1.1 + Math.min(0.6, v * 0.025); sx = 1 / Math.sqrt(sy); ang = Math.sin(k * Math.PI * 3) * 10 * (1 - k); blur = Math.min(2.2, v * 0.05); // cae derecha (cabeza abajo, plica arriba), meciéndose
+          xa = xb = cubica(Math.min(1, k * 1.6));
+          mundo.style.transform = `translate3d(0, ${(-cam * D).toFixed(1)}px, 0)`;
+          hero.style.transform = `translate3d(0, ${((1 - cam) * D).toFixed(1)}px, 0)`;
+          if (k >= 1) {
+            tocar(acorde.bajo + 12, { vol: 0.16, dur: 3.4, forzar: true }); tocar(acorde.notas[2].midi + 12, { vol: 0.08, dur: 3, forzar: true });
+            cae.style.opacity = '0';
+            acabar(true);
+            const hr = hero.getBoundingClientRect();
+            ondaEn(meta.x - hr.left, meta.y - D - hr.top);
+            return;
+          }
+        }
+        xp = x; yp = y - cam * D;
+        const cu = cae.querySelector('.c-cuerpo')!;
+        cu.setAttribute('rx', String(rx * 1.35)); cu.setAttribute('ry', String(ry * 1.35)); cu.setAttribute('transform', 'rotate(-22)'); // la cabeza inclinada; la plica, recta
+        cae.querySelector('.c-plica')!.setAttribute('d', `M${(rx * 1.2).toFixed(1)} ${(-ry * 0.2).toFixed(1)}V${(-g * 3.6).toFixed(1)}`); // la nota entera (cabeza y plica), algo mayor
+        cae.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)}) rotate(${ang.toFixed(1)})`);
+        cae.style.filter = blur > 0.2 ? `blur(${blur.toFixed(1)}px)` : '';
+        requestAnimationFrame(paso);
+      };
+      requestAnimationFrame(paso);
+    };
+    // el bucle de las cuerdas mientras no se ha resuelto
+    const vivo = (ahora: number) => { if (fin || parado) return; pintar(ahora); requestAnimationFrame(vivo); };
+    const acabar = (_conMusica: boolean) => {
+      if (parado) return; parado = true;
+      try { localStorage.setItem('savvia:carga', '1'); } catch {}
+      terminar();
+      velo.classList.add('fuera');
+      soltar();
+      setTimeout(() => velo.remove(), 1200);
+    };
+    const pistaT = setTimeout(() => pista.classList.add('ver'), 200);
+    const saltar = () => acabar(false);
+    $('[data-saltar]').addEventListener('click', saltar);
+    addEventListener('keydown', (e) => {
+      if (parado) return;
+      if (e.key === 'Escape') return saltar();
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); const c = cabezas.find((c) => !c.hecha); if (c) tocarCabeza(c); }
+    });
+    addEventListener('wheel', () => { if (!fin) saltar(); }, { once: true, passive: true });
+    addEventListener('resize', medir);
+    document.fonts.ready.then(() => { medir(); velo.classList.add('en-marcha'); requestAnimationFrame(vivo); });
+    medir();
+  }
+</script>
+
+<style>
+  .cargador {
+    position: fixed;
+    inset: 0;
+    z-index: 70; /* escala de z: … 55 nav · 60 escenario sentado · 70 carga */
+    overflow: hidden;
+    pointer-events: auto;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  /* el velo: la misma materia que la página; se abre cuando la cámara empieza a subir */
+  .cargador::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--noche) url('/media/grano.png') 0 0 / 240px 240px;
+    transition: opacity 0.9s ease;
+  }
+  .subiendo::before { opacity: 0; }
+  .mundo {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .pauta {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .lineas :global(path) {
+    fill: none;
+    stroke: color-mix(in srgb, var(--color-niebla) 42%, transparent);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    transition: stroke 1.2s ease;
+  }
+  .resuelto .lineas :global(path) { stroke: color-mix(in srgb, var(--color-niebla) 70%, transparent); }
+  .subiendo .lineas :global(path) { stroke: color-mix(in srgb, var(--color-niebla) 14%, transparent); transition-duration: 1.6s; }
+  .clave {
+    fill: color-mix(in srgb, var(--color-niebla) 62%, transparent);
+    transition: opacity 0.6s ease;
+  }
+  .subiendo .clave { opacity: 0; }
+  /* las cabezas del acorde: vacías (el acorde por tocar); al tocarlas se rellenan y el halo se abre y se apaga */
+  .notas :global(.cabeza) { cursor: pointer; }
+  .notas :global(.cuerpo) {
+    fill: transparent;
+    stroke: color-mix(in srgb, var(--color-niebla) 55%, transparent);
+    stroke-width: 1.4;
+    stroke-dasharray: 3 3;
+    transition: fill 0.25s ease, stroke 0.25s ease;
+  }
+  .notas :global(.cerca .cuerpo) { stroke: var(--color-niebla); stroke-dasharray: none; }
+  .notas :global(.hecha .cuerpo) { fill: var(--color-niebla); stroke: var(--color-niebla); stroke-dasharray: none; }
+  .notas :global(.halo) {
+    fill: none;
+    stroke: var(--color-coral);
+    stroke-width: 1.2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .notas :global(.hecha .halo) { animation: halo 1.1s var(--ease-out-expo) forwards; }
+  @keyframes halo {
+    from { opacity: 0.9; scale: 1; }
+    to { opacity: 0; scale: 3.2; }
+  }
+  .notas :global(.alt) {
+    fill: color-mix(in srgb, var(--color-niebla) 62%, transparent);
+    font-family: var(--font-sans, system-ui);
+  }
+  .notas :global(.plica) {
+    fill: none;
+    stroke: var(--color-niebla);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+  }
+  .resuelto .notas :global(.plica) { stroke-dashoffset: 0; transition: stroke-dashoffset 0.5s var(--ease-out-expo); }
+  .notas :global(.cae) { opacity: 0; }
+  .notas :global(.cae .c-cuerpo) { fill: var(--color-niebla); }
+  .notas :global(.cae .c-plica) { stroke: var(--color-niebla); stroke-width: 1.8; stroke-linecap: round; }
+  .notas :global(.cae) { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-niebla) 60%, transparent)); }
+  .subiendo .notas :global(.cae) { opacity: 1; }
+  .subiendo .notas { opacity: 1; }
+  .subiendo .notas :global(.cabeza), .subiendo .notas :global(.plica) { opacity: 0; transition: opacity 0.9s ease; }
+  :global(.onda-batuta) {
+    position: absolute;
+    z-index: 3;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+  :global(.onda-batuta i) {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--color-niebla);
+    opacity: 0;
+    animation: onda-batuta 2.2s var(--ease-out-expo) forwards;
+  }
+  :global(.onda-batuta i:nth-child(2)) { animation-delay: 0.18s; border-color: var(--color-coral); }
+  :global(.onda-batuta i:nth-child(3)) { animation-delay: 0.36s; }
+  @keyframes onda-batuta {
+    0% { opacity: 0.8; inset: -4px; }
+    100% { opacity: 0; inset: -170px; }
+  }
+  .pista {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + 7.5rem);
+    translate: -50% 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    color: var(--fg2);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .pista.ver { opacity: 1; }
+  .resuelto .pista, .subiendo .pista { opacity: 0; }
+  .saltar {
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--fg2);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+    margin-top: calc(var(--spacing) * 2);
+  }
+  .saltar:hover { color: var(--fg); }
+  .fuera {
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+  }
+  :global(html:not(.cargando)) .cargador:not(.en-marcha),
+  :global(html:not(.js)) .cargador {
+    display: none;
+  }
+</style>

@@ -1,0 +1,357 @@
+---
+// RONDA 89 · LA SEGUNDA SECCIÓN, en MANIFIESTO. Andoni: «un texto centrado pero alineado a la izquierda donde te explicamos qué ofrece savvia, más estilo
+// manifiesto. Quiero que la V inicial sea nuestro isotipo y se asemeje al típico estilo de los libros antiguos que empezaban con una letra muy grande con
+// adornos, y eso condicionaba el texto». (La sección de los dolores, Dolores.astro, queda guardada.)
+// · LA CAPITULAR: el isotipo (la v de «Voz») dentro de un recuadro iluminado: doble filete, volutas en las esquinas, y en vez de la parra de los códices
+//   un PENTAGRAMA que se enrosca por detrás de la letra con sus notas como bayas. El texto la rodea (float), cuatro renglones de alto.
+//   Al llegar, se DIBUJA: los filetes y el pentagrama a trazo, la v con la plumada de la carga (baja por el grueso, sube por el fino, remata en la bola) y
+//   las notas brotan al final; suena un acorde suave (solo con el sonido encendido).
+// · EL TEXTO se ENTINTA palabra a palabra con el scroll, como una partitura que se va tocando: lo que aún no has leído espera a media tinta.
+import { manifiesto } from '../data/home';
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+// el eje de la plumada por el isotipo (el de la carga, en las coordenadas del isotipo 370 × 439)
+const EJE = [[3, 225], [22, 197], [45, 172], [72, 160], [88, 178], [86, 214], [72, 268], [56, 330], [46, 385], [54, 424], [80, 420], [112, 382], [148, 314], [188, 228], [220, 154], [246, 94], [270, 46], [298, 18], [332, 14], [358, 32], [352, 58], [334, 62], [324, 48]];
+const ejeD = 'M' + EJE.map(([x, y]) => `${x} ${y}`).join('L');
+// las palabras, para entintarlas
+const palabras = (s: string) => s.split(/\s+/).filter(Boolean);
+let idx = 0;
+const P = manifiesto.parrafos.map((p, k) => ({
+  k,
+  lema: palabras(k === 0 ? p.lema.replace(/^V/, '') : p.lema).map((w) => ({ w, i: idx++ })),
+  texto: palabras(p.texto).map((w) => ({ w, i: idx++ })),
+  cierre: p.cierre ? palabras(p.cierre).map((w) => ({ w, i: idx++ })) : [],
+}));
+const TOTAL = idx;
+---
+
+<section class="manifiesto section-y" aria-label={manifiesto.aria} data-manifiesto style={`--total:${TOTAL}`}>
+  <!-- RONDA 90 · «antes de la segunda sección, que se vea el REFLEJO del director y que de este salga algo que genere el manifiesto». El director y sus
+       atriles, reflejados como en un suelo mojado (al revés, desenfocados, con ondas de agua) justo bajo el hero; de la punta de la batuta reflejada sale
+       la MAGIA del hero, que baja en curva hasta la capitular y la escribe. -->
+  <div class="reflejo" aria-hidden="true" data-reflejo>
+    <div class="agua">
+      <img src="/media/hero/atriles.webp" alt="" width="1490" height="1105" loading="lazy" decoding="async" />
+      <img src="/media/hero/director.webp" alt="" width="1490" height="1105" loading="lazy" decoding="async" />
+    </div>
+    <svg width="0" height="0" style="position:absolute"><filter id="mf-agua" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.09" numOctaves="2" seed="4" result="r"><animate attributeName="baseFrequency" dur="9s" values="0.006 0.09;0.007 0.11;0.006 0.09" repeatCount="indefinite" /></feTurbulence><feDisplacementMap in="SourceGraphic" in2="r" scale="14" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
+  </div>
+  <canvas class="hilo" aria-hidden="true" data-hilo></canvas>
+  <div class="wrap">
+    <div class="texto">
+      {P.map((p) => (
+        <p class:list={['parrafo', { primero: p.k === 0 }]}>
+          {p.k === 0 && (
+            <span class="capitular" aria-hidden="true" data-capitular>
+              <!-- RONDA 90 · «la V del isotipo con esta estética» (la captura: una capitular CALIGRÁFICA de contraste alto, sin recuadro, con un lazo de pelo
+                   que sale arriba a la izquierda, del color del texto y más alta que la línea, apoyada en la base del primer renglón) -->
+              <svg viewBox="0 0 370 439" fill="none">
+                <defs>
+                  <mask id="mf-pluma" maskUnits="userSpaceOnUse" x="-200" y="-100" width="700" height="600"><path d={ejeD} fill="none" stroke="#fff" stroke-width="58" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000" data-pluma /></mask>
+                </defs>
+                <path class="iso-fija" d={ISO} />
+                <path class="iso" d={ISO} mask="url(#mf-pluma)" />
+              </svg>
+            </span>
+          )}
+          {p.k === 0 && <span class="sr-only">V</span>}
+          {p.lema.length > 0 && (
+            <span class="lema">
+              {p.lema.map((x) => <><span class="pl" style={`--i:${x.i}`}>{x.w}</span>{' '}</>)}
+            </span>
+          )}
+          {p.texto.map((x) => <><span class="pl" style={`--i:${x.i}`}>{x.w}</span>{' '}</>)}
+          {p.cierre.length > 0 && (
+            <span class="cierre">
+              {p.cierre.map((x) => <><span class="pl" style={`--i:${x.i}`}>{x.w}</span>{' '}</>)}
+            </span>
+          )}
+        </p>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  import { teclear } from '../scripts/musica';
+  const sec = document.querySelector<HTMLElement>('[data-manifiesto]');
+  if (sec) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const papel = !/[?&]estilo=pintura/.test(location.search); // ronda 91: el hero es de papel (el de serie)
+    if (papel) sec.classList.add('en-papel');
+    const pl = [...sec.querySelectorAll<HTMLElement>('.pl')];
+    const cap = sec.querySelector<HTMLElement>('[data-capitular]')!;
+    const pluma = sec.querySelector<SVGPathElement>('[data-pluma]')!;
+    // la capitular se dibuja al llegar
+    const dibujar = () => {
+      if (cap.classList.contains('ve')) return;
+      cap.classList.add('ve');
+      if (reducido) { pluma.setAttribute('stroke-dashoffset', '0'); return; }
+      const t0 = performance.now(), D = 1700, R = 700; // la plumada empieza cuando los filetes ya van por la mitad
+      const paso = (ahora: number) => { const k = Math.min(1, Math.max(0, (ahora - t0 - R) / D)), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; pluma.setAttribute('stroke-dashoffset', String(1000 * (1 - e))); if (k < 1) requestAnimationFrame(paso); else teclear(3, { vol: 0.03 }); };
+      requestAnimationFrame(paso);
+    };
+    // RONDA 90 · la magia sale de la batuta REFLEJADA y baja en curva hasta la bola de la v; al llegar, la capitular se escribe
+    const refl = sec.querySelector<HTMLElement>('[data-reflejo] .agua')!, hilo = sec.querySelector<HTMLCanvasElement>('[data-hilo]')!, hc = hilo.getContext('2d')!;
+    let lanzado = false;
+    const lanzar = () => {
+      if (lanzado) return; lanzado = true;
+      if (papel) return dibujar(); // ronda 91: en papel, la v la trae su propia etiqueta (abajo)
+      if (reducido) return dibujar();
+      const D = 1500, t0 = performance.now(), motas: { x: number; y: number; vx: number; vy: number; v: number; r: number; o: boolean }[] = [];
+      const paso = (ahora: number) => {
+        const sr = sec.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+        if (hilo.width !== Math.round(sr.width * dpr)) { hilo.width = Math.round(sr.width * dpr); hilo.height = Math.round(hilo.clientHeight * dpr); }
+        hc.setTransform(dpr, 0, 0, dpr, 0, 0); hc.clearRect(0, 0, hilo.width, hilo.height); hc.globalCompositeOperation = 'lighter';
+        const rr = refl.getBoundingClientRect(), cr = cap.getBoundingClientRect();
+        const u = Math.min(1, (ahora - t0) / D), k = u * u * (3 - 2 * u);
+        // sale de la PANTALLA REFLEJADA del segundo atril (0,305 · 1 − 0,67: lo que se ve del reflejo), que se enciende; llega a la bola de la v
+        const a = [rr.left - sr.left + rr.width * 0.305, rr.top - sr.top + rr.height * 0.33], b = [cr.left - sr.left + cr.width * 0.86, cr.top - sr.top + cr.height * 0.12];
+        const c = [(a[0] + b[0]) / 2 + 60, Math.max(a[1], b[1]) + 30];
+        // la pantalla reflejada, encendida mientras sale la magia
+        const fl = Math.max(0, 1 - u * 1.4); if (fl > 0) { const g0 = hc.createRadialGradient(a[0], a[1], 0, a[0], a[1], rr.width * 0.09); g0.addColorStop(0, `rgba(170,200,255,${0.28 * fl})`); g0.addColorStop(1, 'rgba(170,200,255,0)'); hc.fillStyle = g0; hc.beginPath(); hc.arc(a[0], a[1], rr.width * 0.09, 0, 6.283); hc.fill(); }
+        const pt = (q: number) => [(1 - q) * (1 - q) * a[0] + 2 * (1 - q) * q * c[0] + q * q * b[0], (1 - q) * (1 - q) * a[1] + 2 * (1 - q) * q * c[1] + q * q * b[1]];
+        for (let i = 1; i <= 14; i++) { const q0 = Math.max(0, k - i * 0.02), q1 = Math.max(0, k - (i - 1) * 0.02), p0 = pt(q0), p1 = pt(q1); hc.strokeStyle = `rgba(255,200,120,${0.5 * (1 - i / 14)})`; hc.lineWidth = 3.4 * (1 - i / 14) + 0.6; hc.lineCap = 'round'; hc.beginPath(); hc.moveTo(p0[0], p0[1]); hc.lineTo(p1[0], p1[1]); hc.stroke(); }
+        const [hx, hy] = pt(k);
+        if (u < 1) for (let i = 0; i < 3; i++) motas.push({ x: hx, y: hy, vx: (Math.random() - 0.5) * 30, vy: 8 + Math.random() * 20, v: 1, r: 0.5 + Math.random() * 1.4, o: Math.random() < 0.3 });
+        const gh = hc.createRadialGradient(hx, hy, 0, hx, hy, 16); gh.addColorStop(0, `rgba(255,248,230,${u < 1 ? 0.9 : 0})`); gh.addColorStop(1, 'rgba(255,170,90,0)'); hc.fillStyle = gh; hc.beginPath(); hc.arc(hx, hy, 16, 0, 6.283); hc.fill();
+        for (let i = motas.length - 1; i >= 0; i--) { const m = motas[i]; m.v -= 0.016; if (m.v <= 0) { motas.splice(i, 1); continue; } m.x += m.vx / 60; m.y += m.vy / 60; m.vy += 0.3; hc.fillStyle = m.o ? `rgba(255,205,120,${m.v})` : `rgba(255,252,244,${m.v})`; hc.beginPath(); hc.arc(m.x, m.y, m.r, 0, 6.283); hc.fill(); }
+        if (u >= 1 && !cap.classList.contains('ve')) dibujar();
+        if (u < 1 || motas.length) requestAnimationFrame(paso); else hc.clearRect(0, 0, hilo.width, hilo.height);
+      };
+      requestAnimationFrame(paso);
+    };
+    new IntersectionObserver((e) => { if (e[0].isIntersecting) lanzar(); }, { threshold: 0.35 }).observe(cap);
+    // RONDA 90 · «al terminar de leer la segunda sección, que desde esas letras pase algo y generen la tercera»: las letras de la frase de cierre se
+    // SUELTAN con el scroll y vuelan, cada una a su sitio, a formar el titular de Proyectos (el que llena la pantalla del ordenador). Atado al scroll
+    // (de ida y de vuelta): p = 0 cuando Proyectos asoma por abajo, 1 cuando llega arriba. Movimiento reducido: no pasa nada (los dos textos, quietos).
+    const destino = document.querySelector<HTMLElement>('[data-titulo] h2'), pista = document.querySelector<HTMLElement>('#proyectos');
+    if (!reducido && destino && pista) {
+      const enLetras = (el: HTMLElement) => {
+        const out: HTMLElement[] = [];
+        const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodos: Text[] = [];
+        while (tw.nextNode()) nodos.push(tw.currentNode as Text);
+        for (const n of nodos) {
+          const f = document.createDocumentFragment();
+          for (const ch of n.data) { if (/\s/.test(ch)) { f.appendChild(document.createTextNode(ch)); continue; } const sp = document.createElement('span'); sp.className = 'letra'; sp.textContent = ch; f.appendChild(sp); out.push(sp); }
+          n.replaceWith(f);
+        }
+        return out;
+      };
+      const origen = enLetras(sec.querySelector<HTMLElement>('.cierre')!), meta = enLetras(destino);
+      const cv = document.createElement('canvas'); cv.className = 'vuelo-letras'; cv.setAttribute('aria-hidden', 'true'); document.body.appendChild(cv);
+      const vc = cv.getContext('2d')!;
+      const familia = getComputedStyle(destino).fontFamily;
+      // cada letra del titular la trae una letra de la frase (repartidas a lo largo)
+      const pares = meta.map((m, j) => ({ de: origen[Math.min(origen.length - 1, Math.round((j * (origen.length - 1)) / Math.max(1, meta.length - 1)))], a: m, k: j / meta.length, giro: (Math.random() - 0.5) * 1.2, lado: (Math.random() - 0.5) * 160 }));
+      const usadas = new Set(pares.map((x) => x.de));
+      const rgb = (c: string) => (c.match(/[\d.]+/g) || ['234', '221', '231']).slice(0, 3).map(Number);
+      const cO = rgb(getComputedStyle(sec).color), cD = rgb(getComputedStyle(destino).color), colorDe = `rgb(${cO.join(',')})`;
+      const mezcla = (e: number) => `rgb(${cO.map((v, i) => Math.round(v + (cD[i] - v) * e)).join(',')})`;
+      let rafV = 0, pPrev = -1;
+      const suaveV = (u: number) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
+      const vuelo = () => {
+        rafV = 0;
+        // RONDA 91 · «algo más tarde, para que puedas leer bien el manifiesto»: empieza cuando Proyectos ya va por el 45 % de la pantalla (antes, al asomar)
+        const top = pista.getBoundingClientRect().top, p = Math.min(1, Math.max(0, 1 - top / (innerHeight * 0.45)));
+        if (Math.abs(p - pPrev) < 0.0005) return; pPrev = p;
+        const dpr = Math.min(2, devicePixelRatio || 1);
+        if (cv.width !== Math.round(innerWidth * dpr) || cv.height !== Math.round(innerHeight * dpr)) { cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr); }
+        vc.setTransform(dpr, 0, 0, dpr, 0, 0); vc.clearRect(0, 0, innerWidth, innerHeight);
+        const tamO = parseFloat(getComputedStyle(origen[0]).fontSize);
+        vc.fillStyle = colorDe; // ronda 91: el color de la frase (en la paleta clara, tinta) y, al llegar, el del titular
+        vc.textBaseline = 'middle'; vc.textAlign = 'center';
+        // las letras de la frase que no viajan se apagan; las que viajan desaparecen de su sitio al soltarse
+        origen.forEach((o) => { if (!usadas.has(o)) o.style.opacity = String(1 - Math.min(1, p * 3)); });
+        const salida = new Map<HTMLElement, number>();
+        for (const x of pares) {
+          const q = Math.min(1, Math.max(0, (p - x.k * 0.4) / 0.6)), e = suaveV(q);
+          salida.set(x.de, Math.max(salida.get(x.de) ?? 0, q));
+          x.a.style.opacity = q >= 1 ? '1' : '0';
+          if (q <= 0 || q >= 1) continue;
+          const r0 = x.de.getBoundingClientRect(), r1 = x.a.getBoundingClientRect();
+          const x0 = r0.left + r0.width / 2, y0 = r0.top + r0.height / 2, x1 = r1.left + r1.width / 2, y1 = r1.top + r1.height / 2;
+          const tam = tamO + (tamO * (r1.height / Math.max(1, r0.height)) - tamO) * e;
+          const xx = x0 + (x1 - x0) * e + Math.sin(Math.PI * e) * x.lado, yy = y0 + (y1 - y0) * e;
+          vc.save(); vc.translate(xx, yy); vc.rotate(Math.sin(Math.PI * e) * x.giro); vc.globalAlpha = Math.min(1, q * 6, (1 - q) * 10 + 0.2);
+          vc.fillStyle = mezcla(e); vc.font = `400 ${tam.toFixed(1)}px ${familia}`; vc.fillText(x.a.textContent!, 0, 0); vc.restore();
+        }
+        salida.forEach((q, el) => { el.style.opacity = q > 0 ? '0' : ''; });
+        // ronda 92 · «ves el texto de la tercera sección antes de que se convierta en ese titular»: cada letra del titular espera oculta a la suya (también con p = 0)
+      };
+      const pedirV = () => { if (!rafV) rafV = requestAnimationFrame(vuelo); };
+      addEventListener('scroll', pedirV, { passive: true }); addEventListener('resize', () => { pPrev = -1; pedirV(); }); pedirV();
+    }
+    // RONDA 91 · «si hacemos con papeles la ilustración inicial, al pasar a la segunda podemos hacer que de esos papeles salga el manifiesto».
+    // RONDA 93 · «no la estamos consiguiendo: tiene que ser que del DIRECTOR se desprendan las tarjetas con palabras y conformen el minimanifiesto». Antes cada
+    // palabra volaba por su cuenta cuando ELLA llegaba a la pantalla (para entonces el director ya se había ido: no se veía de dónde salía). Ahora el
+    // desprendimiento va atado a la SALIDA DEL HERO: mientras el hero sube, el collage del director suelta sus etiquetas una a una, DE LOS PIES A LA BATUTA
+    // (en el collage queda su hueco: el director se deshace de verdad), y cada una cae a su palabra cambiando de tamaño. Las palabras que aún están por
+    // debajo de la pantalla esperan su tarjeta justo bajo el borde y la reciben al asomar. Todo atado al scroll: al subir, las tarjetas vuelven a su sitio
+    const caja = document.querySelector<HTMLElement>('[data-arbol]'), heroS = document.querySelector<HTMLElement>('[data-hero]');
+    if (papel && !reducido && caja && heroS) {
+      const cvP = document.createElement('canvas'); cvP.className = 'vuelo-papeles'; cvP.setAttribute('aria-hidden', 'true'); document.body.appendChild(cvP);
+      const pc = cvP.getContext('2d')!, mono = getComputedStyle(document.documentElement).getPropertyValue('--font-mono') || 'monospace';
+      const N = pl.length;
+      type V = { img?: HTMLCanvasElement; fs?: number; t?: string; tw?: number; oculta?: boolean; w: HTMLElement; i: number; ox: number; oy: number; mw: number; mh: number; rot0: number; tono: string; pen: string; lado: number; giro: number; p0: number };
+      let semP = 41; const azP = () => { semP = (semP * 16807) % 2147483647; return semP / 2147483647; };
+      // p0: cuándo se suelta (en el avance de la salida del hero, 0 → 1): repartidas entre 0,04 y 0,72, cada una vuela durante 0,28
+      const vuelos: V[] = pl.map((w, i) => ({ w, i: -1, ox: 0.5, oy: 0.8, mw: 0, mh: 0, rot0: 0, tono: '#c9a98a', pen: 'rgba(40,22,14,.7)', lado: (azP() - 0.5) * 120, giro: (azP() - 0.5) * 2.2, p0: 0.04 + (i / Math.max(1, N - 1)) * 0.68 }));
+      const VUELO = 0.28;
+      // al volar la palabra se agranda y tiene que LEERSE: sobre las etiquetas hondas (sombras de la capa), en claro
+      const legible = (col: string, pen: string) => { const [r, g, b] = (col.match(/\d+/g) || ['0', '0', '0']).map(Number); return 0.299 * r + 0.587 * g + 0.114 * b < 105 ? 'rgba(247,236,226,.82)' : pen; };
+      let reales = false;
+      let docs: number[][] = [], pintado = true;
+      const medirDocs = () => { const sy = scrollY; docs = pl.map((w) => { const r = w.getBoundingClientRect(); return [r.left, r.top + sy, r.width, r.height]; }); };
+      new ResizeObserver(() => { docs = []; vuelos.forEach((v) => { v.fs = 0; v.img = undefined; }); pedirP(); }).observe(sec);
+      pl.forEach((w) => w.classList.add('por-llegar'));
+      let rafP2 = 0;
+      const suaveP = (u: number) => u * u * (3 - 2 * u);
+      const volar = () => {
+        rafP2 = 0;
+        const dpr = Math.min(1.5, devicePixelRatio || 1); // ronda 93: papeles en movimiento, a 1,5 basta
+        if (cvP.width !== Math.round(innerWidth * dpr) || cvP.height !== Math.round(innerHeight * dpr)) { cvP.width = Math.round(innerWidth * dpr); cvP.height = Math.round(innerHeight * dpr); }
+        if (pintado) { pc.setTransform(1, 0, 0, 1, 0, 0); pc.clearRect(0, 0, cvP.width, cvP.height); pintado = false; } pc.textAlign = 'center'; pc.textBaseline = 'middle'; pc.font = `600 20px ${mono}`;
+        const H = innerHeight;
+        const pd = (window as any).__papelDirector;
+        if (pd && !reales) { const ms = pd.muestras(N); if (ms.length >= N) { reales = true; vuelos.forEach((v, i) => { const m = ms[i]; v.img = undefined; Object.assign(v, { i: m.i, ox: m.x, oy: m.y, mw: m.w, mh: m.h, rot0: m.a, tono: m.col, pen: legible(m.col, m.pen) }); }); } }
+        if (!reales) { pl.forEach((w) => w.classList.remove('por-llegar')); return; } // sin collage (aún): las palabras, a la vista
+        const lr = pd.caja();
+        // el avance de la salida del hero: 0 arriba del todo, 1 cuando el hero ha subido el 85 % de su alto
+        const P = Math.min(1.2, Math.max(0, scrollY / Math.max(1, heroS.offsetHeight * 0.85)));
+        const sueltas: number[] = [], ocultar: boolean[] = [];
+        // primero se LEE todo (posiciones) y al final se ESCRIBE (clases): mezclarlo forzaba un reflujo por palabra
+        // las posiciones de las palabras, en coordenadas de DOCUMENTO, medidas una vez (leerlas en cada fotograma forzaba un reflujo de toda la página)
+        if (!docs.length) medirDocs();
+        const sy = scrollY;
+        const rects = vuelos.map((v, n) => { if (P <= v.p0) return null; const d = docs[n]; return { left: d[0], top: d[1] - sy, width: d[2], height: d[3], bottom: d[1] + d[3] - sy }; });
+        vuelos.forEach((v, n) => {
+          const e0 = (P - v.p0) / VUELO, r = rects[n];
+          if (e0 <= 0 || !r) { ocultar[n] = true; return; }
+          sueltas.push(v.i);
+          // llegada a su sitio: la palabra tiene que estar ya en pantalla (si no, su tarjeta espera bajo el borde)
+          const f = Math.min(1, Math.max(0, (H * 1.0 - r.top) / (H * 0.1)));
+          const e = Math.min(1, e0), land = Math.min(e, f);
+          ocultar[n] = land < 0.92;
+          if (land >= 1 || r.bottom < -60 || r.top > H * 2.5 && e >= 1) return;
+          const x0 = lr.left + lr.width * v.ox, y0 = lr.top + lr.height * v.oy;
+          const x1 = r.left + r.width / 2, y1 = Math.min(r.top + r.height / 2, H + 70); // la que aún no tiene su palabra en pantalla espera DEBAJO del borde, sin asomar
+          const k = suaveP(e);
+          // cae en un arco: primero se despega (sube un poco y gira), luego baja a su palabra
+          const x = x0 + (x1 - x0) * k + Math.sin(Math.PI * k) * v.lado, y = y0 + (y1 - y0) * k - Math.sin(Math.PI * Math.min(1, k * 1.6)) * 26;
+          if (y > H + 40) return;
+          const ang = v.rot0 * (1 - k) + Math.sin(Math.PI * k) * v.giro * 0.35;
+          const fs = v.fs || (v.fs = parseFloat(getComputedStyle(v.w).fontSize)), anchoF = r.width + 10, altoF = fs * 0.95;
+          const ancho0 = v.mw * lr.width, alto0 = v.mh * lr.height;
+          const kk = Math.min(1, k * 1.15), ancho = ancho0 + (anchoF - ancho0) * kk, alto = alto0 + (altoF - alto0) * kk;
+          const papelA = land < 0.7 ? 1 : 1 - (land - 0.7) / 0.3;
+          pintado = true;
+          // la tarjeta se pinta UNA vez, a su tamaño de llegada, en su propio recorte; luego solo se coloca (rasterizar el texto en cada fotograma costaba el doble)
+          if (!v.img) {
+            const o = document.createElement('canvas'), oc = o.getContext('2d')!, k2 = 2;
+            o.width = Math.ceil(anchoF * k2); o.height = Math.ceil(altoF * k2);
+            if (pd.soloPalabras) {
+              // RONDA 98 · «que salgan del propio ASCII las palabras, pero ya solo palabras, sin el efecto papel»: la palabra tal cual (su letra y su tinta)
+              const cs = getComputedStyle(v.w); oc.fillStyle = cs.color; oc.font = `${cs.fontWeight} ${(fs * k2).toFixed(1)}px ${cs.fontFamily}`; oc.textAlign = 'center'; oc.textBaseline = 'middle';
+              oc.fillText(v.t || (v.t = v.w.textContent || ''), o.width / 2, o.height / 2, o.width);
+            } else {
+            oc.fillStyle = v.tono; oc.fillRect(0, 0, o.width, o.height);
+            oc.fillStyle = v.pen; oc.font = `600 ${(altoF * 0.62 * k2).toFixed(1)}px ${mono}`; oc.textAlign = 'center'; oc.textBaseline = 'middle';
+            oc.fillText(v.t || (v.t = (v.w.textContent || '').toUpperCase()), o.width / 2, o.height / 2 + k2, o.width * 0.94);
+            }
+            v.img = o;
+          }
+          const ca = dpr * Math.cos(ang), sa = dpr * Math.sin(ang);
+          pc.setTransform(ca, sa, -sa, ca, x * dpr, y * dpr); pc.globalAlpha = papelA;
+          pc.drawImage(v.img, -ancho / 2, -alto / 2, ancho, alto);
+        });
+        pc.setTransform(1, 0, 0, 1, 0, 0); pc.globalAlpha = 1;
+        vuelos.forEach((v, n) => { if (v.oculta !== ocultar[n]) { v.oculta = ocultar[n]; v.w.classList.toggle('por-llegar', ocultar[n]); } });
+        pd.huecos(sueltas);
+      };
+      const pedirP = () => { if (!rafP2) rafP2 = requestAnimationFrame(volar); };
+      addEventListener('scroll', pedirP, { passive: true }); addEventListener('resize', () => { reales = false; vuelos.forEach((v) => { v.fs = 0; v.img = undefined; }); pedirP(); });
+      // el collage tarda en montarse: se reintenta hasta tener sus etiquetas
+      const espera = () => { pedirP(); if (!reales) setTimeout(espera, 300); }; espera();
+    }
+    // el entintado: la tinta llega a la palabra que está a la altura del 62 % de la pantalla (y a todo lo de antes)
+    if (reducido) pl.forEach((p) => p.classList.add('tinta'));
+    else {
+      let raf = 0, hasta = -1;
+      const medir = () => {
+        raf = 0;
+        const lim = innerHeight * 0.62;
+        let n = 0;
+        for (const p of pl) { const r = p.getBoundingClientRect(); if (r.top < lim) n++; else break; }
+        if (n !== hasta) { pl.forEach((p, i) => p.classList.toggle('tinta', i < n)); hasta = n; }
+      };
+      addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(medir); }, { passive: true });
+      addEventListener('resize', medir); medir();
+    }
+  }
+</script>
+
+<style>
+  .manifiesto { position: relative; }
+  /* ronda 90 · el lienzo del vuelo de letras (por encima del contenido, por debajo de la barra) */
+  /* ronda 91 · las palabras que aún no han llegado (vienen volando en papel) */
+  .pl.por-llegar { opacity: 0; }
+  :global(.vuelo-papeles) { position: fixed; inset: 0; width: 100vw; height: 100lvh; pointer-events: none; z-index: 1; } /* ronda 93: por DEBAJO del texto: lo que vuela no tapa lo que lees */
+  .manifiesto .texto { position: relative; z-index: 2; }
+  /* en papel no hay reflejo (era del director pintado) */
+  .en-papel .reflejo { display: none; }
+  /* RONDA 93 · en papel, el texto arranca casi bajo el director (sin el hueco del reflejo): las tarjetas caen de él a sus palabras a la vista */
+  .manifiesto.en-papel { padding-top: calc(var(--spacing) * 16); }
+  :global(.vuelo-letras) { position: fixed; inset: 0; width: 100vw; height: 100lvh; pointer-events: none; z-index: 40; }
+  /* centrado en la página, alineado a la izquierda: una columna de lectura */
+  .texto {
+    max-width: 46rem;
+    margin-inline: auto;
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    line-height: 1.38;
+    text-wrap: pretty;
+  }
+  .parrafo + .parrafo { margin-top: 1.15em; }
+  /* EL ENTINTADO: lo no leído, a media tinta; la tinta llega con una transición corta (como una tecla que suena) */
+  .pl { color: color-mix(in srgb, var(--fg) 26%, transparent); transition: color 0.5s ease, opacity 0.25s ease; }
+  .pl.tinta { color: var(--fg2); }
+  .lema .pl.tinta, .cierre .pl.tinta { color: var(--fg); }
+  /* LA CAPITULAR (ronda 90, la captura): caligráfica, sin recuadro, en la tinta del texto, apoyada en la base del primer renglón y más alta que él,
+     con su lazo de pelo que sube por la izquierda */
+  .capitular {
+    display: inline-block;
+    height: 3.7em;
+    aspect-ratio: 370 / 439;
+    /* RONDA 92 · «sin florituras, y el texto más pegado: que la V parezca parte del texto»: sin lazo, la «oz» arranca casi tocando el trazo fino */
+    margin: 0 -1.85em 0 -0.06em; /* el texto entra bajo el brazo de la v: «oz» arranca junto al trazo fino */
+    vertical-align: -0.14em;
+  }
+  .capitular svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .capitular .iso-fija { fill: color-mix(in srgb, var(--fg) 6%, transparent); }
+  .capitular .iso { fill: var(--fg); }
+  /* EL REFLEJO del director (bajo el hero): al revés, desenfocado, con ondas; se apaga hacia abajo */
+  .manifiesto { padding-top: calc(var(--space-section, 8rem) + var(--roble-h) * 0.55); }
+  .reflejo {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    translate: -50% 0;
+    width: var(--roble-w);
+    aspect-ratio: 1490 / 1105;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.25) 30%, transparent 62%);
+    mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.25) 30%, transparent 62%);
+  }
+  .reflejo .agua { position: absolute; inset: 0; transform: scaleY(-1); filter: url(#mf-agua) blur(1.4px) saturate(0.7) brightness(0.75); opacity: 0.55; }
+  .reflejo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hilo { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--roble-h) * 1.4 + 40rem); pointer-events: none; z-index: 2; }
+  @media (prefers-reduced-motion: reduce) {
+    .capitular * { transition: none !important; }
+    .pl { transition: none; }
+  }
+  @media (width < 48rem) {
+    .texto { line-height: 1.34; }
+    .capitular { margin-left: -0.04em; }
+  }
+</style>

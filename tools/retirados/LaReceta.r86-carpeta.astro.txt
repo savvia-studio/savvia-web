@@ -1,0 +1,379 @@
+---
+// LA PARTITURA · RONDA 85 (2.ª). Andoni: «lo de Neety me gusta mucho el estilo, pero podemos hacer que sea una PARTITURA y que salga de algo relacionado con la
+// música; un sobre no está muy relacionado. Y una vez hecha la animación, se queda como está y no vuelve a hacerla a la inversa cuando subes». Antes: la entrada
+// en su sobre lacrado (tools/retirados/LaReceta.r85-sobre.astro.txt) y, antes, la impresora (…r84-impresora…).
+// CONCEPTO: una CARPETA DE PARTITURAS de piel berenjena, atada con un cordón y con el isotipo grabado en naranja. Con el scroll: el cordón se suelta, la tapa se
+// ABRE como un libro y dentro está LA PARTITURA de la web de Neety: portada clásica (savvia presenta · Neety · La partitura de su web) y los cinco MOVIMIENTOS, cada
+// uno con su pentagrama y sus notas. Se recorren uno a uno (suenan y, al lado, su pieza digital: lo que hace esa parte en su web); al final se FIRMA (la v de
+// savvia, a pluma) y se cierra con la doble barra final. Lo hecho se queda hecho: el avance nunca retrocede (al subir, la partitura sigue abierta).
+import { receta } from '../data/home';
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+const E = receta.entrada;
+const f = (n: number) => n.toFixed(2);
+// la GUILLOCHE de las bandas (la del papel moneda)
+const tira = (() => {
+  const W = 48, H = 12, ps: string[] = [];
+  for (const [fase, amp] of [[0, 4.6], [Math.PI, 4.6], [Math.PI / 2, 2.4], [(3 * Math.PI) / 2, 2.4]]) {
+    let d = ''; for (let x = 0; x <= W; x += 1) d += (x ? 'L' : 'M') + f(x) + ' ' + f(H / 2 + amp * Math.sin((x / W) * Math.PI * 4 + fase));
+    ps.push(`<path d='${d}' fill='none' stroke='%23431b44' stroke-width='.45' opacity='.75'/>`);
+  }
+  return `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>${ps.join('')}</svg>")`;
+})();
+// el INCIPIT de cada movimiento: un pentagrama corto con sus primeras notas (con semilla: siempre las mismas)
+const incipit = (k: number) => {
+  let sem = 31 + k * 97; const az = () => { sem = (sem * 16807) % 2147483647; return sem / 2147483647; };
+  const W = 220, g = 5, y0 = 6, out: string[] = [];
+  for (let l = 0; l < 5; l++) out.push(`<path class="l" d="M0 ${y0 + l * g}H${W}"/>`);
+  out.push(`<path class="l" d="M${W} ${y0}V${y0 + 4 * g}"/>`);
+  const n = 7 + Math.floor(az() * 4);
+  for (let i = 0; i < n; i++) {
+    const x = 18 + (i * (W - 30)) / n, p = Math.floor(az() * 9), y = y0 + 4 * g - (p * g) / 2, arriba = p < 4;
+    out.push(`<ellipse class="c" cx="${f(x)}" cy="${f(y)}" rx="2.9" ry="2.1" transform="rotate(-22 ${f(x)} ${f(y)})"/><path class="p" d="M${f(x + (arriba ? 2.6 : -2.6))} ${f(y)}V${f(y + (arriba ? -15 : 15))}"/>`);
+  }
+  return `<svg viewBox="-2 0 ${W + 4} ${y0 * 2 + 4 * g}" preserveAspectRatio="none" aria-hidden="true">${out.join('')}</svg>`;
+};
+const romano = (m: string) => (m.includes('.') ? m.split('.')[0] : '');
+const tempo = (m: string) => (m.includes('.') ? m.split('.')[1].trim() : m);
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+---
+
+<section id="la-savvia" class="surface-light partitura relative" aria-labelledby="receta-h" data-receta data-sube>
+  <div class="wrap section-y cabecera">
+    <h2 id="receta-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
+    <p class="text-sub mt-6 lg:mt-8 max-w-[34ch] text-fg2" data-enfoca>{receta.arnes}</p>
+  </div>
+
+  <div class="escena" data-sala-entrada>
+    <div class="escenario">
+      <div class="mesa" data-mesa>
+        <!-- LA CARPETA: la contratapa (detrás), la partitura, la tapa (delante, se abre) con el isotipo grabado, y el cordón -->
+        <i class="contratapa" aria-hidden="true"></i>
+        <article class="hoja" aria-label={`Partitura: ${E.obra}, ${E.sub}`} style={`--guilloche:${tira}`} data-hoja>
+          <i class="banda arriba" aria-hidden="true"></i>
+          <p class="presenta"><span class="logo-t" role="img" aria-label="savvia"></span>presenta</p>
+          <p class="obra">{E.obra}</p>
+          <p class="subt">{E.sub}</p>
+          <p class="temporada">{E.subtitulo} · {E.temporada}</p>
+          <ol class="programa">
+            {receta.tiras.map((t, i) => (
+              <li data-mov={i}>
+                <p class="mov"><span class="rom">{romano(t.mov)}</span><span class="que">{cap(t.paso)}</span><span class="tempo">{tempo(t.mov)}</span></p>
+                <div class="incipit" set:html={incipit(i)} />
+              </li>
+            ))}
+          </ol>
+          <div class="pie-hoja">
+            <p class="sala">{E.datos.map(([k, v]) => `${k} ${v}`).slice(0, 1).join(' · ')} · {E.temporada}</p>
+            <span class="firma" aria-hidden="true"><svg viewBox="0 0 370 439"><defs><mask id="firma-m" maskUnits="userSpaceOnUse" x="-100" y="-100" width="600" height="700"><path fill="none" stroke="#fff" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" d="M3 225L45 172L72 160L88 178L86 214L56 330L46 385L54 424L80 420L112 382L148 314L188 228L220 154L270 46L298 18L332 14L358 32L352 58L334 62L324 48" data-firma /></mask></defs><path d={ISO} mask="url(#firma-m)" /></svg><span class="dir">dir. savvia</span></span>
+          </div>
+          <i class="banda abajo" aria-hidden="true"></i>
+          <i class="doble-barra" aria-hidden="true"></i>
+        </article>
+        <div class="tapa" aria-hidden="true" data-tapa>
+          <span class="grabado"><svg viewBox="0 0 370 439"><path d={ISO} /></svg></span>
+          <span class="rotulo">partituras</span>
+        </div>
+        <i class="cordon" aria-hidden="true" data-cordon></i>
+
+        <!-- LAS PIEZAS DIGITALES: una por movimiento, al lado de la entrada -->
+        <div class="piezas">
+          {receta.tiras.map((t, i) => (
+            <div class={`dig dig-${t.digital.tipo} ${i % 2 ? 'izq' : 'der'}`} data-dig={i} aria-hidden={t.digital.tipo === 'boton' ? undefined : 'true'}>
+              {t.digital.tipo === 'tabla' && (
+                <>
+                  <span class="dig-cab">{t.digital.txt}</span>
+                  <span class="tabla-d">
+                    {t.digital.filas!.map((fi, k) => (
+                      <>
+                        <i class="sw" style={`--c:${t.digital.colores![k]}`} />
+                        <span>{fi[0]}</span>
+                        <code>{fi[1]}</code>
+                        <code class="tk">{fi[2]}</code>
+                      </>
+                    ))}
+                  </span>
+                </>
+              )}
+              {t.digital.tipo === 'bloqueo' && (
+                <>
+                  <span class="dig-cab">{t.digital.cab}</span>
+                  <span class="fila-d"><i class="x">✕</i>{t.digital.txt}</span>
+                  <span class="fin">→ {t.digital.fin}</span>
+                </>
+              )}
+              {t.digital.tipo === 'agente' && (
+                <>
+                  <span class="fila-d trabaja"><i class="giro-d" />{t.digital.txt}</span>
+                  {t.digital.pasos!.map((q, k) => <span class="paso-d" style={`--k:${k}`}>✓ {q}</span>)}
+                  <span class="fila-d listo">{t.digital.fin}</span>
+                </>
+              )}
+              {t.digital.tipo === 'diff' && (
+                <>
+                  <span class="dig-cab"><i class="punto" />{t.digital.txt}<b class="mas">{t.digital.fin}</b></span>
+                  {t.digital.pasos!.map((q, k) => <code class="diff-l" style={`--k:${k}`}>{q}</code>)}
+                </>
+              )}
+              {t.digital.tipo === 'boton' && (
+                <a class="boton-lib" href={t.digital.href} target="_blank" rel="noopener" aria-label={`${t.digital.txt} (se abre en otra pestaña)`}>
+                  <svg class="ci-chispa" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.4 3.9 2.1 5.6 6 6-3.9.4-5.6 2.1-6 6-.4-3.9-2.1-5.6-6-6 3.9-.4 5.6-2.1 6-6z" /></svg>
+                  <span class="ci-txt">{t.digital.txt}</span>
+                  <span class="ci-env" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></span>
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="wrap nota detail">{receta.nota}</p>
+</section>
+
+<script>
+  import { tocar, pizzicato, papel } from '../scripts/musica';
+  const sec = document.querySelector<HTMLElement>('[data-receta]');
+  if (sec) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const escena = sec.querySelector<HTMLElement>('[data-sala-entrada]')!, mesa = sec.querySelector<HTMLElement>('[data-mesa]')!;
+    const movs = [...sec.querySelectorAll<HTMLElement>('[data-mov]')], digs = [...sec.querySelectorAll<HTMLElement>('[data-dig]')];
+    const N = movs.length;
+    const MELODIA = [62, 66, 69, 71, 74]; // una nota por movimiento (sube y resuelve)
+    const final = () => { mesa.classList.add('abierta', 'fuera-carpeta', 'firmada'); movs.forEach((m) => m.classList.add('visto')); digs[N - 1].classList.add('on'); mesa.style.setProperty('--abrir', '1'); mesa.style.setProperty('--seva', '1'); };
+    if (reducido) { mesa.classList.add('quieta'); final(); }
+    else {
+      // LO HECHO SE QUEDA HECHO: todo cuelga de pMax, el avance máximo alcanzado; al subir no se deshace nada
+      let pMax = 0, estado = { suelto: false, abierta: false, activo: -1, firmada: false }, raf = 0;
+      const clamp = (x: number) => Math.min(1, Math.max(0, x));
+      const pintar = () => {
+        raf = 0;
+        const r = escena.getBoundingClientRect(), recorrido = r.height - innerHeight;
+        pMax = Math.max(pMax, clamp(-r.top / Math.max(1, recorrido)));
+        const p = pMax;
+        // 1 · se suelta el cordón · 2 · se abre la tapa · 3 · la carpeta se retira y queda la partitura
+        const suelta = clamp((p - 0.02) / 0.06), abrir = clamp((p - 0.07) / 0.13), seva = clamp((p - 0.2) / 0.1);
+        mesa.style.setProperty('--suelta', suelta.toFixed(3)); mesa.style.setProperty('--abrir', abrir.toFixed(3)); mesa.style.setProperty('--seva', seva.toFixed(3));
+        if (suelta > 0.1 && !estado.suelto) { estado.suelto = true; pizzicato(57, { vol: 0.08 }); }
+        if (abrir > 0.05 && !estado.abierta) { estado.abierta = true; mesa.classList.add('abierta'); papel({ vol: 0.04, dur: 0.3 }); }
+        mesa.classList.toggle('fuera-carpeta', seva > 0.99);
+        // 4 · los movimientos, uno a uno (y su pieza al lado); el último se queda encendido
+        const k = p < 0.32 ? -1 : Math.min(N - 1, Math.floor((p - 0.32) / (0.52 / N)));
+        if (k > estado.activo) {
+          estado.activo = k;
+          movs.forEach((m, i) => { m.classList.toggle('on', i === k); m.classList.toggle('visto', i < k); });
+          digs.forEach((d, i) => d.classList.toggle('on', i === k));
+          tocar(MELODIA[k], { vol: 0.08, dur: 2 });
+        }
+        // 5 · la firma y la doble barra final
+        if (p > 0.88 && !estado.firmada) { estado.firmada = true; mesa.classList.add('firmada'); [50, 62, 66, 69].forEach((m, i) => tocar(m, { vol: i ? 0.05 : 0.08, dur: 2.8, cuando: i * 0.06 })); }
+      };
+      const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
+      let cerca = false;
+      new IntersectionObserver((e) => { cerca = e[0].isIntersecting; if (cerca) pedir(); }, { rootMargin: '20% 0px' }).observe(escena);
+      addEventListener('scroll', () => cerca && pedir(), { passive: true });
+      addEventListener('resize', pedir);
+      // si la página se abre ya por debajo (recarga a media página), la partitura aparece hecha
+      if (escena.getBoundingClientRect().bottom < 0) { pMax = 1; final(); }
+      pintar();
+    }
+    (window as any).__partitura = () => ({ clases: mesa.className, activo: movs.findIndex((m) => m.classList.contains('on')), p: mesa.style.getPropertyValue('--abrir') });
+  }
+</script>
+
+<style>
+  .partitura {
+    --n-naranja: #fe8238;
+    --n-berenjena: #431b44;
+    --n-ciruela: #2a0e2c;
+    --papel: #f7f1e3;
+    padding-bottom: calc(var(--spacing) * 24);
+  }
+  .cabecera { padding-bottom: 0; }
+  .escena { position: relative; height: 400lvh; }
+  .escenario { position: sticky; top: 0; height: 100lvh; display: grid; place-items: center; overflow: hidden; }
+  /* la mesa: la hoja en vertical (una partitura), a la altura de la pantalla */
+  .mesa {
+    --suelta: 0;
+    --abrir: 0;
+    --seva: 0;
+    position: relative;
+    height: min(84lvh, 50rem);
+    aspect-ratio: 0.72;
+    max-width: 88vw;
+    perspective: 1800px;
+  }
+  /* ── LA CARPETA: piel berenjena con grano; la tapa se abre sobre su canto izquierdo; luego la carpeta se retira */
+  .contratapa, .tapa {
+    position: absolute;
+    inset: -2.5% -3.5% -2.5% -2%;
+    border-radius: 6px 12px 12px 6px;
+    background: var(--n-berenjena) url('/media/grano.png') 0 0 / 240px 240px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05), inset 10px 0 18px -10px rgb(0 0 0 / 0.5);
+  }
+  .contratapa { z-index: 1; transform: translateY(calc(var(--seva) * 8%)); opacity: calc(1 - var(--seva)); box-shadow: 0 40px 60px -30px rgb(20 8 20 / 0.55); }
+  .tapa {
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 6%;
+    transform-origin: 0 50%;
+    transform: rotateY(calc(var(--abrir) * -168deg));
+    backface-visibility: hidden;
+    opacity: calc(1 - var(--seva));
+    background:
+      linear-gradient(90deg, rgb(0 0 0 / 0.28), transparent 7%),
+      var(--n-berenjena) url('/media/grano.png') 0 0 / 240px 240px;
+  }
+  /* el grabado: el isotipo y el rótulo en naranja, como estampados en caliente, con un filete */
+  .tapa::before {
+    content: '';
+    position: absolute;
+    inset: 6% 7% 6% 9%;
+    border: 1px solid color-mix(in oklab, var(--n-naranja) 55%, transparent);
+    border-radius: 4px;
+  }
+  .grabado { width: 22%; }
+  .grabado svg { width: 100%; fill: var(--n-naranja); filter: drop-shadow(0 1px 0 rgb(255 200 160 / 0.35)) drop-shadow(0 -1px 0 rgb(0 0 0 / 0.4)); }
+  .rotulo { font-family: var(--font-mono); font-size: clamp(0.6rem, 1vw, 0.8rem); letter-spacing: 0.4em; text-transform: uppercase; color: var(--n-naranja); }
+  /* el CORDÓN que la ata: se suelta y cae */
+  .cordon {
+    position: absolute;
+    z-index: 5;
+    top: -3%;
+    bottom: -3%;
+    right: 12%;
+    width: 5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, color-mix(in oklab, var(--n-naranja) 70%, #6b1d00), var(--n-naranja), color-mix(in oklab, var(--n-naranja) 70%, #6b1d00));
+    transform: translateY(calc(var(--suelta) * 40%)) rotate(calc(var(--suelta) * 14deg));
+    opacity: calc(1 - var(--suelta));
+  }
+  /* ── LA PARTITURA */
+  .hoja {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 9% 9% 7%;
+    border-radius: 3px;
+    background: var(--papel) url('/media/grano.png') 0 0 / 240px 240px;
+    color: var(--n-berenjena);
+    box-shadow: inset 0 0 0 12px var(--papel), inset 0 0 0 13px color-mix(in oklab, var(--n-berenjena) 70%, transparent), inset 0 0 0 16px var(--papel), inset 0 0 0 16.6px color-mix(in oklab, var(--n-berenjena) 40%, transparent), 0 22px 40px -18px rgb(40 12 30 / 0.35);
+    transform: translateY(calc((1 - var(--seva)) * 0%)) scale(calc(0.97 + var(--seva) * 0.03));
+  }
+  .hoja::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgb(67 27 68 / 0.03) 0 1px, transparent 1px 7px); pointer-events: none; border-radius: inherit; }
+  .banda { position: absolute; left: 26px; right: 26px; height: 12px; background: var(--guilloche) 0 0 / 48px 12px repeat-x; }
+  .banda.arriba { top: 24px; }
+  .banda.abajo { bottom: 24px; }
+  .presenta { display: flex; align-items: center; justify-content: center; gap: 0.6em; font-family: var(--font-mono); font-size: clamp(0.5rem, 0.8vw, 0.68rem); letter-spacing: 0.26em; text-transform: uppercase; margin-top: 3%; }
+  .logo-t { display: inline-block; height: 1.5em; aspect-ratio: 1275 / 439; background: currentColor; -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat; mask: url('/savvia-logo.svg') center / contain no-repeat; }
+  .obra { text-align: center; font-family: var(--font-display); font-size: clamp(2.4rem, 7lvh, 4.6rem); line-height: 0.95; letter-spacing: -0.02em; margin-top: 3%; }
+  .subt { text-align: center; font-family: var(--font-display); font-size: clamp(0.95rem, 2.2lvh, 1.35rem); margin-top: 1.5%; }
+  .temporada { text-align: center; font-family: var(--font-mono); font-size: clamp(0.48rem, 0.75vw, 0.62rem); letter-spacing: 0.22em; text-transform: uppercase; color: var(--n-naranja); margin-top: 2%; }
+  .programa { margin-top: 6%; display: grid; gap: 3.2%; flex: 1; align-content: start; }
+  .programa li { opacity: 0.45; transition: opacity 0.6s ease; }
+  .programa li.visto { opacity: 0.75; }
+  .programa li.on { opacity: 1; }
+  .mov { display: flex; align-items: baseline; gap: 0.7em; font-size: clamp(0.66rem, 1.7lvh, 0.95rem); }
+  .rom { width: 2.2em; font-family: var(--font-display); color: var(--n-naranja); }
+  .que { flex: 1; font-family: var(--font-display); }
+  .tempo { font-family: var(--font-mono); font-size: 0.8em; letter-spacing: 0.1em; font-style: normal; }
+  .incipit { margin-top: 0.5em; margin-left: 3em; height: clamp(18px, 3.2lvh, 30px); }
+  .incipit :global(svg) { width: 100%; height: 100%; display: block; overflow: visible; }
+  .incipit :global(.l) { stroke: color-mix(in oklab, var(--n-berenjena) 45%, transparent); stroke-width: 0.5; vector-effect: non-scaling-stroke; }
+  .incipit :global(.c) { fill: var(--n-berenjena); }
+  .incipit :global(.p) { stroke: var(--n-berenjena); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
+  /* el movimiento que suena: su pentagrama se enciende en naranja */
+  .programa li.on .incipit :global(.c) { fill: var(--n-naranja); }
+  .programa li.on .incipit :global(.p) { stroke: var(--n-naranja); }
+  .pie-hoja { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4%; padding-top: 3%; border-top: 1px solid color-mix(in oklab, var(--n-berenjena) 30%, transparent); }
+  .sala { font-family: var(--font-mono); font-size: clamp(0.46rem, 0.72vw, 0.6rem); letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7; }
+  /* LA FIRMA: la v de savvia a pluma, que se escribe al final */
+  .firma { display: flex; flex-direction: column; align-items: center; width: 14%; color: var(--n-berenjena); }
+  .firma svg { width: 70%; fill: currentColor; overflow: visible; }
+  .firma :global([data-firma]) { transition: stroke-dashoffset 1.6s cubic-bezier(0.5, 0, 0.3, 1); }
+  .firmada .firma :global([data-firma]) { stroke-dashoffset: 0; }
+  .dir { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0; transition: opacity 0.6s ease 1.4s; margin-top: 4px; }
+  .firmada .dir { opacity: 0.7; }
+  /* la DOBLE BARRA final, en el canto derecho: se cierra al firmar */
+  .doble-barra { position: absolute; right: 5%; top: 30%; bottom: 30%; width: 6px; border-left: 1.2px solid var(--n-berenjena); border-right: 3.5px solid var(--n-berenjena); opacity: 0; transform: scaleY(0.2); transition: opacity 0.5s ease 1s, transform 0.7s var(--ease-out-expo) 1s; }
+  .firmada .doble-barra { opacity: 0.35; transform: none; }
+
+  /* ── LAS PIEZAS DIGITALES: una a la vez, a un lado de la entrada, sobre su canto */
+  .piezas { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+  .dig {
+    position: absolute;
+    top: 50%;
+    display: grid;
+    gap: calc(var(--spacing) * 1.5);
+    padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 3);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--color-cacao);
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    line-height: 1.3;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cacao) 10%, transparent), 0 12px 28px -12px color-mix(in oklab, var(--color-cacao) 40%, transparent);
+    white-space: nowrap;
+    opacity: 0;
+    translate: 0 calc(-50% + 10px);
+    scale: 0.94;
+    transition: opacity 0.35s ease, translate 0.6s var(--ease-out-expo), scale 0.6s var(--ease-out-expo);
+  }
+  .dig.der { left: calc(100% - var(--spacing) * 4); }
+  .dig.izq { right: calc(100% - var(--spacing) * 4); }
+  .dig.on { opacity: 1; translate: 0 -50%; scale: 1; }
+  .dig.dig-boton { padding: 0; background: none; box-shadow: none; top: auto; bottom: -3.6rem; left: 50%; right: auto; translate: -50% 10px; }
+  .dig.dig-boton.on { translate: -50% 0; pointer-events: auto; }
+  .fila-d { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); }
+  .x { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--color-cereza); color: #fff; font-size: 0.6rem; font-style: normal; }
+  .fin, .mas, .tabla-d .tk { color: var(--color-cobalto); }
+  .mas { font-weight: 400; }
+  .giro-d { width: 12px; height: 12px; border-radius: 50%; border: 2px solid color-mix(in oklab, var(--color-cobalto) 25%, transparent); border-top-color: var(--color-cobalto); }
+  .on .giro-d { animation: gira 0.8s linear infinite; }
+  @keyframes gira { to { rotate: 1turn; } }
+  .dig-agente .listo { color: var(--color-cobalto); opacity: 0; }
+  .on.dig-agente .listo { animation: listo 0.4s ease 1.8s both; }
+  @keyframes listo { to { opacity: 1; } }
+  .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--color-cobalto); }
+  .dig-cab { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); font-family: var(--font-mono); font-size: 0.72rem; color: color-mix(in oklab, var(--color-cacao) 60%, transparent); padding-bottom: calc(var(--spacing) * 1.5); border-bottom: 1px solid color-mix(in oklab, var(--color-cacao) 10%, transparent); }
+  .tabla-d { display: grid; grid-template-columns: auto auto auto auto; align-items: center; gap: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3); }
+  .tabla-d code { font-family: var(--font-mono); font-size: 0.74rem; }
+  .sw { width: 14px; height: 14px; border-radius: 4px; background: var(--c); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); }
+  .paso-d { font-size: 0.78rem; color: color-mix(in oklab, var(--color-cacao) 75%, transparent); opacity: 0; }
+  .on .paso-d { animation: listo 0.3s ease both; animation-delay: calc(0.4s + var(--k) * 0.28s); }
+  .diff-l { font-family: var(--font-mono); font-size: 0.74rem; color: #1f7a4d; background: color-mix(in oklab, #2fbf71 12%, transparent); padding: 2px calc(var(--spacing) * 1.5); border-radius: 3px; opacity: 0; }
+  .on .diff-l { animation: listo 0.3s ease both; animation-delay: calc(0.4s + var(--k) * 0.22s); }
+  .boton-lib {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    width: max-content;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2) calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+    border-radius: 1.5rem;
+    background: #fdfcfb;
+    box-shadow: 0 0 0 1px rgb(48 32 24 / 0.12), 0 12px 28px -10px rgb(48 32 24 / 0.3);
+    color: var(--color-cacao);
+    font-size: var(--text-ui);
+    transition: box-shadow 0.3s ease;
+  }
+  .boton-lib .ci-chispa { width: 16px; height: 16px; flex: none; fill: var(--color-coral); }
+  .boton-lib .ci-env { flex: none; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--color-cacao); color: var(--color-niebla); transition: background-color 0.3s ease, color 0.3s ease; }
+  .boton-lib .ci-env svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.4s var(--ease-out-expo); }
+  .boton-lib:hover .ci-env, .boton-lib:focus-visible .ci-env { background: var(--color-coral); color: var(--color-cacao); }
+  .boton-lib:hover .ci-env svg { translate: 0 -2px; }
+  .nota { margin-top: calc(var(--spacing) * 16); text-align: center; color: var(--fg2); }
+  @media (width < 64rem) {
+    .mesa { height: auto; width: min(24rem, 86vw); aspect-ratio: 0.66; }
+    .dig, .dig.der, .dig.izq { left: 50%; right: auto; top: auto; bottom: -1.5rem; translate: -50% 10px; white-space: normal; max-width: 84vw; }
+    .dig.on { translate: -50% 0; }
+    .dig.dig-boton { bottom: -4.5rem; }
+    .incipit { margin-left: 2em; }
+  }
+  .quieta .contratapa, .quieta .tapa, .quieta .cordon { display: none; }
+  .escena:has(.quieta) { height: auto; }
+  .escena:has(.quieta) .escenario { position: relative; height: auto; padding-block: calc(var(--spacing) * 16) calc(var(--spacing) * 24); }
+</style>

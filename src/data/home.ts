@@ -21,8 +21,9 @@ export const hero = {
   // a menor coste». El titular responde al primero; el subtítulo es el segundo, con el cómo (criterio + IA).
   // RONDA 53 · «el H1 es muy amplio y no dice nada: más específico, que el cliente diga hostia, esto pueden hacer por mí». Lo concreto del Keynote: web
   // a medida (no un lavado de cara) + tu equipo la cambia con IA (formación + todo documentado) + el ARNÉS (la receta hace que la IA no se salga de tu marca).
-  h1: 'Elevamos tu web con IA.', // ronda 65 (Andoni); ronda 77: vuelve tras probar «Orquestamos…» en la 76 Antes (r53): «Una web a medida que tu equipo cambia con IA, fiel a tu marca.»
-  h2: 'Especializados en orquestar el diseño y desarrollo agéntico.', // ronda 65 (Andoni)
+  // RONDA 83 · giro a la MÚSICA («en savvia orquestamos: todo nace de ese verbo»). H1 de Andoni; el H2 no repite «orquestar»
+  h1: 'Orquestamos tu web con desarrollo agéntico.', // antes (r77): «Elevamos tu web con IA.» · // ronda 65 (Andoni); ronda 77: vuelve tras probar «Orquestamos…» en la 76 Antes (r53): «Una web a medida que tu equipo cambia con IA, fiel a tu marca.»
+  h2: 'Cada agente en su parte. Tu web, a una sola voz.', // ronda 83 · antes (r65): «Especializados en orquestar el diseño y desarrollo agéntico.»
   // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
   vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
   vocabularioRaiz: ['raíz', 'briefing', 'entender', 'qué vendes', 'a quién', 'decisiones', 'savvia', 'fuente de verdad', 'documentado', 'criterio', 'la savia', 'desde la raíz'],
@@ -33,6 +34,18 @@ export const hero = {
 export const producto = {
   nombre: 'savvia agentic',
   frase: 'La web, su receta y los agentes que la mantienen al día.',
+};
+
+// RONDA 89 · LA SEGUNDA SECCIÓN, en manifiesto (Andoni: «un texto centrado pero alineado a la izquierda donde te explicamos qué ofrece savvia, más estilo
+// manifiesto; la V inicial es nuestro isotipo, como las capitulares de los libros antiguos»). Texto de Andoni tal cual; «Savvia Agentic» → «savvia agentic»
+// (la marca, siempre en minúscula). `lema` = la frase que abre cada párrafo (a plena tinta); en el último, la frase de cierre va marcada con `cierre`.
+export const manifiesto = {
+  aria: 'Manifiesto de savvia',
+  parrafos: [
+    { lema: 'Voz propia.', texto: 'Tu web debería sonar a ti y ser fiel a tu marca. Debería contar lo que hace especial tu proyecto. Por eso, antes de construir, nos sentamos contigo mano a mano para entender qué necesitas.' },
+    { lema: 'Tú marcas el ritmo de tu negocio.', texto: 'El desarrollo agéntico nos permite explorar e iterar con agilidad y el criterio guía cada decisión. Venimos del pixel-perfect artesanal y hoy trabajamos con IA cada día. Sin embargo, la batuta no la lleva ella: la IA es la base, el criterio sigue siendo nuestro. Así evitamos el AI slop y llegamos a algo hecho a medida.' },
+    { lema: '', texto: 'Como resultado de este proceso te llevas una partitura propia: una librería de skills diseñada para que tu proyecto escale con IA sin perder su voz.', cierre: 'Eso es savvia agentic: tu web, orquestada con IA y criterio.' },
+  ] as { lema: string; texto: string; cierre?: string }[],
 };
 
 export const recorrido = {
@@ -47,20 +60,20 @@ export const recorrido = {
     {
       corto: 'No se alinea con tu marca',
       dolor: 'Tu web no se alinea con tu marca.',
-      t: 'Mano a mano.',
+      t: 'Afinamos contigo.', // ronda 83 · matiz musical; antes «Mano a mano.»
       d: 'Pasamos tiempo contigo entendiendo lo que necesita tu proyecto.',
     },
     {
-      corto: 'AI slop',
-      dolor: 'Se ve como AI slop puro.',
-      t: 'Creatividad a medida.',
+      corto: 'Evita el AI Slop',
+      dolor: 'Evita el AI Slop.', // ronda 83 (Andoni); antes «Se ve como AI slop puro.»
+      t: 'Una obra, no una plantilla.', // ronda 83; antes «Creatividad a medida.»
       d: 'Con tu dirección y nuestro criterio generamos skills únicas.',
     },
     {
       corto: 'Difícil de mantener',
       dolor: 'Es difícil de mantener.',
-      t: 'savvia agentic: el arnés de tu web.',
-      d: 'Tu librería que construye la web con IA.',
+      t: 'La partitura de tu web.', // ronda 83 (Andoni); antes «savvia agentic: el arnés de tu web.»
+      d: 'Tu librería: la IA la lee y toca tu web sin salirse de la melodía.',
     },
   ],
 };
@@ -68,7 +81,7 @@ export const recorrido = {
 export const laSavvia = {
   pregunta: '¿Qué es la savvia?',
   // RONDA 12 (Andoni): «ponemos savvia es la receta de tu web. Y en vez de un documento, ponemos un sistema.»
-  titulo: 'La savvia es la receta de tu web.',
+  titulo: 'La savvia es la partitura de tu web.', // ronda 83
   intro: 'No es un documento que se guarda en un cajón: es un sistema. Cada ingrediente decide una parte de la web, y todos se leen igual: tú, tu equipo y la [[IA]].',
   // Los INGREDIENTES del sistema. Todos los valores son REALES: son los de la Savvia de esta misma web (DESIGN.md + AGENTS.md).
   ingredientes: [
@@ -108,10 +121,54 @@ export const laSavvia = {
 // relación con savvia. Al final el papel sale del árbol. Para nosotros la receta es esto que entregamos al cliente: neety.treseiscero.app/library» ·
 // «también quiero introducir el concepto del ARNÉS de la IA: la receta de savvia te ayuda a que la IA te lleve a donde tú quieres llegar y no a otro sitio».
 // Cada tira es un trozo REAL de la receta que se entregó a Neety (su library): fundamentos, guardarraíles, una petición de su equipo, decisiones.
+// RONDA 89 · «savvia, la partitura de tu web: algo muy parecido al vídeo que te paso (og.mp4) pero que tenga relación con la música». El vídeo: una carpeta en el
+// centro («Agentic Brand System»), a la izquierda lo que entra, a la derecha lo que sale, hilos finos que convergen, y cursores de agentes con su etiqueta que
+// tocan cada pieza. Aquí: la PARTITURA en el centro; los hilos son CUERDAS (al tocarlas vibran y suenan) y lo que viaja por ellas son NOTAS que se escriben
+// en la partitura y salen hacia lo que se publica.
+export const partitura = {
+  carpeta: ['La partitura', 'de tu web'],
+  entra: ['Estrategia', 'Posicionamiento', 'Voz', 'Identidad', 'Dirección de arte', 'Componentes', 'Guías', 'Tokens', 'Recursos', 'Ejemplos'],
+  sale: ['Webs', 'Landings', 'Productos', 'Campañas', 'Emails', 'Redes sociales'],
+  agentes: [['Claude', 'coral'], ['Codex', 'cobalto'], ['Diseño', 'cereza'], ['Tu equipo', 'nogal']] as [string, string][],
+  // RONDA 91 · la cámara ENTRA en la partitura y dentro está la librería. RONDA 92 · «tiene que tener más nuestro estilo, sin parecerse tanto a la referencia, y la
+  // web que creamos que sea la de Neety, no algo random»: dentro, la partitura ABIERTA de Neety (cuaderno a dos páginas). A la izquierda, sus PARTES: lo que hay de
+  // verdad en su librería (neety.treseiscero.app/library, leída el 01-oct-2026: color, tipografía, espaciado, gradiente progresivo, botones y componentes, con sus
+  // nombres y valores tal cual, «Azúl bebe» incluido). A la derecha, el ENSAYO: el hero real de su home (neety.treseiscero.app/home), pieza a pieza.
+  libreria: {
+    ruta: 'neety · librería',
+    titulo: 'La partitura de Neety',
+    tempo: 'Allegro con criterio',
+    autor: 'dir. savvia',
+    partes: ['Color', 'Tipografía', 'Espaciado', 'Gradiente', 'Botones', 'Componentes'],
+    color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Blanco', '#FFFFFF']] as [string, string][],
+    tipografia: [['Bricolage Grotesque', 'titulares · H1 XL 112 / 64 · 120 %'], ['Switzer', 'cuerpo · regular 16 · 150 %']] as [string, string][],
+    espaciado: [['xtiny', 4], ['tiny', 8], ['xxsmall', 16], ['xsmall', 20], ['small', 24], ['medium', 32], ['large', 48], ['xlarge', 64], ['xxlarge', 80], ['huge', 96], ['xhuge', 112], ['xxhuge', 160]] as [string, number][],
+    seccion: 'sección 96 · 128 · 224',
+    gradiente: { clase: '.rail-gradient-x', paradas: ['#F8F7EC', '#FE8238', '#431B44', '#A7C5F9', '#FFFFFF'], nota: 'crema → naranja → berenjena → azul → blanco' },
+    botones: { ruta: 'components/PillCta.tsx', primario: 'Solicitar demo', contorno: 'Saber más' },
+    componentes: ['Logo', 'PulsingDot', 'PillCta', 'TagPill', 'RollingNumber'],
+    ensayo: 'ensayo · neety.com/home',
+    hero: {
+      nav: ['Plataforma', 'Casos de uso', 'Recursos', 'Compañía', 'Precios'],
+      eyebrow: ['Detecta.', 'Prioriza.', 'Actúa.'],
+      h1: 'Detecta a quién vender, cuándo hacerlo y',
+      h1b: 'qué acción tomar.',
+      ctas: ['Solicitar demo', 'Ver cómo funciona'],
+      sub: 'No es otra herramienta para enviar más mensajes. Neety te dice qué cuentas importan hoy, por qué y qué debería hacer tu equipo con ellas.',
+      tarjeta: { titulo: 'Neety encontró empresas que encajan', filas: [['Betsaide', 94], ['Arania', 91], ['Fagor Automation', 88]] as [string, number][] },
+    },
+    fin: ['Fine', 'lista para neety.com'],
+  },
+};
+
 export const receta = {
-  titulo: 'La savvia es la receta de tu web.',
-  arnes: 'Y el arnés de tu IA: lo que hace que te lleve a donde quieres ir, y no a otro sitio.',
-  nota: 'La receta real de Neety: la que usa su equipo cada día para cambiar su web con IA.',
+  titulo: 'La savvia es la partitura de tu web.', // ronda 83
+  arnes: 'Cada agente lee su parte, y tu web suena como tú quieres.', // ronda 83; antes «Y el arnés de tu IA: …»
+  nota: 'La partitura real de Neety: la que lee su equipo (y su IA) cada día para cambiar su web.', // ronda 83
+  // RONDA 83 · «en vez de un ticket, cómo se imprime una ENTRADA a un concierto, con el estilo de Neety (su librería)». La receta es la misma; el papel es
+  // una entrada: cartel de Neety, datos de la función, el PROGRAMA en cinco movimientos y la matriz troquelada al final.
+  // RONDA 85 · «que parezca una entrada de concierto de verdad, estilo clásico y premium, hecha a medida; y quitamos lo de que se imprime»
+  entrada: { presenta: 'savvia presenta', obra: 'Neety', sub: 'La partitura de su web', subtitulo: 'Concierto en cinco movimientos', datos: [['sala', 'neety.com'], ['fila', 'A'], ['asiento', '07'], ['función', 'cada día']], matriz: 'admite 1 · fila A · asiento 07', numero: 'Nº 000207', temporada: 'temporada 2026', sello: 'admitido' },
   enlace: { label: 'Ver la receta entera', href: 'https://neety.treseiscero.app/library' },
   // RONDA 54 · «que caiga en un color claro, los tickets con más personalidad y más humanos; en cada ticket superponer algo digital que enfatice lo que
   // pasa en cada uno; también es un proceso de izquierda a derecha, mostrarlo mejor; el árbol de fondo va fuera». El orden es el del proceso: qué es tu
@@ -122,15 +179,15 @@ export const receta = {
   // (neety.treseiscero.app/library, leída el 29/09): su paleta con sus nombres, sus tipografías y medidas, su escala de espacio, sus reglas y su CLAUDE.md.
   tiras: [
     {
-      paso: 'tu marca',
+      mov: 'I. Allegro', paso: 'la marca', agente: 'Agente de diseño',
       t: 'DESIGN.md',
       raya: '=-=-=-=-=-=-=-=-=-=-=-=',
-      lineas: ['# Neety · la receta', '> la web se genera de', '  su propio código', '', '## color', 'Naranja Core   #FE8238', 'Azul bebé      #A7C5F9', 'Berenjena      #431B44', 'Ciruela        #2A0E2C', 'Base cálida    #F8F7EC', '', '## tipografía', 'titulares  Bricolage', 'cuerpo     Switzer', 'H1  112 / 64 px · 120%', '', '## espacio', 'xtiny 4 … xxhuge 160', 'sección 96·128·224 px'],
+      lineas: ['# Neety · la partitura', '> la web se genera de', '  su propio código', '', '## color', 'Naranja Core   #FE8238', 'Azul bebé      #A7C5F9', 'Berenjena      #431B44', 'Ciruela        #2A0E2C', 'Base cálida    #F8F7EC', '', '## tipografía', 'titulares  Bricolage', 'cuerpo     Switzer', 'H1  112 / 64 px · 120%', '', '## espacio', 'xtiny 4 … xxhuge 160', 'sección 96·128·224 px'],
       marcas: [[5, 'circulo'], [12, 'subraya']],
       digital: { tipo: 'tabla', txt: 'app/globals.css · @theme', filas: [['Naranja Core', '#FE8238', 'bg-naranja'], ['Berenjena', '#431B44', 'text-plum'], ['Base cálida', '#F8F7EC', 'bg-base']], colores: ['#FE8238', '#431B44', '#F8F7EC'] },
     },
     {
-      paso: 'el arnés',
+      mov: 'II. Andante', paso: 'el arnés', agente: 'Agente de código',
       t: 'guardarraíles',
       raya: '·x·x·x·x·x·x·x·x·x·x·x·',
       lineas: ['nada de colores', '   ni fuentes nuevas', '', 'ni un hero distinto:', '   se reutiliza uno', '', 'ni botones inventados', '', 'un cambio por petición', '', 'ni publicar sin', '   mirarla en el preview'],
@@ -138,7 +195,7 @@ export const receta = {
       digital: { tipo: 'bloqueo', txt: '#FF2E9A no está en la receta', fin: 'usa el token Naranja Core', cab: 'CLAUDE.md · el arnés' },
     },
     {
-      paso: 'tu equipo pide',
+      mov: 'III. Scherzo', paso: 'lo que pide el equipo', agente: 'Agente de contenido',
       t: 'lo que pide su equipo',
       raya: "`'. .'`'. .'`'. .'`'. .'`",
       lineas: ['«Añade una sección de', 'testimonios en la home,', 'entre Cómo funciona', 'e Integraciones: tres', 'citas con nombre, cargo', 'y empresa, con el estilo', 'de tarjeta blanca.»'],
@@ -146,7 +203,7 @@ export const receta = {
       digital: { tipo: 'agente', txt: 'agente · leyendo la receta', pasos: ['lee CLAUDE.md', 'reutiliza la tarjeta blanca', 'la añade en ES y EN', 'la revisa en el preview'], fin: 'sección lista ✓' },
     },
     {
-      paso: 'queda escrito',
+      mov: 'IV. Adagio', paso: 'queda escrito', agente: 'Agente de documentación',
       t: 'decisiones',
       raya: '·_·~·_·~·_·~·_·~·_·~·_·',
       lineas: ['el borde izquierdo', '   siempre con el logo', '', 'imágenes nuevas', '   en AVIF', '', 'bilingüe desde', '   el primer día'],
@@ -154,14 +211,14 @@ export const receta = {
       digital: { tipo: 'diff', txt: 'docs/decisiones.md', pasos: ['+ borde izquierdo con el logo', '+ imágenes nuevas en AVIF', '+ bilingüe desde el día 1'], fin: '+3' },
     },
     {
-      paso: 'la cuenta',
-      t: 'ticket',
+      mov: 'Bis', paso: 'la despedida', agente: 'Tu equipo',
+      t: 'hasta la próxima',
       raya: '.......................',
       lineas: ['Web a medida ..... hecha', 'Cada decisión .. escrita', 'Tu IA ...... con arnés', 'Tu equipo ..... al mando', '', '   gracias por venir'], // ronda 80: fuera «Lavado de cara ..... 0 €»
       marcas: [[2, 'circulo']],
       digital: { tipo: 'boton', txt: 'Enséñame la librería de Neety', href: 'https://neety.treseiscero.app/library' }, // ronda 80: un mensaje a la IA
     },
-  ] as { paso: string; t: string; raya: string; lineas: string[]; marcas: [number, string][]; digital: { tipo: string; txt: string; fin?: string; cab?: string; href?: string; colores?: string[]; filas?: string[][]; pasos?: string[] } }[],
+  ] as { mov: string; paso: string; agente: string; t: string; raya: string; lineas: string[]; marcas: [number, string][]; digital: { tipo: string; txt: string; fin?: string; cab?: string; href?: string; colores?: string[]; filas?: string[][]; pasos?: string[] } }[],
 };
 
 export const proyectos = {
@@ -306,6 +363,11 @@ export const servicios = {
   // receta (savvia.md), formación, auditoría, arquitectura de contenidos, SEO técnico, accesibilidad y rendimiento (lo que ya se hace en cada web).
   titulo: 'Trabajamos de tres formas contigo.',
   sub: 'En función de lo que necesites.',
+  // RONDA 83 · «el "necesites" animarlo para que salgan los diferentes tipos de clientes a los que vamos». La frase rota: «En función de …». Los tipos
+  // son PROPUESTA de Nilo (Andoni no los ha concretado): pendientes de su visto bueno.
+  // RONDA 91 · «lo que necesites es un papel de ese estilo [el del hero] desde el que salen el resto: startups, SaaS, agencias creativas…»
+  clientes: ['Startups', 'SaaS', 'Agencias creativas', 'Marcas que se renuevan', 'Equipos de marketing', 'Estudios que necesitan código'],
+  rota: ['lo que necesites.', 'si tu marca está cambiando.', 'si eres una startup que despega.', 'si tu equipo de marketing no da abasto.', 'si ya tienes estudio y te falta código.'],
   lista: [
     {
       corto: 'End-to-end',
@@ -358,7 +420,7 @@ export const estudio = {
 // `claves`: palabras con las que la pregunta LIBRE del visitante encuentra esta respuesta (sin ningún modelo detrás).
 export const preguntas = {
   pregunta: '¿Preguntas?',
-  titulo: 'Pregunta. Contestamos nosotros.',
+  titulo: 'Pregunta. Te contestamos a dúo.', // ronda 83 · el toque musical; antes «Pregunta. Contestamos nosotros.»
   firma: 'Eric y Andoni',
   nota: 'Solemos contestar en el día.',
   // RONDA 39 · reescritas hacia quien pregunta (punto 8): lo que gana o lo que decide el cliente va primero.
@@ -380,8 +442,11 @@ export const preguntas = {
 };
 
 export const pie = {
-  tagline: 'La savia de tu web.',
-  pitch: 'El estudio que orquesta la IA, con criterio.', // ronda 24: «lo dejamos solo en esto»; ronda 48: sin «tu web» (ya lo dice el titular del pie)
+  // RONDA 83 · el pie es el FINAL DE LA OBRA (dirección A): una invitación a tocar juntos. Antes: «La savia de tu web.» (el juego de savia ya no aplica)
+  titulo: '¿Tocamos juntos?',
+  pitch: 'Cuéntanos qué necesita tu web. Escribimos la partitura, dirigimos a los agentes y te la dejamos afinada.',
+  // la atribución de la música de Proyectos destacados (CC BY-SA 4.0: obligatoria; ver tools/fuentes-sonido.md)
+  credito: 'Música: Vivaldi, Las cuatro estaciones · John Harrison y Wichita State University Chamber Players (CC BY-SA 4.0)',
   correo: 'hola@savvia.studio',
   cal: '', // ronda 65: «Contáctanos» llevará a un cal.com (falta el enlace); mientras, al correo
   faltaCorreo: '¿hola@savvia.com o @savvia.studio?',

@@ -1,0 +1,745 @@
+---
+// EL PIE (rondas 20–23). Andoni (23): «el paisaje tiene que solaparse con el texto. Cuando llegues al footer el logo de savvia se dibuja, cae la gota
+// y se dibuja el paisaje tal y como se dibuja el árbol de arriba. El logo hay que ajustarlo para que tenga el mismo alto que el texto. Y los
+// recolores del footer tienen que ser como los del hero».
+// · EL TITULAR: «La savvia de tu web.» con la palabra hecha LOGOTIPO, a la altura de x de Family (medida: 0,47 em; la «a» del logotipo mide 0,696 de
+//   su alto → alto 0,675 em, ancho 2,18 em), con el pie de las letras en la línea base.
+// · EL PAISAJE (tres capas de la misma mano que el roble: montes · árboles · hierba, con alfa) va DETRÁS del texto, a sangre al pie: el contenido
+//   se solapa con las colinas. Cada capa es un lienzo del MISMO motor que el árbol (`estela.ts`, modo paisaje): al llegar, el LOGOTIPO se dibuja
+//   (de izquierda a derecha), de su última «a» se descuelga una GOTA que cae al paisaje, SALPICA, y desde el impacto el paisaje se DIBUJA (líneas del
+//   grabado) y se PINTA con el frente rasgado, en círculo (Shopify, como el árbol). ESTACIONES: cada 6 s la siguiente se pinta desde la base con ese
+//   mismo frente (`renacer`, el del árbol; tabla propia: aquí el invierno no ralea). Otoño → invierno → primavera → verano.
+// · PROFUNDIDAD: con el scroll cada capa se asienta desde más abajo; con el ratón se aparta según su lejanía (montes 6 px, árboles 20, hierba 34).
+// · Sin WebGL: las láminas como imágenes. Movimiento reducido: pintado y quieto, sin estaciones.
+// · RONDA 40 · el pie es OSCURO, con el fondo de la estación (la paleta de Andoni: «fondo oscuro — footer y secciones oscuras»), y el paisaje enseña
+//   la ESTACIÓN DE LA WEB (la de hoy o la elegida con el icono de la barra), pintado en su color de árbol; ya no rota solo cada 6 s.
+//   El formulario se DIBUJA al abrir y al cerrar (src/scripts/dibujar.ts), como el paisaje.
+import { pie, nav } from '../data/home';
+const year = new Date().getFullYear();
+const CAPAS = [
+  { n: 'montes', d: 40, m: 6 },
+  { n: 'arboles', d: 90, m: 20 },
+  { n: 'hierba', d: 150, m: 34 },
+];
+// el horizonte del paisaje (primera fila con tinta de árboles + hierba) en 51 columnas: ahí cae la gota
+const HORIZONTE = [0.619, 0.598, 0.52, 0.519, 0.505, 0.475, 0.454, 0.436, 0.454, 0.46, 0.513, 0.555, 0.531, 0.571, 0.628, 0.627, 0.63, 0.666, 0.679, 0.684, 0.705, 0.694, 0.702, 0.735, 0.753, 0.763, 0.771, 0.772, 0.772, 0.774, 0.768, 0.759, 0.747, 0.735, 0.729, 0.718, 0.706, 0.696, 0.64, 0.598, 0.591, 0.543, 0.555, 0.544, 0.579, 0.606, 0.574, 0.589, 0.576, 0.568, 0.588];
+const [antes, despues] = pie.tagline.split('savia');
+---
+
+<footer id="contacto" class="surface-dark pie" data-sube data-pie data-horizonte={JSON.stringify(HORIZONTE)}>
+  <div class="wrap contenido pt-24 lg:pt-32">
+    <div class="grid-12 gap-y-12">
+      <div class="col-span-4 lg:col-span-7">
+        <p class="text-h1 font-display tracking-[-0.02em] titular" data-entra>
+          {antes}<span class="marca" data-marca>savvia</span>{despues}
+        </p>
+        <p class="text-sub measure mt-4 lg:mt-6">{pie.pitch}</p>
+      </div>
+      <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
+      <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
+        <ul class="enlaces text-ui flex flex-col gap-3 font-medium lg:items-end" data-enlaces>
+          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li><a href={l.href} class="enlace-pie">{l.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- EL PAISAJE, detrás del texto: por capa, la lámina (textura y respaldo sin WebGL) y su lienzo. RONDA 67 · «Contá» por delante de todo (el enlace, tras
+       la hierba, recortado) y «ctanos» entre los árboles y la hierba; al pasar, la palabra entera se hace CTA de cristal -->
+  <div class="paisaje" data-paisaje>
+    {CAPAS.map((c, i) => (
+      <>
+        <div class={`capa ${c.n}`} style={`--d:${c.d}px;--m:${c.m}px`} data-capa aria-hidden="true">
+          <img src={`/media/pie/${c.n}.webp`} alt="" width="2000" height="667" loading="lazy" decoding="async" data-lamina />
+          <canvas data-lienzo></canvas>
+          {c.n === 'hierba' && <canvas class="flores" aria-hidden="true" data-flores></canvas>}
+        </div>
+        {i === 1 && <span class="contacta contacta-tras font-display" aria-hidden="true" data-contacta-tras><span>Contáctanos</span><span class="contacta-luz" data-contacta-luz>Contáctanos</span></span>}
+        {i === 2 && (
+          <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`Contáctanos · agenda una reunión con Eric y Andoni${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
+            <span data-contacta-txt>Contáctanos</span>
+            <span class="cta-hilo" aria-hidden="true"></span>
+            <span class="cta-pastilla" aria-hidden="true"><span class="cta-caras"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /></span><span class="cta-dice">Haz clic para agendar una reunión con nosotros</span></span>
+            <span class="contacta-luz" aria-hidden="true" data-contacta-luz>Contáctanos</span>
+          </a>
+        )}
+      </>
+    ))}
+  </div>
+  <!-- RONDA 42 · «en el footer, detalles típicos de cada estación: otoño caen hojas, invierno nieva, verano sale el sol (igual el rayo de luz),
+       primavera salen flores». Un lienzo sobre el paisaje (bajo el texto), con la estación de la web -->
+  <canvas class="clima" aria-hidden="true" data-clima></canvas>
+  <!-- RONDA 43 · «en verano poner el rayo de luz que tenemos en el hero, que se mueve con el ratón ligeramente; y ojo que se va al salir el formulario» -->
+  <div class="luz-pie" aria-hidden="true"><i class="haz"></i></div>
+  <p class="wrap linea detail flex justify-between" data-linea>
+    <span>savvia · {pie.lugar} · {pie.desde}</span>
+    <span>© {year}</span>
+  </p>
+</footer>
+
+
+<script>
+  import { crearEstela, ESTACIONES_PIE, type Estela } from '../scripts/estela';
+  import { tinta } from '../scripts/tinta';
+  import { caerRealista } from '../scripts/gota';
+    import { EST as NOMBRES_EST, estacionActual } from '../scripts/estacion';
+  const pie = document.querySelector<HTMLElement>('[data-pie]'), paisaje = document.querySelector<HTMLElement>('[data-paisaje]');
+  if (pie && paisaje) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches, conRaton = matchMedia('(hover: hover)').matches;
+    const HZ: number[] = JSON.parse(pie.dataset.horizonte!);
+    const capas = [...paisaje.querySelectorAll<HTMLElement>('[data-capa]')];
+    const marca = pie.querySelector<HTMLElement>('[data-marca]')!;
+    // RONDA 27 · «Contáctanos» a todo el ancho de las líneas, entre los árboles y la hierba (cortado por ella): el tamaño de letra sale de medir el
+    // texto en Family y escalarlo al ancho del contenido
+    const contacta = pie.querySelector<HTMLElement>('[data-contacta]')!, contenido = pie.querySelector<HTMLElement>('.contenido')!;
+    const ajustarContacta = () => {
+      const w = contenido.clientWidth - 2 * parseFloat(getComputedStyle(contenido).paddingLeft);
+      const c = document.createElement('canvas').getContext('2d')!;
+      c.font = `100px ${getComputedStyle(contacta).fontFamily}`;
+      const tw = c.measureText(contacta.querySelector('[data-contacta-txt]')!.textContent!.trim()).width || 1;
+      contacta.style.fontSize = `${(100 * w) / tw}px`;
+      // el lienzo mide con la fuente de respaldo si Family aún no está: se corrige con el ancho REAL del elemento
+      const real = contacta.getBoundingClientRect().width; if (real > 0) contacta.style.fontSize = `${parseFloat(contacta.style.fontSize) * (w / real) * 0.99}px`;
+    };
+    document.fonts.ready.then(ajustarContacta); addEventListener('resize', ajustarContacta);
+    // (ronda 65: fuera el formulario: «Contáctanos» es un botón que llevará a cal.com; hoy, al correo)
+    // RONDA 65 · «el Contáctanos lo dividimos: la primera parte por delante de las montañas y la última por detrás». Dos copias del mismo tamaño en el
+    // mismo sitio: la de DELANTE (el enlace, entre los árboles y la hierba) recortada tras «Contác»; la de DETRÁS (antes de los montes: las montañas la
+    // tapan) recortada antes de «tanos». Al pasar, el recorte se abre y la palabra entera sale del paisaje hecha botón (Coral y, encima, a dónde lleva).
+    const tras = pie.querySelector<HTMLElement>('[data-contacta-tras]')!, texto = contacta.querySelector<HTMLElement>('[data-contacta-txt]')!;
+    const PARTE = 5; // ronda 66: «Contá» | «ctanos»
+    const partir = () => {
+      tras.style.fontSize = contacta.style.fontSize;
+      const n = texto.firstChild; if (!n) return;
+      const rg = document.createRange(); rg.setStart(n, 0); rg.setEnd(n, PARTE);
+      const rt = texto.getBoundingClientRect(), x = rg.getBoundingClientRect().right - rt.left;
+      contacta.style.setProperty('--corte', `${x.toFixed(1)}px`); tras.style.setProperty('--corte', `${x.toFixed(1)}px`);
+      // RONDA 78 · el «Escríbenos» BROTA de la tilde de la «á»: su centro y la altura de la línea de mayúsculas (el acento queda justo encima)
+      const ra = document.createRange(); ra.setStart(n, 4); ra.setEnd(n, 5);
+      const r4 = ra.getBoundingClientRect(), fs = parseFloat(contacta.style.fontSize) || 100;
+      const ax = `${(r4.left + r4.width * 0.56 - rt.left).toFixed(1)}px`, ay = `${(r4.top - rt.top + r4.height * 0.5 - fs * 0.36).toFixed(1)}px`;
+      const ab = `${(r4.top - rt.top + r4.height * 0.5 - fs * 0.39).toFixed(1)}px`; // la bisagra de la puerta: justo encima de la tilde (que se sigue viendo)
+      [contacta, tras].forEach((e) => { e.style.setProperty('--ax', ax); e.style.setProperty('--ay', ay); e.style.setProperty('--ab', ab); }); // las dos mitades: la misma luz, en el mismo sitio
+    };
+    document.fonts.ready.then(() => requestAnimationFrame(partir)); addEventListener('resize', () => requestAnimationFrame(partir));
+    // RONDA 67 · el CTA: al pasar (o enfocar) la palabra entera se convierte en el CTA de cristal; con el dedo, el primer toque la convierte y el segundo va
+    const hacerCta = (si: boolean) => pie.classList.toggle('cta-abierto', si);
+    // RONDA 76 · Eric: «la interacción parpadea». Al abrirse, la palabra se recoge (scale 0,66) y su recorte cambia: el borde se iba de debajo del puntero,
+    // saltaba el `pointerleave`, se cerraba, volvía a crecer bajo el puntero… Ahora se cierra solo cuando el puntero sale de la caja que tenía la palabra
+    // ENTERA al abrirse (con 24 px de margen), medida una vez: la zona no cambia mientras dura
+    // RONDA 77 · Andoni: «que se pueda hacer hover fácil y no parezca que se rompe al hacer hover». La palabra ya no se recoge ni se recoloca: su caja
+    // entera (las dos mitades) es la zona de hover y no cambia; al pasar, la palabra se enciende y encima sube una píldora con a dónde lleva
+    contacta.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hacerCta(true); });
+    contacta.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hacerCta(false); });
+    contacta.addEventListener('focus', () => hacerCta(true));
+    contacta.addEventListener('blur', () => hacerCta(false));
+    contacta.addEventListener('click', (e) => { if (!pie.classList.contains('cta-abierto')) { e.preventDefault(); hacerCta(true); } });
+    // RONDA 65 · «quitamos la iluminación del punto; que entre una luz como en el hero en todos los escenarios, y esa luz ilumina el Contáctanos»: el haz
+    // (.luz-pie, 18°, sigue al ratón) está en todas las estaciones; donde cruza la palabra, una copia en luz cálida la ilumina (máscara: la banda del haz)
+    const haz = pie.querySelector<HTMLElement>('.luz-pie .haz')!, luces = [...pie.querySelectorAll<HTMLElement>('[data-contacta-luz]')];
+    const S = Math.sin((108 * Math.PI) / 180), C = -Math.cos((108 * Math.PI) / 180); // el eje del degradado de 108° (perpendicular a la banda)
+    let rafL = 0;
+    const iluminar = () => {
+      rafL = 0;
+      const rh = haz.getBoundingClientRect();
+      luces.forEach((luz) => {
+        const rw = luz.getBoundingClientRect();
+        if (!rw.width) return;
+        const cy = rw.top + rw.height / 2, bx = rh.left + rh.width / 2 - 0.325 * (cy - (rh.top + rh.height / 2)); // el centro del haz a la altura de la palabra
+        const L = rw.width * S + rw.height * C, t = (bx - rw.left - rw.width / 2) * S + L / 2;
+        luz.style.setProperty('--bt', `${t.toFixed(1)}px`); luz.style.setProperty('--bw', `${(rh.width * 0.32).toFixed(1)}px`);
+      });
+    };
+    const pedirLuz = () => { if (!rafL) rafL = requestAnimationFrame(iluminar); };
+    addEventListener('scroll', pedirLuz, { passive: true }); addEventListener('resize', pedirLuz);
+    new MutationObserver(pedirLuz).observe(pie, { attributes: true, attributeFilter: ['style'] }); // --lx: la luz sigue al ratón
+    haz.addEventListener('transitionend', pedirLuz);
+    document.fonts.ready.then(pedirLuz);
+    // RONDA 40: el paisaje en la estación de la web, pintado en su color de árbol (algo menos que el árbol: es un paisaje entero). Aquí nada ralea.
+    let est = estacionActual();
+    let estelas: (Estela | null)[] = [], creadas = false, visible = false;
+    const crear = () => {
+      if (creadas) return; creadas = true;
+      estelas = capas.map((c) => {
+        const img = c.querySelector<HTMLImageElement>('[data-lamina]')!, cv = c.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
+        if (!img.complete) img.loading = 'eager';
+        const t = crearEstela(cv, img, { origen: [0.5, 1], dir: 1, radial: true, paisaje: true, estaciones: ESTACIONES_PIE, intensidad: 0.62 });
+        if (!t) c.classList.add('sin-gl');
+        t?.estacion(est);
+        return t;
+      });
+      if (reducido || estelas.every((t) => !t)) { estelas.forEach((t) => t?.crecer(1)); paisaje.classList.add('pintado'); dibujado = true; }
+    };
+    new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { crear(); o.disconnect(); } }, { rootMargin: '900px 0px' }).observe(pie);
+    // ── el paralaje del scroll: cada capa viene de más abajo (--d) y se asienta según entra el pie
+    let pedido = false, ult = -1;
+    const pintar = () => {
+      pedido = false;
+      const r = pie.getBoundingClientRect(), vh = innerHeight;
+      pie.style.setProperty('--arriba', `${Math.max(0, Math.round(r.top))}px`); // ronda 67: la luz nace arriba de la ventana
+      const k = Math.min(1, Math.max(0, (vh - r.top) / Math.max(1, r.height)));
+      const e = 1 - (1 - k) * (1 - k);
+      if (Math.abs(e - ult) < 0.002) return;
+      ult = e;
+      paisaje.style.setProperty('--p', String(1 - e));
+    };
+    const pedir = () => { if (visible && !pedido) { pedido = true; requestAnimationFrame(pintar); } };
+    // ── el ratón: las capas se apartan del puntero según su profundidad, con retraso
+    let mx = 0, my = 0, tx = 0, ty = 0, rafM = 0;
+    const seguir = () => {
+      rafM = 0;
+      mx += (tx - mx) * 0.07; my += (ty - my) * 0.07;
+      paisaje.style.setProperty('--mx', mx.toFixed(3)); paisaje.style.setProperty('--my', my.toFixed(3)); pie.style.setProperty('--lx', mx.toFixed(4));
+      if (Math.abs(tx - mx) + Math.abs(ty - my) > 0.002) rafM = requestAnimationFrame(seguir);
+    };
+    if (conRaton && !reducido) {
+      pie.addEventListener('pointermove', (e) => { const r = pie.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width - 0.5; ty = (e.clientY - r.top) / r.height - 0.5; if (!rafM) rafM = requestAnimationFrame(seguir); }, { passive: true });
+      pie.addEventListener('pointerleave', () => { tx = 0; ty = 0; if (!rafM) rafM = requestAnimationFrame(seguir); });
+    }
+    // ── LA LLEGADA: el logotipo se dibuja → la gota se descuelga de la «a» → cae al horizonte → salpica → el paisaje se dibuja y se pinta desde ahí
+    let dibujado = false;
+    const dibujar = () => {
+      if (dibujado) return;
+      crear(); // ronda 41: si el observador de la llegada corre antes que el de los lienzos (al saltar al final), los crea aquí; si no, se perdía
+      if (!creadas || dibujado) return; dibujado = true;
+      marca.classList.add('dibuja');
+      setTimeout(caer, 1100);
+    };
+    const caer = () => {
+      const rp = pie.getBoundingClientRect(), rm = marca.getBoundingClientRect();
+      // la punta del rabo de la «a»: el extremo derecho del logotipo, a un 92 % de su alto
+      const x = rm.right - rm.width * 0.004 - rp.left, y0 = rm.top + rm.height * 0.8 - rp.top; // ronda 66: la palabra en Family: el pie de la «a», en la línea base
+      // el horizonte a esa x (coordenadas de la capa de hierba, ya con su paralaje)
+      const rh = capas[2].getBoundingClientRect();
+      const fx = Math.min(1, Math.max(0, (x + rp.left - rh.left) / rh.width)), i = fx * (HZ.length - 1), hy = HZ[Math.floor(i)] + (HZ[Math.min(HZ.length - 1, Math.ceil(i))] - HZ[Math.floor(i)]) * (i - Math.floor(i));
+      const y1 = rh.top + hy * rh.height - rp.top;
+      // RONDA 24 · «la gota mucho más realista»: la misma física que la de la carga (cuello que se estrangula, resto, satélite, estela desenfocada)
+      caerRealista(pie, x, y0, y1, { agua: true, alImpacto: () => brotar(x + rp.left, y1 + rp.top) });
+    };
+    // desde el impacto: cada lienzo pone ahí su origen y crece (las líneas por delante, la pintura detrás, con el frente rasgado)
+    const brotar = (px: number, py: number) => {
+      capas.forEach((c, i) => { const r = c.getBoundingClientRect(); estelas[i]?.origen((px - r.left) / r.width, (py - r.top) / r.height); });
+      const T = 2600; let t0 = 0;
+      const paso = (ahora: number) => {
+        if (!t0) t0 = ahora;
+        const k = Math.min(1, (ahora - t0) / T), g = 1 - Math.pow(1 - k, 1.6);
+        estelas.forEach((t) => t?.crecer(g));
+        if (k < 1) requestAnimationFrame(paso); else { paisaje.classList.add('pintado'); empezarEstaciones(); }
+      };
+      requestAnimationFrame(paso);
+    };
+    // ── la estación: la de la web. Si cambia (el icono de la barra), se pinta desde la base con el frente del árbol; si no se ve, de golpe
+    paisaje.dataset.estacion = NOMBRES_EST[est];
+    const empezarEstaciones = () => { capas.forEach((_, i) => estelas[i]?.origen(0.5, 1)); };
+    addEventListener('savvia:estacion', (ev) => {
+      const n = (ev as CustomEvent).detail.n as number;
+      if (n === est) return;
+      est = n; paisaje.dataset.estacion = NOMBRES_EST[n];
+      estelas.forEach((t) => (visible && !reducido && paisaje.classList.contains('pintado') ? t?.renacer(n) : t?.estacion(n)));
+    });
+    new IntersectionObserver((en) => {
+      visible = en[0].isIntersecting; pie.classList.toggle('viva', visible); pedir();
+      estelas.forEach((t) => t?.visible(visible));
+      if (visible && en[0].intersectionRatio > 0.3) dibujar();
+    }, { threshold: [0, 0.3, 0.6] }).observe(pie);
+    if (!reducido) { addEventListener('scroll', pedir, { passive: true }); addEventListener('resize', pedir); pintar(); }
+    else paisaje.style.setProperty('--p', '0');
+
+    // ── EL TIEMPO DE CADA ESTACIÓN (rondas 42–43), en un lienzo 2D sobre el paisaje y bajo el texto.
+    //   OTOÑO: hojas que caen girando y meciéndose y SE POSAN en el prado: se van acumulando poco a poco (ronda 43).
+    //   INVIERNO: nieve fina que también se posa, y deja una escarcha que va blanqueando el suelo.
+    //   VERANO: el sol tras los montes (un resplandor cálido) y motas que suben; el RAYO es el del hero (capa .luz-pie, sigue al ratón).
+    //   PRIMAVERA: matas de BREZO (la lámina de Andoni, no flores dibujadas: «más realistas y menos infantiles») que brotan en el prado y se mecen.
+    // Solo corre con el pie a la vista; con movimiento reducido, un fotograma quieto. Se esconde mientras el formulario está abierto.
+    const cv = pie.querySelector<HTMLCanvasElement>('[data-clima]')!, c = cv.getContext('2d')!;
+    const acc = document.createElement('canvas'), ca = acc.getContext('2d')!; // lo que se ha ido POSANDO (se pinta una vez, al posarse)
+    type Pz = { x: number; y: number; z: number; f: number; g: number; v: number; d: number };
+    let W = 0, Hh = 0, dpr = 1, pzs: Pz[] = [], estC = est, fade = 1, fadeMeta = 1, rafC = 0, visC = false, t0C = 0, nacio = 0, posados = 0;
+    // (al cambiar de tamaño el lienzo acumulado se vacía: las flores ya pintadas en él se vuelven a pintar; antes se perdían)
+    const medir = () => {
+      const d2 = Math.min(devicePixelRatio || 1, 1.5), w2 = pie.clientWidth, h2 = pie.clientHeight;
+      if (w2 === W && h2 === Hh && d2 === dpr) return;
+      dpr = d2; W = w2; Hh = h2;
+      for (const k of [cv, acc]) { k.width = Math.round(W * dpr); k.height = Math.round(Hh * dpr); }
+      ca.setTransform(dpr, 0, 0, dpr, 0, 0); posados = 0;
+    };
+    // el SUELO: la primera fila con tinta del paisaje a esa x (HORIZONTE, medido en la capa de hierba), en coordenadas del pie
+    let RP: DOMRect | null = null, RH: DOMRect | null = null; // medidas del pie y de la hierba, una vez por fotograma
+    const suelo = (x: number) => {
+      const pr = RP ?? pie.getBoundingClientRect(), hr = RH ?? capas[2].getBoundingClientRect();
+      const fx = Math.min(1, Math.max(0, (x + pr.left - hr.left) / hr.width)), i = fx * (HZ.length - 1), a0 = Math.floor(i), a1 = Math.min(HZ.length - 1, a0 + 1);
+      return hr.top - pr.top + (HZ[a0] + (HZ[a1] - HZ[a0]) * (i - a0)) * hr.height;
+    };
+    const sembrar = () => {
+      const n = [34, 120, 22, 0][estC];
+      pzs = Array.from({ length: n }, (_, i) => {
+        const x = Math.random();
+        // primavera: florecillas por el prado, más en lo cercano (abajo) que en lo lejano
+        const y = Math.random() * 0.9;
+        return { x, y, z: Math.random(), f: Math.random() * 10, g: Math.random() * 6.28, v: i / n, d: 0.1 + Math.random() * 0.7 };
+      });
+
+      nacio = performance.now();
+    };
+    // RONDA 76 · Eric: «en primavera, que salgan flores: margaritas, azules»: MARGARITAS (pétalos blancos y botón amarillo) y flores AZULES (cinco pétalos,
+    // centro claro), con alguna rosa pálida; lejos, solo la mancha de color; cerca, se leen los pétalos
+    const FLORES = ['margarita', 'margarita', 'margarita', 'margarita', 'azul', 'azul', 'azul', 'rosa'];
+    const florecilla = (k: CanvasRenderingContext2D, x: number, y: number, r: number, tipo: string, a: number) => {
+      const col = tipo === 'azul' ? '110,140,214' : tipo === 'rosa' ? '244,200,214' : '252,251,246';
+      if (r < 1.8) { k.fillStyle = `rgba(${col},${a})`; k.beginPath(); k.ellipse(x, y, r * 1.3, r, 0, 0, 6.283); k.fill(); return; }
+      const n = tipo === 'margarita' ? 11 : 5, largo = tipo === 'margarita' ? r * 1.25 : r * 0.95, ancho = tipo === 'margarita' ? r * 0.3 : r * 0.55;
+      k.save(); k.translate(x, y); k.scale(1, 0.62); // vistas un poco desde arriba: el disco se aplana
+      k.fillStyle = `rgba(${col},${a})`;
+      for (let i = 0; i < n; i++) { const g = (i / n) * 6.283 + x; k.beginPath(); k.ellipse(Math.cos(g) * largo * 0.6, Math.sin(g) * largo * 0.6, largo * 0.55, ancho, g, 0, 6.283); k.fill(); }
+      k.fillStyle = tipo === 'margarita' ? `rgba(236,184,58,${a})` : `rgba(248,236,190,${a})`;
+      k.beginPath(); k.arc(0, 0, tipo === 'margarita' ? r * 0.36 : r * 0.24, 0, 6.283); k.fill();
+      k.restore();
+    };
+    const HOJAS = ['#c65c2d', '#e0a03a', '#7a2e16', '#d98b3a', '#9c3b1c', '#efc070']; // ronda 43: más variedad (ocres claros y rojos hondos): posadas se distinguen del prado
+    const hoja = (k: CanvasRenderingContext2D, x: number, y: number, s: number, a: number, col: string, plana = 1) => {
+      k.save(); k.translate(x, y); k.rotate(a); k.scale(1, plana); k.fillStyle = col;
+      k.beginPath(); k.moveTo(0, -s); k.quadraticCurveTo(s * 0.8, 0, 0, s); k.quadraticCurveTo(-s * 0.8, 0, 0, -s); k.fill();
+      k.strokeStyle = 'rgba(40,20,10,.35)'; k.lineWidth = Math.max(0.6, s * 0.08); k.beginPath(); k.moveTo(0, -s * 0.8); k.lineTo(0, s * 0.95); k.stroke();
+      k.restore();
+    };
+    // al POSARSE: se pinta en la capa acumulada (las hojas, tumbadas; la nieve, un copo y un velo de escarcha alrededor)
+    const posar = (p: Pz, i: number) => {
+      const x = p.x * W, y = p.y * Hh;
+      if (estC === 0 && posados < 320) { ca.globalAlpha = 0.9; hoja(ca, x, y, 4 + p.z * 5, p.g + p.f, HOJAS[i % HOJAS.length], 0.45); posados++; }
+      if (estC === 1 && posados < 1600) {
+        ca.globalAlpha = 0.85; ca.fillStyle = '#fff'; ca.beginPath(); ca.arc(x, y, 0.8 + p.z * 1.8, 0, 6.283); ca.fill();
+        const g = ca.createRadialGradient(x, y, 0, x, y, 14); g.addColorStop(0, 'rgba(255,255,255,.07)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+        ca.globalAlpha = 1; ca.fillStyle = g; ca.fillRect(x - 14, y - 14, 28, 28); posados++;
+      }
+      ca.globalAlpha = 1;
+    };
+    const dibujarC = (ahora: number) => {
+      const dt = Math.min(0.05, (ahora - (t0C || ahora)) / 1000); t0C = ahora;
+      const T = ahora / 1000, mueve = reducido ? 0 : 1;
+      RP = pie.getBoundingClientRect(); RH = capas[2].getBoundingClientRect();
+      c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, Hh);
+      c.save();
+      fade += (fadeMeta - fade) * Math.min(1, dt * 3);
+      if (fadeMeta === 0 && fade < 0.02) { estC = est; ca.setTransform(1, 0, 0, 1, 0, 0); ca.clearRect(0, 0, acc.width, acc.height); ca.setTransform(dpr, 0, 0, dpr, 0, 0); posados = 0; sembrar(); fadeMeta = 1; }
+      c.globalAlpha = fade;
+      if (estC === 0 || estC === 1) c.drawImage(acc, 0, 0, W, Hh); // lo posado
+      if (estC === 0) { // OTOÑO: hojas que caen y se posan
+        pzs.forEach((p, i) => {
+          p.f += dt; p.y += (0.022 + p.z * 0.03) * dt * mueve; p.x += (Math.sin(p.f * 0.9 + i) * 0.014 + 0.006) * dt * mueve;
+          const g = suelo(p.x * W);
+          if (p.y * Hh > g + (Hh - g) * p.d * 0.8) { posar(p, i); p.y = -0.03; p.x = Math.random(); p.d = 0.1 + Math.random() * 0.7; }
+          c.globalAlpha = fade; hoja(c, p.x * W, p.y * Hh, 5 + p.z * 7, p.g + Math.sin(p.f * 1.3 + i) * 1.1 + p.f * 0.4, HOJAS[i % HOJAS.length]);
+        });
+      } else if (estC === 1) { // INVIERNO: nieve que se posa
+        c.fillStyle = '#fff';
+        pzs.forEach((p, i) => {
+          p.f += dt; p.y += (0.018 + p.z * 0.03) * dt * mueve; p.x += Math.sin(p.f * 0.7 + i) * 0.006 * dt * mueve;
+          const g = suelo(p.x * W);
+          if (p.y * Hh > g + (Hh - g) * p.d * 0.85) { posar(p, i); p.y = -0.01; p.x = Math.random(); p.d = 0.05 + Math.random() * 0.8; }
+          c.globalAlpha = fade * (0.35 + p.z * 0.55); c.beginPath(); c.arc(p.x * W, p.y * Hh, 0.8 + p.z * 2.2, 0, 6.283); c.fill();
+        });
+      } else if (estC === 3) { // VERANO: el sol tras los montes y las motas (el rayo es la capa .luz-pie)
+        const sx = W * 0.8, sy = suelo(W * 0.8) - 10;
+        const g = c.createRadialGradient(sx, sy, 0, sx, sy, W * 0.42);
+        g.addColorStop(0, 'rgba(255,214,140,.40)'); g.addColorStop(0.25, 'rgba(255,190,110,.15)'); g.addColorStop(1, 'rgba(255,180,100,0)');
+        c.fillStyle = g; c.fillRect(0, 0, W, Hh);
+        c.fillStyle = 'rgba(255,236,190,1)';
+        pzs.forEach((p, i) => {
+          p.f += dt; p.y -= (0.006 + p.z * 0.008) * dt * mueve; p.x += Math.sin(p.f * 0.5 + i) * 0.004 * dt * mueve;
+          if (p.y < 0.2) { p.y = 0.98; p.x = Math.random(); }
+          c.globalAlpha = fade * (0.25 + 0.35 * (0.5 + 0.5 * Math.sin(p.f * 1.7 + i))); c.beginPath(); c.arc(p.x * W, p.y * Hh, 0.8 + p.z * 1.4, 0, 6.283); c.fill();
+        });
+      }
+      c.globalAlpha = 1;
+      c.restore();
+      RP = RH = null;
+    };
+    const bucle = (ahora: number) => { rafC = 0; if (!visC) return; dibujarC(ahora); if (!reducido || fadeMeta !== fade) rafC = requestAnimationFrame(bucle); };
+    const arrancar = () => { if (!rafC && visC) { t0C = 0; rafC = requestAnimationFrame(bucle); } };
+    new ResizeObserver(() => { medir(); if (!pzs.length) sembrar(); arrancar(); }).observe(pie);
+    new IntersectionObserver((e) => { visC = e[0].isIntersecting; arrancar(); }).observe(pie);
+
+    // ── LAS FLORES DE PRIMAVERA (ronda 44 · «flores que encajen con el fondo; lo de ahora es un pegote»). Van en un lienzo DENTRO de la capa de la
+    // hierba: nacen sobre el prado real (su borde de arriba, HORIZONTE, en coordenadas de la propia lámina) y se mueven con él (paralaje y ratón).
+    // Son florecillas PINTADAS con el toque del prado: manchas blandas, blanco y rosa pálido (algo de Rosa flor), en MATAS, más pequeñas cuanto más
+    // lejos, que BROTAN poco a poco cuando llegas al pie. Solo en primavera.
+    const cf = pie.querySelector<HTMLCanvasElement>('[data-flores]')!, fx = cf.getContext('2d')!;
+    cf.classList.add('listo');
+    type Fl = { x: number; d: number; z: number; v: number; c: string };
+    let flores: Fl[] = [], nacF = 0, rafF = 0, dprF = 1, WF = 0, HF = 0;
+    const sembrarF = () => {
+      const centros = Array.from({ length: 60 }, () => [Math.random(), Math.pow(Math.random(), 1.4)]); // x, profundidad bajo el borde del prado (0 = lejos)
+      flores = Array.from({ length: 340 }, (_, i) => { const [cx0, cd] = centros[i % centros.length]; const d = Math.min(1, Math.max(0, cd + (Math.random() - 0.5) * 0.05)); return { x: cx0 + (Math.random() - 0.5) * (0.012 + d * 0.02), d, z: Math.random(), v: Math.random(), c: FLORES[Math.floor(Math.random() * FLORES.length)] }; });
+    };
+    const bordeF = (x: number) => { const i = Math.min(1, Math.max(0, x)) * (HZ.length - 1), a0 = Math.floor(i), a1 = Math.min(HZ.length - 1, a0 + 1); return HZ[a0] + (HZ[a1] - HZ[a0]) * (i - a0); };
+    const pintarF = (ahora: number) => {
+      rafF = 0;
+      const r = cf.getBoundingClientRect(), d2 = Math.min(devicePixelRatio || 1, 1.5);
+      if (Math.round(r.width * d2) !== cf.width || Math.round(r.height * d2) !== cf.height) { cf.width = Math.round(r.width * d2); cf.height = Math.round(r.height * d2); }
+      dprF = d2; WF = r.width; HF = r.height;
+      fx.setTransform(dprF, 0, 0, dprF, 0, 0); fx.clearRect(0, 0, WF, HF);
+      if (est !== 2) return;
+      const edad = (ahora - nacF) / 1000; let pendientes = false;
+      for (const f of flores) {
+        const abre = reducido ? 1 : Math.max(0, Math.min(1, (edad - f.v * 7) / 1.1));
+        if (abre < 1) pendientes = true;
+        if (!abre) continue;
+        const top = bordeF(f.x) + 0.015, y = (top + f.d * (0.97 - top)) * HF;
+        const rr = (1.5 + f.d * 4.6) * (0.75 + f.z * 0.5) * (1 - Math.pow(1 - abre, 3)) * (WF / 1280);
+        florecilla(fx, f.x * WF, y, Math.max(0.6, rr), f.c, 0.78 + f.d * 0.2);
+      }
+      if (pendientes && visC) rafF = requestAnimationFrame(pintarF);
+    };
+    const pedirF = () => { if (!rafF) rafF = requestAnimationFrame(pintarF); };
+    let vistoF = false;
+    new IntersectionObserver((e) => { if (e[0].isIntersecting && !vistoF && paisaje.classList.contains('pintado')) { vistoF = true; nacF = performance.now(); } pedirF(); }, { threshold: 0.3 }).observe(pie);
+    new MutationObserver(() => { if (paisaje.classList.contains('pintado') && !vistoF) { vistoF = true; nacF = performance.now() + 400; pedirF(); } }).observe(paisaje, { attributes: true, attributeFilter: ['class'] });
+    new ResizeObserver(pedirF).observe(cf);
+    addEventListener('savvia:estacion', () => { setTimeout(() => { nacF = performance.now(); pedirF(); }, 1200); });
+    sembrarF();
+    addEventListener('savvia:estacion', () => { fadeMeta = 0; arrancar(); }); // se apaga lo de antes; al apagarse, entra la estación nueva (est)
+    if (reducido) { medir(); sembrar(); }
+  }
+</script>
+
+<style>
+  .pie {
+    position: relative;
+    /* RONDA 26: sin overflow hidden: recortaba la gota de la transición líquida (data-sube), que vive por encima del borde superior.
+       RONDA 27: sin min-height: manda la distancia paisaje–enlaces (a 1280 sale ~750 px igualmente) */
+  }
+  .contenido {
+    position: relative;
+    z-index: 2;
+    pointer-events: none; /* su caja (con el relleno de abajo) pisaba el «Contáctanos»: solo sus enlaces reciben el puntero */
+    /* RONDA 27: «a 80 px de Carta fundacional»: las cimas de los montes (al 43,6 % del alto de la lámina) quedan 80 px bajo el último enlace:
+       lo que sobra del paisaje por debajo de las cimas (56,4 % de su alto) + 80 px */
+    padding-bottom: calc(400px + 0.564 * min(33.35vw, 62lvh)); /* ronda 35: a 400 px de Carta fundacional: el panel, más alto, asoma por encima del paisaje sin tocar los enlaces */
+  }
+  .contenido a {
+    pointer-events: auto;
+  }
+  /* «La savvia de tu web.»: el logotipo como palabra. RONDA 28 («el mismo tamaño de letras que el resto del título, completamente alineado»): su alto
+     entero (el punto de la i arriba) = la altura de ascendentes de Family (medida: 0,71 em; la «l»), con lo que su «a» queda a 0,494 em, un 5 % por
+     encima de la x de Family, como pide el ojo; el pie de las letras, en la línea base, sin desplazar */
+  /* RONDA 66 · la marca es la palabra en Family (la del titular); se DIBUJA al llegar, de izquierda a derecha con canto blando, y de su última «a» cae la gota */
+  .titular .marca {
+    display: inline-block;
+    -webkit-mask: linear-gradient(90deg, #000 42%, transparent 58%) 100% 0 / 240% 100% no-repeat;
+    mask: linear-gradient(90deg, #000 42%, transparent 58%) 100% 0 / 240% 100% no-repeat;
+  }
+  .titular .marca.dibuja {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+    transition: mask-position 1.1s cubic-bezier(0.5, 0, 0.3, 1), -webkit-mask-position 1.1s cubic-bezier(0.5, 0, 0.3, 1);
+  }
+  :global(html:not(.anima)) .titular .marca {
+    -webkit-mask: none;
+    mask: none;
+  }
+  /* los enlaces: la parte alta de sus mayúsculas a la altura de la del titular */
+  @media (width >= 64rem) {
+    .enlaces { margin-top: calc(var(--text-h1) * 0.14); }
+  }
+  /* el paisaje: a sangre, pegado al pie, DETRÁS del contenido */
+  .paisaje {
+    --p: 0; /* 1 = las capas aún vienen de abajo · 0 = asentadas */
+    --mx: 0;
+    --my: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    --alto: min(33.35vw, 62lvh);
+    --extra: 18rem; /* ronda 37: la tarjeta asoma más por encima del paisaje */
+    height: calc(var(--alto) + var(--extra));
+    pointer-events: none;
+    /* recorte REAL (overflow: clip-path no evita el scroll horizontal de lo recortado); el panel asoma por encima del paisaje porque la caja lleva una
+       franja transparente arriba (--extra) y las capas van ancladas abajo con su alto propio (ronda 35) */
+    overflow: clip;
+  }
+  /* «Contáctanos» (ronda 65): partido en dos copias iguales, en el mismo sitio y a todo el ancho de las líneas. La de DELANTE (el enlace) va entre los
+     árboles y la hierba (la hierba le tapa el pie) y se recorta tras «Contác» (--corte, medido por el JS); la de DETRÁS va antes de los montes (las
+     montañas la tapan) y se recorta antes. Al pasar, la de delante se abre entera, sale del paisaje (por encima de la hierba) y se vuelve botón. */
+  .contacta {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--alto) * 0.19);
+    translate: -50% 0;
+    width: max-content;
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 0.82;
+    letter-spacing: -0.02em;
+    color: var(--color-niebla);
+    opacity: 0; /* ronda 29: sale DESPUÉS de que el paisaje se haya pintado */
+    white-space: nowrap;
+    pointer-events: none;
+    transition: color 0.5s ease, opacity 0.8s ease, clip-path 0.9s var(--ease-out-expo);
+  }
+  .contacta-tras {
+    z-index: 0; /* antes que los montes en el DOM: las montañas la tapan */
+    clip-path: inset(-40% -10% -10% var(--corte, 50%));
+  }
+  .contacta-delante {
+    z-index: 1;
+    clip-path: inset(-40% calc(100% - var(--corte, 50%)) -10% -10%);
+    text-decoration: none;
+  }
+  /* la tenuidad va en el COLOR (no en la opacidad del bloque): así la copia iluminada puede brillar más que la palabra */
+  /* RONDA 81 · «cuando aparece el footer, el Contáctanos aparece de golpe: que salga más orgánico»: se DESCUBRE de izquierda a derecha con un canto blando
+     (--rev, máscara) mientras sale del desenfoque, en 2,6 s; la mitad de detrás, un poco después (asoma tras las montañas) */
+  .pintado .contacta { opacity: 1; }
+  /* (solo las LETRAS: la máscara sobre el enlace recortaría la puerta, que sobresale por arriba) */
+  .contacta-tras > span:first-child,
+  .contacta-delante [data-contacta-txt] {
+    --rev: -30%;
+    filter: blur(14px);
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--rev) - 30%), transparent var(--rev));
+    mask-image: linear-gradient(90deg, #000 calc(var(--rev) - 30%), transparent var(--rev));
+    transition: --brillo 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) 0.25s, filter 2.2s cubic-bezier(0.22, 0.61, 0.36, 1), --rev 2.6s cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  .pintado .contacta-tras > span:first-child,
+  .pintado .contacta-delante [data-contacta-txt] { --rev: 130%; filter: blur(0); }
+  /* la copia iluminada por el haz entra cuando la palabra ya se ha descubierto */
+  .contacta .contacta-luz { opacity: 0; transition: opacity 1.2s ease 1.6s; }
+  .pintado .contacta .contacta-luz { opacity: 1; }
+
+  .pintado .contacta-delante { pointer-events: auto; cursor: pointer; }
+  /* RONDA 67 · delante de TODO (también de la hierba, z 3) va «Contá»; la de detrás, entre los árboles y la hierba (como antes de la ronda 66) */
+  .contacta-delante { z-index: 4; }
+  .contacta-tras { z-index: 1; }
+  .contacta [data-contacta-txt] { display: block; }
+  /* RONDA 77 · «hover fácil y que no parezca que se rompe»: el ENLACE ocupa la palabra entera (sin recorte: toda su caja recibe el puntero) y lo que se
+     recorta es su texto (la mitad de delante); al pasar no cambia ni de tamaño ni de sitio: las dos mitades se encienden y sube la píldora */
+  .contacta-delante { clip-path: none !important; }
+  .contacta-delante [data-contacta-txt],
+  .contacta-delante .contacta-luz { clip-path: inset(-40% calc(100% - var(--corte, 50%)) -10% -10%); }
+  /* RONDA 79 · Andoni: «se me hace raro que se ilumine más una parte que la otra: que se ilumine como un gradiente». Las dos mitades llevan el MISMO
+     degradado en la misma caja: una luz que nace en la tilde de la «á» (de donde brota el «Escríbenos») y se apaga hacia los extremos; --brillo (0 → 1)
+     la enciende. En reposo, la tinta tenue de siempre (22 %), igual en toda la palabra. */
+  /* la mitad de detrás pasa tras las montañas, que la apagan: un poco más de luz para que el degradado se lea continuo en «á|c» */
+  .contacta-tras > span:first-child { display: block; --mas: 18%; }
+  .contacta-tras > span:first-child,
+  .contacta [data-contacta-txt] {
+    color: transparent;
+    /* RONDA 81 · Andoni: «el Contá se sigue iluminando más que el resto; que sea un degradado de izquierda a derecha: a la izquierda más iluminado y a la
+       derecha menos». Un degradado LINEAL sobre la palabra entera (las dos mitades comparten caja, así que es continuo): de la luz plena a la izquierda a
+       poco más que la tinta de reposo a la derecha */
+    background: linear-gradient(90deg,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (78% + var(--mas, 0%))), transparent) 0%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (62% + var(--mas, 0%))), transparent) 30%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (44% + var(--mas, 0%))), transparent) 55%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (28% + var(--mas, 0%))), transparent) 80%,
+      color-mix(in oklab, var(--color-niebla) calc(22% + var(--brillo) * (18% + var(--mas, 0%))), transparent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    transition: --brillo 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) 0.25s, filter 2.2s cubic-bezier(0.22, 0.61, 0.36, 1), --rev 2.6s cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  .contacta-tras > span:first-child { transition-delay: 0.25s, 0.3s, 0.3s; }
+  .cta-abierto .contacta-tras > span:first-child,
+  .cta-abierto .contacta [data-contacta-txt] { --brillo: 1; }
+  /* RONDA 80 · Andoni: «el Escríbenos, que salga como una extensión del Contáctanos, como si fuera una PUERTA; relacionado con savvia». La tilde de la «á»
+     es la BISAGRA (--ax, --ay: su centro, lo mide el JS): al pasar, una línea de savia se traza sobre ella (el marco) y desde ahí la puerta se ABRE hacia
+     arriba (gira sobre su borde de abajo) y se LLENA DE SAVIA desde la bisagra, como la gota que sube; la luz de la palabra sale de esa puerta. Al irse,
+     se vacía, se cierra y el marco se recoge. */
+  .cta-hilo {
+    position: absolute;
+    left: var(--ax, 50%);
+    top: var(--ab, 0px);
+    width: 14rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-coral);
+    transform: translate(-50%, -1px) scaleX(0); /* translate dentro de transform: el minificador fundía las dos propiedades y perdía el desplazamiento */
+    transition: transform 0.35s cubic-bezier(0.5, 0, 0.75, 0) 0.35s;
+    pointer-events: none;
+  }
+  .cta-abierto .cta-hilo { transform: translate(-50%, -1px) scaleX(1); transition: transform 0.45s var(--ease-out-expo); }
+  .cta-pastilla {
+    position: absolute;
+    left: var(--ax, 50%);
+    top: var(--ab, 0px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 3);
+    width: max-content;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 5) calc(var(--spacing) * 2) calc(var(--spacing) * 2);
+    border-radius: 16px 16px 2px 2px;
+    background: color-mix(in oklab, var(--color-niebla) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 24%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    color: var(--color-niebla);
+    font-family: var(--font-sans);
+    font-size: var(--text-ui);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0;
+    white-space: nowrap;
+    isolation: isolate;
+    overflow: hidden;
+    transform-origin: 50% 100%;
+    transform: translate(-50%, -100%) perspective(520px) rotateX(-96deg);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.5, 0, 0.75, 0) 0.15s, opacity 0.2s ease 0.45s, color 0.3s ease;
+  }
+  /* la savia que llena la puerta desde la bisagra */
+  .cta-pastilla::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-coral);
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.3s ease;
+  }
+  /* RONDA 81 · Andoni: «en vez de Escríbenos, que es lo mismo que Contáctanos, que salgamos Eric y yo diciendo: haz clic para agendar una reunión con
+     nosotros»: tras la puerta, las dos caras (se asoman al abrirse) y lo que dicen */
+  .cta-caras { display: flex; flex: none; }
+  .cta-caras img { width: 2.25rem; height: 2.25rem; border-radius: 50%; object-fit: cover; background: var(--color-nogal); box-shadow: 0 0 0 2px var(--color-coral); translate: 0 60%; opacity: 0; transition: translate 0.3s ease, opacity 0.2s ease; }
+  .cta-caras img + img { margin-left: calc(var(--spacing) * -2); }
+  .cta-abierto .cta-caras img { translate: 0 0; opacity: 1; transition: translate 0.7s var(--ease-out-expo) 0.7s, opacity 0.4s ease 0.7s; }
+  .cta-abierto .cta-caras img + img { transition-delay: 0.8s; }
+  .cta-dice { max-width: 15rem; white-space: normal; text-wrap: balance; }
+  .cta-abierto .cta-pastilla { transform: translate(-50%, -100%) perspective(520px) rotateX(0deg); opacity: 1; color: var(--color-cacao); transition: transform 0.8s var(--ease-out-expo) 0.2s, opacity 0.15s ease 0.2s, color 0.4s ease 0.75s; }
+  .cta-abierto .cta-pastilla::before { clip-path: inset(0 0 0 0); transition: clip-path 0.8s var(--ease-out-expo) 0.5s; }
+  @media (prefers-reduced-motion: reduce) { .cta-hilo, .cta-pastilla, .cta-pastilla::before { transition: none !important; } }
+  .cta-abierto .contacta-delante .contacta-luz { opacity: 0; }
+  /* la LUZ sobre la palabra: una copia en luz cálida recortada a la banda del haz (--bt: su posición en el eje del degradado; --bw: su ancho) */
+  .contacta-luz {
+    position: absolute;
+    inset: 0;
+    color: rgb(255 238 210 / 0.62);
+    -webkit-mask: linear-gradient(108deg, transparent calc(var(--bt, -999px) - var(--bw, 120px)), #000 var(--bt, -999px), transparent calc(var(--bt, -999px) + var(--bw, 120px)));
+    mask: linear-gradient(108deg, transparent calc(var(--bt, -999px) - var(--bw, 120px)), #000 var(--bt, -999px), transparent calc(var(--bt, -999px) + var(--bw, 120px)));
+    transition: opacity 0.4s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contacta { transition: none; }
+  }
+  .capa.hierba {
+    z-index: 3; /* delante del «Contáctanos» */
+  }
+  /* el lienzo del tiempo: sobre el paisaje y bajo el texto; aparece cuando el paisaje está pintado; se esconde con el formulario abierto */
+  .clima {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+  }
+  .pie:has(.pintado) .clima {
+    opacity: 1;
+  }
+  /* el RAYO del verano: el haz del hero (Rosa niebla translúcida, 18°), algo más presente, que se desplaza un poco con el ratón; solo en verano, con
+     el paisaje pintado y sin el formulario */
+  .luz-pie {
+    position: absolute;
+    /* RONDA 67 · «que la luz salga desde arriba del todo: si haces scroll hacia arriba parece que sale de la nada»: la capa sube hasta el borde de arriba
+       de la ventana mientras el pie asoma (--arriba: lo que falta del borde del pie a lo alto de la pantalla, lo pone el JS), sin fundido arriba */
+    top: calc(var(--arriba, 0px) * -1);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+    -webkit-mask-image: linear-gradient(to bottom, #000, #000 75%, rgb(0 0 0 / 0.4));
+    mask-image: linear-gradient(to bottom, #000, #000 75%, rgb(0 0 0 / 0.4));
+  }
+  .luz-pie .haz {
+    position: absolute;
+    top: -20%;
+    bottom: -20%;
+    width: 30%;
+    left: 48%;
+    background: linear-gradient(90deg, transparent, rgb(255 236 200 / 0.05) 30%, rgb(255 236 200 / 0.12) 50%, rgb(255 236 200 / 0.05) 70%, transparent);
+    transform: translateX(calc(var(--lx, 0) * 30vw)) skewX(-18deg);
+  }
+  .pie:has(.pintado) .luz-pie { /* ronda 65: en todas las estaciones (antes, solo en verano) */
+    opacity: 1;
+  }
+
+  /* RONDA 24 · «las palabras que quedan en el footer se tienen que leer bien»: sobre el paisaje, un velo del propio Rosa arcilla que se funde
+     hacia abajo (bruma): lo que queda tras el texto se aclara sin taparlo */
+  .paisaje::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--alto);
+    z-index: 1; /* ronda 32: bajo el formulario de cristal (z 2); la hierba (z 3) delante de todo */
+    /* ronda 26: el GRANO de la página por encima del velo; si no, el filo superior del velo (arcilla lisa contra la sección con grano) se veía como un
+       cambio de color */
+    background: url('/media/grano.png') 0 0 / 240px 240px, linear-gradient(to bottom, var(--noche), color-mix(in oklab, var(--noche) 88%, transparent) 30%, color-mix(in oklab, var(--noche) 45%, transparent) 65%, transparent);
+    pointer-events: none;
+  }
+  .capa {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: var(--alto);
+    translate: calc(var(--mx) * var(--m) * -2) calc(var(--p) * var(--d) + var(--my) * var(--m) * -1);
+    scale: 1.04;
+    will-change: translate;
+  }
+  .capa .flores {
+    z-index: 1;
+  }
+  .capa img,
+  .capa canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .capa img {
+    object-fit: cover;
+    object-position: 50% 100%;
+    opacity: 0; /* es la textura: como imagen solo se ve sin WebGL */
+  }
+  .capa.sin-gl img,
+  :global(html:not(.js)) .capa img {
+    opacity: 1;
+  }
+  .capa canvas {
+    opacity: 0; /* regla dura 3: nace invisible */
+  }
+  .capa canvas:global(.listo) {
+    opacity: 1;
+  }
+  /* RONDA 24 · los enlaces: al pasar por uno, los demás se desenfocan y se retiran (como en el menú); el que pisas se desplaza un poco */
+  .enlace-pie {
+    display: inline-block;
+    transition: opacity 0.35s ease, filter 0.45s ease, translate 0.45s var(--ease-out-expo);
+  }
+  ul:has(.enlace-pie:hover) .enlace-pie:not(:hover) {
+    opacity: 0.4;
+    filter: blur(3px);
+  }
+  .enlace-pie:hover {
+    translate: 0.25em 0;
+  }
+  /* la línea mono, sobre la hierba (ronda 26: fuera la mezcla por diferencia, que viraba de color): Rosa niebla con una sombra Cacao */
+  /* RONDA 35 · la línea mono, sin nada alrededor: en color-dodge sobre el paisaje (Andoni: «el típico efecto de color dodge y listo») */
+  .linea {
+    position: absolute;
+    left: 50%;
+    bottom: max(calc(var(--spacing) * 5), env(safe-area-inset-bottom));
+    translate: -50% 0;
+    z-index: 4;
+    color: var(--color-niebla);
+    mix-blend-mode: color-dodge;
+    pointer-events: none;
+  }
+  :global(html:not(.js)) .capa { translate: 0 0; }
+</style>

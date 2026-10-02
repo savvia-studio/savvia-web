@@ -6,6 +6,8 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://savvia.studio',
+  // RONDA 111 · la versión musical se publica en savvia.studio/musica sin pisar la de siempre: se compila con SAVVIA_BASE=/musica (tools/r111/publicar.sh)
+  base: process.env.SAVVIA_BASE || undefined,
   devToolbar: { enabled: false },
   fonts: [
     {
@@ -58,6 +60,38 @@ export default defineConfig({
       styles: ['normal'],
       subsets: ['latin'],
       fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      // RONDA 83 · la ENTRADA de concierto de la partitura sigue la identidad de NEETY (su librería: titulares en Bricolage Grotesque). Solo se descarga
+      // donde se usa (la entrada). OFL (Google Fonts).
+      name: 'Bricolage Grotesque',
+      cssVariable: '--font-bricolage',
+      provider: fontProviders.google(),
+      weights: [500, 700, 800],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      // RONDA 92 · el texto de NEETY en la partitura (su librería: cuerpo en Switzer, de Fontshare; licencia ITF Free Font, uso comercial libre).
+      // Solo se descarga donde se usa (el ensayo de su web dentro de la partitura)
+      name: 'Switzer',
+      cssVariable: '--font-switzer',
+      provider: fontProviders.fontshare(),
+      weights: [400, 500],
+      styles: ['normal'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      // RONDA 98 · el ASCII del hero y del pie, como el de ascii.fm (la referencia de Andoni): la letra de terminal VT323 (OFL, Google Fonts). Solo la usan
+      // los lienzos del ASCII
+      name: 'VT323',
+      cssVariable: '--font-vt323',
+      provider: fontProviders.google(),
+      weights: [400],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['ui-monospace', 'monospace'],
     },
     {
       // Detalles (ronda 17: IBM Plex Mono sustituye a Geist Mono)

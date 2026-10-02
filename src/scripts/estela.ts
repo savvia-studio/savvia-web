@@ -13,7 +13,7 @@ import { rgbDe } from './tinta';
 const VS = 'attribute vec2 a;varying vec2 v;void main(){v=vec2(a.x*.5+.5,.5-a.y*.5);gl_Position=vec4(a,0.,1.);}';
 const FS = [
   'precision highp float;',
-  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;varying vec2 v;',
+  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek,tr,bt,tf;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;uniform vec4 OW[4];varying vec2 v;',
   'float h(float p){return fract(sin(p*127.1)*43758.5453);}',
   'float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
   'float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}',
@@ -25,7 +25,11 @@ const FS = [
   '  vec3 naranja=vec3(NARANJA_RGB);vec3 claro=vec3(.95,.9,.87);',
   // HERVIR (clusia): a saltos de ~12 por segundo, cada celda de 3 px se corre un píxel; solo en reposo
   '  float paso=floor(ti*12.);',
-  '  vec2 q=v+(vec2(h2(floor(px/3.)+paso),h2(floor(px/3.)+paso+17.))-.5)*1.3*dpr*u1*soplo;',
+  // RONDA 89 · LAS ONDAS (el hero): cada vez que la magia activa un atril sale de él una onda que recorre todo el hero. OW[i] = (x, y, radio, fuerza) en px
+  // CSS del propio lienzo (las capas comparten las mismas ondas en coordenadas de pantalla). A su paso la pintura se desplaza un poco hacia fuera (refracta)
+  '  float ond=0.;vec2 odir=vec2(0.);',
+  '  for(int i=0;i<4;i++){vec2 dd=px-OW[i].xy;float dl=length(dd)+.001;float k=exp(-pow((dl-OW[i].z)/48.,2.))*OW[i].w;ond+=k;odir+=dd/dl*k*(dl<OW[i].z?-1.:1.);}',
+  '  vec2 q=v+(vec2(h2(floor(px/3.)+paso),h2(floor(px/3.)+paso+17.))-.5)*1.3*dpr*u1*soplo+odir*2.6*dpr*u1;',
   '  vec4 c=texture2D(T,q);float a0=c.a;',
   // destellos horizontales en los cantos: alguna fila, a veces, se estira unos píxeles
   '  float fila=floor(px.y/2.);',
@@ -84,6 +88,11 @@ const FS = [
   '  float b=exp(-pow((uu-.62-.018*sin(ti*.31))/.026,2.))+exp(-pow((uu-.7-.012*sin(ti*.23+1.))/.013,2.))*.85+exp(-pow((uu-.54-.02*sin(ti*.17+2.))/.035,2.))*.6;',
   '  b*=(.8+.2*sin(ti*.9+px.y*.035))*(.5+.5*(1.-v.y))*lv;',
   '  col=1.-(1.-col)*(1.-vec3(1.,.93,.72)*min(1.,b)*.5);', // ronda 29: sutil: es la luz del hero que le cae encima, no un brillo propio
+  // RONDA 85 · TRAMADO MUSICAL (el director): toda la lámina, tramada (Bayer 4×4 en celdas de 2 px, 7 niveles por canal); a cada PULSO (92 BPM, bt = fase del
+  // compás 0→1) sale de la batuta (O) un ANILLO que desplaza el umbral de la trama a su paso: el dithering vibra en ondas, como el sonido
+  '  if(tr>.5){vec2 bc=floor(px/2.);float b2a=fract(bc.x*.5+bc.y*bc.y*.75);vec2 bh=floor(bc*.5);float b2b=fract(bh.x*.5+bh.y*bh.y*.75);float bay=b2a*.75+b2b*.25;',
+  '    float dO=length(vec2((v.x-O.x)*asp,v.y-O.y));float anillo=(exp(-pow((dO-bt*1.5)/.13,2.))*(1.-bt)+exp(-pow((dO-bt*1.5+.3)/.16,2.))*(1.-bt)*.5)*tf;',
+  '    anillo+=ond;float L=7.;col=clamp(floor(col*L+bay+anillo*.9-.35)/L+vec3(.02)+vec3(.05,.04,.03)*ond,0.,1.);a=a*(.92+.08*min(1.,anillo));}',
   // SEMITONO en los cantos (sythera): puntos redondos en retícula a 45° (celda de 5 px); su radio sale de la cobertura
   '  vec2 ro=vec2(px.x+px.y,px.x-px.y)*.7071/5.;vec2 f=fract(ro)-.5;',
   '  float rad=sqrt(a)*.64;float punto=1.-smoothstep(rad-.07,rad+.07,length(f));',
@@ -133,7 +142,7 @@ export const ESTACIONES_SIN_RALEO = ESTACIONES_ARBOL.map((e) => [e[0], e[1], e[2
 // RONDA 76 · Eric: «en invierno, las hierbas todo nevado, nieve pura»: el paisaje del pie en invierno se pinta en blanco de nieve (con su sombra azulada)
 export const ESTACIONES_PIE = ESTACIONES_SIN_RALEO.map((e, i) => (i === 1 ? [0.95, 0.96, 0.99, 0] : e));
 
-export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void };
+export type Estela = { onda(x: number, y: number, f?: number): void; fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void };
 
 // RONDA 23 · opciones nuevas: `radial` (el frente sale en círculo desde `origen`, sin gota), `paisaje` (una lámina completa, no el árbol: sin
 // hundir el color, sin elipse de cobertura ni bordes desvanecidos) y `estaciones` (tabla propia: el paisaje del pie no ralea en invierno).
@@ -147,7 +156,7 @@ export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: n
 // Safari (WebKit) no libera enseguida los contextos de los lienzos retirados al cambiar de estación y llega a su tope: ahí se sigue durmiendo lo lejano.
 const LIMITE = typeof navigator !== 'undefined' && /Apple/.test(navigator.vendor) ? 0 : 12;
 let vivos = 0;
-export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean }): Estela | null {
+export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinGota?: boolean; tramado?: boolean; tramadoBpm?: number; tramadoFuerza?: number; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean }): Estela | null {
   const ctx = { premultipliedAlpha: true, alpha: true, antialias: false };
   const gl2 = cv.getContext('webgl2', ctx) as WebGL2RenderingContext | null;
   const gl = (gl2 ?? cv.getContext('webgl', ctx)) as WebGLRenderingContext | null;
@@ -159,6 +168,9 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   let foV: [number, number, number] = [0.188, 0.125, 0.094], oV: [number, number] = [op.origen[0], op.origen[1]], lxV = 0;
   let eV = ESTACIONES[0], estB = ESTACIONES[0], virando = false, ev0 = 0;
   let U: (k: string) => WebGLUniformLocation | null;
+  let uBT: WebGLUniformLocation | null = null, uOW: WebGLUniformLocation | null = null;
+  // RONDA 89 · las ondas vivas: { x, y en px de pantalla al nacer, t0, fuerza }
+  const ondas: { x: number; y: number; t0: number; f: number }[] = [], ow = new Float32Array(16), VEL = 380, VIDA = 3.4;
   let uR: WebGLUniformLocation | null, uT: WebGLUniformLocation | null, uG: WebGLUniformLocation | null, uD: WebGLUniformLocation | null, uGT: WebGLUniformLocation | null, uM: WebGLUniformLocation | null, uMK: WebGLUniformLocation | null, uE: WebGLUniformLocation | null, uEB: WebGLUniformLocation | null, uEV: WebGLUniformLocation | null, uO: WebGLUniformLocation | null, uLX: WebGLUniformLocation | null, uFO: WebGLUniformLocation | null;
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const vivo = !!op.soplo && !reducido;
@@ -187,7 +199,9 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.uniform1f(U('dir'), op.dir);
     gl.uniform1f(U('soplo'), vivo ? 1 : 0);
     gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1);
-    gl.uniform1f(U('gota'), op.gota ? 1 : 0);
+    // RONDA 83 · `sinGota`: el reloj de la carga sigue (espera a `soltar()`), pero el shader no pinta la gota naranja ni la savia del suelo (el director)
+    gl.uniform1f(U('gota'), op.gota && !op.sinGota ? 1 : 0);
+    gl.uniform1f(U('tr'), op.tramado ? 1 : 0); uBT = U('bt'); gl.uniform1f(U('tf'), op.tramadoBpm === 0 ? 0 : op.tramadoFuerza ?? 1); uOW = U('OW'); gl.uniform4fv(uOW, ow); // ronda 87: la fuerza y el tempo de las ondas del tramado
     return true;
   };
   if (!montar()) return null;
@@ -221,15 +235,23 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
       gl.uniform1f(uEV, k);
       if (k >= 1) { virando = false; eV = estB; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, -1); }
     }
-    if (!enIntro && !virando && mk === 0 && ahora - ult < 30) { if (vivo && ve) raf = requestAnimationFrame(pintar); return; }
+    if (!enIntro && !virando && mk === 0 && !ondas.length && ahora - ult < 30) { if (vivo && ve) raf = requestAnimationFrame(pintar); return; }
     ult = ahora;
     gl.uniform1f(uT, s);
+    if (uOW) {
+      ow.fill(0);
+      const r = cv.getBoundingClientRect();
+      for (let i = ondas.length - 1; i >= 0; i--) { const e = (ahora - ondas[i].t0) / 1000; if (e > VIDA) ondas.splice(i, 1); }
+      ondas.slice(-4).forEach((o, i) => { const e = (ahora - o.t0) / 1000; ow.set([o.x - r.left, o.y - r.top, e * VEL, o.f * Math.pow(1 - e / VIDA, 1.6) * Math.min(1, e * 6)], i * 4); });
+      gl.uniform4fv(uOW, ow);
+    }
+    if (op.tramado) gl.uniform1f(uBT, ((ahora / 1000) * ((op.tramadoBpm ?? 92) / 60)) % 1); // el compás del tramado
     gl.uniform1f(uGT, gota && !cic && s < INTRO + CRECE + 1 ? s : 99); // en el ciclo no hay gota que caiga
     gl.uniform1f(uG, g);
     gl.uniform2f(uM, mx, my); gl.uniform1f(uMK, mk);
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    if (ve && (enIntro || virando || (vivo && g >= 1))) raf = requestAnimationFrame(pintar);
+    if (ve && (enIntro || virando || ondas.length || (vivo && g >= 1))) raf = requestAnimationFrame(pintar);
   };
   const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
   const medir = () => {
@@ -284,6 +306,8 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     else if (dormido) ext.restoreContext();
   }, { rootMargin: '100% 0px' }).observe(cv);
   return {
+    // una onda que nace en (x, y) de PANTALLA y se abre por todo el lienzo
+    onda(x, y, f = 1) { if (reducido) return; ondas.push({ x, y, t0: performance.now(), f }); ult = 0; pedir(); },
     fondo(r, g2, b) { foV = [r / 255, g2 / 255, b / 255]; gl.uniform3f(uFO, foV[0], foV[1], foV[2]); ult = 0; pedir(); },
     crecer(x) { if (gota) return; const k = Math.min(1, Math.max(0, x)); if (Math.abs(k - g) > 0.0005 || (k === 1 && g !== 1)) { g = k; ult = 0; pedir(); } },
     visible(si) { ve = si; if (si) pedir(); },

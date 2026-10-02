@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Carriles from '../components/Carriles.astro';
+import Cargador from '../components/Cargador.astro';
+import Hero from '../components/Hero.astro';
+import Manifiesto from '../components/Manifiesto.astro'; // ronda 89: la segunda sección, en manifiesto
+// import Dolores from '../components/Dolores.astro'; // ronda 89: guardada. Ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
+import LaSavvia from '../components/LaSavvia.astro'; // ronda 53: guardada (la sustituye LaReceta)
+import LaPartitura from '../components/LaPartitura.astro'; // ronda 89: la partitura, en el lenguaje de og.mp4 (LaReceta.astro, el archivo de la orquesta, queda guardada)
+import Proyectos from '../components/Proyectos.astro';
+import Anteriores from '../components/Anteriores.astro';
+import Servicios from '../components/Servicios.astro';
+import Estudio from '../components/Estudio.astro';
+import Preguntas from '../components/Preguntas.astro';
+import Pie from '../components/Pie.astro';
+---
+
+<Base>
+  <Nav />
+  <Carriles />
+  <Cargador />
+  <main id="contenido">
+    <!-- RONDA 39 · «reestructuramos la web: hero > pains > proyectos destacados > nuestros proyectos > servicios > savvia es la receta de
+         tu web > equipo > FAQs > footer» -->
+    <Hero />
+    <!-- RONDA 83 · fuera las raíces (Raices.astro queda guardada): el giro a la música -->
+    <!-- RONDA 89 · «para la segunda sección vamos a poner un texto […] estilo manifiesto»: los dolores (Dolores.astro) quedan guardados -->
+    <Manifiesto />
+    <Proyectos />
+    <Anteriores />
+    <Servicios />
+    <LaPartitura />
+    <Estudio />
+    <Preguntas />
+  </main>
+  <Pie />
+</Base>

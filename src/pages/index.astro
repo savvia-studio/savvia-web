@@ -4,10 +4,10 @@ import Nav from '../components/Nav.astro';
 import Carriles from '../components/Carriles.astro';
 import Cargador from '../components/Cargador.astro';
 import Hero from '../components/Hero.astro';
-import Raices from '../components/Raices.astro';
-import Dolores from '../components/Dolores.astro'; // ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
+import Manifiesto from '../components/Manifiesto.astro'; // ronda 89: la segunda sección, en manifiesto
+// import Dolores from '../components/Dolores.astro'; // ronda 89: guardada. Ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
 import LaSavvia from '../components/LaSavvia.astro'; // ronda 53: guardada (la sustituye LaReceta)
-import LaReceta from '../components/LaReceta.astro';
+import LaPartitura from '../components/LaPartitura.astro'; // ronda 89: la partitura, en el lenguaje de og.mp4 (LaReceta.astro, el archivo de la orquesta, queda guardada)
 import Proyectos from '../components/Proyectos.astro';
 import Anteriores from '../components/Anteriores.astro';
 import Servicios from '../components/Servicios.astro';
@@ -24,14 +24,13 @@ import Pie from '../components/Pie.astro';
     <!-- RONDA 39 · «reestructuramos la web: hero > pains > proyectos destacados > nuestros proyectos > servicios > savvia es la receta de
          tu web > equipo > FAQs > footer» -->
     <Hero />
-    <Raices />
-    <!-- RONDA 65 · la sección 2 elegida es la A2; `data-s2` se queda porque el CSS del titular generado cuelga de él -->
-    <script is:inline>document.documentElement.dataset.s2 = 'a2';</script>
-    <Dolores id="recorrido-a2" tarjetas />
+    <!-- RONDA 83 · fuera las raíces (Raices.astro queda guardada): el giro a la música -->
+    <!-- RONDA 89 · «para la segunda sección vamos a poner un texto […] estilo manifiesto»: los dolores (Dolores.astro) quedan guardados -->
+    <Manifiesto />
     <Proyectos />
     <Anteriores />
     <Servicios />
-    <LaReceta />
+    <LaPartitura />
     <Estudio />
     <Preguntas />
   </main>

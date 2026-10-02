@@ -14,3 +14,14 @@ Todas de Pixabay, licencia de contenido de Pixabay (uso libre, también comercia
 ## Reel (ronda 60) — música provisional
 - «Distant Miles», JonasBlakewood (Pixabay, licencia de contenido de Pixabay: uso libre sin atribución) · https://pixabay.com/music/beats-distant-miles-313990/
   → `tools/reel/distant-miles.mp3` (y copia en `tools/reel/hf/assets/`). 92 BPM. Provisional hasta elegir el tema definitivo (Artlist/Musicbed).
+
+## Las cuatro estaciones (ronda 83) — la música de Proyectos destacados
+Antonio Vivaldi, *Las cuatro estaciones*, interpretadas por **John Harrison (violín) con los Wichita State University Chamber Players**. Wikimedia Commons,
+licencia **CC BY-SA 4.0** (atribución obligatoria: va en el pie de la web). Normalizadas a −23 LUFS, estéreo 96 kbps → `public/media/sonido/vivaldi/`.
+
+| Archivo | Movimiento | Original |
+|---|---|---|
+| primavera.mp3 | La primavera, I Allegro | https://commons.wikimedia.org/wiki/File:Vivaldi_-_Four_Seasons_1_Spring_mvt_1_Allegro_-_John_Harrison_violin.oga |
+| verano.mp3 | El verano, III Presto | https://commons.wikimedia.org/wiki/File:Vivaldi_-_Four_Seasons_2_Summer_mvt_3_Presto_-_John_Harrison_violin.oga |
+| otono.mp3 | El otoño, I Allegro | https://commons.wikimedia.org/wiki/File:Vivaldi_-_Four_Seasons_3_Autumn_mvt_1_Allegro_-_John_Harrison_violin.oga |
+| invierno.mp3 | El invierno, I Allegro non molto | https://commons.wikimedia.org/wiki/File:Vivaldi_-_Four_Seasons_4_Winter_mvt_1_Allegro_non_molto_-_John_Harrison_violin.oga |

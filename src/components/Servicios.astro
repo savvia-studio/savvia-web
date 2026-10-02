@@ -13,12 +13,110 @@ const GRUPOS: { n: string; items: string[] }[] = [
 ];
 const tiene = (k: number, t: string) => L[k].tags.includes(t);
 let fila = 0;
+// RONDA 92 · «los iconos de los servicios tienen que tener el ESTILO DEL ISOTIPO»: el isotipo es una v de PLUMILLA ANCHA (grueso al bajar, fino al cruzar,
+// remates redondos y una BOLA al final del trazo fino). Cada instrumento se escribe ahora así: su trazo es una línea central (en 48 × 48) que `plumilla()`
+// convierte en una forma RELLENA cuyo ancho sale del ángulo de la tangente contra el de la pluma (como la raíz caligráfica de la ronda 51), afilada en las
+// puntas y con remate redondo; y cada uno acaba en su bola (la tapa del piano, la voluta del violín, el pie del diapasón), en la tinta de la sección como en
+// el isotipo. Se ESCRIBEN al entrar: la línea central, gruesa y en una máscara, se destapa trazo a trazo (stroke-dashoffset, la plumada de la carga).
+type P = [number, number];
+const muestrear = (d: string): P[] => {
+  const t = d.match(/[MLCQ]|-?\d*\.?\d+/g)!;
+  let i = 0, cmd = '', cur: P = [0, 0];
+  const pts: P[] = [], n = () => parseFloat(t[i++]);
+  const bez = (f: (u: number) => P, k: number) => { for (let s = 1; s <= k; s++) pts.push(f(s / k)); };
+  while (i < t.length) {
+    if (/[MLCQ]/.test(t[i])) cmd = t[i++];
+    if (cmd === 'M') { cur = [n(), n()]; pts.push(cur); cmd = 'L'; }
+    else if (cmd === 'L') { const a = cur, b: P = [n(), n()]; bez((u) => [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u], 10); cur = b; }
+    else if (cmd === 'Q') { const a = cur, c: P = [n(), n()], b: P = [n(), n()]; bez((u) => { const v = 1 - u; return [v * v * a[0] + 2 * v * u * c[0] + u * u * b[0], v * v * a[1] + 2 * v * u * c[1] + u * u * b[1]]; }, 20); cur = b; }
+    else { const a = cur, c1: P = [n(), n()], c2: P = [n(), n()], b: P = [n(), n()]; bez((u) => { const v = 1 - u; return [v * v * v * a[0] + 3 * v * v * u * c1[0] + 3 * v * u * u * c2[0] + u * u * u * b[0], v * v * v * a[1] + 3 * v * v * u * c1[1] + 3 * v * u * u * c2[1] + u * u * u * b[1]]; }, 28); cur = b; }
+  }
+  return pts;
+};
+const f2 = (x: number) => +x.toFixed(2);
+const circulo = (x: number, y: number, r: number) => `M${f2(x - r)} ${f2(y)}a${f2(r)} ${f2(r)} 0 1 0 ${f2(2 * r)} 0a${f2(r)} ${f2(r)} 0 1 0 ${f2(-2 * r)} 0`;
+// la pluma: su canto va inclinado ~29° (0,5 rad); el trazo es grueso cuando cruza ese canto (verticales, la diagonal que sube) y fino cuando lo sigue
+const plumilla = (d: string, { max = 4.2, min = 0.42, nib = 0.5, puntas = 0.1, k: escala = 1 } = {}) => {
+  const p = muestrear(d), L: P[] = [], R: P[] = [], acu = [0];
+  for (let k = 1; k < p.length; k++) acu.push(acu[k - 1] + Math.hypot(p[k][0] - p[k - 1][0], p[k][1] - p[k - 1][1]));
+  const tot = acu[acu.length - 1] || 1;
+  // el ancho de cada punto y, suavizado (tres pasadas), para que los quiebros no dejen escalones: la pluma gira, no salta
+  const dir = p.map((_, k) => { const a = p[Math.max(0, k - 1)], b = p[Math.min(p.length - 1, k + 1)]; return [b[0] - a[0], b[1] - a[1]] as P; });
+  let W = p.map((_, k) => {
+    const [dx, dy] = dir[k], u = acu[k] / tot, af = Math.min(1, u / puntas, (1 - u) / puntas);
+    // contraste fuerte, como el isotipo: el seno se eleva (los trazos «a medias» adelgazan) y las puntas se afilan hasta un hilo redondo
+    return escala * (min + (max - min) * Math.abs(Math.sin(Math.atan2(dy, dx) - nib)) ** 1.7) * (0.35 + 0.65 * Math.sin((Math.min(1, af) * Math.PI) / 2));
+  });
+  for (let v = 0; v < 3; v++) W = W.map((w, k) => (W[Math.max(0, k - 2)] + W[Math.max(0, k - 1)] + w + W[Math.min(W.length - 1, k + 1)] + W[Math.min(W.length - 1, k + 2)]) / 5);
+  const w0 = W[0], w1 = W[W.length - 1];
+  p.forEach((q, k) => {
+    const [dx, dy] = dir[k], l = Math.hypot(dx, dy) || 1, w = W[k];
+    const nx = (-dy / l) * (w / 2), ny = (dx / l) * (w / 2);
+    L.push([q[0] + nx, q[1] + ny]); R.push([q[0] - nx, q[1] - ny]);
+  });
+  const lado = (qs: P[]) => qs.map((q) => `${f2(q[0])} ${f2(q[1])}`).join('L');
+  return `M${lado(L)}L${lado(R.reverse())}Z${circulo(p[0][0], p[0][1], w0 / 2)}${circulo(p[p.length - 1][0], p[p.length - 1][1], w1 / 2)}`;
+};
+// cada instrumento: sus trazos (línea central), su bola y las partes que se mueven en la columna activa
+const TRAZOS: { t: (string | [string, number])[]; bola: [number, number, number]; extra: string }[] = [
+  // piano de cola de lado: la tapa abierta es la diagonal que sube del isotipo y acaba en su bola; la caja con la cola curva, la vara, tres patas y el teclado
+  {
+    t: [
+      'M4.6 23.2C12 22.6 21 23.2 25.6 22C29.6 20.8 31.6 16.6 36.6 16.8C41.6 17 44.8 20.2 43.8 24C43.3 26 41.8 26.6 39.6 26.6L6.4 26.6',
+      'M3.4 24.2C3.2 22.6 4.6 21.6 6 21.4C14 16.6 22 12.4 29.4 8.8',
+      ['M19.6 21.8L23.4 13.6', 0.6],
+      'M8 26.8L7.4 38.4',
+      'M41 26.8L41.8 37.8',
+      'M25.4 26.8L24.8 36.6',
+    ],
+    bola: [30.2, 8.4, 2.3],
+    extra: [0, 1, 2, 3, 4].map((i) => `<rect class="tecla" style="--k:${i}" x="${f2(6.4 + i * 2.5)}" y="27.6" width="1.5" height="3.2" rx="0.75"/>`).join(''),
+  },
+  // violín: la voluta se enrosca en su bola (el ojo), el mástil, las dos mitades del cuerpo con su cintura, las efes y el puente; las cuerdas, hilos
+  {
+    t: [
+      'M24 17.6L24 9.8C24 5.8 22.8 3.4 20.4 3.6C18.2 3.8 18 6.8 20.2 6.9',
+      'M24 17.4C18.2 17.4 16.4 20 16.8 23C17.1 25.4 19.4 26.4 19.4 28C19.4 29.6 15.2 30.8 15.6 35.2C16 39.8 20 42.6 24 42.4',
+      'M24 17.4C29.8 17.4 31.6 20 31.2 23C30.9 25.4 28.6 26.4 28.6 28C28.6 29.6 32.8 30.8 32.4 35.2C32 39.8 28 42.6 24 42.4',
+      ['M20.9 29.6C19.8 31.2 21.9 32.6 20.7 34.4', 0.55],
+      ['M27.1 29.6C28.2 31.2 26.1 32.6 27.3 34.4', 0.55],
+      ['M21.4 36.6L26.6 36.2', 0.8],
+    ],
+    bola: [20.4, 6.7, 1.45],
+    extra: [0, 1, 2].map((i) => `<path class="cuerda" style="--k:${i}" d="M${23 + i} 10V36"/>`).join(''),
+  },
+  // diapasón: las dos púas en una U (gruesas al bajar, finas en la curva), el cuello y su bola al pie; a los lados, las ondas que emite
+  {
+    t: ['M16.6 5.2C17.6 4 18.2 4.6 18.2 6L18.2 20.6C18.2 28.4 29.8 28.4 29.8 20.6L29.8 4.4', 'M24 27.4L24 39.6'],
+    bola: [24, 41.6, 2.3],
+    extra: [0, 1, 2].map((i) => `<path class="onda" style="--k:${i}" d="M${12 - i * 3} ${10 - i}Q${8 - i * 4} 16 ${12 - i * 3} ${22 + i}M${36 + i * 3} ${10 - i}Q${40 + i * 4} 16 ${36 + i * 3} ${22 + i}"/>`).join(''),
+  },
+];
+// la máscara lleva la línea central de cada trazo, ancha, que se destapa en orden (--o); `s` hace únicos los id (la tabla y las fichas lo pintan dos veces)
+const instrumento = (k: number, s: string) => {
+  const { bola, extra } = TRAZOS[k], id = `pluma-${k}-${s}`, t = TRAZOS[k].t.map((x) => (typeof x === 'string' ? [x, 1] : x) as [string, number]);
+  return `<defs><mask id="${id}" maskUnits="userSpaceOnUse" x="-4" y="-4" width="56" height="56">${t.map(([d], i) => `<path class="m" pathLength="1" style="--o:${i}" d="${d}"/>`).join('')}</mask></defs>`
+    + `<g class="tinta" mask="url(#${id})">${t.map(([d, e]) => `<path d="${plumilla(d, { k: e })}"/>`).join('')}</g>`
+    + `<circle class="bola" cx="${bola[0]}" cy="${bola[1]}" r="${bola[2]}" style="--o:${t.length}"/>` + extra;
+};
 ---
 
 <section id="servicios" class="surface-warm" aria-labelledby="serv-h" data-servicios data-sube>
   <div class="wrap section-y">
     <h2 id="serv-h" class="text-h2 max-w-[16ch]" data-entra>{servicios.titulo}</h2>
-    <p class="text-sub text-fg2 mt-4">{servicios.sub}</p>
+    <!-- RONDA 95 · «en servicios quitamos lo de las entradas y probamos algo más sutil, más de interfaz moderna»: fuera la tira de entradas de concierto
+         (en tools/retirados/Servicios.r94-entradas.astro.txt). «lo que necesites» es ahora un SELECTOR en línea, como el de una interfaz de producto: una
+         píldora fina con el valor y un doble cheurón; los casos (`servicios.rota`) RUEDAN dentro en vertical, enmascarados y saliendo del desenfoque, y la
+         píldora se ajusta al ancho de cada uno. Un hilo bajo el valor mide el tiempo hasta el siguiente. Se para con el puntero encima, con el foco y fuera
+         de pantalla; un clic (o intro) pasa al siguiente y solo entonces se anuncia a los lectores. Para ellos, además, la frase entera con todos los casos.
+         Movimiento reducido: quieto en el primero (el clic sigue cambiando, sin animación). -->
+    <p class="frase text-sub text-fg2 mt-4" data-sub>
+      <span class="sr-only">{`En función de ${servicios.rota.map((t) => t.replace(/\.$/, '')).join(', o ')}.`}</span>
+      <span aria-hidden="true">En función de </span><span class="con-sel"><button type="button" class="selector" data-selector aria-label={`Caso: ${servicios.rota[0].replace(/\.$/, '')}. Ver el siguiente`}><span class="ventana" data-ventana aria-hidden="true">{
+        servicios.rota.map((t, n) => <span class={`valor${n === 0 ? ' on' : ''}`} data-valor>{t.replace(/\.$/, '')}</span>)
+      }</span><svg class="chev" viewBox="0 0 10 14" aria-hidden="true"><path d="M2.2 5.2 5 2.4l2.8 2.8M2.2 8.8 5 11.6l2.8-2.8" /></svg><i class="hilo" aria-hidden="true"></i></button><span aria-hidden="true">.</span></span>
+      <span class="sr-only" aria-live="polite" data-anuncio></span>
+    </p>
 
     <!-- ESCRITORIO: la tabla -->
     <div class="tabla mt-16 lg:mt-24" role="table" aria-label="Qué incluye cada forma de trabajar" data-tabla data-col="0">
@@ -31,6 +129,7 @@ let fila = 0;
         {
           L.map((s, k) => (
             <div class="celda col" role="columnheader" data-c={k}>
+              <svg class={`instrumento i${k}`} viewBox="0 0 48 48" aria-hidden="true" set:html={instrumento(k, 't')} />
               <h3 class="nombre font-display">{s.corto}</h3>
               <p class="d text-aux mt-3">{s.d}</p>
             </div>
@@ -59,8 +158,9 @@ let fila = 0;
     <!-- MÓVIL: tres fichas, cada una con su lista -->
     <div class="fichas mt-12">
       {
-        L.map((s) => (
+        L.map((s, k) => (
           <article class="ficha-s">
+            <svg class={`instrumento i${k}`} viewBox="0 0 48 48" aria-hidden="true" set:html={instrumento(k, 'f')} />
             <h3 class="nombre font-display">{s.corto}</h3>
             <p class="d text-aux mt-3">{s.d}</p>
             <ul class="lista-s mt-6">
@@ -74,6 +174,53 @@ let fila = 0;
 </section>
 
 <script>
+  import { tecla, teclear } from '../scripts/musica';
+  // RONDA 90 · los instrumentos se dibujan trazo a trazo al verse
+  const once = (els: Element[], cls: string, margen = '0px 0px -15% 0px') => {
+    const o = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add(cls); o.unobserve(e.target); } }), { rootMargin: margen });
+    els.forEach((el) => o.observe(el));
+  };
+  // RONDA 95 · el selector de casos: rueda cada 3,4 s a la vista; se para con el puntero encima o con el foco; un clic pasa al siguiente (y se anuncia)
+  const sel = document.querySelector<HTMLButtonElement>('[data-selector]');
+  if (sel) {
+    const ven = sel.querySelector<HTMLElement>('[data-ventana]')!, vals = [...sel.querySelectorAll<HTMLElement>('[data-valor]')];
+    const anuncio = document.querySelector<HTMLElement>('[data-anuncio]')!;
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches, PASO = 3400;
+    let i = 0, reloj = 0, visto = false, parado = false;
+    // la píldora se ajusta al ancho del valor que entra (el ancho de cada valor se mide sin transformar: scrollWidth)
+    const ancho = () => { ven.style.width = `${Math.ceil(vals[i].getBoundingClientRect().width) + 4}px`; }; // +4: el último trazo de la letra sobresale de su caja (se cortaba: «cambiandc»)
+    const ir = (n: number, dicho = false) => {
+      const viejo = vals[i];
+      i = (n + vals.length) % vals.length;
+      if (viejo !== vals[i]) {
+        viejo.classList.remove('on'); viejo.classList.add('sale');
+        // el que sale vuelve a esperar abajo SIN transición al terminar (si volviera animado cruzaría la máscara: la trampa de la ronda 82)
+        window.setTimeout(() => viejo.classList.remove('sale'), 700);
+        vals[i].classList.add('on');
+      }
+      ancho();
+      const t = vals[i].textContent || '';
+      sel.setAttribute('aria-label', `Caso: ${t}. Ver el siguiente`);
+      if (dicho) anuncio.textContent = `En función de ${t}.`;
+      programar();
+    };
+    // el hilo bajo el valor mide el tiempo hasta el siguiente: se reinicia en cada paso
+    const programar = () => {
+      clearTimeout(reloj); sel.classList.remove('corre');
+      if (quieto || !visto || parado) return;
+      void sel.offsetWidth; sel.classList.add('corre');
+      reloj = window.setTimeout(() => ir(i + 1), PASO);
+    };
+    sel.style.setProperty('--paso', `${PASO}ms`);
+    sel.addEventListener('click', () => ir(i + 1, true));
+    const parar = (v: boolean) => { parado = v; programar(); };
+    sel.addEventListener('pointerenter', () => parar(true)); sel.addEventListener('pointerleave', () => parar(document.activeElement === sel));
+    sel.addEventListener('focus', () => parar(true)); sel.addEventListener('blur', () => parar(sel.matches(':hover')));
+    new IntersectionObserver((e) => { visto = e[0].isIntersecting; programar(); }, { rootMargin: '0px 0px -15% 0px' }).observe(sel);
+    document.fonts?.ready.then(ancho); addEventListener('resize', ancho); ancho();
+    requestAnimationFrame(() => sel.classList.add('lista')); // la transición del ancho, solo después de la primera medida
+  }
+  once([...document.querySelectorAll('[data-servicios] .instrumento')], 'dibuja', '0px');
   const tabla = document.querySelector<HTMLElement>('[data-tabla]');
   if (tabla) {
     const banda = tabla.querySelector<HTMLElement>('[data-banda]')!, cabezas = [...tabla.querySelectorAll<HTMLElement>('.cabeza [data-c]')];
@@ -88,16 +235,47 @@ let fila = 0;
     tabla.addEventListener('pointerover', (e) => {
       const c = (e.target as HTMLElement).closest<HTMLElement>('[data-c]');
       clearTimeout(intento);
-      if (c && c.dataset.c !== tabla.dataset.col) intento = window.setTimeout(() => { tabla.dataset.col = c.dataset.c; colocar(); }, 90);
+      if (c && c.dataset.c !== tabla.dataset.col) intento = window.setTimeout(() => { tabla.dataset.col = c.dataset.c; colocar(); instrumento(Number(c.dataset.c)); }, 90);
     });
     tabla.addEventListener('pointerleave', () => clearTimeout(intento));
+    // RONDA 85 · cada forma de trabajar SUENA con su instrumento al mirarla: el piano (un acorde abierto), el violín (dos notas en pizzicato), el diapasón (su la)
+    function instrumento(k: number) {
+      // ronda 98: teclas (una, dos o tres, según la forma) en vez de instrumentos
+      if (k === 0) teclear(3, { vol: 0.035 }); else if (k === 1) teclear(2, { vol: 0.035 }); else tecla({ vol: 0.04, fuerte: true });
+    }
     addEventListener('resize', colocar); document.fonts?.ready.then(colocar); colocar();
-    // pegada: cuando el centinela (justo encima de la cabecera) pasa bajo la barra
-    const cab = tabla.querySelector<HTMLElement>('[data-cabeza]')!;
-    const top = () => parseFloat(getComputedStyle(cab).top) || 0;
-    let ioP: IntersectionObserver | null = null;
-    const vigilar = () => { ioP?.disconnect(); ioP = new IntersectionObserver((e) => cab.classList.toggle('pegada', !e[0].isIntersecting && e[0].boundingClientRect.top < top()), { rootMargin: `-${Math.round(top()) + 1}px 0px 0px 0px` }); ioP.observe(tabla.querySelector('[data-centinela]')!); };
-    vigilar(); addEventListener('resize', vigilar);
+    // RONDA 95 · «cuando haces scroll se va la descripción pero se mantiene el icono; esa animación que sea más smooth». Antes era un salto: al pegarse,
+    // una clase quitaba la descripción (max-height 12em → 0, que tarda en «empezar» porque 12em es mucho más que su alto), el icono desaparecía con
+    // display: none y la cabecera ENCOGÍA en el flujo (las filas de debajo daban un tirón hacia arriba). Ahora el recogido va ATADO AL SCROLL (--p de
+    // 0 a 1 en los primeros RECOGE px desde que se pega): el alto de la cabecera en el flujo NO cambia; lo que se recoge es su parte visible (clip-path
+    // desde abajo, con el filete subiendo con él), y las filas, que ya pasaban por debajo, asoman. El icono se queda y se reduce (escala), nombre y
+    // descripción suben, y la descripción se funde. Solo transform, opacity y clip-path: sin reflujo. Al ser continuo no hay umbral: no parpadea al ir y volver.
+    const cab = tabla.querySelector<HTMLElement>('[data-cabeza]')!, centinela = tabla.querySelector<HTMLElement>('[data-centinela]')!;
+    const RECOGE = 160, ESC = 0.625;
+    let topPeg = 0, cierre = 0, pAnt = -1, pend = 0;
+    const medir = () => {
+      topPeg = parseFloat(getComputedStyle(cab).top) || 0;
+      // lo que queda a la vista recogida: hasta el pie del nombre, menos lo que sube (padding que se recorta + lo que encoge el icono) y un margen
+      const cols = [...cab.querySelectorAll<HTMLElement>('.col')];
+      const pie = Math.max(...cols.map((c) => { const n = c.querySelector<HTMLElement>('.nombre')!; return c.offsetTop + n.offsetTop + n.offsetHeight; }));
+      const ic = parseFloat(getComputedStyle(cols[0].querySelector<SVGElement>('.instrumento')!).height) || 64; // el alto de CSS: no lo cambia la escala
+      const sube = 12 + ic * (1 - ESC);
+      cab.style.setProperty('--sube', `${sube.toFixed(1)}px`);
+      cierre = Math.max(0, cab.offsetHeight - (pie - sube + 14));
+      cab.style.setProperty('--cierre', `${cierre.toFixed(1)}px`);
+      pAnt = -1; pintar();
+    };
+    const pintar = () => {
+      pend = 0;
+      const d = topPeg - centinela.getBoundingClientRect().bottom;
+      const p = Math.min(1, Math.max(0, d / RECOGE));
+      if (Math.abs(p - pAnt) < 0.001) return;
+      pAnt = p;
+      cab.style.setProperty('--p', p.toFixed(4));
+      cab.classList.toggle('pegada', d > 0);
+    };
+    addEventListener('scroll', () => { if (!pend) pend = requestAnimationFrame(pintar); }, { passive: true });
+    addEventListener('resize', medir); document.fonts?.ready.then(medir); medir();
     // las gotas caen fila a fila al llegar
     const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('llega'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px' });
     tabla.querySelectorAll('[data-fila]').forEach((f) => io.observe(f));
@@ -128,17 +306,31 @@ let fila = 0;
     background-color: var(--bg);
     background-image: url('/media/grano.png');
     background-size: 240px 240px;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.4s ease;
+    /* RONDA 95 · recogida atada al scroll (--p): se recorta desde abajo lo que ya no hace falta; el alto en el flujo no cambia (sin tirones abajo) */
+    --p: 0;
+    clip-path: inset(calc(var(--spacing) * -22) 0 calc(var(--p) * var(--cierre, 0px)) 0);
   }
   .cabeza .col { padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4) 0; }
   /* la cabecera tapa la banda: la columna activa lleva su mismo tinte */
   .tabla[data-col='0'] .cabeza [data-c='0'],
   .tabla[data-col='1'] .cabeza [data-c='1'],
   .tabla[data-col='2'] .cabeza [data-c='2'] { background: color-mix(in oklab, var(--fg) 6%, transparent); align-self: stretch; }
-  .cabeza .d { overflow: hidden; }
-  .cabeza .d { max-height: 12em; transition: max-height 0.5s var(--ease-out-expo), opacity 0.3s ease, margin 0.5s var(--ease-out-expo); }
-  .cabeza.pegada { border-bottom-color: var(--rule-strong, var(--rule)); }
+  /* el icono se QUEDA y se reduce; nombre y descripción suben con él; la descripción se funde en la primera mitad del recorrido */
+  .cabeza .instrumento { transform-origin: 0 0; translate: 0 calc(var(--p) * -12px); scale: calc(1 - 0.375 * var(--p)); }
+  .cabeza .nombre, .cabeza .d { translate: 0 calc(var(--p) * var(--sube, 36px) * -1); }
+  .cabeza .d { opacity: clamp(0, 1 - var(--p) * 1.7, 1); }
+  /* el filete de abajo sube con el recorte y se enciende al pegarse */
+  .cabeza::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--rule-strong, var(--rule));
+    opacity: var(--p);
+    translate: 0 calc(var(--p) * var(--cierre, 0px) * -1);
+  }
   /* pegada, el fondo sube hasta el borde de la pantalla: las filas no asoman bajo la barra */
   .cabeza.pegada::before {
     content: '';
@@ -149,8 +341,6 @@ let fila = 0;
     height: calc(var(--spacing) * 22);
     background: inherit;
   }
-  .cabeza.pegada .d { max-height: 0; opacity: 0; margin-top: 0; }
-  .cabeza.pegada .col { padding-top: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 3); }
   .nombre {
     font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem);
     line-height: 1;
@@ -169,13 +359,14 @@ let fila = 0;
   }
   .item .etiqueta { padding-block: calc(var(--spacing) * 3); }
   .marca { display: grid; place-items: center; align-self: stretch; }
-  /* incluido: una gota de savia; no incluido: un filete */
+  /* RONDA 90 · «dejamos la tabla como estaba antes y un punto que indica lo que tenemos en cada»: sin barras de compás ni doble barra; incluido = UN PUNTO
+     (en la tinta del texto: el Coral sobre el Salvia no llega a 1,5:1); no incluido = un filete */
   .si {
     display: inline-block;
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--color-coral);
+    background: var(--fg);
   }
   .no {
     display: inline-block;
@@ -209,6 +400,106 @@ let fila = 0;
     pointer-events: none;
     transition: transform 0.7s var(--ease-out-expo), width 0.7s var(--ease-out-expo);
   }
+  /* ── RONDA 95 · la frase y su SELECTOR de casos (sustituye a la tira de entradas de la ronda 92) */
+  .frase { max-width: 60rem; text-wrap: pretty; }
+  /* la píldora y su punto nunca se separan; en pantallas estrechas van siempre en su propia línea (si no, al cambiar de ancho saltaban de línea) */
+  .con-sel { white-space: nowrap; }
+  @media (width < 40rem) { .con-sel { display: block; margin-top: calc(var(--spacing) * 2); } .selector { margin-inline: 0; } }
+  .selector {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    vertical-align: -0.38em;
+    max-width: 100%;
+    height: 1.9em;
+    margin-inline: 0.12em;
+    padding: 0 calc(var(--spacing) * 3) 0 calc(var(--spacing) * 4);
+    border: 1px solid color-mix(in oklab, var(--fg) 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--fg) 5%, transparent);
+    color: var(--fg);
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+  .selector:hover { border-color: color-mix(in oklab, var(--fg) 45%, transparent); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+  .selector:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  /* la ventana: alto de una línea, recorta lo que entra y lo que sale con un fundido arriba y abajo */
+  .ventana {
+    position: relative;
+    display: block;
+    height: 1.5em;
+    min-width: 1em;
+    max-width: calc(100vw - var(--spacing) * 24);
+    overflow: hidden;
+    -webkit-mask: linear-gradient(transparent, #000 28%, #000 72%, transparent);
+    mask: linear-gradient(transparent, #000 28%, #000 72%, transparent);
+  }
+  .selector.lista .ventana { transition: width 0.7s var(--ease-out-expo); }
+  .valor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    line-height: 1.5em;
+    white-space: nowrap;
+    opacity: 0;
+    translate: 0 70%;
+    filter: blur(3px);
+  }
+  .valor.on, .valor.sale { transition: translate 0.7s var(--ease-out-expo), opacity 0.45s ease, filter 0.6s var(--ease-out-expo); }
+  /* filter: none (no blur(0)): WebKit dejaba el texto ya posado algo blando; none ↔ blur() interpola igual */
+  .valor.on { opacity: 1; translate: 0 0; filter: none; }
+  .valor.sale { opacity: 0; translate: 0 -70%; filter: blur(3px); }
+  .chev { flex: none; width: 10px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; }
+  /* el hilo del tiempo: en el filo de abajo de la píldora, en la tinta del texto (el Coral sobre el Salvia no se vería) */
+  .hilo {
+    position: absolute;
+    left: calc(var(--spacing) * 4);
+    right: calc(var(--spacing) * 3);
+    bottom: -1px; /* sobre el filo de abajo: el borde se va llenando de tinta (bajo el texto se leía como un subrayado) */
+    height: 1px;
+    background: color-mix(in oklab, var(--fg) 55%, transparent);
+    transform-origin: 0 50%;
+    scale: 0 1;
+    opacity: 0;
+  }
+  .selector.corre .hilo { opacity: 1; scale: 1 1; transition: scale var(--paso, 3.4s) linear, opacity 0.3s ease; }
+  /* ── RONDA 92 · los instrumentos a PLUMILLA (el modo del isotipo): formas rellenas en la tinta del texto, escritas al entrar */
+  .instrumento {
+    width: calc(var(--spacing) * 16);
+    height: calc(var(--spacing) * 16);
+    margin-bottom: calc(var(--spacing) * 3);
+    overflow: visible;
+  }
+  .instrumento :global(.tinta), .instrumento :global(.bola), .instrumento :global(.tecla) { fill: currentColor; stroke: none; }
+  .instrumento :global(.m) { fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .instrumento.dibuja :global(.m) { stroke-dashoffset: 0; transition: stroke-dashoffset 0.55s cubic-bezier(0.5, 0, 0.3, 1) calc(0.1s + var(--o) * 0.32s); }
+  /* la bola cae al final, como el punto del isotipo; las partes que se mueven aparecen con ella */
+  .instrumento :global(.bola) { scale: 0; transform-box: fill-box; transform-origin: 50% 50%; }
+  .instrumento.dibuja :global(.bola) { scale: 1; transition: scale 0.5s var(--ease-out-expo) calc(0.2s + var(--o) * 0.32s); }
+  .instrumento :global(.tecla), .instrumento :global(.cuerda) { opacity: 0; transition: opacity 0.5s ease 2s; }
+  .instrumento.dibuja :global(.tecla) { opacity: 1; }
+  .instrumento.dibuja :global(.cuerda) { opacity: 0.75; }
+  .instrumento :global(.tecla) { transform-box: fill-box; transform-origin: 50% 0; }
+  .instrumento :global(.cuerda) { fill: none; stroke: currentColor; stroke-width: 0.45; }
+  .instrumento :global(.onda) { fill: none; stroke: currentColor; stroke-width: 0.7; stroke-linecap: round; opacity: 0; }
+  /* en la columna activa: el piano toca, las cuerdas vibran, el diapasón emite; y la bola late, despacio, como el isotipo que respira */
+  .tabla[data-col='0'] [data-c='0'] .instrumento :global(.tecla),
+  .fichas .i0 :global(.tecla) { animation: tecla 1.3s ease-in-out infinite; animation-delay: calc(var(--k) * 0.12s); }
+  @keyframes tecla { 0%, 45%, 100% { scale: 1 1; } 15% { scale: 1 1.4; } }
+  .tabla[data-col='1'] [data-c='1'] .instrumento :global(.cuerda),
+  .fichas .i1 :global(.cuerda) { animation: cuerda 0.16s linear infinite alternate; animation-delay: calc(var(--k) * -0.05s); }
+  @keyframes cuerda { from { translate: -0.3px 0; } to { translate: 0.3px 0; } }
+  .tabla[data-col='2'] [data-c='2'] .instrumento :global(.onda),
+  .fichas .i2 :global(.onda) { animation: onda-d 1.8s ease-out infinite; animation-delay: calc(var(--k) * 0.3s); }
+  @keyframes onda-d { 0% { opacity: 0; } 20% { opacity: 0.9; } 100% { opacity: 0; } }
+  .tabla[data-col='0'] [data-c='0'] .instrumento.dibuja :global(.bola),
+  .tabla[data-col='1'] [data-c='1'] .instrumento.dibuja :global(.bola),
+  .tabla[data-col='2'] [data-c='2'] .instrumento.dibuja :global(.bola) { animation: late 1.3s ease-in-out 2.4s infinite; }
+  @keyframes late { 0%, 60%, 100% { scale: 1; } 20% { scale: 1.22; } }
   /* ── LAS FICHAS (móvil) */
   .fichas { display: grid; gap: calc(var(--spacing) * 12); }
   .ficha-s {
@@ -225,6 +516,13 @@ let fila = 0;
   }
   @media (prefers-reduced-motion: reduce) {
     .banda, .col, .marca { transition: none; }
+    .instrumento :global(*) { animation: none !important; transition: none !important; }
+    .instrumento :global(.m) { stroke-dashoffset: 0; }
+    .instrumento :global(.bola) { scale: 1; }
+    .instrumento :global(.tecla) { opacity: 1; }
+    .instrumento :global(.cuerda) { opacity: 0.75; }
+    .valor, .valor.on, .valor.sale, .selector.lista .ventana { transition: none; filter: none; }
+    .hilo { display: none; }
     :global(html.anima) .item .si { scale: 1; translate: 0 0; transition: none; }
   }
 </style>

@@ -1,0 +1,102 @@
+// RONDA 97 · EL DIRECTOR EN ASCII. Andoni: «hacer el director de orquesta con ASCII y que reaccione a la música, con pulsos».
+// Un lienzo WebGL (un solo triángulo a pantalla): la lámina se lee CELDA A CELDA (su luz y su color en el centro de la celda) y en cada celda se pinta un
+// carácter de una rampa de densidad (" .,:-=+*xo%#@"), tomado de un atlas hecho con la mono de la web. Lo que lo hace MÚSICA:
+// · el NIVEL de lo que suena (jazz.ts › nivel) sube la densidad de toda la figura: respira con la música;
+// · cada PULSO (un tiempo del compás, o la onda de un atril) es un anillo que recorre los caracteres: los empuja dos o tres escalones de la rampa y los aclara;
+// · un parpadeo de caracteres al azar, más vivo cuanto más suena (la trama nunca está quieta del todo).
+// Se DIBUJA al llegar desde la batuta (`soltar`). Misma API que el motor del árbol: el hero no distingue un estilo del otro.
+const RAMPA = ' .,:-=+*xo%#@';
+const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+const FS = `precision mediump float;
+uniform sampler2D uImg,uAtl;uniform vec2 uRes,uOrig;uniform float uCel,uN,uT,uNiv,uRev,uInv,uColor,uDpr;uniform vec3 uTinta;uniform vec4 uO[6];
+float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
+void main(){
+  vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);
+  vec2 cel=floor(p/uCel),c=(cel+.5)*uCel/uRes;
+  vec4 im=texture2D(uImg,c); if(im.a<.04) discard;
+  float L=dot(im.rgb,vec3(.299,.587,.114)); L=mix(L,1.-L,uInv);
+  float d=distance(c*uRes,uOrig*uRes)/length(uRes);
+  float rev=smoothstep(uRev,uRev-.1,d+h(cel)*.08);
+  float w=0.;
+  for(int i=0;i<6;i++){vec4 o=uO[i];if(o.z>=0.){float R=o.z*360.*uDpr;float dd=distance((cel+.5)*uCel,o.xy);w+=exp(-pow((dd-R)/(46.*uDpr),2.))*o.w*max(0.,1.-o.z/3.2);}}
+  float fl=h(cel+floor(uT*(5.+uNiv*14.)));
+  float k=.2+pow(L,mix(.8,1.4,uInv))*.95+w*.3+uNiv*.22+(fl-.5)*(.05+uNiv*.12+w*.2);
+  float idx=floor(clamp(k,0.,.999)*uN);
+  vec2 g=fract(p/uCel);
+  float gl=texture2D(uAtl,vec2((idx+g.x)/uN,g.y)).a;
+  vec3 col=mix(uTinta,mix(min(vec3(1.),im.rgb*1.6+.1),im.rgb*.5,uInv),uColor);
+  col=mix(col,vec3(1.,.88,.7),min(1.,w*.6));
+  float a=gl*im.a*rev*clamp(.8+.4*k+w*.35,0.,1.);
+  gl_FragColor=vec4(col*a,a);
+}`;
+
+export function crearAscii(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; celda?: number; clara?: boolean; color?: number; nivel?: () => number }) {
+  const gl = cv.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
+  if (!gl) return null;
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sh = (t: number, s: string) => { const o = gl.createShader(t)!; gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(o)); return o; };
+  const pr = gl.createProgram()!; gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); gl.useProgram(pr);
+  const bf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const lp = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp, 2, gl.FLOAT, false, 0, 0);
+  const U = (n: string) => gl.getUniformLocation(pr, n);
+  const tex = (unidad: number) => { const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unidad); gl.bindTexture(gl.TEXTURE_2D, t); [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach((k) => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE)); return t; };
+  const tImg = tex(0), tAtl = tex(1);
+  gl.uniform1i(U('uImg'), 0); gl.uniform1i(U('uAtl'), 1);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  let W = 0, H = 0, dpr = 1, celPx = 6, listo = false, suelta = false, visto = true, raf = 0, tSol = 0, impar = false;
+  let tinta = [0.92, 0.87, 0.9];
+  const ondas: { x: number; y: number; t0: number; f: number }[] = [];
+  const mono = getComputedStyle(document.querySelector('.detail') || document.body).fontFamily || 'monospace';
+  const atlas = () => {
+    const N = RAMPA.length, a = document.createElement('canvas'); a.width = celPx * N; a.height = celPx;
+    const c = a.getContext('2d')!; c.fillStyle = '#fff'; c.font = `600 ${Math.round(celPx * 1.15)}px ${mono}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (let i = 0; i < N; i++) c.fillText(RAMPA[i], celPx * (i + 0.5), celPx * 0.56);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tAtl);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, a);
+  };
+  const medir = () => {
+    const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1);
+    W = Math.round(r.width * dpr); H = Math.round(r.height * dpr); if (W < 2 || H < 2) return false;
+    cv.width = W; cv.height = H; gl.viewport(0, 0, W, H);
+    // la celda: la que pida el sitio (en px CSS), entera en px de dispositivo para que los caracteres no se emborronen
+    celPx = Math.max(4, Math.round((op.celda ?? Math.max(5, r.width / 112)) * dpr));
+    const m = getComputedStyle(cv).color.match(/[\d.]+/g); if (m) tinta = [+m[0] / 255, +m[1] / 255, +m[2] / 255];
+    atlas();
+    gl.uniform2f(U('uRes'), W, H); gl.uniform1f(U('uCel'), celPx); gl.uniform1f(U('uN'), RAMPA.length); gl.uniform1f(U('uDpr'), dpr);
+    gl.uniform2f(U('uOrig'), op.origen[0], op.origen[1]); gl.uniform1f(U('uInv'), op.clara ? 1 : 0); gl.uniform1f(U('uColor'), op.color ?? 0.55);
+    gl.uniform3f(U('uTinta'), tinta[0], tinta[1], tinta[2]);
+    return true;
+  };
+  const pintar = (ahora: number) => {
+    const rev = reducido ? 2 : suelta ? Math.min(1.25, ((ahora - tSol) / 2400) * 1.25) : -0.2;
+    gl.uniform1f(U('uRev'), rev); gl.uniform1f(U('uT'), ahora / 1000); gl.uniform1f(U('uNiv'), reducido ? 0 : op.nivel?.() ?? 0);
+    const r = cv.getBoundingClientRect(), arr = new Float32Array(24).fill(-1);
+    for (let i = ondas.length - 1; i >= 0; i--) if ((ahora - ondas[i].t0) / 1000 > 3.2) ondas.splice(i, 1);
+    ondas.slice(-6).forEach((o, i) => { arr.set([(o.x - r.left) * dpr, (o.y - r.top) * dpr, (ahora - o.t0) / 1000, o.f], i * 4); });
+    gl.uniform4fv(U('uO[0]'), arr);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+  const frame = (ahora: number) => {
+    raf = 0; if (!listo || !visto) return;
+    impar = !impar; if (impar) pintar(ahora); // a 30 fps: el ASCII no necesita más
+    if (!reducido) raf = requestAnimationFrame(frame);
+  };
+  const pedir = () => { if (!raf) raf = requestAnimationFrame(frame); };
+  const arrancar = () => {
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tImg);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    if (!medir()) return; listo = true; if (suelta) cv.classList.add('listo'); pedir();
+    if (reducido) pintar(performance.now());
+  };
+  (img.complete && img.naturalWidth ? Promise.resolve() : new Promise<void>((r) => img.addEventListener('load', () => r(), { once: true }))).then(() => document.fonts.ready).then(arrancar);
+  let rz = 0;
+  new ResizeObserver(() => { if (!listo) return; clearTimeout(rz); rz = window.setTimeout(() => { medir(); pintar(performance.now()); }, 150); }).observe(cv);
+  return {
+    soltar() { if (suelta) return; suelta = true; tSol = performance.now(); if (listo) { cv.classList.add('listo'); pedir(); } },
+    visible(si: boolean) { visto = si; if (si) pedir(); },
+    onda(x: number, y: number, f = 1) { if (reducido) return; ondas.push({ x, y, t0: performance.now(), f }); },
+    fondo() {}, luz() {}, punto(_k: number, x: number, y: number) { return [x, y]; },
+  };
+}

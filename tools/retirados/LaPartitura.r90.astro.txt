@@ -1,0 +1,323 @@
+---
+// RONDA 89 · LA SAVVIA ES LA PARTITURA DE TU WEB, en el lenguaje de og.mp4 (la referencia de Andoni: «algo muy parecido, pero que tenga relación con la música»).
+// · En el centro, la CARPETA de la partitura (con su pestaña, como en el vídeo) y dentro un pentagrama que se va escribiendo; debajo, la firma.
+// · A la izquierda, lo que ENTRA en la partitura (estrategia, voz, identidad…); a la derecha, lo que SALE de ella (webs, landings, campañas…).
+// · Los hilos que lo unen son CUERDAS: convergen en la carpeta como las cuerdas en el puente de un violín. Cuando un agente toca una pieza, su cuerda VIBRA y
+//   SUENA (pizzicato, cada cuerda su nota) y por ella viaja una NOTA de su color hasta la partitura, que la escribe en su pentagrama; luego otra nota sale
+//   hacia lo que se publica.
+// · Los AGENTES (Claude, Codex, Diseño, Tu equipo) son cursores con su etiqueta, como en el vídeo: van de pieza en pieza con calma.
+// En móvil, de arriba abajo (lo que entra · la partitura · lo que sale). Movimiento reducido: quieto, sin cursores. (Antes: LaReceta.astro, el archivo de la orquesta.)
+import { receta, partitura } from '../data/home';
+const P = partitura;
+---
+
+<section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube>
+  <div class="wrap section-y">
+    <h2 id="partitura-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
+    <p class="text-sub mt-6 lg:mt-8 max-w-[34ch] text-fg2" data-enfoca>{receta.arnes}</p>
+
+    <div class="escena" data-escena-p>
+      <svg class="cuerdas" aria-hidden="true" data-cuerdas></svg>
+      <ul class="lado entra" aria-label="Lo que entra en la partitura">
+        {P.entra.map((x, i) => <li class="pieza" data-pieza="entra" data-i={i}>{x}</li>)}
+      </ul>
+      <div class="centro">
+        <!-- RONDA 90 · «que lo del medio parezca más una PARTITURA y que dentro, cada acción muestre lo que hace de una manera realista»: una hoja de partitura
+             (papel, título, indicación de tempo, «dir. savvia») con sus SISTEMAS. Cada vez que un agente toca una pieza, en la hoja se escribe un sistema nuevo:
+             a la izquierda el nombre de la parte (como el instrumento en una partitura de orquesta), sus notas en el color del agente y, encima del pentagrama,
+             lo que de verdad queda escrito (el objetivo, la voz, los tokens, el botón…). Los de arriba suben y el más antiguo se va. -->
+        <div class="hoja-p" data-carpeta>
+          <header class="cabecera-p">
+            <p class="tempo">Allegro con criterio</p>
+            <p class="titulo">{P.carpeta[0]}<br />{P.carpeta[1]}</p>
+            <p class="autor">dir. savvia</p>
+          </header>
+          <ol class="sistemas" data-sistemas aria-live="off"></ol>
+        </div>
+        <span class="firma" role="img" aria-label="savvia"></span>
+      </div>
+      <ul class="lado sale" aria-label="Lo que sale de la partitura">
+        {P.sale.map((x, i) => <li class="pieza" data-pieza="sale" data-i={i}>{x}</li>)}
+      </ul>
+      {P.agentes.map(([n, c]) => (
+        <div class="cursor" style={`--c: var(--color-${c})`} aria-hidden="true" data-agente>
+          <svg viewBox="0 0 16 16"><path d="M2 1.5 L14 7 L8.4 8.4 L6.2 14 Z" /></svg>
+          <span>{n}</span>
+        </div>
+      ))}
+    </div>
+
+    <p class="nota detail text-fg2" data-enfoca>{receta.nota} <a class="link" href={receta.enlace.href} target="_blank" rel="noopener">{receta.enlace.label}</a></p>
+  </div>
+</section>
+
+<script>
+  import { pizzicato, tocar, PENTA } from '../scripts/musica';
+  const sec = document.querySelector<HTMLElement>('[data-partitura]');
+  if (sec) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const escena = sec.querySelector<HTMLElement>('[data-escena-p]')!, svg = sec.querySelector<SVGSVGElement>('[data-cuerdas]')!;
+    const carpeta = sec.querySelector<HTMLElement>('[data-carpeta]')!;
+    const piezas = [...sec.querySelectorAll<HTMLElement>('[data-pieza]')];
+    const entra = piezas.filter((p) => p.dataset.pieza === 'entra'), sale = piezas.filter((p) => p.dataset.pieza === 'sale');
+    const cursores = [...sec.querySelectorAll<HTMLElement>('[data-agente]')];
+    const NS = 'http://www.w3.org/2000/svg';
+    type Cuerda = { el: SVGPathElement; pieza: HTMLElement; a: number[]; b: number[]; vert: boolean; t0: number; amp: number };
+    let cuerdas: Cuerda[] = [], apilado = false;
+    // ── geometría: cada pieza, una cuerda hasta el puente de la carpeta (todas convergen en el mismo punto, como en el vídeo)
+    const medir = () => {
+      const er = escena.getBoundingClientRect(), cr = carpeta.getBoundingClientRect();
+      apilado = getComputedStyle(escena).getPropertyValue('--apilado').trim() === '1';
+      svg.setAttribute('viewBox', `0 0 ${er.width} ${er.height}`);
+      svg.innerHTML = '';
+      cuerdas = piezas.map((p) => {
+        const r = p.getBoundingClientRect(), esEntra = p.dataset.pieza === 'entra';
+        let a: number[], b: number[];
+        if (apilado) {
+          a = esEntra ? [r.left + r.width / 2 - er.left, r.bottom - er.top] : [r.left + r.width / 2 - er.left, r.top - er.top];
+          b = esEntra ? [cr.left + cr.width / 2 - er.left, cr.top - er.top + 10] : [cr.left + cr.width / 2 - er.left, cr.bottom - er.top];
+        } else {
+          a = esEntra ? [r.right - er.left, r.top + r.height / 2 - er.top] : [r.left - er.left, r.top + r.height / 2 - er.top];
+          b = esEntra ? [cr.left - er.left - 6, cr.top + cr.height * 0.58 - er.top] : [cr.right - er.left + 6, cr.top + cr.height * 0.58 - er.top];
+        }
+        const el = document.createElementNS(NS, 'path'); svg.appendChild(el);
+        return { el, pieza: p, a, b, vert: apilado, t0: 0, amp: 0 };
+      });
+      cuerdas.forEach((c) => trazar(c, 0));
+    };
+    // la cuerda: una curva que sale recta de la pieza y entra recta en el puente; si vibra, sus puntos de control se mueven en perpendicular
+    const trazar = (c: Cuerda, off: number) => {
+      const [x1, y1] = c.a, [x2, y2] = c.b;
+      const d = c.vert
+        ? `M${x1} ${y1}C${x1} ${y1 + (y2 - y1) * 0.55} ${x2 + off} ${y2 - (y2 - y1) * 0.45} ${x2} ${y2}`
+        : `M${x1} ${y1}C${x1 + (x2 - x1) * 0.55} ${y1 + off} ${x2 - (x2 - x1) * 0.45} ${y2 + off * 0.6} ${x2} ${y2}`;
+      c.el.setAttribute('d', d);
+    };
+    // ── las notas que viajan por las cuerdas
+    type Viaje = { c: Cuerda; t0: number; dur: number; color: string; vuelta: boolean; luego?: () => void; g: SVGGElement };
+    const viajes: Viaje[] = [];
+    const notaSvg = (color: string) => {
+      const g = document.createElementNS(NS, 'g');
+      g.innerHTML = `<path d="M-30 0 L0 0" stroke="${color}" stroke-width="2" stroke-linecap="round" opacity=".5" class="cola"/><ellipse rx="4.6" ry="3.3" transform="rotate(-24)" fill="${color}"/><path d="M4 -1 V-15" stroke="${color}" stroke-width="1.4"/>`;
+      svg.appendChild(g); return g;
+    };
+    const lanzar = (c: Cuerda, color: string, vuelta: boolean, luego?: () => void) => viajes.push({ c, t0: performance.now(), dur: 1100 + Math.random() * 300, color, vuelta, luego, g: notaSvg(color) });
+    const pulsar = (c: Cuerda, i: number) => { c.t0 = performance.now(); c.amp = c.vert ? 10 : 14; pizzicato(PENTA[i % PENTA.length], { vol: 0.035 }); };
+    // ── la partitura escribe lo que le llega: un SISTEMA nuevo con el nombre de la parte, sus notas y lo que de verdad queda escrito
+    const sistemas = sec.querySelector<HTMLOListElement>('[data-sistemas]')!;
+    const FRAG: string[] = [
+      '<b>Objetivo</b> que pidan una demo <i class="sep"></i> <b>KPI</b> demos / mes',
+      '«Para equipos que crecen y no tienen tiempo de cuidar su web.»',
+      '<span class="chip">cercana</span><span class="chip">directa</span><span class="chip">sin jerga</span><s>disruptivo</s>',
+      '<span class="logo-mini"></span><span class="sw" style="background:#302018"></span><span class="sw" style="background:#ff616b"></span><span class="sw" style="background:#eadde7"></span><span class="sw" style="background:#3456d3"></span>',
+      '<span class="tile t1"></span><span class="tile t2"></span><span class="tile t3"></span> luz cálida · grano',
+      '<span class="btn-mini">Pide una demo →</span><span class="input-mini">tu@correo.com</span>',
+      '<span class="si">✓ un CTA por sección</span><span class="no">✗ fotos de stock</span>',
+      '<code>--coral: <span class="sw" style="background:#ff616b"></span>#FF616B;</code><code>--radio: 8px;</code>',
+      '<span class="foto f1"></span><span class="foto f2"></span><span class="foto f3"></span> 12 fotos · 3 ilustraciones',
+      '<span class="pagina"><i></i><i></i><i></i></span> landing de referencia',
+    ];
+    const NS2 = 'http://www.w3.org/2000/svg';
+    const escribir = (pieza: HTMLElement, color: string) => {
+      const i = +pieza.dataset.i!;
+      const li = document.createElement('li'); li.className = 'sistema';
+      li.style.setProperty('--tinta', color);
+      // las notas: cuatro, a alturas de la parte (siempre las mismas para cada pieza)
+      let sem = 13 + i * 71; const az = () => { sem = (sem * 16807) % 2147483647; return sem / 2147483647; };
+      const notas = Array.from({ length: 5 }, (_, k) => { const x = 10 + k * 13, l = Math.floor(az() * 8), y = 30 - l * 3.2; return `<g style="--k:${k}"><ellipse cx="${x}" cy="${y}" rx="3" ry="2.2" transform="rotate(-22 ${x} ${y})"/><path d="M${x + 2.7} ${y - 0.5}V${y - 11}"/></g>`; }).join('');
+      li.innerHTML = `<span class="parte">${pieza.textContent}</span><span class="pentagrama"><svg viewBox="0 0 80 36" preserveAspectRatio="none" aria-hidden="true">${[0, 1, 2, 3, 4].map((l) => `<line x1="0" x2="80" y1="${8 + l * 5.5}" y2="${8 + l * 5.5}"/>`).join('')}</svg><svg class="notas-s" viewBox="0 0 80 36" aria-hidden="true">${notas}</svg><span class="frag">${FRAG[i] ?? ''}</span></span>`;
+      void NS2;
+      sistemas.appendChild(li);
+      while (sistemas.children.length > 6) sistemas.firstElementChild!.remove();
+      requestAnimationFrame(() => li.classList.add('on'));
+      carpeta.style.setProperty('--borde', color); carpeta.classList.add('llega'); setTimeout(() => carpeta.classList.remove('llega'), 900);
+      tocar(PENTA[(i + 4) % PENTA.length] + 12, { vol: 0.022, dur: 1.6 });
+    };
+    // ── los agentes: cursores que van de pieza en pieza
+    type Agente = { el: HTMLElement; color: string; x: number; y: number; de: number[]; a: number[]; t0: number; dur: number; espera: number; meta: HTMLElement | null };
+    const agentes: Agente[] = cursores.map((el, k) => ({ el, color: getComputedStyle(el).getPropertyValue('--c').trim() || '#ff616b', x: 0, y: 0, de: [0, 0], a: [0, 0], t0: 0, dur: 0, espera: performance.now() + 600 + k * 1300, meta: null }));
+    const ocupadas = new Set<HTMLElement>();
+    const elegir = (ag: Agente) => {
+      const libres = entra.filter((p) => !ocupadas.has(p) && !p.classList.contains('tocada'));
+      const p = libres[Math.floor(Math.random() * libres.length)] ?? entra[0];
+      ocupadas.add(p); ag.meta = p;
+      const er = escena.getBoundingClientRect(), r = p.getBoundingClientRect();
+      ag.de = [ag.x, ag.y]; ag.a = [r.left - er.left + r.width * (0.55 + Math.random() * 0.35), r.top - er.top + r.height * 0.65]; ag.t0 = performance.now(); ag.dur = 1300 + Math.random() * 700;
+    };
+    const tocarPieza = (ag: Agente) => {
+      const p = ag.meta!; ag.meta = null;
+      ag.el.classList.add('clic'); setTimeout(() => ag.el.classList.remove('clic'), 220);
+      p.style.setProperty('--tinte', ag.color); p.classList.add('tocada');
+      const c = cuerdas.find((x) => x.pieza === p)!; pulsar(c, +p.dataset.i!);
+      lanzar(c, ag.color, false, () => {
+        escribir(p, ag.color);
+        const s2 = sale[Math.floor(Math.random() * sale.length)], c2 = cuerdas.find((x) => x.pieza === s2)!;
+        setTimeout(() => lanzar(c2, ag.color, true, () => { s2.style.setProperty('--tinte', ag.color); s2.classList.add('tocada'); pulsar(c2, +s2.dataset.i! + 3); setTimeout(() => s2.classList.remove('tocada'), 2200); }), 260);
+      });
+      setTimeout(() => { p.classList.remove('tocada'); ocupadas.delete(p); }, 2600);
+      ag.espera = performance.now() + 700 + Math.random() * 900;
+    };
+    const suave = (u: number) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
+    let raf = 0, visto = false;
+    const frame = (ahora: number) => {
+      raf = 0; if (!visto) return;
+      // cuerdas que vibran: una onda amortiguada (como una cuerda pulsada)
+      for (const c of cuerdas) { if (!c.amp) continue; const e = (ahora - c.t0) / 1000, off = c.amp * Math.sin(e * 46) * Math.exp(-e * 3.6); trazar(c, off); c.el.classList.toggle('viva', e < 0.9); if (e > 1.4) { c.amp = 0; trazar(c, 0); } }
+      // notas en viaje
+      for (let i = viajes.length - 1; i >= 0; i--) {
+        const v = viajes[i], u = Math.min(1, (ahora - v.t0) / v.dur), L = v.c.el.getTotalLength(), k = suave(u);
+        const s = v.vuelta ? 1 - k : k, pt = v.c.el.getPointAtLength(L * s), pt2 = v.c.el.getPointAtLength(L * Math.min(1, Math.max(0, s + (v.vuelta ? 0.01 : -0.01))));
+        const ang = (Math.atan2(pt.y - pt2.y, pt.x - pt2.x) * 180) / Math.PI;
+        v.g.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+        (v.g.querySelector('.cola') as SVGPathElement).setAttribute('transform', `rotate(${ang.toFixed(1)})`);
+        v.g.style.opacity = String(Math.min(1, u * 8, (1 - u) * 8));
+        if (u >= 1) { v.g.remove(); viajes.splice(i, 1); v.luego?.(); }
+      }
+      // los agentes
+      for (const ag of agentes) {
+        if (ag.meta) {
+          const u = Math.min(1, (ahora - ag.t0) / ag.dur), k = suave(u), arco = Math.sin(Math.PI * u) * -26;
+          ag.x = ag.de[0] + (ag.a[0] - ag.de[0]) * k; ag.y = ag.de[1] + (ag.a[1] - ag.de[1]) * k + arco;
+          if (u >= 1) tocarPieza(ag);
+        } else if (ahora > ag.espera) elegir(ag);
+        ag.el.style.transform = `translate3d(${ag.x.toFixed(1)}px, ${ag.y.toFixed(1)}px, 0)`;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    const colocar = () => { const er = escena.getBoundingClientRect(), cr = carpeta.getBoundingClientRect(); agentes.forEach((ag, k) => { ag.x = cr.left - er.left + cr.width * (0.2 + 0.2 * k); ag.y = cr.bottom - er.top + 30 + (k % 2) * 24; ag.el.style.transform = `translate3d(${ag.x}px, ${ag.y}px, 0)`; }); };
+    medir(); colocar();
+    // la hoja no empieza en blanco: tres partes ya escritas (la estrategia, la voz y los tokens)
+    [[0, 3], [2, 1], [7, 0]].forEach(([i, k]) => escribir(entra[i], agentes[k].color));
+    new ResizeObserver(() => { medir(); }).observe(escena);
+    document.fonts?.ready.then(medir);
+    if (reducido) { sec.classList.add('quieta'); [entra[2], entra[5], sale[0]].forEach((p, k) => { p.style.setProperty('--tinte', agentes[k].color); p.classList.add('tocada'); }); }
+    else new IntersectionObserver((e) => { visto = e[0].isIntersecting; if (visto && !raf) raf = requestAnimationFrame(frame); }, { rootMargin: '0px 0px -10% 0px' }).observe(escena);
+  }
+</script>
+
+<style>
+  .la-partitura { overflow-x: clip; }
+  .escena {
+    --apilado: 0;
+    position: relative;
+    margin-top: calc(var(--spacing) * 24);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: calc(var(--spacing) * 8);
+  }
+  .cuerdas { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+  .cuerdas :global(path:not(.cola)) { fill: none; stroke: color-mix(in oklab, var(--fg) 16%, transparent); stroke-width: 1; transition: stroke 0.4s ease; }
+  .cuerdas :global(path.viva) { stroke: color-mix(in oklab, var(--fg) 42%, transparent); }
+  .lado { position: relative; z-index: 1; display: flex; flex-direction: column; gap: calc(var(--spacing) * 3); }
+  .lado.entra { align-items: flex-start; }
+  .lado.sale { align-items: flex-end; gap: calc(var(--spacing) * 6); }
+  /* las piezas: como las cajas del vídeo (filo fino, radio 8); tocadas, el color del agente en el filo y un velo suyo */
+  .pieza {
+    --tinte: var(--fg);
+    min-width: 11.5rem;
+    padding: 0.55em 1em;
+    border-radius: 8px;
+    background: var(--bg, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 18%, transparent);
+    font-size: var(--text-body);
+    line-height: 1.3;
+    transition: box-shadow 0.35s ease, background-color 0.35s ease;
+  }
+  .lado.sale .pieza { min-width: 9.5rem; }
+  .pieza.tocada { box-shadow: inset 0 0 0 1.5px var(--tinte); background: color-mix(in oklab, var(--tinte) 9%, var(--bg, transparent)); }
+  .centro { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: calc(var(--spacing) * 8); }
+  /* LA HOJA DE PARTITURA: papel algo más claro que la sección, con su grano y una sombra mínima; cabecera de partitura (tempo · título · autor) */
+  .hoja-p {
+    --borde: transparent;
+    position: relative;
+    width: min(100%, 25rem);
+    aspect-ratio: 25 / 31;
+    padding: 1.4rem 1.4rem 1.2rem;
+    background: color-mix(in oklab, var(--color-niebla) 55%, #fff) url('/media/grano.png') 0 0 / 240px 240px;
+    border-radius: 4px;
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--fg) 8%, transparent), 0 18px 40px -22px rgb(48 32 24 / 0.35), inset 0 0 0 1px var(--borde);
+    transition: box-shadow 0.6s ease;
+    color: var(--color-cacao);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .hoja-p.llega { transition: box-shadow 0.12s ease; }
+  .cabecera-p { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 0.5rem; padding-bottom: 0.9rem; }
+  .cabecera-p .titulo { font-family: var(--font-display); font-size: 1.35rem; line-height: 1.1; text-align: center; grid-column: 2; grid-row: 1 / span 2; }
+  .cabecera-p .tempo { font-family: var(--font-display); font-size: 0.68rem; white-space: nowrap; grid-column: 1; grid-row: 2; opacity: 0.75; }
+  .cabecera-p .autor { font-family: var(--font-mono); font-size: 0.56rem; white-space: nowrap; text-align: right; grid-column: 3; grid-row: 2; opacity: 0.7; }
+  .sistemas { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 0.95rem; padding-top: 0.6rem; }
+  .sistemas :global(.sistema) { display: grid; grid-template-columns: 4.6rem 1fr; align-items: center; gap: 0.5rem; opacity: 0; translate: 0 10px; transition: opacity 0.5s ease, translate 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+  .sistemas :global(.sistema.on) { opacity: 1; translate: 0 0; }
+  .sistemas :global(.parte) { font-family: var(--font-mono); font-size: 0.6rem; line-height: 1.2; text-align: right; color: var(--tinta); }
+  .sistemas :global(.pentagrama) { position: relative; height: 2.6rem; display: block; }
+  .sistemas :global(.pentagrama svg) { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .sistemas :global(.pentagrama line) { stroke: rgb(48 32 24 / 0.32); stroke-width: 0.5; vector-effect: non-scaling-stroke; }
+  .sistemas :global(.notas-s) { width: 34% !important; }
+  .sistemas :global(.notas-s g) { fill: var(--tinta); stroke: var(--tinta); stroke-width: 0.9; opacity: 0; transition: opacity 0.3s ease calc(0.15s + var(--k) * 0.1s); }
+  .sistemas :global(.sistema.on .notas-s g) { opacity: 1; }
+  /* lo que queda escrito, encima del pentagrama, a la derecha de las notas: una pieza de interfaz real en miniatura */
+  .sistemas :global(.frag) {
+    position: absolute;
+    left: 37%;
+    right: 0;
+    top: 50%;
+    translate: 0 -50%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.28rem 0.4rem;
+    border-radius: 5px;
+    background: rgb(255 255 255 / 0.82);
+    box-shadow: 0 0 0 1px rgb(48 32 24 / 0.08), 0 4px 10px -6px rgb(48 32 24 / 0.4);
+    font-size: 0.6rem;
+    line-height: 1.3;
+    color: var(--color-cacao);
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transition: opacity 0.2s ease 0.5s, clip-path 0.7s cubic-bezier(0.65, 0, 0.35, 1) 0.55s;
+  }
+  .sistemas :global(.sistema.on .frag) { opacity: 1; clip-path: inset(0 0 0 0); }
+  .sistemas :global(.frag b) { font-weight: 600; }
+  .sistemas :global(.frag .sep) { width: 1px; height: 0.7rem; background: rgb(48 32 24 / 0.2); }
+  .sistemas :global(.frag s) { opacity: 0.55; }
+  .sistemas :global(.chip) { padding: 0 0.35rem; border-radius: 999px; box-shadow: inset 0 0 0 1px rgb(48 32 24 / 0.25); }
+  .sistemas :global(.sw) { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 2px; vertical-align: -0.1rem; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1); }
+  .sistemas :global(.logo-mini) { width: 0.9rem; height: 0.9rem; background: var(--color-cacao); -webkit-mask: url('/savvia-isotipo.svg') center / contain no-repeat; mask: url('/savvia-isotipo.svg') center / contain no-repeat; margin-right: 0.15rem; }
+  .sistemas :global(.tile) { width: 1rem; height: 0.8rem; border-radius: 2px; }
+  .sistemas :global(.tile.t1) { background: linear-gradient(135deg, #f2b27a, #8a4a2c); }
+  .sistemas :global(.tile.t2) { background: linear-gradient(160deg, #e9d4b8, #6c4a3a); }
+  .sistemas :global(.tile.t3) { background: linear-gradient(120deg, #c98a5a, #302018); }
+  .sistemas :global(.btn-mini) { padding: 0.12rem 0.45rem; border-radius: 999px; background: var(--color-coral); color: var(--color-cacao); font-weight: 600; }
+  .sistemas :global(.input-mini) { padding: 0.1rem 0.35rem; border-radius: 4px; box-shadow: inset 0 0 0 1px rgb(48 32 24 / 0.25); opacity: 0.6; }
+  .sistemas :global(.si) { color: #2d6a3e; } .sistemas :global(.no) { color: #a3302f; }
+  .sistemas :global(.frag code) { font-family: var(--font-mono); font-size: 0.56rem; margin-right: 0.3rem; }
+  .sistemas :global(.foto) { width: 0.95rem; height: 0.95rem; border-radius: 2px; }
+  .sistemas :global(.foto.f1) { background: radial-gradient(circle at 30% 30%, #f4d2a6, #9a5a36); }
+  .sistemas :global(.foto.f2) { background: radial-gradient(circle at 60% 40%, #cfd8e6, #4f5f7a); }
+  .sistemas :global(.foto.f3) { background: radial-gradient(circle at 50% 70%, #e8c6c8, #7a3c48); }
+  .sistemas :global(.pagina) { display: inline-flex; flex-direction: column; gap: 1.5px; width: 1.5rem; padding: 2px; border-radius: 2px; box-shadow: inset 0 0 0 1px rgb(48 32 24 / 0.3); }
+  .sistemas :global(.pagina i) { display: block; height: 2px; background: rgb(48 32 24 / 0.35); }
+  .sistemas :global(.pagina i:first-child) { height: 5px; background: var(--color-coral); }
+  /* la firma (el logotipo, como firmado bajo la partitura) */
+  .firma { display: block; width: 8.5rem; aspect-ratio: 1275 / 439; background: var(--fg); opacity: 0.75; -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat; mask: url('/savvia-logo.svg') center / contain no-repeat; }
+  /* los cursores de los agentes (los del vídeo: flecha de su color + etiqueta en píldora) */
+  .cursor { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform; }
+  .cursor svg { width: 18px; height: 18px; display: block; fill: var(--c); filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.18)); transition: scale 0.18s ease; transform-origin: 2px 2px; }
+  .cursor.clic svg { scale: 0.78; }
+  .cursor span { position: absolute; left: 14px; top: 16px; padding: 0.15em 0.6em; border-radius: 999px; background: var(--c); color: #fff; font-size: 0.8125rem; line-height: 1.5; white-space: nowrap; }
+  .quieta .cursor { display: none; }
+  .nota { margin-top: calc(var(--spacing) * 16); max-width: 60ch; }
+  /* MÓVIL: de arriba abajo; las piezas, en filas que se reparten */
+  @media (width < 64rem) {
+    .escena { --apilado: 1; grid-template-columns: 1fr; gap: calc(var(--spacing) * 16); margin-top: calc(var(--spacing) * 16); }
+    .lado { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: calc(var(--spacing) * 2); }
+    .lado.entra, .lado.sale { align-items: center; gap: calc(var(--spacing) * 2); }
+    .pieza, .lado.sale .pieza { min-width: 0; font-size: var(--text-aux); padding: 0.4em 0.8em; }
+    .firma { display: none; } /* las cuerdas de salida pasan por ahí */
+    .centro { gap: 0; }
+  }
+</style>

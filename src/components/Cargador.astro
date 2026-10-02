@@ -1,78 +1,38 @@
 ---
-// LA CARGA (rondas 15–20). Referencia: off.site (pantalla lisa, el logotipo aparece, de su última letra sale un hilo que baja).
-// RONDA 20 · Andoni: «¿podemos hacer que para iniciar la web tengas que hacer un círculo con el ratón? La animación de la gota tiene que parecer
-// que dibuja las v realmente».
-// · EMPEZAR: aparece «sa  ia» y el visitante DIBUJA UN CÍRCULO con el ratón (o con el dedo): un rastro Naranja sigue al puntero; al cerrar la
-//   vuelta, el círculo se encoge hasta el pie de la primera v y se convierte en la gota, que echa a rodar. Pista a los 1,6 s: «dibuja un círculo».
-//   Espacio o intro arrancan sin círculo; «saltar», rueda o Escape lo saltan.
-// · LAS V SE DIBUJAN A TRAZO: la máscara de las v ya no es un frente en x sino la PLUMADA de la gota: un trazo grueso con puntas redondas que
-//   sigue exactamente su camino (baja por el trazo grueso, sube por el fino, rodea el rizo, la ligadura) y se va destapando con
-//   `stroke-dashoffset` a la vez que ella avanza. La tinta aparece solo donde la gota ha pasado.
-// · El camino por las v está medido en el propio trazo del logotipo y suavizado (Catmull-Rom) al compilar; luego el palo de la i, por debajo
-//   del punto, el lomo de la última «a» y la punta de su rabo.
-// · DESCOLGARSE (ronda 19): engorda y cae por su peso; un CUELLO la sujeta y se estrangula; resto que se retrae y SATÉLITE detrás.
-// · CAER (ronda 19): tiembla, se estira y la ESTELA se desenfoca en la dirección del movimiento. SALPICA en la base del tronco.
-// · La cámara baja con ella: logotipo y gota viven en un «mundo» que sube y el HERO SUBE DESDE ABAJO (`html.cargando`, puesto en el <head>).
-//   La gota toca el suelo bajo el titular en el mismo instante en que la cámara se posa → `savvia:gota` → el árbol se genera.
-// · Recarga a media página o movimiento reducido: sin carga. Sin JS no existe.
-// RONDA 66 · «el logo: savvia con la tipografía» y «la animación inicial también tiene que depender de la estación». La palabra en Family; el camino
-// de la gota se mide EN EL NAVEGADOR sobre las letras reales (cada letra con un Range; la altura de x de Family, 0,47 em, y la línea base de la fuente).
-// RONDA 68 · «que en la animación de carga se dibuje el isotipo únicamente, cae la gota y el isotipo se encaja arriba con savvia»: la gota DIBUJA el
-// isotipo (la v caligráfica: sube por la colita, baja por el trazo grueso, sube por el fino y remata en la bola), se descuelga de la bola y cae; mientras
-// cae, el isotipo vuela a la barra y se encaja delante de «savvia» (en el sitio exacto del isotipo del logotipo), que aparece con él.
+// LA CARGA · RONDA 85. Andoni: «que al pulsar los acordes se genere nuestro isotipo, y que sea algo más visual, estilo jugar al Guitar Hero: algo que te incite
+// a pulsar, que te den ganas de pulsar» (antes, rondas 83–84: el pentagrama con el acorde en blanco; tools/retirados/Cargador.r84-acorde.astro.txt).
+// · EL MÁSTIL: tres carriles en perspectiva que bajan desde el isotipo (arriba, al fondo) hasta tres dianas (abajo). Las NOTAS llegan a ritmo (92 BPM), crecen al
+//   acercarse y dejan estela. Se pulsa cuando una nota cruza su diana: clic o toque en cualquier sitio, o las teclas A S D / ← ↓ → / espacio. Cada acierto SUENA
+//   (la melodía sube por el acorde de fa), hace saltar chispas y DIBUJA un tramo del ISOTIPO con la plumada de siempre (baja por el grueso, sube por el fino,
+//   remata en la bola). Fallar no penaliza: la nota se pierde y vuelve. Seis aciertos = isotipo completo.
+// · EL FINAL, como la gota de antes: suena el acorde, el isotipo brilla y de su BOLA se descuelga una nota que CAE (la cámara baja con ella y el hero entra desde
+//   abajo) hasta la punta de la batuta del director: suena grave, se abre una onda y el director se dibuja desde ahí.
+// · RONDA 97 · «las notas también de jazz, de alguna canción conocida para ver si tu mente la hila»: son el arranque de «When the Saints Go Marching In»
+//   (tradicional, dominio público): do · mi · fa · sol, y el acorde final en do. Es la misma canción que el jazz de fondo (src/scripts/jazz.ts) cita después.
+// · «saltar», Escape o la rueda la saltan. En cada visita (ronda 84). Movimiento reducido: sin carga.
 import isoRaw from '../../public/savvia-isotipo.svg?raw';
 const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
 ---
 
 <div class="cargador" aria-hidden="true" data-cargador>
-  <!-- el RASTRO del puntero mientras se dibuja el círculo, y el anillo que se encoge hasta ser la gota -->
-  <svg class="rastro" data-rastro-svg><polyline points="" data-rastro /><circle class="anillo" r="0" data-anillo /></svg>
-  <!-- RONDA 66 · el tiempo de la ESTACIÓN alrededor de la carga: hojas en otoño, nieve en invierno, pétalos en primavera, motas de luz en verano -->
-  <canvas class="tiempo" data-tiempo></canvas>
-  <!-- el ISOTIPO: apenas visible, y encima su copia a plena tinta que destapa la plumada de la gota (fuera del «mundo»: no baja con la cámara, vuela a la barra) -->
-  <svg class="logo" viewBox="0 0 370 439" aria-hidden="true" data-logo>
-    <defs><mask id="cg-vv" maskUnits="userSpaceOnUse" x="-100" y="-100" width="600" height="700"><path fill="none" stroke="#fff" stroke-width="50" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000" data-plumada /></mask></defs>
-    <path class="fija" d={ISO} />
-    <path class="vv" d={ISO} mask="url(#cg-vv)" />
-  </svg>
   <div class="mundo" data-mundo>
-    <p class="pista detail" data-carga-pista>dibuja un círculo<button type="button" class="saltar" data-saltar>saltar</button></p>
-    <!-- el CUELLO que sujeta la gota mientras se descuelga, el resto que se retrae y el satélite (en el sistema del mundo) -->
-    <svg class="cuello" viewBox="-20 -4 40 40" data-cuello><path d="" data-cuello-d /><circle class="resto" r="0" data-resto /></svg>
-    <i class="satelite" data-satelite></i>
-    <!-- la GOTA: cabeza + estela de velocidad con desenfoque de movimiento (el x del viewBox es la dirección de avance: la svg gira) -->
-    <svg class="gota" viewBox="-34 -8 42 16" data-gota>
-      <defs>
-        <filter id="cg-mb" filterUnits="userSpaceOnUse" x="-160" y="-60" width="220" height="120"><feGaussianBlur stdDeviation="0 0" data-mb /></filter>
-        <filter id="cg-mbc" filterUnits="userSpaceOnUse" x="-40" y="-40" width="80" height="80"><feGaussianBlur stdDeviation="0 0" data-mbc /></filter>
-        <!-- RONDA 65 · «en vez de naranja, una gota más realista de agua/savia»: cuerpo translúcido (se ve el fondo), canto que refracta, luz
-             transmitida abajo y un brillo especular arriba. La luz no gira con la gota (el grupo `data-brillo` se contra-rota). -->
-        <radialGradient id="cg-agua" cx="0" cy="0" r="6" gradientUnits="userSpaceOnUse">
-          <stop offset="0" style="stop-color: var(--gota-a)" stop-opacity=".10" />
-          <stop offset=".62" style="stop-color: var(--gota-b)" stop-opacity=".18" />
-          <stop offset=".86" style="stop-color: var(--gota-c)" stop-opacity=".5" />
-          <stop offset="1" stop-color="#fff3e4" stop-opacity=".85" />
-        </radialGradient>
-        <radialGradient id="cg-trans" cx="0" cy="3.4" r="4.6" gradientUnits="userSpaceOnUse">
-          <stop offset="0" style="stop-color: var(--gota-luz)" stop-opacity=".62" />
-          <stop offset="1" style="stop-color: var(--gota-luz)" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <path class="estela" filter="url(#cg-mb)" d="M0 -2.4C-22 -1.8 -70 -0.6 -110 0C-70 0.6 -22 1.8 0 2.4Z" transform="scale(0, 1)" data-estela />
-      <g filter="url(#cg-mbc)">
-        <circle r="6" fill="url(#cg-agua)" />
-        <g data-brillo>
-          <circle r="4.6" cy="0" fill="url(#cg-trans)" transform="translate(0 .4)" />
-          <ellipse cx="-2.1" cy="-2.6" rx="1.7" ry="1.05" transform="rotate(-35 -2.1 -2.6)" fill="#fff" fill-opacity=".92" />
-          <circle cx="2.4" cy="-1.2" r=".45" fill="#fff" fill-opacity=".6" />
-        </g>
-      </g>
+    <canvas class="mastil" data-mastil></canvas>
+    <!-- el ISOTIPO al fondo del mástil: apenas visible; su copia a plena tinta la destapa la plumada con cada acierto -->
+    <svg class="logo" viewBox="0 0 370 439" data-logo>
+      <defs><mask id="cg-iso" maskUnits="userSpaceOnUse" x="-100" y="-100" width="600" height="700"><path fill="none" stroke="#fff" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000" data-plumada /></mask></defs>
+      <path class="fija" d={ISO} />
+      <path class="vv" d={ISO} mask="url(#cg-iso)" />
     </svg>
+    <p class="pista detail" data-carga-pista>
+      <span class="cuenta" data-cuenta></span>
+      <span class="con-raton">pulsa cuando la nota llegue · ¿la reconoces?</span><span class="sin-raton">toca cuando la nota llegue · ¿la reconoces?</span>
+      <button type="button" class="saltar" data-saltar>saltar</button>
+    </p>
   </div>
 </div>
 
 <script>
-  import { salpicar, formaGota } from '../scripts/gota';
+  import { rhodesSuelto } from '../scripts/jazz';
   const velo = document.querySelector<HTMLElement>('[data-cargador]');
   const w = window as any, raiz = document.documentElement;
   w.__cargaViva = true; // el salvavidas del <head> solo actúa si este script no llega a correr
@@ -85,206 +45,209 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
   if (!velo || !hero || !raiz.classList.contains('cargando') || scrollY > 40) { terminar(); velo?.remove(); soltar(); }
   else {
     const $ = <T extends Element>(s: string) => velo.querySelector<T>(s)!;
-    const mundo = $<HTMLElement>('[data-mundo]'), logo = $<SVGSVGElement>('[data-logo]'), plumada = $<SVGPathElement>('[data-plumada]');
-    const gota = $<SVGSVGElement>('[data-gota]'), estela = $<SVGPathElement>('[data-estela]'), mb = $<SVGElement>('[data-mb]'), mbc = $<SVGElement>('[data-mbc]');
-    const cuello = $<SVGSVGElement>('[data-cuello]'), cuelloD = $<SVGPathElement>('[data-cuello-d]'), resto = $<SVGCircleElement>('[data-resto]');
-    const satelite = $<HTMLElement>('[data-satelite]'), pista = $<HTMLElement>('[data-carga-pista]'), rastro = $<SVGPolylineElement>('[data-rastro]'), anillo = $<SVGCircleElement>('[data-anillo]');
-    const seno = (t: number) => 0.5 - 0.5 * Math.cos(Math.PI * t);
-    const cubica = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-    const entre = (t: number, a: number, b: number) => Math.min(1, Math.max(0, (t - a) / (b - a)));
-    // tiempos (ms) desde que la gota echa a rodar
-    const RODAR = 2400, COLGAR = 560, CAER = 1450, FIN = RODAR + COLGAR + CAER;
-    let t0 = 0, D = 0, meta = { x: 0, y: 0 }, largo: number[] = [], total = 0, pts: [number, number][] = [], largoVV = 1;
-    let px = 0, py = 0, parado = false, estelaS = 0, camAnt = 0, ult = 0, rota = false, satT = -1, satY = 0, satX = 0, arrancando = false;
-    // EL CAMINO (ronda 68): el eje del isotipo, medido sobre su dibujo (370 × 439; con un trazo de 50 cubre el 99,8 % de la forma), suavizado; y al
-    // final, la bola, de cuya parte de abajo cuelga la gota. `nVV`: cuántos puntos dibuja la plumada.
-    let nVV = 1, destino = { x: 0, y: 0, s: 1 };
+    const cv = $<HTMLCanvasElement>('[data-mastil]'), c = cv.getContext('2d')!, mundo = $<HTMLElement>('[data-mundo]');
+    const logo = $<SVGSVGElement>('[data-logo]'), plumada = $<SVGPathElement>('[data-plumada]'), cuenta = $<HTMLElement>('[data-cuenta]');
+    const pista = $<HTMLElement>('[data-carga-pista]');
+    const NB = getComputedStyle(document.documentElement).getPropertyValue('--tinta-carga').trim() || '#eadde7', CO = '#ff616b'; // ronda 91: la tinta de la paleta clara
+    // ronda 92 · «en la clara, que se vean bien detalles como la animación de carga»: carriles, trastes y dianas en la tinta de la paleta (antes, Rosa niebla fijo)
+    const TINTA = NB === '#eadde7' ? '234,221,231' : [1, 3, 5].map((k) => parseInt(NB.slice(k, k + 2), 16)).join(',');
+    // ── el camino de la plumada por el isotipo (el eje medido en la ronda 68, suavizado)
     const EJE: [number, number][] = [[3, 225], [22, 197], [45, 172], [72, 160], [88, 178], [86, 214], [72, 268], [56, 330], [46, 385], [54, 424], [80, 420], [112, 382], [148, 314], [188, 228], [220, 154], [246, 94], [270, 46], [298, 18], [332, 14], [358, 32], [352, 58], [334, 62], [324, 48]];
-    const caminoIso = (): [number, number][] => {
-      const liso = (q: [number, number][], n = 6): [number, number][] => { const o: [number, number][] = []; for (let k = 0; k < q.length - 1; k++) for (let j = 0; j < n; j++) { const t = j / n; o.push([q[k][0] + (q[k + 1][0] - q[k][0]) * t, q[k][1] + (q[k + 1][1] - q[k][1]) * t]); } o.push(q[q.length - 1]); return o.map((_, i) => { if (i === 0 || i === o.length - 1) return o[i]; let x = 0, y = 0, c = 0; for (let k = -3; k <= 3; k++) { const r = o[Math.min(o.length - 1, Math.max(0, i + k))]; x += r[0]; y += r[1]; c++; } return [x / c, y / c] as [number, number]; }); };
-      const eje = liso(EJE);
-      nVV = eje.length;
-      plumada.setAttribute('d', 'M' + eje.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L'));
-      const cuelga = liso([eje[eje.length - 1], [338, 60], [340, 74]], 5).slice(1);
-      const r = logo.getBoundingClientRect(), k = r.width / 370;
-      return [...eje, ...cuelga].map(([x, y]) => [r.left + x * k, r.top + y * k] as [number, number]);
-    };
+    const liso = (q: [number, number][], n = 6): [number, number][] => { const o: [number, number][] = []; for (let k = 0; k < q.length - 1; k++) for (let j = 0; j < n; j++) { const t = j / n; o.push([q[k][0] + (q[k + 1][0] - q[k][0]) * t, q[k][1] + (q[k + 1][1] - q[k][1]) * t]); } o.push(q[q.length - 1]); return o.map((_, i) => { if (i === 0 || i === o.length - 1) return o[i]; let x = 0, y = 0, n2 = 0; for (let k = -3; k <= 3; k++) { const r = o[Math.min(o.length - 1, Math.max(0, i + k))]; x += r[0]; y += r[1]; n2++; } return [x / n2, y / n2] as [number, number]; }); };
+    plumada.setAttribute('d', 'M' + liso(EJE).map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L'));
+    // ── el juego
+    const TOTAL = 4, BEAT = 60 / 74, VIAJE = 1.35; // ronda 99: al tempo del jazz de la web (74 BPM) // ronda 86: «más corta de ejecutar» (antes 6 notas y 1,9 s de viaje) // s que tarda una nota en bajar por el carril
+    const MELODIA = [72, 76, 77, 79]; // ronda 97: «Oh, when the saints…» (do · mi · fa · sol)
+    const CARRIL = [0, 1, 1, 2]; // por dónde llega cada nota: más aguda, más a la derecha
+    type Nota = { k: number; carril: number; t0: number; estado: 'viene' | 'dada' | 'perdida'; tf: number };
+    const notas: Nota[] = [];
+    type Chispa = { x: number; y: number; vx: number; vy: number; v: number; col: string };
+    const chispas: Chispa[] = [];
+    const dianas = [0, 0, 0]; // brillo de cada diana al pulsar (decae)
+    let aciertos = 0, siguiente = 0, proxima = 0, W = 0, H = 0, dpr = 1, fin = false, parado = false, t00 = 0;
+    const g = { vx: 0, vy: 0, sy: 0, ancho: 0, arriba: 0 }; // punto de fuga, línea de las dianas, ancho abajo, ancho arriba
     const medir = () => {
-      const hr = hero.getBoundingClientRect(); D = hr.top; // el hero nace desplazado: esa es la distancia que baja la cámara
-      const r = logo.getBoundingClientRect();
-      pts = caminoIso();
-      // el sitio del isotipo en la barra: el principio del logotipo (su isotipo ocupa todo el alto y 370/1275 del ancho)
-      const nl = document.querySelector('.logo-marca')?.getBoundingClientRect();
-      if (nl && nl.height) destino = { x: nl.left - r.left, y: nl.top - r.top, s: nl.height / r.height };
-      const c = hero.querySelector('.arbol-caja')!.getBoundingClientRect();
-      meta = { x: c.left + c.width / 2, y: c.bottom - 4 }; // en el MUNDO (el hero ya lleva sumada la distancia D)
-      largo = [0]; for (let i = 1; i < pts.length; i++) largo.push(largo[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
-      total = largo[largo.length - 1]; largoVV = largo[nVV - 1];
+      W = innerWidth; H = innerHeight; dpr = Math.min(2, devicePixelRatio || 1);
+      cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px'; c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.vx = W / 2; g.vy = H * 0.34; g.sy = H * 0.8; g.ancho = Math.min(W * 0.9, 640); g.arriba = g.ancho * 0.16;
+      const lh = Math.min(H * 0.22, 190); // el isotipo, al fondo del mástil
+      logo.style.height = lh + 'px'; logo.style.left = W / 2 - (lh * 370) / 439 / 2 + 'px'; logo.style.top = g.vy - lh - H * 0.02 + 'px';
     };
-    const enCamino = (k: number): [number, number] => {
-      const s = k * total; let i = 1; while (i < largo.length - 1 && largo[i] < s) i++;
-      const f = (s - largo[i - 1]) / Math.max(1e-6, largo[i] - largo[i - 1]);
-      return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
-    };
-    const acabar = (conGota: boolean) => {
-      if (parado) return; parado = true;
-      try { localStorage.setItem('savvia:carga', '1'); } catch {} // ronda 69: solo la primera vez
-      terminar();
-      velo.classList.add('fuera');
-      if (conGota) logo.style.transform = `translate3d(${destino.x}px, ${destino.y}px, 0) scale(${destino.s})`;
-      gota.style.opacity = '0';
-      const caja = hero.querySelector<HTMLElement>('.arbol-caja');
-      if (conGota && caja) salpicar(caja, caja.offsetWidth / 2, caja.offsetHeight - 4, { n: 11, fuerza: 1.05, color: 'rgba(246, 228, 204, .7)' });
-      soltar();
-      setTimeout(() => velo.remove(), 1400);
-    };
-    const brillo = gota.querySelector<SVGGElement>('[data-brillo]')!;
-    const ponerGota = (x: number, y: number, ang: number, sx: number, sy: number) => {
-      gota.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${ang}rad) scale(${sy.toFixed(3)}, ${sx.toFixed(3)})`;
-      brillo.setAttribute('transform', `rotate(${((-ang * 180) / Math.PI).toFixed(1)})`);
-    };
-    const cuelloPath = (Lc: number, r: number, wa: number, wm: number) =>
-      `M${-wa} 0C${-wm} ${Lc * 0.42} ${-r * 0.8} ${Lc * 0.72} ${-r * 0.8} ${Lc}L${r * 0.8} ${Lc}C${r * 0.8} ${Lc * 0.72} ${wm} ${Lc * 0.42} ${wa} 0Z`;
-    const paso = (ahora: number) => {
-      if (parado) return;
-      if (!ult) { ult = ahora; medir(); velo.classList.add('en-marcha'); }
-      ult = ahora;
-      if (!rota) { requestAnimationFrame(paso); return; }
-      const [ax, ay] = pts[pts.length - 1]; // la punta del rabo de la «a» (pantalla)
-      let x = 0, y = 0, cam = 0, ang = 0, sx = 1, sy = 1, gordo = 1;
-      const t = ahora - t0;
-      if (t < RODAR) {
-        // RODAR: por las v (se dibujan a su paso, con la plumada), luego por encima de la i y de la a
-        const k = seno(entre(t, 0, RODAR));
-        [x, y] = enCamino(k);
-        plumada.setAttribute('stroke-dashoffset', String(1000 * (1 - Math.min(1, (k * total) / largoVV + 0.012))));
-        const vx = x - px, vy = y - py, vel = Math.hypot(vx, vy);
-        ang = vel > 0.2 ? Math.atan2(vy, vx) : 0;
-        gota.style.opacity = String(entre(t, 0, 180));
-      } else if (t < RODAR + COLGAR) {
-        // DESCOLGARSE: la gota engorda y cae por su peso; el cuello se alarga y se estrangula
-        const k = entre(t, RODAR, RODAR + COLGAR), e = k * k * (3 - 2 * k);
-        gordo = 1 + 0.32 * e;
-        const r = 6 * gordo, Lc = 3 + 17 * e;
-        x = ax + Math.sin(k * 9) * 0.6 * (1 - k); y = ay + Lc;
-        cuello.style.opacity = '1'; cuello.style.transform = `translate3d(${ax}px, ${ay}px, 0)`;
-        cuelloD.setAttribute('d', cuelloPath(Lc, r, 4.2 - 2.6 * e, r * 0.72 * (1 - Math.pow(k, 1.6)) + 0.7));
-        ang = Math.PI / 2; sx = 1 - 0.08 * e; sy = 1 + 0.16 * e;
+    const xCarril = (i: number, p: number) => { const ab = g.vx + (i - 1) * (g.ancho / 3), ar = g.vx + (i - 1) * (g.arriba / 3); return ar + (ab - ar) * p; };
+    const yDe = (p: number) => g.vy + (g.sy - g.vy) * p;
+    const pDe = (t: number) => Math.pow(Math.max(0, t), 1.45); // se acelera al acercarse (perspectiva)
+    const lanzar = (ahora: number) => { if (siguiente >= TOTAL || fin) return; notas.push({ k: siguiente, carril: CARRIL[siguiente], t0: ahora, estado: 'viene', tf: 0 }); siguiente++; };
+    const pintarCuenta = () => { cuenta.innerHTML = Array.from({ length: TOTAL }, (_, i) => `<i class="${i < aciertos ? 'si' : ''}"></i>`).join(''); };
+    pintarCuenta();
+    let pl = 0, plMeta = 0;
+    // PULSAR: acierta la nota viva más cercana a su diana si está a menos de ~0,4 pulsos (el carril da igual: que apetezca pulsar)
+    const pulsar = (carrilPulsado?: number) => {
+      if (fin || parado) return;
+      const ahora = performance.now() / 1000;
+      let mejor: Nota | null = null, dm = Infinity;
+      for (const n of notas) { if (n.estado !== 'viene') continue; const d = Math.abs(ahora - (n.t0 + VIAJE)); if (d < dm) { dm = d; mejor = n; } }
+      if (mejor && dm < BEAT * 0.42) {
+        mejor.estado = 'dada'; mejor.tf = ahora; aciertos++; dianas[mejor.carril] = 1;
+        rhodesSuelto(MELODIA[mejor.k], 0.13, 1.8); rhodesSuelto(MELODIA[mejor.k] - 24, 0.07, 1.4); // ronda 99: «las notas, acordes con la música de la web»: su mismo piano eléctrico
+        const x = xCarril(mejor.carril, 1), y = g.sy;
+        for (let i = 0; i < 18; i++) { const a = Math.random() * Math.PI * 2, v = 80 + Math.random() * 260; chispas.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, v: 1, col: i % 3 ? NB : CO }); }
+        plMeta = aciertos / TOTAL; // la plumada avanza un tramo del isotipo
+        pintarCuenta();
+        velo.classList.add('jugando');
+        if (aciertos >= TOTAL) resolver();
       } else {
-        // CAER: en pantalla acelera (gravedad); la cámara baja con curva suave y se posa a la vez que la gota toca el suelo
-        const tCae = t - (RODAR + COLGAR);
-        if (tCae < 40) { cuelloD.setAttribute('d', ''); satT = ahora; satX = ax; satY = ay + 9; satelite.style.opacity = '1'; }
-        const rk = entre(tCae, 0, 220); resto.setAttribute('r', String(2.4 * (1 - rk))); resto.setAttribute('cy', String(-3 * rk));
-        const k = entre(t, RODAR + COLGAR, FIN);
-        cam = cubica(k);
-        const y0 = ay + 20;
-        const pantY = y0 + (meta.y - D - y0) * Math.pow(k, 2.1);
-        y = pantY + cam * D;
-        x = ax + (meta.x - ax) * seno(k) + Math.sin(k * Math.PI * 2) * 14 * (1 - k);
-        mundo.style.transform = `translate3d(0, ${-cam * D}px, 0)`;
-        // el isotipo vuela a la barra mientras la gota cae
-        const v = cubica(entre(t, RODAR + COLGAR * 0.6, FIN - 150));
-        logo.style.transform = `translate3d(${(destino.x * v).toFixed(1)}px, ${(destino.y * v).toFixed(1)}px, 0) scale(${(1 + (destino.s - 1) * v).toFixed(4)})`;
-        hero.style.transform = `translate3d(0, ${(1 - cam) * D}px, 0)`;
-        if (k > 0.02) velo.classList.add('cayendo');
-        gordo = 1.3;
-        const velP = Math.abs(y - cam * D - (py - camAnt * D));
-        const vx = x - px, vy = y - py;
-        ang = Math.PI / 2 + (Math.hypot(vx, vy) > 0.2 ? (Math.atan2(vy, vx) - Math.PI / 2) * 0.5 : 0);
-        const f = formaGota(tCae, velP); sx = f.sx; sy = f.sy;
-        estelaS += ((tCae > 100 ? Math.min(1, velP * 0.05) : 0) - estelaS) * 0.22;
-        estela.setAttribute('transform', `scale(${estelaS.toFixed(3)}, 1)`);
-        estela.style.opacity = String(0.42 * estelaS);
-        mb.setAttribute('stdDeviation', `${Math.min(9, velP * 0.28).toFixed(2)} 0.4`);
-        mbc.setAttribute('stdDeviation', `${Math.min(1.4, velP * 0.035).toFixed(2)} 0.15`);
-        if (satT > 0) {
-          const ts = (ahora - satT) / 1000, sy2 = satY + 0.5 * 1500 * ts * ts * 0.85;
-          satelite.style.transform = `translate3d(${satX}px, ${sy2 + cam * D}px, 0) scale(${1 + ts * 1.2}, ${1 - ts * 0.15})`;
-          satelite.style.opacity = String(Math.max(0, 1 - ts * 1.6));
-        }
+        // pulsar a destiempo también suena (bajito) y la diana se enciende: que apetezca seguir
+        const i = carrilPulsado ?? 1; dianas[i] = Math.max(dianas[i], 0.45);
+        rhodesSuelto(MELODIA[Math.min(aciertos, TOTAL - 1)] - 5, 0.04, 0.6);
       }
-      ponerGota(x, y, ang, gordo * sx, gordo * sy);
-      camAnt = cam; px = x; py = y;
-      if (t >= FIN) return acabar(true);
+    };
+    // ── dibujar el mástil
+    const frame = (ahora: number) => {
+      if (parado) return;
+      const t = ahora / 1000;
+      if (!t00) { t00 = t; proxima = t + 0.4; }
+      if (!fin && t >= proxima && notas.filter((n) => n.estado === 'viene').length < 2) { lanzar(t); proxima = t + BEAT * 1.5; }
+      // las notas perdidas vuelven a salir (no se castiga)
+      for (const n of notas) if (n.estado === 'viene' && t - n.t0 > VIAJE + BEAT * 0.5) { n.estado = 'perdida'; n.tf = t; siguiente = Math.min(siguiente, n.k); }
+      for (let i = notas.length - 1; i >= 0; i--) if (notas[i].estado !== 'viene' && t - notas[i].tf > 0.8) notas.splice(i, 1);
+      // la plumada, suave
+      pl += (plMeta - pl) * 0.12; plumada.setAttribute('stroke-dashoffset', String(1000 * (1 - Math.min(1, pl + (pl > 0.001 ? 0.01 : 0)))));
+      c.clearRect(0, 0, W, H);
+      const pulso = Math.exp(-(((t - t00) % BEAT) / BEAT) * 5); // el latido, a tempo
+      // CARRILES: tres franjas en perspectiva; se encienden al pulsar
+      for (let i = 0; i < 3; i++) {
+        const a0 = xCarril(i, 0) - g.arriba / 6, a1 = xCarril(i, 0) + g.arriba / 6, b0 = xCarril(i, 1) - g.ancho / 6, b1 = xCarril(i, 1) + g.ancho / 6;
+        const gr = c.createLinearGradient(0, g.vy, 0, g.sy + 30);
+        gr.addColorStop(0, `rgba(${TINTA},0)`); gr.addColorStop(1, `rgba(${TINTA},${0.035 + dianas[i] * 0.08})`);
+        c.fillStyle = gr; c.beginPath(); c.moveTo(a0, g.vy); c.lineTo(a1, g.vy); c.lineTo(b1, g.sy + 30); c.lineTo(b0, g.sy + 30); c.closePath(); c.fill();
+      }
+      c.strokeStyle = `rgba(${TINTA},.16)`; c.lineWidth = 1;
+      for (let i = 0; i <= 3; i++) { const xa = g.vx + (i - 1.5) * (g.arriba / 3), xb = g.vx + (i - 1.5) * (g.ancho / 3); c.beginPath(); c.moveTo(xa, g.vy); c.lineTo(xb + (xb - xa) * 0.06, g.sy + 30); c.stroke(); }
+      // los trastes que bajan a tempo: sensación de avance
+      for (let j = 0; j < 6; j++) {
+        const f = (((t - t00) / BEAT / 2 + j / 6) % 1), p = pDe(f), y = yDe(p), hw = (g.arriba + (g.ancho - g.arriba) * p) / 2;
+        c.strokeStyle = `rgba(${TINTA},${0.1 * p})`; c.beginPath(); c.moveTo(g.vx - hw, y); c.lineTo(g.vx + hw, y); c.stroke();
+      }
+      // la línea de las dianas y las DIANAS (anillos que laten)
+      c.strokeStyle = `rgba(${TINTA},${0.3 + 0.2 * pulso})`; c.lineWidth = 1.2; c.beginPath(); c.moveTo(g.vx - g.ancho / 2 - 20, g.sy); c.lineTo(g.vx + g.ancho / 2 + 20, g.sy); c.stroke();
+      for (let i = 0; i < 3; i++) {
+        const x = xCarril(i, 1), r = Math.min(26, g.ancho / 18) + pulso * 3 + dianas[i] * 6;
+        c.lineWidth = 2; c.strokeStyle = dianas[i] > 0.5 ? CO : `rgba(${TINTA},${0.55 + pulso * 0.3})`;
+        c.beginPath(); c.arc(x, g.sy, r, 0, 7); c.stroke();
+        if (dianas[i] > 0.02) { c.fillStyle = `rgba(255,97,107,${dianas[i] * 0.35})`; c.beginPath(); c.arc(x, g.sy, r + 10 * dianas[i], 0, 7); c.fill(); }
+        dianas[i] *= 0.9;
+      }
+      // las NOTAS: cabeza brillante con estela; crecen al acercarse
+      for (const n of notas) {
+        const vida = t - n.t0, p = n.estado === 'viene' ? pDe(vida / VIAJE) : pDe((n.tf - n.t0) / VIAJE);
+        const x = xCarril(n.carril, p), y = yDe(p), r = 4 + 13 * p;
+        const alfa = n.estado === 'viene' ? Math.min(1, vida * 4) * (p > 1.08 ? Math.max(0, 1 - (p - 1.08) * 6) : 1) : Math.max(0, 1 - (t - n.tf) * 3);
+        if (n.estado === 'dada') { c.strokeStyle = `rgba(255,97,107,${alfa})`; c.lineWidth = 2; c.beginPath(); c.arc(x, y, r + (t - n.tf) * 90, 0, 7); c.stroke(); continue; }
+        const pa = pDe(Math.max(0, vida - 0.18) / VIAJE), xa = xCarril(n.carril, pa), ya = yDe(pa);
+        const ge = c.createLinearGradient(xa, ya, x, y); ge.addColorStop(0, `rgba(${TINTA},0)`); ge.addColorStop(1, `rgba(${TINTA},${0.5 * alfa})`);
+        c.strokeStyle = ge; c.lineWidth = r * 1.1; c.lineCap = 'round'; c.beginPath(); c.moveTo(xa, ya); c.lineTo(x, y); c.stroke();
+        c.save(); c.translate(x, y); c.rotate(-0.38);
+        c.shadowColor = CO; c.shadowBlur = 18 * p; c.fillStyle = n.estado === 'perdida' ? `rgba(${TINTA},.3)` : NB; c.globalAlpha = alfa;
+        c.beginPath(); c.ellipse(0, 0, r, r * 0.72, 0, 0, 7); c.fill(); c.restore(); c.globalAlpha = 1; c.shadowBlur = 0;
+      }
+      for (let i = chispas.length - 1; i >= 0; i--) { const s = chispas[i]; s.vy += 520 / 60; s.x += s.vx / 60; s.y += s.vy / 60; s.v -= 0.025; if (s.v <= 0) { chispas.splice(i, 1); continue; } c.fillStyle = s.col; c.globalAlpha = s.v; c.beginPath(); c.arc(s.x, s.y, 1.8, 0, 7); c.fill(); c.globalAlpha = 1; }
+      requestAnimationFrame(frame);
+    };
+    // ── EL FINAL: el acorde, el isotipo brilla y CAE él mismo a la batuta (como la gota)
+    const cubica = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const COLGAR = 360, CAER = 1150; // ronda 86: más corta
+    const ondaEn = (x: number, y: number) => {
+      const o = document.createElement('div'); o.className = 'onda-batuta'; o.setAttribute('aria-hidden', 'true');
+      o.style.left = `${x}px`; o.style.top = `${y}px`; o.innerHTML = '<i></i><i></i><i></i><i></i><i></i>';
+      hero.appendChild(o); setTimeout(() => o.remove(), 4000);
+    };
+    const resolver = () => {
+      fin = true;
+      setTimeout(() => { [36, 52, 57, 62, 67].forEach((m, i) => rhodesSuelto(m, i ? 0.07 : 0.12, 3.6, i * 0.012)); velo.classList.add('resuelto'); }, 250); // ronda 97: do 6/9, el acorde con que empieza el jazz
+      const D = hero.getBoundingClientRect().top; // el hero nace desplazado: lo que baja la cámara
+      const caja = hero.querySelector<HTMLElement>('.arbol-caja')!.getBoundingClientRect();
+      // RONDA 110 · «que la V caiga hasta donde termina el hero, genere una onda y desde ahí se empiece a generar el ASCII de manera aleatoria»: la meta ya no es la
+      // batuta sino el centro del borde de abajo del recuadro (de donde salen los pulsos); en el mundo: el hero aún lleva sumada D
+      const mr = hero.querySelector<HTMLElement>('.marco')?.getBoundingClientRect() ?? caja;
+      const meta = { x: mr.left + mr.width / 2, y: mr.bottom - 4 };
+      // RONDA 86 · «que lo que caiga sea el isotipo de savvia, no una nota; que del isotipo salgan ondas de sonido que generan la vida en la web»: cae el
+      // PROPIO isotipo (encogiéndose), y al posarse en la batuta suelta ondas de sonido de las que se dibuja el director
+      const lr = logo.getBoundingClientRect();
+      const x0 = lr.left + lr.width / 2, y0 = lr.top + lr.height / 2, h0 = lr.height, hFin = Math.max(26, caja.height * 0.09);
+      // RONDA 89 · «al terminar de pulsar las notas, el isotipo tiene un frame donde aparece a la derecha antes de caer»: se quitaban left/top y la
+      // transformación no llegaba hasta medio segundo después. Ahora el mismo sitio se expresa ya como transformación, en el mismo fotograma
+      const ponerEn = (x: number, y: number, extra = '') => { logo.style.transform = `translate3d(${(x - (h0 * 370) / 439 / 2).toFixed(1)}px, ${(y - h0 / 2).toFixed(1)}px, 0)${extra}`; };
+      logo.style.transformOrigin = '50% 50%'; ponerEn(x0, y0); logo.style.left = '0px'; logo.style.top = '0px';
+      const G = h0 * 0.1;
+      let t0 = 0, cSuelta = false, xp = x0, yp = y0;
+      const paso = (ahora: number) => {
+        if (parado) return;
+        if (!t0) t0 = ahora + 500; // deja sonar el acorde y brillar el isotipo
+        const t = ahora - t0;
+        if (t < 0) return void requestAnimationFrame(paso);
+        if (!cSuelta) { cSuelta = true; velo.classList.add('subiendo'); }
+        let x = x0, y = y0, sx = 1, sy = 1, ang = 0, cam = 0, blur = 0, al = 1;
+        if (t < COLGAR) {
+          const q = t / COLGAR, e = q * q * (3 - 2 * q);
+          x = x0 + Math.sin(q * 26) * 1.2 * (1 - q); y = y0 + e * G * 1.2; sx = 1 - 0.06 * e; sy = 1 + 0.12 * e; ang = Math.sin(q * 18) * 6 * (1 - q); al = 1;
+        } else {
+          const q = Math.min(1, (t - COLGAR) / CAER);
+          cam = cubica(q);
+          const yI = y0 + G * 1.2, pant = yI + (meta.y - D - yI) * Math.pow(q, 2.1);
+          y = pant + cam * D;
+          x = x0 + (meta.x - x0) * (0.5 - 0.5 * Math.cos(Math.PI * q)) + Math.sin(q * Math.PI * 2) * 12 * (1 - q);
+          const v = Math.hypot(x - xp, y - cam * D - yp);
+          sy = 1 + Math.min(0.25, v * 0.012); sx = 1 / Math.sqrt(sy); ang = Math.sin(q * Math.PI * 3) * 10 * (1 - q); blur = Math.min(2.2, v * 0.05);
+          mundo.style.transform = `translate3d(0, ${(-cam * D).toFixed(1)}px, 0)`;
+          hero.style.transform = `translate3d(0, ${((1 - cam) * D).toFixed(1)}px, 0)`;
+          if (q >= 1) {
+            rhodesSuelto(36, 0.12, 3); rhodesSuelto(79, 0.05, 2.4);
+            logo.style.opacity = '0';
+            acabar();
+            const hr = hero.getBoundingClientRect();
+            ondaEn(meta.x - hr.left, meta.y - D - hr.top);
+            // ronda 89: la misma onda recorre las capas del hero y sus puntos
+            setTimeout(() => dispatchEvent(new CustomEvent('savvia:onda', { detail: { x: meta.x, y: meta.y - D, f: 1.2 } })), 60);
+            return;
+          }
+        }
+        xp = x; yp = y - cam * D;
+        void al;
+        const q2 = t < COLGAR ? 0 : Math.min(1, (t - COLGAR) / CAER), esc = (h0 + (hFin - h0) * Math.pow(q2, 0.8)) / h0;
+        ponerEn(x, y, ` rotate(${ang.toFixed(1)}deg) scale(${(esc * sx).toFixed(3)}, ${(esc * sy).toFixed(3)})`);
+        logo.style.filter = `drop-shadow(0 0 ${(10 + 10 * (1 - q2)).toFixed(0)}px color-mix(in srgb, var(--color-coral) 70%, transparent))${blur > 0.2 ? ` blur(${blur.toFixed(1)}px)` : ''}`;
+        requestAnimationFrame(paso);
+      };
       requestAnimationFrame(paso);
     };
-    // ── EL CÍRCULO: el puntero deja un rastro; cuando la vuelta se cierra (≥ 340° alrededor de su centro, radio ≥ 18 px), arranca
-    const traza: { x: number; y: number; t: number }[] = [];
-    const arrancar = (cx: number, cy: number, r: number) => {
-      if (arrancando || rota) return; arrancando = true;
-      clearTimeout(pistaT); pista.classList.remove('ver');
-      velo.classList.add('circulo');
-      rastro.setAttribute('points', ''); traza.length = 0; // el rastro desaparece en cuanto se cierra el círculo
-      // el anillo se encoge desde el círculo dibujado hasta el pie de la primera v y se vuelve la gota (rAF: los atributos SVG no se animan igual en todos)
-      const [gx, gy] = pts[0];
-      anillo.style.opacity = '1';
-      let a0 = 0;
-      const enc = (ahora: number) => {
-        if (!a0) a0 = ahora;
-        const k = Math.min(1, (ahora - a0) / 520), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        anillo.setAttribute('cx', String(cx + (gx - cx) * e)); anillo.setAttribute('cy', String(cy + (gy - cy) * e)); anillo.setAttribute('r', String(r + (3 - r) * e));
-        if (k < 1) return void requestAnimationFrame(enc);
-        anillo.style.opacity = '0'; rota = true; t0 = performance.now(); px = gx; py = gy;
-      };
-      requestAnimationFrame(enc);
+    const acabar = () => {
+      if (parado) return; parado = true;
+      try { localStorage.setItem('savvia:carga', '1'); } catch {}
+      terminar();
+      velo.classList.add('fuera');
+      soltar();
+      setTimeout(() => velo.remove(), 1200);
     };
-    const mover = (e: PointerEvent) => {
-      if (rota || arrancando) return;
-      if (e.pointerType === 'touch' && e.buttons === 0) return;
-      const ahora = performance.now();
-      traza.push({ x: e.clientX, y: e.clientY, t: ahora });
-      while (traza.length && ahora - traza[0].t > 1400) traza.shift();
-      rastro.setAttribute('points', traza.map((p) => `${p.x},${p.y}`).join(' '));
-      if (traza.length < 14) return;
-      let cx = 0, cy = 0; for (const p of traza) { cx += p.x; cy += p.y; } cx /= traza.length; cy /= traza.length;
-      let giro = 0, radio = 0, prev = Math.atan2(traza[0].y - cy, traza[0].x - cx);
-      for (let i = 1; i < traza.length; i++) {
-        const a = Math.atan2(traza[i].y - cy, traza[i].x - cx); let d = a - prev; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; giro += d; prev = a;
-        radio += Math.hypot(traza[i].x - cx, traza[i].y - cy);
-      }
-      radio /= traza.length - 1;
-      if (Math.abs(giro) >= Math.PI * 1.9 && radio >= 18) arrancar(cx, cy, radio);
-    };
-    addEventListener('pointermove', mover, { passive: true });
-    // pista «dibuja un círculo» si a los 1,6 s nadie ha hecho nada
-    const pistaT = setTimeout(() => { if (!rota && !arrancando) pista.classList.add('ver'); }, 250); // ronda 68: es el estado inicial
-    const saltar = () => acabar(false);
-    $('[data-saltar]').addEventListener('click', saltar);
-    addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') return saltar();
-      if ((e.key === ' ' || e.key === 'Enter') && !rota && !arrancando) { e.preventDefault(); medir(); arrancar(innerWidth / 2, innerHeight / 2, 40); }
+    // ── entradas
+    const TECLAS: Record<string, number> = { a: 0, s: 1, d: 2, j: 0, k: 1, l: 2, ArrowLeft: 0, ArrowDown: 1, ArrowRight: 2, ' ': 1, Enter: 1 };
+    velo.addEventListener('pointerdown', (e) => {
+      if ((e.target as Element).closest('[data-saltar]')) return;
+      const i = e.clientX < g.vx - g.ancho / 6 ? 0 : e.clientX > g.vx + g.ancho / 6 ? 2 : 1;
+      pulsar(i);
     });
-    addEventListener('wheel', saltar, { once: true, passive: true });
-    document.fonts.ready.then(() => requestAnimationFrame(paso));
-    // ── EL TIEMPO DE LA ESTACIÓN (ronda 66): 36 motas que caen (o suben, en verano) detrás de la palabra, en el color de la estación
-    {
-      const cv = $<HTMLCanvasElement>('[data-tiempo]'), c = cv.getContext('2d')!, dpr = Math.min(2, devicePixelRatio || 1);
-      const est = raiz.dataset.estacion || 'otono', arbol = getComputedStyle(raiz).getPropertyValue('--arbol').trim() || '#c65c2d';
-      const W = innerWidth, H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; c.scale(dpr, dpr);
-      const azar = (a: number, b: number) => a + Math.random() * (b - a);
-      const motas = Array.from({ length: 36 }, () => ({ x: azar(0, W), y: azar(-H, H), v: azar(18, 46), r: azar(2, 5), f: azar(0, 6.3), g: azar(-1, 1) }));
-      let ant = 0;
-      const pinta = (ahora: number) => {
-        if (parado || !cv.isConnected) return;
-        const dt = ant ? Math.min(0.05, (ahora - ant) / 1000) : 0; ant = ahora;
-        c.clearRect(0, 0, W, H);
-        for (const m of motas) {
-          const sube = est === 'verano';
-          m.y += (sube ? -0.35 : 1) * m.v * dt; m.f += dt * (est === 'invierno' ? 0.8 : 1.6);
-          const x = m.x + Math.sin(m.f) * (est === 'otono' ? 22 : 10);
-          if (!sube && m.y > H + 10) { m.y = -10; m.x = azar(0, W); }
-          if (sube && m.y < -10) { m.y = H + 10; m.x = azar(0, W); }
-          c.save(); c.translate(x, m.y);
-          if (est === 'invierno') { c.globalAlpha = 0.5; c.fillStyle = '#eef3fb'; c.beginPath(); c.arc(0, 0, m.r * 0.6, 0, 7); c.fill(); }
-          else if (est === 'verano') { c.globalAlpha = 0.35 + 0.3 * Math.sin(m.f * 2); c.fillStyle = '#ffe3a0'; c.beginPath(); c.arc(0, 0, m.r * 0.45, 0, 7); c.fill(); }
-          else if (est === 'primavera') { c.rotate(m.f); c.globalAlpha = 0.6; c.fillStyle = m.g > 0 ? '#f7dfe6' : '#fbeef2'; c.beginPath(); c.ellipse(0, 0, m.r, m.r * 0.6, 0, 0, 7); c.fill(); }
-          else { c.rotate(m.f * 0.7 + m.g); c.globalAlpha = 0.55; c.fillStyle = m.g > 0 ? arbol : '#d9a441'; c.beginPath(); c.ellipse(0, 0, m.r * 1.4, m.r * 0.7, 0, 0, 7); c.fill(); }
-          c.restore();
-        }
-        requestAnimationFrame(pinta);
-      };
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(pinta);
-    }
+    addEventListener('keydown', (e) => {
+      if (parado) return;
+      if (e.key === 'Escape') return acabar();
+      if (e.key in TECLAS) { e.preventDefault(); pulsar(TECLAS[e.key]); }
+    });
+    $('[data-saltar]').addEventListener('click', () => acabar());
+    addEventListener('wheel', () => { if (!fin) acabar(); }, { once: true, passive: true });
+    addEventListener('resize', medir);
+    medir();
+    setTimeout(() => pista.classList.add('ver'), 300);
+    document.fonts.ready.then(() => { velo.classList.add('en-marcha'); requestAnimationFrame(frame); });
+    // sondas para las pruebas: cuándo llega la próxima nota a su diana
+    (window as any).__carga = () => ({ aciertos, llegadas: notas.filter((n) => n.estado === 'viene').map((n) => n.t0 + VIAJE - performance.now() / 1000) });
   }
 </script>
 
@@ -294,110 +257,78 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     inset: 0;
     z-index: 70; /* escala de z: … 55 nav · 60 escenario sentado · 70 carga */
     overflow: hidden;
-    pointer-events: auto; /* mientras dura, el puntero es suyo (debajo no hay nada que tocar) */
-    cursor: crosshair;
+    pointer-events: auto;
+    cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none; /* el dedo dibuja el círculo, no hace scroll */
+    touch-action: none;
   }
-  /* el velo: la misma materia que la página. Se retira cuando la gota empieza a caer (debajo solo hay fondo: el hero aún está abajo) */
   .cargador::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: var(--noche) url('/media/grano.png') 0 0 / 240px 240px;
-    transition: opacity 0.7s ease;
+    background: var(--bg-carga, var(--noche)) url('/media/grano.png') 0 0 / 240px 240px; /* ronda 91: en la paleta clara, Neutro claro */
+    transition: opacity 0.9s ease;
   }
-  .cayendo::before {
-    opacity: 0;
-  }
-  .mundo {
-    position: absolute;
-    inset: 0;
-    will-change: transform;
-  }
-  /* RONDA 68 · el isotipo (SVG): apenas visible; su copia a plena tinta la destapa la plumada de la gota. Colocado por su esquina de arriba a la
-     izquierda (el vuelo a la barra es un translate + scale desde ahí) */
+  .subiendo::before { opacity: 0; }
+  .mundo { position: absolute; inset: 0; will-change: transform; }
+  .mastil { position: absolute; left: 0; top: 0; transition: opacity 0.7s ease; }
+  .subiendo .mastil { opacity: 0; }
   .logo {
-    --ih: clamp(10rem, 30lvh, 16rem);
     position: absolute;
-    left: calc(50% - var(--ih) * 370 / 439 / 2);
-    top: calc(50% - var(--ih) / 2);
-    width: calc(var(--ih) * 370 / 439);
-    height: var(--ih);
+    aspect-ratio: 370 / 439;
     overflow: visible;
-    fill: var(--color-niebla);
-    transform-origin: 0 0;
-    will-change: transform;
+    fill: var(--tinta-carga, var(--color-niebla));
+    transition: opacity 0.3s ease;
+    transform-origin: 50% 50%;
   }
-  .logo .fija {
-    opacity: 0;
-    transition: opacity 1.1s ease 0.2s;
-  }
-  /* RONDA 68 · «solo quiero que se vea "dibuja un círculo" como estado inicial»: sin guía; el isotipo solo existe donde la gota lo dibuja */
-  .en-marcha .logo .fija { opacity: 0; }
-  .cayendo .logo .fija { opacity: 0; transition-duration: 0.4s; }
-  /* EL TONO DE LA GOTA según la estación: savia ámbar en otoño, hielo en invierno, rocío verde en primavera, miel en verano */
-  .cargador {
-    --gota-a: #f3dcc0; --gota-b: #e9c9a3; --gota-c: #f6e4cc; --gota-luz: #ffd9a8;
-  }
-  :global(html[data-estacion='invierno']) .cargador { --gota-a: #e6eef8; --gota-b: #c9d8ea; --gota-c: #f1f6fc; --gota-luz: #d6e6ff; }
-  :global(html[data-estacion='primavera']) .cargador { --gota-a: #eef6dc; --gota-b: #d7e8b4; --gota-c: #f3f8e6; --gota-luz: #e6f5b8; }
-  :global(html[data-estacion='verano']) .cargador { --gota-a: #fbe7b0; --gota-b: #f0cf7c; --gota-c: #fdf0c8; --gota-luz: #ffd76a; }
-  /* el tiempo de la estación, detrás de la palabra; se va con el velo */
-  .tiempo {
+  /* RONDA 89 · «el primer frame sale el isotipo de una forma rara»: sin medir aún (el script va diferido) el SVG salía a su tamaño por defecto en la
+     esquina. Invisible hasta que el script lo coloca (`.en-marcha`) */
+  .logo { visibility: hidden; }
+  .en-marcha .logo { visibility: visible; }
+  .logo .fija { opacity: 0.1; }
+  .jugando .logo .fija { opacity: 0.14; }
+  .resuelto .logo { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--color-coral) 70%, transparent)); }
+  .subiendo .logo .fija { opacity: 0; transition: opacity 0.4s ease; }
+  :global(.onda-batuta) { position: absolute; z-index: 3; width: 0; height: 0; pointer-events: none; }
+  :global(.onda-batuta i) {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    transition: opacity 0.7s ease;
-  }
-  .cayendo .tiempo { opacity: 0; }
-  /* el rastro del puntero y el anillo que se encoge */
-  .rastro {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-  }
-  .rastro polyline {
-    fill: none;
-    stroke: var(--color-niebla);
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0.55;
-    transition: opacity 0.4s ease;
-  }
-  .circulo .rastro polyline {
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--color-niebla);
     opacity: 0;
+    animation: onda-batuta 3.6s cubic-bezier(0.2, 0.6, 0.3, 1) forwards; /* ronda 87: más suaves */
   }
-  .anillo {
-    fill: none;
-    stroke: rgba(246, 228, 204, 0.8);
-    stroke-width: 2;
-    opacity: 0;
+  :global(.onda-batuta i:nth-child(2)) { animation-delay: 0.18s; border-color: var(--color-coral); }
+  :global(.onda-batuta i:nth-child(3)) { animation-delay: 0.36s; }
+  :global(.onda-batuta i:nth-child(4)) { animation-delay: 0.6s; border-color: var(--color-coral); }
+  :global(.onda-batuta i:nth-child(5)) { animation-delay: 0.9s; }
+  @keyframes onda-batuta {
+    0% { opacity: 0.45; inset: -4px; }
+    100% { opacity: 0; inset: -420px; }
   }
   .pista {
     position: absolute;
     left: 50%;
-    top: 50%;
-    translate: -50% -50%;
+    top: calc(80% + 3.5rem);
+    translate: -50% 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: calc(var(--spacing) * 3);
+    gap: calc(var(--spacing) * 2);
     color: var(--fg2);
     letter-spacing: 0.04em;
+    white-space: nowrap;
     opacity: 0;
     transition: opacity 0.8s ease;
   }
-  .pista.ver {
-    opacity: 1;
-  }
+  .pista.ver { opacity: 1; }
+  .resuelto .pista, .subiendo .pista { opacity: 0; }
+  .cuenta { display: flex; gap: 6px; }
+  .cuenta :global(i) { width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--fg2); transition: background-color 0.3s ease, scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .cuenta :global(i.si) { background: var(--color-coral); box-shadow: none; scale: 1.25; }
+  .sin-raton { display: none; }
+  @media (hover: none) { .con-raton { display: none; } .sin-raton { display: inline; } }
   .saltar {
     font: inherit;
     letter-spacing: inherit;
@@ -405,61 +336,10 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     text-decoration: underline;
     text-underline-offset: 0.2em;
     cursor: pointer;
-    pointer-events: auto;
+    margin-top: calc(var(--spacing) * 1);
   }
-  .saltar:hover {
-    color: var(--fg);
-  }
-  .gota .estela {
-    opacity: 0; /* solo cayendo: el JS la escala y la enciende con la velocidad */
-  }
-  .gota {
-    position: absolute;
-    /* el centro de la cabeza (0,0 del viewBox) cae en el punto del camino: el viewBox va de −34 a 8 en x y de −8 a 8 en y */
-    left: -34px;
-    top: -8px;
-    width: 42px;
-    height: 16px;
-    transform-origin: 34px 8px;
-    overflow: visible;
-    fill: rgba(246, 228, 204, 0.3); /* la estela: agua, no pintura */
-    opacity: 0;
-    will-change: transform;
-  }
-  .cuello {
-    position: absolute;
-    left: -20px;
-    top: -4px;
-    width: 40px;
-    height: 40px;
-    overflow: visible;
-    fill: rgba(246, 228, 204, 0.42);
-    opacity: 0;
-    transform-origin: 20px 4px;
-  }
-  .satelite {
-    position: absolute;
-    left: -1.7px;
-    top: -1.7px;
-    width: 3.4px;
-    height: 3.4px;
-    border-radius: 50%;
-    background: rgba(250, 238, 222, 0.75);
-    opacity: 0;
-  }
-  /* al posarse: el rastro y la gota se funden con la savia del suelo */
-  .fuera {
-    opacity: 0;
-    transition: opacity 1.2s ease;
-    pointer-events: none;
-  }
-  .fuera .gota,
-  .fuera .satelite {
-    opacity: 0 !important;
-    transition: opacity 0.25s ease;
-  }
+  .saltar:hover { color: var(--fg); }
+  .fuera { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
   :global(html:not(.cargando)) .cargador:not(.en-marcha),
-  :global(html:not(.js)) .cargador {
-    display: none;
-  }
+  :global(html:not(.js)) .cargador { display: none; }
 </style>

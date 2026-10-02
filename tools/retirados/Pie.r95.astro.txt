@@ -1,0 +1,358 @@
+---
+// EL PIE · RONDA 83 · giro a la música. Andoni: «footer toca repensarlo por completo» → dirección A, «FIN DE LA OBRA» (elegida el 30/09).
+// · La página es una partitura y aquí acaba: un PENTAGRAMA a todo el ancho del contenido que termina en la DOBLE BARRA FINAL (fina + gruesa).
+// · «Contáctanos», enorme en Family, está escrito SOBRE ese pentagrama (la línea de abajo es su línea base): es la última nota de la obra.
+// · El FOCO (el haz del hero) cae desde arriba sobre la palabra.
+// · Al llegar: las cinco líneas se trazan de izquierda a derecha, la palabra sale del desenfoque y al final se cierra la doble barra.
+// · Al pasar (o enfocar): la cuerda VIBRA, sobre la palabra se dibuja un CALDERÓN (la fermata: «sostener la nota») y de su punto sube la píldora con las
+//   caras de Eric y Andoni: «Haz clic para agendar una reunión con nosotros» (ronda 81). La palabra se ilumina en degradado de izquierda a derecha (ronda 81).
+//   Si el sonido de la web está encendido, suena el acorde final (el de la estación: el de la carga).
+// · Abajo, la línea mono y el CRÉDITO de la música de Proyectos (Vivaldi, CC BY-SA 4.0: la atribución es obligatoria).
+// Antes (rondas 20–82): el paisaje por capas con estaciones y el «Contáctanos» partido entre montañas (tools/retirados/Pie.r82.astro.txt).
+import { pie, nav } from '../data/home';
+const year = new Date().getFullYear();
+---
+
+<footer id="contacto" class="surface-dark pie" data-sube data-pie>
+  <!-- RONDA 95 · «hay un cambio de color en el footer entre la parte de arriba y la de abajo»: era el velo de noche lisa de las capas (rondas 86–94), que tapaba
+       el grano de la página hasta un corte. Fuera las capas y el velo: el pie es una sola materia -->
+  <div class="wrap contenido pt-24">
+    <div class="grid-12 gap-y-12">
+      <div class="col-span-4 lg:col-span-7">
+        <p class="text-h1 font-display tracking-[-0.02em] titular" data-entra>{pie.titulo}</p>
+        <p class="text-sub measure mt-4 lg:mt-6 text-fg2">{pie.pitch}</p>
+      </div>
+      <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
+        <ul class="enlaces text-ui flex flex-col gap-3 font-medium lg:items-end">
+          {[...nav.links.filter((l) => l.href !== '/#contacto'), ...nav.mas.links].map((l) => <li><a href={l.href} class="enlace-pie">{l.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EL ÚLTIMO SISTEMA: el pentagrama, la palabra sobre él y la doble barra final -->
+  <div class="wrap final" data-final>
+    <!-- RONDA 85 · la SALA del libro (ilustración de Andoni) detrás del último sistema, pintada por el mismo motor que el director: se DIBUJA desde la partitura
+         abierta al llegar y queda TRAMADA, con las ondas del tramado saliendo del libro a compás; fundida con la noche por los bordes -->
+    <div class="foco" aria-hidden="true"><i class="haz"></i></div>
+    <!-- RONDA 95 · «te paso una imagen del director de PERFIL y que parezca que está orquestando las letras de Contáctanos»: la lámina de Andoni (recortada:
+         public/media/pie/director-perfil.webp) hecha de papel con el motor del hero, a la izquierda y mirando a la palabra, con la batuta y la mano libre
+         marcando el compás (el rig de brazos) y las letras meciéndose a ese compás. La palabra le tapa de las rodillas abajo -->
+    <div class="director-pie" aria-hidden="true" data-director-pie><canvas></canvas></div>
+    <svg class="pauta" aria-hidden="true" data-pauta>
+      <g class="lineas" data-lineas></g>
+      <g class="barra" data-barra><path class="fina" d="" /><path class="gruesa" d="" /></g>
+      <g class="notas-fin" data-notas-fin></g>
+    </svg>
+    <a class="contacta font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`Contáctanos · agenda una reunión con Eric y Andoni${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
+      <!-- ronda 93: la «á» es «a» + NUESTRA tilde (la de la Family de prueba caía en Georgia), dentro de la letra: se mueve y se encoge con ella -->
+      <span class="txt" data-contacta-txt>{'Contáctanos'.split('').map((c, i) => c === 'á'
+        ? <span class="l" style={`--i:${i}`}>a<svg class="tilde" viewBox="0 0 100 100" aria-hidden="true"><polygon points="52.5,21.5 61.8,-1.7 68.2,1.7 54.5,22.5" /></svg></span>
+        : <span class="l" style={`--i:${i}`}>{c}</span>)}</span>
+      <!-- RONDA 95 · «al hacer hover, el Contáctanos se hace más pequeño encajándose en los pentagramas y debajo sale lo de agendar reunión con Eric y Andoni» -->
+      <span class="cta-pastilla" aria-hidden="true" data-pastilla>
+        <span class="cta-caras"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /></span>
+        <span class="cta-dice"><b class="font-display">Agenda una reunión con Eric y Andoni</b><small>30 min · videollamada ↳</small></span>
+      </span>
+    </a>
+  </div>
+
+  <div class="wrap linea detail">
+    <span>savvia · {pie.lugar} · {pie.desde}</span>
+    <span>© {year}</span>
+    <span class="credito">{pie.credito}</span>
+  </div>
+</footer>
+
+<script>
+  import { tocar, sonidoEncendido, PENTA } from '../scripts/musica';
+  import { crearPapel } from '../scripts/papel';
+  const pie = document.querySelector<HTMLElement>('[data-pie]');
+  if (pie) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const NS = 'http://www.w3.org/2000/svg';
+    const final = pie.querySelector<HTMLElement>('[data-final]')!, pauta = pie.querySelector<SVGSVGElement>('[data-pauta]')!;
+    const gL = pie.querySelector<SVGGElement>('[data-lineas]')!, barra = pie.querySelector<SVGGElement>('[data-barra]')!;
+    const contacta = pie.querySelector<HTMLAnchorElement>('[data-contacta]')!, txt = contacta.querySelector<HTMLElement>('[data-contacta-txt]')!;
+    const lineas: SVGPathElement[] = [];
+    for (let i = 0; i < 5; i++) { const l = document.createElementNS(NS, 'path'); l.setAttribute('pathLength', '1'); gL.appendChild(l); lineas.push(l); }
+    // GEOMETRÍA: la palabra a todo el ancho del contenido; el pentagrama desde su línea base hasta la altura de sus mayúsculas (la «C»)
+    let W = 0, x0 = 0, x1 = 0, yb = 0, g = 20, fs = 100, cx = 0, xsLetras: number[] = [];
+    const medir = () => {
+      const cw = final.clientWidth - 2 * parseFloat(getComputedStyle(final).paddingLeft);
+      const c = document.createElement('canvas').getContext('2d')!;
+      c.font = `100px ${getComputedStyle(contacta).fontFamily}`;
+      const tw = c.measureText('Contáctanos').width || 1; // (las letras van en spans: se mide la palabra entera)
+      fs = (100 * cw * 0.9) / tw; contacta.style.fontSize = `${fs}px`;
+      const real = txt.getBoundingClientRect().width; if (real > 0) { fs *= (cw * 0.9) / real; contacta.style.fontSize = `${fs}px`; }
+      const fr = final.getBoundingClientRect(), tr = txt.getBoundingClientRect();
+      W = fr.width; pauta.setAttribute('viewBox', `0 0 ${W} ${fr.height}`);
+      const pad = parseFloat(getComputedStyle(final).paddingLeft);
+      x0 = pad; x1 = W - pad;
+      // la línea base de Family ≈ el 78 % del alto de su caja de línea (line-height 1) · la altura de mayúscula ≈ 0,68 em
+      yb = tr.top - fr.top + fs * 0.8; g = (fs * 0.68) / 4;
+      cx = tr.left - fr.left + tr.width * 0.5;
+      pintar(performance.now());
+      // RONDA 95 · el director de perfil, a la izquierda y mirando a la palabra: lo más alto que quepa entre el subtítulo y la línea base (la palabra le tapa
+      // de las rodillas abajo); en móvil, más pequeño
+      const sub = pie.querySelector<HTMLElement>('.contenido .text-sub')!.getBoundingClientRect();
+      const libre = yb - (sub.bottom - fr.top) - 16;
+      const dh = Math.max(140, Math.min(libre / 0.78, fr.width < 600 ? fr.width * 0.7 : fs * 1.6)), dw = (dh * 1024) / 1536; // en móvil la palabra es pequeña: él puede crecer
+      dirEl.style.width = `${dw.toFixed(0)}px`; dirEl.style.height = `${dh.toFixed(0)}px`;
+      dirEl.style.left = `${(x0 - dw * 0.18).toFixed(0)}px`; dirEl.style.top = `${(yb - dh * 0.78).toFixed(0)}px`;
+      contacta.style.setProperty('--fs', `${fs.toFixed(1)}px`);
+      // la doble barra final
+      const alto = `M0 ${(yb - 4 * g).toFixed(1)}V${yb.toFixed(1)}`;
+      barra.querySelector('.fina')!.setAttribute('d', alto); barra.querySelector('.gruesa')!.setAttribute('d', alto);
+      barra.setAttribute('transform', `translate(${x1.toFixed(1)} 0)`);
+      const letras = [...txt.querySelectorAll<HTMLElement>('.l')];
+      xsLetras = letras.map((l) => { const r = l.getBoundingClientRect(); return r.left - fr.left + r.width / 2; });
+    };
+    // la cuerda que vibra (como en la carga): onda estacionaria que se apaga
+    const vib = lineas.map(() => ({ a: 0, t: 0 }));
+    const pintar = (ahora: number) => {
+      lineas.forEach((l, i) => {
+        const y = yb - i * g, v = vib[i], t = (ahora - v.t) / 1000, A = v.a * Math.exp(-t * 2.6);
+        if (A < 0.05) { l.setAttribute('d', `M${x0.toFixed(1)} ${y.toFixed(1)}H${x1.toFixed(1)}`); return; }
+        let d = ''; const n = 64, L = x1 - x0;
+        for (let k = 0; k <= n; k++) { const x = x0 + (L * k) / n; d += (k ? 'L' : 'M') + x.toFixed(1) + ' ' + (y + A * Math.sin((Math.PI * k) / n) * Math.sin(k * 0.5 - t * 34) * Math.cos(t * 19)).toFixed(2); }
+        l.setAttribute('d', d);
+      });
+    };
+    let raf = 0;
+    const bucle = (ahora: number) => { pintar(ahora); raf = vib.some((v) => ahora - v.t < 2200) ? requestAnimationFrame(bucle) : 0; };
+    const pulsar = () => { if (reducido) return; const ahora = performance.now(); vib.forEach((v, i) => { v.a = g * (0.28 - i * 0.02); v.t = ahora + i * 40; }); if (!raf) raf = requestAnimationFrame(bucle); };
+    // el acorde final (ronda 85: uno solo, fa mayor: el de la carga; la web ya no tiene estaciones)
+    const ACORDE = [53, 65, 69, 72];
+    let sonado = 0;
+    const abrir = () => {
+      if (pie.classList.contains('cta-abierto')) return;
+      pie.classList.add('cta-abierto'); pulsar();
+      if (!reducido && sonidoEncendido() && performance.now() - sonado > 2500) {
+        sonado = performance.now();
+        ACORDE.forEach((m, i) => tocar(m, { vol: i ? 0.07 : 0.1, dur: 3.2, cuando: i * 0.05 }));
+      }
+    };
+    const cerrar = () => pie.classList.remove('cta-abierto');
+    // los enlaces del pie, como las cuerdas de un arpa (ronda 85)
+    pie.querySelectorAll<HTMLElement>('.enlace-pie').forEach((a, i) => a.addEventListener('pointerenter', () => tocar(PENTA[(i * 2) % PENTA.length] + 12, { vol: 0.04, dur: 1.3 })));
+    contacta.addEventListener('pointerenter', abrir);
+    contacta.addEventListener('pointerleave', cerrar);
+    contacta.addEventListener('focus', abrir);
+    contacta.addEventListener('blur', cerrar);
+    // RONDA 85 · «el Contáctanos del final: que sean NOTAS que se vayan tocando y se quede finalmente el Contáctanos». Al llegar se traza el pentagrama; luego,
+    // letra a letra, una nota aparece sobre el pentagrama encima de su letra (una melodía que sube y baja), SUENA, se deshace y deja su letra. Al final se
+    // cierra la doble barra y suena el acorde. Sin movimiento: la palabra, directamente.
+    const MELODIA = [1, 3, 5, 4, 6, 8, 7, 5, 6, 4, 2]; // posición en el pentagrama (medios espacios desde la primera línea)
+    const NATURAL = [64, 65, 67, 69, 71, 72, 74, 76, 77];
+    const letras = [...txt.querySelectorAll<HTMLElement>('.l')];
+    const llegar = () => {
+      pie.classList.add('llega');
+      if (reducido) { letras.forEach((l) => l.classList.add('on')); pie.classList.add('entera'); return; }
+      // RONDA 85 (2.ª) · «que las propias letras sean las notas y sean lo que se queda»: cada LETRA entra a la altura de su nota en el pentagrama (sube o baja
+      // según la melodía), con su plica, y suena; cuando han sonado todas, bajan juntas a la línea (el acorde) y queda la palabra
+      letras.forEach((l, i) => setTimeout(() => {
+        const p = MELODIA[i];
+        l.style.setProperty('--y', `${(-(p - 3) * g * 0.42).toFixed(1)}px`);
+        l.classList.add('on', 'nota');
+        tocar(NATURAL[p], { vol: 0.08, dur: 1.6 });
+        vib[Math.min(4, Math.round(p / 2))] = { a: g * 0.18, t: performance.now() }; if (!raf) raf = requestAnimationFrame(bucle);
+        if (i === letras.length - 1) setTimeout(() => {
+          pie.classList.add('entera'); letras.forEach((q) => { q.style.setProperty('--y', '0px'); q.classList.remove('nota'); });
+          ACORDE.forEach((m, k) => tocar(m, { vol: k ? 0.06 : 0.09, dur: 3, cuando: k * 0.04 }));
+          for (let k = 0; k < 5; k++) vib[k] = { a: g * 0.26, t: performance.now() + k * 40 };
+          if (!raf) raf = requestAnimationFrame(bucle);
+        }, 650);
+      }, 1500 + i * 190));
+    };
+    // RONDA 94 · EL DIRECTOR del pie (se monta al acercarse; marca el compás solo a la vista)
+    const dirEl = pie.querySelector<HTMLElement>('[data-director-pie]')!;
+    let td: ReturnType<typeof crearPapel> | null = null;
+    const montarDirector = () => {
+      if (td) return;
+      const img = new Image(); img.decoding = 'async'; img.src = '/media/pie/director-perfil.webp';
+      const bg = (getComputedStyle(pie).backgroundColor.match(/\d+/g) || ['59', '35', '27']).slice(0, 3).map(Number) as [number, number, number];
+      // el rig, medido en la lámina de perfil (1024 × 1536): los dos brazos salen del hombro hacia delante; la batuta, de la mano a la punta
+      td = crearPapel(dirEl.querySelector('canvas')!, img, {
+        origen: [0.928, 0.026], semilla: 19, densidad: 0.75, batuta: [0.928, 0.026, 0.775, 0.112], bpm: 46, amplitud: 0.9,
+        brazos: [{ hombro: [0.5, 0.25], mano: [0.875, 0.2], ancho: 0.075 }, { hombro: [0.48, 0.215], mano: [0.78, 0.12], ancho: 0.075 }],
+      });
+      td.fondo(bg[0], bg[1], bg[2]);
+      if (reducido) td.soltar();
+    };
+    new IntersectionObserver((e) => { if (e[0].isIntersecting) montarDirector(); td?.visible(e[0].isIntersecting); }, { rootMargin: '400px 0px' }).observe(dirEl);
+    const pintarSala = () => td?.soltar(); // ronda 94: el director se compone desde la batuta al llegar
+    new IntersectionObserver((e, io) => { if (e[0].isIntersecting) { montarDirector(); pintarSala(); llegar(); io.disconnect(); } }, { threshold: 0.3 }).observe(final);
+    document.fonts.ready.then(medir); addEventListener('resize', medir); medir();
+  }
+</script>
+
+<style>
+  .pie {
+    position: relative;
+    /* RONDA 90 · «al llegar al footer, animación de cambio de color»: el `overflow: hidden` (ronda 83) recortaba la gota de la transición líquida, que
+       asoma por ENCIMA del borde de la sección (la trampa de la ronda 26). Solo se recorta en horizontal; las capas ya recortan lo suyo */
+    overflow-x: clip;
+    overflow-y: visible;
+    padding-bottom: calc(var(--spacing) * 12);
+    /* ronda 86 · «bajar más el Contáctanos»: el pie ocupa la pantalla y el último sistema va abajo del todo */
+    min-height: 100lvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .enlaces { margin-top: 0; }
+  @media (width >= 64rem) {
+    .enlaces { margin-top: calc(var(--text-h1) * 0.14); }
+  }
+  .enlace-pie {
+    display: inline-block;
+    transition: opacity 0.35s ease, filter 0.45s ease, translate 0.45s var(--ease-out-expo);
+  }
+  ul:has(.enlace-pie:hover) .enlace-pie:not(:hover) { opacity: 0.4; filter: blur(3px); }
+  .enlace-pie:hover { translate: 0.25em 0; }
+  /* ── EL ÚLTIMO SISTEMA */
+  .final {
+    position: relative;
+    margin-top: auto;
+    padding-block: calc(var(--spacing) * 12) calc(var(--spacing) * 12);
+  }
+  .contenido, .final, .linea { position: relative; z-index: 1; }
+  /* RONDA 94–95 · el director del pie: detrás de la palabra (z 2) y por delante del pentagrama; se funde por abajo */
+  .director-pie { position: absolute; z-index: 1; pointer-events: none; -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%); mask-image: linear-gradient(to bottom, #000 70%, transparent 100%); }
+  .director-pie canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; }
+  .director-pie canvas:global(.listo) { opacity: 0.92; }
+  .director-pie { transition: opacity 0.5s ease; }
+  .pauta {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .lineas :global(path) {
+    fill: none;
+    stroke: color-mix(in srgb, var(--color-niebla) 26%, transparent);
+    stroke-width: 1.2;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .llega .lineas :global(path) { stroke-dashoffset: 0; transition: stroke-dashoffset 1.6s cubic-bezier(0.5, 0, 0.2, 1); }
+  .llega .lineas :global(path:nth-child(2)) { transition-delay: 0.06s; }
+  .llega .lineas :global(path:nth-child(3)) { transition-delay: 0.12s; }
+  .llega .lineas :global(path:nth-child(4)) { transition-delay: 0.18s; }
+  .llega .lineas :global(path:nth-child(5)) { transition-delay: 0.24s; }
+  /* la doble barra final: una fina y una gruesa, que se cierran al final */
+  .barra path { fill: none; stroke: color-mix(in srgb, var(--color-niebla) 60%, transparent); }
+  .barra .fina { stroke-width: 1.4; transform: translateX(-12px); }
+  .barra .gruesa { stroke-width: 6; transform: translateX(-3px); }
+  .barra { opacity: 0; transition: opacity 0.6s ease; }
+  .entera .barra { opacity: 1; }
+  /* LA PALABRA: tenue en reposo; al pasar, luz en degradado de izquierda (plena) a derecha (suave) */
+  .contacta {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    cursor: pointer;
+    --brillo: 0;
+  }
+  /* la palabra, letra a letra: cada letra con su tinta (tenue en reposo; al pasar, luz de izquierda —plena— a derecha —suave—) */
+  .contacta .txt { display: inline-block; }
+  .contacta .l {
+    display: inline-block;
+    color: color-mix(in srgb, var(--color-niebla) calc(22% + var(--brillo) * (78% - var(--i) * 4.6%)), transparent);
+  }
+  /* RONDA 85 · cada letra la deja su nota: sale del desenfoque cuando la nota se deshace */
+  :global(html.anima) .contacta .l { --y: 0px; opacity: 0; filter: blur(10px); scale: 0.7; translate: 0 var(--y); transition: opacity 0.5s ease, filter 0.6s var(--ease-out-expo), scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), translate 1s cubic-bezier(0.5, 0, 0.2, 1.2); }
+  :global(html.anima) .contacta .l.on { opacity: 1; filter: none; scale: 1; }
+  /* cada letra, mientras es NOTA: lleva su plica (una línea fina que sube desde su lado derecho) */
+  .contacta .l { position: relative; }
+  .contacta .l::after { content: ''; position: absolute; right: 0.06em; bottom: 0.42em; width: max(1.2px, 0.012em); height: 0.46em; background: color-mix(in srgb, var(--color-niebla) 70%, transparent); opacity: 0; scale: 1 0; transform-origin: 50% 100%; transition: opacity 0.4s ease, scale 0.4s var(--ease-out-expo); }
+  .contacta .l.nota::after { opacity: 1; scale: 1 1; }
+  .notas-fin :global(.nf) { transition: opacity 0.6s ease; }
+  .notas-fin :global(.nf ellipse) { fill: var(--color-niebla); animation: nf-entra 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; transform-box: fill-box; transform-origin: center; }
+  .notas-fin :global(.nf path) { stroke: var(--color-niebla); stroke-width: 1.6; stroke-linecap: round; }
+  .notas-fin :global(.nf.fuera) { opacity: 0; }
+  @keyframes nf-entra { from { scale: 0.2; opacity: 0; } }
+  .contacta { transition: --brillo 1.1s var(--ease-out-expo); }
+  .cta-abierto .contacta { --brillo: 1; }
+  /* RONDA 95 · AL PASAR: la palabra se ENCOGE hacia la izquierda y se encaja en el pentagrama (su altura de x, entre la primera línea y la tercera), y
+     DEBAJO del pentagrama sale la reunión con Eric y Andoni. La caja del enlace no cambia (solo se escala el texto): pasar de la palabra a la fila no la cierra */
+  .contacta .txt { transform-origin: 0 80%; transition: transform 0.9s var(--ease-out-expo); }
+  .cta-abierto .contacta .txt { transform: scale(0.44); }
+  .cta-pastilla {
+    position: absolute;
+    left: 0;
+    top: calc(var(--fs, 200px) * 0.86);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 4);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-ui);
+    letter-spacing: 0;
+    white-space: nowrap;
+    opacity: 0;
+    translate: 0 -10px;
+    filter: blur(6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, translate 0.3s ease, filter 0.3s ease;
+  }
+  .cta-abierto .cta-pastilla { pointer-events: auto; opacity: 1; translate: 0 0; filter: none; transition: opacity 0.5s ease 0.35s, translate 0.7s var(--ease-out-expo) 0.35s, filter 0.6s ease 0.35s; }
+  .cta-dice b { color: var(--fg); }
+  .cta-dice small { color: var(--color-coral); opacity: 1 !important; }
+  /* la tilde, nuestra, dentro de su letra (en su tinta) */
+  .contacta .tilde { position: absolute; left: calc(50% - 0.5em); top: 0; width: 1em; height: 1em; overflow: visible; fill: currentColor; pointer-events: none; }
+  /* RONDA 95 · «que parezca que el director está orquestando las letras»: a su compás (46 BPM: un golpe cada 1,3 s), una ola recorre la palabra */
+  @keyframes mecer { 0%, 100% { transform: translateY(0); } 28% { transform: translateY(-0.035em); } 60% { transform: translateY(0.006em); } }
+  .entera:not(.cta-abierto) .contacta .l { animation: mecer 1.304s cubic-bezier(0.3, 0, 0.3, 1) calc(var(--i) * 70ms) infinite; }
+  .cta-dice { display: flex; flex-direction: column; line-height: 1.2; }
+  .cta-dice b { font-weight: 400; font-size: 1.5rem; letter-spacing: -0.01em; }
+  .cta-dice small { font-family: var(--font-mono); font-size: var(--text-detail); opacity: 0.7; margin-top: 0.3em; }
+  .cta-caras { display: inline-flex; }
+  .cta-caras img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--noche); }
+  .cta-caras img + img { margin-left: -8px; }
+  /* EL FOCO: el haz del hero, cayendo sobre la palabra; más vivo al pasar */
+  .foco {
+    position: absolute;
+    inset: calc(var(--spacing) * -48) 0 0;
+    pointer-events: none;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 80%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 80%, transparent);
+    opacity: 0.6;
+    transition: opacity 1.2s ease;
+  }
+  .cta-abierto .foco { opacity: 1; }
+  .foco .haz {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 33%;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-niebla) 3%, transparent) 30%, color-mix(in srgb, var(--color-niebla) 8%, transparent) 50%, color-mix(in srgb, var(--color-niebla) 3%, transparent) 70%, transparent);
+    transform: skewX(-12deg);
+  }
+  /* la línea de abajo, con el crédito de la música */
+  .linea {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+    color: var(--fg2);
+  }
+  .credito { flex-basis: 100%; opacity: 0.6; }
+  @media (width < 64rem) {
+    .final { margin-top: auto; padding-block: calc(var(--spacing) * 24) calc(var(--spacing) * 12); }
+    .cta-pastilla { white-space: normal; width: calc(100vw - 2.5rem); gap: calc(var(--spacing) * 3); }
+    .cta-dice b { font-size: 1.05rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contacta .l { filter: none; opacity: 1; transition: none; animation: none !important; }
+    .lineas :global(path) { stroke-dashoffset: 0; }
+    .barra { opacity: 1; transition: none; }
+  }
+</style>

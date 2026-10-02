@@ -1,0 +1,195 @@
+// RONDA 97 · EL JAZZ DE FONDO. Andoni: «que tengamos una música de fondo estilo jazz calmada y que el ASCII reaccione a ella con pulsos».
+// Sintetizado aquí (Web Audio, sin archivos: sin licencias y sabiendo exactamente cuándo cae cada pulso): un trío de balada a 68 BPM con swing.
+// · PIANO ELÉCTRICO (FM: portadora + moduladora 1:1 con el índice cayendo, un trémolo lento) que acompaña con acordes de cuatro voces.
+// · CONTRABAJO que camina (fundamental, nota del acorde, otra, y una de paso cromática hacia el acorde siguiente).
+// · ESCOBILLAS: el plato con el ritmo de swing («ding, ding-ga, ding, ding-ga») y el barrido en el 2 y el 4.
+// · La armonía es la de «When the Saints Go Marching In» (tradicional, dominio público), rearmonizada en balada, la misma canción que toca el visitante en la
+//   carga; cada dos vueltas el piano cita su melodía, arriba y suave (la mente la hila).
+// LOS PULSOS: un solo reloj (performance.now) programa el audio con antelación y avisa a la web en cada tiempo (`savvia:pulso`), suene o no (con el sonido
+// apagado, la web sigue latiendo a compás). `nivel()` da lo que suena de verdad (analizador) o, en silencio, la envolvente del tiempo.
+// Se calla cuando la escena de Proyectos (Vivaldi) está a la vista, con el altavoz de la barra y con la pestaña oculta.
+// RONDA 98 · «me gusta bastante el estilo del vídeo» (ascii.fm, «focus: lo-fi beat, 72–75 bpm»): el trío se acerca al LO-FI: 74 BPM con menos swing, un
+// bombo y una caja apagada, el crepitar de un vinilo y todo pasado por un paso bajo cálido. Y da BANDAS (`bandas()`): cinco envolventes, una por voz (bajo ·
+// acorde grave · acorde agudo · melodía · platos), hechas de los propios golpes programados (suene o no): con ellas se encienden los colores del ASCII.
+// «Cuando suenan las cuatro estaciones, el jazz a 0»: calla mientras Vivaldi suena de verdad (`savvia:vivaldi`).
+// RONDA 99 · «quitamos Vivaldi y dejamos la de la web para esa parte» (sonido-estudio ya no carga Vivaldi; su ecualizador da el volumen de ESTE jazz) ·
+// «en la partitura, la música de la web se para y esa partitura genera una canción del estilo pero diferente; cuando sigues, vuelve la de la web»: dos TEMAS.
+// `web` (The Saints, 74 BPM) y `partitura` (en fa, 92 BPM: el tempo de la propia partitura, con su reloj alineado al de su bucle) que SE MONTA por capas
+// mientras la partitura se escribe: platos y bombo → bajo → acordes → la melodía, que se genera (pentatónica de fa, la misma en cada vuelta del bucle).
+// Y la carga toca con este mismo piano eléctrico (`rhodesSuelto`), a su tempo y en su tono: lo que tocas es el principio de lo que suena después.
+import { bus, sonidoEncendido, latido, hz, audio } from './musica';
+
+let BPM = 74, BEAT = 60 / BPM, SWING = 0.62;
+type Acorde = { r: number; v: number[] };
+const A: Record<string, Acorde> = {
+  C69: { r: 36, v: [52, 57, 62, 67] }, Cmaj7: { r: 36, v: [52, 55, 59, 62] }, CE: { r: 40, v: [55, 59, 62, 64] },
+  Em7: { r: 40, v: [55, 59, 62, 64] }, A7: { r: 45, v: [55, 61, 64, 66] }, Dm7: { r: 38, v: [53, 57, 60, 64] },
+  G7: { r: 43, v: [53, 57, 59, 64] }, C7: { r: 36, v: [52, 57, 58, 62] }, F6: { r: 41, v: [57, 60, 62, 65] }, Fm6: { r: 41, v: [56, 60, 62, 65] },
+  Fmaj7: { r: 41, v: [57, 60, 64, 67] }, Gm7: { r: 43, v: [53, 57, 58, 62] }, Am7: { r: 45, v: [55, 60, 64, 67] }, D7: { r: 38, v: [54, 57, 60, 64] },
+};
+// doce compases; cada uno, uno o dos acordes
+const FORMA_WEB: string[][] = [['C69'], ['C69'], ['Cmaj7'], ['Em7', 'A7'], ['Dm7'], ['G7'], ['C69'], ['C7'], ['F6'], ['Fm6'], ['CE', 'A7'], ['Dm7', 'G7']];
+// la melodía de «The Saints» (compás, tiempo, nota, tiempos)
+const SANTOS: [number, number, number, number][] = [[0, 1, 72, 1], [0, 2, 76, 1], [0, 3, 77, 1], [1, 0, 79, 3.5], [2, 1, 72, 1], [2, 2, 76, 1], [2, 3, 77, 1], [3, 0, 79, 3.5], [4, 1, 72, 1], [4, 2, 76, 1], [4, 3, 77, 1], [5, 0, 79, 1], [5, 1, 76, 1], [5, 2, 72, 1], [5, 3, 76, 1], [6, 0, 74, 3.5]];
+
+let g: GainNode | null = null, crep: AudioBufferSourceNode | null = null, an: AnalyserNode | null = null, datos: Uint8Array | null = null, ruidoB: AudioBuffer | null = null;
+// la partitura: cinco compases (sus 20 tiempos) y una melodía generada (semilla fija: la misma frase en cada vuelta, como si estuviera escrita)
+const FORMA_PART: string[][] = [['Fmaj7'], ['Dm7', 'G7'], ['Gm7', 'C7'], ['Am7', 'D7'], ['Gm7', 'C7']];
+const PENTA_F = [65, 67, 69, 72, 74, 77, 79];
+const MELODIA_PART: [number, number, number, number][] = (() => { let h = 91; const az = () => ((h = (h * 16807) % 2147483647) / 2147483647); const out: [number, number, number, number][] = []; let i = 3; for (let bar = 0; bar < 5; bar++) for (let k = 0; k < 4; k++) { if (az() < 0.42) continue; i = Math.max(0, Math.min(PENTA_F.length - 1, i + Math.round((az() - 0.5) * 3))); out.push([bar, k, PENTA_F[i], az() < 0.3 ? 2 : 1]); } return out; })();
+let FORMA = FORMA_WEB, tema: 'web' | 'partitura' = 'web', inicioTema = 0;
+let t0 = 0, siguiente = 0, reloj = 0, arrancado = false, callado = false, oculto = false, ultimoPulso = 0, fuerzaPulso = 0;
+const VOL = 0.32;
+// el volumen que elige el visitante (el ecualizador de Proyectos): 0,75 = el de siempre
+let usuario = 0.75; try { const v = parseFloat(localStorage.getItem('savvia:jazz-vol') ?? ''); if (v >= 0 && v <= 1) usuario = v; } catch {}
+const volObjetivo = () => (audible() ? VOL * Math.pow(usuario / 0.75, 1.5) : 0);
+
+const acordeEn = (b: number) => { const bar = FORMA[Math.floor(b / 4) % FORMA.length]; return A[bar.length > 1 && b % 4 >= 2 ? bar[1] : bar[0]]; };
+const audible = () => !callado && !oculto && sonidoEncendido();
+const nodos = () => {
+  const B = bus(); if (!B || B.ctx.state !== 'running') return null;
+  if (!g) {
+    g = B.ctx.createGain(); g.gain.value = 0;
+    an = B.ctx.createAnalyser(); an.fftSize = 512; datos = new Uint8Array(an.fftSize);
+    // el paso bajo cálido del lo-fi: todo lo que suena pasa por él
+    const calido = B.ctx.createBiquadFilter(); calido.type = 'lowpass'; calido.frequency.value = 4200; calido.Q.value = 0.5;
+    g.connect(calido); calido.connect(B.salida); calido.connect(an);
+    const send = B.ctx.createGain(); send.gain.value = 0.4; calido.connect(send).connect(B.sala);
+    const n = B.ctx.sampleRate; ruidoB = B.ctx.createBuffer(1, n, n); const d = ruidoB.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    g.gain.setTargetAtTime(volObjetivo(), B.ctx.currentTime, 1.2); // entra despacio
+    // el VINILO: dos segundos de chasquidos sueltos y soplo, en bucle, muy bajo
+    const nv = B.ctx.sampleRate * 2, vb = B.ctx.createBuffer(1, nv, B.ctx.sampleRate), vd = vb.getChannelData(0);
+    for (let i = 0; i < nv; i++) vd[i] = (Math.random() * 2 - 1) * 0.04 + (Math.random() < 0.0009 ? (Math.random() * 2 - 1) * 0.9 : 0);
+    crep = B.ctx.createBufferSource(); crep.buffer = vb; crep.loop = true;
+    const vh = B.ctx.createBiquadFilter(); vh.type = 'highpass'; vh.frequency.value = 1400; const vg = B.ctx.createGain(); vg.gain.value = 0.05;
+    crep.connect(vh).connect(vg).connect(g); crep.start();
+  }
+  return B;
+};
+const volumen = () => { const B = nodos(); if (!B || !g) return; g.gain.setTargetAtTime(volObjetivo(), B.ctx.currentTime, callado ? 0.35 : 0.9); };
+
+// — los instrumentos (t en tiempo de audio) —
+function rhodes(c: AudioContext, t: number, midi: number, vel: number, dur: number) {
+  const f = hz(midi), o = c.createOscillator(), m = c.createOscillator(), mg = c.createGain(), env = c.createGain(), lp = c.createBiquadFilter();
+  o.frequency.value = f; m.frequency.value = f; mg.gain.setValueAtTime(f * 1.4, t); mg.gain.exponentialRampToValueAtTime(f * 0.08, t + 0.9);
+  m.connect(mg).connect(o.frequency);
+  lp.type = 'lowpass'; lp.frequency.value = 2600;
+  env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(vel, t + 0.008); env.gain.exponentialRampToValueAtTime(vel * 0.35, t + 1.2); env.gain.exponentialRampToValueAtTime(0.0004, t + dur + 0.6);
+  o.connect(lp).connect(env).connect(g!);
+  o.start(t); m.start(t); o.stop(t + dur + 0.7); m.stop(t + dur + 0.7);
+}
+function bajo(c: AudioContext, t: number, midi: number, vel: number) {
+  const f = hz(midi), o = c.createOscillator(), o2 = c.createOscillator(), env = c.createGain(), lp = c.createBiquadFilter();
+  o.type = 'triangle'; o.frequency.value = f; o2.frequency.value = f * 2; const g2 = c.createGain(); g2.gain.value = 0.25;
+  lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(320, t + 0.4);
+  env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(vel, t + 0.012); env.gain.exponentialRampToValueAtTime(vel * 0.4, t + 0.25); env.gain.exponentialRampToValueAtTime(0.0004, t + BEAT * 1.05);
+  o.connect(lp); o2.connect(g2).connect(lp); lp.connect(env).connect(g!);
+  o.start(t); o2.start(t); o.stop(t + BEAT * 1.1); o2.stop(t + BEAT * 1.1);
+}
+function escobilla(c: AudioContext, t: number, vel: number, dur: number, f: number, q: number) {
+  const s = c.createBufferSource(), bp = c.createBiquadFilter(), env = c.createGain();
+  s.buffer = ruidoB; bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
+  env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(vel, t + dur * 0.3); env.gain.exponentialRampToValueAtTime(0.0004, t + dur);
+  s.connect(bp).connect(env).connect(g!); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
+}
+
+function bombo(c: AudioContext, t: number, vel: number) {
+  const o = c.createOscillator(), e = c.createGain(); o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.12);
+  e.gain.setValueAtTime(vel, t); e.gain.exponentialRampToValueAtTime(0.0004, t + 0.32); o.connect(e).connect(g!); o.start(t); o.stop(t + 0.34);
+}
+function caja(c: AudioContext, t: number, vel: number) {
+  escobilla(c, t, vel, 0.16, 1700, 0.9);
+  const o = c.createOscillator(), e = c.createGain(); o.type = 'triangle'; o.frequency.value = 185;
+  e.gain.setValueAtTime(vel * 0.6, t); e.gain.exponentialRampToValueAtTime(0.0004, t + 0.09); o.connect(e).connect(g!); o.start(t); o.stop(t + 0.1);
+}
+// — LAS BANDAS: cada golpe programado deja su huella en su banda (cuándo, cuánto); `bandas()` las suma con ataque suave y caída lenta (calma) —
+const NB = 5, CAIDA = [0.7, 1.1, 1.1, 0.9, 0.45];
+const huellas: { b: number; t: number; f: number }[] = [];
+const marcar = (b: number, t: number, f: number) => { huellas.push({ b, t, f }); if (huellas.length > 220) huellas.splice(0, huellas.length - 220); };
+const salidaB = new Float32Array(NB);
+export function bandas() {
+  const ahora = performance.now(); salidaB.fill(0);
+  for (const h of huellas) { const e = (ahora - h.t) / 1000; if (e < 0 || e > 4) continue; const at = Math.min(1, e / 0.07); salidaB[h.b] += h.f * at * Math.exp(-e / CAIDA[h.b]); }
+  for (let i = 0; i < NB; i++) salidaB[i] = Math.min(1, salidaB[i]);
+  return salidaB;
+}
+
+// — el reloj: programa ~0,15 s por delante y avisa en cada tiempo —
+const tiempo = (b: number) => t0 + b * BEAT * 1000;
+function programar() {
+  const ahora = performance.now();
+  while (tiempo(siguiente) < ahora + 160) {
+    const b = siguiente, tb = tiempo(b), k = b % 4, bar = Math.floor(b / 4), vuelta = Math.floor(bar / FORMA.length), barF = bar % FORMA.length;
+    const ac = acordeEn(b), cambio = k === 0 || (FORMA[barF].length > 1 && k === 2);
+    const fuerte = k === 0 ? 1 : k === 2 ? 0.7 : 0.45;
+    // el aviso a la web, en su tiempo
+    window.setTimeout(() => { ultimoPulso = performance.now(); fuerzaPulso = fuerte * (cambio ? 1 : 0.8); dispatchEvent(new CustomEvent('savvia:pulso', { detail: { k, bar, fuerza: fuerzaPulso, cambio } })); }, Math.max(0, tb - ahora));
+    const B = audible() ? nodos() : null, c = B && g ? B.ctx : null, ta = c ? c.currentTime + Math.max(0.01, (tb - ahora) / 1000) : 0, sw = BEAT * SWING, swMs = sw * 1000;
+    // bajo que camina: fundamental · quinta o tercera · otra · de paso hacia el siguiente
+    const dos = FORMA[barF].length > 1, pos = dos ? k % 2 : k, sig = acordeEn(dos ? (k < 2 ? b - k + 2 : b - k + 4) : b - k + 4);
+    const r = ac.r, paso = sig.r + (Math.random() < 0.5 ? -1 : 1), nota = dos ? [r, paso][pos] : [r, r + 7, r + 4, paso][pos];
+    const capas = tema === 'web' ? 4 : Math.min(4, 1 + Math.floor((b - inicioTema) / 4)); // la partitura se monta por capas, compás a compás
+    if (c && capas >= 2) bajo(c, ta, nota, 0.22);
+    if (capas >= 2) marcar(0, tb, 0.55 + (k === 0 ? 0.25 : 0));
+    // la batería lo-fi: bombo en el 1 y en el «y» del 3; caja apagada en el 2 y el 4; plato en cada tiempo y la corchea de swing en el 2 y el 4
+    if (c) { if (k === 0) bombo(c, ta, 0.32); if (k === 2) bombo(c, ta + sw, 0.22); if (k % 2 === 1) caja(c, ta, 0.05); escobilla(c, ta, 0.016, 0.09, 7800, 1.4); if (k % 2 === 1) escobilla(c, ta + sw, 0.011, 0.08, 8200, 1.4); }
+    marcar(4, tb, k % 2 === 1 ? 0.5 : 0.28); if (k % 2 === 1) marcar(4, tb + swMs, 0.22);
+    if (k === 0) marcar(0, tb, 0.3); if (k === 2) marcar(0, tb + swMs, 0.25);
+    // el piano: el acorde en el cambio, y a veces la anticipación en el «y» del 2
+    if (cambio && capas >= 3) { if (c) ac.v.forEach((m, i) => rhodes(c, ta + i * 0.012, m, 0.045, BEAT * 1.8)); marcar(1, tb, 0.7); marcar(2, tb + 12, 0.55); }
+    else if (capas >= 3 && k === 1 && Math.random() < 0.35) { if (c) acordeEn(b + 1).v.forEach((m) => rhodes(c, ta + sw, m, 0.03, BEAT * 0.9)); marcar(1, tb + swMs, 0.4); marcar(2, tb + swMs, 0.35); }
+    // la melodía de «The Saints», una vuelta sí y otra no
+    const MEL = tema === 'web' ? (vuelta % 2 === 1 ? SANTOS : []) : capas >= 4 ? MELODIA_PART : [];
+    for (const [cb, ct, m, d] of MEL) if (cb === barF && ct === k) { if (c) rhodes(c, ta + (Math.random() - 0.5) * 0.02, m, 0.05, BEAT * d); marcar(3, tb, 0.75); }
+    if (c) latido(0.012 * fuerte);
+    siguiente++;
+  }
+}
+
+export function iniciarJazz() {
+  arrancado = true;
+  if (!reloj) { t0 = performance.now() + 120; siguiente = 0; reloj = window.setInterval(programar, 40); }
+  volumen();
+}
+// el NIVEL (0–1): lo que suena (analizador) o, en silencio, la envolvente del tiempo
+export function nivel() {
+  const env = fuerzaPulso * Math.exp(-(performance.now() - ultimoPulso) / 420);
+  if (an && datos && audible()) { an.getByteTimeDomainData(datos as any); let s = 0; for (let i = 0; i < datos.length; i++) { const v = (datos[i] - 128) / 128; s += v * v; } return Math.min(1, Math.sqrt(s / datos.length) * 6 + env * 0.3); }
+  return env * 0.6;
+}
+export const pulso = () => fuerzaPulso * Math.exp(-(performance.now() - ultimoPulso) / 300);
+(window as any).__jazz = () => ({ arrancado, audible: audible(), ctx: bus()?.ctx.state ?? null, ganancia: g ? +g.gain.value.toFixed(3) : 0, compas: Math.floor(siguiente / 4), tema, bpm: BPM });
+
+// los interruptores: el altavoz de la barra, la pestaña, la escena de Vivaldi
+addEventListener('savvia:son', () => { if (sonidoEncendido()) iniciarJazz(); volumen(); });
+document.addEventListener('visibilitychange', () => { oculto = document.hidden; volumen(); });
+addEventListener('savvia:vivaldi', (e) => { callado = (e as CustomEvent).detail.sonando; volumen(); });
+// arranca cuando la carga se resuelve (el isotipo cae en la batuta) o, si no hay carga, con el primer gesto; el reloj de pulsos corre desde ya
+addEventListener('savvia:gota', () => iniciarJazz(), { once: true });
+['pointerdown', 'keydown', 'touchend'].forEach((ev) => addEventListener(ev, () => setTimeout(() => { if (arrancado) volumen(); else iniciarJazz(); }, 50), { once: true, passive: true }));
+if (!reloj) { t0 = performance.now(); reloj = window.setInterval(programar, 40); }
+
+// — los TEMAS (ronda 99) —
+function ponerTema(t: 'web' | 'partitura', inicio = performance.now()) {
+  if (t === tema) return;
+  tema = t; FORMA = t === 'web' ? FORMA_WEB : FORMA_PART; BPM = t === 'web' ? 74 : 92; BEAT = 60 / BPM; SWING = t === 'web' ? 0.62 : 0.58;
+  t0 = inicio; siguiente = Math.max(0, Math.ceil((performance.now() - t0) / (BEAT * 1000))); inicioTema = siguiente;
+}
+// la partitura avisa cuándo empieza (su t0 de reloj: los tiempos del jazz caen en sus tiempos) y cuándo se va
+export const entrarPartitura = (t0Partitura: number) => ponerTema('partitura', t0Partitura);
+export const salirPartitura = () => ponerTema('web', performance.now() + 200);
+// — el volumen del visitante (el ecualizador de la escena de Proyectos) —
+export const volumenJazz = () => (sonidoEncendido() ? usuario : 0);
+export function fijarVolumenJazz(v: number) { usuario = Math.max(0, Math.min(1, v)); try { localStorage.setItem('savvia:jazz-vol', usuario.toFixed(3)); } catch {} volumen(); }
+// — una nota suelta con el mismo piano eléctrico (la carga: la toca el visitante, aunque el jazz no haya empezado) —
+export function rhodesSuelto(midi: number, vel = 0.1, dur = 1.6, cuando = 0) {
+  const c = audio(); if (!c) return; const B = bus(); if (!B) return;
+  if (!g) nodos();
+  const t = c.currentTime + 0.01 + cuando, f = hz(midi), o = c.createOscillator(), m = c.createOscillator(), mg = c.createGain(), env = c.createGain(), lp = c.createBiquadFilter();
+  o.frequency.value = f; m.frequency.value = f; mg.gain.setValueAtTime(f * 1.4, t); mg.gain.exponentialRampToValueAtTime(f * 0.08, t + 0.9); m.connect(mg).connect(o.frequency);
+  lp.type = 'lowpass'; lp.frequency.value = 3200;
+  env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(vel, t + 0.008); env.gain.exponentialRampToValueAtTime(vel * 0.35, t + 1.1); env.gain.exponentialRampToValueAtTime(0.0004, t + dur + 0.5);
+  o.connect(lp).connect(env); env.connect(B.salida); const s2 = c.createGain(); s2.gain.value = 0.35; env.connect(s2).connect(B.sala);
+  o.start(t); m.start(t); o.stop(t + dur + 0.6); m.stop(t + dur + 0.6);
+  setTimeout(() => latido(vel * 0.3), cuando * 1000);
+}
