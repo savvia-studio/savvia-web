@@ -3248,6 +3248,18 @@ en mono en el pie.
   salto máximo entre fotogramas 34–48 px (la propia caída; una pasada suelta de Chrome sin ventana dio un parón de 450 ms que no se repite), capturas en `tools/shots/r110-caida-*`.
 - **Pendiente de Andoni:** verlo; no publicado.
 
+### Ronda 111 · 2026-10-02 · PUBLICADA la versión musical en savvia.studio/musica y /musica-clara, sin pisar la de siempre
+- **Andoni (textual):** «quiero que subas pero sin pisar el savvia que tenemos: vamos a una / diferente para poder tener ambas y comparar» · «también otra versión con las tres primeras secciones en light mode en otra /, y así mandársela a Eric».
+- **Cómo (receta):** · La rama `musica` se compila con `SAVVIA_BASE=/musica` (`astro.config.mjs › base`) y `node tools/r111/publicar.cjs` copia `dist/` a `tools/r111/out/musica/` y PREFIJA con `/musica` las rutas absolutas escritas a mano
+  (558 sustituciones: `/media/…`, logotipo, isotipo, favicon, og, `/proyectos`, `href="/"` y `href="/#…"`; 0 dobles; queda sin prefijo `/carta`, que ya da 404 en la de siempre). · `src/pages/clara.astro` = la portada con la paleta
+  clara (Base.astro la pone si la ruta acaba en `clara`): hero, manifiesto y proyectos destacados en claro, el resto como siempre. · `tools/r111/out/` se publica como PROYECTO APARTE de Vercel, `savvia-musica`
+  (`vercel deploy --prod --yes` desde una copia de la carpeta llamada `savvia-musica`) → https://savvia-musica.vercel.app/musica/. · En `main` SOLO se añade `vercel.json` (commits `c120e6e` y `eab5cc3`): reenvía `/musica`, `/musica/…`
+  (patrón `:path(.*)`; `:path*` no casaba con la barra final) y `/musica-clara` al proyecto `savvia-musica`. La home de siempre no cambia (título «savvia — Tu web, a la altura de lo que haces»).
+  · La rama `musica` subida a GitHub (`a7a62af`, rondas 83–111). **Para republicar la musical:** `node tools/r111/publicar.cjs` → copiar `tools/r111/out/` a una carpeta `savvia-musica` (con su `.vercel`) → `vercel deploy --prod --yes`.
+- **Medido EN VIVO:** `/`, `/proyectos`, `/musica`, `/musica/`, `/musica-clara`, `/musica-clara/`, `/musica/clara/`, `/musica/proyectos/multiverse/` y la lámina del director: 200 · `tools/verify.cjs` en https://savvia.studio/musica,
+  /musica-clara y / (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r111/ver.cjs`: /musica en oscuro y /musica-clara en clara, ASCII pintado (`tools/shots/r111-*`). Sigue `noindex`.
+- **Pendiente:** el enlace del menú a «Proyectos» desde /musica va a /musica/proyectos (la versión musical); la «Carta fundacional» sigue sin página.
+
 ## Rechazado — añadidos de la ronda 85 (NO VOLVER)
 - Las ESTACIONES en la web (fondo, icono de la barra, acordes por estación): solo en la escena de Vivaldi.
 - La cuerda recta entre problemas; el pentagrama con notas como estela del estudio («demasiado literal»); el ticket de impresora térmica y su sonido.
