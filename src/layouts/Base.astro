@@ -44,7 +44,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=68" />
     <meta name="theme-color" content="#3b231b" />
     <!-- RONDA 99 · «quiero probar un marrón más oscuro para el hero y demás»: el fondo oscuro, más hondo (`?fondo=antes` vuelve al de siempre) -->
-    <script is:inline>if (!/[?&]fondo=antes/.test(location.search)) { document.documentElement.dataset.fondo = 'hondo'; document.querySelector('meta[name="theme-color"]').content = '#211510'; }</script>
+    <!-- RONDA 112 · «en la versión oscura volvemos al marrón de antes, más claro»: el de siempre (#3b231b) es el de serie; el hondo queda en `?fondo=hondo` -->
+    <script is:inline>if (/[?&]fondo=hondo/.test(location.search)) { document.documentElement.dataset.fondo = 'hondo'; document.querySelector('meta[name="theme-color"]').content = '#211510'; }</script>
     <Font cssVariable="--font-family-display" preload />
     <Font cssVariable="--font-areal" preload />
     <Font cssVariable="--font-areal-mono" />

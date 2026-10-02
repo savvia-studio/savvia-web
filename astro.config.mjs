@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://savvia.studio',
   // RONDA 111 · la versión musical se publica en savvia.studio/musica sin pisar la de siempre: se compila con SAVVIA_BASE=/musica (tools/r111/publicar.sh)
-  base: process.env.SAVVIA_BASE || undefined,
+  base: /** @type {any} */ (globalThis).process?.env?.SAVVIA_BASE || undefined,
   devToolbar: { enabled: false },
   fonts: [
     {

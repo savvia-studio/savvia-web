@@ -29,7 +29,10 @@ export const audio = () => {
   return ctx;
 };
 // el primer gesto del visitante despierta el audio (el navegador no deja sonar antes)
-['pointerdown', 'keydown', 'touchend'].forEach((ev) => addEventListener(ev, () => { if (sonidoEncendido()) audio(); }, { once: true, passive: true }));
+// RONDA 112 · «el sonido, que se active en el momento en que haces clic en el juego inicial»: Safari solo cuenta como gesto el clic, el soltar o la tecla
+// (el pointerdown no): se escucha a todos y se reintenta hasta que el audio corre de verdad
+const despertar = () => { if (!sonidoEncendido()) return; const c = audio(); if (c && c.state === 'running') ['pointerdown', 'pointerup', 'click', 'keydown', 'touchend'].forEach((ev) => removeEventListener(ev, despertar, true)); };
+['pointerdown', 'pointerup', 'click', 'keydown', 'touchend'].forEach((ev) => addEventListener(ev, despertar, { capture: true, passive: true }));
 
 // RONDA 86 · el PULSO de la web: cada nota que suena avisa (los puntos del hero, por ejemplo, lo recogen)
 let ultimoGolpe = 0, fuerzaGolpe = 0;

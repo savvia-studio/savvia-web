@@ -19,6 +19,7 @@ const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
 const FS = `precision mediump float;
 uniform sampler2D uImg,uAtl,uTxt;uniform float uTexto,uLen,uNA;uniform vec2 uRes,uOrig;uniform float uCel,uN,uRev,uInv,uColor,uDpr,uT,uVel,uAn,uVida;uniform vec3 uTinta;uniform float uB[${NB}];uniform vec4 uO[6];uniform vec3 uOC[6];uniform vec4 uMP[3];uniform vec4 uMT[3];uniform vec3 uRat;uniform float uFr;uniform sampler2D uOrd;uniform float uTec,uNT;uniform vec3 uCor;
 float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
+vec3 sat(vec3 c,float s){return mix(vec3(dot(c,vec3(.299,.587,.114))),c,s);}
 // RONDA 103 · «que el director mueva los brazos como orquestando; en el footer, el saxo como tocando»: cada miembro GIRA la lámina alrededor de su pivote (el
 // hombro; en el saxofonista, la cadera). Lo que gira es el lado de una línea que sale del pivote (fuera queda la cabeza, el cuerpo), por encima del pivote, y
 // con un peso que nace en él: deformación continua (se lee la lámina girada al revés), sin recorte, así que no queda una copia quieta detrás (ronda 94)
@@ -76,10 +77,13 @@ void main(){
   e=clamp(e,0.,1.);
   vec2 g=fract(p/uCel);
   float gl=texture2D(uAtl,vec2((idx+g.x)/uNA,g.y)).a;
-  vec3 claro=mix(min(vec3(1.),im.rgb*1.45+.08),im.rgb*.5,uInv);
-  vec3 col=mix(uTinta*mix(.86,1.,uInv),mix(uTinta,claro,uColor),e);
+  // ronda 112 · «en la versión clara el director tiene muchos menos matices de color»: sobre claro el color se multiplicaba por 0,5 (se ensuciaba hacia el negro);
+  // ahora se SATURA y apenas se oscurece, para que conserve los mismos matices que en oscuro
+  vec3 claro=mix(min(vec3(1.),im.rgb*1.45+.08),clamp(sat(im.rgb,1.55)*.86,0.,1.),uInv);
+  // ronda 112 · y en claro la tinta de reposo ya lleva el color de la lámina (55 %): sobre fondo claro, los matices se ven siempre, no solo al encenderse
+  vec3 col=mix(mix(uTinta*mix(.86,1.,uInv),claro,uInv*.55),mix(uTinta,claro,uColor),e);
   // ronda 102 · «los pulsos, siempre del mismo color, pero a su paso REVELAN colores en el ASCII»: el anillo destapa el color de la propia lámina
-  col=mix(col,mix(min(vec3(1.),im.rgb*1.9+.12),im.rgb*.45,uInv),tinte*.92);
+  col=mix(col,mix(min(vec3(1.),im.rgb*1.9+.12),clamp(sat(im.rgb,1.8)*.8,0.,1.),uInv),tinte*.92);
   float a=gl*im.a*rev*min(1.,.74+.26*e+tinte*.3)*mix(1.,.25+.75*tinTexto+tinte*.4,uTexto);
   gl_FragColor=vec4(col*a,a);
 }`;

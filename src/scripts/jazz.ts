@@ -87,7 +87,7 @@ const nodos = () => {
     l1.frequency.value = 0.55; l1g.gain.value = 7; l2.frequency.value = 0.13; l2g.gain.value = 11; l1.connect(l1g).connect(wow); l2.connect(l2g).connect(wow); l1.start(); l2.start(); calido.connect(B.salida); calido.connect(an);
     const send = B.ctx.createGain(); send.gain.value = 0.4; calido.connect(send).connect(B.sala);
     const n = B.ctx.sampleRate; ruidoB = B.ctx.createBuffer(1, n, n); const d = ruidoB.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
-    g.gain.setTargetAtTime(volObjetivo(), B.ctx.currentTime, 1.2); // entra despacio
+    g.gain.setTargetAtTime(volObjetivo(), B.ctx.currentTime, 0.3); // ronda 112: entra YA, con el primer clic del juego (antes τ 1,2: tardaba ~4 s)
     // el VINILO: dos segundos de chasquidos sueltos y soplo, en bucle, muy bajo
     const nv = B.ctx.sampleRate * 2, vb = B.ctx.createBuffer(1, nv, B.ctx.sampleRate), vd = vb.getChannelData(0);
     for (let i = 0; i < nv; i++) vd[i] = (Math.random() * 2 - 1) * 0.04 + (Math.random() < 0.0009 ? (Math.random() * 2 - 1) * 0.9 : 0);
@@ -227,7 +227,11 @@ document.addEventListener('visibilitychange', () => { oculto = document.hidden; 
 addEventListener('savvia:vivaldi', (e) => { callado = (e as CustomEvent).detail.sonando; volumen(); });
 // arranca cuando la carga se resuelve (el isotipo cae en la batuta) o, si no hay carga, con el primer gesto; el reloj de pulsos corre desde ya
 addEventListener('savvia:gota', () => iniciarJazz(), { once: true });
-['pointerdown', 'keydown', 'touchend'].forEach((ev) => addEventListener(ev, () => setTimeout(() => { if (arrancado) volumen(); else iniciarJazz(); }, 50), { once: true, passive: true }));
+// ronda 112 · en el primer gesto que de verdad despierta el audio (también el clic: Safari), y entrando rápido
+let primero = true;
+const alGesto = () => setTimeout(() => { if (!bus() || bus()!.ctx.state !== 'running') return; ['pointerdown', 'pointerup', 'click', 'keydown', 'touchend'].forEach((ev) => removeEventListener(ev, alGesto, true));
+  if (!arrancado) iniciarJazz(); const B = nodos(); if (B && g && primero && !fundido) { primero = false; g.gain.cancelScheduledValues(B.ctx.currentTime); g.gain.setTargetAtTime(volObjetivo(), B.ctx.currentTime, 0.3); } }, 30);
+['pointerdown', 'pointerup', 'click', 'keydown', 'touchend'].forEach((ev) => addEventListener(ev, alGesto, { capture: true, passive: true }));
 if (!reloj) { t0 = performance.now(); reloj = window.setInterval(programar, 40); }
 
 // — los TEMAS —

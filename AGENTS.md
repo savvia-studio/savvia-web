@@ -3260,6 +3260,16 @@ en mono en el pie.
   /musica-clara y / (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · `tools/r111/ver.cjs`: /musica en oscuro y /musica-clara en clara, ASCII pintado (`tools/shots/r111-*`). Sigue `noindex`.
 - **Pendiente:** el enlace del menú a «Proyectos» desde /musica va a /musica/proyectos (la versión musical); la «Carta fundacional» sigue sin página.
 
+### Ronda 112 · 2026-10-02 · el sonido con el primer clic del juego, más matices en la clara y vuelve el marrón de antes · PUBLICADA en /musica y /musica-clara
+- **Andoni (textual):** «el sonido, que se active en el momento en que haces clic en el juego inicial» · «en la versión clara el director tiene muchos menos matices de colores que en la oscura» · «en la versión oscura volvemos al marrón de antes,
+  más claro» · «arregla estas cosas y publica».
+- **Hecho:** · `musica.ts`: el audio se despierta con `pointerdown`, `pointerup`, `click`, `keydown` y `touchend` (Safari no cuenta el `pointerdown` como gesto) y se reintenta hasta que corre; `jazz.ts`: arranca en ese mismo gesto y
+  ENTRA YA (τ 0,3 s; antes 1,2: tardaba ~4 s en oírse). · `ascii.ts`: en claro el color de la lámina se SATURA (×1,55; al paso de la onda ×1,8) en vez de multiplicarse por 0,5 (se ensuciaba hacia el negro), y la tinta de reposo
+  lleva ya un 55 % del color de la lámina. · `Base.astro`: el fondo de serie vuelve a ser `#3b231b` (el hondo `#211510` queda en `?fondo=hondo`). · `astro.config.mjs`: `process` vía `globalThis` y `tsconfig` excluye
+  `tools/r111/out` (el check los marcaba).
+- **Medido:** `astro check` 0 · `tools/verify.cjs` local y EN VIVO (https://savvia.studio/musica y /musica-clara; Chrome y WebKit, 1280 y 390): limpio, 0 ≥ 400, desborde 0 · `tools/r103/sonido112.cjs` en vivo: con el primer clic del juego,
+  contexto «running» y ganancia 0,178 a los 1,5 s (antes 0,121) · en vivo `--noche` = rgb(59,35,27) y theme-color #3b231b · comparación oscura/clara en `tools/shots/r112-*` · la home de siempre, 200.
+
 ## Rechazado — añadidos de la ronda 85 (NO VOLVER)
 - Las ESTACIONES en la web (fondo, icono de la barra, acordes por estación): solo en la escena de Vivaldi.
 - La cuerda recta entre problemas; el pentagrama con notas como estela del estudio («demasiado literal»); el ticket de impresora térmica y su sonido.
