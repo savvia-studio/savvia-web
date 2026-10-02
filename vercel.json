@@ -1,7 +1,8 @@
 {
   "rewrites": [
     { "source": "/musica-clara", "destination": "https://savvia-musica.vercel.app/musica/clara/" },
+    { "source": "/musica-clara/", "destination": "https://savvia-musica.vercel.app/musica/clara/" },
     { "source": "/musica", "destination": "https://savvia-musica.vercel.app/musica/" },
-    { "source": "/musica/:path*", "destination": "https://savvia-musica.vercel.app/musica/:path*" }
+    { "source": "/musica/:path(.*)", "destination": "https://savvia-musica.vercel.app/musica/:path" }
   ]
 }
