@@ -32,6 +32,8 @@ el brief de esta web está en `../savvia_inspo/docs/WEB-2-BRIEF.md`). **PUBLICAD
 **Publicar (desde el 24/09/2026):** el proyecto `savvia-home` de Vercel (el que tiene el dominio; DNS en DonDominio → Vercel) está CONECTADO al repositorio
 privado https://github.com/AndoniMart/savvia-web: `git push` a `main` = compila en Vercel y publica en savvia.studio (~15 s) → `node tools/verify.cjs
 https://savvia.studio/`. Commit y push, solo cuando Andoni lo pida. (La receta anterior, `vercel deploy --prod` desde `dist/`, sigue valiendo de emergencia.)
+**OJO (04/10/2026):** Vercel solo despliega los push cuyo commit es de Andoni; los de Eric quedan en «Deployment was blocked» (ver ronda 83) hasta que
+Andoni lo añada a su equipo de Vercel. Mientras tanto, lo que suba Eric lo publica Andoni (Redeploy en Vercel o un push suyo).
 
 ## Rutina entre Eric y Andoni (desde el 29/09/2026)
 Los dos trabajan sobre el mismo repositorio, cada uno en su ordenador. Git no sincroniza solo.
@@ -2743,6 +2745,14 @@ en mono en el pie.
   **Medido** (Chrome real, 1710×985, `?carga=1`): los 20 gestos de la batería con el botón pulsado (11 V arrancan; círculos, U, ida y vuelta y demás, no);
   una V perfecta SIN pulsar no arranca ni pinta nada (0 píxeles en el lienzo) y saca la segunda línea; la carga termina tras la V · `astro check` 0 errores ·
   `spacing-lint` en escala · `astro build` OK. **SIN medir:** con el dedo y WebKit.
+- **SUBIDA A GITHUB (04/10, Eric: «sube a producción los cambios que hice ayer» · «publica todo pero /musica no se toca»), SIN PUBLICAR TODAVÍA:** commit
+  `cadbe37` en `main` (toda la ronda 83, con el H1 y el isotipo nuevos; `vercel.json` sin tocar; fuera `package-lock.json` y `.claude/`). Vercel BLOQUEÓ el
+  despliegue («Deployment was blocked», https://vercel.com/andonimart/savvia-home/HgEfUDhSJXGEcBU9fKyvv8TZ3tf2): es el primer commit de Eric en `main`; su
+  autor (`ericruiz@MacBook-Air-de-Eric.local`, Git sin identidad configurada) no es de la cuenta de Vercel de Andoni, y la cuenta de Vercel de este Mac
+  (`tech-6826`, equipo Criterio Design) no tiene acceso a `savvia-home`. savvia.studio sigue con la versión anterior (medido: `favicon.svg?v=68`, H1 de
+  antes; /, /proyectos, /musica y /musica-clara responden 200). **Para publicarla:** Andoni, desde Vercel (Redeploy del commit `cadbe37`) o con cualquier
+  push suyo a `main` (vale uno vacío). **Para que no vuelva a pasar:** Andoni invita a Eric a su equipo de Vercel y Eric configura su identidad de Git con
+  el correo de su cuenta de GitHub (`ericruizmolero`). Antes de compilar: `astro check` 0 errores · `spacing-lint` en escala · `astro build` OK (11 páginas).
 
 ## Rechazado — añadidos de la ronda 77 (NO VOLVER)
 - La pantalla de carga al llegar a Proyectos destacados (rondas 68–76).
