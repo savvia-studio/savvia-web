@@ -408,22 +408,32 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     align-items: baseline;
     gap: calc(var(--spacing) * 2);
     font-family: var(--font-mono);
-    color: var(--fg);
-    transition: color 0.9s ease 0.2s;
+    color: var(--fg2);
   }
-  /* resuelto: el dolor se apaga y la respuesta sube desde el desenfoque */
-  .sana .dolor { color: var(--fg2); }
   /* RONDA 76 · Eric: «la respuesta tiene que ser más grande que el problema»: el dolor, pequeño (h3); la respuesta, el titular (h1) */
   .respuesta .t { max-width: 13ch; text-wrap: balance; }
   .respuesta {
     max-width: 34rem;
     margin-top: calc(var(--spacing) * 4);
+  }
+  /* RONDA 83 · Eric: «los tres se tienen que animar stagger»: al llegar la savia, las tres líneas (eyebrow → titular → texto) entran una tras otra desde
+     el desenfoque, con 0,16 s entre ellas. Antes el eyebrow estaba puesto desde el principio y la respuesta entraba en bloque */
+  .dolor,
+  .respuesta .t,
+  .respuesta .d {
+    --r: 0.3s;
+    transition: opacity 0.8s ease var(--r), filter 0.9s ease var(--r), translate 1s var(--ease-out-expo) var(--r);
+  }
+  .respuesta .t { --r: 0.46s; }
+  .respuesta .d { --r: 0.62s; }
+  /* sin JS el eyebrow se queda a la vista, como antes (el estado oculto cuelga de html.anima) */
+  :global(html.anima) .parada:not(.sana) .dolor,
+  .parada:not(.sana) .respuesta .t,
+  .parada:not(.sana) .respuesta .d {
     opacity: 0;
     filter: blur(8px);
     translate: 0 12px;
-    transition: opacity 0.8s ease 0.5s, filter 0.9s ease 0.5s, translate 1s var(--ease-out-expo) 0.5s;
   }
-  .sana .respuesta { opacity: 1; filter: none; translate: 0 0; }
   .respuesta .d { color: var(--fg2); text-wrap: pretty; }
   @media (width < 64rem) {
     .dolores { padding-block: calc(var(--spacing) * 16) calc(var(--spacing) * 24); }
@@ -433,6 +443,6 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     .con-tarjetas .lado { width: 100%; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .dolor, .respuesta, .con-tarjetas .rama { transition: none; }
+    .dolor, .respuesta .t, .respuesta .d, .con-tarjetas .rama { transition: none; }
   }
 </style>

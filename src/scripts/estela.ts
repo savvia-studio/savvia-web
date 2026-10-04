@@ -22,7 +22,8 @@ const FS = [
   'float lum(vec4 c){return dot(c.rgb,vec3(.299,.587,.114));}',
   'void main(){',
   '  vec2 px=v*R/dpr;vec2 W=R/dpr;float asp=R.x/R.y;vec2 u1=1./R;',
-  '  vec3 naranja=vec3(NARANJA_RGB);vec3 claro=vec3(.95,.9,.87);',
+  // PRUEBA hero-claro: sobre un fondo claro (fo), las líneas del dibujo, el filo y los puntos del canto van en Cacao; sobre oscuro, como siempre
+  '  vec3 naranja=vec3(NARANJA_RGB);vec3 claro=dot(fo,vec3(.299,.587,.114))>.5?vec3(.19,.125,.094):vec3(.95,.9,.87);',
   // HERVIR (clusia): a saltos de ~12 por segundo, cada celda de 3 px se corre un píxel; solo en reposo
   '  float paso=floor(ti*12.);',
   '  vec2 q=v+(vec2(h2(floor(px/3.)+paso),h2(floor(px/3.)+paso+17.))-.5)*1.3*dpr*u1*soplo;',

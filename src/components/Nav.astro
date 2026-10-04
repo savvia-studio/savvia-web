@@ -218,7 +218,7 @@ import { nav, pie } from '../data/home';
   }
   // RONDA 24 · qué hay bajo la barra: si es una superficie clara (La Savvia, el pie), el logotipo y la rejilla van en Cacao
   {
-    let sobreClaro = false, pedido = false;
+    let sobreClaro = document.documentElement.classList.contains('sobre-claro'), pedido = false; // PRUEBA hero-claro: el <head> puede haberla puesto ya
     // RONDA 65 · se mira bajo el LOGOTIPO (no en el centro: la gota de color de cada sección llega antes por el centro que por los lados) y se
     // cuenta con esa gota (entradas.ts › __subeEn), que cubre la barra antes de que llegue la sección
     const logo = document.querySelector<HTMLElement>('.logo-marca');

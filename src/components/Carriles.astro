@@ -93,6 +93,13 @@
     left: 0;
     width: 100%;
     height: 1px;
+  }
+  /* RONDA 83 · Eric: «las + salen de izquierda a derecha y eso no quiero; que salgan directamente en su posición»: la línea va en un pseudo-elemento
+     (es lo único que se traza); antes se escalaba la fila entera y las cruces, que son sus hijas, viajaban con ella */
+  .marcas :global(.fila)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     background: color-mix(in srgb, var(--color-niebla) 8%, transparent);
     transform-origin: 0 50%;
   }
@@ -112,17 +119,22 @@
     right: var(--gutter);
     translate: 4px -4px;
   }
-  /* al aparecer (al cargar y al volver a ponerlos): los carriles se trazan de arriba abajo y las filas de izquierda a derecha */
+  /* al aparecer (al cargar y al volver a ponerlos): los carriles se trazan de arriba abajo y las líneas de izquierda a derecha; las cruces
+     aparecen en su sitio (ronda 83) */
   :global(html.carriles-entran) .v {
     animation: trazar-v 1.1s var(--ease-out-expo) both;
   }
   :global(html.carriles-entran) .v.der {
     animation-delay: 0.12s;
   }
-  :global(html.carriles-entran) .marcas :global(.fila) {
+  :global(html.carriles-entran) .marcas :global(.fila)::before {
     animation: trazar-h 1.2s var(--ease-out-expo) 0.2s both;
   }
-  :global(html.carriles-entran) .marcas :global(.fila.quieta) {
+  :global(html.carriles-entran) .marcas :global(.fila .cruz) {
+    animation: asomar-cruz 0.5s ease 0.2s both;
+  }
+  :global(html.carriles-entran) .marcas :global(.fila.quieta)::before,
+  :global(html.carriles-entran) .marcas :global(.fila.quieta .cruz) {
     animation: none;
   }
   @keyframes trazar-v {
@@ -131,9 +143,13 @@
   @keyframes trazar-h {
     from { scale: 0 1; }
   }
+  @keyframes asomar-cruz {
+    from { opacity: 0; }
+  }
   @media (prefers-reduced-motion: reduce) {
     :global(html.carriles-entran) .v,
-    :global(html.carriles-entran) .marcas :global(.fila) {
+    :global(html.carriles-entran) .marcas :global(.fila)::before,
+    :global(html.carriles-entran) .marcas :global(.fila .cruz) {
       animation: none;
     }
   }

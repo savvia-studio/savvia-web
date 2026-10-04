@@ -33,6 +33,13 @@ el brief de esta web está en `../savvia_inspo/docs/WEB-2-BRIEF.md`). **PUBLICAD
 privado https://github.com/AndoniMart/savvia-web: `git push` a `main` = compila en Vercel y publica en savvia.studio (~15 s) → `node tools/verify.cjs
 https://savvia.studio/`. Commit y push, solo cuando Andoni lo pida. (La receta anterior, `vercel deploy --prod` desde `dist/`, sigue valiendo de emergencia.)
 
+## Rutina entre Eric y Andoni (desde el 29/09/2026)
+Los dos trabajan sobre el mismo repositorio, cada uno en su ordenador. Git no sincroniza solo.
+1. **Al empezar:** `git pull`. Lo hace solo el hook `.claude/hooks/al-empezar.sh` al abrir cada sesión de Claude Code y avisa si
+   no pudo (cambios que chocan) o si hay commits o cambios pendientes de subir. Si avisa de un fallo, resolverlo ANTES de tocar nada.
+2. **Al terminar:** commit y `git push`, para que el otro lo tenga. OJO: push a `main` = se PUBLICA en savvia.studio. Se sube
+   cuando quien está trabajando lo pide; al cerrar una tarea, recordárselo si queda trabajo sin subir.
+
 ## Orden de trabajo (acordado)
 1. Estructura y copy → 2. color y tipografía → 3. la página ENTERA maquetada y leída, sin animación → 4. UNA firma.
 No empezar por el hero ni por un efecto. «Un mecanismo visual no es un concepto.»
@@ -2622,6 +2629,120 @@ en mono en el pie.
 - **Medido:** sonda por fotograma durante 14 s (tres relevos): palabras de un nombre que no es el activo ni el que sale, dentro de su máscara → publicada 21
   fotogramas, local 0.
 - **PUBLICADA (30/09)** a petición de Andoni («sí, publícalo»).
+
+### Ronda 83 · 2026-10-03 · feedback de Eric (Agentation): el titular del hero más arriba y copy nuevo (en local)
+- **Eric (textual, sobre `.hero > .wrap.titular`, 1710×985):** «Esto tiene que estar más arriba, dejar más aire abajo. H1: Orquestamos tu web con IA. Sub: Somos
+  especialistas en desarrollo agéntico.» · (a media ronda, tras verlo a partes iguales) «un poco más abajo».
+- **Hecho:** `Hero.astro`: el hueco libre del hero ya no va entero encima del titular (ronda 14): dos tercios encima y un tercio debajo (la caja del titular
+  ocupa el hueco y lo reparte con dos separadores, `::before` flex 2 y `::after` flex 1). El marco y el árbol no se mueven; los 40 px del subtítulo al marco
+  (ronda 17) pasan a ser el mínimo. `home.ts`: H1 «Orquestamos tu web con IA.» y subtítulo «Somos especialistas en desarrollo agéntico.» («Ia» → «IA»).
+- **OJO, por acordar entre los dos:** «Orquestamos tu web con IA.» en el H1 está en «Rechazado» desde la ronda 77 (Andoni: «déjalo en Elevamos tu web con IA
+  como estaba»). Eric lo vuelve a pedir: no se publica hasta que lo acuerden. La imagen para compartir (`og.jpg`) sigue con el titular anterior.
+- **Medido** (Chrome real y WebKit, movimiento reducido; `tools/verify.cjs` no corre en el Mac de Eric: apunta a `/Users/andonimart/…`): a 1710×985 el H1 pasa
+  de y 303 a 234 y el aire bajo el subtítulo de 40 a 109 px; a 1280×720, de 222 a 180 (40 → 82 px); a 390×844, de 404 a 301 (40 → 143 px). H1 en una
+  línea en escritorio (769 px) y dos en móvil; hero de 100 lvh y árbol en su sitio en todos; consola limpia, desborde 0 · `astro check` 0 errores ·
+  `spacing-lint` en escala · `astro build` OK.
+- **A media ronda (Eric, sobre `.pie-arbol`):** «a la hora de entrada las + salen de izquierda a derecha y eso no quiero; quiero que salgan directamente en su
+  posición». Causa: se escalaba la FILA entera (0 → 1 desde la izquierda) y las cruces, que son sus hijas, viajaban con ella. **Hecho (`Carriles.astro`):** la
+  línea va en un `::before` de la fila y es lo único que se traza; las cruces aparecen en su sitio (fundido de 0,5 s). Vale para todas las filas de la web.
+  **Medido** (Chrome y WebKit, 1710 y 390, sonda por fotograma durante 2,6 s): las cruces en una sola posición x (251 y 1450 a 1710; 16 y 365 a 390), opacidad
+  0 → 1; la línea sigue trazándose (escala 0 → 1).
+- **A media ronda (Eric):** «la parrilla detrás del árbol igual tiene que sincronizarse antes de la entrada del árbol, ¿no?». Medido antes: sin animación de
+  carga todo arrancaba a la vez y a los 0,7 s el árbol iba por la mitad con la línea y las cruces aún trazándose; los puntos del marco estaban desde el primer
+  fotograma. **Hecho:** `Base.astro` marca `html.sin-carga` en el `<head>` (visita sin carga); `Hero.astro`: los puntos del marco entran a la vez que la línea y
+  las cruces (0,2 s + 0,7 s) y el árbol y el haz esperan 0,9 s a que la parrilla esté puesta. Con la animación de carga no cambia nada (el árbol nace en el
+  impacto de la gota y el marco sube con el hero) y con movimiento reducido tampoco. **Medido** (Chrome y WebKit, 1710×985): capturas a 250 / 700 / 1200 /
+  1800 / 2600 / 4200 ms (parrilla puesta a 700 ms y sin árbol; el árbol empieza a ~1 s); los tres caminos (sin carga, `?carga=1` + «saltar», movimiento
+  reducido) acaban con el árbol crecido y sin errores. **Sin hacer:** con carga, líneas y cruces siguen trazándose en el impacto, a la vez que nace el árbol
+  (adelantarlas toca `Cargador.astro`, que tiene cambios de otra sesión).
+- **A media ronda (Eric, sobre `.cargador .pista`):** «Aquí se tiene que dibujar una V. Y el botón de saltar tiene que ser más alineado al diseño» · (al verlo)
+  «la tipo de "dibuja una v", ¿está alineada con el diseño? me parece AI slop». **Hecho (`Cargador.astro`):** el gesto que arranca la carga es una V (la del
+  isotipo), no un círculo: el rastro baja, hace vértice y vuelve a subir abriéndose. `leerV()` lee el rastro HACIA ATRÁS desde el puntero (lo que hiciera
+  antes el ratón no cuenta), con histéresis de 6 px: brazos ≥ 4,5 % del lado corto de la ventana (≥ 36 px), el segundo ≥ 55 % del primero, uno a cada lado
+  del vértice, en PICO (a un cuarto de altura mide ≤ la mitad de su boca: una U o un círculo no pasan) y sin garabatos; rastro de 3,2 s; cada toque empieza
+  limpio). Reconocida, la V del visitante se enciende y se RECOGE hasta el arranque del isotipo, donde se vuelve la gota (fuera el anillo). Espacio o intro:
+  una V sintética. La consigna, a solas en la pantalla, es un TITULAR: «Dibuja una v.» en Family a `text-h2` (antes, mono de 13 px en minúsculas). «Saltar» es
+  la píldora de cristal de la casa (`.btn-primary` con su gota Coral al pasar) en pequeño: 32 px de alto (48 para el dedo), Areal 14. Tras saltar o acabar, el
+  rastro deja de escuchar el puntero.
+  **Dos fallos cazados por Eric al probarlo:** (1) «no me la detecta»: la primera versión tomaba como vértice lo más bajo de TODO el rastro, y quien llegaba
+  con el ratón desde abajo y dibujaba a continuación no pasaba → se lee hacia atrás desde el puntero. (2) «aparece un cacho de lo que se va a pintar»: la bola
+  del isotipo asomaba antes de dibujar nada (la máscara iba con raya 1000 y hueco 1000: la raya siguiente empezaba justo al final del camino y su punta
+  redonda destapaba la bola; no salía en Chrome sin ventana, sí en la vista previa de Ship Studio) → hueco de 3000 y la copia a plena tinta no se pinta
+  hasta que la gota echa a rodar (`.dibuja`).
+  **Medido** (Chrome real, `?carga=1`): 19 gestos a 1710×985: arrancan la V que llega desde abajo, la de vértice redondeado, la lenta, la pequeña (55 px), el
+  «visto», de derecha a izquierda, con pulso, muy abierta y estrecha; NO arrancan círculos (cuatro), una U, solo bajar, ida y vuelta por la misma línea ni
+  ir hacia «Saltar» y volver · 0 píxeles del isotipo antes de la V a 1710×985@2, 1280×720, 1170×1292 y 390×844@3, y la carga termina en los cuatro · espacio
+  arranca; «Saltar» se moja al pasar y salta; Family cargada (48 / 34 px), desborde 0, consola limpia · `astro check` 0 errores · `spacing-lint` en escala ·
+  `astro build` OK. **SIN medir:** WebKit (aquí no hay Playwright con WebKit) ni una mano de verdad: lo confirma Eric en su vista previa.
+  **Después (Eric):** «escape para saltar o así, algo más rápido de entender» · «con icono bonito» · «que esté abajo centrado con un pelín de aire». El botón
+  dice «esc para saltar» (la tecla en su chapa, como «esc para levantarte» de Proyectos; se sigue pudiendo pulsar) con un icono de SALTO (un arco con su flecha
+  por encima de una piedra, trazo de los CTA); en táctil, «Saltar» + icono. Va al pie de la pantalla, centrado, a 48 px del borde (32 en móvil + zona
+  segura); la consigna queda sola en el centro; aparece y se va con ella. Medido (Chrome real, 1710×985 y 390×844 táctil): centrado (0 px), aire 48 / 32,
+  clic o toque salta, Esc salta, al reconocer la V el botón se apaga; desborde 0, consola limpia.
+  **Para revisarla (Eric: «en incógnito se me salta»):** `/?carga=1` la fuerza SIEMPRE (`Base.astro`): aunque ya se haya visto y, desde ahora, aunque el
+  sistema pida movimiento reducido; vale junto a `?feedback=1`. Y la RUEDA ya no la salta con un roce: hace falta un scroll de verdad (≥ 90 px seguidos,
+  pasado el primer medio segundo); antes cualquier evento de rueda (un roce del trackpad, la inercia de la página anterior) la saltaba y la daba por vista.
+  Medido (Chrome real): navegador limpio sin parámetro → sale; roce de 12 px → sigue; scroll de 160 px → salta; segunda visita → no sale; `?carga=1` → sale,
+  también con movimiento reducido (y termina bien tras la V). La causa de que a Eric se le saltara NO está confirmada: la rueda es la hipótesis.
+  **NO VOLVER:** el círculo como gesto de la carga (rondas 20–82) y la consigna en mono pequeña.
+- **PRUEBA hero-claro (Eric, 03/10; «que el fondo del hero sea blanco y el resto de elementos white se ajusten a dark; una prueba nada más, fácilmente
+  reversible»):** detrás de un parámetro, sin él no cambia nada: `?hero=blanco` (blanco puro) y `?hero=claro` (Rosa niebla). El `<head>` pone
+  `html.hero-claro` (+ `hero-blanco`) y el hero pasa a `surface-light`: titular en Cacao, subtítulo y esquinas en Nogal, barra en Cacao (`sobre-claro`
+  desde el primer fotograma), puntos y trazos del marco en Cacao (`--tinta-hero`); SIN haz de luz ni su brillo sobre el árbol (en oscuro se leía como una banda gris; Eric: «quitamos»); el árbol se hunde hacia el fondo claro (`fondo()`) y las líneas
+  del dibujo, el filo y los puntos del canto van en Cacao cuando el fondo es claro (`estela.ts › claro`). Las raíces y lo demás siguen oscuros: la línea de
+  suelo es la frontera. Para quitarla: buscar «PRUEBA hero-claro» (Base, Hero, Nav, estela.ts). **Medido** (Chrome sin ventana, 1440×900, movimiento
+  reducido): fondo 255·255·255, h1 48·32·24, consola limpia, desborde 0; sin parámetro, el hero igual que antes · `astro check` 0 errores. **SIN medir:**
+  con la animación de carga, WebKit, móvil y las otras estaciones (en invierno la nieve del árbol es blanca sobre blanco).
+- **A media ronda (Eric):** el primer dolor pasa a leerse como una frase: eyebrow «Si tu web no se alinea con tu marca…» · titular «Pasamos tiempo mano a mano»
+  (sin punto: sigue debajo) · texto «contigo entendiendo lo que necesita tu proyecto.» (`home.ts`; los otros dos dolores, sin tocar) · «los tres se tienen
+  que animar stagger»: en cada parada, al llegar la savia, eyebrow → titular → texto entran uno tras otro desde el desenfoque (retrasos 0,30 · 0,46 · 0,62 s;
+  `Dolores.astro`). Antes el eyebrow estaba a la vista desde el principio y la respuesta entraba en bloque; ahora el eyebrow descansa ya en `--fg2`.
+  **Medido** (Chrome sin ventana, por fotograma): antes de la savia las tres a 0; a 333 ms solo el eyebrow ha empezado (0,03 · 0 · 0); al final las tres a 1;
+  consola limpia. **SIN medir:** el ritmo a ojo (el GL por software da 2–3 fotogramas por segundo): lo juzga Eric en su vista previa.
+- **A media ronda (Eric): «ponme agentation siempre»:** en LOCAL (`astro dev`) Agentation va siempre puesto; publicada, `?feedback=1` se RECUERDA en ese
+  navegador (`localStorage` «savvia:feedback») hasta `?feedback=0`. Quien nunca lo haya pedido sigue sin cargar nada (`Base.astro`). Medido en local sin
+  parámetro: `#reviewRoot` montado; con `?feedback=0`, nada.
+- **A media ronda (Eric, Agentation sobre `#contenido`):** «la parte de abajo del árbol también debería crecer para abajo, al igual que el árbol crece para
+  arriba». **Hecho (`Raices.astro`):** las raíces ya no están pintadas desde el principio: se DIBUJAN y se PINTAN hacia abajo desde el cuello (líneas por
+  delante, pintura rasgada con filo de savia), con el reloj y la curva del árbol (3,6 s), cuando el árbol ha empezado a brotar Y las raíces asoman en
+  pantalla (quedan bajo el pliegue del hero: a la vez que el árbol no lo vería nadie). Por tiempo y una sola vez, no atadas al scroll (lo rechazado en la
+  ronda 39 era componerlas CON el scroll; Andoni pidió entonces «fijas»: por acordar entre los dos). Página abierta ya más abajo o movimiento reducido:
+  pintadas sin más. Un cambio de estación a medio crecer sigue desde donde iba. **Medido** (Chrome sin ventana, 1440×900): a 1,5 s de asomar, el frente
+  va por la punta de las raíces; a 4 s, pintadas; consola limpia. La otra nota del mismo pegado (las «+» de izquierda a derecha) ya estaba resuelta en
+  esta ronda: medido otra vez, las cruces solo ocupan una posición x (116 y 1315 a 1440) durante toda la entrada.
+- **A media ronda (Eric, Agentation): los otros dos dolores, con el mismo patrón que el primero** (`home.ts`): 2 · «Si lo que haces se ve como AI slop…» /
+  «Con tu dirección y criterio» / «generamos skills únicas.» · 3 · «Si la consistencia del diseño se rompe en cada cambio…» / «Creamos savvia: el agente para
+  tu web» / «El sistema consistente que conecta tu web con la IA.» («AI slop» en minúscula, como en la ronda 65; «Creamos» con mayúscula, como los otros dos
+  titulares). El tercero ya no dice «savvia agentic: el arnés de tu web»; el nombre «savvia agentic» sigue en otros sitios de la web (por acordar).
+  Medido a 1710×985: titulares en 2 · 2 · 3 líneas, desborde 0, consola limpia.
+  **Retoque (Eric, a continuación):** 2 · «…AI Slop…» (con mayúscula, a petición suya) / «Con tu dirección y nuestro criterio» / «generamos skills únicas de
+  diseño y desarrollo web.» · 3 · «savvia: el agente que guía tu web.» / «Un sistema que conecta tu página web con la IA.» (Eric escribió «Savvia»: se deja
+  en minúscula por la regla de la ronda 16; el titular del 2, sin punto porque la frase sigue debajo).
+- **ISOTIPO con el vértice más a la derecha (Eric, 03/10; «isotipos MUY parecidos pero que nos quiten un poco de la apariencia de saxofón; que la segunda
+  curva, la de abajo, esté un poco más a la derecha para que esté más centrada y haga alusión al nacimiento de un tallo» → de siete variantes en el
+  lienzo https://claude.ai/artifact/TZMV8vTngSYuARuJEp3NmT eligió la B: «esta es la ganadora yo creo» · «aplícala»):** el trazado de siempre con un
+  desplazamiento horizontal que crece hacia abajo (x += 64 · t^1,15, t de y = 165 a 436): gancho de entrada y bola en su sitio, el vértice 64 unidades
+  (17 % del ancho) a la derecha; mismo lienzo 370 × 439 y 1275 × 439. Cambian `public/savvia-isotipo.svg`, `savvia-logo.svg`, `favicon.svg` (recentrado),
+  `apple-touch-icon.png` y `og.jpg` (`tools/r83-og.cjs`; lleva el H1 de la ronda 83: si el titular vuelve atrás, regenerarla), todo con `?v=83`. En
+  `Cargador.astro` el EJE por el que la gota dibuja el isotipo va con la misma deformación. Los anteriores, en `tools/retirados/*.r82.*`. **Medido:** la
+  plumada cubre el 99,9 % de la forma nueva (con el eje viejo, el 74 %) · Chrome sin ventana, 1280×720, `?carga=1`: la V arranca, la gota dibuja el
+  isotipo entero, cae, el árbol crece desde el impacto y el isotipo encaja en la barra; consola limpia · `astro check` 0 errores · build OK ·
+  `spacing-lint` en escala. **SIN medir:** WebKit y móvil. **Por confirmar con Andoni** (es marca): no se publica hasta que lo acuerden.
+- **A media ronda (Eric):** «el trazo que se dibuja cuando dibuja el usuario, que sea como de pincel, un trazo parecido al isotipo». **Hecho
+  (`Cargador.astro`):** el rastro deja de ser una línea de 2 px (`<polyline>`) y se pinta en un lienzo 2D con la PLUMA del isotipo (`pincel()` +
+  `pintar()`): los puntos del ratón se remuestrean cada 3 px y se alisan; el grosor sale de la dirección (grueso al bajar, 11–16 px según la ventana;
+  fino al subir y en horizontal, el 30 %), suavizado a lo largo del trazo; entra afilado (30 px) y remata en una bolita en la punta. Rosa niebla al 90 %;
+  reconocida la V, pasa al tono de la gota y se recoge en ella como antes. **Medido** (Chrome sin ventana, 1280×720, DPR 2, `?carga=1`): entrada fina,
+  brazo grueso, subida fina con bolita; la V se reconoce, la gota dibuja el isotipo, cae y la carga termina; consola limpia · `astro check` 0 errores ·
+  build OK. **SIN medir:** con el dedo (móvil) y WebKit.
+- **A media ronda (Eric):** «igual que haga falta un clic para empezar a dibujar, ¿no?» · «el trazo un poco más fino». **Hecho (`Cargador.astro`):** se
+  dibuja con el botón (o el dedo) PULSADO, como con un lápiz: mover el ratón sin pulsar no deja rastro ni arranca nada; al soltar sin haber hecho una V, el
+  trazo se apaga (0,4 s). Quien pasea el ratón 400 px sin pulsar recibe una segunda línea bajo la consigna, «con el clic pulsado» (Areal 18, `--fg2`; cuelga
+  sin mover el titular; se va al pulsar). Pulsar sobre «esc para saltar» no empieza un trazo. Pincel más fino: 8–11,5 px al bajar (antes 11–16).
+  OJO: este cambio y el del pincel se hicieron en DOS sesiones a la vez sobre el mismo archivo; quedó encajado a mano (el `mover` pinta con `pintar(pincel())`).
+  **Medido** (Chrome real, 1710×985, `?carga=1`): los 20 gestos de la batería con el botón pulsado (11 V arrancan; círculos, U, ida y vuelta y demás, no);
+  una V perfecta SIN pulsar no arranca ni pinta nada (0 píxeles en el lienzo) y saca la segunda línea; la carga termina tras la V · `astro check` 0 errores ·
+  `spacing-lint` en escala · `astro build` OK. **SIN medir:** con el dedo y WebKit.
 
 ## Rechazado — añadidos de la ronda 77 (NO VOLVER)
 - La pantalla de carga al llegar a Proyectos destacados (rondas 68–76).

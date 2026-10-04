@@ -35,7 +35,35 @@
     if (!t) raiz.classList.add('sin-gl');
     else {
       let est = estacionActual(), visible = false, pedida = -1;
-      t.crecer(1);
+      // RONDA 83 · Eric: «la parte de abajo del árbol también debería crecer para abajo, al igual que el árbol crece para arriba»: las raíces ya no están
+      // pintadas desde el principio: se DIBUJAN y se PINTAN hacia abajo desde el cuello, con el reloj y la curva del árbol (3,6 s), cuando el árbol ha
+      // empezado a brotar (`savvia:gota`; sin carga, tras la parrilla) Y las raíces asoman en pantalla (quedan bajo el pliegue: si no, nadie lo vería).
+      // Por tiempo, una sola vez; no van atadas al scroll (ronda 39). Si la página se abre ya más abajo, pintadas sin más.
+      const CRECE = 3600;
+      let g = reducido ? 1 : 0, suelta = false, asomada = false, creciendo = false;
+      t.crecer(g);
+      const arrancar = () => {
+        if (creciendo || g >= 1 || !suelta || !asomada) return;
+        creciendo = true;
+        let a = 0;
+        const paso = (ahora: number) => {
+          if (!a) a = ahora;
+          const k = Math.min(1, (ahora - a) / CRECE);
+          g = 1 - Math.pow(1 - k, 1.6); t?.crecer(g);
+          if (k < 1) requestAnimationFrame(paso); else { g = 1; t?.crecer(1); }
+        };
+        requestAnimationFrame(paso);
+      };
+      if (!reducido) {
+        const ESPERA = document.documentElement.classList.contains('sin-carga') ? 900 : 0; // la misma espera del árbol (Hero.astro)
+        const soltar = () => setTimeout(() => {
+          if (raiz.getBoundingClientRect().bottom < 0) { g = 1; t?.crecer(1); return; } // ya quedaron arriba: pintadas
+          suelta = true; arrancar();
+        }, ESPERA + 100);
+        if ((window as any).__gotaSuelta) soltar(); else addEventListener('savvia:gota', soltar, { once: true });
+        const asoma = new IntersectionObserver((e) => { if (e[0].isIntersecting) { asomada = true; asoma.disconnect(); arrancar(); } }, { rootMargin: '0px 0px -6% 0px' });
+        asoma.observe(raiz);
+      }
       t.fondo(...NOCHE[est]);
       new IntersectionObserver((e) => { visible = e[0].isIntersecting; t?.visible(visible); }, { rootMargin: '10% 0px' }).observe(raiz);
       const soltarLienzo = (c: HTMLCanvasElement) => { { const g = (c.getContext('webgl') || c.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } c.remove(); };
@@ -52,8 +80,8 @@
           t2.estacion(n);
           const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
           t2.fondo(...NOCHE[n]); t2.visible(visible);
-          t2.crecer(1);
-          if (!visible || reducido) return soltarLienzo(viejo);
+          t2.crecer(g); // a medio crecer (o sin crecer aún), el lienzo nuevo sigue desde donde iba
+          if (!visible || reducido || g < 1) return soltarLienzo(viejo);
           // ronda 67: se descubre con el canto rasgado desde el cuello (sin el destello de líneas), como la copa
           let a = 0;
           const pon = (m: string) => { cv2.style.setProperty('-webkit-mask', m); cv2.style.setProperty('mask', m); };

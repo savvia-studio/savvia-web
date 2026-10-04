@@ -21,8 +21,11 @@ export const hero = {
   // a menor coste». El titular responde al primero; el subtítulo es el segundo, con el cómo (criterio + IA).
   // RONDA 53 · «el H1 es muy amplio y no dice nada: más específico, que el cliente diga hostia, esto pueden hacer por mí». Lo concreto del Keynote: web
   // a medida (no un lavado de cara) + tu equipo la cambia con IA (formación + todo documentado) + el ARNÉS (la receta hace que la IA no se salga de tu marca).
-  h1: 'Elevamos tu web con IA.', // ronda 65 (Andoni); ronda 77: vuelve tras probar «Orquestamos…» en la 76 Antes (r53): «Una web a medida que tu equipo cambia con IA, fiel a tu marca.»
-  h2: 'Especializados en orquestar el diseño y desarrollo agéntico.', // ronda 65 (Andoni)
+  // RONDA 83 (Eric, 03/10): «H1: Orquestamos tu web con IA. · Sub: Somos especialistas en desarrollo agéntico.». OJO: Andoni devolvió el H1 a
+  // «Elevamos tu web con IA.» en la ronda 77; pendiente de que lo acuerden los dos antes de publicar. Antes (r65): «Especializados en orquestar el
+  // diseño y desarrollo agéntico.»; (r53): «Una web a medida que tu equipo cambia con IA, fiel a tu marca.»
+  h1: 'Orquestamos tu web con IA.',
+  h2: 'Somos especialistas en desarrollo agéntico.',
   // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
   vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
   vocabularioRaiz: ['raíz', 'briefing', 'entender', 'qué vendes', 'a quién', 'decisiones', 'savvia', 'fuente de verdad', 'documentado', 'criterio', 'la savia', 'desde la raíz'],
@@ -46,21 +49,22 @@ export const recorrido = {
   pasos: [
     {
       corto: 'No se alinea con tu marca',
-      dolor: 'Tu web no se alinea con tu marca.',
-      t: 'Mano a mano.',
-      d: 'Pasamos tiempo contigo entendiendo lo que necesita tu proyecto.',
+      // ronda 83 · Eric: el dolor abre la frase y la respuesta la sigue (sin punto en el titular: continúa en el texto)
+      dolor: 'Si tu web no se alinea con tu marca…',
+      t: 'Pasamos tiempo mano a mano',
+      d: 'contigo entendiendo lo que necesita tu proyecto.',
     },
     {
       corto: 'AI slop',
-      dolor: 'Se ve como AI slop puro.',
-      t: 'Creatividad a medida.',
-      d: 'Con tu dirección y nuestro criterio generamos skills únicas.',
+      dolor: 'Si lo que haces se ve como AI Slop…',
+      t: 'Con tu dirección y nuestro criterio',
+      d: 'generamos skills únicas de diseño y desarrollo web.',
     },
     {
       corto: 'Difícil de mantener',
-      dolor: 'Es difícil de mantener.',
-      t: 'savvia agentic: el arnés de tu web.',
-      d: 'Tu librería que construye la web con IA.',
+      dolor: 'Si la consistencia del diseño se rompe en cada cambio…',
+      t: 'savvia: el agente que guía tu web.',
+      d: 'Un sistema que conecta tu página web con la IA.',
     },
   ],
 };

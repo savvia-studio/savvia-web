@@ -14,6 +14,8 @@ import { rich } from '../lib/rich';
   · Regla dura 3: el lienzo nace invisible. Sin WebGL queda la lámina como imagen. Con movimiento reducido, ya compuesto y quieto.
 -->
 <section class="hero relative flex flex-col items-center overflow-hidden" aria-labelledby="h1" data-hero>
+  <!-- PRUEBA hero-claro: con ?hero=blanco|claro el hero pasa a superficie clara antes del primer pintado (texto Cacao; la barra lo detecta sola) -->
+  <script is:inline>if (document.documentElement.classList.contains('hero-claro')) document.currentScript.parentElement.classList.add('surface-light');</script>
   <!-- RONDA 27 · «ese rayo de luz que entre desde arriba afectando a todo el hero, como si entrase por una ventana desde la naturaleza, con sombras
        muy sutiles, y que se mueva siguiendo al ratón»: dos haces oblicuos de Rosa niebla, más fuertes arriba, que se desplazan con el puntero;
        el titular proyecta una sombra que se mueve al contrario, y los haces del árbol (en el shader) siguen la misma luz -->
@@ -49,6 +51,7 @@ import { rich } from '../lib/rich';
 <script>
   import { crearEstela } from '../scripts/estela';
   import { EST, NOCHE, estacionActual, fijarEstacion } from '../scripts/estacion';
+  import { rgbDe } from '../scripts/tinta';
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   if (hero) {
     const img = hero.querySelector<HTMLImageElement>('[data-lamina]')!;
@@ -57,13 +60,22 @@ import { rich } from '../lib/rich';
     // Al tocar el suelo: la savia corre por la línea, el árbol se DIBUJA y se PINTA con canto rasgado; luego sangra el halo.
     // RONDA 66 · cada estación tiene su lámina: el motor ya no tiñe la hoja (intensidad 0), el color viene pintado
     let cv = hero.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
+    // PRUEBA hero-claro: el fondo hacia el que se hunde el árbol es el del hero (blanco o Rosa niebla), no la noche de la estación
+    const html = document.documentElement.classList;
+    const fondoClaro: [number, number, number] | null = html.contains('hero-blanco') ? [255, 255, 255] : html.contains('hero-claro') ? rgbDe('niebla') : null;
+    const fondoDe = (n: number) => fondoClaro ?? NOCHE[n];
     // RONDA 67 · «en primavera me gustaba el tono rosáceo, estilo cerezo»: en primavera el motor vuelve a teñir la hoja (su color de la tabla, rosa)
     const tinte = (n: number) => (n === 2 ? 0.9 : 0);
-    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true, hd: true, intensidad: tinte(estacionActual()) });
+    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(estacionActual()) });
     if (t && (estacionActual() === 2 || estacionActual() === 1)) t.estacion(estacionActual()); // ronda 76: el invierno, sin hojas (raleo) y nevado
     const w = window as any;
     // RONDA 30: al caer la gota, primero ENTRA EL HAZ desde arriba (luz-entra); la luz sobre el árbol la pone el shader al terminar de pintarse
-    const suelta = () => { t?.soltar(); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
+    const brota = () => { t?.soltar(); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
+    // RONDA 83 · Eric: «la parrilla detrás del árbol tiene que sincronizarse antes de la entrada del árbol»: sin animación de carga (html.sin-carga, puesto
+    // en el <head>) todo arrancaba a la vez y el árbol iba por la mitad con las líneas aún trazándose. Ahora la PARRILLA entra primero (puntos del marco,
+    // línea y cruces, a una) y el árbol espera a que esté puesta. Con carga no se espera: el árbol nace en el impacto de la gota.
+    const ESPERA = document.documentElement.classList.contains('sin-carga') && !reducido ? 900 : 0;
+    const suelta = () => { if (ESPERA) setTimeout(brota, ESPERA); else brota(); };
     if (w.__gotaSuelta) suelta(); else addEventListener('savvia:gota', suelta, { once: true });
     if (!t) hero.classList.add('sin-gl');
     // HUEVO DE PASCUA (ronda 21): clic = la estación siguiente (solo vira el color).
@@ -79,7 +91,7 @@ import { rich } from '../lib/rich';
     const tic = () => { hora.textContent = fmt.format(new Date()); setTimeout(tic, 60000 - (Date.now() % 60000) + 50); };
     tic();
     rotular();
-    if (t) t.fondo(...NOCHE[est]);
+    if (t) t.fondo(...fondoDe(est));
     // CAMBIO DE ESTACIÓN (ronda 66): la lámina nueva se DIBUJA y se PINTA encima de la vieja (líneas y pintura rasgada desde la base, 2,4 s, el gesto de
     // la carga) y al acabar la vieja suelta su contexto WebGL. Sin ver el hero o antes de crecer, de golpe.
     let luzV = 0, pedida = -1;
@@ -105,11 +117,11 @@ import { rich } from '../lib/rich';
         if (pedida !== n || !t) return;
         // clonado del lienzo actual: así lleva el atributo de ámbito de Astro (con createElement los estilos del componente no le llegan)
         const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2);
-        const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: true, hd: true, intensidad: tinte(n) });
+        const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: true, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(n) });
         if (!t2) { cv2.remove(); return; }
         if (n === 2 || n === 1) t2.estacion(n);
         const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
-        t2.fondo(...NOCHE[n]); t2.luz(luzV); t2.visible(heroVisible); t2.crecer(1);
+        t2.fondo(...fondoDe(n)); t2.luz(luzV); t2.visible(heroVisible); t2.crecer(1);
         if (!heroVisible || reducido || !hero.classList.contains('crecido')) return soltarLienzo(viejo);
         // RONDA 67 · «en algunas estaciones tiene un salto raro»: el lienzo nuevo ya viene PINTADO y se descubre con el canto de papel rasgado que crece
         // desde la base del tronco (2,4 s), sin el destello de líneas del dibujo; al acabar, el viejo se retira
@@ -154,18 +166,39 @@ import { rich } from '../lib/rich';
 
 <style>
   .hero {
+    --tinta-hero: var(--color-niebla); /* la tinta de los detalles (haz, puntos y trazos del marco) */
     --lx: 0; /* el ratón, de −0,5 a 0,5 */
     --ly: 0;
     min-height: 100lvh;
     padding-top: calc(var(--spacing) * 24);
     padding-bottom: 0; /* RONDA 16: el pie del árbol ES el pie del hero («para que no se vea el corte»); las raíces nacen justo debajo */
   }
-  /* RONDA 14 · «ahora que el árbol es más pequeño bajamos el titular»: el hueco libre va ENCIMA del titular; titular y árbol quedan juntos
-     abajo, como un cartel (el árbol sigue sobre la línea de suelo a 48 px del pliegue) */
+  /* PRUEBA hero-claro (?hero=blanco|claro): los detalles que eran Rosa niebla pasan a Cacao; con «blanco», el fondo es blanco puro */
+  :global(html.hero-claro) .hero {
+    --tinta-hero: var(--color-cacao);
+  }
+  :global(html.hero-blanco) .hero {
+    --bg: #fff;
+  }
+  /* sobre claro no hay haz (en oscuro se leía como una banda gris); tampoco su brillo sobre el árbol (sinLuz, en el script) */
+  :global(html.hero-claro) .hero .luz {
+    display: none;
+  }
+  /* RONDA 83 · Eric: «esto tiene que estar más arriba, dejar más aire abajo» → (a partes iguales) «un poco más abajo»: el hueco libre ya no va
+     entero ENCIMA del titular (ronda 14): dos tercios encima y un tercio debajo; el marco y el árbol se quedan abajo (los 40 px al marco pasan
+     a ser el mínimo). La caja del titular ocupa el hueco y lo reparte con dos separadores */
   .titular {
-    margin-top: auto;
+    flex: 1 0 auto;
     position: relative;
     z-index: 1;
+  }
+  .titular::before,
+  .titular::after {
+    content: '';
+    flex: 2;
+  }
+  .titular::after {
+    flex: 1;
   }
   /* ronda 31: sin sombra en el titular («no la quiero») */
   /* LA LUZ: dos haces oblicuos que entran desde arriba (más fuertes en lo alto), sobre todo el hero, en «screen»; se desplazan con el ratón */
@@ -195,7 +228,7 @@ import { rich } from '../lib/rich';
     bottom: -20%;
     width: 34%;
     left: 40%;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-niebla) 3%, transparent) 30%, color-mix(in srgb, var(--color-niebla) 7.5%, transparent) 50%, color-mix(in srgb, var(--color-niebla) 3%, transparent) 70%, transparent); /* ronda 31: pico 0,075 */
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--tinta-hero) 3%, transparent) 30%, color-mix(in srgb, var(--tinta-hero) 7.5%, transparent) 50%, color-mix(in srgb, var(--tinta-hero) 3%, transparent) 70%, transparent); /* ronda 31: pico 0,075 */
     transform: translateX(calc(var(--lx) * 38vw)) skewX(-18deg); /* 18°: la misma inclinación que el brillo del árbol */
     will-change: transform;
   }
@@ -204,7 +237,7 @@ import { rich } from '../lib/rich';
     .luz { transition: none; }
   }
   .pie-arbol {
-    margin-top: 2.5rem; /* 40 px: pedido así por Andoni (el marco empieza a 40 px del subtítulo) */
+    margin-top: 2.5rem; /* 40 px como mínimo (ronda 17); desde la 83 el titular reparte el hueco libre y suele haber más */
     padding-top: calc(var(--spacing) * 8);
     position: relative;
     width: 100%;
@@ -219,7 +252,7 @@ import { rich } from '../lib/rich';
   }
   .marco {
     --gutter: calc(var(--spacing) * 5);
-    --punto: color-mix(in srgb, var(--color-niebla) 10%, transparent); /* Rosa niebla al 10 % */
+    --punto: color-mix(in srgb, var(--tinta-hero) 10%, transparent); /* Rosa niebla al 10 % */
     position: absolute;
     left: 50%;
     top: 0;
@@ -233,8 +266,19 @@ import { rich } from '../lib/rich';
       radial-gradient(circle, var(--punto) 1.15px, transparent 1.7px) 4px 4px / 8px 8px;
     -webkit-mask-image: linear-gradient(to bottom, #000, transparent 96%);
     mask-image: linear-gradient(to bottom, #000, transparent 96%);
-    border-inline: 1px dashed color-mix(in srgb, var(--color-niebla) 22%, transparent);
+    border-inline: 1px dashed color-mix(in srgb, var(--tinta-hero) 22%, transparent);
     pointer-events: none;
+  }
+  /* RONDA 83 · sin animación de carga, los puntos del marco entran A LA VEZ que la línea y las cruces de los carriles (Carriles.astro: 0,2 s de espera),
+     y el árbol después (ESPERA, en el script). Con carga, el marco sube con el hero, como siempre. */
+  :global(html.sin-carga) .marco {
+    animation: asomar-marco 0.7s ease 0.2s both;
+  }
+  @keyframes asomar-marco {
+    from { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.sin-carga) .marco { animation: none; }
   }
   @media (width >= 48rem) {
     .marco { --gutter: calc(var(--spacing) * 8); }
