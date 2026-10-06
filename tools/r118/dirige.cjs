@@ -7,9 +7,9 @@ const motor = process.argv[2] || 'chrome', W = +(process.argv[3] || 1280), H = W
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(String(e))); p.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
   await p.goto('http://localhost:4321/'); await p.waitForTimeout(900);
   await p.keyboard.press('Enter'); await p.waitForTimeout(600); await p.mouse.click(W * 0.95, H * 0.2); await p.waitForTimeout(7000);
-  const m = await p.evaluate(() => { const r = document.querySelector('.marco').getBoundingClientRect(); return { l: r.left, t: r.top, w: r.width, h: r.height }; });
+  const m = await p.evaluate(() => { const r = document.querySelector('[data-caja]').getBoundingClientRect(); return { l: r.left, t: r.top, w: r.width, h: r.height }; });
   const out = [];
-  for (const [i, fx, fy] of [[1, 0.06, 0.55], [2, 0.92, 0.45], [3, 0.27, 0.6]]) {
+  for (const [i, fx, fy] of [[1, 0.13, 0.6], [2, 0.71, 0.6], [3, 0.88, 0.6], [4, 0.32, 0.6]]) {
     const x = m.l + m.w * fx, y = m.t + m.h * fy;
     if (W < 600) await p.touchscreen.tap(x, y); else for (let k = 0; k <= 8; k++) await p.mouse.move(x - 40 + k * 5, y);
     await p.waitForTimeout(900);

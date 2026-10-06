@@ -209,7 +209,7 @@ import { nav, pie } from '../data/home';
       const gota = (window as any).__subeEn?.(x, y) as HTMLElement | null;
       const el = gota ?? document.elementsFromPoint(x, y).find((e) => e.matches('.surface-light, .surface-warm, .surface-dark, main > section, main > div, [data-hero], footer'));
       // ronda 62: surface-warm es Salvia Blue (claro): sobre él la barra va en Cacao, como sobre lo claro
-      const claro = !!el && (el.matches('.surface-light, .surface-warm') || (!el.matches('.surface-dark') && !!el.closest('.surface-light, .surface-warm')) || (document.documentElement.dataset.paleta === 'clara' && (!el.closest('.surface-dark') || !!el.closest('#proyectos')))); // ronda 91: en la paleta clara, la base es clara · ronda 94: y Proyectos también (sobre la foto manda `sobre-escena`)
+      const claro = !!el && (el.matches('.surface-light, .surface-warm') || (!el.matches('.surface-dark') && !!el.closest('.surface-light, .surface-warm')) || (document.documentElement.dataset.paleta === 'clara' && (!el.closest('.surface-dark') || !!el.closest('#proyectos, [data-dolores]')))); // ronda 118: y los problemas también · ronda 91: en la paleta clara, la base es clara · ronda 94: y Proyectos también (sobre la foto manda `sobre-escena`)
       if (claro !== sobreClaro) { sobreClaro = claro; document.documentElement.classList.toggle('sobre-claro', claro); }
     };
     const pedir = () => { if (pedido) return; pedido = true; const falta = 90 - (performance.now() - ultMira); if (falta > 0) { clearTimeout(tPend); tPend = window.setTimeout(() => requestAnimationFrame(mirar), falta); } else requestAnimationFrame(mirar); };

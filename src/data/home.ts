@@ -23,7 +23,7 @@ export const hero = {
   // a medida (no un lavado de cara) + tu equipo la cambia con IA (formación + todo documentado) + el ARNÉS (la receta hace que la IA no se salga de tu marca).
   // RONDA 83 · giro a la MÚSICA («en savvia orquestamos: todo nace de ese verbo»). H1 de Andoni; el H2 no repite «orquestar»
   h1: 'Orquestamos tu web con IA.', // ronda 115 (Andoni; estaba en lo rechazado de la 77: lo vuelve a pedir). Antes (r83): «Orquestamos tu web con desarrollo agéntico.»
-  h2: 'Desarrollo agéntico, de principio a fin.', // ronda 117 (Andoni: «solo desarrollo agéntico, el diseño ya está implícito en la web») · antes (r115): «Diseño y desarrollo agéntico, de principio a fin.» · antes (r83): «Cada agente en su parte. Tu web, a una sola voz.» // ronda 83 · antes (r65): «Especializados en orquestar el diseño y desarrollo agéntico.»
+  h2: 'Somos especialistas en desarrollo agéntico.', // ronda 118 (Andoni; el de main, ronda 83 de Eric) · antes (r117): «Desarrollo agéntico, de principio a fin.» · ronda 117 (Andoni: «solo desarrollo agéntico, el diseño ya está implícito en la web») · antes (r115): «Diseño y desarrollo agéntico, de principio a fin.» · antes (r83): «Cada agente en su parte. Tu web, a una sola voz.» // ronda 83 · antes (r65): «Especializados en orquestar el diseño y desarrollo agéntico.»
   // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
   vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
   vocabularioRaiz: ['raíz', 'briefing', 'entender', 'qué vendes', 'a quién', 'decisiones', 'savvia', 'fuente de verdad', 'documentado', 'criterio', 'la savia', 'desde la raíz'],
@@ -59,21 +59,22 @@ export const recorrido = {
   pasos: [
     {
       corto: 'No se alinea con tu marca',
-      dolor: 'Tu web no se alinea con tu marca.',
-      t: 'Afinamos contigo.', // ronda 83 · matiz musical; antes «Mano a mano.»
-      d: 'Pasamos tiempo contigo entendiendo lo que necesita tu proyecto.',
+      // ronda 118 · «de segunda sección, la que tenemos en savvia.studio»: el texto de Eric (ronda 83 de main): el dolor abre la frase y la respuesta la sigue
+      dolor: 'Si tu web no se alinea con tu marca…',
+      t: 'Pasamos tiempo mano a mano',
+      d: 'contigo entendiendo lo que necesita tu proyecto.',
     },
     {
-      corto: 'Evita el AI Slop',
-      dolor: 'Evita el AI Slop.', // ronda 83 (Andoni); antes «Se ve como AI slop puro.»
-      t: 'Una obra, no una plantilla.', // ronda 83; antes «Creatividad a medida.»
-      d: 'Con tu dirección y nuestro criterio generamos skills únicas.',
+      corto: 'AI slop',
+      dolor: 'Si lo que haces se ve como AI Slop…',
+      t: 'Con tu dirección y nuestro criterio',
+      d: 'generamos skills únicas de diseño y desarrollo web.',
     },
     {
       corto: 'Difícil de mantener',
-      dolor: 'Es difícil de mantener.',
-      t: 'La partitura de tu web.', // ronda 83 (Andoni); antes «savvia agentic: el arnés de tu web.»
-      d: 'Tu librería: la IA la lee y toca tu web sin salirse de la melodía.',
+      dolor: 'Si la consistencia del diseño se rompe en cada cambio…',
+      t: 'savvia: el agente que guía tu web.',
+      d: 'Un sistema que conecta tu página web con la IA.',
     },
   ],
 };
@@ -147,26 +148,35 @@ export const partitura = {
     quien: 'Tu equipo',
     estado: ['Leyendo la librería…', 'Publicado · neety.com', 'Listo para publicar'],
     publicar: 'Publicar',
-    // el árbol de la librería: carpeta y sus archivos (ids = los de `archivos`)
-    arbol: [['marca', ['color.md', 'tipografia.md', 'voz.md']], ['sistema', ['espaciado.md', 'tokens.css']], ['componentes', ['Logo.tsx', 'PulsingDot.tsx', 'PillCta.tsx', 'TagPill.tsx']]] as [string, string[]][],
-    // lo que se ve de cada archivo cuando un agente lo lee (valores reales de su librería)
-    archivos: {
-      'color.md': ['# Color', 'Naranja Core      #FE8238', 'Azúl bebe         #A7C5F9', 'Berenjena         #431B44', 'Base Cálida       #F8F7EC', 'gradiente  .rail-gradient-x', '  crema → naranja → berenjena → azul'],
-      'Logo.tsx': ['export function Logo() {', '  // wordmark · Ciruela #2A0E2C', '  return <svg viewBox="0 0 130 32">', '    {wordmark}', '  </svg>', '}'],
-      'tipografia.md': ['# Tipografía', 'titulares  Bricolage Grotesque 500', 'H1 XL      112 / 64 px · 120 %', 'cuerpo     Switzer · 16 · 150 %', 'eyebrow    mono · mayúsculas'],
-      'voz.md': ['# Voz', '1. Tres verbos: detecta, prioriza, actúa.', '2. No vendemos herramienta: decimos', '   qué hacer hoy y por qué.', '3. Frases cortas. Sin humo.'],
-      'PillCta.tsx': ['export function PillCta({ variant }) {', '  // primario · berenjena · radio 999', '  primario  "Solicitar demo"', '  contorno  "Saber más"', '}'],
-      'TagPill.tsx': ['export function TagPill({ estado }) {', '  // señales de una cuenta', '  estado  "Templado" | "Caliente"', '  fondo   #FFF9E5', '}'],
-    } as Record<string, string[]>,
-    // los PASOS: quién lee qué archivo y qué línea, y qué pieza de la página monta con ella (chip = el token que se ve junto a la pieza)
-    pasos: [
-      { ag: 2, f: 'color.md', ln: 5, piezas: ['fondo'], chip: '.rail-gradient-x' },
-      { ag: 1, f: 'Logo.tsx', ln: 1, piezas: ['nav'], chip: '<Logo />' },
-      { ag: 0, f: 'tipografia.md', ln: 2, piezas: ['h1'], chip: 'Bricolage · H1 64' },
-      { ag: 1, f: 'voz.md', ln: 1, piezas: ['eyebrow', 'sub'], chip: 'voz.md · regla 1' },
-      { ag: 0, f: 'PillCta.tsx', ln: 2, piezas: ['ctas'], chip: '<PillCta variant="primario" />' },
-      { ag: 2, f: 'TagPill.tsx', ln: 2, piezas: ['card'], chip: '<TagPill estado="Templado" />' },
-    ] as { ag: number; f: string; ln: number; piezas: string[]; chip: string }[],
+    // RONDA 118 · «savvia agentic tiene que mostrar más fielmente cómo es la librería de Neety: como si cogieran elementos de ahí y los pusieran». Dentro, la
+    // película enseña la librería REAL (neety.treseiscero.app/library, leída el 05-oct-2026: índice a la izquierda, secciones a la derecha) y los agentes COGEN
+    // piezas de ella y las ponen en la home. `indice` = su barra lateral; `paginas` = el encabezado de cada sección; `picks` = qué coge quién (src = el elemento
+    // de la librería, slot = dónde cae en la home; ag = índice de `agentes`).
+    indice: [
+      ['Introducción', ['Cómo usar esta librería', 'Mapa de la web']],
+      ['Trabajar con Claude', ['Recibir el proyecto', 'Conectar con Claude', 'Cambiar contenido', 'Editar el blog y el equipo (Sanity)', 'Reutilizar componentes', 'Añadir secciones nuevas', 'Añadir una página nueva', 'Buenas prácticas']],
+      ['Fundamentos', ['Color', 'Tipografía', 'Espaciado', 'Radios y sombras', 'Gradiente progresivo']],
+      ['Componentes', ['Botones', 'Marca y favicon', 'Componentes de la web']],
+      ['Mantenimiento', ['Mantenimiento técnico']],
+    ] as [string, string[]][],
+    paginas: {
+      color: { eyebrow: 'Fundamentos', titulo: 'Color', texto: 'Definidos en app/globals.css (bloque @theme). Editar ahí es la única forma de cambiar la paleta; Tailwind genera las utilidades.', etiqueta: 'Paleta de marca', rampas: 'Rampas de opacidad' },
+      tipo: { eyebrow: 'Fundamentos', titulo: 'Tipografía', texto: 'Titulares en Bricolage Grotesque (font-display), cuerpo en Switzer (font-sans).', etiqueta: 'Titulares — 120 % de interlineado' },
+      botones: { eyebrow: 'Componentes base', titulo: 'Botones (CTA)', texto: 'El CTA real de la web es components/PillCta.tsx: pastilla donde el label rueda hacia arriba en hover.' },
+      esp: { eyebrow: 'Fundamentos', titulo: 'Espaciado', texto: 'Escala de tokens de espaciado. La barra muestra el valor desktop; la etiqueta indica desktop / mobile.' },
+      comp: { eyebrow: 'Producto', titulo: 'Componentes de la web', texto: 'Todos los componentes reales de la web, en pestañas por página. Cada tarjeta lleva su miniatura real y su ruta.' },
+    } as Record<string, { eyebrow: string; titulo: string; texto: string; etiqueta?: string; rampas?: string }>,
+    botonesTarjetas: [['Primary — «Solicitar demo»', 'primary', 'Solicitar demo'], ['Outline — «Saber más»', 'outline', 'Saber más'], ['Primary · big — CTA del footer', 'primary', 'Solicitar demo'], ['Primary · block — menú móvil', 'block', 'Solicitar demo']] as [string, string, string][],
+    tabsComponentes: ['Comunes', 'Home', 'Plataforma', 'Casos de uso', 'Blog', 'Artículo', 'Eventos', 'Academia'],
+    fichas: [{ id: 'logo', titulo: 'Logotipo', chips: ['Logotipo', 'Logo', 'components/Logo.tsx'], texto: 'Wordmark de Neety en SVG inline. Props: className (tamaño) y fill (color).' }, { id: 'punto', titulo: 'Punto pulsante', chips: ['Punto pulsante', 'PulsingDot', 'components/PulsingDot.tsx'], texto: 'Punto de marca cuyo halo respira con GSAP. Encabeza el eyebrow de casi todas las secciones.' }],
+    picks: [
+      { ag: 2, sec: 'color', src: 'base', slot: 'fondo', label: 'Base Cálida', chip: 'Base Cálida · #F8F7EC' },
+      { ag: 0, sec: 'tipo', src: 'h1xl', slot: 'h1', label: 'H1 · XL', chip: 'Bricolage · H1 XL' },
+      { ag: 1, sec: 'botones', src: 'cta', slot: 'ctas', label: 'Solicitar demo', chip: '<PillCta variant="primary" />' },
+      { ag: 2, sec: 'esp', src: 'large', slot: 'esp', label: 'large · 48', chip: 'espaciado · large 48' },
+      { ag: 3, sec: 'comp', src: 'logo', slot: 'logo', label: 'Logotipo', chip: '<Logo />' },
+      { ag: 1, sec: 'comp', src: 'punto', slot: 'punto', label: 'Punto pulsante', chip: '<PulsingDot />' },
+    ] as { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[],
     color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Blanco', '#FFFFFF']] as [string, string][],
     tipografia: [['Bricolage Grotesque', 'titulares · H1 XL 112 / 64 · 120 %'], ['Switzer', 'cuerpo · regular 16 · 150 %']] as [string, string][],
     espaciado: [['xtiny', 4], ['tiny', 8], ['xxsmall', 16], ['xsmall', 20], ['small', 24], ['medium', 32], ['large', 48], ['xlarge', 64], ['xxlarge', 80], ['huge', 96], ['xhuge', 112], ['xxhuge', 160]] as [string, number][],

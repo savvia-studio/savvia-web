@@ -34,8 +34,10 @@ const FEED = [
   ] },
   { tipo: 'jon', titulo: 'Jon empieza a activarse', filas: [{ n: 'Ha visitado tu perfil' }, { n: 'Ha aceptado tu solicitud' }, { n: 'Has reaccionado a su post' }] },
 ];
-// la ruta completa de cada archivo (para la pestaña del lector)
-const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f)); return d ? `${d[0]}/${f}` : f; };
+// RONDA 118 · el índice y los textos de cada sección de la librería (los que se ven dentro) salen de `libreria` en home.ts
+const PG = L.paginas;
+const SECDE: Record<string, string> = { 'Color': 'color', 'Tipografía': 'tipo', 'Espaciado': 'esp', 'Botones': 'botones', 'Componentes de la web': 'comp' };
+const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobile de cada paso de la escala (la librería real: «48 / 32px»)
 ---
 
 <section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube>
@@ -50,15 +52,15 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
       data-sale-p={JSON.stringify(P.sale)}
       data-titulo-p={JSON.stringify(L.titulo)}
       data-resumen-p={JSON.stringify(P.resumen)}
-      data-pasos-p={JSON.stringify(L.pasos)}
+      data-picks-p={JSON.stringify(L.picks)}
       data-estado-p={JSON.stringify(L.estado)}
       data-peticion-p={JSON.stringify(L.peticion)}
       role="img"
-      aria-label="Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y Diseño leen los archivos de la librería (el degradado, el logotipo, la tipografía, la voz, los botones y las etiquetas) y la home de Neety se monta con esos mismos tokens. Al publicar en neety.com, de la misma librería salen webs, landings, productos, campañas, emails y redes."
+      aria-label="Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y Diseño cogen piezas de la librería real de Neety (el color Base Cálida, el titular H1 XL, el botón Solicitar demo, el espaciado, el logotipo y el punto pulsante) y las colocan en su home. Al publicar en neety.com, de la misma librería salen webs, landings, productos, campañas, emails y redes."
     >
       <svg class="mapa" aria-hidden="true" data-mapa></svg>
 
-      <!-- LA LIBRERÍA POR DENTRO: la app (escritorio 1360 × 720; móvil 540 × 760), escalada por la cámara -->
+      <!-- LA LIBRERÍA POR DENTRO (r118): la librería REAL de Neety en miniatura (índice + secciones que se recorren con el reloj) y, al lado, la home que se monta con lo que cogen los agentes. Escritorio 1360 × 720; móvil 580 × 800 -->
       <div class="app" aria-hidden="true" data-ventana>
         <div class="barra">
           <span class="semaforo"><i></i><i></i><i></i></span>
@@ -66,38 +68,102 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
           <span class="presencia">{P.agentes.slice(0, 3).map(([n, c]) => <i style={`--c: var(--color-${c})`}>{n.slice(0, 2)}</i>)}</span>
           <span class="publicar" data-publicar>{L.publicar}</span>
         </div>
-        <div class="lib">
-          <p class="lib-tit">{L.titulo}</p>
-          <ul class="arbol">
-            {L.arbol.map(([dir, fs]) => (
-              <Fragment>
-                <li class="dir"><i class="ic-dir"></i>{dir}/</li>
-                {fs.map((f) => <li class="arch" data-arch={f}><i class="ic-arch"></i>{f}</li>)}
-              </Fragment>
-            ))}
-          </ul>
-          <div class="lector">
-            <p class="lector-vacio" data-vacio>Sin archivo abierto</p>
-            {Object.entries(L.archivos).map(([f, ls]) => (
-              <div class="archivo" data-archivo={f}>
-                <p class="pestana"><i></i>{rutaDe(f)}</p>
-                <ol class="codigo">{ls.map((l) => <li data-linea><span>{l}</span></li>)}</ol>
+        <nav class="indice">
+          {L.indice.map(([g, items]) => (
+            <Fragment>
+              <p class="ind-g">{g}</p>
+              <ul>{items.map((x) => <li data-s={SECDE[x]}>{x}</li>)}</ul>
+            </Fragment>
+          ))}
+        </nav>
+        <div class="tabs-v">{['Color', 'Tipografía', 'Botones', 'Espaciado', 'Componentes de la web'].map((x) => <span data-s={SECDE[x]}>{x === 'Componentes de la web' ? 'Componentes' : x}</span>)}</div>
+        <div class="libmain">
+          <div class="scroller" data-scroller>
+            <section class="sec" data-sec="color">
+              <p class="eb">{PG.color.eyebrow}</p>
+              <h3 class="tt">{PG.color.titulo}</h3>
+              <p class="tx">{PG.color.texto}</p>
+              <p class="et">{PG.color.etiqueta}</p>
+              <div class="swatches">
+                {L.color.map(([n, hx]) => (
+                  <span class="sw pk" data-src={n === 'Base Cálida' ? 'base' : undefined}><i class="blk" style={`background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx}</small></span>
+                ))}
               </div>
-            ))}
+              <p class="et et2">{PG.color.rampas}</p>
+              <div class="rampas">
+                {['#FE8238', '#A7C5F9'].map((c) => (
+                  <span class="rampa">{[80, 60, 40, 20, 10, 5, 2].map((o) => <i style={`background:color-mix(in srgb, ${c} ${o}%, transparent)`}><small>{o}</small></i>)}</span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="tipo">
+              <p class="eb">{PG.tipo.eyebrow}</p>
+              <h3 class="tt">{PG.tipo.titulo}</h3>
+              <p class="tx">Titulares en <b>Bricolage Grotesque</b>, cuerpo en <b>Switzer</b>.</p>
+              <p class="et">{PG.tipo.etiqueta}</p>
+              <div class="tps">
+                {[['H1 · XL', 'Desktop 112px · Mobile 64px · 120%', 'xl'], ['H1 · L', 'Desktop 80px · Mobile 48px · 120%', 'l'], ['H1 · M', 'Desktop 64px · Mobile 40px · 120%', 'm'], ['H2', 'Desktop 48px · Mobile 32px · 120%', 'h2']].map(([n, m, c]) => (
+                  <span class={`tp tp-${c} pk`} data-src={c === 'xl' ? 'h1xl' : undefined}><b>{n}</b><small>{m}</small></span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="botones">
+              <p class="eb">{PG.botones.eyebrow}</p>
+              <h3 class="tt">{PG.botones.titulo}</h3>
+              <p class="tx">{PG.botones.texto}</p>
+              <div class="btns">
+                {L.botonesTarjetas.map(([et, v, tx], j) => (
+                  <span class="bt-card">
+                    <small>{et}</small>
+                    <span class={`pill ${v} ${j === 0 ? 'pk' : ''}`} data-src={j === 0 ? 'cta' : undefined}>{tx}<i></i></span>
+                  </span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="esp">
+              <p class="eb">{PG.esp.eyebrow}</p>
+              <h3 class="tt">{PG.esp.titulo}</h3>
+              <p class="tx">{PG.esp.texto}</p>
+              <div class="esps">
+                {L.espaciado.map(([n, v], j) => (
+                  <span class={`sp-row ${n === 'large' ? 'pk' : ''}`} data-src={n === 'large' ? 'large' : undefined}><b>{n}</b><i><u style={`width:${(v / 160) * 100}%`}></u></i><small>{v} / {ESP_M[j]}px</small></span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="comp">
+              <p class="eb">{PG.comp.eyebrow}</p>
+              <h3 class="tt">{PG.comp.titulo}</h3>
+              <p class="tx">{PG.comp.texto}</p>
+              <div class="tabs-c">{L.tabsComponentes.map((x, j) => <span class={j === 0 ? 'on' : ''}>{x}<em>{[12, 13, 6, 4, 4, 5, 4, 3][j]}</em></span>)}</div>
+              <div class="fcs">
+                {L.fichas.map((f) => (
+                  <span class="fc">
+                    <b class="fc-t">{f.titulo}</b>
+                    <span class="chips-c">{f.chips.map((c) => <code>{c}</code>)}</span>
+                    <small class="fc-x">{f.texto}</small>
+                    <span class="fc-pre pk" data-src={f.id}>
+                      {f.id === 'logo'
+                        ? <svg class="fc-logo" viewBox="0 0 130 32" aria-hidden="true"><g fill="#2A0E2C">{NEETY.map((d) => <path d={d} />)}</g></svg>
+                        : <i class="fc-dot"></i>}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
         <div class="lienzo" data-lienzo>
-          <!-- la home de Neety (sus colores, Bricolage Grotesque y su copy), que se monta con lo que leen los agentes -->
-          <div class="neety" data-neety>
+          <!-- la home de Neety (sus colores, Bricolage Grotesque y su copy), que se monta con lo que cogen los agentes -->
+          <div class="neety" data-neety data-slot="fondo">
             <span class="n-fondo" data-pz="fondo"></span>
-            <span class="n-nav" data-pz="nav">
-              <svg class="n-logo" viewBox="0 0 130 32" aria-hidden="true"><g fill="#2A0E2C">{NEETY.map((d) => <path d={d} />)}</g></svg>
-              <span class="n-menu">{L.hero.nav.map((x) => <i>{x}</i>)}</span>
-              <span class="n-navcta">{L.hero.ctas[0]}</span>
+            <span class="n-nav">
+              <span class="n-logow" data-pz="logo" data-slot="logo"><svg class="n-logo" viewBox="0 0 130 32" aria-hidden="true"><g fill="#2A0E2C">{NEETY.map((d) => <path d={d} />)}</g></svg></span>
+              <span class="n-navr" data-pz="nav"><span class="n-menu">{L.hero.nav.map((x) => <i>{x}</i>)}</span><span class="n-navcta">{L.hero.ctas[0]}</span></span>
             </span>
-            <span class="n-eyebrow" data-pz="eyebrow"><i class="n-punto"></i>{L.hero.eyebrow.map((x, j) => <b class={j === 2 ? 'on' : ''}>{x}</b>)}</span>
-            <p class="n-h1" data-pz="h1">{L.hero.h1} <span class="b">{L.hero.h1b}</span></p>
-            <span class="n-ctas" data-pz="ctas"><span class="n-pill">{L.hero.ctas[0]}<i></i></span><span class="n-link">{L.hero.ctas[1]}</span></span>
+            <span class="n-eyebrow" data-pz="eyebrow"><i class="n-punto" data-slot="punto"></i>{L.hero.eyebrow.map((x, j) => <b class={j === 2 ? 'on' : ''}>{x}</b>)}</span>
+            <p class="n-h1" data-pz="h1" data-slot="h1">{L.hero.h1} <span class="b">{L.hero.h1b}</span></p>
+            <span class="n-esp" data-pz="esp" data-slot="esp"><i></i><b>48</b></span>
+            <span class="n-ctas" data-pz="ctas" data-slot="ctas"><span class="pill primary">{L.hero.ctas[0]}<i></i></span><span class="n-link">{L.hero.ctas[1]}</span></span>
             <span class="n-card" data-pz="card">
               <span class="n-feed" data-feed>
                 {FEED.map((c) => (
@@ -135,9 +201,8 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
           </div>
           <div class="estado" data-estado><i class="punto"></i><svg class="ok" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5" /></svg><span data-estado-txt>{L.estado[0]}</span></div>
         </div>
-        <!-- las GUÍAS (línea del lector → pieza) y los CHIPS (el token que usa cada pieza) -->
-        <svg class="guias" data-guias></svg>
-        {L.pasos.map((p) => <span class="chip" style={`--c: var(--color-${P.agentes[p.ag][1]})`} data-chip>{p.chip}</span>)}
+        <!-- los CHIPS: la pieza de la librería que acaba de caer en la home -->
+        {L.picks.map((p) => <span class="chip" style={`--c: var(--color-${P.agentes[p.ag][1]})`} data-chip>{p.chip}</span>)}
       </div>
 
       {P.agentes.map(([n, c]) => (
@@ -167,7 +232,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     const curs = [...sec.querySelectorAll<HTMLElement>('[data-agente]')];
     const ENTRA: string[] = JSON.parse(cine.dataset.entraP!), SALE: string[] = JSON.parse(cine.dataset.saleP!), TIT: string = JSON.parse(cine.dataset.tituloP!);
     const RES: [string, string][] = JSON.parse(cine.dataset.resumenP!);
-    const PASOS: { ag: number; f: string; ln: number; piezas: string[]; chip: string }[] = JSON.parse(cine.dataset.pasosP!);
+    const PICKS: { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[] = JSON.parse(cine.dataset.picksP!);
     const ESTADO: string[] = JSON.parse(cine.dataset.estadoP!), PETICION: string = JSON.parse(cine.dataset.peticionP!);
     const NOMBRES = curs.map((c) => c.querySelector('span')!.textContent!);
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -234,11 +299,17 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     const EDIT = [{ ag: 0, i: 2, at: 2.55 }, { ag: 1, i: 5, at: 2.7 }, { ag: 2, i: 4, at: 2.85 }, { ag: 3, i: 0, at: 3.0 }];
     const ABRE = 3.75, SEL_FIN = 3.35, SUBE = [12.6, 13.5];
     // dentro: la petición (se teclea y se envía), los PASOS (cada agente lee una línea de la librería y monta su pieza) y publicar
-    const PIDE = [4.65, 5.9], ENVIA = 6.05, PUB = 11.95;
-    const PASO_T = [6.6, 7.2, 7.8, 8.5, 9.2, 9.9];
-    const pasos = PASOS.map((p, i) => ({ ...p, at: PASO_T[i] }));
-    const PIEZA: Record<string, number> = {};
-    pasos.forEach((p) => p.piezas.forEach((n, j) => { PIEZA[n] = p.at + 0.42 + j * 0.3; }));
+    const PIDE = [4.55, 5.55], ENVIA = 5.7, PUB = 11.95;
+    // RONDA 118 · los PICKS: cada agente va a un elemento de la librería (anillo y elevación), lo COGE (una copia se despega y viaja con su cursor) y lo suelta en su
+    // sitio de la home, donde la pieza se asienta. `tg` = el instante de coger; la copia llega 0,55 s después
+    const TG = [6.3, 7.2, 8.1, 9.0, 9.9, 10.8], VIAJE = 0.55;
+    const picks = PICKS.map((p, i) => ({ ...p, tg: TG[i], land: TG[i] + VIAJE }));
+    const SECS = ['color', 'tipo', 'botones', 'esp', 'comp'];
+    const PIEZA: Record<string, number> = {
+      fondo: picks[0].land, h1: picks[1].land, ctas: picks[2].land, sub: picks[3].land + 0.1, card: picks[3].land + 0.3,
+      logo: picks[4].land, nav: picks[4].land + 0.25, eyebrow: picks[5].land,
+    };
+    const ESP_T = picks[3].land;
     // lo que se publica: cada salida se construye con una entrada que la librería ya tiene
     const CONS = [
       { o: 0, i: 1, ag: 0 }, { o: 1, i: 5, ag: 2 }, { o: 2, i: 7, ag: 1 }, { o: 3, i: 4, ag: 3 }, { o: 4, i: 2, ag: 0 }, { o: 5, i: 3, ag: 2 },
@@ -394,7 +465,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
         [4.45, DENTRO, EZ.zambullida], [SUBE[0], DENTRO, EZ.lin], [SUBE[1], REST, EZ.subida], [LOOP, REST, EZ.lin],
       ];
       medirVentana();
-      montarGuias();
+      montarPicks();
       for (const c of curs) ult.delete(c);
       for (const c of cajas) ult.delete(c.g);
     };
@@ -411,23 +482,25 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     // ── LA APP por dentro
     const Q = <T extends Element>(s: string) => [...win.querySelectorAll<T>(s)];
     const pz = Object.fromEntries(Q<HTMLElement>('[data-pz]').map((e) => [e.dataset.pz!, e])) as Record<string, HTMLElement>;
-    const arch = Object.fromEntries(Q<HTMLElement>('[data-arch]').map((e) => [e.dataset.arch!, e])) as Record<string, HTMLElement>;
-    const archivos = Object.fromEntries(Q<HTMLElement>('[data-archivo]').map((e) => [e.dataset.archivo!, e])) as Record<string, HTMLElement>;
-    const lineaDe = (f: string, ln: number) => archivos[f].querySelectorAll<HTMLElement>('[data-linea]')[ln];
-    const vacio = win.querySelector<HTMLElement>('[data-vacio]')!, neety = win.querySelector<HTMLElement>('[data-neety]')!;
     const composer = win.querySelector<HTMLElement>('[data-composer]')!, escrito = win.querySelector<HTMLElement>('[data-escrito]')!, caret = win.querySelector<HTMLElement>('[data-caret]')!;
     const enviar = win.querySelector<HTMLElement>('[data-enviar]')!, estado = win.querySelector<HTMLElement>('[data-estado]')!, estadoTxt = win.querySelector<HTMLElement>('[data-estado-txt]')!;
     const publicar = win.querySelector<HTMLElement>('[data-publicar]')!, lienzo = win.querySelector<HTMLElement>('[data-lienzo]')!;
-    const guiasSvg = win.querySelector<SVGSVGElement>('[data-guias]')!, chips = Q<HTMLElement>('[data-chip]');
+    const chips = Q<HTMLElement>('[data-chip]'), scroller = win.querySelector<HTMLElement>('[data-scroller]')!, secEls = SECS.map((n) => win.querySelector<HTMLElement>(`[data-sec="${n}"]`)!);
+    const neety = win.querySelector<HTMLElement>('[data-neety]')!;
     // RONDA 94 · la cinta de tarjetas del hero real de Neety y el punto que late
-    const feed = win.querySelector<HTMLElement>('[data-feed]')!, tarjetas = Q<HTMLElement>('[data-sf]'), punto = win.querySelector<HTMLElement>('.n-punto')!;
+    const feed = win.querySelector<HTMLElement>('[data-feed]')!, tarjetas = Q<HTMLElement>('[data-sf]'), punto = win.querySelector<HTMLElement>('.n-punto')!, puntoLib = win.querySelector<HTMLElement>('.fc-dot')!;
     const sf = tarjetas.map((e) => ({
       e, skel: e.querySelector<HTMLElement>('[data-skel]')!, head: e.querySelector<HTMLElement>('[data-head]')!,
       filas: [...e.querySelectorAll<HTMLElement>('[data-fila]')], pop: e.querySelector<HTMLElement>('[data-pop]'), hl: e.querySelector<HTMLElement>('[data-hl]'),
     }));
     let WW = 1360, WH = 720;
     const sitio = new Map<Element, { x: number; y: number; w: number; h: number }>();
-    const medirVentana = () => { WW = win.offsetWidth; WH = win.offsetHeight; sitio.clear(); };
+    let offs: number[] = [0, 0, 0, 0, 0];
+    const medirVentana = () => {
+      WW = win.offsetWidth; WH = win.offsetHeight; sitio.clear();
+      const tope = Math.max(0, scroller.offsetHeight - scroller.parentElement!.offsetHeight);
+      offs = secEls.map((e) => Math.min(tope, e.offsetTop));
+    };
     const rectLocal = (e: HTMLElement) => {
       let r = sitio.get(e);
       if (r) return r;
@@ -439,46 +512,53 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     };
     const ventanaEn = (v: Vista) => { const s = v.S / HOLD; return { s, x: sx(v, 0) - (WW * s) / 2, y: sy(v, 0) - (WH * s) / 2 }; };
 
-    // dónde se engancha la guía en cada pieza (y su chip)
-    const ENGANCHE: Record<string, [number, number]> = { fondo: [0.06, 0.06], nav: [0.0, 0.5], h1: [0.0, 0.22], eyebrow: [0.0, 0.5], ctas: [0.0, 0.5], card: [0.0, 0.16], sub: [0.0, 0.3] };
-    let guias: { p: SVGPathElement; a: SVGCircleElement; b: SVGCircleElement }[] = [];
-    const montarGuias = () => {
-      guiasSvg.innerHTML = '';
-      guiasSvg.setAttribute('viewBox', `0 0 ${WW} ${WH}`);
-      guias = pasos.map((p, i) => {
-        const r = rectLocal(lineaDe(p.f, p.ln)), d = rectLocal(pz[p.piezas[0]]), [fx, fy] = ENGANCHE[p.piezas[0]];
-        const x1 = d.x + d.w * fx, y1 = d.y + d.h * fy;
-        let x0: number, y0: number, D: string;
-        if (modo === 'h') {
-          x0 = r.x + r.w - 10; y0 = r.y + r.h / 2;
-          const c = Math.max(60, (x1 - x0) * 0.45);
-          D = `M${f2(x0)} ${f2(y0)}C${f2(x0 + c)} ${f2(y0)} ${f2(x1 - c)} ${f2(y1)} ${f2(x1)} ${f2(y1)}`;
-        } else {
-          x0 = r.x + 60 + i * 34; y0 = r.y + 2;
-          const c = Math.max(50, (y0 - y1) * 0.45);
-          D = `M${f2(x0)} ${f2(y0)}C${f2(x0)} ${f2(y0 - c)} ${f2(x1 + 30)} ${f2(y1 + c * 0.4)} ${f2(x1)} ${f2(y1)}`;
-        }
-        const g = el('g', { style: `--c: ${AG[p.ag]}` }, guiasSvg);
-        const path = el('path', { d: D, pathLength: 1, class: 'guia' }, g);
-        const a = el('circle', { cx: f2(x0), cy: f2(y0), r: 3, class: 'g-a' }, g);
-        const b = el('circle', { cx: f2(x1), cy: f2(y1), r: 4, class: 'g-b' }, g);
-        // el chip, junto al enganche (dentro de la ventana)
-        const ch = chips[i];
-        const cw = ch.offsetWidth, chh = ch.offsetHeight;
-        // cada chip en su hueco (sin pisar el texto ni a los otros chips)
-        const n = p.piezas[0], e = d;
-        const sitioChip: Record<string, [number, number]> = {
-          fondo: [e.x + e.w - cw - 18, e.y + e.h - chh - 18], nav: modo === 'h' ? [e.x + 150, e.y + e.h / 2 - chh / 2] : [e.x, e.y + e.h + 6], eyebrow: [e.x + e.w + 14, e.y + e.h / 2 - chh / 2],
-          h1: [e.x, e.y + e.h + 10], ctas: [e.x + e.w + 18, e.y + e.h / 2 - chh / 2], card: [e.x, e.y - chh - 8],
+    // ── EL SCROLL de la librería (función pura del tiempo): antes de cada pick la columna principal baja hasta su sección
+    const scrollE = curva(0.45, 0, 0.15, 1);
+    const VENT = picks.map((p, i) => (i > 0 && p.sec !== picks[i - 1].sec ? { a: SECS.indexOf(picks[i - 1].sec), b: SECS.indexOf(p.sec), t0: p.tg - 0.68, t1: p.tg - 0.2 } : null)).filter(Boolean) as { a: number; b: number; t0: number; t1: number }[];
+    const scrollY = (t: number) => {
+      let y = offs[0];
+      for (const v of VENT) if (t >= v.t0) y = lerp(offs[v.a], offs[v.b], scrollE(prog(t, v.t0, v.t1)));
+      return y;
+    };
+    // cuánto «mira» el índice a cada sección (el punto naranja de la barra lateral sigue al scroll)
+    const sobre = (t: number) => {
+      const o = [1, 0, 0, 0, 0];
+      for (const v of VENT) if (t >= v.t0) { const q = scrollE(prog(t, v.t0, v.t1)); o.fill(0); o[v.a] = 1 - q; o[v.b] = q; }
+      return o;
+    };
+    const indiceEls = SECS.map((n) => Q<HTMLElement>(`[data-s="${n}"]`));
+    // lo que se coge (en la librería) y dónde cae (en la home); la COPIA que viaja es un clon del elemento
+    const srcEl = picks.map((p) => win.querySelector<HTMLElement>(`[data-src="${p.src}"]`)!);
+    const slotEl = picks.map((p) => win.querySelector<HTMLElement>(`[data-slot="${p.slot}"]`)!);
+    const gh = srcEl.map((e) => { const c = e.cloneNode(true) as HTMLElement; c.removeAttribute('data-src'); c.classList.remove('pk'); c.classList.add('gh'); c.setAttribute('aria-hidden', 'true'); win.appendChild(c); return c; });
+    const GRAB: [number, number] = [0.6, 0.56];
+    const SEND = picks.map(() => 0.8);
+    type Datos = { gw: number; gh: number; s: number; ox: number; oy: number };
+    let dat: Datos[] = [];
+    const montarPicks = () => {
+      dat = picks.map((_, i) => {
+        const r = rectLocal(srcEl[i]), d = rectLocal(slotEl[i]);
+        gh[i].style.width = `${r.w}px`;
+        gh[i].style.height = `${r.h}px`;
+        // la copia acaba un poco más pequeña que el original, y nunca mayor que su hueco ×1,3
+        const s = clamp((d.w * 1.3) / r.w, 0.3, 0.84);
+        return { gw: r.w, gh: r.h, s, ox: (GRAB[0] - 0.5) * r.w, oy: (GRAB[1] - 0.5) * r.h };
+      });
+      // el chip, junto a su sitio en la home
+      const n = rectLocal(neety);
+      picks.forEach((p, i) => {
+        const d = rectLocal(slotEl[i]), ch = chips[i], cw = ch.offsetWidth, chh = ch.offsetHeight;
+        const pos: Record<string, [number, number]> = {
+          fondo: [n.x + n.w - cw - 16, n.y + 64],
+          h1: [n.x + (modo === 'h' ? 36 : 22), n.y + (modo === 'h' ? 56 : 40) - 3],
+          ctas: [d.x + d.w + 16, d.y + d.h / 2 - chh / 2],
+          esp: [d.x + 30, d.y + (modo === 'h' ? 0 : -2)],
+          logo: [d.x, d.y + d.h + 10],
+          punto: [d.x + (modo === 'h' ? 230 : 190), d.y - 8],
         };
-        if (modo === 'v') Object.assign(sitioChip, {
-          fondo: [e.x + 18, e.y + e.h - chh - 14], ctas: [e.x, e.y + e.h + 6], card: [e.x + 8, e.y + e.h - chh - 8],
-        });
-        const [sx0, sy0] = sitioChip[n] ?? [x1 + 10, y1 - chh - 10];
-        const cx = clamp(sx0, 8, WW - cw - 8), cy = clamp(sy0, 50, WH - chh - 8);
-        ch.style.left = `${f2(cx)}px`;
-        ch.style.top = `${f2(cy)}px`;
-        return { p: path, a, b };
+        const [px, py] = pos[p.slot] ?? [d.x, d.y + d.h + 8];
+        ch.style.left = `${f2(clamp(px, n.x + 8, n.x + n.w - cw - 8))}px`;
+        ch.style.top = `${f2(py)}px`;
       });
     };
 
@@ -495,13 +575,13 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     const esquina = (ex: number, ey: number) => Wp(ex * (SW / 2 - 6), ey * (SH / 2 - 8));
     type Kf = [number, Ancla, (x: number) => number];
     const M = EZ.mano, Ln = EZ.lin;
-    // un paso: el agente va a la línea que lee, y de ahí lleva el token a su pieza
-    const paso = (i: number): Kf[] => {
-      const p = pasos[i], [fx, fy] = ENGANCHE[p.piezas[0]];
-      return [
-        [p.at - 0.38, Vp(() => lineaDe(p.f, p.ln), 0.78, 0.55), M], [p.at, Vp(() => lineaDe(p.f, p.ln), 0.78, 0.55), Ln],
-        [p.at + 0.42, Vp(() => pz[p.piezas[0]], fx + 0.04, fy + 0.04), M], [p.at + 0.62, Vp(() => pz[p.piezas[0]], fx + 0.04, fy + 0.04), Ln],
-      ];
+    // un PICK: el agente va al elemento de la librería, lo coge (la copia se despega y viaja con su cursor) y lo lleva a su sitio en la home
+    const Lloc = (f: (t: number) => [number, number]): Ancla => (t) => { const w = ventanaEn(camara(t)), [lx, ly] = f(t); return [w.x + lx * w.s, w.y + ly * w.s]; };
+    const srcAt = (i: number): Ancla => Lloc((t) => { const r = rectLocal(srcEl[i]); return [r.x + r.w * GRAB[0], r.y + r.h * GRAB[1] - scrollY(t)]; });
+    const slotAt = (i: number): Ancla => Lloc(() => { const r = rectLocal(slotEl[i]), d = dat[i]; return [r.x + r.w / 2 + d.ox * d.s, r.y + r.h / 2 + d.oy * d.s]; });
+    const tomar = (i: number): Kf[] => {
+      const p = picks[i];
+      return [[p.tg - 0.32, srcAt(i), M], [p.tg, srcAt(i), Ln], [p.land, slotAt(i), M], [p.land + 0.25, slotAt(i), Ln]];
     };
     const salida = (q: number): Kf[] => CONS.filter((c) => c.ag === q).flatMap((c) => [[c.A - 0.85, enCaja('in', c.i), M], [c.A - 0.45, enCaja('in', c.i), Ln]] as Kf[]);
     const fuera = [Of(0.46, -0.25), Of(-0.3, 0.32), Of(-0.3, 0.86), Of(0.3, 1.25)];
@@ -518,18 +598,20 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     const aparte: Ancla = (t) => (modo === 'v' ? Vp(lienzo, 0.3, 0.97)(t) : Vp(lienzo, 0.6, 0.94)(t));
     const KF: Kf[][] = [0, 1, 2, 3].map((q) => {
       const kf: Kf[] = [...intro(q), [4.85, ESPERA[q], M]];
-      if (q === 3) {
-        // Tu equipo: teclea la petición, la envía, espera y publica
-        kf.push([PIDE[1], ESPERA[3], Ln], [ENVIA - 0.05, Vp(enviar, 0.5, 0.55), M], [ENVIA + 0.3, Vp(enviar, 0.5, 0.55), Ln], [6.9, aparte, M],
-          [PUB - 0.4, aparte, Ln], [PUB, Vp(publicar, 0.5, 0.6), M]);
-      } else pasos.forEach((p, i) => { if (p.ag === q) kf.push([p.at - 0.4, kf[kf.length - 1][1], Ln], ...paso(i), [p.at + 1.25, ESPERA[q], M]); });
+      // Tu equipo: teclea la petición y la envía; luego se aparta a un lado
+      if (q === 3) kf.push([PIDE[1], ESPERA[3], Ln], [ENVIA - 0.05, Vp(enviar, 0.5, 0.55), M], [ENVIA + 0.3, Vp(enviar, 0.5, 0.55), Ln], [6.1, aparte, M]);
+      picks.forEach((p, i) => {
+        if (p.ag !== q) return;
+        kf.push([p.tg - 1.0, kf[kf.length - 1][1], Ln], ...tomar(i), [p.land + SEND[i], q === 3 ? aparte : ESPERA[q], M]);
+      });
+      if (q === 3) kf.push([PUB - 0.4, aparte, Ln], [PUB, Vp(publicar, 0.5, 0.6), M]);
       const ult = kf[kf.length - 1];
       kf.push([SUBE[0], ult[1], Ln], [SUBE[0] + 0.05, congela(ult[1], SUBE[0]), Ln], ...salida(q), [15.95, fuera[q], M]);
       return kf;
     });
     const CLICS: number[][] = [0, 1, 2, 3].map((q) => [
       EDIT.find((e) => e.ag === q)!.at, ABRE,
-      ...pasos.filter((p) => p.ag === q).flatMap((p) => [p.at, p.at + 0.42]),
+      ...picks.filter((p) => p.ag === q).flatMap((p) => [p.tg, p.land]),
       ...(q === 3 ? [ENVIA, PUB] : []),
       ...CONS.filter((c) => c.ag === q).map((c) => c.A - 0.45),
     ]);
@@ -552,7 +634,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
       [ABRE, () => papel({ vol: 0.05, dur: 0.3 })],
       [PIDE[0], () => teclear(Math.round(PETICION.length / 2.6), { vol: 0.026, ritmo: 0.048 })],
       [ENVIA, () => tecla({ vol: 0.05, fuerte: true })],
-      ...pasos.flatMap((p) => [[p.at, () => clic({ vol: 0.03 })], [p.at + 0.42, () => clic({ vol: 0.04 })]] as Son[]),
+      ...picks.flatMap((p) => [[p.tg, () => clic({ vol: 0.045 })], [p.land, () => posar({ vol: 0.045 })]] as Son[]),
       [PUB, () => { tecla({ vol: 0.05, fuerte: true }); rhodesSuelto(84, 0.02, 1.4, 0.1, false); rhodesSuelto(91, 0.013, 1.6, 0.18, false); }],
       ...CONS.map((c) => [c.A + 0.15, () => clic({ vol: 0.025 })] as Son),
     ];
@@ -678,7 +760,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
 
     const pintarApp = (t: number) => {
       // la PETICIÓN: aparece, se teclea, se envía y se recoge
-      const ca = EZ.quart(prog(t, 4.15, 4.6)), col = EZ.sale(prog(t, ENVIA + 0.03, ENVIA + 0.5));
+      const ca = EZ.quart(prog(t, 4.15, 4.5)), col = EZ.sale(prog(t, ENVIA + 0.03, ENVIA + 0.5));
       const n = Math.round(prog(t, PIDE[0], PIDE[1]) * PETICION.length);
       pon(escrito, '#', PETICION.slice(0, n));
       pon(caret, 'opacity', t < ENVIA && (Math.floor(t * 2.4) % 2 === 0 || (t > PIDE[0] && t < PIDE[1])) ? '1' : '0');
@@ -687,51 +769,52 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
       pon(enviar, '--l', f3(n >= PETICION.length ? 1 : 0));
       pon(enviar, '--clic', f3(blip(t, ENVIA, 0.3)));
       pon(neety, '--vacio', f3(1 - sm(t, PIEZA.fondo, PIEZA.fondo + 0.6)));
-      // el ESTADO: qué está pasando (quién lee qué), y al final, publicado
+      // el ESTADO: qué agente toma qué de la librería, y al final, publicado
       pon(estado, 'opacity', f3(sm(t, ENVIA + 0.3, ENVIA + 0.55)));
       pon(estado, 'transform', `translateY(${f2((1 - EZ.sale(prog(t, ENVIA + 0.3, ENVIA + 0.7))) * 16)}px)`);
       let iAct = -1;
-      pasos.forEach((p, i) => { if (t >= p.at - 0.3) iAct = i; });
-      const pub = t >= PUB + 0.12;
-      pon(estadoTxt, '#', pub ? ESTADO[1] : iAct < 0 || t > pasos[pasos.length - 1].at + 1.2 ? (iAct < 0 ? ESTADO[0] : ESTADO[2]) : `${NOMBRES[pasos[iAct].ag]} lee ${pasos[iAct].f}`);
+      picks.forEach((p, i) => { if (t >= p.tg - 0.35) iAct = i; });
+      const pub = t >= PUB + 0.12, ult = picks[picks.length - 1];
+      pon(estadoTxt, '#', pub ? ESTADO[1] : iAct < 0 ? ESTADO[0] : t > ult.land + 0.5 ? ESTADO[2] : `${NOMBRES[picks[iAct].ag]} toma «${picks[iAct].label}»`);
       pon(estado, '--pub', pub ? '1' : '0');
       pon(estado, '--late', f3(0.5 - 0.5 * Math.cos(2 * Math.PI * t * 0.9)));
       pon(publicar, '--l', f3(sm(t, PUB - 0.4, PUB - 0.15)));
       pon(publicar, '--clic', f3(blip(t, PUB, 0.35)));
       pon(neety, '--pub', f3(prog(t, PUB + 0.05, PUB + 0.85)));
-      // el LECTOR: el archivo que lee el agente activo, con su línea resaltada; el árbol marca el archivo
-      const fAct = iAct >= 0 ? pasos[iAct].f : '', fAnt = iAct > 0 ? pasos[iAct - 1].f : '';
-      const entra = iAct >= 0 ? sm(t, pasos[iAct].at - 0.3, pasos[iAct].at - 0.12) : 0;
-      for (const f in archivos) pon(archivos[f], '--o', f3(f === fAct ? entra : f === fAnt ? 1 - entra : 0));
-      pon(vacio, 'opacity', f3(iAct < 0 ? 1 : iAct === 0 ? 1 - entra : 0));
-      for (const f in arch) {
-        let l = 0, c = 0;
-        pasos.forEach((p) => { if (p.f === f) { const x = sm(t, p.at - 0.3, p.at - 0.1) * (1 - sm(t, p.at + 0.7, p.at + 1.0)); if (x > l) { l = x; c = p.ag; } } });
-        pon(arch[f], '--l', f3(l));
-        pon(arch[f], '--c', AG[c]);
-      }
-      pasos.forEach((p, i) => {
-        const li = lineaDe(p.f, p.ln);
-        pon(li, '--h', f3(sm(t, p.at - 0.12, p.at + 0.1)));
-        pon(li, '--c', AG[p.ag]);
-        // la GUÍA: se traza de la línea a la pieza, y se va
-        const dib = EZ.sale(prog(t, p.at + 0.05, p.at + 0.45)), o = sm(t, p.at, p.at + 0.08) * (1 - sm(t, p.at + 0.8, p.at + 1.05));
-        const g = guias[i];
-        if (g) {
-          pon(g.p, 'stroke-dashoffset', f3(1 - dib));
-          pon(g.p, 'opacity', f3(o));
-          pon(g.a, 'opacity', f3(o));
-          pon(g.b, 'opacity', f3(o * prog(dib, 0.85, 1)));
-          pon(g.b, '@r', f2(2 + 3 * blip(t, p.at + 0.42, 0.4) + 2));
+      // LA LIBRERÍA: la columna recorre sus secciones y el índice marca la que se mira
+      const sy0 = scrollY(t), on = sobre(t);
+      pon(scroller, 'transform', `translate3d(0, ${f2(-sy0)}px, 0)`);
+      on.forEach((o, j) => indiceEls[j].forEach((e) => pon(e, '--on', f3(o))));
+      // LOS PICKS: anillo y elevación en el elemento, la copia que viaja con el cursor, el chip y la pieza que se asienta en la home
+      const w = ventanaEn(camara(t));
+      picks.forEach((p, i) => {
+        const c = AG[p.ag], d = dat[i];
+        const anillo = sm(t, p.tg - 0.34, p.tg - 0.12) * (1 - sm(t, p.land - 0.1, p.land + 0.3));
+        const eleva = sm(t, p.tg - 0.34, p.tg - 0.12) * (1 - sm(t, p.tg - 0.02, p.tg + 0.2));
+        const atenua = sm(t, p.tg, p.tg + 0.14) * (1 - sm(t, p.land - 0.05, p.land + 0.35));
+        pon(srcEl[i], '--c', c);
+        pon(srcEl[i], '--pk', f3(anillo));
+        pon(srcEl[i], '--lift', f3(eleva));
+        pon(srcEl[i], '--dim', f3(atenua));
+        // la copia: se despega al coger, se hace un poco más pequeña mientras viaja y se posa en su hueco (donde la pieza real se asienta)
+        const vis = sm(t, p.tg - 0.02, p.tg + 0.06) * (1 - sm(t, p.land + 0.02, p.land + 0.22));
+        if (vis > 0.001) {
+          const [mx, my] = manoEn(p.ag, t), lx = (mx - w.x) / w.s, ly = (my - w.y) / w.s;
+          const e = EZ.sale(prog(t, p.tg, p.tg + VIAJE * 0.8)), esc = lerp(1, d.s, e);
+          pon(gh[i], 'transform', `translate(${f2(lx - d.ox * esc - d.gw / 2)}px, ${f2(ly - d.oy * esc - d.gh / 2)}px) rotate(${f2(-2.2 * Math.sin(Math.PI * prog(t, p.tg, p.land)))}deg) scale(${esc.toFixed(4)})`);
         }
-        // el CHIP: el token, junto a la pieza; se queda (más callado) hasta publicar
-        const co = EZ.quart(prog(t, p.at + 0.38, p.at + 0.62));
-        pon(chips[i], '--o', f3(co * lerp(1, modo === 'v' ? 0 : 0.62, sm(t, p.at + 1.3, p.at + 1.6)) * (1 - sm(t, PUB - 0.1, PUB + 0.3))));
+        pon(gh[i], 'opacity', f3(vis));
+        const co = EZ.quart(prog(t, p.land + 0.02, p.land + 0.3));
+        pon(chips[i], '--o', f3(co * (1 - sm(t, p.land + 1.5, p.land + 1.9))));
         pon(chips[i], '--y', f2((1 - co) * 8));
       });
-      // las PIEZAS de la página: entran con su token (fundido + subida corta, expo)
+      // las PIEZAS de la home: se asientan cuando cae la copia (fundido + subida corta, expo)
       for (const [nm, a] of Object.entries(PIEZA)) pon(pz[nm], '--p', f3(EZ.sale(prog(t, a, a + (nm === 'fondo' ? 0.9 : 0.55)))));
-      pon(punto, '--late', f3(0.5 - 0.5 * Math.cos((2 * Math.PI * t) / 2.4)));
+      pon(neety, '--esp', f3(EZ.sale(prog(t, ESP_T, ESP_T + 0.6))));
+      pon(pz.esp, '--p', f3(blip(t, ESP_T - 0.05, 1.7)));
+      const late = f3(0.5 - 0.5 * Math.cos((2 * Math.PI * t) / 2.4));
+      pon(punto, '--late', late);
+      pon(puntoLib, '--late', late);
       pintarCinta(t);
     };
 
@@ -750,7 +833,8 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
 
     montar();
     pintar(0);
-    const rehacer = () => { montar(); pintar(buscado ?? (jugando ? tAhora() : 0)); };
+    const T_FIN = 12.45; // fotograma de reposo (movimiento reducido): la home montada y publicada
+    const rehacer = () => { montar(); pintar(buscado ?? (jugando ? tAhora() : reducido ? T_FIN : 0)); };
     mqV.addEventListener('change', rehacer);
     let anchoPrevio = cine.clientWidth;
     new ResizeObserver(() => { if (Math.abs(cine.clientWidth - anchoPrevio) > 1) { anchoPrevio = cine.clientWidth; rehacer(); } }).observe(cine);
@@ -764,7 +848,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
       t: () => (buscado ?? tAhora()),
     };
 
-    if (reducido) { sec.classList.add('quieta'); return; }
+    if (reducido) { sec.classList.add('quieta'); pintar(T_FIN); return; }
     new IntersectionObserver((e) => {
       const ver = e[0].isIntersecting;
       if (ver && !jugando) {
@@ -824,8 +908,12 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
   .mapa :global(.pub rect) { fill: var(--tinta); }
   .mapa :global(.pub text) { font-family: var(--font-mono); font-size: 5.4px; fill: var(--hoja-papel); }
 
-  /* LA LIBRERÍA POR DENTRO: la app. Escritorio 1360 × 720, en px de diseño; la cámara la escala. Árbol y lector a la izquierda; la home de Neety, el resto */
+  /* LA LIBRERÍA POR DENTRO (r118): la librería REAL de Neety (Base cálida, Berenjena, Bricolage + Switzer) en miniatura a la izquierda y su home a la derecha.
+     Escritorio 1360 × 720, en px de diseño; la cámara la escala. Los elementos que se cogen llevan `.pk` (anillo y elevación por variables del reloj) */
   .app {
+    --b: #431b44;
+    --b2: color-mix(in oklab, #431b44 62%, transparent);
+    --linea: rgb(67 27 68 / 0.1);
     position: absolute;
     left: 0;
     top: 0;
@@ -834,64 +922,110 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     transform-origin: 0 0;
     visibility: hidden;
     display: grid;
-    grid-template-columns: 340px 1fr;
+    grid-template-columns: 196px 560px 1fr;
     grid-template-rows: 44px 1fr;
-    grid-template-areas: 'barra barra' 'lib lienzo';
+    grid-template-areas: 'barra barra barra' 'indice libmain lienzo';
     border-radius: 12px;
     overflow: hidden;
-    background: var(--hoja-papel) url('/media/grano.png') 0 0 / 240px 240px;
-    color: var(--tinta);
+    background: #f8f7ec;
+    color: var(--b);
     box-shadow: 0 0 0 1px color-mix(in oklab, var(--tinta) 10%, transparent), 0 40px 80px -44px rgb(36 28 25 / 0.4);
-    font-family: var(--font-sans);
+    font-family: var(--font-switzer), var(--font-sans), system-ui, sans-serif;
   }
-  .barra { grid-area: barra; display: flex; align-items: center; gap: 16px; padding: 0 14px 0 18px; border-bottom: 1px solid color-mix(in oklab, var(--tinta) 10%, transparent); }
+  .barra { grid-area: barra; display: flex; align-items: center; gap: 16px; padding: 0 14px 0 18px; border-bottom: 1px solid var(--linea); }
   .semaforo { display: flex; gap: 7px; }
-  .semaforo i { width: 11px; height: 11px; border-radius: 50%; background: color-mix(in oklab, var(--tinta) 16%, transparent); }
-  .barra .ruta { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.04em; color: color-mix(in oklab, var(--tinta) 62%, transparent); }
+  .semaforo i { width: 11px; height: 11px; border-radius: 50%; background: rgb(67 27 68 / 0.14); }
+  .barra .ruta { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--b2); }
   .presencia { margin-left: auto; display: flex; }
-  .presencia i { display: grid; place-items: center; width: 24px; height: 24px; margin-left: -6px; border-radius: 50%; background: var(--c); color: #fff; font-style: normal; font-size: 9.5px; font-weight: 600; box-shadow: 0 0 0 2px var(--hoja-papel); }
+  .presencia i { display: grid; place-items: center; width: 24px; height: 24px; margin-left: -6px; border-radius: 50%; background: var(--c); color: #fff; font-style: normal; font-size: 9.5px; font-weight: 600; box-shadow: 0 0 0 2px #f8f7ec; }
   .publicar {
     padding: 7px 16px;
     border-radius: 999px;
-    background: var(--tinta);
-    color: var(--hoja-papel);
+    background: var(--b);
+    color: #f8f7ec;
     font-size: 13px;
     font-weight: 500;
     box-shadow: 0 0 0 calc(var(--l, 0) * 4px) color-mix(in oklab, var(--color-coral) 35%, transparent);
     scale: calc(1 - var(--clic, 0) * 0.08);
   }
-  .lib { grid-area: lib; position: relative; display: flex; flex-direction: column; min-height: 0; padding-top: 20px; border-right: 1px solid color-mix(in oklab, var(--tinta) 10%, transparent); }
-  .lib-tit { padding: 0 22px 14px; font-family: var(--font-display); font-size: 21px; line-height: 1.1; }
-  .arbol { font-family: var(--font-mono); font-size: 12.5px; line-height: 1; }
-  .arbol li { position: relative; display: flex; align-items: center; gap: 9px; height: 26px; padding: 0 22px; color: color-mix(in oklab, var(--tinta) 72%, transparent); }
-  .arbol .dir { color: color-mix(in oklab, var(--tinta) 50%, transparent); }
-  .arbol .arch {
-    padding-left: 40px;
-    background: color-mix(in oklab, var(--c, transparent) calc(var(--l, 0) * 14%), transparent);
-    box-shadow: inset calc(var(--l, 0) * 3px) 0 0 var(--c, transparent);
-    color: color-mix(in oklab, var(--tinta) calc(72% + var(--l, 0) * 28%), transparent);
+  /* el ÍNDICE lateral: grupos en mono mayúsculas y, en el apartado que se mira, el punto naranja */
+  .indice { grid-area: indice; padding: 16px 8px 0 22px; overflow: hidden; border-right: 1px solid var(--linea); }
+  .ind-g { margin-top: 13px; padding-left: 14px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase; color: rgb(67 27 68 / 0.5); }
+  .ind-g:first-child { margin-top: 0; }
+  .indice ul { margin-top: 5px; }
+  .indice li { position: relative; padding: 2.5px 0 2.5px 14px; font-size: 12.5px; line-height: 1.22; color: rgb(67 27 68 / 0.72); }
+  .indice li[data-s] { color: color-mix(in oklab, #431b44 calc(72% + var(--on, 0) * 28%), transparent); font-weight: calc(400 + var(--on, 0) * 100); }
+  .indice li[data-s]::before { content: ''; position: absolute; left: -2px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #fe8238; opacity: var(--on, 0); scale: calc(0.4 + var(--on, 0) * 0.6); }
+  .tabs-v { display: none; }
+  /* la columna principal: las secciones se recorren con el reloj (translateY del `.scroller`) */
+  .libmain { grid-area: libmain; position: relative; overflow: hidden; min-height: 0; }
+  .scroller { position: relative; will-change: transform; padding-bottom: 260px; }
+  .sec { position: relative; min-height: 596px; padding: 26px 28px 0; }
+  .eb { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: rgb(67 27 68 / 0.55); }
+  .tt { margin-top: 6px; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 35px; line-height: 1.1; letter-spacing: -0.012em; }
+  .tx { margin-top: 10px; max-width: 46ch; font-size: 13.5px; line-height: 1.5; color: rgb(67 27 68 / 0.66); }
+  .tx b { font-weight: 600; color: var(--b); }
+  .et { margin-top: 20px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: rgb(67 27 68 / 0.7); }
+  .et2 { margin-top: 18px; }
+  .pk {
+    outline: calc(var(--pk, 0) * 2.5px) solid color-mix(in oklab, var(--c, #fe8238) calc(var(--pk, 0) * 100%), transparent);
+    outline-offset: 2px;
+    translate: 0 calc(var(--lift, 0) * -4px);
+    opacity: calc(1 - var(--dim, 0) * 0.5);
   }
-  .ic-dir { width: 12px; height: 9px; border-radius: 2px; background: color-mix(in oklab, var(--tinta) 22%, transparent); }
-  .ic-arch { width: 8px; height: 10px; border-radius: 1.5px; box-shadow: inset 0 0 0 1.2px color-mix(in oklab, var(--tinta) 35%, transparent); }
-  .lector { position: relative; margin-top: auto; height: 286px; border-top: 1px solid color-mix(in oklab, var(--tinta) 10%, transparent); background: color-mix(in oklab, var(--tinta) 3.5%, transparent); }
-  .lector-vacio { position: absolute; left: 22px; top: 18px; font-family: var(--font-mono); font-size: 11.5px; color: color-mix(in oklab, var(--tinta) 42%, transparent); }
-  .archivo { position: absolute; inset: 0; padding-top: 14px; opacity: var(--o, 0); }
-  .pestana { display: flex; align-items: center; gap: 8px; padding: 0 22px 12px; font-family: var(--font-mono); font-size: 11.5px; color: color-mix(in oklab, var(--tinta) 66%, transparent); }
-  .pestana i { width: 6px; height: 6px; border-radius: 50%; background: var(--color-coral); }
-  .codigo { counter-reset: ln; font-family: var(--font-mono); font-size: 11.5px; line-height: 24px; }
-  .codigo li {
-    position: relative;
-    counter-increment: ln;
-    padding: 0 10px 0 46px;
-    white-space: pre;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: color-mix(in oklab, var(--tinta) calc(70% + var(--h, 0) * 30%), transparent);
-    background: color-mix(in oklab, var(--c, transparent) calc(var(--h, 0) * 16%), transparent);
-    box-shadow: inset calc(var(--h, 0) * 3px) 0 0 var(--c, transparent);
-  }
-  .codigo li::before { content: counter(ln); position: absolute; left: 18px; width: 16px; text-align: right; color: color-mix(in oklab, var(--tinta) 32%, transparent); }
-  .lienzo { grid-area: lienzo; position: relative; padding: 20px 20px 20px 20px; min-width: 0; }
+  /* Color */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+  .sw { display: flex; flex-direction: column; border-radius: 8px; background: #fff; box-shadow: 0 0 0 1px var(--linea); overflow: hidden; }
+  .sw .blk { display: block; height: 58px; box-shadow: inset 0 -1px 0 var(--linea); }
+  .sw .nm { padding: 7px 9px 0; font-size: 12.5px; font-weight: 500; line-height: 1.15; }
+  .sw .hx { padding: 3px 9px 8px; font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.5); }
+  .rampas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .rampa { display: flex; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1px var(--linea); overflow: hidden; }
+  .rampa i { flex: 1; height: 38px; position: relative; }
+  .rampa small { position: absolute; left: 0; right: 0; bottom: 3px; text-align: center; font-family: var(--font-mono); font-size: 8px; color: rgb(67 27 68 / 0.5); }
+  /* Tipografía */
+  .tps { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+  .tp { display: block; width: fit-content; padding-right: 8px; }
+  .tp b { display: block; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 600; letter-spacing: -0.01em; line-height: 1.18; }
+  .tp small { display: block; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.02em; color: rgb(67 27 68 / 0.45); }
+  .tp-xl b { font-size: 64px; } .tp-l b { font-size: 48px; } .tp-m b { font-size: 37px; } .tp-h2 b { font-size: 28px; }
+  /* Botones: la pastilla REAL de Neety (label + punto), también la usa la home */
+  .pill { display: inline-flex; align-items: center; gap: 22px; padding: 12px 18px 12px 24px; border-radius: 999px; background: var(--b); color: #fff; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 16px; white-space: nowrap; }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+  .pill.outline { background: #fff; color: var(--b); box-shadow: inset 0 0 0 1px var(--linea); }
+  .pill.outline i { background: var(--b); }
+  .pill.block { display: flex; justify-content: center; width: 100%; }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+  .bt-card { display: flex; flex-direction: column; gap: 14px; padding: 14px 14px 16px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px var(--linea); }
+  .bt-card small { font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.55); }
+  .bt-card .pill { align-self: flex-start; }
+  .bt-card .pill.block { align-self: stretch; }
+  /* Espaciado: la escala de tokens con sus barras naranjas */
+  .esps { display: flex; flex-direction: column; gap: 3px; margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px var(--linea); }
+  .sp-row { display: grid; grid-template-columns: 54px 1fr 58px; align-items: center; gap: 12px; height: 23px; border-radius: 5px; }
+  .sp-row b { font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; color: rgb(67 27 68 / 0.7); }
+  .sp-row i { display: block; height: 100%; display: flex; align-items: center; }
+  .sp-row u { display: block; height: 9px; border-radius: 2px; background: color-mix(in oklab, #fe8238 62%, #fff); }
+  .sp-row small { text-align: right; font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.5); }
+  /* Componentes de la web */
+  .tabs-c { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .tabs-c span { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px var(--linea); font-size: 11.5px; }
+  .tabs-c span.on { background: var(--b); color: #fff; box-shadow: none; }
+  .tabs-c em { font-style: normal; font-size: 9px; opacity: 0.5; }
+  .fcs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .fc { display: flex; flex-direction: column; gap: 7px; padding: 14px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px var(--linea); }
+  .fc-t { font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 16px; }
+  .chips-c { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chips-c code { padding: 2px 6px; border-radius: 5px; background: #f3f1e4; font-family: var(--font-mono); font-size: 8.5px; color: rgb(67 27 68 / 0.7); }
+  .fc-x { font-size: 11.5px; line-height: 1.4; color: rgb(67 27 68 / 0.62); }
+  .fc-pre { display: grid; place-items: center; height: 92px; margin-top: 3px; border-radius: 8px; background: #f5f7f9; }
+  .fc-logo { height: 30px; width: auto; }
+  .fc-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--b); scale: calc(1 + var(--late, 0) * 0.35); }
+  .fc-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgb(67 27 68 / 0.3); scale: calc(1 + var(--late, 0) * 2); opacity: calc(1 - var(--late, 0)); }
+  /* la COPIA que se despega del elemento y viaja con el cursor (translate + scale por el reloj) */
+  .app > :global(.gh) { position: absolute; left: 0; top: 0; z-index: 9; margin: 0; pointer-events: none; opacity: 0; transform-origin: 50% 50%; outline: none; filter: drop-shadow(0 16px 20px rgb(36 28 25 / 0.32)); will-change: transform; }
+
+  .lienzo { grid-area: lienzo; position: relative; padding: 14px; min-width: 0; background: color-mix(in oklab, #431b44 6%, #f8f7ec); border-left: 1px solid var(--linea); }
   /* la home vacía: una retícula de puntos que se va con el fondo */
   .neety::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgb(67 27 68 / 0.16) 1px, transparent 1.4px) 0 0 / 22px 22px; opacity: var(--vacio, 1); }
   /* al publicar, un barrido de luz cruza la página */
@@ -907,50 +1041,45 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
   }
   .neety {
     position: relative;
-    height: 636px;
-    border-radius: 16px;
+    height: 648px;
+    border-radius: 14px;
     overflow: hidden;
     background: #f5f7f9;
-    color: #431b44;
+    color: var(--b);
     font-family: var(--font-switzer), Inter, system-ui, sans-serif;
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--tinta) 10%, transparent), 0 24px 50px -36px rgb(36 28 25 / 0.45);
+    box-shadow: 0 0 0 1px rgb(67 27 68 / 0.1), 0 24px 50px -36px rgb(36 28 25 / 0.45);
   }
   .neety > * { position: absolute; }
-  .n-fondo {
-    inset: 0 0 104px 0;
-    border-radius: 0 0 16px 16px;
-    opacity: var(--p, 0);
-    background:
-      radial-gradient(60% 70% at 100% 60%, #fe8238 0%, transparent 62%),
-      radial-gradient(55% 60% at 8% 4%, #a7c5f9 0%, transparent 70%),
-      radial-gradient(60% 50% at 0% 100%, #431b44 0%, transparent 70%),
-      radial-gradient(50% 50% at 55% 45%, #ffffff 0%, transparent 70%),
-      #f8f7ec;
-  }
-  .n-fondo::after { content: ''; position: absolute; inset: 0; background: url('/media/grano.png') 0 0 / 180px 180px; opacity: 0.8; mix-blend-mode: multiply; }
-  .n-nav { left: 40px; right: 34px; top: 28px; display: flex; align-items: center; gap: 22px; opacity: var(--p, 0); }
-  .n-logo { height: 26px; width: auto; }
-  .n-menu { margin-left: auto; display: flex; gap: 24px; font-size: 15px; }
+  /* «Base Cálida» cae en el fondo: crece desde el centro con el color real #F8F7EC */
+  .n-fondo { inset: 0; background: #f8f7ec; clip-path: circle(calc(var(--p, 0) * 80%) at 50% 50%); }
+  .n-fondo::after { content: ''; position: absolute; inset: 0; background: url('/media/grano.png') 0 0 / 180px 180px; opacity: 0.5; mix-blend-mode: multiply; }
+  .n-nav { left: 28px; right: 28px; top: 22px; height: 28px; display: flex; align-items: center; }
+  .n-logow { display: block; opacity: var(--p, 0); scale: calc(1.2 - var(--p, 0) * 0.2); transform-origin: 0 50%; }
+  .n-logo { display: block; height: 24px; width: auto; }
+  .n-navr { margin-left: auto; display: flex; align-items: center; gap: 18px; opacity: var(--p, 0); translate: calc((1 - var(--p, 0)) * 10px) 0; }
+  .n-menu { display: flex; gap: 16px; font-size: 12.5px; }
   .n-menu i { font-style: normal; }
-  .n-navcta { padding: 8px 16px; border-radius: 999px; background: color-mix(in oklab, #431b44 75%, transparent); color: #fff; font-size: 14px; font-family: var(--font-bricolage), system-ui, sans-serif; }
-  .n-eyebrow { left: 52px; top: 132px; display: flex; align-items: center; gap: 9px; font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in oklab, #431b44 55%, transparent); opacity: var(--p, 0); }
-  .n-eyebrow .on { color: #431b44; }
+  .n-menu i:nth-child(n + 4) { display: none; }
+  .n-navcta { padding: 7px 14px; border-radius: 999px; background: color-mix(in oklab, #431b44 75%, transparent); color: #fff; font-size: 12.5px; font-family: var(--font-bricolage), system-ui, sans-serif; }
+  .n-eyebrow { left: 36px; top: 84px; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: rgb(67 27 68 / 0.55); opacity: var(--p, 0); }
+  .n-eyebrow .on { color: var(--b); }
   .n-eyebrow b { font-weight: 400; }
-  /* RONDA 94 · el punto late como en la web real: crece a ×1,35 y su halo (ciruela al 35 %) se abre a ×3 mientras se apaga */
-  .n-punto { position: relative; width: 6px; height: 6px; border-radius: 50%; background: #431b44; margin-right: 4px; scale: calc(1 + var(--late, 0) * 0.35); }
+  /* el punto late como en la web real: crece a ×1,35 y su halo (ciruela al 35 %) se abre a ×3 mientras se apaga */
+  .n-punto { position: relative; width: 6px; height: 6px; border-radius: 50%; background: var(--b); margin-right: 4px; scale: calc(1 + var(--late, 0) * 0.35); }
   .n-punto::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgb(67 27 68 / 0.35); scale: calc(1 + var(--late, 0) * 2); opacity: calc(1 - var(--late, 0)); }
-  .n-h1 { left: 52px; top: 164px; width: 560px; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 52px; line-height: 1.08; letter-spacing: -0.015em; color: #431b44; }
-  .n-h1 { opacity: var(--p, 0); }
-  .n-ctas { left: 52px; top: 418px; display: flex; align-items: center; gap: 26px; opacity: var(--p, 0); }
-  .n-pill { display: inline-flex; align-items: center; border-radius: 999px; background: #431b44; color: #fff; font-weight: 500; white-space: nowrap; font-family: var(--font-bricolage), system-ui, sans-serif; }
-  .n-pill i { border-radius: 50%; background: #fff; }
-  .n-pill { font-size: 17px; padding: 13px 18px 13px 26px; gap: 20px; }
-  .n-pill i { width: 7px; height: 7px; }
-  .n-link { font-size: 17px; font-weight: 500; font-family: var(--font-bricolage), system-ui, sans-serif; }
-  /* RONDA 94 · la CINTA de tarjetas de la web real (sf-card): marco ciruela al 10 % con 4 px, cuerpo blanco, cabecera en Bricolage, filas en Switzer con
-     su pastilla verde; la columna se desvanece arriba y abajo (la misma máscara: 14 % · 72 %) */
+  .n-h1 { left: 36px; top: 110px; width: 500px; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 42px; line-height: 1.1; letter-spacing: -0.015em; color: var(--b); opacity: var(--p, 0); }
+  .n-h1 .b { display: block; color: color-mix(in oklab, #431b44 40%, transparent); }
+  /* el espaciado «large» abre el hero: ctas, sub y tarjeta bajan; una cota naranja marca el hueco */
+  .n-ctas { left: 36px; top: 276px; margin-top: calc(var(--esp, 0) * 36px); display: flex; align-items: center; gap: 22px; opacity: var(--p, 0); }
+  .n-ctas .pill { font-size: 16px; padding: 12px 18px 12px 24px; }
+  .n-link { font-size: 16px; font-weight: 500; font-family: var(--font-bricolage), system-ui, sans-serif; }
+  .n-esp { left: 36px; top: 250px; height: 24px; display: flex; align-items: center; gap: 7px; opacity: var(--p, 0); scale: 1 calc(0.4 + var(--p, 0) * 0.6); transform-origin: 0 0; }
+  .n-esp i { display: block; width: 8px; height: calc(24px + var(--esp, 0) * 36px); border-radius: 2px; background: #fe8238; }
+  .n-esp b { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; color: #c2571a; }
+  /* la CINTA de tarjetas de la web real (sf-card): marco ciruela al 10 % con 4 px, cuerpo blanco, cabecera en Bricolage, filas en Switzer con su pastilla verde;
+     la columna se desvanece arriba y abajo (la misma máscara: 14 % · 72 %) */
   .n-card {
-    right: 40px; top: 96px; width: 312px; height: 470px; opacity: var(--p, 0); overflow: hidden;
+    left: 36px; right: 36px; top: 428px; height: 172px; margin-top: calc(var(--esp, 0) * 36px); opacity: var(--p, 0); overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 72%, transparent);
     mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 72%, transparent);
   }
@@ -965,41 +1094,39 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
   .sf-skel .sk-head b { width: 58%; height: 10px; }
   .sf-skel em { margin-left: auto; width: 30px; height: 16px; border-radius: 9px; background: rgb(67 27 68 / 0.07); }
   .sf-head { display: flex; align-items: center; gap: 9px; padding-bottom: 9px; border-bottom: 1px solid rgb(67 27 68 / 0.05); }
-  .sf-head b { flex: 1; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 12px; line-height: 1.3; color: #431b44; }
+  .sf-head b { flex: 1; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 12.5px; line-height: 1.3; color: var(--b); }
   .sf-ic { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: #f5f7f9; font-size: 10px; font-weight: 600; }
-  .sf-ic svg { width: 12px; height: 12px; fill: #431b44; }
-  .sf-jon .sf-ic { border-radius: 4px; background: #a7c5f9; color: #431b44; }
-  .sf-fila, .sf-act { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; padding-bottom: 9px; border-bottom: 1px solid rgb(67 27 68 / 0.05); font-size: 9.5px; font-weight: 500; line-height: 1.4; color: #431b44;
+  .sf-ic svg { width: 12px; height: 12px; fill: var(--b); }
+  .sf-jon .sf-ic { border-radius: 4px; background: #a7c5f9; color: var(--b); }
+  .sf-fila, .sf-act { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; padding-bottom: 9px; border-bottom: 1px solid rgb(67 27 68 / 0.05); font-size: 10px; font-weight: 500; line-height: 1.4; color: var(--b);
     opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 6px); scale: calc(0.97 + var(--p, 0) * 0.03); }
   .sf-fila .lg { flex: none; width: 18px; height: 18px; border-radius: 3px; background: #f5f7f9; position: relative; }
   .sf-fila .lg::after { content: ''; position: absolute; inset: 5px; border-radius: 2px; background: var(--lc); }
-  .sf-fila .av { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 3px; background: var(--lc); font-style: normal; font-size: 8px; font-weight: 600; color: #431b44; }
+  .sf-fila .av { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 3px; background: var(--lc); font-style: normal; font-size: 8px; font-weight: 600; color: var(--b); }
   .sf-fila .nm { flex: 1; display: flex; flex-direction: column; }
-  .sf-fila small { font-size: 7.5px; font-weight: 400; color: rgb(67 27 68 / 0.4); }
+  .sf-fila small { font-size: 8px; font-weight: 400; color: rgb(67 27 68 / 0.4); }
   .sf-fila em { flex: none; width: 30px; text-align: center; font-style: normal; font-variant-numeric: tabular-nums; padding: 1px 0; border-radius: 9px; background: rgb(11 183 131 / 0.15); }
   .sf-act { border: 0; padding: 0 0 0 14px; font-weight: 400; color: rgb(67 27 68 / 0.6); }
-  .sf-act i { position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: #431b44; }
+  .sf-act i { position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--b); }
   .sf-jon .sf-cuerpo::after { content: ''; position: absolute; left: 17px; top: 47px; bottom: 16px; width: 1px; background: rgb(67 27 68 / 0.12); }
   .sf-pop { flex: none; padding: 2px 7px; border-radius: 24px; background: #fff9e5; color: #988c62; font-size: 8.5px; opacity: var(--p, 0); scale: calc(0.6 + var(--p, 0) * 0.4); }
   .sf-hl { position: absolute; left: 6px; right: 6px; top: 50px; height: 34px; border-radius: 6px; background: rgb(167 197 249 / 0.2); opacity: 0; }
-  .n-sub { left: 52px; bottom: 26px; width: 560px; font-size: 16px; line-height: 1.5; color: color-mix(in oklab, #2a0e2c 60%, transparent); opacity: var(--p, 0); }
-  /* RONDA 117 · cada pieza entra con su token: fundido y una subida corta (expo); el fondo se descubre desde la esquina */
-  .neety > [data-pz] { translate: 0 calc((1 - var(--p, 0)) * 14px); }
-  .neety > .n-fondo { translate: none; opacity: min(1, calc(var(--p, 0) * 3)); clip-path: circle(calc(var(--p, 0) * 150%) at 0% 0%); }
-  .n-h1 .b { display: block; color: color-mix(in oklab, #431b44 40%, transparent); }
+  .n-sub { left: 36px; top: 336px; margin-top: calc(var(--esp, 0) * 36px); width: 430px; font-size: 13.5px; line-height: 1.5; color: color-mix(in oklab, #2a0e2c 60%, transparent); opacity: var(--p, 0); }
+  /* cada pieza que cae de la librería se ASIENTA: aparece algo grande y se posa (la copia se funde justo encima) */
+  .neety > [data-pz]:not(.n-fondo):not(.n-esp):not(.n-nav) { translate: 0 calc((1 - var(--p, 0)) * 6px); }
 
   /* LA PETICIÓN: se teclea en el centro de la página vacía; al enviarla, se recoge hacia abajo */
   .composer {
     position: absolute;
-    left: calc(50% - 290px);
+    left: calc(50% - 250px);
     top: calc(46% - 66px);
     z-index: 5;
-    width: 580px;
+    width: 500px;
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
     gap: 10px 18px;
-    padding: 18px 18px 18px 22px;
+    padding: 16px 16px 16px 20px;
     border-radius: 20px;
     background: color-mix(in oklab, #fff 88%, transparent);
     -webkit-backdrop-filter: blur(10px);
@@ -1010,7 +1137,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
   }
   .quien { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: rgb(42 14 44 / 0.55); }
   .quien i { width: 8px; height: 8px; border-radius: 50%; background: var(--color-nogal); }
-  .campo { min-height: 56px; font-size: 21px; line-height: 1.35; letter-spacing: -0.005em; }
+  .campo { min-height: 56px; font-size: 19px; line-height: 1.35; letter-spacing: -0.005em; }
   .caret { display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: -0.18em; background: var(--color-coral); }
   .enviar {
     align-self: end;
@@ -1046,11 +1173,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
   .estado .ok { display: none; width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .estado[style*='--pub: 1'] .punto { display: none; }
   .estado[style*='--pub: 1'] .ok { display: block; }
-  /* GUÍAS y CHIPS: la línea que se lee, unida a la pieza que monta; el token, junto a la pieza */
-  .guias { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 6; overflow: visible; pointer-events: none; }
-  .guias :global(.guia) { fill: none; stroke: var(--c); stroke-width: 1.6px; stroke-dasharray: 1 1; stroke-linecap: round; }
-  .guias :global(.g-a) { fill: var(--c); }
-  .guias :global(.g-b) { fill: var(--hoja-papel); stroke: var(--c); stroke-width: 1.6px; }
+  /* el CHIP: qué pieza de la librería acaba de caer, junto a su sitio en la home */
   .chip {
     position: absolute;
     left: 0;
@@ -1061,7 +1184,7 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     background: var(--c);
     color: #fff;
     font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: 11px;
     line-height: 1.3;
     white-space: nowrap;
     opacity: var(--o, 0);
@@ -1069,43 +1192,72 @@ const rutaDe = (f: string) => { const d = L.arbol.find(([, fs]) => fs.includes(f
     box-shadow: 0 8px 18px -10px rgb(36 28 25 / 0.5);
   }
 
-  /* MÓVIL (540 × 760): la home arriba y grande; el lector, debajo (sin árbol: su pestaña dice la ruta) */
-  .app.v { width: 540px; height: 760px; grid-template-columns: 1fr; grid-template-rows: 36px 516px 1fr; grid-template-areas: 'barra' 'lienzo' 'lib'; }
+  /* MÓVIL (580 × 800): el índice pasa a una fila de pestañas, la librería arriba y la home debajo (la librería, al estilo real, sin el texto largo) */
+  .app.v { width: 580px; height: 800px; grid-template-columns: 1fr; grid-template-rows: 38px 34px 288px 1fr; grid-template-areas: 'barra' 'tabs' 'libmain' 'lienzo'; }
   .app.v .barra { gap: 10px; padding: 0 10px 0 14px; }
   .app.v .semaforo i { width: 8px; height: 8px; }
-  .app.v .barra .ruta { font-size: 10px; }
-  .app.v .presencia i { width: 18px; height: 18px; font-size: 9px; }
-  .app.v .publicar { font-size: 10.5px; padding: 5px 11px; }
-  .app.v .lib { padding-top: 0; border-right: 0; border-top: 1px solid color-mix(in oklab, var(--tinta) 10%, transparent); }
-  .app.v .lib-tit, .app.v .arbol { display: none; }
-  .app.v .lector { height: 100%; margin: 0; border-top: 0; }
-  .app.v .archivo { padding-top: 10px; }
-  .app.v .pestana { font-size: 10px; padding: 0 16px 6px; }
-  .app.v .codigo { font-size: 10.5px; line-height: 21px; }
-  .app.v .codigo li { padding-left: 38px; }
-  .app.v .codigo li::before { left: 12px; }
-  .app.v .lector-vacio { left: 16px; top: 12px; font-size: 10px; }
-  .app.v .lienzo { padding: 14px; }
-  .app.v .composer { left: calc(50% - 226px); top: calc(46% - 54px); width: 452px; padding: 14px 14px 14px 16px; border-radius: 16px; gap: 8px 12px; }
-  .app.v .quien { font-size: 10px; }
+  .app.v .barra .ruta { font-size: 11px; }
+  .app.v .presencia i { width: 19px; height: 19px; font-size: 9px; }
+  .app.v .publicar { font-size: 12px; padding: 5px 12px; }
+  .app.v .indice { display: none; }
+  .app.v .tabs-v { grid-area: tabs; display: flex; align-items: center; gap: 4px; padding: 0 10px; border-bottom: 1px solid var(--linea); overflow: hidden; }
+  .app.v .tabs-v span { position: relative; padding: 4px 9px 4px 14px; border-radius: 999px; font-size: 13px; color: rgb(67 27 68 / 0.62); white-space: nowrap; }
+  .app.v .tabs-v span::before { content: ''; position: absolute; left: 5px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #fe8238; opacity: var(--on, 0); scale: calc(0.4 + var(--on, 0) * 0.6); }
+  .app.v .tabs-v span[data-s] { color: color-mix(in oklab, #431b44 calc(62% + var(--on, 0) * 38%), transparent); }
+  .app.v .scroller { padding-bottom: 120px; }
+  .app.v .sec { min-height: 262px; padding: 14px 18px 0; }
+  .app.v .eb { font-size: 11px; }
+  .app.v .tt { margin-top: 3px; font-size: 27px; }
+  .app.v .tx { display: none; }
+  .app.v .et { margin-top: 10px; font-size: 12px; }
+  .app.v .et2, .app.v .rampas { display: none; }
+  .app.v .swatches { gap: 8px; margin-top: 7px; }
+  .app.v .sw .blk { height: 32px; }
+  .app.v .sw .nm { padding: 5px 7px 0; font-size: 13.5px; }
+  .app.v .sw .hx { padding: 2px 7px 6px; font-size: 11px; }
+  .app.v .tps { gap: 9px; margin-top: 8px; }
+  .app.v .tp-xl b { font-size: 47px; } .app.v .tp-l b { font-size: 35px; } .app.v .tp-m b { font-size: 27px; } .app.v .tp-h2 b { font-size: 21px; }
+  .app.v .tp small { font-size: 11px; margin-top: 1px; }
+  .app.v .tp-l small, .app.v .tp-m small, .app.v .tp-h2 small { display: none; }
+  .app.v .btns { gap: 8px; margin-top: 10px; }
+  .app.v .bt-card { gap: 9px; padding: 10px 11px 12px; }
+  .app.v .bt-card small { font-size: 11px; }
+  .app.v .pill { font-size: 15px; gap: 18px; padding: 9px 15px 9px 20px; }
+  .app.v .esps { margin-top: 9px; padding: 6px 12px; gap: 0; }
+  .app.v .sp-row { height: 17px; grid-template-columns: 54px 1fr 60px; }
+  .app.v .sp-row:nth-child(-n + 3) { display: none; }
+  .app.v .sp-row b { font-size: 11px; } .app.v .sp-row small { font-size: 10.5px; }
+  .app.v .sp-row u { height: 7px; }
+  .app.v .tabs-c { display: none; }
+  .app.v .fcs { gap: 8px; margin-top: 10px; }
+  .app.v .fc { gap: 5px; padding: 10px; }
+  .app.v .fc-t { font-size: 15px; }
+  .app.v .chips-c code { font-size: 10px; }
+  .app.v .fc-x { display: none; }
+  .app.v .fc-pre { height: 70px; }
+  .app.v .lienzo { padding: 12px; border-left: 0; border-top: 1px solid var(--linea); }
+  .app.v .composer { left: calc(50% - 224px); top: calc(46% - 54px); width: 448px; padding: 14px 14px 14px 16px; border-radius: 16px; gap: 8px 12px; }
+  .app.v .quien { font-size: 11px; }
   .app.v .campo { min-height: 44px; font-size: 16px; }
   .app.v .enviar { width: 32px; height: 32px; }
-  .app.v .estado { right: 14px; bottom: -34px; font-size: 10px; padding: 7px 12px 7px 10px; }
-  .app.v .chip { font-size: 9.5px; padding: 3px 7px; }
-  .app.v .neety { height: 488px; border-radius: 12px; }
-  .app.v .n-fondo { bottom: 84px; border-radius: 0 0 12px 12px; }
-  .app.v .n-nav { left: 20px; right: 18px; top: 18px; }
+  .app.v .estado { right: 14px; bottom: 14px; font-size: 11px; padding: 7px 12px 7px 10px; }
+  .app.v .chip { font-size: 10.5px; padding: 3px 7px; }
+  .app.v .neety { height: 412px; border-radius: 12px; }
+  .app.v .n-nav { left: 18px; right: 18px; top: 14px; }
   .app.v .n-menu { display: none; }
-  .app.v .n-logo { height: 18px; }
-  .app.v .n-navcta { font-size: 11px; padding: 6px 12px; }
-  .app.v .n-eyebrow { left: 22px; top: 76px; font-size: 10.5px; gap: 6px; }
+  .app.v .n-logo { height: 19px; }
+  .app.v .n-navcta { font-size: 12px; padding: 5px 11px; }
+  .app.v .n-eyebrow { left: 22px; top: 52px; font-size: 10.5px; gap: 6px; }
   .app.v .n-punto { width: 5px; height: 5px; }
-  .app.v .n-h1 { left: 22px; top: 98px; width: 440px; font-size: 38px; }
-  .app.v .n-ctas { left: 22px; top: 266px; gap: 16px; }
-  .app.v .n-pill { font-size: 13px; padding: 9px 13px 9px 18px; gap: 14px; }
-  .app.v .n-link { font-size: 13px; }
-  .app.v .n-card { right: 16px; top: 296px; width: 236px; height: 186px; }
-  .app.v .n-sub { left: 22px; bottom: 14px; width: 220px; font-size: 11px; }
+  .app.v .n-h1 { left: 22px; top: 74px; width: 500px; font-size: 33px; }
+  .app.v .n-esp { left: 22px; top: 170px; height: 14px; }
+  .app.v .n-esp i { height: calc(14px + var(--esp, 0) * 20px); width: 6px; }
+  .app.v .n-esp b { font-size: 9.5px; }
+  .app.v .n-ctas { left: 22px; top: 186px; gap: 16px; margin-top: calc(var(--esp, 0) * 20px); }
+  .app.v .n-ctas .pill { font-size: 14px; padding: 9px 14px 9px 18px; gap: 16px; }
+  .app.v .n-link { font-size: 14px; }
+  .app.v .n-card { left: 22px; right: 22px; top: 252px; height: 132px; margin-top: calc(var(--esp, 0) * 20px); }
+  .app.v .n-sub { display: none; }
   .cursor { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform; }
   .cursor svg { position: relative; width: 18px; height: 18px; display: block; fill: var(--c); filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.18)); scale: calc(1 - var(--clic, 0) * 0.2); transform-origin: 2px 2px; }
   .cursor span { position: absolute; left: 14px; top: 16px; padding: 0.15em 0.6em; border-radius: 999px; background: var(--c); color: #fff; font-size: 0.8125rem; line-height: 1.5; white-space: nowrap; }

@@ -44,3 +44,6 @@ elige por energía de graves + onset; el cierre del bucle, por correlación de c
 | jazz-study-and-relax.mp3 | «Study And Relax» · USUAN1900030 · https://incompetech.com/music/royalty-free/music.html (buscar el título) | 72,0 | 0,056 s | 13,389 → 120,055 s | 32 (croma 0,97) | saxos, piano, bajo, percusión |
 | jazz-i-knew-a-guy.mp3 | «I Knew a Guy» · USUAN1100199 · también en https://archive.org/details/Jazz_Sampler-9619 | 75,0 | 0,046 s | 12,849 → 115,281 s | 32 (croma 0,85) | bajo andante, batería escasa, vibráfono |
 | jazz-cool-vibes.mp3 | «Cool Vibes» · USUAN1100863 | 83,0 | 0,074 s | 14,529 → 199,554 s | 64 (croma baja: modula a mitad) | vibráfono, bajo, batería (trío lento) |
+
+## Ronda 118 · Lobby Time (de serie)
+- «Lobby Time», Kevin MacLeod (incompetech.com), CC BY 3.0 — https://commons.wikimedia.org/wiki/File:Lobby_Time_(ISRC_USUAN1600054).mp3 → `public/media/sonido/jazz-lobby-time.mp3` (3:13, 256 kbps). Medida con librosa: 129 BPM en el detector, se siente a la mitad; bucle 5,224 → 155,225 s (40 compases, 64 BPM). Crédito en el pie (automático: `cancionActual()`).

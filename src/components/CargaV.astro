@@ -170,7 +170,7 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
             if (destino) { const u = cubica(Math.min(1, k * 1.15)); v.style.transform = `translate(${(destino.x * u).toFixed(1)}px, ${(destino.y * u).toFixed(1)}px) scale(${(1 + (destino.s - 1) * u).toFixed(4)})`; }
             if (k >= 1 && !impacto) {
               impacto = true; gota.style.opacity = '0'; estela.style.opacity = '0';
-              terminar(); salpicar(caida, x, y, { n: 11, fuerza: 1.05, color: 'rgba(246, 228, 204, .7)' });
+              terminar(); salpicar(caida, x, y, { n: 11, fuerza: 1.05, color: raiz.dataset.paleta === 'clara' ? 'rgba(36, 28, 25, .55)' : 'rgba(246, 228, 204, .7)' });
               alinearJazz(performance.now()); iniciarJazz(); rhodesSuelto(79, 0.08, 2.4, 0, false); bajoSuelto(36, 0.18);
               soltar();
               setTimeout(() => { v.style.transition = 'opacity 0.5s ease'; v.style.opacity = '0'; }, 700);
@@ -247,6 +247,17 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
       radial-gradient(circle at 50% 78%, rgba(255, 233, 200, 0.55), transparent 55%),
       radial-gradient(circle at 50% 50%, rgba(255, 247, 236, 0.1) 0 55%, rgba(246, 228, 204, 0.22) 70%, rgba(232, 207, 174, 0.55) 88%, rgba(255, 243, 228, 0.85) 100%);
   }
+  /* ronda 118 · «en la versión clara la gota apenas se aprecia»: sobre claro, la gota de agua se lee por su CANTO oscuro (refracta), su sombra y su brillo */
+  :global(html[data-paleta='clara']) .gota {
+    background:
+      radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.98) 0 13%, transparent 14%),
+      radial-gradient(circle at 50% 76%, rgba(255, 255, 255, 0.75), transparent 52%),
+      radial-gradient(circle at 50% 50%, rgba(36, 28, 25, 0.12) 0 38%, rgba(36, 28, 25, 0.36) 60%, rgba(36, 28, 25, 0.75) 80%, rgba(36, 28, 25, 0.95) 100%);
+    filter: drop-shadow(0 3px 4px rgba(36, 28, 25, 0.4));
+    width: 18px; height: 18px; left: -9px; top: -9px;
+  }
+  :global(html[data-paleta='clara']) .gota.grande { filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) drop-shadow(0 2px 3px rgba(36, 28, 25, 0.45)); }
+  :global(html[data-paleta='clara']) .estela { background: linear-gradient(to top, rgba(36, 28, 25, 0.35), transparent); }
   .estela { position: absolute; left: -2px; top: -46px; width: 4px; height: 44px; border-radius: 4px; opacity: 0; transform-origin: 50% 100%; background: linear-gradient(to top, rgba(246, 228, 204, 0.42), transparent); filter: blur(1.5px); }
   .pie {
     position: absolute;

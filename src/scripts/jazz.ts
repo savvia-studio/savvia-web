@@ -105,13 +105,16 @@ const nodos = () => {
 // RONDA 117 · «la canción que hemos puesto no me gusta, algo más jazz». Tres candidatas de Kevin MacLeod (incompetech, CC BY 4.0; análisis y fuentes en
 // tools/fuentes-sonido.md): de serie «Study And Relax» (saxos, piano, bajo y batería; 72 BPM); `?cancion=guy` «I Knew a Guy» (bajo andante y vibráfono, nocturna;
 // 75); `?cancion=vibes` «Cool Vibes» (trío lento; 83); `?cancion=smooth` la de la 116. ls/le: el bucle, en compases enteros; el reloj va a su tempo.
-const CANCIONES: Record<string, { f: string; ls: number; le: number; bpm: number; titulo: string }> = {
+const CANCIONES: Record<string, { f: string; ls: number; le: number; bpm: number; titulo: string; g?: number }> = {
+  // ronda 118 · «vamos con Lobby Time, pero que se escuche bastante de fondo»: Kevin MacLeod (CC BY 3.0, Wikimedia Commons). Medida con librosa: el detector
+  // marca 129 BPM y se siente a la mitad; bucle de 40 compases sobre sus pulsos reales (5,224 → 155,225 s = 160 tiempos → 64 BPM). g: su nivel, muy bajo
+  lobby: { f: 'jazz-lobby-time.mp3', ls: 5.224, le: 155.225, bpm: 64, titulo: 'Lobby Time', g: 0.42 },
   study: { f: 'jazz-study-and-relax.mp3', ls: 13.389, le: 120.055, bpm: 72, titulo: 'Study And Relax' },
   guy: { f: 'jazz-i-knew-a-guy.mp3', ls: 12.849, le: 115.281, bpm: 75, titulo: 'I Knew a Guy' },
   vibes: { f: 'jazz-cool-vibes.mp3', ls: 14.529, le: 199.554, bpm: 83, titulo: 'Cool Vibes' },
   smooth: { f: 'smooth-lovin.mp3', ls: 13.186, le: 243.386, bpm: 75, titulo: "Smooth Lovin'" },
 };
-const CANCION = CANCIONES[(location.search.match(/[?&]cancion=(\w+)/) || [])[1] || 'study'] || CANCIONES.study;
+const CANCION = CANCIONES[(location.search.match(/[?&]cancion=(\w+)/) || [])[1] || 'lobby'] || CANCIONES.lobby;
 export const cancionActual = () => CANCION.titulo;
 const GRAB = { url: (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/') + 'media/sonido/' + CANCION.f, ls: CANCION.ls, le: CANCION.le };
 TEMAS.web.bpm = TEMAS.otono.bpm = CANCION.bpm; if (tema === 'web' || tema === 'otono') { BPM = CANCION.bpm; BEAT = 60 / BPM; }
@@ -143,7 +146,7 @@ function ponerGrabacion(reiniciar = false) {
     const src = B.ctx.createBufferSource(); src.buffer = grabBuf; src.loop = true; src.loopStart = GRAB.ls; src.loopEnd = GRAB.le; src.connect(eq[0] ?? grabG);
     src.start(B.ctx.currentTime + 0.02 + cuando, pos); grabSrc = src;
   }
-  const v = quiere ? 0.36 * Math.pow(usuario / 0.75, 1.5) /* ronda 117: «la música de fondo más baja» (antes 0,62) */ * (sentado ? 0.35 : 1) : 0;
+  const v = quiere ? 0.36 * (CANCION.g ?? 1) * Math.pow(usuario / 0.75, 1.5) /* ronda 117: «la música de fondo más baja» (antes 0,62) */ * (sentado ? 0.35 : 1) : 0;
   grabG.gain.cancelScheduledValues(B.ctx.currentTime); grabG.gain.setTargetAtTime(v, B.ctx.currentTime, v > 0.001 ? 0.8 : 0.4);
 }
 // RONDA 101 · «los cambios de música, mucho más fluidos»: se apaga despacio (τ 0,6 s) y sube más despacio aún (τ 1,3 s, unos 4 s hasta su nivel)
@@ -314,6 +317,7 @@ export function nivel() {
 // RONDA 103 · dónde va el compás, en tiempos (con decimales): lo leen los brazos del director y el saxo para moverse a tempo. Antes de arrancar, un reloj libre
 // ronda 104 · «orgánico, no a saltos»: se lee del propio reloj (continuo); solo salta al cambiar de tema, y los brazos lo suavizan
 export const fase = (t = performance.now()) => (t - t0) / (BEAT * 1000);
+export const pulsoMs = () => BEAT * 1000; // ronda 118: lo que dura un tiempo (los dolores entran a compás)
 export const pulso = () => fuerzaPulso * Math.exp(-(performance.now() - ultimoPulso) / 300);
 (window as any).__jazz = () => ({ arrancado, audible: audible(), ctx: bus()?.ctx.state ?? null, ganancia: g ? +g.gain.value.toFixed(3) : 0, compas: Math.floor(siguiente / 4), tema, bpm: BPM, grabacion: !!grabSrc, grabGanancia: grabG ? +grabG.gain.value.toFixed(3) : 0, eq: eq.map((n) => +n.gain.value.toFixed(1)) });
 

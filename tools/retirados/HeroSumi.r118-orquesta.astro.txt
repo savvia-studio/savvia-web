@@ -1,0 +1,344 @@
+---
+// EL DIRECTOR A TINTA · RONDA 115. Andoni: «esta idea [la pincelada suena, ronda 114] pero dibujando el director de orquesta y con la disposición de antes.
+// Titular "Orquestamos tu web con IA" y subtítulo de desarrollo agéntico. Y que el dibujo se haga más rápido».
+// · DISPOSICIÓN (la del hero de las rondas 14–112): titular y subtítulo centrados; debajo, el recuadro de puntos entre los carriles (late con el compás) y en él
+//   el director; en las esquinas, la hora de Donostia y «desde 2020».
+// · EL DIBUJO: el motor de tinta y agua (src/scripts/sumi.ts) y las pinceladas que salen de la lámina (src/scripts/director-sumi.ts): batuta → gesto →
+//   aguadas → pinceladas de forma → acentos, en ~11 s, empezando en la siguiente corchea del lo-fi; el pincel suena (su roce) y al terminar se estampa el sello.
+// · La V que dibujas en la carga vuela a la PUNTA DE LA BATUTA y se deshace en la gota de la que nace el dibujo.
+// · El cursor es agua limpia. Movimiento reducido: el director ya pintado.
+import { hero } from '../data/home';
+import { isoV } from '../lib/rich';
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+---
+
+<section class="sumi" aria-labelledby="h1" data-hero data-sumi>
+  <!-- RONDA 116 · «la luz tiene que entrar desde arriba como en savvia.studio»: el haz del roble (rondas 27–31), por detrás del titular; entra al caer la gota -->
+  <div class="luz" aria-hidden="true"><i class="haz"></i></div>
+  <canvas class="lienzo" aria-hidden="true" data-sumi-lienzo></canvas>
+  <div class="wrap titular">
+    <h1 id="h1" class="text-h1 max-w-[20ch]" set:html={hero.h1} />
+    <p class="text-lead text-fg2 mt-4 lg:mt-6" set:html={isoV(hero.h2)} />
+  </div>
+  <div class="pie">
+    <!-- RONDA 117 · «los pulsos salen desde abajo en el centro y desvelan un fondo (la terraza); ese fondo encaja en el cuadrado de puntos y también lleva el dithering» -->
+    <div class="marco" aria-hidden="true" data-carril-fila><canvas class="fondo" data-fondo></canvas><canvas class="puntos" data-puntos></canvas></div>
+    <!-- RONDA 118 · «El gesto» (Getty × Gehry): una sola línea de tinta sale de la batuta y dibuja el compás de la música en directo; pasa por detrás del director -->
+    <canvas class="gesto" aria-hidden="true" data-gesto></canvas>
+    <div class="caja" aria-hidden="true" data-caja>
+      <i class="halo" aria-hidden="true"></i>
+      <!-- ronda 117 (3.ª): la lámina «soñada» (r87: estelas horizontales a jirones y canto roto), la que da con el motor el aire del roble de savvia.studio -->
+      <!-- ronda 118 · «el director de orquesta en traje, como teníamos»: la lámina de la ronda 98 con el mismo tratamiento soñado (tools/r118/traje-sueno.py) -->
+      <img class="lamina" src="/media/hero/director-traje.webp" alt="" width="2272" height="989" decoding="async" fetchpriority="high" data-lamina />
+      <canvas class="acuarela" data-acuarela></canvas>
+      <svg class="sello" viewBox="0 0 100 100" data-sello>
+        <defs>
+          <filter id="sumi-gastado" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" /><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.7" /><feComposite in="SourceGraphic" operator="in" /></filter>
+          <mask id="sumi-v"><rect width="100" height="100" fill="#fff" /><path d={ISO} fill="#000" transform="translate(27 17) scale(0.149)" /></mask>
+        </defs>
+        <rect x="4" y="4" width="92" height="92" rx="7" fill="currentColor" mask="url(#sumi-v)" filter="url(#sumi-gastado)" />
+      </svg>
+    </div>
+    <p class="esquina hora detail tabular-nums" data-hora></p>
+    <p class="esquina desde detail">desde 2020</p>
+  </div>
+</section>
+
+<script>
+  import { crearSumi } from '../scripts/sumi';
+  import { trazosDirector, BATUTA, type Pincelada } from '../scripts/director-sumi';
+  import { crearReticula } from '../scripts/reticula';
+  import { fase, acordeActual, nivel, enfocar, type BandaEq } from '../scripts/jazz';
+  import { crearGesto } from '../scripts/gesto';
+  import { tocar, pincel, posar } from '../scripts/musica';
+  import { crearEstela } from '../scripts/estela';
+  import { crearFondoRevela, type Deteccion } from '../scripts/fondo-revela';
+  import { NOCHE } from '../scripts/estacion';
+  const sec = document.querySelector<HTMLElement>('[data-sumi]');
+  // RONDA 116 · «recuperar el director de orquesta pero con el estilo del roble que tenemos en savvia.studio»: el de serie es la ACUARELA (el motor del roble,
+  // src/scripts/estela.ts: dibujo a línea, pintura con canto rasgado, semitono en los cantos, hervor, halo) que NACE DONDE CAE LA GOTA de la V (a los pies del
+  // director) y crece en círculo desde ahí. La tinta y agua de la ronda 115 queda en `?estilo=tinta`
+  const acuarela = !/[?&]estilo=tinta/.test(location.search);
+  if (sec && acuarela) {
+    sec.classList.add('en-acuarela');
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const caja = sec.querySelector<HTMLElement>('[data-caja]')!, marco = sec.querySelector<HTMLElement>('.marco')!;
+    const lamina = sec.querySelector<HTMLImageElement>('[data-lamina]')!, cvA = sec.querySelector<HTMLCanvasElement>('[data-acuarela]')!;
+    const clara = document.documentElement.dataset.paleta === 'clara';
+    const ORIGEN: [number, number] = [0.515, 0.97]; // los pies del director (en la lámina): ahí cae la gota
+    // RONDA 117 · «el director más pequeño y con más dithering, como más distorsionado»: el tramado del motor (Bayer) en celdas de 3 px y 4 niveles, sin anillos propios (solo las ondas de la música)
+    const est = crearEstela(cvA, lamina, { origen: ORIGEN, dir: -1, radial: true, sinGota: true, soplo: true, gota: true, manual: true, intensidad: 0, hd: true }); // ronda 117 (3.ª) · «una distorsión estilo la que teníamos en el árbol de savvia.studio»: el motor del roble tal cual (hervor, destellos en los cantos, semitono); fuera la trama Bayer y las bandas (siguen en `estela.ts`: `tramado`, `distorsion`)
+    if (!est) sec.classList.add('sin-gl');
+    clara ? est?.fondo(245, 247, 255) : est?.fondo(...NOCHE[0]);
+    const ret = crearReticula(sec.querySelector<HTMLCanvasElement>('[data-puntos]')!, { alfa: 0.1, vel: 190, ancho: 56, vida: 6.5 });
+    let empezado = false;
+    const hora = sec.querySelector<HTMLElement>('[data-hora]')!, fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    const tic = () => { hora.textContent = fmt.format(new Date()); setTimeout(tic, 60000 - (Date.now() % 60000) + 50); }; tic();
+    // dónde cae la gota de la V (en pantalla)
+    (window as any).__impacto = () => { const c = caja.getBoundingClientRect(); return { x: c.left + ORIGEN[0] * c.width, y: c.top + ORIGEN[1] * c.height }; };
+    // ── LA LUZ (la del roble): un haz oblicuo que sigue al ratón con retraso, y el brillo del shader colocado justo bajo él (misma inclinación, 18°)
+    const alinear = (mx: number) => {
+      if (!est) return; const hr = sec.getBoundingClientRect(), cr = caja.getBoundingClientRect();
+      const base = hr.width * 0.57 + mx * 0.38 * innerWidth, xTop = base - 0.325 * (cr.top - hr.top - hr.height * 0.5);
+      est.luz(0.95 * ((xTop - (cr.left - hr.left)) / cr.width) - 0.62);
+    };
+    alinear(0); addEventListener('resize', () => alinear(0));
+    if (!reducido && matchMedia('(hover: hover)').matches) {
+      let mx = 0, tx = 0, rl = 0;
+      const seguir = () => { rl = 0; mx += (tx - mx) * 0.05; sec.style.setProperty('--lx', mx.toFixed(4)); alinear(mx); if (Math.abs(tx - mx) > 0.001) rl = requestAnimationFrame(seguir); };
+      sec.addEventListener('pointermove', (e) => { const r = sec.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width - 0.5; if (!rl) rl = requestAnimationFrame(seguir); }, { passive: true });
+      sec.addEventListener('pointerleave', () => { tx = 0; if (!rl) rl = requestAnimationFrame(seguir); });
+    }
+    // ── RONDA 117 · EL FONDO QUE DESVELAN LOS PULSOS: la orquesta de Andoni en gris tramado y, donde pasa cada pulso (centro de abajo, cada dos compases), en
+    // color; y la IA que lee a tres músicos por pulso. La lógica vive en src/scripts/fondo-revela.ts (la comparte el pie)
+    const BASE = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/');
+    const DETECTA: Deteccion[] = [
+      [0.005, 0.5, 0.115, 0.83, 'violín', '0,97'], [0.115, 0.36, 0.25, 0.53, 'timbales', '0,91'], [0.26, 0.42, 0.315, 0.55, 'flauta', '0,88'],
+      [0.18, 0.47, 0.37, 0.76, 'violines', '0,95'], [0.415, 0.38, 0.465, 0.52, 'clarinete', '0,86'], [0.49, 0.39, 0.545, 0.53, 'fagot', '0,83'],
+      [0.565, 0.42, 0.625, 0.53, 'trompa', '0,92'], [0.625, 0.39, 0.685, 0.52, 'trompeta', '0,90'], [0.72, 0.42, 0.82, 0.51, 'sintetizador', '0,79'],
+      [0.885, 0.32, 0.985, 0.64, 'contrabajo', '0,96'], [0.655, 0.5, 0.86, 0.8, 'chelos', '0,94'],
+    ];
+    const fon = crearFondoRevela(sec.querySelector<HTMLCanvasElement>('[data-fondo]')!, marco, BASE + 'media/hero/orquesta-jazz.webp', { clara, noche: clara ? [245, 247, 255] : NOCHE[0], detecta: DETECTA, recorteY: 0.62 });
+    // ── RONDA 118 · «DIRIGE TÚ»: el cursor es la batuta. Donde señalas, la orquesta se enciende en color; el músico señalado queda reconocido y su familia
+    // se ADELANTA en la mezcla (graves · medios · agudos: la grabación va mezclada, se le acerca el oído). Al irte, todo vuelve. En táctil, un toque señala 2,5 s
+    const FAMILIA: Record<string, [BandaEq, string]> = {
+      timbales: ['grave', 'graves'], contrabajo: ['grave', 'graves'], chelos: ['grave', 'graves'], fagot: ['grave', 'graves'],
+      violines: ['medio', 'medios'], clarinete: ['medio', 'medios'], trompa: ['medio', 'medios'], sintetizador: ['medio', 'medios'],
+      violín: ['agudo', 'agudos'], flauta: ['agudo', 'agudos'], trompeta: ['agudo', 'agudos'],
+    };
+    const pieEl = sec.querySelector<HTMLElement>('.pie')!;
+    let actual: string | null = null, soltarT = 0;
+    const señalar = (x: number, y: number) => {
+      if (!empezado) return; const m = marco.getBoundingClientRect(), fxp = (x - m.left) / m.width, fyp = (y - m.top) / m.height;
+      if (fxp < 0 || fxp > 1 || fyp < 0 || fyp > 1) return soltar();
+      const quien = fon.foco(fxp, fyp);
+      if (quien !== actual) { actual = quien; const f = quien ? FAMILIA[quien] : null; enfocar(f ? f[0] : null); }
+    };
+    const soltar = () => { fon.foco(null); if (actual !== null) { actual = null; enfocar(null); } };
+    if (!reducido) {
+      pieEl.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') señalar(e.clientX, e.clientY); }, { passive: true });
+      pieEl.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') soltar(); });
+      pieEl.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') return; señalar(e.clientX, e.clientY); clearTimeout(soltarT); soltarT = window.setTimeout(soltar, 2500); }, { passive: true });
+    }
+    const pulso = (f: number) => {
+      if (reducido || !empezado) return; const m = marco.getBoundingClientRect(), x = m.left + m.width / 2, y = m.bottom - 4;
+      ret.onda(x, y, 0.32); est?.onda(x, y, f * 0.8); fon.pulso(f);
+    };
+    // un pulso cada DOS compases, siempre desde el centro de abajo
+    addEventListener('savvia:pulso', (e) => { const d = (e as CustomEvent).detail; if (d.k === 0 && d.bar % 2 === 0) pulso(1); });
+    // RONDA 117 (2.ª) · «al caer la gota se tiene que dibujar todo el lienzo, tanto el director como lo otro»: la terraza y la retícula también NACEN del impacto
+    // (abajo al centro), con un frente que crece a la par que la pintura del director (≈ 3,2 s); antes de la gota, el recuadro está vacío
+    const revelar = () => {
+      if (reducido) { marco.style.setProperty('--rv', '200%'); return; }
+      const t0 = performance.now(), D = 3200;
+      const paso = (ahora: number) => { const e = Math.min(1, (ahora - t0) / D), k = 1 - Math.pow(1 - e, 2.2); marco.style.setProperty('--rv', (k * 135).toFixed(2) + '%'); if (e < 1) requestAnimationFrame(paso); };
+      requestAnimationFrame(paso);
+    };
+    const gesto = !reducido && /[?&]gesto=1/.test(location.search) ? crearGesto(sec.querySelector<HTMLCanvasElement>('[data-gesto]')!, sec.querySelector<HTMLElement>('.pie')!, caja, marco, { clara, nivel, fase }) : null;
+    const empezar = () => { if (empezado) return; revelar(); empezado = true; setTimeout(() => gesto?.empezar(), 1400); sec.classList.add('encendido', 'luz-entra'); est?.soltar(); setTimeout(() => sec.classList.add('pintado'), reducido ? 0 : 4200); setTimeout(() => pulso(1), reducido ? 0 : 900); };
+    if ((window as any).__gotaSuelta) empezar(); else addEventListener('savvia:gota', empezar, { once: true });
+    (window as any).__sumi = () => ({ estilo: 'acuarela', gl: !!est, empezado });
+  }
+  if (sec && !acuarela) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cv = sec.querySelector<HTMLCanvasElement>('[data-sumi-lienzo]')!, caja = sec.querySelector<HTMLElement>('[data-caja]')!;
+    const lamina = sec.querySelector<HTMLImageElement>('[data-lamina]')!, marco = sec.querySelector<HTMLElement>('.marco')!;
+    const clara = document.documentElement.dataset.paleta === 'clara';
+    const rgb = (s: string) => (s.match(/\d+(\.\d+)?/g) || ['234', '221', '231']).slice(0, 3).map((v) => +v / 255);
+    const tinta = crearSumi(cv, { tinta: rgb(getComputedStyle(sec).color), semilla: 115 });
+    if (!tinta) sec.classList.add('sin-gl');
+    const ret = crearReticula(sec.querySelector<HTMLCanvasElement>('[data-puntos]')!, { alfa: 0.1, vel: 190, ancho: 56, vida: 6.5 });
+    // ── geometría: la caja del director, en px del lienzo (que cubre el hero entero)
+    let W = 0, H = 0, bx = 0, by = 0, bw = 1, bh = 1;
+    let pinceladas: Pincelada[] = [], t0 = 0, empezado = false, raf = 0, visto = true, mojando = 0, siguiente = 0, firmado = false, tFin = 0;
+    const aPx = (p: Pincelada) => ({ pts: p.pts.map(([x, y, w]) => [bx + x * bw, by + y * bh, Math.max(0.5, w * bh)] as [number, number, number]), pig: p.pig, agua: p.agua, carga: p.carga, gasto: p.gasto, semilla: p.semilla });
+    const medir = () => {
+      const r = sec.getBoundingClientRect(), c = caja.getBoundingClientRect();
+      const cambio = Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1; W = r.width; H = r.height;
+      bx = c.left - r.left; by = c.top - r.top; bw = c.width; bh = c.height;
+      if (cambio && tinta) { tinta.medir(W, H); if (empezado) { const ahora = performance.now(); pinceladas.forEach((p, i) => tinta.trazo(aPx(p), Math.min(ahora + i * 2, t0 + p.t0 * 1000), p.dur * 1000)); pedir(); } }
+    };
+    // ── el bucle: el roce del pincel en cada tiempo mientras pinta y el sello al terminar
+    const bucle = (ahora: number) => {
+      raf = 0; if (!visto || !tinta) return;
+      while (siguiente < pinceladas.length && ahora >= t0 + pinceladas[siguiente].t0 * 1000) {
+        const p = pinceladas[siguiente++];
+        if (!reducido && (p.voz === 'batuta' || p.voz === 'aguada' && siguiente % 9 === 0 || p.voz === 'forma' && siguiente % 14 === 0)) pincel({ vol: p.voz === 'aguada' ? 0.03 : 0.022, dur: 0.45, mojado: p.voz === 'aguada' ? 1 : 0.3 });
+      }
+      if (empezado && !firmado && ahora >= tFin) {
+        firmado = true; sec.classList.add('firmado');
+        if (!reducido) { posar({ vol: 0.06 }); acordeActual().notas.forEach((m, j) => tocar(m + 12, { vol: 0.022, dur: 3, cuando: j * 0.035 })); }
+      }
+      const vivo = tinta.fotograma(ahora) || siguiente < pinceladas.length || mojando > 0;
+      if (mojando > 0) mojando--;
+      if (vivo) raf = requestAnimationFrame(bucle);
+    };
+    const pedir = () => { if (!raf) raf = requestAnimationFrame(bucle); };
+    new IntersectionObserver(([x]) => { visto = x.isIntersecting; if (visto) pedir(); }).observe(sec);
+    // ── el agua del cursor
+    let ux = -1, uy = -1;
+    if (matchMedia('(pointer: fine)').matches && !reducido) sec.addEventListener('pointermove', (ev) => {
+      if (!empezado || !tinta) return; const r = sec.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+      const v = ux < 0 ? 0 : Math.hypot(x - ux, y - uy); ux = x; uy = y; if (v < 1) return;
+      tinta.mojar(x, y, 14 + Math.min(16, v * 0.5), Math.min(1.4, 0.4 + v / 30)); mojando = 90; pedir();
+    });
+    // ── una onda por compás en la retícula, desde el pie del recuadro (las de la ronda 102)
+    addEventListener('savvia:pulso', (e) => { const d = (e as CustomEvent).detail; if (!empezado || d.k !== 0) return; const m = marco.getBoundingClientRect(); ret.onda(m.left + m.width / 2, m.bottom - 4, 0.32); });
+    // la hora del estudio
+    const hora = sec.querySelector<HTMLElement>('[data-hora]')!, fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    const tic = () => { hora.textContent = fmt.format(new Date()); setTimeout(tic, 60000 - (Date.now() % 60000) + 50); }; tic();
+    // la V de la carga vuela a la punta de la batuta
+    (window as any).__cartelFuente = () => { const c = caja.getBoundingClientRect(), hv = Math.max(16, c.height * 0.07); return new DOMRect(c.left + BATUTA[0] * c.width - hv * 0.42, c.top + BATUTA[1] * c.height - hv * 0.5, hv * 0.84, hv); };
+    const preparar = () => new Promise<void>((ok) => { if (lamina.complete && lamina.naturalWidth) ok(); else lamina.addEventListener('load', () => ok(), { once: true }); });
+    const empezar = async () => {
+      if (empezado) return; empezado = true; sec.classList.add('encendido');
+      if (!tinta) return;
+      await preparar(); medir();
+      pinceladas = trazosDirector(lamina, { clara });
+      // la gota en la punta de la batuta, y todo a partir de la siguiente corchea del lo-fi
+      const ahora = performance.now(), BEAT = 60000 / 74, b = Math.ceil(fase(ahora) * 2 + 0.15) / 2;
+      t0 = reducido ? ahora - 60000 : ahora + (b - fase(ahora)) * BEAT;
+      tinta.trazo(aPx({ voz: 'aguada', pts: [[BATUTA[0], BATUTA[1], 0.016], [BATUTA[0] + 0.002, BATUTA[1] + 0.003, 0.018]], pig: 0.6, agua: 1.4, carga: 1, gasto: 0, semilla: 2, t0: 0, dur: 0.2 }), t0 - 140, 160);
+      pinceladas.forEach((p) => tinta.trazo(aPx(p), t0 + p.t0 * 1000, reducido ? 1 : p.dur * 1000));
+      tFin = t0 + Math.max(...pinceladas.map((p) => p.t0 + p.dur)) * 1000 + 300;
+      if (reducido) { for (let i = 0; i < 160; i++) tinta.fotograma(ahora + 70000); siguiente = pinceladas.length; firmado = true; sec.classList.add('firmado'); return; }
+      pedir();
+    };
+    new ResizeObserver(() => medir()).observe(sec);
+    medir();
+    if ((window as any).__gotaSuelta) empezar(); else addEventListener('savvia:gota', empezar, { once: true });
+    (window as any).__sumi = () => ({ total: pinceladas.length, dadas: siguiente, firmado, gl: !!tinta });
+  }
+</script>
+
+<style>
+  .sumi {
+    position: relative;
+    min-height: 100lvh;
+    padding-top: calc(var(--spacing) * 24);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    color: var(--fg);
+  }
+  .lienzo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+  .sumi { --lx: 0; }
+  /* LA LUZ del roble (rondas 27–31): un haz sutil (pico 0,075) que entra desde arriba al caer la gota, por detrás del titular, y sigue al ratón */
+  .luz {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; opacity: 0; translate: 0 -18%;
+    transition: opacity 2.2s ease, translate 2.6s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgb(0 0 0 / 0.45) 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgb(0 0 0 / 0.45) 100%);
+  }
+  .luz-entra .luz { opacity: 1; translate: 0 0; }
+  .luz .haz {
+    position: absolute; top: -20%; bottom: -20%; width: 34%; left: 40%;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-niebla) 3%, transparent) 30%, color-mix(in srgb, var(--color-niebla) 7.5%, transparent) 50%, color-mix(in srgb, var(--color-niebla) 3%, transparent) 70%, transparent);
+    transform: translateX(calc(var(--lx) * 38vw)) skewX(-18deg); will-change: transform;
+  }
+  :global(html[data-paleta='clara']) .luz .haz { background: linear-gradient(90deg, transparent, rgb(255 236 200 / 0.18) 30%, rgb(255 236 200 / 0.4) 50%, rgb(255 236 200 / 0.18) 70%, transparent); }
+  .en-acuarela:not(.luz-entra) .luz { transition: none; }
+  @media (prefers-reduced-motion: reduce) { .luz .haz { transform: skewX(-18deg); } .luz { transition: none; } }
+  .titular {
+    margin-top: auto;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .titular h1 { text-wrap: balance; }
+  .titular p { text-wrap: pretty; max-width: 40ch; }
+  .pie {
+    --alto: clamp(15.5rem, 100lvh - 21rem, 42rem); /* ronda 117 (4.ª): todo un poco más grande (antes 100lvh − 23rem) */
+    margin-top: 2rem;
+    padding-top: calc(var(--spacing) * 6);
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .marco {
+    --gutter: calc(var(--spacing) * 5);
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    translate: -50% 0;
+    width: min(100% - var(--gutter) * 2, 75rem);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 96%);
+    mask-image: linear-gradient(to bottom, #000, transparent 96%);
+    border-inline: 1px dashed color-mix(in srgb, var(--fg) 22%, transparent);
+    pointer-events: none;
+  }
+  .marco .puntos { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--fg); }
+  .gesto { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .caja { z-index: 1; }
+  .marco .fondo { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.85; image-rendering: pixelated; }
+  /* ronda 117 (2.ª): fondo y puntos nacen del impacto de la gota (--rv crece desde 0); el canto, blando */
+  .en-acuarela .marco { --rv: 0%; }
+  .en-acuarela .marco .fondo, .en-acuarela .marco .puntos {
+    -webkit-mask-image: radial-gradient(ellipse 100% 125% at 50% 100%, #000 calc(var(--rv) - 14%), transparent var(--rv));
+    mask-image: radial-gradient(ellipse 100% 125% at 50% 100%, #000 calc(var(--rv) - 14%), transparent var(--rv));
+  }
+  @media (width >= 48rem) { .marco { --gutter: calc(var(--spacing) * 8); } }
+  @media (width >= 64rem) { .marco { --gutter: calc(var(--spacing) * 12); } }
+  .caja {
+    position: relative;
+    width: min(100% - var(--spacing) * 10, var(--alto) * 0.94 * 2272 / 989); /* ronda 117: más pequeño (×0,78) y luego «un poco más alto» (×0,9) */
+    aspect-ratio: 2272 / 989;
+  }
+  .lamina { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+  .acuarela { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
+  .en-acuarela .acuarela { display: block; }
+  .en-acuarela .sello { display: none; }
+  /* el HALO del roble: la silueta muy desenfocada, sangrando en el fondo cuando ya está pintado */
+  .halo {
+    position: absolute; inset: 0; display: none;
+    background: color-mix(in srgb, var(--color-coral) 55%, var(--fg));
+    -webkit-mask: url('/media/hero/director-traje.webp') center / 100% 100% no-repeat;
+    mask: url('/media/hero/director-traje.webp') center / 100% 100% no-repeat;
+    filter: blur(30px); transform: scale(1.06); opacity: 0; transition: opacity 2.4s ease;
+  }
+  .en-acuarela .halo { display: block; }
+  .pintado .halo { opacity: 0.22; }
+  /* sin WebGL, la lámina tal cual */
+  .sin-gl .lamina { opacity: 0.9; }
+  .sello {
+    position: absolute;
+    right: 7%;
+    bottom: 16%;
+    width: clamp(1.75rem, 6%, 2.75rem);
+    color: var(--color-coral);
+    opacity: 0;
+    transform: scale(1.35) rotate(-4deg);
+    transition: opacity 0.18s ease, transform 0.42s cubic-bezier(0.2, 1.6, 0.4, 1);
+    z-index: 2;
+  }
+  .firmado .sello { opacity: 0.94; transform: rotate(-2deg); }
+  .esquina {
+    --gutter: calc(var(--spacing) * 5);
+    --marco-w: min(100% - var(--gutter) * 2, 75rem);
+    position: absolute;
+    bottom: calc(var(--spacing) * 3);
+    color: var(--fg2);
+    opacity: 0;
+    transition: opacity 0.8s ease 0.4s;
+    z-index: 2;
+  }
+  @media (width >= 48rem) { .esquina { --gutter: calc(var(--spacing) * 8); } }
+  @media (width >= 64rem) { .esquina { --gutter: calc(var(--spacing) * 12); } }
+  .hora { left: calc((100% - var(--marco-w)) / 2 + var(--spacing) * 4); }
+  .desde { right: calc((100% - var(--marco-w)) / 2 + var(--spacing) * 4); }
+  .encendido .esquina { opacity: 1; }
+  /* en móvil la lámina (con mucho margen transparente a los lados) puede ser más ancha que la pantalla: la figura sigue entera */
+  @media (width < 48rem) {
+    .pie { --alto: clamp(14rem, 100lvh - 22rem, 30rem); }
+    .caja { width: min(165%, var(--alto) * 0.82 * 2272 / 989); flex: none; }
+    .sello { right: 19%; bottom: 14%; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sello, .esquina { transition: none; } }
+</style>

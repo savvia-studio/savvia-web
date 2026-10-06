@@ -41,11 +41,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     <div class="pegado">
       <div class="escenario" data-escenario>
         <div class="escena" data-escena>
-          {
+          <div class="capas">{
             EST.map((e) => (
               <img class="capa" data-capa={e} data-src={`/media/estudio/${e}.webp`} data-src-m={`/media/estudio/${e}-m.webp`} data-src-xl={`/media/estudio/${e}-xl.webp`} alt="" decoding="async" />
             ))
-          }
+          }</div>
           <canvas class="aire" aria-hidden="true" data-aire></canvas>
           <!-- RONDA 14 · sentado, el marco del monitor en CSS (nítido a cualquier zoom): pisa al de la foto, que al ampliarse queda blanda.
                RONDA 18 · «cuando te sientas dejamos toda la imagen nítida sin nada»: sentado NO se desenfoca nada (ni paisaje ni aire). -->
@@ -425,9 +425,30 @@ const pad = (n: number) => String(n).padStart(2, '0');
       cuandoListo(w, () => { if (yo === turno) tintar(w); });
     }
 
+    // RONDA 118 · «en la versión clara, los cambios de estación se sienten raros»: las dos láminas se fundían a la vez (una baja mientras la otra sube), así que
+    // a mitad del fundido se veía el fondo de la sección a través (en la clara, un velo blanco). Ahora la que se va se queda ENTERA debajo y la nueva llega
+    // encima, ya descodificada (si no, se fundía una lámina vacía); al terminar, la de debajo se retira sin que se vea.
+    let capaVista: HTMLImageElement | null = null, turnoCapa = 0;
+    function relevarCapa() {
+      const nueva = capas.find((c) => c.dataset.capa === estActual())!;
+      if (nueva === capaVista) return;
+      const vieja = capaVista, yo = ++turnoCapa; capaVista = nueva;
+      capas.forEach((c) => { if (c !== nueva && c !== vieja) c.classList.remove('on', 'queda'); });
+      if (vieja) { vieja.classList.add('queda'); vieja.classList.remove('on'); }
+      nueva.classList.remove('queda');
+      const entra = () => {
+        if (yo !== turnoCapa) return;
+        nueva.classList.add('on');
+        if (vieja) setTimeout(() => { if (yo === turnoCapa) vieja.classList.remove('queda'); }, reducido ? 0 : 1700);
+      };
+      if (!vieja) { entra(); return; }
+      pedir(nueva);
+      (nueva.complete && nueva.naturalWidth ? Promise.resolve() : nueva.decode()).then(entra, entra);
+    }
+
     function pintar(primera = false) {
       void nombreEst;
-      capas.forEach((c) => c.classList.toggle('on', c.dataset.capa === estActual()));
+      relevarCapa();
       if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!); // sentado y cambiando de estación: esa, a 5120
       ests.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.est === estActual())));
       webs.forEach((w, i) => { w.classList.toggle('on', i === activo); w.hidden = sentado && i !== activo; if (sentado && i !== activo) desmontar(w); });
@@ -767,6 +788,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     will-change: transform;
     /* SIN will-change: con él Chrome guarda la capa a 1× y, al acercar ×4, la web de dentro sale borrosa. */
   }
+  /* ronda 118: las láminas en su propio contexto de apilado (sus z-index del relevo no pasan por encima de «Sentarse» ni de la interfaz) */
+  .capas {
+    position: absolute;
+    inset: 0;
+    isolation: isolate;
+  }
   .capa {
     position: absolute;
     inset: 0;
@@ -780,6 +807,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .capa.on {
     opacity: 1;
+    z-index: 1;
+  }
+  /* la que se va: entera y debajo, sin fundido, hasta que la nueva la cubre */
+  .capa.queda {
+    opacity: 1;
+    z-index: 0;
+    transition: none;
   }
   .aire {
     position: absolute;

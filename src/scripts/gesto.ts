@@ -6,7 +6,7 @@
 type Op = { clara: boolean; nivel: () => number; fase: () => number };
 type Punto = { x: number; y: number; t: number; w: number };
 
-const PUNTA: [number, number] = [0.648, 0.034]; // la punta de la batuta en director.webp (1490 × 1105)
+const PUNTA: [number, number] = [0.577, 0.002]; // la punta de la batuta en clasico-director.webp (1672 × 941)
 // el dibujo del 4/4 (unidades del gesto, y hacia abajo): 1 abajo, 2 a la izquierda, 3 a la derecha, 4 arriba
 const PATRON: [number, number][] = [[0, 1], [-0.95, 0.5], [0.95, 0.55], [0.1, -0.7]];
 const COLA = 14000;

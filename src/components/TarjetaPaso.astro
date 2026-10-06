@@ -242,6 +242,8 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
   .tarjeta.viva::after {
     animation: onda 1.5s var(--ease-out-expo) both;
   }
+  /* ronda 118 (9.ª): sin tarjeta (desnuda) la onda de despertar se ve entera y gigante: fuera */
+  .desnuda.viva::after { animation: none; }
   @keyframes onda {
     from { scale: 0.2; opacity: 0.7; border-width: 2px; }
     to { scale: 46; opacity: 0; border-width: 0.03px; }

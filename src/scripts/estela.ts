@@ -13,7 +13,7 @@ import { rgbDe } from './tinta';
 const VS = 'attribute vec2 a;varying vec2 v;void main(){v=vec2(a.x*.5+.5,.5-a.y*.5);gl_Position=vec4(a,0.,1.);}';
 const FS = [
   'precision highp float;',
-  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek,tr,bt,tf,tnv,tcl,dis;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;uniform vec4 OW[4];varying vec2 v;',
+  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek,tr,bt,tf,tnv,tcl,dis,gs,fz;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;uniform vec4 OW[4];varying vec2 v;',
   'float h(float p){return fract(sin(p*127.1)*43758.5453);}',
   'float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
   'float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}',
@@ -29,21 +29,21 @@ const FS = [
   // CSS del propio lienzo (las capas comparten las mismas ondas en coordenadas de pantalla). A su paso la pintura se desplaza un poco hacia fuera (refracta)
   '  float ond=0.;vec2 odir=vec2(0.);',
   '  for(int i=0;i<4;i++){vec2 dd=px-OW[i].xy;float dl=length(dd)+.001;float k=exp(-pow((dl-OW[i].z)/48.,2.))*OW[i].w;ond+=k;odir+=dd/dl*k*(dl<OW[i].z?-1.:1.);}',
-  '  vec2 q=v+(vec2(h2(floor(px/3.)+paso),h2(floor(px/3.)+paso+17.))-.5)*1.3*dpr*u1*soplo+odir*2.6*dpr*u1;',
+  '  vec2 q=v+(vec2(h2(floor(px/3.)+paso),h2(floor(px/3.)+paso+17.))-.5)*1.3*fz*dpr*u1*soplo+odir*2.6*dpr*u1;', // fz (ronda 118): «el efecto del árbol se tiene que notar más»
   // RONDA 117 · «el director aún más distorsionado»: con `distorsion`, la imagen se parte en BANDAS horizontales que se desplazan a saltos (6 por segundo) y el
   // resto ondula despacio, como una señal que se pierde
   '  if(dis>0.){float bd=floor(px.y/5.);float st=floor(ti*6.);float hb=h(bd*1.7+st*3.1);q.x+=(hb>.6?(h(bd+st)-.5)*dis*26.:(n2(vec2(px.y*.04,ti*.5))-.5)*dis*5.)*dpr*u1.x;}',
   '  vec4 c=texture2D(T,q);float a0=c.a;',
   // destellos horizontales en los cantos: alguna fila, a veces, se estira unos píxeles
   '  float fila=floor(px.y/2.);',
-  '  if(soplo>.5&&a0<.9&&h(fila+paso*7.13)>.9){float dx=(4.+8.*h(fila*3.1+paso))*dpr*u1.x*(h(fila+paso)>.5?1.:-1.);',
+  '  if(soplo>.5&&a0>.08&&a0<.9&&h(fila+paso*7.13)>1.-.1*fz){float dx=(4.+8.*h(fila*3.1+paso))*dpr*u1.x*(h(fila+paso)>.5?1.:-1.);',
   '    c=(c+texture2D(T,q+vec2(dx*.33,0.))+texture2D(T,q+vec2(dx*.66,0.))+texture2D(T,q+vec2(dx,0.)))*.25;}',
   '  float a=c.a;vec3 col=c.rgb/max(a,.001);',
   // mimetizarse: un poco hundido hacia el Cacao; lo translúcido, más tenue
   '  vec3 cacao=fo;',
   '  col=mix(col,cacao,pai>.5?0.:.2);col=mix(vec3(dot(col,vec3(.299,.587,.114))),col,pai>.5?1.:.84);',
   // RONDA 16 («aún más mimetizado»): hacia fuera la cobertura cae (elipse centrada en la copa) → más árbol se deshace en puntos
-  '  float fuera=pai>.5?1.:1.-smoothstep(.42,1.02,length(vec2((v.x-.5)*1.85,(v.y-.56)*1.6)));',
+  '  float fuera=pai>.5||fz>1.?1.:1.-smoothstep(.42,1.02,length(vec2((v.x-.5)*1.85,(v.y-.56)*1.6)));', // ronda 118: con `fuerza` no se deshace lo de fuera (era «ruido alrededor»)
   '  a=pow(a,pai>.5?1.:1.2)*(.3+.7*fuera);',
   // ESTACIÓN (rondas 17 y 20): solo vira lo que es HOJA (lo cálido y saturado); la madera se queda. En invierno la copa RALEA (est.w):
   // las hojas más claras se van y quedan pocas, pálidas; en primavera y verano vira a verdes (tono) con su saturación y su luz.
@@ -85,6 +85,10 @@ const FS = [
   '  a*=1.-hoja*es.w*(1.-desnudo)*smoothstep(.35,.75,dot(co,vec3(.299,.587,.114))+h2(floor(px/2.))*.25);',
   '  a*=1.-desnudo*smoothstep(.13,.23,so);',
   '  col=clamp(tono(col,.1*sin(ti*.21+v.x*2.4-v.y*3.1)*soplo),0.,1.);',
+  // RONDA 118 · «el pulso que revela color»: con `gris`, la lámina va en gris y cada onda le devuelve el color a su paso (el anillo y lo que deja detrás, que
+  // se apaga con la vida de la onda)
+  '  if(gs>0.){float rv=0.;for(int i=0;i<4;i++){float dl=length(px-OW[i].xy);rv+=(dl<OW[i].z?1.:exp(-pow((dl-OW[i].z)/70.,2.)))*OW[i].w;}',
+  '    col=mix(vec3(dot(col,vec3(.299,.587,.114))),col,clamp(1.-gs+rv*1.5,0.,1.));}',
   // LUZ: haces diagonales desde arriba a la derecha hasta el tronco, solo sobre el árbol, al terminar de pintarse
   '  float lv=soplo*lz*smoothstep(.85,1.,gr);', // lz: ronda 47, las raíces hierven pero no reciben la luz
   '  float uu=(px.x*.95+px.y*.31)/W.x-lx;', // lx: la luz sigue al ratón (ronda 27)
@@ -100,7 +104,7 @@ const FS = [
   '  vec2 ro=vec2(px.x+px.y,px.x-px.y)*.7071/5.;vec2 f=fract(ro)-.5;',
   '  float rad=sqrt(a)*.64;float punto=1.-smoothstep(rad-.07,rad+.07,length(f));',
   '  float canto=pai>.5?0.:1.-smoothstep(.5,.92,a);', // el paisaje no lleva semitono en los cantos (en la esquina de la hierba salía un parche de puntos)
-  '  a=a<.04?0.:mix(a,punto,canto);',
+  '  a=a<.04+.1*(fz-1.)?0.:mix(a,punto,canto);', // ronda 118: con `fuerza`, lo casi transparente del canto ya no deja puntos sueltos
   '  col=mix(col,claro,canto*.22);', // los puntos del canto, algo más claros («que tenga un color clarito»)
   // DISTANCIA AL ORIGEN: el hero, radial desde el impacto; las raíces bajan desde el cuello
   '  float d=(gota>.5||rad>.5)?length(vec2((v.x-O.x)*asp*.55,v.y-O.y))*.95:clamp((v.y-O.y)*dir,0.,1.)*.85+abs(v.x-O.x)*.35;',
@@ -145,7 +149,7 @@ export const ESTACIONES_SIN_RALEO = ESTACIONES_ARBOL.map((e) => [e[0], e[1], e[2
 // RONDA 76 · Eric: «en invierno, las hierbas todo nevado, nieve pura»: el paisaje del pie en invierno se pinta en blanco de nieve (con su sombra azulada)
 export const ESTACIONES_PIE = ESTACIONES_SIN_RALEO.map((e, i) => (i === 1 ? [0.95, 0.96, 0.99, 0] : e));
 
-export type Estela = { onda(x: number, y: number, f?: number): void; fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void };
+export type Estela = { onda(x: number, y: number, f?: number): void; fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void; imagen(src: TexImageSource | null): void };
 
 // RONDA 23 · opciones nuevas: `radial` (el frente sale en círculo desde `origen`, sin gota), `paisaje` (una lámina completa, no el árbol: sin
 // hundir el color, sin elipse de cobertura ni bordes desvanecidos) y `estaciones` (tabla propia: el paisaje del pie no ralea en invierno).
@@ -159,7 +163,7 @@ export type Estela = { onda(x: number, y: number, f?: number): void; fondo(r: nu
 // Safari (WebKit) no libera enseguida los contextos de los lienzos retirados al cambiar de estación y llega a su tope: ahí se sigue durmiendo lo lejano.
 const LIMITE = typeof navigator !== 'undefined' && /Apple/.test(navigator.vendor) ? 0 : 12;
 let vivos = 0;
-export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinGota?: boolean; tramado?: boolean; tramadoBpm?: number; tramadoFuerza?: number; tramadoNiveles?: number; tramadoCelda?: number; distorsion?: number; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean }): Estela | null {
+export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinGota?: boolean; tramado?: boolean; tramadoBpm?: number; tramadoFuerza?: number; tramadoNiveles?: number; tramadoCelda?: number; distorsion?: number; gris?: number; fuerza?: number; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean }): Estela | null {
   const ctx = { premultipliedAlpha: true, alpha: true, antialias: false };
   const gl2 = cv.getContext('webgl2', ctx) as WebGL2RenderingContext | null;
   const gl = (gl2 ?? cv.getContext('webgl', ctx)) as WebGLRenderingContext | null;
@@ -204,7 +208,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1);
     // RONDA 83 · `sinGota`: el reloj de la carga sigue (espera a `soltar()`), pero el shader no pinta la gota naranja ni la savia del suelo (el director)
     gl.uniform1f(U('gota'), op.gota && !op.sinGota ? 1 : 0);
-    gl.uniform1f(U('tr'), op.tramado ? 1 : 0); gl.uniform1f(U('tnv'), op.tramadoNiveles ?? 7); gl.uniform1f(U('tcl'), op.tramadoCelda ?? 2); gl.uniform1f(U('dis'), op.distorsion ?? 0); // ronda 117: niveles y celda del tramado (el director, más tramado)
+    gl.uniform1f(U('tr'), op.tramado ? 1 : 0); gl.uniform1f(U('tnv'), op.tramadoNiveles ?? 7); gl.uniform1f(U('tcl'), op.tramadoCelda ?? 2); gl.uniform1f(U('dis'), op.distorsion ?? 0); gl.uniform1f(U('gs'), op.gris ?? 0); gl.uniform1f(U('fz'), op.fuerza ?? 1); // ronda 117: niveles y celda del tramado (el director, más tramado)
      uBT = U('bt'); gl.uniform1f(U('tf'), op.tramadoBpm === 0 ? 0 : op.tramadoFuerza ?? 1); uOW = U('OW'); gl.uniform4fv(uOW, ow); // ronda 87: la fuerza y el tempo de las ondas del tramado
     return true;
   };
@@ -269,10 +273,12 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.viewport(0, 0, w, hh); gl.uniform2f(uR, w, hh); gl.uniform1f(uD, dpr);
     ult = 0; pedir();
   };
+  // ronda 118 (14.ª): la fuente de la textura puede cambiar en caliente (`imagen()`: los fotogramas del giro del director, con el mismo efecto)
+  let fuente: TexImageSource = img;
   const textura = () => {
     gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, fuente);
     if (gl2) gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl2 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -330,6 +336,13 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     ciclo() { if (cic || g < 1 || !suelta) return false; cic = performance.now(); ult = 0; pedir(); return true; },
     origen(x, y) { oV = [x, y]; gl.uniform2f(uO, x, y); ult = 0; pedir(); },
     luz(x) { lxV = x; gl.uniform1f(uLX, x); ult = 0; pedir(); },
+    // cambia la imagen que pinta (misma textura, sin repetir la aparición); null = vuelve a la lámina original
+    imagen(src) {
+      fuente = src ?? img; if (!listo) return;
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, fuente);
+      if (gl2) gl.generateMipmap(gl.TEXTURE_2D);
+      ult = 0; pedir();
+    },
     // RONDA 24: fijar la estación de golpe (la de hoy, al cargar), sin pintar
     estacion(n) { estB = ESTACIONES[n % ESTACIONES.length]; eV = estB; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); gl.uniform4f(uEB, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, -1); virando = false; ult = 0; pedir(); },
   };

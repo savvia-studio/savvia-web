@@ -533,12 +533,7 @@ html.tipo-antes {
 
 }
 
-/* RONDA 51 · la prueba de la sección 2 (index.astro): solo se ve la dirección elegida con `?s2=` */
-html:not([data-s2='a']) #recorrido,
-html:not([data-s2='a2']) #recorrido-a2,
-html:not([data-s2='b']) #recorrido-b {
-  display: none;
-}
+/* RONDA 51 · la prueba de la sección 2 con `?s2=` (ronda 118: fuera; en la musical solo hay una, la de savvia.studio) */
 
 /* RONDA 76 · fuera el titular de Proyectos que se generaba en el agua con ondas (rondas 51–75): Eric, «las líneas que salen ahí no me convencen;
    con el titular y la transición, perfecto». */
@@ -690,6 +685,23 @@ html[data-paleta='clara'] .surface-light {
   --mark: #241c19;
 }
 html[data-paleta='clara'] .surface-warm { --fg: #241c19; --rule-strong: #241c19; --link: #241c19; --mark: #241c19; }
+/* RONDA 118 · «la segunda sección, también en clara»: los problemas sobre el fondo claro */
+html[data-paleta='clara'] [data-dolores] {
+  --bg: #f5f7ff;
+  --fg: #241c19;
+  --fg2: color-mix(in oklab, #241c19 64%, #f5f7ff);
+  --rule: color-mix(in oklab, #241c19 14%, transparent);
+  --rule-strong: #241c19;
+  --hole: color-mix(in oklab, #241c19 8%, transparent);
+  --link: #241c19;
+  --mark: #3046ff;
+  background-color: var(--bg);
+  color: var(--fg);
+}
+/* el cristal de cada demo, en clara */
+html[data-paleta='clara'] [data-dolores] .cuadro .cristal { background: linear-gradient(160deg, color-mix(in oklab, #241c19 5%, transparent), color-mix(in oklab, #241c19 2%, transparent) 60%); }
+/* ronda 118 · «el cristal también en light»: las demos se pintan con niebla de tinta y cacao/nogal de superficie; en clara se invierten SOLO dentro de ellas */
+html[data-paleta='clara'] [data-dolores] .tarjeta { --color-niebla: #241c19; --color-cacao: #f5f7ff; --color-nogal: #e4eaf0; }
 /* RONDA 94 · «en la versión clara, Proyectos destacados también va en claro»: la sección de la mesa sobre el fondo claro (la escena es la foto, que no cambia) */
 html[data-paleta='clara'] #proyectos {
   --bg: #f5f7ff;

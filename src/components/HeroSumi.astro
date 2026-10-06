@@ -23,13 +23,21 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
   </div>
   <div class="pie">
     <!-- RONDA 117 · «los pulsos salen desde abajo en el centro y desvelan un fondo (la terraza); ese fondo encaja en el cuadrado de puntos y también lleva el dithering» -->
-    <div class="marco" aria-hidden="true" data-carril-fila><canvas class="fondo" data-fondo></canvas><canvas class="puntos" data-puntos></canvas></div>
+    <div class="marco" aria-hidden="true" data-carril-fila>
+      <!-- ronda 118 (5.ª) · «lo del segundo paso, de fondo detrás de la orquesta mientras funciona la canción»: la partitura que se ilumina a tempo -->
+      <div class="atril-hero"><canvas data-partitura-hero></canvas></div>
+      <canvas class="puntos" data-puntos></canvas>
+    </div>
     <!-- RONDA 118 · «El gesto» (Getty × Gehry): una sola línea de tinta sale de la batuta y dibuja el compás de la música en directo; pasa por detrás del director -->
     <canvas class="gesto" aria-hidden="true" data-gesto></canvas>
     <div class="caja" aria-hidden="true" data-caja>
-      <i class="halo" aria-hidden="true"></i>
-      <!-- ronda 117 (3.ª): la lámina «soñada» (r87: estelas horizontales a jirones y canto roto), la que da con el motor el aire del roble de savvia.studio -->
-      <img class="lamina" src="/media/hero/director.webp" alt="" width="1490" height="1105" decoding="async" fetchpriority="high" data-lamina />
+            <!-- ronda 117 (3.ª): la lámina «soñada» (r87: estelas horizontales a jirones y canto roto), la que da con el motor el aire del roble de savvia.studio -->
+      <!-- ronda 118 · «algo más clásico… parece un poco evangélico»: fondo limpio, el CUARTETO a los lados y el director al centro, dos capas de Andoni
+           (tools/r118/orquesta/) con el mismo encuadre (1672 × 941), pintadas por el motor del roble desde el impacto de la gota -->
+      <img class="lamina" src="/media/hero/clasico-musicos.webp" alt="" width="1672" height="941" decoding="async" data-musicos-lamina />
+      <canvas class="acuarela" data-musicos></canvas>
+      <canvas class="foco" data-foco></canvas>
+      <img class="lamina" src="/media/hero/clasico-director.webp" alt="" width="1672" height="941" decoding="async" fetchpriority="high" data-lamina />
       <canvas class="acuarela" data-acuarela></canvas>
       <svg class="sello" viewBox="0 0 100 100" data-sello>
         <defs>
@@ -39,6 +47,7 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
         <rect x="4" y="4" width="92" height="92" rx="7" fill="currentColor" mask="url(#sumi-v)" filter="url(#sumi-gastado)" />
       </svg>
     </div>
+    <canvas class="fichas" aria-hidden="true" data-fichas></canvas>
     <p class="esquina hora detail tabular-nums" data-hora></p>
     <p class="esquina desde detail">desde 2020</p>
   </div>
@@ -52,7 +61,8 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
   import { crearGesto } from '../scripts/gesto';
   import { tocar, pincel, posar } from '../scripts/musica';
   import { crearEstela } from '../scripts/estela';
-  import { crearFondoRevela, type Deteccion } from '../scripts/fondo-revela';
+  import { crearFocoMusicos, type Musico, type Ficha } from '../scripts/foco-musicos';
+  import { crearPartituraLuz } from '../scripts/partitura-luz';
   import { NOCHE } from '../scripts/estacion';
   const sec = document.querySelector<HTMLElement>('[data-sumi]');
   // RONDA 116 · «recuperar el director de orquesta pero con el estilo del roble que tenemos en savvia.studio»: el de serie es la ACUARELA (el motor del roble,
@@ -65,12 +75,17 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     const caja = sec.querySelector<HTMLElement>('[data-caja]')!, marco = sec.querySelector<HTMLElement>('.marco')!;
     const lamina = sec.querySelector<HTMLImageElement>('[data-lamina]')!, cvA = sec.querySelector<HTMLCanvasElement>('[data-acuarela]')!;
     const clara = document.documentElement.dataset.paleta === 'clara';
-    const ORIGEN: [number, number] = [0.48, 0.985]; // los pies del director (en la lámina): ahí cae la gota
+    const ORIGEN: [number, number] = [0.52, 0.99];
+    const FZ = +(new URLSearchParams(location.search).get('fuerza') ?? 2.2); // ronda 118: la fuerza del efecto del roble (prueba: ?fuerza=) // los pies del director (en la lámina): ahí cae la gota
     // RONDA 117 · «el director más pequeño y con más dithering, como más distorsionado»: el tramado del motor (Bayer) en celdas de 3 px y 4 niveles, sin anillos propios (solo las ondas de la música)
-    const est = crearEstela(cvA, lamina, { origen: ORIGEN, dir: -1, radial: true, sinGota: true, soplo: true, gota: true, manual: true, intensidad: 0, hd: true }); // ronda 117 (3.ª) · «una distorsión estilo la que teníamos en el árbol de savvia.studio»: el motor del roble tal cual (hervor, destellos en los cantos, semitono); fuera la trama Bayer y las bandas (siguen en `estela.ts`: `tramado`, `distorsion`)
+    const est = crearEstela(cvA, lamina, { origen: ORIGEN, dir: -1, radial: true, sinGota: true, soplo: true, gota: true, manual: true, intensidad: 0, hd: true }); // ronda 118 (4.ª): «el efecto del árbol que tenemos en savvia.studio»: el motor tal cual, como el roble (sin `fuerza`), y siempre a color // ronda 117 (3.ª) · «una distorsión estilo la que teníamos en el árbol de savvia.studio»: el motor del roble tal cual (hervor, destellos en los cantos, semitono); fuera la trama Bayer y las bandas (siguen en `estela.ts`: `tramado`, `distorsion`)
+    // el cuarteto: el mismo motor y el mismo origen (la gota cae a los pies del director y la pintura se abre hacia los músicos)
+    const lamM = sec.querySelector<HTMLImageElement>('[data-musicos-lamina]')!;
+    const estM = crearEstela(sec.querySelector<HTMLCanvasElement>('[data-musicos]')!, lamM, { origen: ORIGEN, dir: -1, radial: true, sinGota: true, soplo: true, gota: true, manual: true, intensidad: 0, hd: true, gris: 0.9, fuerza: FZ }); // ronda 118 (2.ª): en gris hasta que pasa el pulso, y el efecto del roble más marcado
     if (!est) sec.classList.add('sin-gl');
-    clara ? est?.fondo(245, 247, 255) : est?.fondo(...NOCHE[0]);
+    for (const e of [est, estM]) clara ? e?.fondo(245, 247, 255) : e?.fondo(...NOCHE[0]);
     const ret = crearReticula(sec.querySelector<HTMLCanvasElement>('[data-puntos]')!, { alfa: 0.1, vel: 190, ancho: 56, vida: 6.5 });
+    (window as any).__partituraHero = crearPartituraLuz(sec.querySelector<HTMLCanvasElement>('[data-partitura-hero]')!, sec, { fase, clara, cabezal: 0.52 }); // ronda 118 (8.ª): el enjambre de los dolores sale de sus notas encendidas
     let empezado = false;
     const hora = sec.querySelector<HTMLElement>('[data-hora]')!, fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
     const tic = () => { hora.textContent = fmt.format(new Date()); setTimeout(tic, 60000 - (Date.now() % 60000) + 50); }; tic();
@@ -91,30 +106,27 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     }
     // ── RONDA 117 · EL FONDO QUE DESVELAN LOS PULSOS: la orquesta de Andoni en gris tramado y, donde pasa cada pulso (centro de abajo, cada dos compases), en
     // color; y la IA que lee a tres músicos por pulso. La lógica vive en src/scripts/fondo-revela.ts (la comparte el pie)
-    const BASE = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/');
-    const DETECTA: Deteccion[] = [
-      [0.005, 0.5, 0.115, 0.83, 'violín', '0,97'], [0.115, 0.36, 0.25, 0.53, 'timbales', '0,91'], [0.26, 0.42, 0.315, 0.55, 'flauta', '0,88'],
-      [0.18, 0.47, 0.37, 0.76, 'violines', '0,95'], [0.415, 0.38, 0.465, 0.52, 'clarinete', '0,86'], [0.49, 0.39, 0.545, 0.53, 'fagot', '0,83'],
-      [0.565, 0.42, 0.625, 0.53, 'trompa', '0,92'], [0.625, 0.39, 0.685, 0.52, 'trompeta', '0,90'], [0.72, 0.42, 0.82, 0.51, 'sintetizador', '0,79'],
-      [0.885, 0.32, 0.985, 0.64, 'contrabajo', '0,96'], [0.655, 0.5, 0.86, 0.8, 'chelos', '0,94'],
+    // ── RONDA 118 · «DIRIGE TÚ» con el cuarteto: el músico señalado se enciende y se le reconoce; su familia se ADELANTA en la mezcla (graves · medios ·
+    // agudos: la grabación va mezclada, se le acerca el oído). Fuera la orquesta de fondo y su revelado (el fondo, limpio)
+    const MUSICOS: Musico[] = [[0.03, 0.36, 0.235, 0.885, 'violín'], [0.235, 0.37, 0.405, 0.885, 'trompa'], [0.625, 0.34, 0.8, 0.885, 'chelo'], [0.8, 0.34, 0.965, 0.885, 'saxofón']];
+    const FAMILIA: Record<string, BandaEq> = { violín: 'agudo', trompa: 'medio', chelo: 'grave', saxofón: 'medio' };
+    // cada músico, su archivo de la librería (los valores, los de esta web)
+    const FICHAS: Ficha[] = [
+      { archivo: 'colores.md', lineas: [['Cacao       #3B231B', '#3b231b'], ['Rosa niebla #EADDE7', '#eadde7'], ['Coral       #FF616B', '#ff616b'], ['Salvia      #96BFE6', '#96bfe6']] },
+      { archivo: 'tipografia.md', lineas: [['Titulares · Family 400'], ['Texto · ABC Areal'], ['Detalles · Areal Mono'], ['h1 72 · h2 48 · body 18']] },
+      { archivo: 'espaciado.md', lineas: [['escala · 4 px'], ['4 · 8 · 12 · 16 · 24 · 32'], ['sección · 80 → 192'], ['contenedor · 1200']] },
+      { archivo: 'voz.md', lineas: [['se dice · orquestar'], ['se dice · criterio'], ['se dice · a medida'], ['no se dice · prompt']] },
     ];
-    const fon = crearFondoRevela(sec.querySelector<HTMLCanvasElement>('[data-fondo]')!, marco, BASE + 'media/hero/orquesta-jazz.webp', { clara, noche: clara ? [245, 247, 255] : NOCHE[0], detecta: DETECTA, recorteY: 0.62 });
-    // ── RONDA 118 · «DIRIGE TÚ»: el cursor es la batuta. Donde señalas, la orquesta se enciende en color; el músico señalado queda reconocido y su familia
-    // se ADELANTA en la mezcla (graves · medios · agudos: la grabación va mezclada, se le acerca el oído). Al irte, todo vuelve. En táctil, un toque señala 2,5 s
-    const FAMILIA: Record<string, [BandaEq, string]> = {
-      timbales: ['grave', 'graves'], contrabajo: ['grave', 'graves'], chelos: ['grave', 'graves'], fagot: ['grave', 'graves'],
-      violines: ['medio', 'medios'], clarinete: ['medio', 'medios'], trompa: ['medio', 'medios'], sintetizador: ['medio', 'medios'],
-      violín: ['agudo', 'agudos'], flauta: ['agudo', 'agudos'], trompeta: ['agudo', 'agudos'],
-    };
+    const foco = crearFocoMusicos(sec.querySelector<HTMLCanvasElement>('[data-foco]')!, caja, lamM, MUSICOS, { clara, fichas: FICHAS, lienzoFichas: sec.querySelector<HTMLCanvasElement>('[data-fichas]')! });
     const pieEl = sec.querySelector<HTMLElement>('.pie')!;
     let actual: string | null = null, soltarT = 0;
     const señalar = (x: number, y: number) => {
-      if (!empezado) return; const m = marco.getBoundingClientRect(), fxp = (x - m.left) / m.width, fyp = (y - m.top) / m.height;
-      if (fxp < 0 || fxp > 1 || fyp < 0 || fyp > 1) return soltar();
-      const quien = fon.foco(fxp, fyp);
-      if (quien !== actual) { actual = quien; const f = quien ? FAMILIA[quien] : null; enfocar(f ? f[0] : null); }
+      if (!empezado) return; const m = caja.getBoundingClientRect(), fxp = (x - m.left) / m.width, fyp = (y - m.top) / m.height;
+      if (fxp < -0.05 || fxp > 1.05 || fyp < -0.05 || fyp > 1.05) return soltar();
+      const quien = foco.foco(fxp, fyp);
+      if (quien !== actual) { actual = quien; enfocar(quien ? FAMILIA[quien] : null); }
     };
-    const soltar = () => { fon.foco(null); if (actual !== null) { actual = null; enfocar(null); } };
+    const soltar = () => { foco.foco(null); if (actual !== null) { actual = null; enfocar(null); } };
     if (!reducido) {
       pieEl.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') señalar(e.clientX, e.clientY); }, { passive: true });
       pieEl.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') soltar(); });
@@ -122,7 +134,7 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     }
     const pulso = (f: number) => {
       if (reducido || !empezado) return; const m = marco.getBoundingClientRect(), x = m.left + m.width / 2, y = m.bottom - 4;
-      ret.onda(x, y, 0.32); est?.onda(x, y, f * 0.8); fon.pulso(f);
+      ret.onda(x, y, 0.85); est?.onda(x, y, f); estM?.onda(x, y, f);
     };
     // un pulso cada DOS compases, siempre desde el centro de abajo
     addEventListener('savvia:pulso', (e) => { const d = (e as CustomEvent).detail; if (d.k === 0 && d.bar % 2 === 0) pulso(1); });
@@ -135,9 +147,36 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
       requestAnimationFrame(paso);
     };
     const gesto = !reducido && /[?&]gesto=1/.test(location.search) ? crearGesto(sec.querySelector<HTMLCanvasElement>('[data-gesto]')!, sec.querySelector<HTMLElement>('.pie')!, caja, marco, { clara, nivel, fase }) : null;
-    const empezar = () => { if (empezado) return; revelar(); empezado = true; setTimeout(() => gesto?.empezar(), 1400); sec.classList.add('encendido', 'luz-entra'); est?.soltar(); setTimeout(() => sec.classList.add('pintado'), reducido ? 0 : 4200); setTimeout(() => pulso(1), reducido ? 0 : 900); };
+    const empezar = () => { if (empezado) return; revelar(); empezado = true; setTimeout(() => cargarGiro(), 2500); setTimeout(() => gesto?.empezar(), 1400); sec.classList.add('encendido', 'luz-entra'); est?.soltar(); estM?.soltar(); setTimeout(() => sec.classList.add('pintado'), reducido ? 0 : 4200); setTimeout(() => pulso(1), reducido ? 0 : 900); };
     if ((window as any).__gotaSuelta) empezar(); else addEventListener('savvia:gota', empezar, { once: true });
-    (window as any).__sumi = () => ({ estilo: 'acuarela', gl: !!est, empezado });
+    // ── EL GIRO (ronda 118, 13.ª): al bajar, el director pintado da paso a la secuencia de 12 poses de Andoni (dirige → baja los brazos → gira → de frente,
+    // señala hacia abajo con la batuta, hacia los problemas). Un fotograma cada vez (sin fundidos: duplicarían brazos), con la corrección de encuadre del
+    // manifiesto (scale, x, y en el lienzo original). El primero es idéntico al director de la escena, así que el relevo no se nota
+    const BASE = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/');
+    const GIRO: [number, number, number][] = [[1.0, 0.0, 0.0], [0.96675, 27.77, 30.93], [0.98667, 11.13, 12.4], [0.96445, 29.68, 33.06], [0.96218, 31.58, 35.18], [0.96104, 32.53, 36.23], [0.96331, 30.63, 34.12], [0.93779, 51.95, 57.86], [0.95428, 38.18, 42.52], [0.96445, 29.68, 33.06], [0.95652, 36.3, 40.44], [0.96905, 25.84, 28.79]];
+    // ronda 118 (14.ª) · «al hacer scroll cambia de color y se le va la luz: que mantenga siempre el mismo formato, el dithering»: los fotogramas ya no se dibujan
+    // aparte: se componen (con su corrección de encuadre) en un lienzo del tamaño de la lámina y se le pasan al MOTOR del director (`est.imagen()`), que los
+    // pinta con el mismo color hundido, semitono, hervor y luz. Al volver arriba, vuelve la lámina
+    const lienzoG = document.createElement('canvas'); lienzoG.width = 1672; lienzoG.height = 941; const cg = lienzoG.getContext('2d')!, fotos: HTMLImageElement[] = [];
+    let fotoAct = -1, giroListo = false;
+    const cargarGiro = async () => {
+      if (giroListo || reducido) return; giroListo = true;
+      for (let i = 1; i <= 12; i++) { const im = new Image(); im.decoding = 'async'; im.src = BASE + `media/hero/giro/${String(i).padStart(2, '0')}.webp`; fotos.push(im); try { await im.decode(); } catch {} if (i - 1 === fotoAct) { fotoAct = -1; girar(); } await new Promise((r) => setTimeout(r, 120)); }
+    };
+    const girar = () => {
+      if (!giroListo || !est) return;
+      const p = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.6))), f = p < 0.04 ? -1 : Math.min(11, Math.round(((p - 0.04) / 0.96) * 11));
+      if (f === fotoAct) return;
+      if (f < 0) { fotoAct = -1; est.imagen(null); return; }
+      const im = fotos[f]; if (!im || !im.complete || !im.naturalWidth) return;
+      fotoAct = f;
+      const [sc, x, y] = GIRO[f];
+      cg.setTransform(1, 0, 0, 1, 0, 0); cg.clearRect(0, 0, 1672, 941); cg.setTransform(sc, 0, 0, sc, x, y); cg.drawImage(im, 0, 0, 1672, 941);
+      est.imagen(lienzoG);
+    };
+    addEventListener('scroll', () => requestAnimationFrame(girar), { passive: true });
+    addEventListener('resize', () => { fotoAct = -1; girar(); });
+    (window as any).__sumi = () => ({ estilo: 'acuarela', gl: !!est, empezado, giro: fotoAct });
   }
   if (sec && !acuarela) {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -237,7 +276,7 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-niebla) 3%, transparent) 30%, color-mix(in srgb, var(--color-niebla) 7.5%, transparent) 50%, color-mix(in srgb, var(--color-niebla) 3%, transparent) 70%, transparent);
     transform: translateX(calc(var(--lx) * 38vw)) skewX(-18deg); will-change: transform;
   }
-  :global(html[data-paleta='clara']) .luz .haz { background: linear-gradient(90deg, transparent, rgb(255 236 200 / 0.18) 30%, rgb(255 236 200 / 0.4) 50%, rgb(255 236 200 / 0.18) 70%, transparent); }
+  :global(html[data-paleta='clara']) .luz .haz { background: linear-gradient(90deg, transparent, rgb(255 236 200 / 0.07) 30%, rgb(255 236 200 / 0.16) 50%, rgb(255 236 200 / 0.07) 70%, transparent); }
   .en-acuarela:not(.luz-entra) .luz { transition: none; }
   @media (prefers-reduced-motion: reduce) { .luz .haz { transform: skewX(-18deg); } .luz { transition: none; } }
   .titular {
@@ -259,6 +298,8 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: flex-end;
+    min-height: calc(var(--alto) + var(--spacing) * 6 - 80px); /* ronda 118 (3.ª): «el rectángulo más alto»: el recuadro llega hasta el titular y la escena se apoya abajo */
   }
   .marco {
     --gutter: calc(var(--spacing) * 5);
@@ -273,13 +314,18 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     border-inline: 1px dashed color-mix(in srgb, var(--fg) 22%, transparent);
     pointer-events: none;
   }
+  /* la partitura que se ilumina, detrás de la orquesta: inclinada en perspectiva y tenue */
+  .atril-hero { position: absolute; inset: 0; overflow: hidden; perspective: 900px; perspective-origin: 50% 15%; opacity: 0.9; }
+  /* ronda 118 (11.ª) · «arriba a la izquierda hace un raro»: era el CANTO del lienzo inclinado entrando en el recuadro → lienzo mucho mayor y bordes fundidos */
+  .atril-hero canvas { position: absolute; left: 50%; top: 50%; width: 300%; height: 240%; translate: -50% -50%; transform: rotateX(58deg) rotateZ(-14deg);
+    -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent); mask-image: radial-gradient(closest-side, #000 62%, transparent); }
   .marco .puntos { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--fg); }
   .gesto { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
   .caja { z-index: 1; }
   .marco .fondo { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.85; image-rendering: pixelated; }
   /* ronda 117 (2.ª): fondo y puntos nacen del impacto de la gota (--rv crece desde 0); el canto, blando */
   .en-acuarela .marco { --rv: 0%; }
-  .en-acuarela .marco .fondo, .en-acuarela .marco .puntos {
+  .en-acuarela .marco .fondo, .en-acuarela .marco .puntos, .en-acuarela .marco .atril-hero {
     -webkit-mask-image: radial-gradient(ellipse 100% 125% at 50% 100%, #000 calc(var(--rv) - 14%), transparent var(--rv));
     mask-image: radial-gradient(ellipse 100% 125% at 50% 100%, #000 calc(var(--rv) - 14%), transparent var(--rv));
   }
@@ -287,23 +333,17 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
   @media (width >= 64rem) { .marco { --gutter: calc(var(--spacing) * 12); } }
   .caja {
     position: relative;
-    width: min(100% - var(--spacing) * 10, var(--alto) * 0.84 * 1490 / 1105); /* ronda 117: más pequeño (×0,78) y luego «un poco más alto» (×0,9) */
-    aspect-ratio: 1490 / 1105;
+    width: min(100% - var(--spacing) * 10, var(--alto) * 0.7 * 1672 / 941); /* ronda 117: más pequeño (×0,78) y luego «un poco más alto» (×0,9) */
+    aspect-ratio: 1672 / 941;
   }
   .lamina { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+  /* ronda 118 (2.ª): «los músicos se tienen que ver pero con menos protagonismo que el director» */
+  [data-musicos] { opacity: 0.55; }
+  .fichas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+  .foco { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .acuarela { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
   .en-acuarela .acuarela { display: block; }
   .en-acuarela .sello { display: none; }
-  /* el HALO del roble: la silueta muy desenfocada, sangrando en el fondo cuando ya está pintado */
-  .halo {
-    position: absolute; inset: 0; display: none;
-    background: color-mix(in srgb, var(--color-coral) 55%, var(--fg));
-    -webkit-mask: url('/media/hero/director.webp') center / 100% 100% no-repeat;
-    mask: url('/media/hero/director.webp') center / 100% 100% no-repeat;
-    filter: blur(30px); transform: scale(1.06); opacity: 0; transition: opacity 2.4s ease;
-  }
-  .en-acuarela .halo { display: block; }
-  .pintado .halo { opacity: 0.22; }
   /* sin WebGL, la lámina tal cual */
   .sin-gl .lamina { opacity: 0.9; }
   .sello {
@@ -336,7 +376,7 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
   /* en móvil la lámina (con mucho margen transparente a los lados) puede ser más ancha que la pantalla: la figura sigue entera */
   @media (width < 48rem) {
     .pie { --alto: clamp(14rem, 100lvh - 22rem, 30rem); }
-    .caja { width: min(110%, var(--alto) * 0.82 * 1490 / 1105); flex: none; }
+    .caja { width: min(100%, var(--alto) * 0.72 * 1672 / 941); flex: none; }
     .sello { right: 19%; bottom: 14%; }
   }
   @media (prefers-reduced-motion: reduce) { .sello, .esquina { transition: none; } }

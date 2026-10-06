@@ -53,11 +53,13 @@ function partitura(k: number) {
   resuelto da una nota (la · do · mi). Antes (rondas 51–82): la raíz con la gota de savia y los óleos de Donostia (tools/retirados/Dolores.r82.astro.txt).
   Sin fijar el scroll. Móvil: una columna. Movimiento reducido: todo resuelto y la cuerda entera.
 -->
-<section id={id} class={`dolores surface-dark ${tarjetas ? 'con-tarjetas' : ''}`} aria-label={recorrido.pregunta} data-dolores data-sin-fila>
+<section id={id} class={`dolores surface-dark ${tarjetas ? 'con-tarjetas' : ''}`} aria-label={recorrido.pregunta} data-dolores>
   <!-- RONDA 83 · LA CUERDA: de la batuta del hero a cada problema, en tramos rectos y tensos (las cuerdas de un instrumento). Se descubre con el scroll;
        por su punta viaja una ONDA (un paquete que se mueve) y, al llegar a un problema, el tramo que acaba de recorrer VIBRA y la tarjeta se dibuja -->
   <!-- RONDA 87 · «cuando haces scroll queda como cortado el director: proyectar su SOMBRA hacia ese lado, pero como si fueran ondas sonoras que se mueven, y de ellas
        sale la línea que une los problemas»: bajo el director, líneas que ondulan, anchas arriba (su ancho) y cada vez más estrechas, hasta ser la onda -->
+  <!-- RONDA 118 · la partitura que se ilumina (src/scripts/partitura-luz.ts) vive en el HERO; de ella salen volando las notas que forman cada problema.
+       La onda de sonido y la sombra sonora siguen en el código, ocultas (la onda marca cuándo llega cada problema) -->
   <canvas class="sombra-sonora" aria-hidden="true" data-sombra></canvas>
   <svg class="hilo" aria-hidden="true" data-hilo>
     <defs>
@@ -74,6 +76,8 @@ function partitura(k: number) {
     {
       pasos.map((p, k) => (
         <li class={`parada ${k % 2 ? 'derecha' : ''}`} data-parada={k}>
+          {/* ronda 118 (9.ª) · «la parte de problemas, como si fuera una partitura donde encajan las cosas»: cada problema, un SISTEMA de cinco líneas a lo ancho de la retícula */}
+          <i class="sistema" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></i>
           <div class="texto">
             <h2 class="dolor detail" set:html={isoV(p.dolor)} />
             <div class="respuesta">
@@ -82,7 +86,9 @@ function partitura(k: number) {
             </div>
           </div>
           <div class="lado">
-            <div class="partitura" aria-hidden="true" data-partitura set:html={partitura(k)} />
+            <div class="partitura" aria-hidden="true" data-partitura-dolor set:html={partitura(k)} />
+            {/* ronda 118 (9.ª) · fuera el estuche: la demo va en un CUADRO que encaja en el sistema: sus lados son barras de compás, con cruces en las esquinas (las de las guías) */}
+            <div class="cuadro" aria-hidden="true"><i class="cristal"></i><i class="h arriba"></i><i class="h abajo"></i><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><span class="mov detail">{['I', 'II', 'III', 'IV'][k]} · {PASOS[k]}</span></div>
             {tarjetas && <TarjetaPaso i={k} desnuda />}
           </div>
         </li>
@@ -95,22 +101,159 @@ function partitura(k: number) {
   import { tinta } from '../scripts/tinta';
   import { dibujar } from '../scripts/dibujar';
   import { tocar, sonidoEncendido } from '../scripts/musica';
+  import { fase, pulsoMs, acordeActual, rhodesSuelto } from '../scripts/jazz';
   document.querySelectorAll<HTMLElement>('[data-dolores]').forEach((sec) => {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // ronda 118 (6.ª): la partitura que se ilumina vive SOLO en el hero; de allí salen volando las notas que forman los problemas
     const paradas = [...sec.querySelectorAll<HTMLElement>('[data-parada]')].map((li) => ({ li, tarjeta: li.querySelector<HTMLElement>('[data-tarjeta]'), sana: false }));
     type Parada = (typeof paradas)[number];
     // la nota con que RESUELVE cada problema (si el sonido de la web está encendido): la, do, mi — un acorde que se completa al bajar
     const NOTAS = [69, 72, 76];
     // LLEGA LA ONDA: la tarjeta aparece dibujándose desde el impacto y su demo arranca; la partitura de detrás se escribe
+    // ── EL ENJAMBRE (ronda 118, 8.ª–9.ª) · UNA bandada de NOTAS (cabeza, plica y un brillo tenue: «más sutil, más musical») con una forma por parada: F0 = las
+    // notas encendidas de la partitura del hero (en vivo), F1…F3 = las LETRAS de cada problema y F4 = las letras del TITULAR de Proyectos destacados, que se
+    // encaja en su pantalla. El scroll lleva la bandada de una forma a la siguiente: al viajar, las notas se ordenan en CINCO LÍNEAS (un pentagrama que fluye,
+    // con un arco común) y cada una lleva su retraso, así que se estiran a lo largo del camino como una frase. Asentada, el texto de verdad aparece y las notas
+    // se apagan; al seguir, el texto se deshace en notas que forman la siguiente. Todo atado al scroll: al subir, vuelve.
+    const claraD = document.documentElement.dataset.paleta === 'clara'; // en la versión clara las notas van en tinta (sobre claro, la niebla no se ve)
+    const TINTAS = claraD ? [[36, 28, 25], [36, 28, 25], [255, 97, 107], [48, 70, 255]] : [[234, 221, 231], [234, 221, 231], [255, 97, 107], [150, 191, 230]];
+    const halo = (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 32; const x = cv.getContext('2d')!; const gr = x.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 32, 32); return cv; })();
+    const N = innerWidth < 768 ? 110 : 170;
+    let formas: [number, number][][] = [], checks: number[] = [], lienzo: HTMLCanvasElement | null = null, lc: CanvasRenderingContext2D | null = null, rafV = 0;
+    let sem = 211; const az = () => ((sem = (sem * 16807) % 2147483647) / 2147483647);
+    const notasE = Array.from({ length: N }, (_, i) => ({ ret: az(), linea: i % 5, c: Math.floor(az() * TINTAS.length), s: 0.8 + az() * 0.5, fase: az() * 6.28, arriba: az() < 0.6 }));
+    const visPrev: number[] = [];
+    const tituloP = document.querySelector<HTMLElement>('[data-titulo] h2'), pistaP = document.querySelector<HTMLElement>('[data-pista]');
+    let tituloNorm: [number, number][] = [];
+    // los puntos de las LETRAS de un bloque (palabra a palabra con su fuente, en su sitio) normalizados a su caja (0–1): valen aunque la caja esté escalada
+    const letrasDe = (raiz: HTMLElement, sel: string): [number, number][] => {
+      const caja = raiz.getBoundingClientRect(), W0 = raiz.offsetWidth || caja.width, H0 = raiz.offsetHeight || caja.height, K = Math.min(0.5, 600 / Math.max(1, W0));
+      const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(W0 * K)); cv.height = Math.max(1, Math.round(H0 * K));
+      const c = cv.getContext('2d', { willReadFrequently: true })!; c.fillStyle = '#fff'; c.textBaseline = 'alphabetic';
+      const ex = W0 / Math.max(1, caja.width);
+      (sel ? [...raiz.querySelectorAll<HTMLElement>(sel)] : [raiz]).forEach((el) => {
+        const cs = getComputedStyle(el); c.font = `${cs.fontWeight} ${parseFloat(cs.fontSize) * K}px ${cs.fontFamily}`;
+        const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          const t = n.textContent || ''; const re = /\S+/g; let mm: RegExpExecArray | null;
+          while ((mm = re.exec(t))) {
+            const rg = document.createRange(); rg.setStart(n, mm.index); rg.setEnd(n, mm.index + mm[0].length);
+            const r = rg.getBoundingClientRect(); if (!r.width) continue;
+            c.fillText(mm[0], (r.left - caja.left) * ex * K, ((r.bottom - caja.top) * ex - r.height * ex * 0.24) * K);
+          }
+        }
+      });
+      const d = c.getImageData(0, 0, cv.width, cv.height).data, pts: [number, number][] = [];
+      for (let i = 0; i < 60000 && pts.length < N; i++) { const x = Math.floor(az() * cv.width), y = Math.floor(az() * cv.height); if (d[(y * cv.width + x) * 4 + 3] > 120) pts.push([x / cv.width, y / cv.height]); }
+      while (pts.length && pts.length < N) pts.push(pts[Math.floor(az() * pts.length)]);
+      return pts;
+    };
+    // ronda 118 (10.ª) · «las cruces de arriba tienen que pasar por la línea»: el cuadro va EXACTAMENTE de la primera a la última línea de su sistema; y cuando la
+    // demo baja bajo el texto (pantallas estrechas), el sistema empieza donde empieza ella
+    const encajar = () => paradas.forEach((r) => {
+      const lado = r.li.querySelector<HTMLElement>('.lado'), cu = r.li.querySelector<HTMLElement>('.cuadro'), sis = r.li.querySelector<HTMLElement>('.sistema'), tx = r.li.querySelector<HTMLElement>('.texto');
+      if (!lado || !cu || !sis || !tx) return;
+      const apilada = lado.getBoundingClientRect().top >= tx.getBoundingClientRect().bottom - 1;
+      sis.style.top = apilada ? `${lado.offsetTop}px` : '';
+      const ls = sis.querySelectorAll('i'); if (ls.length < 5) return;
+      cu.style.top = '0px'; cu.style.bottom = 'auto'; cu.style.height = '0px';
+      const base = cu.getBoundingClientRect().top, l0 = ls[0].getBoundingClientRect().top, l4 = ls[4].getBoundingClientRect().top;
+      cu.style.top = `${l0 - base}px`; cu.style.height = `${l4 - l0 + 1}px`;
+    });
+    const medirE = () => {
+      encajar();
+      if (reducido) return;
+      formas = [[]]; checks = [0];
+      paradas.forEach((r) => { const t = r.li.querySelector<HTMLElement>('.texto')!, rr = t.getBoundingClientRect(), sy = scrollY; formas.push(letrasDe(t, '.dolor, .respuesta .t, .respuesta .d').map(([u, v]) => [rr.left + u * rr.width, rr.top + sy + v * rr.height])); checks.push(rr.top + sy + rr.height / 2 - innerHeight * 0.5); });
+      if (tituloP && pistaP) { tituloNorm = letrasDe(tituloP, ''); checks.push(pistaP.getBoundingClientRect().top + scrollY); formas.push([]); }
+      pedirV();
+    };
+    if (!reducido) {
+      lienzo = document.createElement('canvas'); lienzo.setAttribute('aria-hidden', 'true');
+      Object.assign(lienzo.style, { position: 'fixed', inset: '0', width: '100vw', height: '100lvh', pointerEvents: 'none', zIndex: '5' });
+      document.body.append(lienzo); lc = lienzo.getContext('2d');
+    }
+    let hero: [number, number, number][] = [];
+    // ronda 118 (17.ª) · «tiene que ser como antes, pero que se transforme y ya está»: el ÚLTIMO relevo (problema 3 → titular de Proyectos) no va atado al scroll
+    // (en ~380 px no daba tiempo a verlo): al pasar el umbral se DISPARA y dura ~1,4 s; al volver arriba, se deshace igual
+    let fin = 0, finT = 0;
+    const nota = (c: CanvasRenderingContext2D, x: number, y: number, s: number, arriba: boolean, rgb: number[], a: number) => {
+      c.globalAlpha = a * 0.35; c.drawImage(halo, x - 9 * s, y - 9 * s, 18 * s, 18 * s);
+      c.globalAlpha = a; c.fillStyle = c.strokeStyle = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+      c.beginPath(); c.ellipse(x, y, 3.1 * s, 2.2 * s, -0.38, 0, Math.PI * 2); c.fill();
+      c.lineWidth = 0.9 * s; c.beginPath(); const sx = x + (arriba ? 2.8 : -2.8) * s; c.moveTo(sx, y - (arriba ? 0.6 : -0.6) * s); c.lineTo(sx, y + (arriba ? -11 : 11) * s); c.stroke();
+    };
+    const pintarV = (ahora: number) => {
+      rafV = 0; if (!lienzo || !lc || formas.length < 2) return;
+      const dpr = Math.min(2, devicePixelRatio || 1), sy = scrollY, H = innerHeight, HOLD = H * 0.3;
+      if (lienzo.width !== Math.round(innerWidth * dpr) || lienzo.height !== Math.round(H * dpr)) { lienzo.width = Math.round(innerWidth * dpr); lienzo.height = Math.round(H * dpr); }
+      lc.setTransform(dpr, 0, 0, dpr, 0, 0); lc.clearRect(0, 0, innerWidth, H); lc.globalCompositeOperation = 'source-over';
+      const ph = (window as any).__partituraHero?.pantalla?.() as [number, number, number][] | undefined;
+      if (ph && ph.length) hero = ph.map(([x, y, f]) => [x, y + sy, f]);
+      if (!hero.length) { const m = document.querySelector<HTMLElement>('[data-sumi] .marco')?.getBoundingClientRect(); if (m) hero = [[m.left + m.width / 2, m.top + m.height * 0.6 + sy, 0]]; }
+      // F4 en vivo: el titular de Proyectos donde esté (la escena lo escala con el scroll)
+      const nF = formas.length - 1;
+      if (tituloP && tituloNorm.length && nF === paradas.length + 1) { const tr = tituloP.getBoundingClientRect(); formas[nF] = tituloNorm.map(([u, v]) => [tr.left + u * tr.width, tr.top + sy + v * tr.height]); }
+      let k = 0; while (k < checks.length - 1 && sy >= checks[k + 1] - HOLD) k++;
+      const ultimo = paradas.length, conTitulo = nF === paradas.length + 1;
+      const dtF = finT ? Math.min(0.05, (ahora - finT) / 1000) : 0; finT = ahora;
+      const metaF = conTitulo && sy >= checks[ultimo] + HOLD * 0.6 ? 1 : 0;
+      fin = metaF > fin ? Math.min(1, fin + dtF / 1.4) : Math.max(0, fin - dtF / 1.0);
+      if (conTitulo && k >= ultimo) k = ultimo;
+      // visibilidad de cada forma de texto (problemas y titular): entera alrededor de su punto, se deshace al alejarse
+      // ronda 118 (15.ª) · «falta la transición del último problema a Proyectos»: el texto aparecía ANTES de que llegasen las notas (y ellas se apagaban a la vez),
+      // así que nunca se veía que formaban las letras. Ahora las notas llegan a su forma en checks − HOLD, la dibujan, y el texto se materializa después
+      // (entre HOLD y 0,7·HOLD del punto; entero ±0,7·HOLD = 0,42 pantallas para leerlo) mientras ellas se apagan; al irse, igual al revés
+      const sm = (x: number) => { const y = Math.min(1, Math.max(0, x)); return y * y * (3 - 2 * y); };
+      const vis = (i: number) => { if (i <= 0 || i > nF) return 0; if (conTitulo && i === nF) return sm((fin - 0.72) / 0.28); if (conTitulo && i === ultimo && sy > checks[i]) return 1 - sm(fin / 0.3); const dd = Math.abs(sy - checks[i]); const x = 1 - Math.min(1, Math.max(0, (dd - HOLD * 0.7) / (HOLD * 0.3))); return x * x * (3 - 2 * x); };
+      paradas.forEach((r, n) => {
+        const vv = vis(n + 1);
+        if (Math.abs(vv - (visPrev[n] ?? -1)) > 0.004) { r.li.style.setProperty('--vis', vv.toFixed(3)); if (vv > 0.6 && (visPrev[n] ?? 0) <= 0.6 && sonidoEncendido()) { const ac = acordeActual().notas; rhodesSuelto((ac[n % ac.length] ?? 72) + 12, 0.04, 1.6, 0, false); } visPrev[n] = vv; }
+      });
+      if (tituloP && conTitulo) tituloP.style.opacity = vis(nF).toFixed(3);
+      const desde = checks[k] + (k === 0 ? 0 : HOLD), hasta = k + 1 < checks.length ? checks[k + 1] - HOLD : desde + 1, span = Math.max(1, hasta - desde);
+      let vivo = false;
+      const sentido = k % 2 ? -1 : 1;
+      for (let i = 0; i < N; i++) {
+        const v = notasE[i];
+        const A = k === 0 ? hero[i % hero.length] : formas[k][i], B = k + 1 < formas.length ? formas[k + 1][i] : formas[k][i];
+        if (!A || !B) continue;
+        let u = (sy - desde - v.ret * span * 0.45) / (span * 0.55); u = Math.min(1, Math.max(0, u));
+        if (conTitulo && k === ultimo) u = Math.min(1, Math.max(0, (fin - v.ret * 0.4) / 0.6)); // el último relevo, por tiempo
+        else if (k + 1 >= formas.length) u = 0;
+        const q = u * u * (3 - 2 * u), m = Math.sin(Math.PI * q);
+        // el camino: un arco común y, a mitad, las notas en cinco líneas (perpendiculares a la marcha), con un vaivén lento
+        const ax = A[0], ay = A[1] - sy, bx = B[0], by = B[1] - sy, dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+        const off = (v.linea - 2) * 9 * m + sentido * m * Math.min(220, L * 0.25) + Math.sin(ahora / 900 + v.fase) * 2.5 * m;
+        const x = ax + dx * q + nx * off, y = ay + dy * q + ny * off;
+        if (y < -30 || y > H + 30) continue;
+        const visA = k === 0 ? 0 : vis(k), visB = vis(k + 1);
+        const asentada = (1 - q) * visA + q * visB, sale = k === 0 ? Math.min(1, u * 8) : 1;
+        const a = (1 - asentada * 0.95) * sale * 0.7; if (a < 0.02) continue;
+        if (u > 0 && u < 1) vivo = true;
+        nota(lc, x, y, v.s, v.arriba, TINTAS[k === 0 && u < 0.5 && (A as any)[2] !== undefined ? ((A as any)[2] % 4) : v.c], a);
+      }
+      lc.globalAlpha = 1;
+      if (vivo || (fin > 0 && fin < 1) || fin !== metaF || (sy < checks[1] && sy > -1)) rafV = requestAnimationFrame(pintarV); else finT = 0;
+    };
+    const pedirV = () => { if (!rafV && lienzo) rafV = requestAnimationFrame(pintarV); };
+    (window as any).__enjambre = () => ({ checks: checks.map(Math.round), sy: Math.round(scrollY), textos: paradas.map((r) => { const t = r.li.querySelector<HTMLElement>('.texto')!.getBoundingClientRect(); return Math.round(t.top + scrollY + t.height / 2 - innerHeight * 0.5); }) });
+    if (!lienzo) { addEventListener('resize', encajar); document.fonts.ready.then(encajar); encajar(); }
+    if (lienzo) { addEventListener('scroll', pedirV, { passive: true }); addEventListener('resize', medirE); new ResizeObserver(medirE).observe(sec); document.fonts.ready.then(medirE); setTimeout(medirE, 600); }
     const sanar = (r: Parada, n: number, impacto?: [number, number]) => {
       if (r.sana) return;
       r.sana = true; r.li.classList.add('sana');
-      if (!reducido && sonidoEncendido()) tocar(NOTAS[n % 3], { vol: 0.1, dur: 2.4 });
+      // RONDA 118 · «que los problemas vayan saliendo con algo relacionado con lo musical»: las tres líneas (problema → respuesta → texto) entran A COMPÁS,
+      // una en cada tiempo de la música que suena (empiezan en el siguiente), y cada una da una nota del acorde que suena en ese momento
+      // ronda 118 (7.ª): las líneas las revelan las NOTAS que bajan con el scroll desde el hero (ver más abajo); con movimiento reducido, a la vista
+      if (reducido) r.li.classList.add('l1', 'l2', 'l3');
+      if (false && !reducido && sonidoEncendido()) tocar(NOTAS[n % 3], { vol: 0.1, dur: 2.4 });
       const t = r.tarjeta;
       if (!t) return;
       const d = t.querySelector('.demo'); d?.replaceWith(d.cloneNode(true));
       t.classList.add('viva');
-      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, origen: impacto, color: tinta('niebla', 0.6) });
+      // ronda 118 (8.ª) · «las ilustraciones no se tienen que pintar como antes: otra aparición asociada a la card de detrás»: ver CSS (.estuche y .tarjeta en .sana)
+      void impacto;
     };
     paradas.forEach((r) => { if (r.tarjeta) new IntersectionObserver((e) => r.tarjeta!.classList.toggle('fuera', !e[0].isIntersecting)).observe(r.tarjeta); });
 
@@ -245,6 +388,8 @@ function partitura(k: number) {
     overflow-x: clip;
   }
   /* ── la cuerda: la vía apenas marcada; lo recorrido, en Rosa niebla; la punta, una nota Coral */
+  .paradas { z-index: 1; }
+  .hilo, .sombra-sonora, .partitura { display: none !important; }
   .sombra-sonora { position: absolute; left: 0; top: 0; width: 100%; height: 280px; pointer-events: none; }
   @media (width < 48rem) { .sombra-sonora { height: 180px; } }
   .hilo {
@@ -343,6 +488,41 @@ function partitura(k: number) {
     position: relative;
     z-index: 1;
   }
+  /* RONDA 118 (9.ª) · LA PARTITURA DE LOS PROBLEMAS: cada parada es un SISTEMA (cinco líneas finas a lo ancho de la retícula, de arriba abajo de la parada) y
+     la demo va en un CUADRO cuyos lados son barras de compás con cruces en las esquinas, como las guías. Al llegar la onda, las líneas se trazan, las barras
+     bajan, las cruces asoman y la demo sube desde dentro */
+  .parada { position: relative; }
+  .sistema { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; z-index: 0; }
+  .sistema > i { display: block; height: 1px; background: color-mix(in srgb, var(--fg) 9%, transparent); transform-origin: 0 50%; scale: 0 1; transition: scale 1.4s var(--ease-out-expo); }
+  .sistema > i:nth-child(2) { transition-delay: 0.06s; } .sistema > i:nth-child(3) { transition-delay: 0.12s; } .sistema > i:nth-child(4) { transition-delay: 0.18s; } .sistema > i:nth-child(5) { transition-delay: 0.24s; }
+  .derecha .sistema > i { transform-origin: 100% 50%; }
+  .sana .sistema > i { scale: 1 1; }
+  .con-tarjetas .lado { align-self: stretch; }
+  .cuadro { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .cuadro::before, .cuadro::after { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--fg) 16%, transparent); transform-origin: 50% 0; scale: 1 0; transition: scale 1.1s var(--ease-out-expo) 0.15s; }
+  .cuadro::before { left: 0; } .cuadro::after { right: 0; }
+  .sana .cuadro::before, .sana .cuadro::after { scale: 1 1; }
+  .cuadro .c { position: absolute; width: 11px; height: 11px; translate: -50% -50%; opacity: 0; scale: 0.4; transition: opacity 0.5s ease 0.5s, scale 0.6s var(--ease-out-expo) 0.5s;
+    background: linear-gradient(var(--fg), var(--fg)) center / 1px 100% no-repeat, linear-gradient(var(--fg), var(--fg)) center / 100% 1px no-repeat; }
+  .cuadro .tl { left: 0; top: 0; } .cuadro .tr { left: 100%; top: 0; } .cuadro .bl { left: 0; top: 100%; } .cuadro .br { left: 100%; top: 100%; }
+  .sana .cuadro .c { opacity: 0.55; scale: 1; }
+  .cuadro .mov { position: absolute; left: 50%; bottom: calc(var(--spacing) * 5); translate: -50% 0; color: var(--fg2); letter-spacing: 0.08em; white-space: nowrap; opacity: 0; transition: opacity 0.8s ease 0.8s; }
+  .sana .cuadro .mov { opacity: 1; }
+  /* ronda 118 (10.ª) · «la ilustración animada como si tuviera un cristal por detrás»: un panel esmerilado dentro del cuadro; desenfoca las líneas del sistema
+     que pasan por detrás, con un velo claro mínimo, filo de luz arriba y sombra honda. Entra con la demo */
+  .cuadro .cristal {
+    /* ronda 118 (11.ª) · «que ocupe todo el rectángulo, como si encajase perfecto en ese hueco, sin sombreado» */
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--fg) 6%, transparent), color-mix(in srgb, var(--fg) 2%, transparent) 60%);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    opacity: 0; transition: opacity 0.9s ease 0.3s;
+  }
+  .sana .cuadro .cristal { opacity: 1; }
+  /* ronda 118 (12.ª) · «en las cards se tienen que ver la línea de arriba y la de abajo»: el cuadro dibuja las suyas, por encima del cristal */
+  .cuadro .h { position: absolute; left: 0; right: 0; height: 1px; background: color-mix(in srgb, var(--fg) 16%, transparent); scale: 0 1; transition: scale 1.1s var(--ease-out-expo) 0.15s; }
+  .cuadro .arriba { top: 0; } .cuadro .abajo { bottom: 0; }
+  .sana .cuadro .h { scale: 1 1; }
+  .cuadro::before, .cuadro::after, .cuadro .c, .cuadro .mov, .cuadro .h { z-index: 1; } /* las barras y las cruces, por encima del cristal (si no, las desenfoca) */
   /* la tarjeta NO EXISTE hasta que llega la savia (con JS; regla dura 3: invisible por defecto, la dibuja el JS) */
   :global(html.anima) .con-tarjetas .parada:not(.sana) .lado :global(.tarjeta) {
     visibility: hidden;
@@ -354,22 +534,21 @@ function partitura(k: number) {
     align-items: baseline;
     gap: calc(var(--spacing) * 2);
     font-family: var(--font-mono);
-    color: var(--fg);
-    transition: color 0.9s ease 0.2s;
+    color: var(--fg2);
   }
-  /* resuelto: el dolor se apaga y la respuesta sube desde el desenfoque */
-  .sana .dolor { color: var(--fg2); }
   /* RONDA 76 · Eric: «la respuesta tiene que ser más grande que el problema»: el dolor, pequeño (h3); la respuesta, el titular (h1) */
   .respuesta .t { max-width: 13ch; text-wrap: balance; }
   .respuesta {
     max-width: 34rem;
     margin-top: calc(var(--spacing) * 4);
-    opacity: 0;
-    filter: blur(8px);
-    translate: 0 12px;
-    transition: opacity 0.8s ease 0.5s, filter 0.9s ease 0.5s, translate 1s var(--ease-out-expo) 0.5s;
   }
-  .sana .respuesta { opacity: 1; filter: none; translate: 0 0; }
+  /* RONDA 118 · las tres líneas entran a compás (l1 · l2 · l3, una por tiempo): llegan en el golpe, desde abajo y desenfocadas, con caída rápida.
+     Sin JS se quedan a la vista (el estado oculto cuelga de html.anima) */
+  .dolor, .respuesta .t, .respuesta .d { transition: opacity 0.35s ease, filter 0.45s ease, translate 0.6s var(--ease-out-expo); }
+  /* ronda 118 (8.ª): el texto lo hace aparecer y desaparecer el enjambre (--vis, atado al scroll; sin JS, a la vista) */
+  :global(html.anima) .parada .dolor,
+  :global(html.anima) .parada .respuesta .t,
+  :global(html.anima) .parada .respuesta .d { opacity: var(--vis, 0); filter: blur(calc((1 - var(--vis, 0)) * 6px)); transition: none; }
   .respuesta .d { color: var(--fg2); text-wrap: pretty; }
   @media (width < 64rem) {
     .dolores { padding-block: calc(var(--spacing) * 16) calc(var(--spacing) * 24); }

@@ -10,8 +10,8 @@ import HeroSumi from '../components/HeroSumi.astro'; // ronda 115: el director a
 import CargaV from '../components/CargaV.astro'; // ronda 115: dibuja una V
 import Disuelve from '../components/Disuelve.astro'; // ronda 117: el director se deshace en píxeles que forman el manifiesto (RaicesMusicales.astro, la 116, queda guardada)
 import Hero from '../components/Hero.astro';
-import Manifiesto from '../components/Manifiesto.astro'; // ronda 89: la segunda sección, en manifiesto
-// import Dolores from '../components/Dolores.astro'; // ronda 89: guardada. Ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
+// import Manifiesto from '../components/Manifiesto.astro'; // ronda 89: el manifiesto (ronda 118: guardado; vuelve la segunda sección de savvia.studio)
+import Dolores from '../components/Dolores.astro'; // ronda 89: guardada. Ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
 import LaSavvia from '../components/LaSavvia.astro'; // ronda 53: guardada (la sustituye LaReceta)
 import LaPartitura from '../components/LaPartitura.astro'; // ronda 89: la partitura, en el lenguaje de og.mp4 (LaReceta.astro, el archivo de la orquesta, queda guardada)
 import Proyectos from '../components/Proyectos.astro';
@@ -40,7 +40,7 @@ import Pie from '../components/Pie.astro';
       document.querySelectorAll('[data-solo]').forEach(function (el) { if (el.getAttribute('data-solo').split(' ').indexOf(v) < 0) el.remove(); }); })();</script>
     <!-- RONDA 83 · fuera las raíces (Raices.astro queda guardada): el giro a la música -->
     <!-- RONDA 89 · «para la segunda sección vamos a poner un texto […] estilo manifiesto»: los dolores (Dolores.astro) quedan guardados -->
-    <Manifiesto />
+    <Dolores id="recorrido-a2" tarjetas /> {/* ronda 118: vuelve la de savvia.studio (el Manifiesto, ronda 89, queda guardado) */}
     <Proyectos />
     <Anteriores />
     <Servicios />
