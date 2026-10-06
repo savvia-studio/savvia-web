@@ -150,3 +150,14 @@ export function posar({ vol = 0.04, cuando = 0 } = {}) {
 export function teclear(n: number, { vol = 0.04, ritmo = 0.075 } = {}) {
   let t = 0; for (let i = 0; i < n; i++) { tecla({ vol, cuando: t, fuerte: i === n - 1 }); t += ritmo * (0.6 + Math.random() * 0.9) + (Math.random() < 0.12 ? 0.12 : 0); }
 }
+
+// RONDA 114 · EL PINCEL sobre el papel: un roce de cerdas (ruido en banda, sin golpe), más largo y más grave cuanto más cargado va
+export function pincel({ vol = 0.03, dur = 0.5, mojado = 0.5 } = {}) {
+  const c = listo(); if (!c || !salida) return;
+  const t = c.currentTime + 0.01, n = Math.round(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (0.7 + 0.3 * Math.sin(i * 0.004 + Math.random() * 0.2));
+  const s = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain();
+  s.buffer = b; bp.type = 'bandpass'; bp.frequency.setValueAtTime(3400 - mojado * 1800, t); bp.frequency.linearRampToValueAtTime(2200 - mojado * 900, t + dur); bp.Q.value = 0.7;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + dur * 0.18); g.gain.linearRampToValueAtTime(vol * 0.6, t + dur * 0.7); g.gain.linearRampToValueAtTime(0, t + dur);
+  s.connect(bp).connect(g).connect(salida); s.start(t); s.stop(t + dur + 0.02);
+}

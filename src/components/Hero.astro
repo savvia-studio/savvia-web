@@ -84,7 +84,7 @@ import { rich, isoV } from '../lib/rich';
     });
     return { caja, muestras: (n: number) => lista.slice(0, n).sort((p, q) => q.y - p.y), huecos: () => {}, soloPalabras: /ascii/.test(src) || src.includes('jazz') };
   }
-  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const hero = document.querySelector<HTMLElement>('section.hero[data-hero]'); // ronda 113: el cartel también es [data-hero]
   if (hero) {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const caja = hero.querySelector<HTMLElement>('[data-arbol]')!;

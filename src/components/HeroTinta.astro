@@ -1,0 +1,192 @@
+---
+// LA PINCELADA SUENA · RONDA 114. Andoni: «tenemos que buscar algo mucho más artístico, algo que sientas que eleva; el árbol que teníamos daba esa sensación»
+// (el cartel de la ronda 113 era un sistema gráfico, no una obra). Referencia: el paisaje de tinta que se pinta solo con un guqin por pincelada (Opus 5.5,
+// @axtonliu) y los vídeos pintados de claudevideo.org.
+// Tesis: una mano invisible PINTA EL ROBLE A TINTA, y cada pincelada es una nota del lo-fi que suena: savvia dirige, la obra aparece. El roble de siempre
+// (la web de naturaleza) se encuentra con «orquestamos».
+// · La tinta es de verdad (src/scripts/sumi.ts): el agua corre por las fibras del papel y arrastra la tinta, se seca con canto, y el pincel seco abre huecos.
+// · El orden y el compás (src/scripts/roble-sumi.ts): tronco de abajo arriba, ramas, aguadas, hojas a toques, musgo, suelo; cada pincelada empieza en su
+//   tiempo y suena DENTRO del acorde que está sonando (el bajo en el tronco, cuerda pulsada en las ramas, notas finas en las hojas) con el roce del pincel.
+//   Al final, el SELLO en Coral con la V (la firma, como en la pintura china). Cada visita, un roble distinto (su número sale en la cartela).
+// · La carga: la V de la cuenta vuela al pie del tronco y se deshace en una gota de tinta: de ahí nace el árbol.
+// · El cursor es AGUA LIMPIA: al pasar sobre la tinta, se vuelve a mojar y se corre.
+// · Movimiento reducido: el roble ya pintado, quieto.
+import { hero } from '../data/home';
+import { isoV } from '../lib/rich';
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+const palabras = hero.h1.split(' ');
+---
+
+<section class="tinta" aria-labelledby="h1" data-hero data-tinta>
+  <canvas class="lienzo" aria-hidden="true" data-tinta-lienzo></canvas>
+  <svg class="sello" viewBox="0 0 100 100" aria-hidden="true" data-sello>
+    <defs>
+      <filter id="sello-gastado" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" /><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.7" /><feComposite in="SourceGraphic" operator="in" /></filter>
+      <mask id="sello-v"><rect width="100" height="100" fill="#fff" /><path d={ISO} fill="#000" transform="translate(27 17) scale(0.149)" /></mask>
+    </defs>
+    <rect x="4" y="4" width="92" height="92" rx="7" fill="currentColor" mask="url(#sello-v)" filter="url(#sello-gastado)" />
+  </svg>
+  <div class="wrap texto" data-tinta-texto>
+    <h1 id="h1" class="titular font-display">{palabras.map((p, i) => <Fragment>{i > 0 && ' '}<span class="pal"><span style={`--i:${i}`}>{p}</span></span></Fragment>)}</h1>
+    <p class="sub text-lead text-fg2" set:html={isoV(hero.h2)} />
+    <dl class="ficha detail">
+      <div><dt>Obra</dt><dd>Roble n.º <span class="tabular-nums" data-obra></span></dd></div>
+      <div><dt>Técnica</dt><dd>Tinta y agua, <span class="tabular-nums">♩ = 74</span></dd></div>
+      <div><dt>Pinceladas</dt><dd class="tabular-nums" data-cuenta-p>0</dd></div>
+      <div><dt>Donostia</dt><dd class="tabular-nums" data-hora></dd></div>
+    </dl>
+  </div>
+</section>
+
+<script>
+  import { crearSumi, type Sumi } from '../scripts/sumi';
+  import { roble, type Pincelada } from '../scripts/roble-sumi';
+  import { fase, acordeActual, bajoSuelto } from '../scripts/jazz';
+  import { pizzicato, tocar, pincel, posar } from '../scripts/musica';
+  const sec = document.querySelector<HTMLElement>('[data-tinta]');
+  if (sec) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cv = sec.querySelector<HTMLCanvasElement>('[data-tinta-lienzo]')!, sello = sec.querySelector<SVGSVGElement>('[data-sello]')!;
+    const cuentaEl = sec.querySelector<HTMLElement>('[data-cuenta-p]')!;
+    // un roble distinto en cada visita (`?roble=N` fija uno)
+    const qr = location.search.match(/[?&]roble=(\d+)/), SEM = qr ? +qr[1] : 1000 + Math.floor(Math.random() * 8999);
+    sec.querySelector<HTMLElement>('[data-obra]')!.textContent = SEM.toLocaleString('es-ES');
+    const { pinceladas, sello: SELLO } = roble(SEM);
+    const rgb = (s: string) => (s.match(/\d+(\.\d+)?/g) || ['234', '221', '231']).slice(0, 3).map((v) => +v / 255);
+    const tinta = crearSumi(cv, { tinta: rgb(getComputedStyle(sec).color), semilla: SEM });
+    if (!tinta) sec.classList.add('sin-gl');
+    // ── geometría: el árbol a la derecha (en móvil, arriba y centrado); 1 unidad = S px
+    let W = 0, H = 0, bx = 0, by = 0, S = 1;
+    const medir = () => {
+      const r = sec.getBoundingClientRect(); const cambio = Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1; W = r.width; H = r.height;
+      const movil = W < 768;
+      S = movil ? Math.min(W * 0.66, H * 0.36) : Math.min(H * 0.72, W * 0.38);
+      bx = W * (movil ? 0.5 : 0.68); by = H * (movil ? 0.42 : 0.8);
+      const ts = Math.max(26, S * 0.075); sello.style.width = ts + 'px'; sello.style.left = Math.min(W - (W < 768 ? 20 : 48) - ts, bx + SELLO[0] * S - ts / 2) + 'px'; sello.style.top = by - SELLO[1] * S - ts + 'px';
+      if (cambio && tinta) { tinta.medir(W, H); rehacer(); }
+    };
+    const aPx = (p: Pincelada) => ({ pts: p.pts.map(([x, y, w]) => [bx + x * S, by - y * S, Math.max(0.5, w * S)] as [number, number, number]), pig: p.pig, agua: p.agua, carga: p.carga, gasto: p.gasto, semilla: p.semilla });
+    // ── el compás: cada pincelada empieza en su tiempo (desde la siguiente corchea del lo-fi)
+    const BEAT = 60000 / 74;
+    const tDe = (b: number, ahora: number) => ahora + (b - fase(ahora)) * BEAT;
+    type Prog = { p: Pincelada; t0: number; dur: number; sonada: boolean };
+    let prog: Prog[] = [], dadas = 0, empezado = false, tSello = 0, raf = 0, visto = true, vivo = false;
+    const gotaInicial = (): Pincelada => ({ voz: 'aguada', pts: [[0, 0.03, 0.028], [0.002, 0.034, 0.032]], pig: 0.55, agua: 1.5, carga: 1, gasto: 0, semilla: 3, dur: 0.25, paso: 0.75 });
+    const programar = () => {
+      const ahora = performance.now(); let b = Math.ceil(fase(ahora) * 2 + 0.2) / 2;
+      prog = [gotaInicial(), ...pinceladas].map((p) => { const t0 = tDe(b, ahora); b += p.paso; return { p, t0, dur: p.dur * BEAT, sonada: false }; });
+      tSello = tDe(b + 1, ahora);
+      for (const x of prog) tinta?.trazo(aPx(x.p), x.t0, x.dur);
+    };
+    // tras un cambio de tamaño, lo ya pintado se repinta deprisa con la nueva geometría; lo pendiente sigue a su compás
+    function rehacer() {
+      if (!empezado || !tinta) return; const ahora = performance.now();
+      prog.forEach((x, i) => { if (x.t0 <= ahora) tinta.trazo(aPx(x.p), ahora + i * 4, 60); else tinta.trazo(aPx(x.p), x.t0, x.dur); });
+      pedir();
+    }
+    // ── el sonido de cada pincelada, dentro del acorde que suena
+    const sonar = (p: Pincelada, i: number) => {
+      const { raiz, notas } = acordeActual(), nota = (o: number) => notas[Math.floor(Math.random() * notas.length)] + o;
+      if (p.voz === 'tronco') { bajoSuelto(raiz - 12 + 24, 0.13); pincel({ vol: 0.04, dur: p.dur * BEAT / 1000, mojado: 0.6 }); }
+      else if (p.voz === 'raiz') pincel({ vol: 0.025, dur: 0.3, mojado: 0.3 });
+      else if (p.voz === 'rama') { pizzicato(nota(12), { vol: 0.05 }); pincel({ vol: 0.028, dur: 0.6, mojado: 0.3 }); }
+      else if (p.voz === 'ramita') pizzicato(nota(24), { vol: 0.028 });
+      else if (p.voz === 'aguada') { pincel({ vol: 0.035, dur: 0.55, mojado: 1 }); if (i % 2 === 0) tocar(nota(12), { vol: 0.03, dur: 2.4 }); }
+      else if (p.voz === 'hoja') { if (i % 4 === 0) tocar(nota(24), { vol: 0.02, dur: 1.2 }); }
+      else if (p.voz === 'suelo') pincel({ vol: 0.03, dur: 1, mojado: 0.2 });
+    };
+    // ── el bucle
+    const bucle = (ahora: number) => {
+      raf = 0; if (!visto || !tinta) return;
+      for (let i = 0; i < prog.length; i++) { const x = prog[i]; if (!x.sonada && ahora >= x.t0) { x.sonada = true; dadas++; if (!reducido) sonar(x.p, i); } }
+      cuentaEl.textContent = `${Math.max(0, dadas - 1)} de ${pinceladas.length}`;
+      if (empezado && !sec.classList.contains('firmado') && tSello && ahora >= tSello) { sec.classList.add('firmado'); if (!reducido) { posar({ vol: 0.06 }); acordeActual().notas.forEach((m, j) => tocar(m + 12, { vol: 0.025, dur: 3, cuando: j * 0.03 })); } }
+      vivo = tinta.fotograma(ahora) || prog.some((x) => !x.sonada) || mojando > 0;
+      if (mojando > 0) mojando--;
+      if (vivo) raf = requestAnimationFrame(bucle);
+    };
+    const pedir = () => { if (!raf) raf = requestAnimationFrame(bucle); };
+    new IntersectionObserver(([x]) => { visto = x.isIntersecting; if (visto) pedir(); }).observe(sec);
+    // ── el agua del cursor
+    let mojando = 0, ux = -1, uy = -1;
+    if (matchMedia('(pointer: fine)').matches && !reducido) sec.addEventListener('pointermove', (ev) => {
+      if (!empezado || !tinta) return; const r = sec.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+      const v = ux < 0 ? 0 : Math.hypot(x - ux, y - uy); ux = x; uy = y; if (v < 1) return;
+      tinta.mojar(x, y, 14 + Math.min(16, v * 0.5), Math.min(1.4, 0.4 + v / 30)); mojando = 90; pedir();
+    });
+    // la hora del estudio
+    const hora = sec.querySelector<HTMLElement>('[data-hora]')!, fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    const tic = () => { hora.textContent = fmt.format(new Date()); setTimeout(tic, 60000 - (Date.now() % 60000) + 50); }; tic();
+    // la cuenta de la carga vuela aquí: el pie del tronco
+    (window as any).__cartelFuente = () => { const r = sec.getBoundingClientRect(), h = Math.max(18, S * 0.06); return new DOMRect(r.left + bx - h * 0.42, r.top + by - S * 0.03 - h / 2, h * 0.84, h); };
+    const empezar = () => {
+      if (empezado) return; empezado = true; sec.classList.add('encendido');
+      if (!tinta) return;
+      if (reducido) {
+        // ya pintado: todas las pinceladas a la vez y el agua que se asiente
+        const ahora = performance.now(); prog = pinceladas.map((p) => ({ p, t0: ahora - 1, dur: 1, sonada: true })); prog.forEach((x) => tinta.trazo(aPx(x.p), x.t0, 1));
+        for (let i = 0; i < 160; i++) tinta.fotograma(ahora + 1000); dadas = pinceladas.length + 1; sec.classList.add('firmado'); cuentaEl.textContent = `${pinceladas.length} de ${pinceladas.length}`; return;
+      }
+      programar(); pedir();
+    };
+    new ResizeObserver(() => medir()).observe(sec);
+    medir();
+    if ((window as any).__gotaSuelta) empezar(); else addEventListener('savvia:gota', empezar, { once: true });
+    (window as any).__tinta = () => ({ semilla: SEM, total: pinceladas.length, dadas, firmado: sec.classList.contains('firmado'), gl: !!tinta });
+  }
+</script>
+
+<style>
+  .tinta {
+    position: relative;
+    min-height: 100lvh;
+    overflow: hidden;
+    color: var(--fg);
+    display: flex;
+    align-items: flex-end;
+  }
+  .lienzo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .sello {
+    position: absolute;
+    height: auto;
+    color: var(--color-coral);
+    opacity: 0;
+    transform: scale(1.35) rotate(-4deg);
+    transition: opacity 0.18s ease, transform 0.42s cubic-bezier(0.2, 1.6, 0.4, 1);
+    pointer-events: none;
+  }
+  .firmado .sello { opacity: 0.94; transform: rotate(-2deg); }
+  .texto { position: relative; width: 100%; padding-bottom: calc(var(--spacing) * 12); pointer-events: none; }
+  .texto a, .texto button { pointer-events: auto; }
+  .titular {
+    font-size: clamp(2.9rem, 1.2rem + 5.4vw, 6rem);
+    line-height: 0.96;
+    letter-spacing: -0.012em;
+    max-width: 11.5ch;
+    text-wrap: balance;
+  }
+  .pal { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+  .pal > span { display: inline-block; transform: translateY(108%); transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1); transition-delay: calc(2.2s + var(--i) * 90ms); }
+  .encendido .pal > span { transform: none; }
+  .sub { margin-top: calc(var(--spacing) * 6); max-width: 34ch; text-wrap: pretty; opacity: 0; transition: opacity 1.4s ease 3.2s; }
+  .encendido .sub { opacity: 1; }
+  .ficha {
+    margin-top: calc(var(--spacing) * 16);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 6);
+    opacity: 0;
+    transition: opacity 1.4s ease 3.8s;
+  }
+  .encendido .ficha { opacity: 1; }
+  .ficha dt { color: var(--fg2); }
+  .ficha dd { margin-top: calc(var(--spacing) * 1); }
+  @media (max-width: 767px) {
+    .texto { padding-bottom: calc(var(--spacing) * 8); }
+    .ficha { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: calc(var(--spacing) * 8); gap: calc(var(--spacing) * 4); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pal > span, .sub, .ficha, .sello { transition: none; }
+  }
+</style>

@@ -637,8 +637,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     let sobre = false;
     // RONDA 94 · en la paleta clara, mientras la pantalla del titular (ahora en claro) cubre la barra, la barra se queda en tinta
     const claraP = document.documentElement.dataset.paleta === 'clara';
+    // RONDA 117 · rendimiento del scroll: la sección se mide en coordenadas de documento solo cuando cambia de tamaño; en el scroll se compara con scrollY
+    let rT = 0, rB = 0; const medirR = () => { const r = raiz.getBoundingClientRect(); rT = r.top + scrollY; rB = r.bottom + scrollY; };
+    medirR(); new ResizeObserver(medirR).observe(document.body);
     const mirarBarra = () => {
-      const r = raiz.getBoundingClientRect(); let si = r.top <= 72 && r.bottom >= 72;
+      let si = rT - scrollY <= 72 && rB - scrollY >= 72;
       if (si && claraP && !titulo.hidden) { const tr = titulo.getBoundingClientRect(); if (tr.left <= 40 && tr.top <= 40 && tr.right >= innerWidth - 40) si = false; }
       if (si !== sobre) { sobre = si; document.documentElement.classList.toggle('sobre-escena', si); }
     };
@@ -1088,7 +1091,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .carga-logo {
     height: 9cqh;
-    aspect-ratio: 1275 / 439;
+    aspect-ratio: 1126 / 439; /* ronda 117: el logotipo de la versión musical (logotipo_music.svg; el anterior, en tools/retirados/savvia-logo.r116.svg) */
     background: currentColor;
     -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
     mask: url('/savvia-logo.svg') center / contain no-repeat;

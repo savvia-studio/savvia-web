@@ -15,6 +15,10 @@ const year = new Date().getFullYear();
 
 <footer id="contacto" class="surface-dark pie" data-sube data-pie>
   <!-- RONDA 100 · «en el footer, lo mismo: el pulso se tiene que propagar por todo el footer»: la retícula de puntos que late (src/scripts/reticula.ts) -->
+  <!-- RONDA 117 · la terraza que desvelan los pulsos ocupa TODO el pie; por arriba se deshace en trazos horizontales (máscara generada) para no parecer cortada -->
+  <!-- RONDA 117 (4.ª) · «del footer anterior me gustaba que el fondo se pintaba al llegar»: la terraza en gris la PINTA el motor del roble (líneas → pintura rasgada desde
+       el centro de abajo); encima, los pulsos de color y la IA (fondo-revela) -->
+  <div class="fondo-pie" aria-hidden="true" data-fondo-pie-caja><canvas class="pinta" data-fondo-pinta></canvas><canvas class="revela" data-fondo-pie></canvas></div>
   <canvas class="reticula-pie" aria-hidden="true" data-reticula-pie></canvas>
   <!-- RONDA 95 · «hay un cambio de color en el footer entre la parte de arriba y la de abajo»: era el velo de noche lisa de las capas (rondas 86–94), que tapaba
        el grano de la página hasta un corte. Fuera las capas y el velo: el pie es una sola materia -->
@@ -36,6 +40,8 @@ const year = new Date().getFullYear();
   <div class="wrap final" data-final>
     <!-- RONDA 85 · la SALA del libro (ilustración de Andoni) detrás del último sistema, pintada por el mismo motor que el director: se DIBUJA desde la partitura
          abierta al llegar y queda TRAMADA, con las ondas del tramado saliendo del libro a compás; fundida con la noche por los bordes -->
+    <!-- RONDA 117 · «trasladar el footer al lenguaje del hero»: detrás, la TERRAZA de jazz (piano, saxo en su estuche) en gris tramado que cada pulso (desde el centro
+         de abajo, cada dos compases) tiñe de color, con la IA que lee lo que hay (src/scripts/fondo-revela.ts, el mismo del hero) -->
     <div class="foco" aria-hidden="true"><i class="haz"></i></div>
     <!-- RONDA 95 · «te paso una imagen del director de PERFIL y que parezca que está orquestando las letras de Contáctanos»: la lámina de Andoni (recortada:
          public/media/pie/director-perfil.webp) hecha de papel con el motor del hero, a la izquierda y mirando a la palabra, con la batuta y la mano libre
@@ -58,6 +64,13 @@ const year = new Date().getFullYear();
       <span class="txt" data-contacta-txt>{'Contáctanos'.split('').map((c, i) => c === 'á'
         ? <span class="l" style={`--i:${i}`}>a<svg class="tilde" viewBox="0 0 100 100" aria-hidden="true"><polygon points="52.5,21.5 61.8,-1.7 68.2,1.7 54.5,22.5" /></svg></span>
         : <span class="l" style={`--i:${i}`}>{c}</span>)}</span>
+      <!-- RONDA 117 · «al hacer hover en Contáctanos, algo más original»: LA IA OS ENCUENTRA. Del cursor sale un pulso que tiñe la terraza y en ella aparecen Eric y Andoni
+           como figuras DETECTADAS (las esquinas de la caja se cierran, un barrido las descubre, su etiqueta con la confianza), y la llamada a agendar -->
+      <span class="cta-ia" aria-hidden="true">
+        <span class="det"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><i class="et">eric</i></span>
+        <span class="det"><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><i class="et">andoni</i></span>
+        <span class="dice">Agenda 30 min con nosotros <b>↳</b></span>
+      </span>
       <span class="cta-pastilla" aria-hidden="true" data-pastilla>
         <span class="cta-caras"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /></span>
         <span class="cta-dice"><b>Haz clic para agendar una reunión con nosotros</b><small>30 min · videollamada ↳</small></span>
@@ -70,23 +83,30 @@ const year = new Date().getFullYear();
 
   <div class="wrap linea detail">
     <span>savvia · {pie.lugar} · {pie.desde}</span>
+    <!-- ronda 116 · la música de la web: «Smooth Lovin'» de Kevin MacLeod, CC BY 3.0 (la licencia pide el crédito) -->
+    <span class="credito">Música: <a class="link" href="https://incompetech.com" rel="noopener">«<span data-cancion>Study And Relax</span>» · Kevin MacLeod</a> · <a class="link" href="https://creativecommons.org/licenses/by/4.0/deed.es" rel="noopener license">CC BY 4.0</a></span>
     <span>© {year}</span>
-    <!-- ronda 99: sin el crédito de Vivaldi (ya no suena; el jazz es nuestro) -->
   </div>
 </footer>
 
 <script>
+  import { cancionActual } from '../scripts/jazz';
+  document.querySelectorAll('[data-cancion]').forEach((n) => (n.textContent = cancionActual())); // ronda 117: el crédito de la canción que suena
   import { sonidoEncendido, tecla, teclear } from '../scripts/musica';
   import { crearPapel } from '../scripts/papel';
   import { crearRetrato } from '../scripts/retrato';
   import { crearEstela } from '../scripts/estela';
   import { crearAscii } from '../scripts/ascii';
   import { crearReticula } from '../scripts/reticula';
+  import { crearFondoRevela } from '../scripts/fondo-revela';
   import { bandas, fase } from '../scripts/jazz';
   const pie = document.querySelector<HTMLElement>('[data-pie]');
   // RONDA 97 · el ASCII es el de serie; `?estilo=color|retrato|papel` vuelven a lo de antes
-  const enAscii = !/[?&]estilo=(papel|retrato|color)/.test(location.search);
+  // RONDA 117 · el de serie pasa al lenguaje del hero (el saxofonista pintado por el motor del roble, la terraza que desvelan los pulsos, «Contáctanos» en Family);
+  // el ASCII de las rondas 97–116 queda en `?estilo=ascii`
+  const enAscii = /[?&]estilo=ascii/.test(location.search);
   if (pie && enAscii) pie.classList.add('ascii');
+  if (pie && !enAscii) pie.classList.add('jazz'); // ronda 117: el lenguaje del hero (sin pentagrama, plicas, calderón ni estela de batuta)
   if (pie) {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const NS = 'http://www.w3.org/2000/svg';
@@ -108,6 +128,7 @@ const year = new Date().getFullYear();
       const fr = final.getBoundingClientRect(), tr = txt.getBoundingClientRect();
       W = fr.width; pauta.setAttribute('viewBox', `0 0 ${W} ${fr.height}`);
       const pad = parseFloat(getComputedStyle(final).paddingLeft);
+      final.style.setProperty('--gp', `${pad}px`); // ronda 117: la terraza, entre los carriles
       x0 = pad; x1 = W - pad;
       // la línea base de Family ≈ el 78 % del alto de su caja de línea (line-height 1) · la altura de mayúscula ≈ 0,68 em
       yb = tr.top - fr.top + fs * 0.8; g = (fs * 0.68) / 4;
@@ -117,9 +138,15 @@ const year = new Date().getFullYear();
       // de las rodillas abajo); en móvil, más pequeño
       const sub = pie.querySelector<HTMLElement>('.contenido .text-sub')!.getBoundingClientRect();
       const libre = yb - (sub.bottom - fr.top) - 16;
-      const dh = Math.max(140, Math.min(libre / 0.78, fr.width < 600 ? fr.width * 0.7 : fs * 1.6)), dw = (dh * 1024) / 1536; // en móvil la palabra es pequeña: él puede crecer
+      let dh = Math.max(140, Math.min(libre / 0.78, fr.width < 600 ? fr.width * 0.7 : fs * 1.6)), dw = (dh * 1024) / 1536; // en móvil la palabra es pequeña: él puede crecer
+      let dTop = yb - dh * 0.78;
+      // RONDA 117 · «el director del footer tiene que tener más presencia»: en el lenguaje del hero ocupa del subtítulo a por debajo de la línea base (va
+      // delante de la palabra), mucho más alto
+      // (nunca por debajo del pie: en pantallas anchas se salía; la lámina soñada del perfil es cuadrada, 1536 × 1536, con margen para sus estelas)
+      if (!enAscii) { const arriba = sub.bottom - fr.top + 4, abajo = Math.min(yb + fs * 0.65, fr.height - 8); dh = Math.max(140, Math.min((abajo - arriba) * 0.82, fs * 2.6, innerHeight * 0.5)); dw = dh; dTop = abajo - dh; } /* ronda 117: «algo más pequeño» */
       dirEl.style.width = `${dw.toFixed(0)}px`; dirEl.style.height = `${dh.toFixed(0)}px`;
-      dirEl.style.left = `${(x0 - dw * 0.18).toFixed(0)}px`; dirEl.style.top = `${(yb - dh * 0.78).toFixed(0)}px`;
+      // ronda 117: entero dentro de los carriles (la capa le sale por la izquierda)
+      dirEl.style.left = `${(enAscii ? x0 - dw * 0.18 : x0 - dw * 0.2).toFixed(0)}px`; dirEl.style.top = `${dTop.toFixed(0)}px`;
       contacta.style.setProperty('--fs', `${fs.toFixed(1)}px`);
       // la doble barra final
       const alto = `M0 ${(yb - 4 * g).toFixed(1)}V${yb.toFixed(1)}`;
@@ -170,6 +197,8 @@ const year = new Date().getFullYear();
     // los enlaces del pie, como las cuerdas de un arpa (ronda 85)
     pie.querySelectorAll<HTMLElement>('.enlace-pie').forEach((a, i) => a.addEventListener('pointerenter', () => tecla({ vol: 0.03 })));
     contacta.addEventListener('pointerenter', abrir);
+    // ronda 117 · el pulso del hover nace donde está el cursor
+    contacta.addEventListener('pointerenter', (ev) => { if (enAscii || reducido) return; const r = pie.getBoundingClientRect(); fonP?.pulso(1.3, (ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height); });
     contacta.addEventListener('pointerleave', cerrar);
     contacta.addEventListener('focus', abrir);
     contacta.addEventListener('blur', cerrar);
@@ -181,6 +210,11 @@ const year = new Date().getFullYear();
     const letras = [...txt.querySelectorAll<HTMLElement>('.l')];
     const llegar = () => {
       pie.classList.add('llega');
+      // RONDA 117 · al llegar, la terraza nace del centro de abajo (3,2 s) a la par que se pinta el saxofonista, y suelta su primer pulso
+      if (!enAscii) {
+        pinta?.soltar(); // ronda 117 (4.ª): la terraza se PINTA al llegar (antes, una máscara que se abría)
+        if (!reducido) setTimeout(() => dispatchEvent(new CustomEvent('savvia:pulso-pie')), 2600);
+      }
       if (reducido) { letras.forEach((l) => l.classList.add('on')); pie.classList.add('entera'); return; }
       // RONDA 108 · «lo mismo al Contáctanos del footer»: en ASCII la palabra se ESCRIBE signo a signo (orden de lectura, con el cursor coral delante) y se
       // oyen los tecleos; al acabar, el intro
@@ -195,8 +229,8 @@ const year = new Date().getFullYear();
       // según la melodía), con su plica, y suena; cuando han sonado todas, bajan juntas a la línea (el acorde) y queda la palabra
       letras.forEach((l, i) => setTimeout(() => {
         const p = MELODIA[i];
-        l.style.setProperty('--y', `${(-(p - 3) * g * 0.42).toFixed(1)}px`);
-        l.classList.add('on', 'nota');
+        l.style.setProperty('--y', '0px'); // ronda 117: las letras ya no entran a la altura de una nota: llegan tecleadas, en su sitio
+        l.classList.add('on');
         tecla({ vol: 0.035 }); // ronda 98: cada letra llega TECLEADA (antes, su nota: se superponía al jazz)
         vib[Math.min(4, Math.round(p / 2))] = { a: g * 0.18, t: performance.now() }; if (!raf) raf = requestAnimationFrame(bucle);
         if (i === letras.length - 1) setTimeout(() => {
@@ -205,7 +239,7 @@ const year = new Date().getFullYear();
           for (let k = 0; k < 5; k++) vib[k] = { a: g * 0.26, t: performance.now() + k * 40 };
           if (!raf) raf = requestAnimationFrame(bucle);
         }, 650);
-      }, 1500 + i * 190));
+      }, 1500 + i * 110));
     };
     // RONDA 94 · EL DIRECTOR del pie (se monta al acercarse; marca el compás solo a la vista)
     const dirEl = pie.querySelector<HTMLElement>('[data-director-pie]')!;
@@ -226,9 +260,11 @@ const year = new Date().getFullYear();
         if (e) { td = e as unknown as ReturnType<typeof crearPapel>; if (reducido) td.soltar(); saxOnda = (x: number, y: number) => e.onda(x, y, 0.9, [1, 0.38, 0.42]); return; }
       }
       if (!/[?&]estilo=(papel|retrato)/.test(location.search)) {
-        const img = new Image(); img.decoding = 'async'; img.src = '/media/pie/retrato-perfil.webp';
-        const e = crearEstela(dirEl.querySelector('canvas')!, img, { origen: [0.967, 0.01], dir: -1, radial: true, sinGota: true, soplo: true, gota: true, manual: true, intensidad: 0, hd: true });
-        if (e) { td = e as unknown as ReturnType<typeof crearPapel>; td.fondo(bg[0], bg[1], bg[2]); if (reducido) td.soltar(); return; }
+        // RONDA 117 · el DIRECTOR DE PERFIL «soñado» (estelas a jirones, tools/r117/perfil-sueno.py) pintado por el motor del roble desde los pies, como el del hero
+        // (antes, el saxofonista: `saxo-sueno.webp`, misma caja 1024 × 1536)
+        const img = new Image(); img.decoding = 'async'; img.src = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/') + 'media/pie/director-perfil-sueno.webp';
+        const e = crearEstela(dirEl.querySelector('canvas')!, img, { origen: [0.5, 0.97], dir: -1, radial: true, sinGota: true, soplo: true, gota: true, manual: true, intensidad: 0, hd: true });
+        if (e) { td = e as unknown as ReturnType<typeof crearPapel>; td.fondo(bg[0], bg[1], bg[2]); if (reducido) td.soltar(); saxOnda = (x: number, y: number) => e.onda(x, y, 0.8); return; }
       }
       if (/[?&]estilo=retrato/.test(location.search)) {
         const img = new Image(); img.decoding = 'async'; img.src = '/media/pie/retrato-perfil.webp';
@@ -331,7 +367,56 @@ const year = new Date().getFullYear();
     // RONDA 99 · las ONDAS DE COLOR, como en el hero: cada tiempo abre una en la palabra (el 1, en coral, desde la «C»; los demás, de cualquier sitio)
     const COLP = [[150, 191, 230], [255, 209, 115], [234, 221, 231], [128, 153, 255], [255, 140, 115]];
     const ondasW: { x: number; y: number; t0: number; c: number[]; f: number }[] = [];
-    const retPie = enAscii ? crearReticula(pie.querySelector<HTMLCanvasElement>('[data-reticula-pie]')!, { alfa: 0.08, vel: 160, ancho: 56, vida: 4.5 }) : null;
+    const retPie = true ? crearReticula(pie.querySelector<HTMLCanvasElement>('[data-reticula-pie]')!, { alfa: 0.08, vel: 160, ancho: 56, vida: 4.5 }) : null;
+    // RONDA 117 · el fondo que desvelan los pulsos (la terraza) y la IA que la lee
+    const cvFP = pie.querySelector<HTMLCanvasElement>('[data-fondo-pie]')!, claraP = document.documentElement.dataset.paleta === 'clara';
+    const fonP = enAscii ? null : crearFondoRevela(cvFP, cvFP, (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/') + 'media/hero/terraza-jazz.webp', { clara: claraP, noche: claraP ? [245, 247, 255] : [59, 35, 27], recorteY: 0.7, cuantas: 2, grisAlfa: 0, detecta: [
+      [0.0, 0.28, 0.24, 0.97, 'piano de cola', '0,96'], [0.14, 0.75, 0.27, 0.87, 'saxofón', '0,93'], [0.74, 0.65, 0.86, 0.71, 'sintetizador', '0,88'],
+      [0.79, 0.63, 1.0, 0.95, 'butaca', '0,81'], [0.0, 0.0, 0.53, 0.4, 'olivo', '0,74'], [0.6, 0.26, 0.75, 0.33, 'pueblo', '0,69'],
+    ] });
+    // el gris de la terraza, pintado por el motor del roble al llegar: el lienzo guarda la proporción de la lámina y la cubre (cover), anclado abajo
+    const cajaF = pie.querySelector<HTMLElement>('[data-fondo-pie-caja]')!, cvPinta = pie.querySelector<HTMLCanvasElement>('[data-fondo-pinta]')!;
+    let pinta: ReturnType<typeof crearEstela> | null = null;
+    const encajarPinta = () => { const r = cajaF.getBoundingClientRect(), k = 1672 / 941, w = Math.max(r.width, r.height * k); cvPinta.style.width = `${w}px`; cvPinta.style.height = `${w / k}px`; cvPinta.style.left = `${(r.width - w) / 2}px`; };
+    if (!enAscii) {
+      encajarPinta(); new ResizeObserver(encajarPinta).observe(cajaF);
+      const imgT = new Image(); imgT.decoding = 'async'; imgT.src = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/') + 'media/hero/terraza-jazz.webp';
+      const G = claraP ? [0.35, 0.33, 0.32, 0] : [0.82, 0.8, 0.78, 0];
+      pinta = crearEstela(cvPinta, imgT, { origen: [0.5, 1], dir: -1, radial: true, sinGota: true, gota: true, manual: true, paisaje: true, estaciones: [G, G, G, G], intensidad: 2, tramado: true, tramadoBpm: 0, tramadoNiveles: 4, tramadoCelda: 3 });
+      pinta?.fondo(...((claraP ? [245, 247, 255] : [59, 35, 27]) as [number, number, number]));
+      if (reducido) pinta?.soltar();
+    }
+    if (fonP) {
+      cajaF.classList.add('on');
+      // los TRAZOS del borde de arriba: filas de 3–7 px, cada una una pincelada horizontal de largo y altura distintos (con extremos que se afinan); por
+      // debajo del 42 % del alto, opaco
+      const W2 = 480, H2 = 360, mk = document.createElement('canvas'); mk.width = W2; mk.height = H2; const mx = mk.getContext('2d')!;
+      // RONDA 117 · «el fondo tiene que difuminarse antes para que titulares y navegación queden siempre legibles»: nada en el 40 % de arriba, trazos del 40 al 66 %, opaco después
+      // (medido: empieza justo bajo el contenido de arriba —titular, texto y enlaces—, en cualquier pantalla)
+      const pr0 = pie.getBoundingClientRect(), cb = pie.querySelector<HTMLElement>('.contenido')!.getBoundingClientRect();
+      const T0 = Math.min(0.62, Math.max(0.2, (cb.bottom - pr0.top) / Math.max(1, pr0.height) + 0.01)), T1 = Math.min(0.85, T0 + 0.24);
+      const gb = mx.createLinearGradient(0, H2 * T1, 0, H2); gb.addColorStop(0, '#000'); gb.addColorStop(0.62, '#000'); gb.addColorStop(1, 'rgba(0,0,0,0.38)'); // abajo, más tenue: se leen los créditos
+      mx.fillStyle = gb; mx.fillRect(0, H2 * T1, W2, H2);
+      let sem = 31; const az = () => ((sem = (sem * 16807) % 2147483647) / 2147483647);
+      for (let y = H2 * T0; y < H2 * (T1 + 0.04); ) {
+        const h = 2 + az() * 5, prof = (y - H2 * T0) / (H2 * (T1 - T0)); // cuanto más abajo, más trazos y más largos
+        const n = 1 + Math.floor(az() * 3 + prof * 3);
+        for (let k = 0; k < n; k++) {
+          const largo = W2 * (0.12 + az() * 0.55) * (0.4 + prof), x0 = az() * W2 - largo * 0.3, al = Math.min(1, 0.25 + prof * 0.9 + az() * 0.2);
+          const g = mx.createLinearGradient(x0, 0, x0 + largo, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.15 + az() * 0.2, `rgba(0,0,0,${al})`); g.addColorStop(0.7 + az() * 0.2, `rgba(0,0,0,${al})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+          mx.fillStyle = g; mx.beginPath(); mx.ellipse(x0 + largo / 2, y + h / 2, largo / 2, h / 2, 0, 0, Math.PI * 2); mx.fill();
+        }
+        y += h * (0.55 + az() * 0.5);
+      }
+      cajaF.style.setProperty('--trazos', `url(${mk.toDataURL()})`);
+    }
+    let vistoF = false; new IntersectionObserver((e) => { vistoF = e[0].isIntersecting; }).observe(cvFP);
+    addEventListener('savvia:pulso', (e) => {
+      const d = (e as CustomEvent).detail; if (enAscii || !vistoF || reducido || d.k !== 0 || d.bar % 2 || !pie.classList.contains('llega')) return;
+      pulsoPie();
+    });
+    const pulsoPie = () => { const pr = pie.getBoundingClientRect(), sx = pr.left + pr.width / 2, sy = pr.bottom - 4; fonP?.pulso(1); retPie?.onda(sx, sy, 0.9, [1, 0.38, 0.42]); saxOnda?.(sx, sy); };
+    addEventListener('savvia:pulso-pie', () => { if (!reducido) pulsoPie(); });
     addEventListener('savvia:pulso', (e) => {
       const d = (e as CustomEvent).detail; tPulso = performance.now(); fPulso = d.fuerza;
       // ronda 101 · «las ondas en el footer, menos frecuentes y más tranquilas»: una cada dos compases (antes, una por tiempo), más lenta y más suave
@@ -474,6 +559,48 @@ const year = new Date().getFullYear();
   .ascii .contacta .l::after, .ascii .calderon, .ascii .cta-pastilla { display: none; }
   .ascii .contacta .tilde { fill: transparent; }
   .ascii .magia-pie { display: none; }
+  /* RONDA 117 · en el lenguaje del hero: fuera el pentagrama, la doble barra, las plicas, el arco y el punto del calderón (queda el tallo hacia la píldora),
+     la estela de la batuta y el mecerse a compás */
+  .jazz .pauta .lineas, .jazz .pauta .barra, .jazz .pauta .notas-fin, .jazz .calderon .arco, .jazz .calderon .pto, .jazz .magia-pie { display: none; }
+  .jazz .contacta .l::after { display: none; }
+  /* RONDA 117 · LA IA OS ENCUENTRA (el hover): fuera la píldora y el tallo; encima de la palabra, a la derecha, las dos caras detectadas y la llamada */
+  .jazz .cta-pastilla, .jazz .calderon { display: none; }
+  .cta-ia { display: none; }
+  .jazz .cta-ia { position: absolute; right: 3%; bottom: calc(100% - 0.12em); display: flex; align-items: flex-end; gap: 28px; font-size: 1rem; line-height: 1.2; pointer-events: none;
+    background: none; -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: currentColor; color: var(--fg); letter-spacing: normal; } /* (letter-spacing: la palabra lo hereda en px y apretaba la llamada) fuera del recorte de la palabra (background-clip: text) */
+  .cta-ia .det { position: relative; width: 84px; height: 84px; opacity: 0; --c: var(--color-niebla);
+    background: linear-gradient(var(--c), var(--c)) 0 0 / 14px 1px, linear-gradient(var(--c), var(--c)) 0 0 / 1px 14px, linear-gradient(var(--c), var(--c)) 100% 0 / 14px 1px, linear-gradient(var(--c), var(--c)) 100% 0 / 1px 14px,
+      linear-gradient(var(--c), var(--c)) 0 100% / 14px 1px, linear-gradient(var(--c), var(--c)) 0 100% / 1px 14px, linear-gradient(var(--c), var(--c)) 100% 100% / 14px 1px, linear-gradient(var(--c), var(--c)) 100% 100% / 1px 14px;
+    background-repeat: no-repeat; scale: 1.35; transition: scale 0.6s var(--ease-out-expo), opacity 0.3s ease; }
+  .cta-ia .det img { position: absolute; inset: 9px; width: calc(100% - 18px); height: calc(100% - 18px); object-fit: cover; border-radius: 2px; clip-path: inset(0 0 100% 0); filter: grayscale(1) contrast(1.15); transition: clip-path 0.7s cubic-bezier(0.65, 0, 0.35, 1), filter 0.8s ease; }
+  .cta-ia .det::after { content: ''; position: absolute; left: 6px; right: 6px; height: 1px; top: 9px; background: var(--color-coral); opacity: 0; box-shadow: 0 0 8px var(--color-coral); }
+  .cta-ia .et { position: absolute; left: 0; bottom: calc(100% + 6px); white-space: nowrap; font: 400 10px/1.35 var(--font-mono); font-style: normal; letter-spacing: 0.02em; color: var(--fg); opacity: 0; translate: 0 4px; transition: opacity 0.4s ease, translate 0.5s var(--ease-out-expo); }
+  .cta-ia .et b { color: var(--color-coral); font-weight: 400; }
+  .cta-ia .dice { font-family: var(--font-sans, system-ui); font-size: 0.95rem; font-weight: 500; line-height: 1.2; color: var(--fg); white-space: nowrap; opacity: 0; translate: -6px 0; transition: opacity 0.4s ease, translate 0.5s var(--ease-out-expo); padding-bottom: 4px; }
+  .cta-ia .dice b { color: var(--color-coral); font-weight: 500; }
+  .jazz.cta-abierto .cta-ia .det { opacity: 1; scale: 1; }
+  .jazz.cta-abierto .cta-ia .det:nth-child(2) { transition-delay: 0.18s; }
+  .jazz.cta-abierto .cta-ia .det img { clip-path: inset(0 0 0 0); filter: none; transition-delay: 0.25s, 0.9s; }
+  .jazz.cta-abierto .cta-ia .det:nth-child(2) img { transition-delay: 0.43s, 1.08s; }
+  .jazz.cta-abierto .cta-ia .det::after { animation: barrido 0.7s cubic-bezier(0.65, 0, 0.35, 1) 0.25s both; }
+  .jazz.cta-abierto .cta-ia .det:nth-child(2)::after { animation-delay: 0.43s; }
+  .jazz.cta-abierto .cta-ia .et { opacity: 0.85; translate: 0 0; transition-delay: 0.8s; }
+  .jazz.cta-abierto .cta-ia .det:nth-child(2) .et { transition-delay: 0.98s; }
+  .jazz.cta-abierto .cta-ia .dice { opacity: 1; translate: 0 0; transition-delay: 1.15s; }
+  @keyframes barrido { 0% { top: 9px; opacity: 0.9; } 92% { opacity: 0.9; } 100% { top: calc(100% - 10px); opacity: 0; } }
+  @media (width < 48rem) { .jazz .cta-ia { right: 0; gap: 12px; } .cta-ia .det { width: 56px; height: 56px; } .cta-ia .dice { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .cta-ia .det, .cta-ia .det img, .cta-ia .et, .cta-ia .dice { transition: none !important; } .cta-ia .det::after { animation: none !important; } }
+  .jazz.entera:not(.cta-abierto) .contacta .l { animation: none; }
+  /* RONDA 117 · la terraza que desvelan los pulsos: entre los carriles, detrás de todo, y nace del centro de abajo al llegar (como el hero al caer la gota) */
+  /* ronda 117 (3.ª) · «el fondo tiene que ocupar todo el footer y por arriba no parecer que se corta: como si tuviera trazos»: a todo el pie; la máscara de
+     trazos (--trazos, generada en el script) deshace el borde de arriba en pinceladas horizontales; se cruza con el revelado desde el centro de abajo */
+  .fondo-pie { position: absolute; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.6s ease;
+    --trazos: linear-gradient(to bottom, transparent, #000 30%); -webkit-mask: var(--trazos) 0 0 / 100% 100% no-repeat; mask: var(--trazos) 0 0 / 100% 100% no-repeat; }
+  .fondo-pie:global(.on) { opacity: 1; }
+  .fondo-pie .pinta { position: absolute; bottom: 0; opacity: 0.3; }
+  .fondo-pie .revela { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.7; image-rendering: pixelated; }
+  /* ronda 117 (2.ª) · «el saxofonista por delante de Contáctanos» */
+  .jazz .director-pie { z-index: 4; }
   .reticula-pie { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; color: var(--fg); }
   .magia-pie { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .magia-pie { transition: opacity 0.4s ease; }

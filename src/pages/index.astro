@@ -3,6 +3,12 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Carriles from '../components/Carriles.astro';
 import Cargador from '../components/Cargador.astro';
+import CargaCuenta from '../components/CargaCuenta.astro'; // ronda 113: la cuenta de entrada
+import HeroCartel from '../components/HeroCartel.astro'; // ronda 113: el cartel
+import HeroTinta from '../components/HeroTinta.astro'; // ronda 114: la pincelada suena (el roble, ?hero=roble)
+import HeroSumi from '../components/HeroSumi.astro'; // ronda 115: el director a tinta
+import CargaV from '../components/CargaV.astro'; // ronda 115: dibuja una V
+import Disuelve from '../components/Disuelve.astro'; // ronda 117: el director se deshace en píxeles que forman el manifiesto (RaicesMusicales.astro, la 116, queda guardada)
 import Hero from '../components/Hero.astro';
 import Manifiesto from '../components/Manifiesto.astro'; // ronda 89: la segunda sección, en manifiesto
 // import Dolores from '../components/Dolores.astro'; // ronda 89: guardada. Ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
@@ -19,11 +25,19 @@ import Pie from '../components/Pie.astro';
 <Base>
   <Nav />
   <Carriles />
-  <Cargador />
+  <!-- RONDA 115 · el director a tinta y «dibuja una V» son los de serie; para comparar: `?hero=roble` (ronda 114), `?hero=cartel` (113) y `?hero=director` (el ASCII con su carga, 97–112) -->
+  <div data-solo="director" style="display:contents"><Cargador /></div>
+  <div data-solo="cartel roble" style="display:contents"><CargaCuenta /></div>
+  <div data-solo="sumi" style="display:contents"><CargaV /></div>
   <main id="contenido">
     <!-- RONDA 39 · «reestructuramos la web: hero > pains > proyectos destacados > nuestros proyectos > servicios > savvia es la receta de
          tu web > equipo > FAQs > footer» -->
-    <Hero />
+    <div data-solo="director" style="display:contents"><Hero /></div>
+    <div data-solo="cartel" style="display:contents"><HeroCartel /></div>
+    <div data-solo="roble" style="display:contents"><HeroTinta /></div>
+    <div data-solo="sumi" style="display:contents"><HeroSumi /><Disuelve /></div>
+    <script is:inline>(function () { var m = location.search.match(/[?&]hero=(director|cartel|roble)/), v = m ? m[1] : 'sumi'; document.documentElement.dataset.heroV = v;
+      document.querySelectorAll('[data-solo]').forEach(function (el) { if (el.getAttribute('data-solo').split(' ').indexOf(v) < 0) el.remove(); }); })();</script>
     <!-- RONDA 83 · fuera las raíces (Raices.astro queda guardada): el giro a la música -->
     <!-- RONDA 89 · «para la segunda sección vamos a poner un texto […] estilo manifiesto»: los dolores (Dolores.astro) quedan guardados -->
     <Manifiesto />

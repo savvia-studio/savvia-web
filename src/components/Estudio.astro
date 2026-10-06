@@ -23,7 +23,7 @@ const [A, E] = estudio.personas;
   </div>
 
   <div class="paseo mt-12 lg:mt-16" data-paseo>
-    <!-- RONDA 95 · «tenemos que dejar una estela más chula de la actual» (antes, ronda 90: una niebla casi invisible). LA RESONANCIA: cada
+    <!-- RONDA 117 · la estela pasa a pisadas de píxeles tramados (abajo, `dibujar`). RONDA 95 · «tenemos que dejar una estela más chula de la actual» (antes, ronda 90: una niebla casi invisible). LA RESONANCIA: cada
          paso cae en el suelo como una nota en una sala: un eco elíptico que se abre en perspectiva y se apaga, un charco de luz que los sigue
          y se deshace hacia atrás, y un hilo de onda tendido en el suelo que recoge cada pisada y la devuelve hacia el borde. Un lienzo 2D. -->
     <canvas class="estela" aria-hidden="true" data-estela></canvas>
@@ -121,71 +121,30 @@ const [A, E] = estudio.personas;
         cada(x, q, k);
       }
     };
+    // RONDA 117 · «la estela que dejamos Eric y yo no me gusta, pongamos otra cosa más sutil» (fuera la resonancia de la 95: charco, ecos y hilo). En el
+    // lenguaje del hero: cada PASO deja en el suelo una pisada de PÍXELES TRAMADOS (celdas de 3 px, Bayer, la trama del fondo del hero) en la tinta de la
+    // página, muy tenue, que se deshace en ~1,6 s (o con lo andado). Al juntarse, nada.
+    const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
     const dibujar = (ahora: number) => {
       cx.globalCompositeOperation = 'source-over'; cx.clearRect(0, 0, VW, VH);
       const apaga = 1 - smooth(0.7, 0.95, avanceU);
       if (apaga <= 0.002 || !CH) return false;
-      const t = ahora / 1000, luz = oscuro ? 'lighter' : 'source-over';
-      let vivos = false;
+      let vivos = false; const C = 3;
       for (const w of [pa, pe]) {
-        const pie = w.x + CH * 0.3, suelo = w.suelo * CH, d = Math.abs(w.x - w.x0);
-        if (d < 1) continue;
-        cx.globalCompositeOperation = luz;
-        // 1 · EL CHARCO: manchas elípticas muy blandas bajo los pies que se abren y se deshacen hacia atrás (respiran despacio)
-        const L = Math.min(d, VW * 0.42), N = 16;
-        for (let i = 0; i < N; i++) {
-          const s = i / (N - 1), x = pie - w.dir * s * L, r = CH * (0.16 + 0.24 * s);
-          const a = apaga * 0.16 * Math.pow(1 - s, 1.5) * (0.85 + 0.15 * Math.sin(t * 0.7 + i * 1.3));
-          // junto a los pies la luz es cálida (savia); hacia atrás, el claro de la página
-          if (a < 0.002) continue;
-          cx.save(); cx.translate(x, suelo + CH * 0.006); cx.scale(1, 0.17);
-          const g = cx.createRadialGradient(0, 0, 0, 0, 0, r);
-          const c = s < 0.25 ? mezcla(savia, tinta, s / 0.25) : tinta;
-          g.addColorStop(0, rgba(c, a)); g.addColorStop(0.45, rgba(c, a * 0.4)); g.addColorStop(1, rgba(c, 0));
-          cx.fillStyle = g; cx.beginPath(); cx.arc(0, 0, r, 0, 6.2832); cx.fill(); cx.restore();
-        }
-        // 2 · LOS ECOS de cada pisada + los pulsos que recogerá el hilo
-        const pulsos: [number, number][] = [];
-        pasos(w, ahora, (x, q, k) => {
+        const suelo = w.suelo * CH;
+        if (Math.abs(w.x - w.x0) < 1) continue;
+        pasos(w, ahora, (x, q) => {
           vivos = true;
-          const e = 1 - Math.pow(1 - q, 3), f = Math.pow(1 - q, 1.6) * apaga;
-          const rx = CH * (0.04 + 0.5 * e), ry = rx * 0.15;
-          [1, 0.74, 0.52].forEach((m, j) => {
-            cx.strokeStyle = rgba(j ? tinta : mezcla(savia, tinta, Math.min(1, q * 2.5)), f * [0.55, 0.3, 0.16][j]); cx.lineWidth = [1.4, 1, 0.8][j];
-            cx.beginPath(); cx.ellipse(x, suelo, rx * m, ry * m, 0, 0, 6.2832); cx.stroke();
-          });
-          // el golpe: un punto de savia que se enciende en el sitio y se apaga enseguida
-          if (q < 0.35) {
-            const b = (1 - q / 0.35) * apaga, rr = CH * 0.07;
-            cx.save(); cx.translate(x, suelo); cx.scale(1, 0.3);
-            const g = cx.createRadialGradient(0, 0, 0, 0, 0, rr);
-            g.addColorStop(0, rgba(savia, 0.45 * b)); g.addColorStop(1, rgba(savia, 0));
-            cx.fillStyle = g; cx.beginPath(); cx.arc(0, 0, rr, 0, 6.2832); cx.fill(); cx.restore();
+          const dens = (1 - q) * (1 - q) * apaga, rx = CH * 0.045, ry = CH * 0.011;
+          cx.fillStyle = rgba(tinta, 0.34);
+          for (let yy = -ry; yy <= ry; yy += C) for (let xx = -rx; xx <= rx; xx += C) {
+            const r = (xx / rx) ** 2 + (yy / ry) ** 2; if (r > 1) continue;
+            const gx = Math.round((x + xx) / C), gy = Math.round((suelo + yy) / C);
+            if (BAY[(gy & 3) * 4 + (gx & 3)] / 16 < dens * (1 - r * 0.7)) cx.fillRect(gx * C, gy * C, C - 1, C - 1);
           }
-          pulsos.push([x - w.dir * q * CH * 0.9, Math.pow(1 - q, 1.4) * (k % 2 ? 1 : 0.8)]);
         });
-        // 3 · EL HILO DE ONDA: una línea finísima tendida en el suelo, de los pies hacia el borde; casi plana, y cada pisada le manda un pulso
-        //   que viaja hacia atrás y se amortigua. Dos trazos (el segundo, su eco desfasado).
-        const sig = CH * 0.1;
-        for (let h = 0; h < 2; h++) {
-          const gr = cx.createLinearGradient(pie, 0, pie - w.dir * L, 0);
-          gr.addColorStop(0, rgba(tinta, 0)); gr.addColorStop(0.08, rgba(tinta, apaga * (h ? 0.14 : 0.3))); gr.addColorStop(1, rgba(tinta, 0));
-          cx.strokeStyle = gr; cx.lineWidth = h ? 0.7 : 1;
-          cx.beginPath();
-          for (let u = 0; u <= L; u += 3) {
-            const x = pie - w.dir * u, s = u / L;
-            let A = CH * 0.004 * (1 - s);
-            for (const [px, a] of pulsos) { const z = (x - px) / sig; A += CH * 0.045 * a * Math.exp(-z * z); }
-            const y = suelo + CH * (h ? 0.012 : 0.006) - A * Math.sin(u * 0.11 - t * 2.6 + h * 1.9);
-            if (u === 0) cx.moveTo(x, y); else cx.lineTo(x, y);
-          }
-          cx.stroke();
-        }
       }
-      // el grano, restado de todo lo pintado
-      if (grano) { cx.globalCompositeOperation = 'destination-out'; cx.fillStyle = grano; cx.fillRect(0, 0, VW, VH); }
-      cx.globalCompositeOperation = 'source-over';
-      return true;
+      return vivos;
     };
     // un solo reloj a ~30 fps mientras la sección se ve y queda algo vivo; el scroll también pide un dibujo
     let viendo = false, reloj = 0, ultT = 0;

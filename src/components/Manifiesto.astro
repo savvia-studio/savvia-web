@@ -301,7 +301,8 @@ const TOTAL = idx;
   /* en papel no hay reflejo (era del director pintado) */
   .en-papel .reflejo { display: none; }
   /* RONDA 93 · en papel, el texto arranca casi bajo el director (sin el hueco del reflejo): las tarjetas caen de él a sus palabras a la vista */
-  .manifiesto.en-papel { padding-top: calc(var(--spacing) * 16); }
+  .manifiesto.en-papel { padding-top: calc(var(--spacing) * 24); } /* ronda 117 · «la segunda sección con bastante más aire por arriba» (antes 16) */
+  @media (width >= 64rem) { .manifiesto.en-papel { padding-top: calc(var(--spacing) * 48); } }
   :global(.vuelo-letras) { position: fixed; inset: 0; width: 100vw; height: 100lvh; pointer-events: none; z-index: 40; }
   /* centrado en la página, alineado a la izquierda: una columna de lectura */
   .texto {

@@ -42,7 +42,8 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     if (hero) hero.style.transform = '';
     if (raiz.classList.contains('cargando')) { raiz.classList.remove('cargando', 'carriles-entran'); void raiz.offsetWidth; raiz.classList.add('carriles-entran'); }
   };
-  if (!velo || !hero || !raiz.classList.contains('cargando') || scrollY > 40) { terminar(); velo?.remove(); soltar(); }
+  if (!velo && document.querySelector('[data-entrada], [data-entrada-v]')) { /* ronda 113: carga la cuenta */ }
+  else if (!velo || !hero || !raiz.classList.contains('cargando') || scrollY > 40) { terminar(); velo?.remove(); soltar(); }
   else {
     const $ = <T extends Element>(s: string) => velo.querySelector<T>(s)!;
     const cv = $<HTMLCanvasElement>('[data-mastil]'), c = cv.getContext('2d')!, mundo = $<HTMLElement>('[data-mundo]');

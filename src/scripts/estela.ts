@@ -13,7 +13,7 @@ import { rgbDe } from './tinta';
 const VS = 'attribute vec2 a;varying vec2 v;void main(){v=vec2(a.x*.5+.5,.5-a.y*.5);gl_Position=vec4(a,0.,1.);}';
 const FS = [
   'precision highp float;',
-  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek,tr,bt,tf;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;uniform vec4 OW[4];varying vec2 v;',
+  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek,tr,bt,tf,tnv,tcl,dis;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;uniform vec4 OW[4];varying vec2 v;',
   'float h(float p){return fract(sin(p*127.1)*43758.5453);}',
   'float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
   'float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}',
@@ -30,6 +30,9 @@ const FS = [
   '  float ond=0.;vec2 odir=vec2(0.);',
   '  for(int i=0;i<4;i++){vec2 dd=px-OW[i].xy;float dl=length(dd)+.001;float k=exp(-pow((dl-OW[i].z)/48.,2.))*OW[i].w;ond+=k;odir+=dd/dl*k*(dl<OW[i].z?-1.:1.);}',
   '  vec2 q=v+(vec2(h2(floor(px/3.)+paso),h2(floor(px/3.)+paso+17.))-.5)*1.3*dpr*u1*soplo+odir*2.6*dpr*u1;',
+  // RONDA 117 · «el director aún más distorsionado»: con `distorsion`, la imagen se parte en BANDAS horizontales que se desplazan a saltos (6 por segundo) y el
+  // resto ondula despacio, como una señal que se pierde
+  '  if(dis>0.){float bd=floor(px.y/5.);float st=floor(ti*6.);float hb=h(bd*1.7+st*3.1);q.x+=(hb>.6?(h(bd+st)-.5)*dis*26.:(n2(vec2(px.y*.04,ti*.5))-.5)*dis*5.)*dpr*u1.x;}',
   '  vec4 c=texture2D(T,q);float a0=c.a;',
   // destellos horizontales en los cantos: alguna fila, a veces, se estira unos píxeles
   '  float fila=floor(px.y/2.);',
@@ -90,9 +93,9 @@ const FS = [
   '  col=1.-(1.-col)*(1.-vec3(1.,.93,.72)*min(1.,b)*.5);', // ronda 29: sutil: es la luz del hero que le cae encima, no un brillo propio
   // RONDA 85 · TRAMADO MUSICAL (el director): toda la lámina, tramada (Bayer 4×4 en celdas de 2 px, 7 niveles por canal); a cada PULSO (92 BPM, bt = fase del
   // compás 0→1) sale de la batuta (O) un ANILLO que desplaza el umbral de la trama a su paso: el dithering vibra en ondas, como el sonido
-  '  if(tr>.5){vec2 bc=floor(px/2.);float b2a=fract(bc.x*.5+bc.y*bc.y*.75);vec2 bh=floor(bc*.5);float b2b=fract(bh.x*.5+bh.y*bh.y*.75);float bay=b2a*.75+b2b*.25;',
+  '  if(tr>.5){vec2 bc=floor(px/tcl);float b2a=fract(bc.x*.5+bc.y*bc.y*.75);vec2 bh=floor(bc*.5);float b2b=fract(bh.x*.5+bh.y*bh.y*.75);float bay=b2a*.75+b2b*.25;',
   '    float dO=length(vec2((v.x-O.x)*asp,v.y-O.y));float anillo=(exp(-pow((dO-bt*1.5)/.13,2.))*(1.-bt)+exp(-pow((dO-bt*1.5+.3)/.16,2.))*(1.-bt)*.5)*tf;',
-  '    anillo+=ond;float L=7.;col=clamp(floor(col*L+bay+anillo*.9-.35)/L+vec3(.02)+vec3(.05,.04,.03)*ond,0.,1.);a=a*(.92+.08*min(1.,anillo));}',
+  '    anillo+=ond;float L=tnv;col=clamp(floor(col*L+bay+anillo*.9-.35)/L+vec3(.02)+vec3(.05,.04,.03)*ond,0.,1.);a=a*(.92+.08*min(1.,anillo));}',
   // SEMITONO en los cantos (sythera): puntos redondos en retícula a 45° (celda de 5 px); su radio sale de la cobertura
   '  vec2 ro=vec2(px.x+px.y,px.x-px.y)*.7071/5.;vec2 f=fract(ro)-.5;',
   '  float rad=sqrt(a)*.64;float punto=1.-smoothstep(rad-.07,rad+.07,length(f));',
@@ -156,7 +159,7 @@ export type Estela = { onda(x: number, y: number, f?: number): void; fondo(r: nu
 // Safari (WebKit) no libera enseguida los contextos de los lienzos retirados al cambiar de estación y llega a su tope: ahí se sigue durmiendo lo lejano.
 const LIMITE = typeof navigator !== 'undefined' && /Apple/.test(navigator.vendor) ? 0 : 12;
 let vivos = 0;
-export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinGota?: boolean; tramado?: boolean; tramadoBpm?: number; tramadoFuerza?: number; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean }): Estela | null {
+export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinGota?: boolean; tramado?: boolean; tramadoBpm?: number; tramadoFuerza?: number; tramadoNiveles?: number; tramadoCelda?: number; distorsion?: number; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean }): Estela | null {
   const ctx = { premultipliedAlpha: true, alpha: true, antialias: false };
   const gl2 = cv.getContext('webgl2', ctx) as WebGL2RenderingContext | null;
   const gl = (gl2 ?? cv.getContext('webgl', ctx)) as WebGLRenderingContext | null;
@@ -201,7 +204,8 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1);
     // RONDA 83 · `sinGota`: el reloj de la carga sigue (espera a `soltar()`), pero el shader no pinta la gota naranja ni la savia del suelo (el director)
     gl.uniform1f(U('gota'), op.gota && !op.sinGota ? 1 : 0);
-    gl.uniform1f(U('tr'), op.tramado ? 1 : 0); uBT = U('bt'); gl.uniform1f(U('tf'), op.tramadoBpm === 0 ? 0 : op.tramadoFuerza ?? 1); uOW = U('OW'); gl.uniform4fv(uOW, ow); // ronda 87: la fuerza y el tempo de las ondas del tramado
+    gl.uniform1f(U('tr'), op.tramado ? 1 : 0); gl.uniform1f(U('tnv'), op.tramadoNiveles ?? 7); gl.uniform1f(U('tcl'), op.tramadoCelda ?? 2); gl.uniform1f(U('dis'), op.distorsion ?? 0); // ronda 117: niveles y celda del tramado (el director, más tramado)
+     uBT = U('bt'); gl.uniform1f(U('tf'), op.tramadoBpm === 0 ? 0 : op.tramadoFuerza ?? 1); uOW = U('OW'); gl.uniform4fv(uOW, ow); // ronda 87: la fuerza y el tempo de las ondas del tramado
     return true;
   };
   if (!montar()) return null;
@@ -240,9 +244,11 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.uniform1f(uT, s);
     if (uOW) {
       ow.fill(0);
-      const r = cv.getBoundingClientRect();
+      // RONDA 117 · «al hacer scroll hay momentos que se para»: aquí se leía la caja del lienzo en CADA fotograma (getBoundingClientRect: con la página
+      // cambiando por el scroll, una maqueta forzada por fotograma y por lienzo; era lo que más costaba). Ahora la onda se guarda ya en coordenadas del
+      // lienzo al nacer (`onda()`), y aquí no se mide nada
       for (let i = ondas.length - 1; i >= 0; i--) { const e = (ahora - ondas[i].t0) / 1000; if (e > VIDA) ondas.splice(i, 1); }
-      ondas.slice(-4).forEach((o, i) => { const e = (ahora - o.t0) / 1000; ow.set([o.x - r.left, o.y - r.top, e * VEL, o.f * Math.pow(1 - e / VIDA, 1.6) * Math.min(1, e * 6)], i * 4); });
+      ondas.slice(-4).forEach((o, i) => { const e = (ahora - o.t0) / 1000; ow.set([o.x, o.y, e * VEL, o.f * Math.pow(1 - e / VIDA, 1.6) * Math.min(1, e * 6)], i * 4); });
       gl.uniform4fv(uOW, ow);
     }
     if (op.tramado) gl.uniform1f(uBT, ((ahora / 1000) * ((op.tramadoBpm ?? 92) / 60)) % 1); // el compás del tramado
@@ -307,7 +313,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   }, { rootMargin: '100% 0px' }).observe(cv);
   return {
     // una onda que nace en (x, y) de PANTALLA y se abre por todo el lienzo
-    onda(x, y, f = 1) { if (reducido) return; ondas.push({ x, y, t0: performance.now(), f }); ult = 0; pedir(); },
+    onda(x, y, f = 1) { if (reducido) return; const r = cv.getBoundingClientRect(); ondas.push({ x: x - r.left, y: y - r.top, t0: performance.now(), f }); ult = 0; pedir(); },
     fondo(r, g2, b) { foV = [r / 255, g2 / 255, b / 255]; gl.uniform3f(uFO, foV[0], foV[1], foV[2]); ult = 0; pedir(); },
     crecer(x) { if (gota) return; const k = Math.min(1, Math.max(0, x)); if (Math.abs(k - g) > 0.0005 || (k === 1 && g !== 1)) { g = k; ult = 0; pedir(); } },
     visible(si) { ve = si; if (si) pedir(); },

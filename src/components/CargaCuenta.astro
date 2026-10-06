@@ -1,0 +1,194 @@
+---
+// LA CARGA · RONDA 113 · «LA CUENTA». Andoni: «algo más sutil que no sea tanto juego: dibujar la V pero darle un toque musical».
+// Antes de tocar, toda banda CUENTA: «un, dos, tres, cuatro». La carga es esa cuenta de entrada. La V se escribe de un trazo en cuatro tiempos (♩ = 74, el
+// tempo del lo-fi de la web): la pluma da un empujón en cada tiempo y planea hasta el siguiente, como la batuta (el «ictus»). En los tiempos 2, 3 y 4 suenan
+// do · mi · fa, la anacrusa de «When the Saints» que el propio lo-fi cita después, y en el «uno» del compás siguiente aterriza el sol, entra la música
+// (`alinearJazz`: su compás 1 cae justo ahí) y la V vuela a su sitio en el cartel del hero, de donde salen los anillos.
+// · No es un juego: la cuenta empieza sola. Tocar en cualquier sitio solo hace que SUENE (el navegador no deja sonar sin un gesto); si tocas antes de que
+//   empiece, empieza ya. «saltar», Escape o la rueda la saltan. Movimiento reducido: sin carga.
+// · La anterior (el mástil tipo Guitar Hero de las rondas 85–112) sigue en Cargador.astro: `?carga=juego`.
+import isoRaw from '../../public/savvia-isotipo.svg?raw';
+const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
+---
+
+<div class="cuenta-carga" aria-hidden="true" data-entrada>
+  <div class="centro">
+    <svg class="v" viewBox="0 0 370 439" data-v>
+      <defs><mask id="cc-iso" maskUnits="userSpaceOnUse" x="-100" y="-100" width="600" height="700"><path fill="none" stroke="#fff" stroke-width="56" stroke-linecap="round" stroke-linejoin="round" data-pluma /></mask></defs>
+      <path class="fija" d={ISO} />
+      <path class="tinta" d={ISO} mask="url(#cc-iso)" />
+    </svg>
+    <ol class="tiempos detail tabular-nums" data-tiempos><li>1</li><li>2</li><li>3</li><li>4</li></ol>
+  </div>
+  <canvas class="punta" data-punta></canvas>
+  <p class="pie detail">
+    <span class="tempo tabular-nums">♩ = 74</span>
+    <span class="oir" data-oir><span class="con-raton">haz clic para oírla</span><span class="sin-raton">toca para oírla</span></span>
+    <button type="button" class="saltar" data-saltar>saltar</button>
+  </p>
+</div>
+
+<script>
+  import { rhodesSuelto, bajoSuelto, alinearJazz, iniciarJazz } from '../scripts/jazz';
+  import { audio } from '../scripts/musica';
+  const velo = document.querySelector<HTMLElement>('[data-entrada]');
+  const w = window as any, raiz = document.documentElement;
+  if (velo) {
+    w.__cargaViva = true;
+    const hero = document.querySelector<HTMLElement>('[data-hero]');
+    const soltar = () => { if (w.__gotaSuelta) return; w.__gotaSuelta = true; dispatchEvent(new Event('savvia:gota')); };
+    const terminar = () => {
+      if (hero) hero.style.transform = '';
+      if (raiz.classList.contains('cargando')) { raiz.classList.remove('cargando', 'carriles-entran'); void raiz.offsetWidth; raiz.classList.add('carriles-entran'); }
+    };
+    if (!hero || !raiz.classList.contains('cargando') || scrollY > 40) { terminar(); velo.remove(); soltar(); }
+    else {
+      const $ = <T extends Element>(q: string) => velo.querySelector<T>(q)!;
+      const v = $<SVGSVGElement>('[data-v]'), pluma = $<SVGPathElement>('[data-pluma]'), tiempos = [...velo.querySelectorAll<HTMLElement>('[data-tiempos] li')];
+      const cv = $<HTMLCanvasElement>('[data-punta]'), c = cv.getContext('2d')!, oir = $<HTMLElement>('[data-oir]');
+      // ── el camino de la pluma por la V (el eje medido en la ronda 68) y los cuatro tramos de la cuenta: el rizo · el grueso que baja · el fino que sube · la bola
+      const EJE: [number, number][] = [[3, 225], [22, 197], [45, 172], [72, 160], [88, 178], [86, 214], [72, 268], [56, 330], [46, 385], [54, 424], [80, 420], [112, 382], [148, 314], [188, 228], [220, 154], [246, 94], [270, 46], [298, 18], [332, 14], [358, 32], [352, 58], [334, 62], [324, 48]];
+      const CORTES = [0, 4, 10, 17, EJE.length - 1];
+      // el camino, suavizado, con su longitud acumulada
+      const pts: [number, number][] = []; const idx: number[] = [];
+      for (let k = 0; k < EJE.length - 1; k++) { idx[k] = pts.length; for (let j = 0; j < 8; j++) { const t = j / 8; pts.push([EJE[k][0] + (EJE[k + 1][0] - EJE[k][0]) * t, EJE[k][1] + (EJE[k + 1][1] - EJE[k][1]) * t]); } }
+      idx[EJE.length - 1] = pts.length; pts.push(EJE[EJE.length - 1]);
+      const liso = pts.map((_, i) => { if (i < 2 || i > pts.length - 3) return pts[i]; let x = 0, y = 0; for (let k = -2; k <= 2; k++) { x += pts[i + k][0]; y += pts[i + k][1]; } return [x / 5, y / 5] as [number, number]; });
+      const acum = [0]; for (let i = 1; i < liso.length; i++) acum.push(acum[i - 1] + Math.hypot(liso[i][0] - liso[i - 1][0], liso[i][1] - liso[i - 1][1]));
+      const L = acum[acum.length - 1];
+      pluma.setAttribute('d', 'M' + liso.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L'));
+      pluma.setAttribute('stroke-dasharray', `${L} ${L}`); pluma.setAttribute('stroke-dashoffset', String(L));
+      const fracCorte = CORTES.map((k) => acum[idx[k]] / L);
+      const enCamino = (f: number): [number, number] => { const d = f * L; let i = 1; while (i < acum.length - 1 && acum[i] < d) i++; const u = (d - acum[i - 1]) / Math.max(1e-6, acum[i] - acum[i - 1]); return [liso[i - 1][0] + (liso[i][0] - liso[i - 1][0]) * u, liso[i - 1][1] + (liso[i][1] - liso[i - 1][1]) * u]; };
+      // ── el reloj de la cuenta
+      const BEAT = 60000 / 74;
+      let t1 = 0, fin = false, raf = 0, dado = -1;
+      const ondas: { x: number; y: number; t: number; f: number }[] = [];
+      const ictus = (u: number) => 1 - Math.pow(1 - u, 3.2); // empujón en el tiempo, planea hasta el siguiente
+      const puntoPantalla = (f: number) => { const r = v.getBoundingClientRect(), [x, y] = enCamino(f); return [r.left + (x / 370) * r.width, r.top + (y / 439) * r.height]; };
+      const suena = () => audio()?.state === 'running';
+      const tiempo = (k: number) => {
+        // k: 0..3 los cuatro tiempos de la cuenta; 4 el «uno» del compás siguiente
+        tiempos.forEach((li, i) => li.classList.toggle('on', i === k));
+        if (k < 4) { const [x, y] = puntoPantalla(fracCorte[k]); ondas.push({ x, y, t: performance.now(), f: k === 0 ? 1 : 0.7 }); }
+        if (k >= 1 && k <= 3) rhodesSuelto([72, 76, 77][k - 1], 0.075, 1.4, 0, false);
+        if (k === 0 && suena()) rhodesSuelto(60, 0.03, 0.8, 0, false);
+      };
+      const medir = () => { const d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; c.setTransform(d, 0, 0, d, 0, 0); };
+      medir(); addEventListener('resize', medir);
+      const CORAL = '255,97,107';
+      const pintar = (ahora: number) => {
+        raf = 0; if (fin) return;
+        c.clearRect(0, 0, innerWidth, innerHeight);
+        if (t1) {
+          const b = (ahora - t1) / BEAT; // tiempos desde el «1»
+          const k = Math.floor(b);
+          if (k !== dado && k >= 0) { dado = k; tiempo(Math.min(4, k)); }
+          if (k >= 4) { aterrizar(); return; }
+          // el trazo: en cada tiempo, del corte k al k+1, con el empujón del ictus
+          const f = k < 0 ? 0 : fracCorte[k] + (fracCorte[k + 1] - fracCorte[k]) * ictus(b - k);
+          pluma.setAttribute('stroke-dashoffset', String(L * (1 - f)));
+          // la punta: un punto Coral que respira con el tiempo
+          const [x, y] = puntoPantalla(f), m = Math.exp(-(b - k) * 2.4);
+          c.fillStyle = `rgba(${CORAL},${0.18 * m})`; c.beginPath(); c.arc(x, y, 14 + 10 * m, 0, Math.PI * 2); c.fill();
+          c.fillStyle = `rgb(${CORAL})`; c.beginPath(); c.arc(x, y, 3.2 + 1.6 * m, 0, Math.PI * 2); c.fill();
+        }
+        // en cada tiempo, un aro fino que se abre desde la pluma
+        for (let i = ondas.length - 1; i >= 0; i--) {
+          const o = ondas[i], e = (ahora - o.t) / 1000; if (e > 1.6) { ondas.splice(i, 1); continue; }
+          c.strokeStyle = `rgba(${CORAL},${(0.5 * o.f * Math.pow(1 - e / 1.6, 2)).toFixed(3)})`; c.lineWidth = 1;
+          c.beginPath(); c.arc(o.x, o.y, 6 + e * 70 * o.f, 0, Math.PI * 2); c.stroke();
+        }
+        raf = requestAnimationFrame(pintar);
+      };
+      const empezar = () => { if (t1 || fin) return; t1 = performance.now() + 120; if (!raf) raf = requestAnimationFrame(pintar); };
+      // el «uno»: aterriza el sol, entra la música y la V vuela a su sitio en el cartel
+      function aterrizar() {
+        if (fin) return; fin = true;
+        pluma.setAttribute('stroke-dashoffset', '0');
+        alinearJazz(performance.now()); iniciarJazz();
+        rhodesSuelto(79, 0.085, 2.4, 0, false); bajoSuelto(36, 0.18);
+        velo!.classList.add('fuera');
+        terminar();
+        const destino = (window as any).__cartelFuente?.() as DOMRect | undefined, r = v.getBoundingClientRect();
+        if (destino && destino.width > 0) {
+          const dx = destino.left + destino.width / 2 - (r.left + r.width / 2), dy = destino.top + destino.height / 2 - (r.top + r.height / 2), k = destino.height / r.height;
+          v.style.transition = 'transform 1.15s cubic-bezier(0.7, 0, 0.16, 1)';
+          requestAnimationFrame(() => { v.style.transform = `translate(${dx}px, ${dy}px) scale(${k})`; v.classList.add('vuela'); });
+          // al posarse, la V se deshace (en la tinta, en una gota; en el cartel, la releva la suya)
+          setTimeout(() => { soltar(); v.style.transition += ', opacity 0.5s ease'; v.style.opacity = '0'; }, 1050);
+          setTimeout(() => velo!.remove(), 1500);
+        } else { soltar(); setTimeout(() => velo!.remove(), 900); }
+      }
+      const saltar = () => { if (fin) return; fin = true; pluma.setAttribute('stroke-dashoffset', '0'); terminar(); soltar(); velo!.classList.add('fuera', 'deprisa'); setTimeout(() => velo!.remove(), 600); };
+      // tocar: que suene (y si aún no ha empezado, empieza)
+      const toque = (e: Event) => { if ((e.target as Element)?.closest?.('[data-saltar]')) return; oir.classList.add('oida'); empezar(); };
+      velo.addEventListener('pointerdown', toque);
+      addEventListener('keydown', (e) => { if (fin) return; if (e.key === 'Escape') saltar(); else { oir.classList.add('oida'); empezar(); } });
+      addEventListener('wheel', saltar, { passive: true, once: true });
+      $<HTMLButtonElement>('[data-saltar]').addEventListener('click', saltar);
+      // empieza sola: un respiro para que se vea la V en blanco y la invitación a oírla
+      setTimeout(empezar, 1500);
+      raf = requestAnimationFrame(pintar);
+    }
+  }
+</script>
+
+<style>
+  .cuenta-carga {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    color: var(--color-niebla);
+  }
+  /* el fondo va en su propia capa: al irse se funde él y la V sigue a la vista mientras vuela a su sitio */
+  .cuenta-carga::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--noche, #3b231b);
+    background-image: url('/media/grano.png');
+    transition: opacity 0.9s ease 0.15s;
+  }
+  .cuenta-carga.fuera { pointer-events: none; }
+  .cuenta-carga.fuera::before { opacity: 0; }
+  .cuenta-carga.fuera .v { opacity: 1; }
+  .cuenta-carga.fuera .tiempos, .cuenta-carga.fuera .pie { opacity: 0; transition: opacity 0.3s ease; }
+  .cuenta-carga.deprisa::before { transition-duration: 0.45s; transition-delay: 0s; }
+  .cuenta-carga.deprisa .centro { opacity: 0; transition: opacity 0.3s ease; }
+  .centro {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--spacing) * 12);
+  }
+  .v { height: min(30lvh, 240px); width: auto; overflow: visible; transform-origin: 50% 50%; }
+  .v .fija { fill: currentColor; opacity: 0.09; }
+  .v .tinta { fill: var(--color-coral); }
+  .v.vuela .fija { opacity: 0; transition: opacity 0.4s ease; }
+  .tiempos { font-size: 0.9375rem; display: flex; gap: calc(var(--spacing) * 8); list-style: none; padding: 0; margin: 0; }
+  .tiempos li { opacity: 0.32; transition: opacity 0.6s ease, color 0.6s ease; }
+  .tiempos li.on { opacity: 1; color: var(--color-coral); transition-duration: 0.05s; }
+  .punta { position: absolute; inset: 0; pointer-events: none; }
+  .pie {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--spacing) * 8 + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: center;
+    gap: calc(var(--spacing) * 6);
+    color: color-mix(in srgb, currentColor 55%, transparent);
+  }
+  .oir { transition: opacity 0.6s ease; }
+  .oir.oida { opacity: 0; }
+  .sin-raton { display: none; }
+  @media (pointer: coarse) { .con-raton { display: none; } .sin-raton { display: inline; } }
+  .saltar { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  :global(html[data-paleta='clara']) .cuenta-carga { color: #241c19; }
+  :global(html[data-paleta='clara']) .cuenta-carga::before { background-color: #f5f7ff; }
+</style>

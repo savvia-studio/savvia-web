@@ -198,17 +198,22 @@ import { nav, pie } from '../data/home';
     // RONDA 65 · se mira bajo el LOGOTIPO (no en el centro: la gota de color de cada sección llega antes por el centro que por los lados) y se
     // cuenta con esa gota (entradas.ts › __subeEn), que cubre la barra antes de que llegue la sección
     const logo = document.querySelector<HTMLElement>('.logo-marca');
+    // RONDA 117 · rendimiento del scroll: el logotipo va fijo, así que su centro se mide solo al cambiar el tamaño (antes, en cada fotograma); y mirar qué hay
+    // debajo (elementsFromPoint fuerza la maqueta) se hace como mucho cada 90 ms
+    let cx0 = 60, cy0 = 40, ultMira = 0, tPend = 0;
+    const centro = () => { const lr = logo?.getBoundingClientRect(); if (lr && lr.width) { cx0 = lr.left + lr.width / 2; cy0 = lr.top + lr.height / 2; } };
+    centro(); addEventListener('resize', centro); addEventListener('savvia:gota', () => setTimeout(centro, 50));
     const mirar = () => {
-      pedido = false;
-      const lr = logo?.getBoundingClientRect(), x = lr ? lr.left + lr.width / 2 : 60, y = lr ? lr.top + lr.height / 2 : 40;
+      pedido = false; ultMira = performance.now();
+      const x = cx0, y = cy0;
       const gota = (window as any).__subeEn?.(x, y) as HTMLElement | null;
-      const el = gota ?? document.elementsFromPoint(x, y).find((e) => e.matches('.surface-light, .surface-warm, .surface-dark, main > section, main > div, footer'));
+      const el = gota ?? document.elementsFromPoint(x, y).find((e) => e.matches('.surface-light, .surface-warm, .surface-dark, main > section, main > div, [data-hero], footer'));
       // ronda 62: surface-warm es Salvia Blue (claro): sobre él la barra va en Cacao, como sobre lo claro
       const claro = !!el && (el.matches('.surface-light, .surface-warm') || (!el.matches('.surface-dark') && !!el.closest('.surface-light, .surface-warm')) || (document.documentElement.dataset.paleta === 'clara' && (!el.closest('.surface-dark') || !!el.closest('#proyectos')))); // ronda 91: en la paleta clara, la base es clara · ronda 94: y Proyectos también (sobre la foto manda `sobre-escena`)
       if (claro !== sobreClaro) { sobreClaro = claro; document.documentElement.classList.toggle('sobre-claro', claro); }
     };
-    const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(mirar); } };
-    addEventListener('scroll', pedir, { passive: true }); addEventListener('resize', pedir); setTimeout(mirar, 300);
+    const pedir = () => { if (pedido) return; pedido = true; const falta = 90 - (performance.now() - ultMira); if (falta > 0) { clearTimeout(tPend); tPend = window.setTimeout(() => requestAnimationFrame(mirar), falta); } else requestAnimationFrame(mirar); };
+    addEventListener('scroll', pedir, { passive: true }); addEventListener('resize', pedir); setTimeout(mirar, 300); addEventListener('savvia:gota', pedir); // ronda 113: al terminar la carga (antes la carga tapaba el hero y no se volvía a mirar)
   }
 </script>
 
@@ -240,7 +245,7 @@ import { nav, pie } from '../data/home';
   .logo-marca {
     display: block;
     height: 2.125rem; /* 34 px: las letras quedan a la altura de la palabra de antes */
-    aspect-ratio: 1275 / 439;
+    aspect-ratio: 1126 / 439; /* ronda 117: el logotipo de la versión musical (logotipo_music.svg; el anterior, en tools/retirados/savvia-logo.r116.svg) */
     background: currentColor;
     -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
     mask: url('/savvia-logo.svg') center / contain no-repeat;

@@ -295,17 +295,19 @@ function escenaQuad(k: string) {
         };
       })();
       type Prep = { W: number; H: number; d: Float32Array; t: Float32Array; rgb: number[]; im?: ImageData };
-      const preparar = (img: HTMLImageElement, cv: HTMLCanvasElement): Prep | null => {
+      const preparar = async (img: HTMLImageElement, cv: HTMLCanvasElement): Promise<Prep | null> => {
         // RONDA 76 · rendimiento («la web se ralentiza»): el retrato se calculaba y se repintaba píxel a píxel a densidad retina (≈520.000 px por
         // fotograma durante 2,4 s en un Mac). A 1,25 el carboncillo se ve igual (es trazo blando) y cuesta 2,6 veces menos
         const dpr = Math.min(1.25, devicePixelRatio || 1), r = cv.getBoundingClientRect(), W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
         if (!W || !img.naturalWidth) return null;
+        try { await img.decode(); } catch {} // ronda 117: la imagen se descodifica fuera del hilo antes de leerla (si no, lo hacía getImageData de golpe)
         cv.width = W; cv.height = H;
-        const o = document.createElement('canvas'); o.width = W; o.height = H; const oc = o.getContext('2d')!;
+        const o = document.createElement('canvas'); o.width = W; o.height = H; const oc = o.getContext('2d', { willReadFrequently: true })!; // ronda 117: lienzo en CPU (la lectura de píxeles era una tarea larga al llegar)
         const s = Math.min(W / img.naturalWidth, H / img.naturalHeight); oc.drawImage(img, (W - img.naturalWidth * s) / 2, H - img.naturalHeight * s, img.naturalWidth * s, img.naturalHeight * s);
         const px = oc.getImageData(0, 0, W, H).data, n = W * H, d = new Float32Array(n), t = new Float32Array(n);
         const esc = 1 / dpr;
-        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        // RONDA 117 · «al hacer scroll hay momentos que se para»: el cálculo se hace a TROZOS (unas 30 filas y se cede el hilo); de una vez era una tarea de ~180 ms
+        for (let y = 0; y < H; y++) { if (y % 30 === 29) await new Promise((r) => setTimeout(r, 0)); for (let x = 0; x < W; x++) {
           const i = y * W + x, a = px[i * 4 + 3] / 255;
           const osc = 1 - (0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]) / 255;
           // RONDA 69 · «más mimetizados con el fondo aún»: la tinta más ligera y el dibujo se deshace hacia los bordes (como un carboncillo que se difumina en el papel)
@@ -320,7 +322,7 @@ function escenaQuad(k: string) {
           d[i] = tinta * (1 - peso) + punto * peso * (tinta > 0.02 ? 1 : 0);
           // rayas (el orden del dibujo): largas en la diagonal del sombreado, finas de través
           t[i] = 0.5 * (1 - d[i]) + 0.32 * ruido(u / 46, v / 2.6) + 0.18 * ruido(x * esc / 90, y * esc / 90);
-        }
+        } }
         const m = getComputedStyle(voz).color.match(/[\d.]+/g)!.map(Number);
         return { W, H, d, t, rgb: [m[0], m[1], m[2]] };
       };
@@ -341,7 +343,7 @@ function escenaQuad(k: string) {
         await listo(img);
         if (mia !== gen) return;
         const nuevo = lienzos[1 - frente], viejo = lienzos[frente];
-        const P = preparar(img, nuevo); if (!P) return;
+        const P = await preparar(img, nuevo); if (!P || mia !== gen) return;
         anchoR = innerWidth; frente = 1 - frente;
         nuevo.style.zIndex = '2'; viejo.style.zIndex = '1';
         viejo.classList.remove('on'); nuevo.classList.add('on');
@@ -385,7 +387,7 @@ function escenaQuad(k: string) {
       };
       // la primera vez, al asomar: el retrato se dibuja y la cita se escribe
       new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { pintarRetrato(0); escribir(0, true); o.disconnect(); } }, { threshold: 0.35 }).observe(voz);
-      addEventListener('resize', () => { const img = fuentes[k], cv = lienzos[frente]; if (!img.naturalWidth || innerWidth === anchoR) return; anchoR = innerWidth; gen++; const P = preparar(img, cv); if (P) pintar(cv, P, 1); });
+      addEventListener('resize', () => { const img = fuentes[k], cv = lienzos[frente]; if (!img.naturalWidth || innerWidth === anchoR) return; anchoR = innerWidth; gen++; const g0 = gen; preparar(img, cv).then((P) => { if (P && g0 === gen) pintar(cv, P, 1); }); });
       const programar = () => { clearTimeout(reloj); if (visible && !quieto && !reducido) reloj = window.setTimeout(() => { poner(k + 1); programar(); }, 9000); };
       voz.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => b.addEventListener('click', () => { poner(k + Number(b.dataset.paso)); programar(); }));
       voz.addEventListener('pointerenter', () => { quieto = true; programar(); });

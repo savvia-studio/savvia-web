@@ -1,0 +1,110 @@
+---
+// LAS RAÍCES MUSICALES · RONDA 116. Andoni: «de cara a seguir con la segunda sección, del director salen como raíces musicales que te llevan al texto».
+// Como las raíces del roble en savvia.studio, pero que SUENAN: nacen de los pies del director (el centro, arriba), crecen con el scroll y la principal acaba en la
+// capitular del manifiesto. Son musicales por cómo se comportan, no por notación (el pentagrama como estela ya cayó, ronda 85): son CUERDAS: en cada compás la
+// música baja por ellas como una vibración (el frente ondula y se apaga), un pulso de savia Coral recorre la principal hasta el texto y sus nudos se encienden
+// a su paso, como notas que se tocan. Movimiento reducido: dibujadas y quietas.
+---
+
+<div class="raices-m" aria-hidden="true" data-raices-m><canvas data-raices-cv></canvas></div>
+
+<script>
+  const caja = document.querySelector<HTMLElement>('[data-raices-m]');
+  if (caja) {
+    const cv = caja.querySelector<HTMLCanvasElement>('[data-raices-cv]')!, c = cv.getContext('2d')!;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    type Raiz = { pts: [number, number][]; acum: number[]; L: number; w0: number; ini: number; fin: number; principal: boolean; nudos: number[] };
+    let W = 0, H = 0, dpr = 1, raices: Raiz[] = [], tinta = '234,221,231', visto = false, raf = 0;
+    const pulsos: number[] = [];
+    let h = 116; const az = () => ((h = (h * 16807) % 2147483647) / 2147483647);
+    // una raíz: de (x0, y0) hacia (x1, y1), serpenteando (ruido suave a los lados) y afinándose
+    const hacer = (x0: number, y0: number, x1: number, y1: number, w0: number, ini: number, fin: number, principal: boolean, vaiven: number): Raiz => {
+      const n = 46, pts: [number, number][] = [], f1 = az() * 6, f2 = az() * 6;
+      for (let i = 0; i <= n; i++) {
+        const t = i / n, e = t * t * (3 - 2 * t);
+        const lado = Math.sin(t * 5.2 + f1) * vaiven * Math.sin(Math.PI * t) + Math.sin(t * 13 + f2) * vaiven * 0.18 * Math.sin(Math.PI * t);
+        pts.push([x0 + (x1 - x0) * (principal ? e : t) + lado, y0 + (y1 - y0) * (principal ? t : Math.pow(t, 0.85))]);
+      }
+      const acum = [0]; for (let i = 1; i < pts.length; i++) acum.push(acum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      const nudos: number[] = []; for (let d = 40 + az() * 30; d < acum[acum.length - 1] - 20; d += 55 + az() * 60) nudos.push(d);
+      return { pts, acum, L: acum[acum.length - 1], w0, ini, fin, principal, nudos };
+    };
+    const medir = () => {
+      const r = caja.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1);
+      // el lienzo llega hasta la capitular del manifiesto (que está debajo de esta caja)
+      const cap = document.querySelector('[data-capitular]')?.getBoundingClientRect();
+      W = r.width; H = cap ? Math.max(r.height, cap.top + cap.height * 0.35 - r.top) : r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px';
+      const m = getComputedStyle(caja).color.match(/\d+/g); if (m) tinta = m.slice(0, 3).join(',');
+      h = 116; raices = [];
+      const sx = W / 2, capX = cap ? cap.left + cap.width * 0.42 - r.left : W * 0.3, movil = W < 768;
+      raices.push(hacer(sx, 0, capX, H, movil ? 3.2 : 4.2, 0, 0.92, true, movil ? 26 : 60));
+      const nb = movil ? 6 : 9;
+      for (let i = 0; i < nb; i++) {
+        const lado = i % 2 ? 1 : -1, ab = (0.25 + az() * 0.75) * (movil ? 0.42 : 0.38) * W, prof = H * (0.18 + az() * 0.36); // las secundarias se quedan arriba: solo la principal llega al texto
+        const desde = raices[0].pts[Math.floor(az() * 14)];
+        raices.push(hacer(desde[0], desde[1], desde[0] + lado * ab, desde[1] + prof, 1.2 + az() * 1.6, 0.04 + az() * 0.4, 0.45 + az() * 0.5, false, 18 + az() * 30));
+      }
+      pintar(performance.now());
+    };
+    // cuánto han crecido: con el scroll (0 con la caja asomando bajo el hero, 1 con la capitular a media pantalla)
+    const avance = () => { const r = caja.getBoundingClientRect(); return reducido ? 1 : Math.max(0, Math.min(1, (innerHeight * 1.02 - r.top) / (H * 0.95))); };
+    const pintar = (ahora: number) => {
+      raf = 0; if (!W) return;
+      c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H); c.lineCap = 'round'; c.lineJoin = 'round';
+      const p = avance();
+      for (let i = pulsos.length - 1; i >= 0; i--) if ((ahora - pulsos[i]) / 1000 > 4) pulsos.splice(i, 1);
+      for (const rz of raices) {
+        const g = Math.max(0, Math.min(1, (p - rz.ini) / (rz.fin - rz.ini))); if (g <= 0) continue;
+        const hasta = g * rz.L;
+        // la vibración: cada pulso baja por la raíz como un frente que ondula la cuerda y se apaga
+        const desplaza = (d: number) => { let o = 0; for (const t0 of pulsos) { const e = (ahora - t0) / 1000, fr = e * 260 - (rz.principal ? 0 : rz.ini * 300); if (fr < 0) continue; const k = Math.exp(-Math.pow((d - fr) / 70, 2)) * Math.exp(-e * 0.9); o += Math.sin((d - fr) * 0.12) * k * (rz.principal ? 5 : 3.4); } return o; };
+        let prev: [number, number] | null = null;
+        for (let i = 1; i < rz.pts.length; i++) {
+          const d = rz.acum[i]; if (d > hasta + 1) break;
+          const a = rz.pts[i - 1], b = rz.pts[i], nx = -(b[1] - a[1]), ny = b[0] - a[0], nl = Math.hypot(nx, ny) || 1, o = desplaza(d);
+          const q: [number, number] = [b[0] + (nx / nl) * o, b[1] + (ny / nl) * o];
+          const f = d / rz.L, w = rz.w0 * (1 - f * 0.82) * (d > hasta - 30 ? Math.max(0.25, (hasta - d) / 30) : 1);
+          c.strokeStyle = `rgba(${tinta},${(rz.principal ? 0.5 : 0.32) * (1 - f * 0.45)})`; c.lineWidth = Math.max(0.6, w);
+          c.beginPath(); c.moveTo(prev ? prev[0] : a[0], prev ? prev[1] : a[1]); c.lineTo(q[0], q[1]); c.stroke(); prev = q;
+        }
+        // los nudos: se encienden cuando pasa la música, como notas que se tocan
+        for (const dn of rz.nudos) {
+          if (dn > hasta) break;
+          let luz = 0; for (const t0 of pulsos) { const e = (ahora - t0) / 1000, fr = e * 260 - (rz.principal ? 0 : rz.ini * 300); luz = Math.max(luz, Math.exp(-Math.pow((dn - fr) / 40, 2)) * Math.exp(-e * 0.7)); }
+          const k = rz.acum.findIndex((x) => x >= dn), pt = rz.pts[Math.max(0, k)];
+          c.fillStyle = luz > 0.05 ? `rgba(255,97,107,${(0.25 + luz * 0.75).toFixed(3)})` : `rgba(${tinta},0.35)`;
+          c.beginPath(); c.arc(pt[0], pt[1], 1.6 + luz * 2.4, 0, Math.PI * 2); c.fill();
+        }
+      }
+      // el pulso de savia que baja por la principal hasta el texto
+      const pr = raices[0]; if (pr) {
+        const hasta = Math.max(0, Math.min(1, p / pr.fin)) * pr.L;
+        for (const t0 of pulsos) {
+          const d = ((ahora - t0) / 1000) * 260; if (d > hasta) continue;
+          const k = pr.acum.findIndex((x) => x >= d), pt = pr.pts[Math.max(0, k)], a = Math.exp(-((ahora - t0) / 1000) * 0.35);
+          const gr = c.createRadialGradient(pt[0], pt[1], 0, pt[0], pt[1], 14); gr.addColorStop(0, `rgba(255,97,107,${(0.75 * a).toFixed(3)})`); gr.addColorStop(1, 'rgba(255,97,107,0)');
+          c.fillStyle = gr; c.beginPath(); c.arc(pt[0], pt[1], 14, 0, Math.PI * 2); c.fill();
+        }
+      }
+      if (visto && !reducido && pulsos.length) raf = requestAnimationFrame(pintar);
+    };
+    const pedir = () => { if (!raf) raf = requestAnimationFrame(pintar); };
+    addEventListener('scroll', pedir, { passive: true });
+    addEventListener('savvia:pulso', (e) => { const d = (e as CustomEvent).detail; if (!visto || reducido || d.k !== 0) return; pulsos.push(performance.now()); if (pulsos.length > 4) pulsos.shift(); pedir(); });
+    new IntersectionObserver(([x]) => { visto = x.isIntersecting; if (visto) pedir(); }, { rootMargin: '0px 0px 40% 0px' }).observe(cv);
+    new ResizeObserver(() => medir()).observe(document.body);
+    medir();
+  }
+</script>
+
+<style>
+  .raices-m {
+    position: relative;
+    z-index: 1;
+    height: clamp(14rem, 42lvh, 26rem);
+    color: var(--fg);
+    pointer-events: none;
+  }
+  .raices-m canvas { position: absolute; left: 0; top: 0; width: 100%; display: block; }
+</style>
