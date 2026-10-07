@@ -4,7 +4,7 @@ const { chromium, webkit, launchOpts, userAgent } = require('/Users/andonimart/D
     const b = n === 'webkit' ? await B.launch() : await B.launch(launchOpts);
     const p = await (await b.newContext({ viewport: { width: W, height: W > 600 ? 720 : 844 }, userAgent: n === 'webkit' ? undefined : userAgent })).newPage();
     const errs = []; p.on('pageerror', (e) => errs.push(String(e)));
-    await p.goto(`http://localhost:4321${ruta}?carga=0&lenis=0&entreacto=4`, { waitUntil: 'networkidle' });
+    await p.goto(`${process.env.BASE_URL || 'http://localhost:4321'}${ruta}?carga=0&lenis=0&entreacto=4`, { waitUntil: 'networkidle' });
     await p.waitForTimeout(2500); const antes = await p.evaluate(() => window.__entreacto.estado());
     await p.waitForTimeout(3500); const abierto = await p.evaluate(() => window.__entreacto.estado());
     await p.waitForTimeout(1800); await p.screenshot({ path: `tools/shots/r124-${n}-${W}${ruta === '/' ? '' : '-clara'}.jpg`, quality: 75 });
