@@ -94,9 +94,10 @@ export function crearPartituraLuz(cv: HTMLCanvasElement, sec: HTMLElement, op: O
   const pantalla = (): [number, number, number][] => {
     const pa = cv.parentElement; if (!pa || !luces.length) return [];
     const cs = getComputedStyle(pa), d = parseFloat(cs.perspective) || 900, [po, pv] = cs.perspectiveOrigin.split(' ').map(parseFloat);
+    // ronda 119: la matriz incluye el translate(-50%, -50%) (ya va dentro de transform), por eso el centro del lienzo se suma abajo
     const m = new DOMMatrix(getComputedStyle(cv).transform), pr = pa.getBoundingClientRect(), cx = cv.offsetLeft, cy = cv.offsetTop;
     return luces.map(([x, y, f]) => {
-      const q = m.transformPoint(new DOMPoint(x - W / 2, y - H / 2, 0)), X = cx + q.x, Y = cy + q.y, k = d / Math.max(1, d - q.z);
+      const q = m.transformPoint(new DOMPoint(x - W / 2, y - H / 2, 0)), X = cx + W / 2 + q.x, Y = cy + H / 2 + q.y, k = d / Math.max(1, d - q.z);
       return [pr.left + po + (X - po) * k, pr.top + pv + (Y - pv) * k, f] as [number, number, number];
     }).filter(([x, y]) => x > pr.left && x < pr.right && y > pr.top && y < pr.bottom);
   };
