@@ -275,8 +275,14 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   };
   // ronda 118 (14.ª): la fuente de la textura puede cambiar en caliente (`imagen()`: los fotogramas del giro del director, con el mismo efecto)
   let fuente: TexImageSource = img;
+  // ronda 120: cada fuente con su propia textura, subida UNA vez (los bucles del director y los músicos cambian de pose 4 veces por tiempo: volver a subir
+  // 1672 × 941 en cada cambio bajaba el hero de 52 a 19 fps con la CPU ×4). Cambiar de pose = cambiar qué textura está enlazada
+  let texturas = new Map<TexImageSource, WebGLTexture>();
   const textura = () => {
-    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+    const t = texturas.get(fuente);
+    if (t) { gl.bindTexture(gl.TEXTURE_2D, t); return; }
+    const nueva = gl.createTexture()!; texturas.set(fuente, nueva);
+    gl.bindTexture(gl.TEXTURE_2D, nueva);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, fuente);
     if (gl2) gl.generateMipmap(gl.TEXTURE_2D);
@@ -308,6 +314,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     if (!montar()) return;
     // lo que estaba a medio aparecer vuelve ya aparecido (el visitante no lo estaba viendo)
     if (gota) { t0 = performance.now() - (INTRO + CRECE + 1) * 1000; suelta = true; }
+    texturas = new Map(); // las del contexto perdido ya no valen
     if (cargada) { textura(); listo = true; medir(); }
   });
   let lejos = false;
@@ -338,9 +345,10 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     luz(x) { lxV = x; gl.uniform1f(uLX, x); ult = 0; pedir(); },
     // cambia la imagen que pinta (misma textura, sin repetir la aparición); null = vuelve a la lámina original
     imagen(src) {
-      fuente = src ?? img; if (!listo) return;
-      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, fuente);
-      if (gl2) gl.generateMipmap(gl.TEXTURE_2D);
+      const antes = fuente; fuente = src ?? img; if (!listo || (fuente === antes && !(fuente instanceof HTMLCanvasElement))) return;
+      // un lienzo (el del giro) se redibuja con cada pose: ese sí se vuelve a subir; las imágenes, solo la primera vez
+      if (fuente instanceof HTMLCanvasElement && texturas.has(fuente)) { gl.bindTexture(gl.TEXTURE_2D, texturas.get(fuente)!); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, fuente); if (gl2) gl.generateMipmap(gl.TEXTURE_2D); }
+      else textura();
       ult = 0; pedir();
     },
     // RONDA 24: fijar la estación de golpe (la de hoy, al cargar), sin pintar

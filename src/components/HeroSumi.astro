@@ -147,7 +147,7 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
       requestAnimationFrame(paso);
     };
     const gesto = !reducido && /[?&]gesto=1/.test(location.search) ? crearGesto(sec.querySelector<HTMLCanvasElement>('[data-gesto]')!, sec.querySelector<HTMLElement>('.pie')!, caja, marco, { clara, nivel, fase }) : null;
-    const empezar = () => { if (empezado) return; revelar(); empezado = true; setTimeout(() => cargarGiro(), 2500); setTimeout(() => gesto?.empezar(), 1400); sec.classList.add('encendido', 'luz-entra'); est?.soltar(); estM?.soltar(); setTimeout(() => sec.classList.add('pintado'), reducido ? 0 : 4200); setTimeout(() => pulso(1), reducido ? 0 : 900); };
+    const empezar = () => { if (empezado) return; revelar(); empezado = true; setTimeout(() => cargarGiro(), 2500); setTimeout(() => cargarBucle(), 0); setTimeout(() => gesto?.empezar(), 1400); sec.classList.add('encendido', 'luz-entra'); est?.soltar(); estM?.soltar(); setTimeout(() => sec.classList.add('pintado'), reducido ? 0 : 4200); setTimeout(() => pulso(1), reducido ? 0 : 900); };
     if ((window as any).__gotaSuelta) empezar(); else addEventListener('savvia:gota', empezar, { once: true });
     // ── EL GIRO (ronda 118, 13.ª): al bajar, el director pintado da paso a la secuencia de 12 poses de Andoni (dirige → baja los brazos → gira → de frente,
     // señala hacia abajo con la batuta, hacia los problemas). Un fotograma cada vez (sin fundidos: duplicarían brazos), con la corrección de encuadre del
@@ -167,7 +167,7 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
       if (!giroListo || !est) return;
       const p = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.6))), f = p < 0.04 ? -1 : Math.min(11, Math.round(((p - 0.04) / 0.96) * 11));
       if (f === fotoAct) return;
-      if (f < 0) { fotoAct = -1; est.imagen(null); return; }
+      if (f < 0) { fotoAct = -1; est.imagen(null); pasoD = 0; return; } // al volver arriba, la lámina (= pose 01) y el bucle retoma desde ahí
       const im = fotos[f]; if (!im || !im.complete || !im.naturalWidth) return;
       fotoAct = f;
       const [sc, x, y] = GIRO[f];
@@ -176,7 +176,51 @@ const ISO = isoRaw.match(/ d="([^"]+)"/)![1];
     };
     addEventListener('scroll', () => requestAnimationFrame(girar), { passive: true });
     addEventListener('resize', () => { fotoAct = -1; girar(); });
-    (window as any).__sumi = () => ({ estilo: 'acuarela', gl: !!est, empezado, giro: fotoAct });
+    // ── EL BUCLE (ronda 120): «que el director se mueva en bucle como si dirigiera a los músicos, y los músicos tocan». Los 5 dibujos de cada capa de Andoni
+    // (tools/r120/bucles, mismo encuadre: el 01 es idéntico a la lámina de la escena) en ida y vuelta, 01 → 05 → 02, sin fundidos (duplicarían manos e
+    // instrumentos). Cada pose pasa por el MOTOR de su capa (`imagen()`): mismo color, semitono, hervor y gris de los músicos que el resto del hero.
+    // A compás de la música: cuatro pasos por tiempo (un gesto de ida y vuelta cada dos tiempos); los músicos van desfasados dos pasos. Mientras el
+    // director gira con el scroll, el giro manda en su capa.
+    
+    const bucle = { director: [] as HTMLImageElement[], musicos: [] as HTMLImageElement[] };
+    let pasoD = 0, pasoM = 0, bucleListo = false, bucleRaf = 0, heroVisto = true;
+    // ronda 123 · «tarda un poco en empezar el bucle, tiene un rato largo que está parado»: las poses se piden YA al cargar la página (mientras se juega la
+    // carga) y el bucle arranca en cuanto cae la gota, a la vez que la pintura (antes: 4,4 s después y de una en una con pausas)
+    let pedidas: Promise<unknown> | null = null;
+    const pedirBucle = () => {
+      if (pedidas || reducido || !est || /[?&]bucle=0/.test(location.search)) return pedidas;
+      pedidas = Promise.all((['director', 'musicos'] as const).flatMap((capa) => [1, 2, 3, 4, 5].map((i) => {
+        const im = new Image(); im.decoding = 'async'; im.src = BASE + `media/hero/bucle/${capa}-0${i}.webp`; bucle[capa][i - 1] = im;
+        return im.decode().catch(() => {});
+      })));
+      return pedidas;
+    };
+    const cargarBucle = async () => {
+      if (bucleListo) return; const p = pedirBucle(); if (!p) return;
+      await p; bucleListo = true; bucleRaf = requestAnimationFrame(tocarBucle);
+    };
+    'requestIdleCallback' in window ? requestIdleCallback(() => pedirBucle(), { timeout: 1200 }) : setTimeout(pedirBucle, 400);
+    const tocarBucle = () => {
+      bucleRaf = 0; if (!bucleListo) return;
+      if (heroVisto && document.visibilityState === 'visible') {
+        // ronda 121 · «que los fotogramas se muevan a ritmo de la música»: la pose ya no avanza a paso fijo, sigue el GESTO de un director. Medido en los
+        // dibujos: en el 01 la batuta está arriba del todo y en el 05, abajo del todo. En cada tiempo la batuta toca fondo justo en el golpe (el ictus,
+        // pose 05), rebota deprisa, flota arriba y vuelve a caer acelerando hacia el siguiente; el primero del compás, más hondo. Se resta lo que tarda el
+        // sonido en salir por los altavoces, para que el golpe se vea cuando se oye. Los músicos se mecen a cada tiempo, a contratiempo del director.
+        // ronda 122 · «tiene que moverse más calmado, que transmita calma»: un gesto cada DOS tiempos (≈1,9 s a 64 BPM), en curva de coseno (sin el ictus
+        // seco) y sin llegar a la pose más baja (01–04); el gesto del primer tiempo del compás, algo más amplio. Los músicos, también cada dos tiempos.
+        const ft = fase(performance.now() - 70), f2 = (((ft / 2) % 1) + 1) % 1, primero = Math.floor(ft) % 4 < 2;
+        const baja = 0.5 - 0.5 * Math.cos(2 * Math.PI * f2);
+        const d = Math.round((primero ? 3 : 2.4) * (1 - baja));
+        const m = Math.round(3 * (0.5 - 0.5 * Math.cos(2 * Math.PI * ((f2 + 0.5) % 1))));
+        if (fotoAct < 0 && d !== pasoD) { pasoD = d; est!.imagen(d === 0 ? null : bucle.director[d]); }
+        if (m !== pasoM && estM) { pasoM = m; estM.imagen(m === 0 ? null : bucle.musicos[m]); foco?.imagen(m === 0 ? lamM : bucle.musicos[m]); }
+      }
+      bucleRaf = requestAnimationFrame(tocarBucle);
+    };
+    new IntersectionObserver(([e]) => (heroVisto = e.isIntersecting)).observe(sec);
+
+    (window as any).__sumi = () => ({ estilo: 'acuarela', gl: !!est, empezado, giro: fotoAct, bucle: bucleListo, pasoD, pasoM, fase: fase(performance.now() - 70) });
   }
   if (sec && !acuarela) {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;

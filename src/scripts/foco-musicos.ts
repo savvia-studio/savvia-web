@@ -68,6 +68,8 @@ export function crearFocoMusicos(cv: HTMLCanvasElement, caja: HTMLElement, lamin
   new ResizeObserver(medir).observe(caja); medir();
   lamina.addEventListener('load', pedir);
   return {
+    // ronda 120: los músicos tocan en bucle; el foco se repinta con la pose que suena (si no, la luz dibujaría la pose de reposo encima)
+    imagen(im: HTMLImageElement) { lamina = im; if (sel >= 0 || luz.some((k) => k > 0.01)) pedir(); },
     // fx, fy: fracciones de la caja (null = soltar). Devuelve el nombre del músico señalado
     foco(fx: number | null, fy = 0): string | null {
       let j = -1;

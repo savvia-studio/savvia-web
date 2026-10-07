@@ -1,0 +1,87 @@
+---
+// RONDA 124 · «cuando pasas un rato fuera de la web, ¿podemos poner un salvapantallas?» → el ENTREACTO: el intermedio de un concierto. Tras un minuto sin
+// tocar nada (o al volver a la pestaña después de un rato fuera), la pantalla se oscurece y aparece la partitura del hero a pantalla completa, encendiéndose
+// a compás de la música que sigue sonando, con «Entreacto», la hora y lo que suena. Cualquier gesto la retira. No sale durante la carga, sentado en
+// Proyectos, con el menú o un diálogo abiertos, ni con movimiento reducido (allí, la partitura quieta).
+---
+
+<div class="entreacto" data-entreacto aria-hidden="true" hidden>
+  <div class="atril"><canvas data-entreacto-partitura></canvas></div>
+  <div class="velo"></div>
+  <div class="texto">
+    <p class="rotulo">Entreacto</p>
+    <p class="hora" data-entreacto-hora></p>
+    <p class="volver"><span class="raton">Mueve el ratón para volver</span><span class="dedo">Toca para volver</span></p>
+  </div>
+  <p class="suena" data-entreacto-suena></p>
+</div>
+
+<style>
+  .entreacto { position: fixed; inset: 0; z-index: 90; background-color: var(--noche, #3b231b); background-image: url('/media/grano.png'); color: var(--fg, #eadde7);
+    opacity: 0; transition: opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1); overflow: hidden; cursor: none; }
+  .entreacto.on { opacity: 1; }
+  :global(html[data-paleta='clara']) .entreacto { background-color: #f5f7ff; color: #241c19; }
+  /* la partitura del hero, más grande y desde más cerca: el mismo lienzo inclinado */
+  .atril { position: absolute; inset: 0; perspective: 900px; perspective-origin: 50% 20%; opacity: 0.95; }
+  .atril canvas { position: absolute; left: 50%; top: 50%; width: 260%; height: 200%; transform: translate(-50%, -50%) rotateX(56deg) rotateZ(-12deg);
+    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent); mask-image: radial-gradient(closest-side, #000 60%, transparent); }
+  .velo { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 60% 45% at 50% 46%, color-mix(in srgb, var(--noche, #3b231b) 72%, transparent), transparent 75%); }
+  :global(html[data-paleta='clara']) .velo { background: radial-gradient(ellipse 60% 45% at 50% 46%, rgb(245 247 255 / 0.78), transparent 75%); }
+  .texto { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); text-align: center; }
+  .rotulo { font-family: var(--font-display); font-size: clamp(3.5rem, 9vw, 8rem); line-height: 1; letter-spacing: -0.01em; }
+  .hora { margin-top: calc(var(--spacing) * 4); font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 0.12em; opacity: 0.7; font-variant-numeric: tabular-nums; }
+  .volver { margin-top: calc(var(--spacing) * 12); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; opacity: 0.45; }
+  .suena { position: absolute; left: 50%; bottom: max(calc(var(--spacing) * 8), env(safe-area-inset-bottom)); transform: translateX(-50%); font-family: var(--font-mono);
+    font-size: 0.75rem; letter-spacing: 0.04em; opacity: 0.5; white-space: nowrap; }
+  .dedo { display: none; }
+  @media (hover: none) { .raton { display: none; } .dedo { display: inline; } }
+  /* entra despacio: primero la sala, luego el rótulo */
+  .texto, .suena { opacity: 0; transition: opacity 1.2s ease 0.8s; }
+  .entreacto.on .texto, .entreacto.on .suena { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .entreacto, .texto, .suena { transition: none; } }
+</style>
+
+<script>
+  import { fase } from '../scripts/jazz';
+  import { crearPartituraLuz } from '../scripts/partitura-luz';
+  const caja = document.querySelector<HTMLElement>('[data-entreacto]');
+  if (caja) {
+    const ESPERA = +(new URLSearchParams(location.search).get('entreacto') ?? 60) * 1000, FUERA = 30000; // ?entreacto=5 para probarlo
+    const html = document.documentElement, clara = html.dataset.paleta === 'clara';
+    const hora = caja.querySelector<HTMLElement>('[data-entreacto-hora]')!, suena = caja.querySelector<HTMLElement>('[data-entreacto-suena]')!;
+    let montada = false, abierto = false, temporizador = 0, reloj = 0, salida = 0, ocultoDesde = 0, abiertoEn = 0;
+    const fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    const puede = () => (window as any).__gotaSuelta && !html.classList.contains('estudio-sentado') && !html.classList.contains('menu-abierto') && !html.classList.contains('cargando') && !document.querySelector('dialog[open]');
+    const abrir = () => {
+      if (abierto || !puede()) return;
+      if (!montada) { montada = true; caja.hidden = false; crearPartituraLuz(caja.querySelector<HTMLCanvasElement>('[data-entreacto-partitura]')!, caja, { fase, clara, cabezal: 0.5 }); }
+      abierto = true; abiertoEn = performance.now(); clearTimeout(salida);
+      const cred = document.querySelector('.credito')?.textContent?.trim();
+      suena.textContent = cred ? cred.replace(/\s+/g, ' ') : '';
+      const tic = () => (hora.textContent = `${fmt.format(new Date())} · Donostia`); tic(); reloj = window.setInterval(tic, 10000);
+      caja.hidden = false; caja.setAttribute('aria-hidden', 'false'); requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.add('on')));
+    };
+    const cerrar = () => {
+      if (!abierto) return; abierto = false; clearInterval(reloj);
+      caja.classList.remove('on'); caja.setAttribute('aria-hidden', 'true');
+      salida = window.setTimeout(() => { if (!abierto) caja.hidden = true; }, 1500); // `hidden` = display none: la partitura deja de pintarse
+    };
+    const armar = () => { clearTimeout(temporizador); temporizador = window.setTimeout(abrir, ESPERA); };
+    let ux = -1, uy = -1;
+    const gesto = (e: Event) => {
+      // un roce mínimo del ratón (o el ratón que «salta» al aparecer) no la quita: hacen falta 12 px o medio segundo abierta
+      if (e.type === 'pointermove') { const p = e as PointerEvent; const lejos = ux < 0 || Math.hypot(p.clientX - ux, p.clientY - uy) > 12; ux = p.clientX; uy = p.clientY; if (abierto && (!lejos || performance.now() - abiertoEn < 500)) return; }
+      if (abierto) cerrar();
+      armar();
+    };
+    for (const ev of ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll']) addEventListener(ev, gesto, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { ocultoDesde = performance.now(); clearTimeout(temporizador); }
+      else if (ocultoDesde && performance.now() - ocultoDesde > FUERA) { abrir(); armar(); }
+      else armar();
+    });
+    armar();
+    (window as any).__entreacto = { abrir, cerrar, estado: () => abierto };
+  }
+</script>

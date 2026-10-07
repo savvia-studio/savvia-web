@@ -20,10 +20,12 @@ import Servicios from '../components/Servicios.astro';
 import Estudio from '../components/Estudio.astro';
 import Preguntas from '../components/Preguntas.astro';
 import Pie from '../components/Pie.astro';
+import Entreacto from '../components/Entreacto.astro'; // ronda 124: el salvapantallas
 ---
 
 <Base>
   <Nav />
+  <Entreacto />
   <Carriles />
   <!-- RONDA 115 · el director a tinta y «dibuja una V» son los de serie; para comparar: `?hero=roble` (ronda 114), `?hero=cartel` (113) y `?hero=director` (el ASCII con su carga, 97–112) -->
   <div data-solo="director" style="display:contents"><Cargador /></div>
