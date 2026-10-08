@@ -1,0 +1,66 @@
+---
+// RONDA 132 · el GLIFO de cada capítulo (el icono pequeño de las tarjetas de la referencia, docs.attio.com), dibujado a línea fina con un punto
+// de savia: 01 la gota · 02 tres ideas · 03 cuatro pasos · 04 la receta · 05 tres formas · 06 la medida · 07 la herramienta · 08 el mensaje (↳).
+interface Props { num: string }
+const { num } = Astro.props;
+---
+
+<svg class="glifo" viewBox="0 0 32 32" aria-hidden="true">
+  {num === '01' && (
+    <Fragment>
+      <path d="M16 5c4.2 5.4 7 9.4 7 13a7 7 0 0 1-14 0c0-3.6 2.8-7.6 7-13Z" />
+      <circle class="s" cx="13.5" cy="19.5" r="1.6" />
+    </Fragment>
+  )}
+  {num === '02' && (
+    <Fragment>
+      <path d="M6 9h20M6 16h20M6 23h13" />
+      <circle class="s" cx="24" cy="23" r="1.8" />
+    </Fragment>
+  )}
+  {num === '03' && (
+    <Fragment>
+      <path d="M5 25h5.5v-5h5.5v-5h5.5v-5H27" />
+      <circle class="s" cx="27" cy="10" r="1.8" />
+    </Fragment>
+  )}
+  {num === '04' && (
+    <Fragment>
+      <path d="M9 4.5h10l5 5V27.5H9Z M19 4.5v5h5 M13 15h7M13 19.5h7M13 24h4" />
+      <circle class="s" cx="20.5" cy="24" r="1.4" />
+    </Fragment>
+  )}
+  {num === '05' && (
+    <Fragment>
+      <circle cx="12" cy="13" r="6" />
+      <circle cx="20" cy="13" r="6" />
+      <circle cx="16" cy="20" r="6" />
+      <circle class="s" cx="16" cy="15.4" r="1.5" />
+    </Fragment>
+  )}
+  {num === '06' && (
+    <Fragment>
+      <path d="M4.5 21.5h23 M8 21.5v-4 M12 21.5v-2.5 M16 21.5v-4 M20 21.5v-2.5 M24 21.5v-4" />
+      <path d="M8 11.5l4 3.5 8-7" />
+      <circle class="s" cx="20" cy="8" r="1.6" />
+    </Fragment>
+  )}
+  {num === '07' && (
+    <Fragment>
+      <path d="M16 5v7 M16 12l-7 15 M16 12l7 15 M11.5 21.5h9" />
+      <circle cx="16" cy="12" r="2.4" />
+      <circle class="s" cx="16" cy="5" r="1.5" />
+    </Fragment>
+  )}
+  {num === '08' && (
+    <Fragment>
+      <path d="M8 7v10a4 4 0 0 0 4 4h13 M20 15.5l5.5 5.5-5.5 5.5" />
+      <circle class="s" cx="8" cy="7" r="1.6" />
+    </Fragment>
+  )}
+</svg>
+
+<style>
+  .glifo { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+  .glifo .s { fill: var(--color-coral); stroke: none; }
+</style>

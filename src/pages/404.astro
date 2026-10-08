@@ -1,0 +1,115 @@
+---
+// RONDA 137 · LA 404 «EL TIEMPO ENCIMA» (sustituye a «El corte», ronda 136; su componente queda en src/components/404/Corte.astro, sin uso).
+// Andoni: «La página 404 que sea el 404 en grande y que en función de la estación se le acumule algo encima: invierno nieve, otoño hojas,
+// primavera flores y verano le da el solete.» El 404 en Family, de pie sobre la línea de carriles; lo que cae, en src/components/404/Cuatro.astro.
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Carriles from '../components/Carriles.astro';
+import Pie from '../components/Pie.astro';
+import Cta from '../components/Cta.astro';
+import Cuatro from '../components/404/Cuatro.astro';
+---
+
+<Base title="Página no encontrada — savvia" description="Esta página no existe o ha cambiado de sitio. El resto de savvia sigue en su sitio." carga={false}>
+  <Nav />
+  <Carriles />
+  <main id="contenido" class="surface-dark perdida">
+    <section class="tiempo" data-sin-fila data-cuatro-zona aria-labelledby="perdida-h">
+      <Cuatro />
+      <div class="hueco" data-cuatro-hueco aria-hidden="true"></div>
+      <div class="wrap texto" data-carril-fila data-cuatro-suelo>
+        <h1 id="perdida-h" class="font-display text-h2 titular"><span class="sr">Error 404. </span>Esta página no existe.</h1>
+        <div class="lado">
+          <p class="text-sub text-fg2 linea">
+            La dirección ha cambiado o nunca estuvo. Mientras tanto, <span data-mientras>caen las hojas</span>.
+          </p>
+          <div class="acciones">
+            <Cta href="/">Volver al inicio</Cta>
+            <Cta href="/proyectos" variante="secundario" flecha="no">Ver proyectos</Cta>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Pie />
+</Base>
+
+<script>
+  // la frase sigue a la estación
+  const FRASE: Record<string, string> = { invierno: 'nieva', otono: 'caen las hojas', primavera: 'florece', verano: 'da el sol' };
+  const el = document.querySelector<HTMLElement>('[data-mientras]');
+  const poner = () => { if (el) el.textContent = FRASE[document.documentElement.dataset.estacion || 'otono'] || FRASE.otono; };
+  poner();
+  new MutationObserver(poner).observe(document.documentElement, { attributes: true, attributeFilter: ['data-estacion'] });
+</script>
+
+<style>
+  .tiempo {
+    position: relative;
+    overflow: hidden;
+    min-height: 100lvh;
+    display: flex;
+    flex-direction: column;
+    padding-top: calc(var(--spacing) * 24);
+    padding-bottom: calc(var(--spacing) * 16);
+  }
+  /* el sitio del 404: el lienzo cubre toda la sección; esto reserva su alto (las cifras se apoyan en la línea de abajo) */
+  .hueco {
+    flex: 1 0 clamp(14rem, 50lvh, 40rem);
+  }
+  .texto {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: calc(var(--spacing) * 6);
+    align-items: end;
+    padding-top: calc(var(--spacing) * 8);
+  }
+  .titular {
+    grid-column: 1 / span 6;
+    margin: 0;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .lado {
+    grid-column: 7 / span 6;
+  }
+  .linea {
+    margin: 0;
+    max-width: 36ch;
+    text-wrap: pretty;
+  }
+  .acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--spacing) * 6);
+    margin-top: calc(var(--spacing) * 8);
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (max-width: 47.99rem) {
+    /* en el móvil el 404 lo limita el ancho: el grupo (cifras + texto) va centrado en la pantalla, sin un vacío arriba */
+    .tiempo {
+      justify-content: center;
+      padding-bottom: calc(var(--spacing) * 14);
+    }
+    .hueco {
+      flex: 0 0 auto;
+      height: clamp(12rem, 54vw, 18rem);
+    }
+    .texto {
+      display: block;
+    }
+    .lado {
+      margin-top: calc(var(--spacing) * 6);
+    }
+  }
+</style>

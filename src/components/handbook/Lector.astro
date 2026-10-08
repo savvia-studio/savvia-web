@@ -1,0 +1,243 @@
+---
+// RONDA 132 · EL ÍNDICE DEL HANDBOOK, como la barra lateral de docs.attio.com: a la izquierda y fija, todos los capítulos (como los grupos de la
+// referencia) y, dentro, sus apartados; el capítulo que lees, abierto, con el apartado en curso marcado en una píldora (con la gota de savia de
+// la ronda 128). Los demás capítulos se abren con su «+». En móvil y tableta: un cajón «Índice» arriba, pegado bajo la barra.
+// (Antes, rondas 127–131: solo el índice del capítulo, con la gota por el carril y una píldora abajo en móvil.)
+// El estado (qué apartado está en curso) lo pone el script de la página del capítulo.
+import { handbook, capitulos, type Capitulo } from '../../data/handbook';
+
+interface Props { c: Capitulo }
+const { c } = Astro.props;
+import { flecha } from '../../lib/flecha';
+---
+
+<aside class="lateral" aria-label={`Índice del ${handbook.nombre}`}>
+  <nav class="nav-lat" data-indice data-lenis-prevent>
+    <a class="volver" href="/handbook">
+      <Fragment set:html={flecha('izq')} />
+      <span>{handbook.nombre}</span>
+    </a>
+    <ol class="caps">
+      {
+        capitulos.map((x) => {
+          const actual = x.slug === c.slug;
+          return (
+            <li class={`cap ${actual ? 'actual' : ''}`}>
+              <div class="cap-fila">
+                <a class="cap-a" href={`/handbook/${x.slug}`} aria-current={actual ? 'page' : undefined}>
+                  <span class="cn detail">{x.num}</span>
+                  <span>{x.titulo}</span>
+                </a>
+                {!actual && (
+                  <button type="button" class="mas" aria-expanded="false" aria-controls={`lat-${x.slug}`} aria-label={`Ver los apartados de ${x.titulo}`} data-abre>
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5v9M3.5 8h9" /></svg>
+                  </button>
+                )}
+              </div>
+              <ol id={`lat-${x.slug}`} class="secs" hidden={!actual}>
+                {x.secciones.map((s) => (
+                  <li class="sec" data-sec={actual ? s.id : undefined}>
+                    <a href={actual ? `#${s.id}` : `/handbook/${x.slug}#${s.id}`} data-ancla={actual ? '' : undefined}>
+                      {s.titulo}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </nav>
+</aside>
+
+<details class="indice-movil" data-movil>
+  <summary class="im-s">
+    <span class="im-i detail detail-caps">Índice</span>
+    <span class="im-t" data-movil-t>{c.num} · {c.titulo}</span>
+    <svg class="im-f" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+  </summary>
+  <div class="im-p">
+    <a class="im-h detail detail-caps" href="/handbook"><Fragment set:html={flecha('izq')} />{handbook.nombre}</a>
+    <ol>
+      {
+        capitulos.map((x) => (
+          <li class={x.slug === c.slug ? 'actual' : ''}>
+            <a class="im-c" href={`/handbook/${x.slug}`} aria-current={x.slug === c.slug ? 'page' : undefined}>
+              <span class="detail">{x.num}</span> {x.titulo}
+            </a>
+            {x.slug === c.slug && (
+              <ol class="im-secs">
+                {x.secciones.map((s) => (
+                  <li>
+                    <a href={`#${s.id}`} data-ancla data-sec-movil={s.id}>
+                      {s.titulo}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</details>
+
+<style>
+  /* RONDA 134 · el índice, en voz baja: más pequeño, sin píldora, el resto de capítulos plegados a una lista mínima; se aviva al acercarse */
+  .lateral { display: none; }
+  @media (width >= 64rem) {
+    .lateral {
+      display: block;
+      grid-column: 1;
+      grid-row: 1;
+      align-self: start;
+      position: sticky;
+      top: calc(var(--spacing) * 28);
+      opacity: 0.62;
+      transition: opacity 0.4s ease, visibility 0s linear 0s;
+    }
+    .lateral:hover, .lateral:focus-within { opacity: 1; }
+    :global(html.hb-focus) .lateral { opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0s linear 0.4s; }
+  }
+  .nav-lat {
+    max-height: calc(100dvh - var(--spacing) * 32);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    padding: 0 calc(var(--spacing) * 2) calc(var(--spacing) * 8) 0;
+  }
+  .nav-lat::-webkit-scrollbar { display: none; }
+  .volver {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    min-height: calc(var(--spacing) * 8);
+    font-size: var(--text-detail);
+    color: var(--fg2);
+    transition: color 0.3s ease;
+  }
+  .volver:hover { color: var(--fg); }
+  /* RONDA 135 · la flecha de la casa hacia atrás (al pasar, sale y vuelve a entrar) */
+  .caps { display: grid; padding-top: calc(var(--spacing) * 3); }
+  .cap-fila { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--spacing) * 2); }
+  .cap-a {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: baseline;
+    padding-block: calc(var(--spacing) * 1);
+    font-size: var(--text-detail);
+    line-height: 1.35;
+    color: color-mix(in oklab, var(--fg) 58%, transparent);
+    transition: color 0.3s ease;
+  }
+  .cap-a .cn { font-size: 0.6875rem; color: var(--fg2); opacity: 0.6; min-width: 1.6em; }
+  .cap-a:hover, .actual .cap-a { color: var(--fg); }
+  .actual .cap-a { font-weight: 500; }
+  .mas { flex: none; display: grid; place-items: center; width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); border-radius: var(--radius-full); color: var(--fg2); opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.4s var(--ease-out-expo); }
+  .cap:hover .mas, .mas:focus-visible, .mas[aria-expanded='true'] { opacity: 1; }
+  .mas:hover { background: color-mix(in oklab, var(--color-cacao) 7%, transparent); color: var(--fg); }
+  .mas svg { width: calc(var(--spacing) * 3); height: calc(var(--spacing) * 3); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+  .mas[aria-expanded='true'] { transform: rotate(45deg); }
+  .secs { display: grid; padding: calc(var(--spacing) * 1) 0 calc(var(--spacing) * 3) calc(var(--spacing) * 6); border-left: 1px solid var(--rule); margin-left: calc(var(--spacing) * 1); }
+  .sec a {
+    position: relative;
+    display: block;
+    padding: calc(var(--spacing) * 1) 0 calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    margin-left: calc(var(--spacing) * -6);
+    padding-left: calc(var(--spacing) * 6);
+    font-size: var(--text-detail);
+    line-height: 1.35;
+    color: color-mix(in oklab, var(--fg) 50%, transparent);
+    transition: color 0.3s ease;
+  }
+  .sec a:hover { color: var(--fg); }
+  /* el apartado en curso: solo la tinta y un filo de savia sobre la línea (sin píldora) */
+  .sec.on a { color: var(--fg); }
+  .sec.on a::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 20%;
+    bottom: 20%;
+    width: 1px;
+    background: var(--color-coral);
+  }
+
+  /* ── MÓVIL Y TABLETA: el cajón «Índice», pegado arriba bajo la barra ── */
+  .indice-movil {
+    position: sticky;
+    top: calc(var(--spacing) * 18);
+    z-index: 20;
+    grid-column: 1 / -1;
+    margin-bottom: calc(var(--spacing) * 8);
+    border-radius: calc(var(--spacing) * 4);
+    color: var(--color-cacao);
+    background: color-mix(in oklab, var(--color-niebla) 88%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 14%, transparent), 0 12px 30px -20px color-mix(in oklab, var(--color-cacao) 40%, transparent);
+  }
+  @media (width >= 64rem) { .indice-movil { display: none; } }
+  .indice-movil { transition: opacity 0.4s ease, visibility 0s linear 0s; }
+  :global(html.hb-focus) .indice-movil { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease, visibility 0s linear 0.4s; }
+  .im-s {
+    list-style: none;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    min-height: calc(var(--spacing) * 12);
+    padding-inline: calc(var(--spacing) * 4);
+    cursor: pointer;
+  }
+  .im-s::-webkit-details-marker { display: none; }
+  .im-i { color: var(--fg2); }
+  .im-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; font-size: var(--text-aux); }
+  .im-f { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.4s var(--ease-out-expo); }
+  .indice-movil[open] .im-f { transform: rotate(180deg); }
+  /* el cajón cae SOBRE la lectura (no la empuja) */
+  .im-p {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + var(--spacing) * 2);
+    max-height: calc(100dvh - var(--spacing) * 44);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border-radius: calc(var(--spacing) * 4);
+    background: color-mix(in oklab, var(--color-niebla) 96%, transparent);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 14%, transparent), 0 24px 40px -24px color-mix(in oklab, var(--color-cacao) 45%, transparent);
+  }
+  .indice-movil[open] .im-p { animation: abrir 0.4s var(--ease-out-expo); }
+  @keyframes abrir { from { opacity: 0; transform: translateY(-6px); } }
+  .im-h { display: flex; align-items: center; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 3) calc(var(--spacing) * 2); color: var(--fg2); }
+  .im-c { display: block; padding: calc(var(--spacing) * 2); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 66%, transparent); }
+  .im-c .detail { color: var(--fg2); padding-right: calc(var(--spacing) * 1); }
+  .actual > .im-c { color: var(--fg); font-weight: 500; }
+  .im-secs { padding: 0 0 calc(var(--spacing) * 2) calc(var(--spacing) * 7); display: grid; gap: 2px; }
+  .im-secs a { display: block; padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3); border-radius: calc(var(--spacing) * 2); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 62%, transparent); }
+  .im-secs a.on { color: var(--fg); background: color-mix(in oklab, var(--color-cacao) 8%, transparent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mas, .im-f, .sec a, .lateral, .indice-movil { transition: none; }
+    .indice-movil[open] .im-p { animation: none; }
+  }
+</style>
+
+<script>
+  // los «+» de los otros capítulos abren sus apartados
+  document.querySelectorAll<HTMLButtonElement>('[data-abre]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const lista = document.getElementById(b.getAttribute('aria-controls')!);
+      if (!lista) return;
+      const abrir = lista.hidden;
+      lista.hidden = !abrir;
+      b.setAttribute('aria-expanded', String(abrir));
+    });
+  });
+</script>

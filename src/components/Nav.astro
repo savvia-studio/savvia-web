@@ -8,7 +8,7 @@ import { nav, pie } from '../data/home';
   con los enlaces grandes, un filete y un segundo grupo pequeño. La página es oscura → la tarjeta es clara (Rosa niebla)
   y detrás baja un velo Cacao para que se despegue también sobre las secciones claras.
   Sin píldora de contacto («Cuéntanos tu proyecto va fuera»): hablar con nosotros es un enlace más del menú.
-  Logotipo y rejilla van en blanco con mix-blend-mode: difference → claros sobre Cacao, oscuros sobre lo claro.
+  Logotipo, icono de estación y rejilla: Rosa niebla sobre lo oscuro, Cacao sobre lo claro (ronda 141; la diferencia, solo en /lab).
   Escala de z: 0 contenido · 48 velo · 50 tarjeta · 55 nav · 60 escenario sentado.
 -->
 <!-- filtro «gooey» de la rejilla: los puntos se funden como gotas (ronda 12) -->
@@ -16,7 +16,7 @@ import { nav, pie } from '../data/home';
   <filter id="goo-nav"><feGaussianBlur in="SourceGraphic" stdDeviation="1.7" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 16 -6" /></filter>
 </svg>
 <header class="barra-nav" data-nav>
-  <!-- Logotipo de Andoni (ronda 10): `public/savvia-logo.svg`, blanco; la mezcla por diferencia lo vuelve oscuro sobre lo claro. -->
+  <!-- Logotipo (ronda 139): `public/savvia-logo.svg` como máscara en el color de la barra (ronda 141: sólido, según el fondo que pisa). -->
   <!-- RONDA 24: el logotipo es una máscara con el color de la barra: blanco por diferencia sobre lo oscuro, Cacao sobre lo claro (sin mezcla:
        la diferencia daba un azul sucio sobre Rosa arcilla y Rosa niebla) -->
   <a href="/" class="marca" aria-label="savvia, inicio"><span class="logo-marca" aria-hidden="true"></span></a>
@@ -40,24 +40,24 @@ import { nav, pie } from '../data/home';
       {
         nav.links.map((l, i) => (
           <li style={`--n:${i}`}>
-            <a href={l.href} class="enlace font-display text-h2 inline-block">{l.label}</a>
+            <a href={l.href} class="enlace"><span class="font-display text-h2">{l.label}</span></a>
           </li>
         ))
       }
     </ul>
     <div class="resto border-rule mt-6 border-t pt-6" style={`--n:${nav.links.length}`}>
-      <div>
+      <div class="mas">
         <p class="detail detail-caps text-fg2">{nav.mas.titulo}</p>
         <ul class="text-lead mt-3 flex flex-col gap-1">
-          {nav.mas.links.map((l) => <li><a href={l.href} class="enlace inline-block">{l.label}</a></li>)}
           <li><a href={`mailto:${pie.correo}`} class="enlace inline-block">{pie.correo}</a></li>
+          {nav.mas.links.map((l) => <li>{l.href ? <a href={l.href} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· pronto</small></span>}</li>)}
         </ul>
       </div>
-      <!-- RONDA 60 · «un reel de todos los proyectos que salga en el menú cuando se abre; si clicas lo ves en grande»: la miniatura en bucle y sin
-           sonido (se pide al abrir el menú, no antes); al pulsarla, el menú se recoge y el reel se pinta en grande desde ella. -->
-      <button type="button" class="reel" aria-haspopup="dialog" aria-label="Ver el reel de proyectos" data-reel>
+      <!-- RONDA 60 / 130 · el REEL vuelve, montado de nuevo con Kuanta y Arkdev (tools/r130 en la carpeta de la rama musical): miniatura en bucle y muda;
+           al pulsarla, el reproductor grande se pinta desde ella -->
+      <button type="button" class="reel" data-reel aria-label={`Ver el reel de proyectos (${nav.reel.duracion})`}>
         <video muted loop playsinline preload="none" poster="/media/reel/reel-mini.jpg" data-reel-mini></video>
-        <span class="reel-pie"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg><span>Reel · 0:27</span></span>
+        <span class="reel-pie"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>{nav.reel.label} · {nav.reel.duracion}</span>
       </button>
     </div>
   </nav>
@@ -98,11 +98,11 @@ import { nav, pie } from '../data/home';
     // RONDA 40 · la tarjeta se DIBUJA desde el botón (líneas de sus enlaces, luego la pintura rasgada) y al cerrar se recoge hacia él
     const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
     const LINEA = tinta('cacao', 0.55); // Cacao, sobre la tarjeta Rosa niebla
-    const mini = menu.querySelector<HTMLVideoElement>('[data-reel-mini]')!;
-    if (si) {
+    const mini = menu.querySelector<HTMLVideoElement>('[data-reel-mini]');
+    if (mini && si) {
       if (!mini.src) mini.src = '/media/reel/reel-mini.mp4';
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) mini.play().catch(() => {});
-    } else mini.pause();
+    } else mini?.pause();
     if (si) {
       menu.hidden = velo.hidden = false;
       menu.classList.add('on');
@@ -140,7 +140,7 @@ import { nav, pie } from '../data/home';
   menu.addEventListener('click', (e) => (e.target as HTMLElement).closest('a') && poner(false));
   addEventListener('keydown', (e) => e.key === 'Escape' && abierto && !dlg.open && poner(false, true));
   // ── RONDA 60 · EL REEL: la tarjeta oscura (como el reproductor de testimonios) se PINTA desde la miniatura; el menú se recoge a la vez.
-  const reelBt = menu.querySelector<HTMLButtonElement>('[data-reel]')!;
+  const reelBt = menu.querySelector<HTMLButtonElement>('[data-reel]');
   const dlg = document.querySelector<HTMLDialogElement>('[data-reel-dlg]')!, panel = dlg.querySelector<HTMLElement>('[data-reel-panel]')!;
   const vid = dlg.querySelector<HTMLVideoElement>('[data-reel-video]')!, hilo = dlg.querySelector<HTMLElement>('[data-reel-hilo]')!;
   const LINEA_REEL = () => tinta('niebla', 0.5);
@@ -168,7 +168,7 @@ import { nav, pie } from '../data/home';
     vid.play().catch(() => {});
     if (abierto) poner(false);
   };
-  reelBt.addEventListener('click', () => abrirReel(reelBt));
+  reelBt?.addEventListener('click', () => abrirReel(reelBt));
   document.addEventListener('click', (e) => { const d = (e.target as HTMLElement).closest?.<HTMLElement>('[data-abre-reel]'); if (d) abrirReel(d); });
   const cerrarReel = () => {
     if (!dlg.open || cerrandoReel) return;
@@ -178,7 +178,7 @@ import { nav, pie } from '../data/home';
   dlg.querySelector('[data-reel-cerrar]')!.addEventListener('click', cerrarReel);
   dlg.addEventListener('cancel', (e) => { e.preventDefault(); cerrarReel(); });
   dlg.addEventListener('click', (e) => { if (!panel.contains(e.target as Node)) cerrarReel(); });
-  (window as any).__reel = () => ({ abierto: dlg.open, suena: !vid.paused, t: vid.currentTime, mudo: vid.muted, mini: !(menu.querySelector('[data-reel-mini]') as HTMLVideoElement).paused });
+  (window as any).__reel = () => ({ abierto: dlg.open, suena: !vid.paused, t: vid.currentTime, mudo: vid.muted, mini: !((menu.querySelector('[data-reel-mini]') as HTMLVideoElement | null)?.paused ?? true) });
   // ── EL ICONO DE ESTACIÓN (ronda 40): una misma línea cerrada de 96 puntos que se deforma entre las cuatro formas. Todas se muestrean en los MISMOS
   // ángulos alrededor del centro (en polares), así cada punto viaja a su sitio sin cruzarse. Orden de estacion.ts: otoño · invierno · primavera · verano.
   {
@@ -216,23 +216,258 @@ import { nav, pie } from '../data/home';
     addEventListener('savvia:estacion', (e) => { const n = (e as CustomEvent).detail.n as number; if (n !== est) ir(n); });
     void EST;
   }
-  // RONDA 24 · qué hay bajo la barra: si es una superficie clara (La Savvia, el pie), el logotipo y la rejilla van en Cacao
+  // RONDA 141 · «que se vea con el color claro en el marrón y en el resto de fondos oscuros; ese efecto [la diferencia], solo en lab»: vuelve la
+  // detección de las rondas 24/65 (html.sobre-claro → Cacao; si no, Rosa niebla), pero mirando el COLOR REAL del fondo bajo el logotipo en vez de
+  // una lista de clases: así sirven solas las estaciones (en invierno la noche es nieve), las páginas claras, Salvia, el 404 y lo que venga.
+  // · Se mira bajo el centro del LOGOTIPO (ronda 65), medido solo al cambiar de tamaño (ronda 117: es fijo).
+  // · Cuenta con la gota de la transición líquida (entradas.ts › __subeEn), que cubre la barra antes que la sección.
+  // · Como mucho cada 90 ms mientras hay scroll, y una última vez al pararse (ronda 117: sin maquetas forzadas en cada fotograma).
+  // · Sobre imágenes y vídeos (la foto de la mesa, capturas de proyectos) lee su píxel; los lienzos WebGL no se leen (se mira lo de debajo).
   {
-    let sobreClaro = document.documentElement.classList.contains('sobre-claro'), pedido = false; // PRUEBA hero-claro: el <head> puede haberla puesto ya
-    // RONDA 65 · se mira bajo el LOGOTIPO (no en el centro: la gota de color de cada sección llega antes por el centro que por los lados) y se
-    // cuenta con esa gota (entradas.ts › __subeEn), que cubre la barra antes de que llegue la sección
-    const logo = document.querySelector<HTMLElement>('.logo-marca');
-    const mirar = () => {
-      pedido = false;
-      const lr = logo?.getBoundingClientRect(), x = lr ? lr.left + lr.width / 2 : 60, y = lr ? lr.top + lr.height / 2 : 40;
-      const gota = (window as any).__subeEn?.(x, y) as HTMLElement | null;
-      const el = gota ?? document.elementsFromPoint(x, y).find((e) => e.matches('.surface-light, .surface-warm, .surface-dark, main > section, main > div, footer'));
-      // ronda 62: surface-warm es Salvia Blue (claro): sobre él la barra va en Cacao, como sobre lo claro
-      const claro = !!el && (el.matches('.surface-light, .surface-warm') || (!el.matches('.surface-dark') && !!el.closest('.surface-light, .surface-warm')));
-      if (claro !== sobreClaro) { sobreClaro = claro; document.documentElement.classList.toggle('sobre-claro', claro); }
-    };
-    const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(mirar); } };
-    addEventListener('scroll', pedir, { passive: true }); addEventListener('resize', pedir); setTimeout(mirar, 300);
+    const html = document.documentElement;
+    if (!html.classList.contains('lab-pagina')) {
+      const logo = document.querySelector<HTMLElement>('.logo-marca');
+      let cx = 60, cy = 40, lw = 100, lh = 34;
+      const medirLogo = () => { const r = logo?.getBoundingClientRect(); if (r && r.width) { cx = r.left + r.width / 2; cy = r.top + r.height / 2; lw = r.width; lh = r.height; } };
+      const lum = (c: string) => {
+        const m = c.match(/[\d.]+/g); if (!m || m.length < 3) return null;
+        const a = m.length > 3 ? +m[3] : 1; if (a < 0.5) return null; // casi transparente: no decide, se mira lo de debajo
+        // oklab()/oklch() (lo que computan los color-mix in oklab): luminancia ≈ L³ · color(srgb …) da 0–1 · rgb() da 0–255
+        if (c.startsWith('ok')) { const L = +m[0] > 1 ? +m[0] / 100 : +m[0]; return L * L * L; }
+        const k = c.startsWith('color(') ? 1 : 255;
+        const l = (v: number) => { v /= k; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+        return 0.2126 * l(+m[0]) + 0.7152 * l(+m[1]) + 0.0722 * l(+m[2]);
+      };
+      const fondoDe = (el: Element | null): number | null => {
+        for (let e = el; e; e = e.parentElement) { const v = lum(getComputedStyle(e).backgroundColor); if (v !== null) return v; }
+        return null;
+      };
+      // ¿se ve? (opacidad propia o de un antepasado casi a 0, o visibility hidden: no tapa nada)
+      const visible = (e: Element) => {
+        if (getComputedStyle(e).visibility === 'hidden') return false;
+        for (let x: Element | null = e; x && x !== document.body; x = x.parentElement) if (+getComputedStyle(x).opacity < 0.05) return false;
+        return true;
+      };
+      // una imagen o un vídeo bajo el logotipo: se lee SU píxel (la foto de la mesa, las capturas de los proyectos). Las imágenes se reducen una vez
+      // a un lienzo pequeño y se guardan; el vídeo se lee en el fotograma de ese momento (1 píxel).
+      const lienzo = document.createElement('canvas'), c2 = lienzo.getContext('2d', { willReadFrequently: true });
+      const cache = new Map<string, { w: number; h: number; d: Uint8ClampedArray } | null>();
+      const lumPix = (r: number, g: number, b: number) => lum(`rgb(${r}, ${g}, ${b})`)!;
+      // de un punto de la pantalla a (u, v) dentro de la imagen, con object-fit (cover / contain / fill) y object-position en % (o en px: 0 = arriba)
+      const mapear = (e: Element, nw: number, nh: number, x: number, y: number): [number, number] => {
+        const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
+        let w = r.width, h = r.height, ox = 0, oy = 0;
+        const fit = cs.objectFit, pos = cs.objectPosition.split(' ').map((q) => (q.endsWith('%') ? parseFloat(q) / 100 : parseFloat(q) === 0 ? 0 : 0.5));
+        if (fit === 'cover' || fit === 'contain') {
+          const k = fit === 'cover' ? Math.max(r.width / nw, r.height / nh) : Math.min(r.width / nw, r.height / nh);
+          w = nw * k; h = nh * k; ox = (r.width - w) * (pos[0] ?? 0.5); oy = (r.height - h) * (pos[1] ?? 0.5);
+        }
+        return [(x - r.left - ox) / w, (y - r.top - oy) / h];
+      };
+      const pixelDe = (e: HTMLImageElement | HTMLVideoElement, x: number, y: number): number | null => {
+        if (!c2) return null;
+        const nw = e instanceof HTMLVideoElement ? e.videoWidth : e.naturalWidth, nh = e instanceof HTMLVideoElement ? e.videoHeight : e.naturalHeight;
+        if (!nw || !nh) return null;
+        const [u, v] = mapear(e, nw, nh, x, y);
+        if (u < 0 || u > 1 || v < 0 || v > 1) return null;
+        try {
+          if (e instanceof HTMLVideoElement) {
+            if (e.readyState < 2) return null;
+            lienzo.width = lienzo.height = 1;
+            c2.drawImage(e, Math.min(nw - 1, u * nw), Math.min(nh - 1, v * nh), 1, 1, 0, 0, 1, 1);
+            const d = c2.getImageData(0, 0, 1, 1).data; return lumPix(d[0], d[1], d[2]);
+          }
+          if (!e.complete) return null;
+          return pixelUV(e, e.currentSrc || e.src, u, v);
+        } catch { return null; }
+      };
+      function pixelUV(im: HTMLImageElement, src: string, u: number, v: number): number | null {
+        if (!c2 || u < 0 || u > 1 || v < 0 || v > 1) return null;
+        try {
+          if (!cache.has(src)) {
+            const W = 256, H = Math.max(1, Math.round((256 * im.naturalHeight) / im.naturalWidth));
+            lienzo.width = W; lienzo.height = H; c2.drawImage(im, 0, 0, W, H);
+            cache.set(src, { w: W, h: H, d: c2.getImageData(0, 0, W, H).data });
+          }
+          const m = cache.get(src); if (!m) return null;
+          const i = (Math.min(m.h - 1, Math.floor(v * m.h)) * m.w + Math.min(m.w - 1, Math.floor(u * m.w))) * 4;
+          if (m.d[i + 3] < 128) return null; // transparente: se mira lo de debajo
+          return lumPix(m.d[i], m.d[i + 1], m.d[i + 2]);
+        } catch { cache.set(src, null); return null; }
+      }
+      // el fondo de una capa: su color, un degradado (media de sus colores: las manchas de «Más proyectos») o una imagen de fondo a «cover»
+      // (se lee su píxel). Se miran también ::after y ::before, que suelen ser la capa que pinta (inset: 0). El grano no cuenta.
+      const fondos = new Map<string, HTMLImageElement>();
+      const sinPuntero = [...document.querySelectorAll('[data-titulo]'), ...document.querySelectorAll('[data-web]')]; // por orden de apilado: el titular va encima
+      // DEGRADADOS: se evalúa el degradado en el punto (radiales con tamaño y centro en %, lineales con dirección o ángulo, y el color de base),
+      // capa sobre capa como los compone el navegador. Las manchas de «Más proyectos» son eso: dos radiales de sus colores sobre uno liso.
+      type RGBA = [number, number, number, number];
+      const partir = (t: string) => { const o: string[] = []; let d = 0, ini = 0; for (let i = 0; i < t.length; i++) { const c = t[i]; if (c === '(') d++; else if (c === ')') d--; else if (c === ',' && !d) { o.push(t.slice(ini, i).trim()); ini = i + 1; } } o.push(t.slice(ini).trim()); return o; };
+      const aRGBA = (c: string): RGBA | null => {
+        const m = c.match(/[\d.]+/g); if (!m || m.length < 3) return null;
+        const al = m.length > 3 ? +m[3] : 1;
+        if (c.startsWith('ok')) { const L = (+m[0] > 1 ? +m[0] / 100 : +m[0]); const g = L * L * L, v = 255 * (g <= 0.0031308 ? 12.92 * g : 1.055 * Math.pow(g, 1 / 2.4) - 0.055); return [v, v, v, al]; }
+        const k = c.startsWith('color(') ? 255 : 1;
+        return [+m[0] * k, +m[1] * k, +m[2] * k, al];
+      };
+      const esColor = (t: string) => /^(rgb|oklab|oklch|color\(|#|transparent)/.test(t);
+      const tramo = (paradas: string[], t: number): RGBA | null => {
+        const st: { c: RGBA; p: number }[] = [];
+        paradas.forEach((ps) => { const cm = ps.match(/^((?:rgba?|oklab|oklch|color)\([^)]*\)|transparent)\s*([\d.]+%)?/); if (!cm) return; const c = cm[1] === 'transparent' ? [0, 0, 0, 0] as RGBA : aRGBA(cm[1]); if (!c) return; st.push({ c, p: cm[2] ? parseFloat(cm[2]) / 100 : NaN }); });
+        if (!st.length) return null;
+        st.forEach((x, i) => { if (Number.isNaN(x.p)) x.p = st.length === 1 ? 0 : i / (st.length - 1); });
+        if (t <= st[0].p) return st[0].c;
+        for (let i = 1; i < st.length; i++) if (t <= st[i].p) { const a = st[i - 1], b = st[i], f = (t - a.p) / Math.max(1e-6, b.p - a.p); return a.c.map((v, j) => v + (b.c[j] - v) * f) as RGBA; }
+        return st[st.length - 1].c;
+      };
+      const evaluar = (bi: string, r: DOMRect, x: number, y: number): RGBA | null => {
+        const u = (x - r.left) / r.width, v = (y - r.top) / r.height;
+        let out: RGBA = [0, 0, 0, 0];
+        for (const capaT of partir(bi).reverse()) { // la última es la de abajo
+          let c: RGBA | null = null;
+          if (capaT.startsWith('radial-gradient(')) {
+            const ar = partir(capaT.slice(16, -1));
+            let W = 0.75, H = 0.75, X = 0.5, Y = 0.5, i0 = 0;
+            if (!esColor(ar[0])) {
+              i0 = 1; const [tam, pos] = ar[0].split(' at ');
+              const t2 = (tam || '').trim().split(/\s+/).filter((q) => q.endsWith('%')).map((q) => parseFloat(q) / 100);
+              if (t2.length) { W = t2[0]; H = t2[1] ?? t2[0]; }
+              if (pos) { const p2 = pos.trim().split(/\s+/).map((q) => (q.endsWith('%') ? parseFloat(q) / 100 : q === 'left' || q === 'top' ? 0 : q === 'right' || q === 'bottom' ? 1 : 0.5)); X = p2[0] ?? 0.5; Y = p2[1] ?? 0.5; }
+            }
+            c = tramo(ar.slice(i0), Math.hypot((u - X) / W, (v - Y) / H));
+          } else if (capaT.startsWith('linear-gradient(')) {
+            const ar = partir(capaT.slice(16, -1));
+            let t = v, i0 = 0;
+            if (!esColor(ar[0])) {
+              i0 = 1; const d = ar[0];
+              if (d.includes('to top')) t = 1 - v; else if (d.includes('to right')) t = u; else if (d.includes('to left')) t = 1 - u;
+              else if (d.endsWith('deg')) { const g = (parseFloat(d) * Math.PI) / 180; t = 0.5 + (u - 0.5) * Math.sin(g) - (v - 0.5) * Math.cos(g); }
+            }
+            c = tramo(ar.slice(i0), t);
+          } else if (esColor(capaT)) c = capaT === 'transparent' ? null : aRGBA(capaT);
+          if (!c) continue;
+          const a = c[3], b2 = out[3] * (1 - a), ao = a + b2;
+          if (ao > 0) out = [(c[0] * a + out[0] * b2) / ao, (c[1] * a + out[1] * b2) / ao, (c[2] * a + out[2] * b2) / ao, ao];
+        }
+        return out[3] > 0 ? out : null;
+      };
+      const capa = (e: Element, x: number, y: number): number | null => {
+        for (const ps of ['::after', '::before', '']) {
+          const cs = getComputedStyle(e, ps || null);
+          if (ps && (cs.content === 'none' || cs.content === 'normal')) continue;
+          if (ps && (+cs.opacity < 0.05 || cs.display === 'none')) continue;
+          // un ::before encogido a 0 (el relleno que crece al pasar, p. ej. «anterior / siguiente» del handbook) no tapa nada
+          if (ps && cs.transform !== 'none') { const t = cs.transform.match(/-?[\d.e-]+/g)?.map(Number); if (t && t.length >= 4 && Math.abs(t[0] * t[3] - t[1] * t[2]) < 0.02) continue; }
+          const bi = cs.backgroundImage;
+          if (bi && bi !== 'none' && !bi.includes('grano')) {
+            if (bi.includes('gradient')) {
+              const g = evaluar(bi, e.getBoundingClientRect(), x, y);
+              // con el color de fondo de la propia capa debajo
+              const bg = aRGBA(cs.backgroundColor);
+              if (g && bg && bg[3] > 0) { const b2 = bg[3] * (1 - g[3]), ao = g[3] + b2; for (let j = 0; j < 3; j++) g[j] = (g[j] * g[3] + bg[j] * b2) / ao; g[3] = ao; }
+              if (g && g[3] >= 0.5) return lumPix(g[0], g[1], g[2]);
+            }
+            const u = bi.match(/url\(["']?([^"')]+)["']?\)/);
+            if (u) {
+              let im = fondos.get(u[1]);
+              if (!im) { im = new Image(); im.src = u[1]; fondos.set(u[1], im); }
+              if (im.complete && im.naturalWidth) {
+                const r = e.getBoundingClientRect(), k = Math.max(r.width / im.naturalWidth, r.height / im.naturalHeight);
+                const w = im.naturalWidth * k, h = im.naturalHeight * k;
+                const l = pixelUV(im, u[1], (x - r.left - (r.width - w) / 2) / w, (y - r.top - (r.height - h) / 2) / h);
+                if (l !== null) return l;
+              }
+            }
+          }
+          const l = lum(cs.backgroundColor);
+          if (l !== null) return l;
+        }
+        return null;
+      };
+      // fijo, o pegado por encima del contenido (z ≥ 10): las escenas fijadas con el scroll (Proyectos) no cuentan, la gota de la siguiente las tapa
+      const en3D = (e: Element) => { let k = 0; for (let x: Element | null = e; x && k < 5; x = x.parentElement, k++) if (getComputedStyle(x).transform.startsWith('matrix3d')) return true; return false; };
+      const enFijo = (e: Element) => { for (let x: Element | null = e; x && x !== document.body; x = x.parentElement) { const c = getComputedStyle(x); if (c.position === 'fixed' || (c.position === 'sticky' && (parseInt(c.zIndex) || 0) >= 10)) return true; } return false; };
+      const muestra = (x: number, y: number): number | null => {
+        const gota = (window as any).__subeEn?.(x, y) as HTMLElement | null;
+        // la gota va por encima de su sección, pero por debajo de lo fijo o pegado (el índice del handbook en móvil): si lo primero que tapa el
+        // punto es fijo o pegado, manda eso
+        const decide = (e: Element, l: number) => (gota && !enFijo(e) ? fondoDe(gota) ?? l : l);
+        // capas que tapan sin coger el puntero (elementsFromPoint no las ve): el titular-pantalla de la entrada de Proyectos y la web del monitor
+        for (const e of sinPuntero) {
+          const r = e.getBoundingClientRect();
+          if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+          const cs = getComputedStyle(e);
+          if (cs.visibility === 'hidden' || +cs.opacity < 0.5 || !visible(e)) continue;
+          if (e.hasAttribute('data-web')) {
+            // la web del monitor de Proyectos (un iframe de otro dominio: no se lee): su captura, alineada arriba y a lo ancho, hace de muestra
+            const cap = e.getAttribute('data-cap'); if (!cap) continue;
+            let im = fondos.get(cap); if (!im) { im = new Image(); im.src = cap; fondos.set(cap, im); }
+            if (!im.complete || !im.naturalWidth) return NaN;
+            const l = pixelUV(im, cap, (x - r.left) / r.width, ((y - r.top) / r.width) * (im.naturalWidth / im.naturalHeight));
+            if (l !== null) return decide(e, l);
+            continue;
+          }
+          const l = capa(e, x, y); if (l !== null) return decide(e, l);
+        }
+        for (const e of document.elementsFromPoint(x, y)) {
+          if (e.closest('[data-nav]') || e === html || e === document.body) continue;
+          if (e instanceof HTMLCanvasElement || e instanceof HTMLIFrameElement || e instanceof SVGElement) continue; // no se leen: lo de debajo
+          if (!visible(e)) continue;
+          if (e instanceof HTMLImageElement || e instanceof HTMLVideoElement) {
+            // en perspectiva (las pantallas de la mesa de «Más proyectos», matrix3d): su caja no dice dónde cae cada píxel; este punto no cuenta
+            if (en3D(e)) return NaN;
+            let l = pixelDe(e, x, y);
+            // vídeo aún sin fotograma: se ve su póster
+            if (l === null && e instanceof HTMLVideoElement && e.readyState < 2 && e.poster) {
+              let im = fondos.get(e.poster); if (!im) { im = new Image(); im.src = e.poster; fondos.set(e.poster, im); }
+              if (im.complete && im.naturalWidth) { const [u, v] = mapear(e, im.naturalWidth, im.naturalHeight, x, y); l = pixelUV(im, e.poster, u, v); }
+            }
+            if (l !== null) return decide(e, l);
+            // una imagen o un vídeo que tapa pero aún no se puede leer: este punto no cuenta (el fondo de su caja engañaría)
+            if (e instanceof HTMLVideoElement || !e.complete) return gota && !enFijo(e) ? fondoDe(gota) : NaN;
+            continue;
+          }
+          const l = capa(e, x, y);
+          if (l !== null) return decide(e, l);
+        }
+        return gota ? fondoDe(gota) : null;
+      };
+      let claro = html.classList.contains('sobre-claro'), ultimo = 0, temp = 0, ultimas: number[] = [];
+      const mirar = () => {
+        ultimo = performance.now(); temp = 0;
+        // seis puntos repartidos por el logotipo (tres a lo ancho, en dos alturas, sobre las minúsculas, donde está la mayor parte de la tinta): sobre una foto o en el filo de una capa, un solo píxel engaña
+        const base = lum(getComputedStyle(html).backgroundColor) ?? 0;
+        // la MEDIANA (en el filo de una tarjeta manda lo que hay bajo la mayor parte del logotipo)
+        const vs: number[] = [];
+        for (const fy of [0.02, 0.28]) for (const f of [-0.3, 0, 0.3]) { const l = muestra(cx + f * lw, cy + fy * lh); if (!Number.isNaN(l)) vs.push(l ?? base); }
+        vs.sort((a, b) => a - b); ultimas = vs;
+        if (!vs.length) { if (!html.classList.contains('nav-lista')) html.classList.add('nav-lista'); return; } // todo es un vídeo aún sin fotograma: se queda como estaba
+        const v = vs.length % 2 ? vs[vs.length >> 1] : (vs[vs.length / 2 - 1] + vs[vs.length / 2]) / 2;
+        // umbral: Rosa niebla contra Cacao se cruzan en ~0,18 de luminancia relativa (mismo contraste a los dos lados)
+        const si = v > 0.18;
+        if (si !== claro) { claro = si; html.classList.toggle('sobre-claro', si); }
+        if (!html.classList.contains('nav-lista')) html.classList.add('nav-lista');
+      };
+      const pedir = () => {
+        if (temp) return;
+        const falta = 90 - (performance.now() - ultimo);
+        temp = window.setTimeout(() => requestAnimationFrame(mirar), Math.max(0, falta));
+      };
+      // la muestra pendiente lee la posición del momento en que corre: la última siempre cae donde se paró el scroll
+      addEventListener('scroll', pedir, { passive: true });
+      // lo que cambia sin scroll (una imagen que acaba de cargar, un vídeo que avanza, una pieza que entra): una imagen al cargar y un repaso
+      // tranquilo cada 700 ms con la pestaña a la vista (seis puntos: nada que se note)
+      addEventListener('load', pedir, true);
+      addEventListener('loadeddata', pedir, true);
+      setInterval(() => { if (!document.hidden) pedir(); }, 700);
+      addEventListener('resize', () => { medirLogo(); pedir(); });
+      // la estación cambia el fondo con un fundido de 2,4 s y la tinta a mitad: se mira durante el fundido
+      addEventListener('savvia:estacion', () => [0, 500, 900, 1300, 1800, 2600].forEach((t) => setTimeout(pedir, t)));
+      // al terminar la carga (el hero se posa) y cuando la página ya ha pintado sus secciones
+      new MutationObserver(pedir).observe(html, { attributes: true, attributeFilter: ['class', 'data-estacion'] });
+      medirLogo(); mirar(); setTimeout(() => { medirLogo(); pedir(); }, 300); addEventListener('load', () => { medirLogo(); pedir(); });
+      (window as any).__barra = () => ({ claro, cx, cy, lw, lh, muestras: ultimas.map((v) => +v.toFixed(3)), muestra });
+    }
   }
 </script>
 
@@ -246,7 +481,9 @@ import { nav, pie } from '../data/home';
     justify-content: space-between;
     padding: calc(var(--spacing) * 4) calc(var(--spacing) * 5);
     padding-top: max(calc(var(--spacing) * 4), env(safe-area-inset-top));
-    color: var(--color-niebla); /* ronda 65: el claro de la paleta (con la mezcla por diferencia, sobre Cacao salía un azul pálido) */
+    /* RONDA 141 · color SÓLIDO: Rosa niebla sobre lo oscuro; Cacao sobre lo claro (html.sobre-claro, la pone el script). La mezcla por diferencia
+       (ronda 140) daba azul sobre el marrón: queda solo en /lab (lab.astro). */
+    color: var(--color-niebla);
     pointer-events: none;
   }
   @media (width >= 64rem) {
@@ -264,7 +501,7 @@ import { nav, pie } from '../data/home';
   .logo-marca {
     display: block;
     height: 2.125rem; /* 34 px: las letras quedan a la altura de la palabra de antes */
-    aspect-ratio: 1184 / 439;
+    aspect-ratio: 1170 / 439; /* ronda 139: logotipo con el isotipo de raíces */
     background: currentColor;
     -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
     mask: url('/savvia-logo.svg') center / contain no-repeat;
@@ -274,11 +511,6 @@ import { nav, pie } from '../data/home';
     .logo-marca {
       height: 2.625rem;
     }
-  }
-  /* sobre lo claro: Cacao, sin mezcla por diferencia (la clase la pone el script mirando qué sección hay bajo la barra) */
-  html.sobre-claro [data-nav] {
-    mix-blend-mode: normal;
-    color: var(--color-cacao);
   }
   .acciones-nav {
     display: flex;
@@ -391,7 +623,7 @@ import { nav, pie } from '../data/home';
     position: fixed;
     z-index: 48;
     inset: 0;
-    background: color-mix(in oklab, var(--noche) 62%, transparent);
+    background: color-mix(in oklab, var(--noche-honda) 62%, transparent); /* ronda 132: siempre el oscuro (en invierno la noche es nieve) */
     opacity: 0;
     transition: opacity 0.5s var(--ease-out-expo);
   }
@@ -642,15 +874,26 @@ import { nav, pie } from '../data/home';
       transition: none;
     }
   }
+  .pronto { opacity: 0.55; }
+  .pronto small { font-size: 0.75em; }
 </style>
 
 <style is:global>
+  /* RONDA 141 · vuelven los estados sólidos. Orden = prioridad: claro < escena < menú abierto < sentado. */
+  html.sobre-claro [data-nav] {
+    color: var(--color-cacao);
+  }
+  /* html.sobre-escena (ronda 20, la pone Proyectos.astro) ya no fuerza el claro: sobre la foto de la mesa el script lee el píxel de la lámina
+     (medido: el cielo da 0,3–0,6 de luminancia; Rosa niebla encima se quedaba en 1,3–2,2:1). */
+  /* primer fotograma, antes de que el script mire: en las páginas claras, ya en Cacao */
+  html:not(.nav-lista):not(.lab-pagina):has(main.surface-light) [data-nav] {
+    color: var(--color-cacao);
+  }
   html.menu-abierto {
     overflow: hidden;
   }
   /* Con la tarjeta abierta el botón pisa Rosa niebla: deja la mezcla por diferencia (daría un verde sucio) y pasa a Cacao. */
   html.menu-abierto [data-nav] {
-    mix-blend-mode: normal;
     color: var(--color-niebla);
   }
   html.menu-abierto [data-rejilla],
@@ -660,11 +903,5 @@ import { nav, pie } from '../data/home';
   html.estudio-sentado [data-nav] {
     opacity: 0;
     pointer-events: none;
-  }
-  /* RONDA 20 · «en proyectos destacados, savvia se tiene que ver con el color claro»: sobre la escena (cielo claro) la mezcla por diferencia lo
-     oscurecía → sin mezcla, en claro. La clase la pone Proyectos.astro mientras la escena está bajo la barra. */
-  html.sobre-escena [data-nav] {
-    mix-blend-mode: normal;
-    color: #fff;
   }
 </style>

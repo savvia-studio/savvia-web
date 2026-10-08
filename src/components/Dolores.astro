@@ -117,7 +117,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       if (!t) return;
       const d = t.querySelector('.demo'); d?.replaceWith(d.cloneNode(true));
       t.classList.add('viva');
-      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, origen: impacto, color: tinta('niebla', 0.6) });
+      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, origen: impacto, color: tinta('niebla', 0.6, sec) }); // ronda 132: en la sección (en invierno, Cacao)
     };
     // el óleo de la estación de hoy (y, al cambiarla, el nuevo: lienzo nuevo sobre la lámina nueva; el viejo suelta su contexto)
     const EST_N = ['otono', 'invierno', 'primavera', 'verano'];

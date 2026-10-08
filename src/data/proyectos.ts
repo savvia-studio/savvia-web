@@ -37,6 +37,7 @@ export type Proyecto = {
   color: string; // fondo de su tarjeta
   colores: [string, string, string]; // fondo · secundario · acento de su web (el degradado de su pieza)
   portada: Medio;
+  escritorio?: Medio; // ronda 131: si la portada es móvil, su web en escritorio para la rejilla del portfolio
   galeria: Medio[];
 };
 
@@ -46,16 +47,16 @@ const m = (slug: string, n: string, extra: Partial<Medio> = {}): Medio => ({ tip
 
 export const proyectos: Proyecto[] = [
   {
-    slug: 'multiverse',
-    nombre: 'Multiverse Computing',
+    slug: 'kuanta', // ronda 126: Multiverse Computing no llegó a publicar la web → marca blanca «Kuanta» (nombre, logotipo y productos cambiados)
+    nombre: 'Kuanta',
     sector: 'IA y computación cuántica',
     destacado: true,
     servicios: ['Diseño web', 'Desarrollo agéntico', 'Animación'],
     stack: ['HTML y CSS a medida', 'GSAP + ScrollTrigger', 'Lenis', 'Canvas 2D', 'Vercel'],
     resumen: 'Una esfera de puntos que se comprime hasta ser su logotipo: el producto, explicado sin una palabra.',
-    entradilla: 'Multiverse Computing comprime modelos de IA para que corran con mucho menos cálculo y la misma inteligencia. Su home tenía que demostrarlo, no solo decirlo.',
+    entradilla: 'Kuanta comprime modelos de IA para que corran con mucho menos cálculo y la misma inteligencia. Su home tenía que demostrarlo, no solo decirlo.',
     contexto: [
-      'La página presenta todo su catálogo: CompactifAI (compresión de modelos), SentinelAI (seguridad), Singularity (orquestación), el modelo Quasar 438B y la plataforma Foundry.',
+      'La página presenta todo su catálogo: compresión de modelos, seguridad, orquestación, su modelo más grande y la plataforma para desplegarlos.',
       'Cada idea técnica tiene su imagen: una esfera que se comprime, una matriz que conserva un tercio de sus datos, un modelo que viaja de la nube al dispositivo sin desaparecer.',
     ],
     reto: 'Explicar compresión de modelos a quien firma la factura del cálculo, con evidencia técnica y sin perder a nadie por el camino. Todo en una sola página, oscura, seria y con el rojo de la marca como único acento.',
@@ -63,11 +64,11 @@ export const proyectos: Proyecto[] = [
     secciones: [
       { n: 'Hero', d: 'La esfera de puntos se comprime con el scroll mientras las lecturas cuentan: del 100 % al 5 % del tamaño, con el 97,4 % de la precisión.' },
       { n: 'Quién usa IA comprimida', d: 'Cuatro casos de uso en piezas isométricas cuyos modelos se comprimen al pasar el cursor.' },
-      { n: 'Quasar', d: 'Un ranking de 178 modelos en el que Quasar 438B escala hasta el puesto 13.' },
-      { n: 'Cómo funciona CompactifAI', d: 'Una matriz de 4096 × 4096 de la que el scroll revela el tercio que de verdad lleva información.' },
+      { n: 'El modelo', d: 'Un ranking de 178 modelos en el que el suyo escala hasta el puesto 13.' },
+      { n: 'Cómo funciona la compresión', d: 'Una matriz de 4096 × 4096 de la que el scroll revela el tercio que de verdad lleva información.' },
       { n: 'Un modelo, cuatro sitios', d: 'Una sola ilustración que se transforma entre nube, centro de datos, borde y dispositivo.' },
-      { n: 'La suite de IA', d: 'CompactifAI, SentinelAI y Singularity en paneles que se abren.' },
-      { n: 'Foundry', d: 'Un panel de cuatro pasos con capacidad, latencia y coste.' },
+      { n: 'La suite de IA', d: 'Compresión, seguridad y orquestación en paneles que se abren.' },
+      { n: 'La plataforma', d: 'Un panel de cuatro pasos con capacidad, latencia y coste.' },
       { n: 'Una sola pila', d: 'Seis piezas y dos rombos que caen y encajan con física.' },
       { n: 'Sectores', d: 'Diez industrias numeradas, con su icono.' },
       { n: 'Validado en producción', d: 'Testimonios que se abren y se cierran al pulsarlos.' },
@@ -107,18 +108,18 @@ export const proyectos: Proyecto[] = [
     ],
     color: '#15181c',
     colores: ['#15181c', '#f01438', '#3a3e44'],
-    portada: m('multiverse', 'portada'),
-    galeria: [m('multiverse', 'g1'), m('multiverse', 'g2', { ancho: 'mitad' }), m('multiverse', 'g3', { ancho: 'mitad' }), m('multiverse', 'g4')],
+    portada: m('kuanta', 'portada'),
+    galeria: [m('kuanta', 'g1'), m('kuanta', 'g2', { ancho: 'mitad' }), m('kuanta', 'g3', { ancho: 'mitad' }), m('kuanta', 'g4')],
   },
   {
-    slug: 'amarra',
-    nombre: 'Amarra',
+    slug: 'arkdev', // ronda 126: Zernio en marca blanca (antes «Amarra»)
+    nombre: 'Arkdev',
     sector: 'Software para desarrolladores',
     destacado: true,
     servicios: ['Diseño web', 'Desarrollo agéntico', 'Animación'],
     stack: ['HTML y CSS a medida', 'Web Audio', 'Vercel'],
     resumen: 'Una API de redes y mensajería para 23 canales, presentada como un muelle donde atraca cada uno.',
-    entradilla: 'Amarra conecta un producto con 23 canales de redes sociales, mensajería y anuncios a través de una sola API. Ellos se ocupan de las apps de desarrollador, los permisos y las revisiones de cada plataforma.',
+    entradilla: 'Arkdev conecta un producto con 23 canales de redes sociales, mensajería y anuncios a través de una sola API. Ellos se ocupan de las apps de desarrollador, los permisos y las revisiones de cada plataforma.',
     contexto: [
       'La web habla a quien programa y a los agentes de IA que ya integran APIs: el código es protagonista desde el primer pantallazo y el ejemplo se escribe solo.',
       'La idea que la ordena es un muelle: cada canal atraca en la misma API, con las mismas herramientas y la misma forma de datos.',
@@ -165,8 +166,8 @@ export const proyectos: Proyecto[] = [
     ],
     color: '#f8f4ee',
     colores: ['#f8f4ee', '#e8542b', '#998a82'],
-    portada: m('amarra', 'portada'),
-    galeria: [m('amarra', 'g1'), m('amarra', 'g2', { ancho: 'mitad' }), m('amarra', 'g3', { ancho: 'mitad' }), m('amarra', 'g4')],
+    portada: m('arkdev', 'portada'),
+    galeria: [m('arkdev', 'g1'), m('arkdev', 'g2', { ancho: 'mitad' }), m('arkdev', 'g3', { ancho: 'mitad' }), m('arkdev', 'g4')],
   },
   {
     slug: 'playground',
@@ -175,7 +176,6 @@ export const proyectos: Proyecto[] = [
     dominio: 'playgroundiep.com',
     sector: 'Educación especial',
     ubicacion: 'Chicago, Estados Unidos',
-    destacado: true,
     servicios: ['Diseño web', 'Desarrollo agéntico', 'Webflow', 'CMS', 'Animación'],
     stack: ['Figma', 'Webflow', 'HTML y CSS a medida', 'GSAP', 'Lenis', 'WebGL', 'Vercel'],
     resumen: 'IA con base científica para educación especial, contada con pegatinas que se pueden coger.',
@@ -439,6 +439,7 @@ export const proyectos: Proyecto[] = [
   {
     slug: 'remerge',
     nombre: 'Remerge',
+    destacado: true, // ronda 138: sustituye a Playground en los destacados del portfolio (la web móvil, en teléfono)
     url: 'https://remerge.io',
     dominio: 'remerge.io',
     sector: 'Publicidad en apps',
@@ -482,6 +483,7 @@ export const proyectos: Proyecto[] = [
     color: '#eceed9',
     colores: ['#eceed9', '#f2ff71', '#ffffff'],
     portada: m('remerge', 'portada', { movil: true }),
+    escritorio: m('remerge', 'escritorio'),
     galeria: [m('remerge', 'g1', { movil: true, ancho: 'mitad' }), m('remerge', 'g2', { movil: true, ancho: 'mitad' }), m('remerge', 'g3', { movil: true, ancho: 'mitad' })],
   },
   {

@@ -1,0 +1,193 @@
+---
+// RONDA 133 · PASAR PÁGINA en el handbook. Andoni: «en el handbook me gustaría que al cambiar de página parezca que realmente pasas de página. Como si
+// fuera un manual, libro…».
+// Entre páginas del handbook (portada ↔ capítulo, capítulo ↔ capítulo) la navegación es una transición NATIVA entre documentos (@view-transition, solo en
+// estas páginas: el resto de la web sigue con la gota de Cacao de transicion.ts, que deja pasar estos enlaces). La página que se va se DOBLA por una línea
+// inclinada que entra por la esquina de abajo (de la derecha para avanzar, de la izquierda para volver) y se lleva la hoja; detrás queda la página nueva.
+// Tres capas: la página vieja recortada por el pliegue (::view-transition-old(root)), su DORSO (papel algo más oscuro, con la arruga del pliegue) y la
+// SOMBRA que la hoja levantada echa sobre la página nueva y la que el dorso echa sobre la vieja. Dorso y sombra son dos elementos vacíos con nombre que
+// solo existen durante la transición; sus grupos se pintan con fondos y recortes calculados en JS (fotograma a fotograma, WAAPI): ángulos exactos.
+// La dirección sale del ORDEN de los capítulos (de dónde vienes → a dónde vas), también con «atrás». Suena el papel (si el sonido está encendido).
+// Sin transiciones entre documentos (Safari < 18.2): la gota de siempre. Con movimiento reducido: navegación normal.
+import { capitulos } from '../../data/handbook';
+const orden = capitulos.map((c) => c.slug);
+---
+
+<script is:inline define:vars={{ orden }}>
+  (function () {
+    var raiz = document.documentElement;
+    var reducido = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+    // el lugar en el libro: la portada es -1, cada capítulo su número de orden; fuera del handbook, null
+    var lugar = function (p) {
+      p = (p || '').replace(/\/+$/, '');
+      if (p === '/handbook') return -1;
+      var m = /^\/handbook\/([^/]+)$/.exec(p);
+      return m ? orden.indexOf(m[1]) : null;
+    };
+    var ruta = function (u) { try { return new URL(u, location.href).pathname; } catch (e) { return ''; } };
+
+    // la página que se va apunta desde dónde sale (Safari no tiene navigation.activation)
+    // (y si se va fuera del handbook, la transición nativa no va: se salta sin dejar promesas rechazadas en la consola)
+    addEventListener('pageswap', function (e) {
+      try { sessionStorage.setItem('savvia:hoja-de', location.pathname); } catch (x) {}
+      var vt = e.viewTransition;
+      if (!vt) return;
+      [vt.ready, vt.finished, vt.updateCallbackDone].forEach(function (pr) { if (pr) pr.catch(function () {}); });
+      var a = null;
+      try { a = e.activation && e.activation.entry ? lugar(ruta(e.activation.entry.url)) : null; } catch (x) {}
+      if (a === null) vt.skipTransition();
+    });
+
+    addEventListener('pagereveal', function (e) {
+      var vt = e.viewTransition;
+      if (!vt) return;
+      [vt.ready, vt.finished, vt.updateCallbackDone].forEach(function (pr) { if (pr) pr.catch(function () {}); });
+      var de = null;
+      try { if (window.navigation && navigation.activation && navigation.activation.from) de = ruta(navigation.activation.from.url); } catch (x) {}
+      if (!de) try { de = sessionStorage.getItem('savvia:hoja-de'); } catch (x) {}
+      try { sessionStorage.removeItem('savvia:hoja-de'); } catch (x) {}
+      var a = lugar(de), b = lugar(location.pathname);
+      if (a === null || b === null || a === b || reducido()) { vt.skipTransition(); return; }
+      var atras = b < a;
+
+      // las dos capas con nombre (vacías: sus grupos se pintan desde aquí)
+      var sombra = document.createElement('div'), dorso = document.createElement('div');
+      sombra.className = 'hoja-capa hoja-sombra'; dorso.className = 'hoja-capa hoja-dorso';
+      sombra.setAttribute('aria-hidden', 'true'); dorso.setAttribute('aria-hidden', 'true');
+      document.body.append(sombra, dorso);
+      raiz.classList.add('hoja-pasa');
+      var limpiar = function () { raiz.classList.remove('hoja-pasa'); sombra.remove(); dorso.remove(); };
+      vt.finished.then(limpiar, limpiar);
+
+      // el color del papel (el fondo del capítulo)
+      var papel = [234, 221, 231];
+      try {
+        var el = document.querySelector('main') || document.body, c = getComputedStyle(el).backgroundColor;
+        var n = (c.match(/[\d.]+/g) || []).map(Number);
+        if (n.length >= 3 && (n.length < 4 || n[3] > 0.5)) papel = n.slice(0, 3);
+      } catch (x) {}
+      var tono = function (f, al) {
+        return 'rgba(' + papel.map(function (v) { return Math.round(Math.min(255, v * f)); }).join(',') + ',' + (al == null ? 1 : al) + ')';
+      };
+
+      vt.ready.then(function () {
+        var W = innerWidth, H = innerHeight, N = 54, DUR = 940;
+        var paso = function (t) {
+          // ease-out con un arranque blando (la hoja pesa un poco al levantarse)
+          var s = t * t * (3 - 2 * t);
+          return 0.5 * s + 0.5 * (1 - Math.pow(1 - t, 3));
+        };
+        var viejo = [], fDorso = [], fSombra = [];
+        var px = function (v) { return v.toFixed(1) + 'px'; };
+        var poli = function (pts) {
+          while (pts.length < 6) pts.push(pts[pts.length - 1]);
+          return 'polygon(' + pts.map(function (q) { return px(atras ? W - q[0] : q[0]) + ' ' + px(q[1]); }).join(',') + ')';
+        };
+        // un degradado perpendicular al pliegue: `stops` en px de distancia al pliegue, positivos hacia `n` (vector unitario en pantalla)
+        var grad = function (P, n, stops) {
+          var nx = atras ? -n[0] : n[0], ny = n[1], Px = atras ? W - P[0] : P[0];
+          var ang = Math.atan2(nx, -ny) * 180 / Math.PI;
+          var L = Math.abs(W * nx) + Math.abs(H * ny);
+          var base = (Px - W / 2) * nx + (P[1] - H / 2) * ny + L / 2;
+          return 'linear-gradient(' + ang.toFixed(2) + 'deg,' + stops.map(function (s) { return s[1] + ' ' + px(base + s[0]); }).join(',') + ')';
+        };
+        for (var i = 0; i <= N; i++) {
+          var t = i / N, p = paso(t), o = i / N;
+          // el pliegue: entra por la esquina de abajo muy inclinado y se endereza mientras cruza
+          var k = W * (0.03 + 0.17 * Math.pow(1 - p, 1.4)) + H * 0.05 * (1 - p);
+          var m = (1 - p) * (W + k + 2) + p * (-k - W * 0.02);
+          var A = [m + k, 0], B = [m - k, H];
+          var dx = B[0] - A[0], dy = B[1] - A[1], lon = Math.hypot(dx, dy);
+          var u = [dx / lon, dy / lon], nn = [-u[1], u[0]]; // nn apunta a la izquierda (hacia la página que queda)
+          if (nn[0] > 0) nn = [-nn[0], -nn[1]];
+          // la página vieja: lo que queda a la izquierda del pliegue
+          var vie = [[0, 0], [Math.max(0, A[0]), 0]];
+          vie = [[0, 0], [A[0], 0], [B[0], H], [0, H]];
+          // el trozo levantado (a la derecha del pliegue), reflejado sobre el pliegue = el dorso
+          var corte = [];
+          var rect = [[0, 0], [W, 0], [W, H], [0, H]];
+          var lado = function (q) { return (q[0] - A[0]) * nn[0] + (q[1] - A[1]) * nn[1]; }; // >0: lado de la página que queda
+          for (var j = 0; j < 4; j++) {
+            var q1 = rect[j], q2 = rect[(j + 1) % 4], s1 = lado(q1), s2 = lado(q2);
+            if (s1 <= 0) corte.push(q1);
+            if ((s1 <= 0) !== (s2 <= 0)) { var r = s1 / (s1 - s2); corte.push([q1[0] + (q2[0] - q1[0]) * r, q1[1] + (q2[1] - q1[1]) * r]); }
+          }
+          // la hoja no se pliega plana: se CURVA hacia ti, así que el dorso se ve escorzado (más estrecho al principio, cuando la curva es más cerrada)
+          var esc = 0.5 + 0.3 * p;
+          var refl = corte.map(function (q) { var d = lado(q); return [q[0] - (1 + esc) * d * nn[0], q[1] - (1 + esc) * d * nn[1]]; });
+          var ancho = 0; refl.forEach(function (q) { ancho = Math.max(ancho, lado(q)); });
+          ancho = Math.max(ancho, 1);
+          var C = [(A[0] + B[0]) / 2, H / 2];
+          var hayHoja = corte.length >= 3;
+          // el dorso: papel un poco más oscuro, la arruga junto al pliegue y luz hacia el borde
+          var fondoDorso = hayHoja ? grad(C, nn, [
+            [0, tono(0.7)], [Math.min(16, ancho * 0.1), tono(0.84)], [ancho * 0.48, tono(1.02)], [ancho * 0.62, tono(1.04)], [ancho * 0.9, tono(0.95)], [ancho, tono(0.88)], [ancho + 1, tono(0.88, 0)]
+          ]) : 'none';
+          // la sombra: sobre la página nueva, junto al pliegue (fuerte y corta) más un velo que se aclara al terminar; y la del dorso sobre la página vieja
+          var fuerza = Math.sin(Math.PI * Math.min(1, p * 1.15)) * 0.55 + 0.45 * (1 - p);
+          var sw = Math.min(W * 0.2, 40 + ancho * 0.45);
+          var sNueva = grad(C, [-nn[0], -nn[1]], [
+            [-1, 'rgba(26,14,10,0)'], [0, 'rgba(26,14,10,' + (0.42 * fuerza).toFixed(3) + ')'], [sw * 0.35, 'rgba(26,14,10,' + (0.16 * fuerza).toFixed(3) + ')'],
+            [sw, 'rgba(26,14,10,' + (0.07 * (1 - p)).toFixed(3) + ')'], [Math.max(W, H) * 1.6, 'rgba(26,14,10,' + (0.07 * (1 - p)).toFixed(3) + ')']
+          ]);
+          var cw = 18 + ancho * 0.1;
+          var sVieja = hayHoja ? grad(C, nn, [
+            [ancho - 2, 'rgba(26,14,10,0)'], [ancho - 1, 'rgba(26,14,10,' + (0.3 * fuerza).toFixed(3) + ')'], [ancho + cw, 'rgba(26,14,10,0)']
+          ]) : 'none';
+          viejo.push({ offset: o, clipPath: poli(vie.slice()) });
+          fDorso.push({ offset: o, clipPath: hayHoja ? poli(refl.slice()) : poli([[0, 0], [0, 0], [0, 0]]), backgroundImage: fondoDorso });
+          fSombra.push({ offset: o, backgroundImage: sNueva + (sVieja !== 'none' ? ',' + sVieja : '') });
+        }
+        var op = { duration: DUR, easing: 'linear', fill: 'both' };
+        raiz.animate(viejo, Object.assign({ pseudoElement: '::view-transition-old(root)' }, op));
+        raiz.animate(fDorso, Object.assign({ pseudoElement: '::view-transition-group(hoja-dorso)' }, op));
+        raiz.animate(fSombra, Object.assign({ pseudoElement: '::view-transition-group(hoja-sombra)' }, op));
+      }).catch(function () {});
+    });
+  })();
+</script>
+
+<script>
+  // el sonido del papel al pasar la hoja (en la página que se va: la nueva aún no puede sonar sin un gesto)
+  import { papel, sonidoEncendido } from '../../scripts/sonidos';
+  const esLibro = (p: string) => /^\/handbook(\/[^/]+)?\/?$/.test(p);
+  addEventListener('click', (e) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = (e.target as HTMLElement).closest?.('a[href]') as HTMLAnchorElement | null;
+    if (!a || a.target === '_blank') return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || !esLibro(url.pathname) || !esLibro(location.pathname)) return;
+    if (url.pathname.replace(/\/+$/, '') === location.pathname.replace(/\/+$/, '')) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !sonidoEncendido()) return;
+    try { sessionStorage.setItem('savvia:hoja-de', location.pathname); } catch {}
+    papel({ vol: 0.05, dur: 0.5 });
+  });
+</script>
+
+<style is:global>
+  /* solo el handbook pide la transición entre documentos; la web entera la tiene apagada (global.css) */
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+      navigation: auto;
+    }
+  }
+  .hoja-capa { position: fixed; inset: 0; pointer-events: none; z-index: 2147482000; }
+  .hoja-sombra { view-transition-name: hoja-sombra; }
+  .hoja-dorso { view-transition-name: hoja-dorso; }
+  html.hoja-pasa::view-transition-old(root),
+  html.hoja-pasa::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  /* la página que se va, ENCIMA de la nueva (por defecto la nueva va encima, para el fundido) */
+  html.hoja-pasa::view-transition-old(root) { z-index: 1; }
+  html.hoja-pasa::view-transition-new(hoja-sombra),
+  html.hoja-pasa::view-transition-new(hoja-dorso) {
+    animation: none;
+    opacity: 0;
+  }
+  html.hoja-pasa::view-transition-group(hoja-sombra),
+  html.hoja-pasa::view-transition-group(hoja-dorso) {
+    animation: none;
+  }
+</style>

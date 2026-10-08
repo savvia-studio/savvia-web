@@ -24,6 +24,7 @@ const CAPAS = [
 // el horizonte del paisaje (primera fila con tinta de árboles + hierba) en 51 columnas: ahí cae la gota
 const HORIZONTE = [0.619, 0.598, 0.52, 0.519, 0.505, 0.475, 0.454, 0.436, 0.454, 0.46, 0.513, 0.555, 0.531, 0.571, 0.628, 0.627, 0.63, 0.666, 0.679, 0.684, 0.705, 0.694, 0.702, 0.735, 0.753, 0.763, 0.771, 0.772, 0.772, 0.774, 0.768, 0.759, 0.747, 0.735, 0.729, 0.718, 0.706, 0.696, 0.64, 0.598, 0.591, 0.543, 0.555, 0.544, 0.579, 0.606, 0.574, 0.589, 0.576, 0.568, 0.588];
 const [antes, despues] = pie.tagline.split('savia');
+import { flecha } from '../lib/flecha';
 ---
 
 <footer id="contacto" class="surface-dark pie" data-sube data-pie data-horizonte={JSON.stringify(HORIZONTE)}>
@@ -38,7 +39,7 @@ const [antes, despues] = pie.tagline.split('savia');
       <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
       <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
         <ul class="enlaces text-ui flex flex-col gap-3 font-medium lg:items-end" data-enlaces>
-          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li><a href={l.href} class="enlace-pie">{l.label}</a></li>)}
+          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={l.href} class="enlace-pie">{l.label}</a> : <span class="enlace-pie pronto">{l.label} · pronto</span>}</li>)}
         </ul>
       </div>
     </div>
@@ -58,7 +59,7 @@ const [antes, despues] = pie.tagline.split('savia');
           <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`Contáctanos · agenda una reunión con Eric y Andoni${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
             <span data-contacta-txt>Contáctanos</span>
             <span class="cta-hilo" aria-hidden="true"></span>
-            <span class="cta-pastilla" aria-hidden="true"><span class="cta-caras"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /></span><span class="cta-dice">Haz clic para agendar una reunión con nosotros</span></span>
+            <span class="cta-pastilla" aria-hidden="true"><span class="cta-caras"><img src="/media/equipo/cara-eric.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /><img src="/media/equipo/cara-andoni.webp" alt="" width="64" height="64" loading="lazy" decoding="async" /></span><span class="cta-dice">Haz clic para agendar una reunión con nosotros</span><Fragment set:html={flecha()} /></span>
             <span class="contacta-luz" aria-hidden="true" data-contacta-luz>Contáctanos</span>
           </a>
         )}
@@ -172,10 +173,16 @@ const [antes, despues] = pie.tagline.split('savia');
     new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { crear(); o.disconnect(); } }, { rootMargin: '900px 0px' }).observe(pie);
     // ── el paralaje del scroll: cada capa viene de más abajo (--d) y se asienta según entra el pie
     let pedido = false, ult = -1;
+    const antes = document.getElementById('contenido')?.lastElementChild as HTMLElement | null | undefined;
+    const arribaMax = () => (antes ? antes.offsetHeight : 0);
     const pintar = () => {
       pedido = false;
       const r = pie.getBoundingClientRect(), vh = innerHeight;
-      pie.style.setProperty('--arriba', `${Math.max(0, Math.round(r.top))}px`); // ronda 67: la luz nace arriba de la ventana
+      // ronda 67: la luz nace arriba de la ventana. RONDA 142 · «en Eric y Andoni se ve en la esquina inferior un raro de luz»: era ESTA capa. Solo se
+      // recalculaba con el pie a la vista, así que al volver hacia arriba se quedaba con el último --arriba (≈ el alto de la ventana) y el haz, inclinado,
+      // asomaba por encima de las preguntas hasta el final del Estudio, cortado en seco por el borde de la capa. Ahora no sube más allá de la sección
+      // de antes del pie, y fuera de la vista vale 0 (ver el IntersectionObserver).
+      pie.style.setProperty('--arriba', `${Math.round(Math.min(Math.max(0, r.top), arribaMax()))}px`);
       const k = Math.min(1, Math.max(0, (vh - r.top) / Math.max(1, r.height)));
       const e = 1 - (1 - k) * (1 - k);
       if (Math.abs(e - ult) < 0.002) return;
@@ -238,6 +245,7 @@ const [antes, despues] = pie.tagline.split('savia');
     });
     new IntersectionObserver((en) => {
       visible = en[0].isIntersecting; pie.classList.toggle('viva', visible); pedir();
+      if (!visible) pie.style.setProperty('--arriba', '0px'); // ronda 142: fuera de la vista, la luz no sube por encima del pie
       estelas.forEach((t) => t?.visible(visible));
       if (visible && en[0].intersectionRatio > 0.3) dibujar();
     }, { threshold: [0, 0.3, 0.6] }).observe(pie);
@@ -550,7 +558,7 @@ const [antes, despues] = pie.tagline.split('savia');
     width: 14rem;
     height: 2px;
     border-radius: 2px;
-    background: var(--color-coral);
+    background: color-mix(in oklab, var(--color-niebla) 55%, transparent); /* RONDA 137 · la bisagra, sin Coral */
     transform: translate(-50%, -1px) scaleX(0); /* translate dentro de transform: el minificador fundía las dos propiedades y perdía el desplazamiento */
     transition: transform 0.35s cubic-bezier(0.5, 0, 0.75, 0) 0.35s;
     pointer-events: none;
@@ -565,18 +573,19 @@ const [antes, despues] = pie.tagline.split('savia');
     justify-content: center;
     gap: calc(var(--spacing) * 3);
     width: max-content;
-    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 5) calc(var(--spacing) * 2) calc(var(--spacing) * 2);
-    border-radius: 16px 16px 2px 2px;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 6) calc(var(--spacing) * 2) calc(var(--spacing) * 2);
+    border-radius: var(--radius-full); /* RONDA 134 · la píldora del CTA de la casa (global.css › .btn-primary): Coral lleno, mayúsculas, flecha fina */
     background: color-mix(in oklab, var(--color-niebla) 14%, transparent);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 24%, transparent);
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     color: var(--color-niebla);
     font-family: var(--font-sans);
-    font-size: var(--text-ui);
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: 0;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
     white-space: nowrap;
     isolation: isolate;
     overflow: hidden;
@@ -592,19 +601,21 @@ const [antes, despues] = pie.tagline.split('savia');
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--color-coral);
+    background: #63402f; /* RONDA 137 · los CTA ya no van en Coral: la puerta se llena de Nogal (el «al pasar» del CTA de la casa) */
     clip-path: inset(100% 0 0 0);
     transition: clip-path 0.3s ease;
   }
   /* RONDA 81 · Andoni: «en vez de Escríbenos, que es lo mismo que Contáctanos, que salgamos Eric y yo diciendo: haz clic para agendar una reunión con
      nosotros»: tras la puerta, las dos caras (se asoman al abrirse) y lo que dicen */
   .cta-caras { display: flex; flex: none; }
-  .cta-caras img { width: 2.25rem; height: 2.25rem; border-radius: 50%; object-fit: cover; background: var(--color-nogal); box-shadow: 0 0 0 2px var(--color-coral); translate: 0 60%; opacity: 0; transition: translate 0.3s ease, opacity 0.2s ease; }
+  .cta-caras img { width: 2.25rem; height: 2.25rem; border-radius: 50%; object-fit: cover; background: var(--color-niebla); box-shadow: 0 0 0 2px #63402f; translate: 0 60%; opacity: 0; transition: translate 0.3s ease, opacity 0.2s ease; }
   .cta-caras img + img { margin-left: calc(var(--spacing) * -2); }
   .cta-abierto .cta-caras img { translate: 0 0; opacity: 1; transition: translate 0.7s var(--ease-out-expo) 0.7s, opacity 0.4s ease 0.7s; }
   .cta-abierto .cta-caras img + img { transition-delay: 0.8s; }
-  .cta-dice { max-width: 15rem; white-space: normal; text-wrap: balance; }
-  .cta-abierto .cta-pastilla { transform: translate(-50%, -100%) perspective(520px) rotateX(0deg); opacity: 1; color: var(--color-cacao); transition: transform 0.8s var(--ease-out-expo) 0.2s, opacity 0.15s ease 0.2s, color 0.4s ease 0.75s; }
+  .cta-dice { max-width: 17rem; white-space: normal; text-wrap: balance; }
+  .cta-pastilla :global(.btn-flecha) { margin-left: calc(var(--spacing) * -1); }
+  .cta-pastilla :global(.btn-flecha) { --fl-retraso: 0.95s; } /* RONDA 137 · se dibuja cuando la puerta ya está llena */
+  .cta-abierto .cta-pastilla { transform: translate(-50%, -100%) perspective(520px) rotateX(0deg); opacity: 1; color: #eadde7; transition: transform 0.8s var(--ease-out-expo) 0.2s, opacity 0.15s ease 0.2s, color 0.4s ease 0.75s; }
   .cta-abierto .cta-pastilla::before { clip-path: inset(0 0 0 0); transition: clip-path 0.8s var(--ease-out-expo) 0.5s; }
   @media (prefers-reduced-motion: reduce) { .cta-hilo, .cta-pastilla, .cta-pastilla::before { transition: none !important; } }
   .cta-abierto .contacta-delante .contacta-luz { opacity: 0; }
@@ -741,5 +752,11 @@ const [antes, despues] = pie.tagline.split('savia');
     mix-blend-mode: color-dodge;
     pointer-events: none;
   }
+  /* RONDA 132 · en invierno (nieve) el color-dodge con tinta oscura no se ve: Cacao normal con un halo de nieve */
+  :global(html[data-estacion='invierno']) .linea {
+    mix-blend-mode: normal;
+    text-shadow: 0 0 6px var(--noche), 0 0 14px var(--noche);
+  }
   :global(html:not(.js)) .capa { translate: 0 0; }
+  .pronto { opacity: 0.5; cursor: default; }
 </style>

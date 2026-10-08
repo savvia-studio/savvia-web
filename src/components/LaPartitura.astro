@@ -1,0 +1,1270 @@
+---
+// RONDA 117 · Andoni: «La partitura de tu web: cambiamos el titular a savvia agentic y quiero hacer un vídeo con Dynamic Motion de cómo se usa la
+// librería de Neety en tiempo real. La base que tenemos está bien, pero tenemos que quitarle ese aspecto musical, es demasiada metáfora de música».
+// · Se queda la BASE: una escena, una cámara, un reloj (`pintar(t)`, función pura del tiempo) y el mismo guion: lo que entra → la librería → la cámara
+//   entra → los agentes trabajan → lo que se publica se construye.
+// · Fuera TODA la música: pentagramas, cabezas de nota, «Allegro», «dir. savvia», «Fine», la doble barra, las partes como instrumentos, el ensayo, las
+//   cuerdas que vibraban y el tempo como concepto (el reloj va en segundos; bucle de 16 s).
+// · El objeto central es la LIBRERÍA de Neety (`neety / library`): fuera, una tarjeta con su árbol (color, tipografía, voz, espaciado, tokens,
+//   componentes) cuyas filas se indexan cuando llega cada pieza; dentro, la APP de la librería: el árbol a la izquierda, el LECTOR con el archivo que
+//   lee cada agente (la línea que usa, resaltada) y a la derecha la home de Neety montándose pieza a pieza CON ESOS tokens (una guía une la línea con
+//   la pieza y un chip dice qué token es). Empieza con la petición de Tu equipo, tecleada en vivo, y acaba con «Publicar» → «Publicado · neety.com».
+// · Película al estilo «Dynamic Motion» (los vídeos de motion graphics de Opus 5.5): interfaz nítida, cámara segura, texto que se teclea, ritmo prieto,
+//   curvas ease-out expo/quart.
+// · Sonidos de ordenador (r109): posar, clic, tecleo; un timbre suave al publicar. La música de la web sigue sonando.
+// · Los nombres internos `partitura` (data-partitura, __partitura, el objeto de home.ts y el nombre del archivo) se quedan: los usan la portada y las
+//   pruebas; no se ven. Anterior: tools/retirados/LaPartitura.r116.astro.txt (y r90–r92).
+import { receta, partitura } from '../data/home';
+const P = partitura;
+const L = P.libreria;
+// el logotipo de Neety, tal cual está en su web (components/Logo.tsx: wordmark en Ciruela #2A0E2C)
+const NEETY = ["M80.9055 4.77539C74.9463 4.77539 70.6392 8.79043 70.6392 14.3541C70.6392 19.9178 74.9075 23.9406 80.8745 23.9406C85.497 23.9406 89.2277 21.5155 90.6755 17.6814H85.3574C84.4164 19.0568 82.7876 19.8557 80.8771 19.8557C78.2374 19.8557 76.3165 18.3381 75.8512 16.0216H91.0736C91.9733 9.69013 87.5317 4.77539 80.9107 4.77539H80.9055ZM75.8072 12.7253C76.314 10.3778 78.2349 8.82146 80.9055 8.82146C83.5761 8.82146 85.5358 10.3468 86.0425 12.7253H75.8072Z", "M58.5315 4.77539C52.5645 4.77539 48.2651 8.79043 48.2651 14.3541C48.2651 19.9178 52.5335 23.9406 58.4927 23.9406C63.123 23.9406 66.8459 21.5155 68.2937 17.6814H62.9834C62.0424 19.0568 60.4136 19.8557 58.4953 19.8557C55.8557 19.8557 53.9425 18.3381 53.4694 16.0216H68.6918C69.6019 9.69013 65.1499 4.77539 58.5366 4.77539H58.5315ZM53.4332 12.7253C53.9399 10.3778 55.8505 8.82146 58.5315 8.82146C61.2125 8.82146 63.154 10.3468 63.6608 12.7253H53.4332Z", "M105.771 18.8032V23.3948C97.9635 24.1937 95.4325 22.4537 95.4325 16.6367V9.65885H92.2163V5.17069C92.2163 5.17069 93.814 4.13655 94.4061 3.54968C95.0783 2.893 95.6005 2.1355 96.0116 1.25648C96.2494 0.74975 96.4304 0.315412 96.5648 0H101.583C101.583 0.0956578 101.575 0.18873 101.567 0.284388C101.552 0.48863 101.521 0.695457 101.487 0.891943C101.33 1.94418 101.068 2.90851 100.626 3.84699C100.528 4.05641 100.414 4.27099 100.285 4.48299C99.9645 5.01557 100.484 5.65932 101.071 5.46025C101.257 5.3982 101.433 5.34649 101.591 5.31547C102.92 5.04659 104.23 5.08537 105.668 5.2922V9.65368H100.784V16.4118C100.784 18.7282 101.684 19.3048 105.771 18.798V18.8032Z", "M129.266 5.20898L121.347 23.9708V25.204C121.347 30.5557 118.604 32.5076 111.404 31.8897V27.337C115.166 27.6937 115.996 26.9724 115.996 24.5163V23.901L108.465 6.02337L108.377 5.83464L108.116 5.20898H113.902C116.43 10.6511 117.361 15.2841 118.023 18.0116C118.188 18.6967 119.165 18.6916 119.328 18.0039C120.15 14.5369 120.978 10.5374 123.48 5.20898H129.266Z", "M45.4319 5.20898V23.5649H39.814C39.858 23.128 39.8502 22.6833 39.8088 22.2387C39.6796 21.0106 39.0694 19.8834 38.2602 18.8855C37.4536 17.8746 36.4479 17.0292 35.344 16.3518L33.5911 15.2841C33.1439 15.0126 32.5699 15.3332 32.5699 15.858V23.5649H27.4897V5.20898H32.9293C32.9344 6.08542 33.1025 7.07043 33.3662 7.84087C33.6816 8.7354 34.1315 9.511 34.7338 10.2401C35.8998 11.6517 37.4226 12.5824 39.0126 13.4407L39.4185 13.6553C39.8683 13.8932 40.4086 13.5648 40.4035 13.0555L40.3492 5.20898H45.4293H45.4319Z", "M16.952 5.20898H7.63706C6.83044 5.20898 6.17635 5.86308 6.17635 6.6697L7.21565 10.6666C7.33975 11.1475 7.22599 11.6723 6.87439 12.024C6.84854 12.0498 6.8201 12.0782 6.78907 12.1015C6.44264 12.3988 5.96177 12.4841 5.51968 12.3704L1.46071 11.3259C0.654089 11.3259 0 11.98 0 12.7866V22.1042C0 22.9108 0.654089 23.5649 1.46071 23.5649H10.7782C11.5849 23.5649 12.2389 22.9108 12.2389 22.1042L11.2875 18.0582C11.1893 17.6419 11.2746 17.1946 11.5538 16.8715C11.5771 16.8456 11.6004 16.8172 11.6262 16.7939C11.9571 16.463 12.4509 16.3518 12.906 16.4604L16.9546 17.448C17.7612 17.448 18.4153 16.7939 18.4153 15.9873V6.6697C18.4153 5.86308 17.7612 5.20898 16.9546 5.20898H16.952Z"];
+// RONDA 94 · «si en la representación de Neety la animación que va en el hero podemos hacerla más fiel a la real, mejor». Medido en la web real
+// (neety.treseiscero.app/home, tools/r94/real*.cjs, tools/shots/r94-real/): el hero entra entero con un FUNDIDO al irse la carga (sin palabras que
+// suban); el punto del eyebrow LATE (vaivén senoidal de 2,4 s: el punto crece a ×1,35 y su halo, ciruela al 35 %, se abre a ×3 y se apaga); y a la
+// derecha no hay una tarjeta quieta sino una CINTA de tarjetas que sube (máscara arriba y abajo): la activa nítida, las demás al 28 %, desenfocadas
+// 5 px y a ×0,95; cada una llega en ESQUELETO, el esqueleto se funde en su cabecera y sus filas entran escalonadas (suben y crecen); las cifras no
+// cuentan, están. Aquí: empresas → personas clave (con Jon resaltado) → «Jon empieza a activarse» (Templado y sus señales, una a una).
+const FEED = [
+  { tipo: 'empresas', titulo: L.hero.tarjeta.titulo, filas: L.hero.tarjeta.filas.map(([n, v], j) => ({ n, v, c: ['#2f9e6d', '#3a6fd8', '#d9412b'][j] })) },
+  { tipo: 'personas', titulo: '3 personas clave encontradas', filas: [
+    { n: 'Jon Martínez', r: 'Director de compras · Betsaide', v: 94, c: '#a7c5f9' },
+    { n: 'Nerea Aguirre', r: 'Directora de operaciones · Arania', v: 91, c: '#f2c7a5' },
+    { n: 'Inés Etxebarria', r: 'Directora de planta · Fagor Automation', v: 88, c: '#d9b8d4' },
+  ] },
+  { tipo: 'jon', titulo: 'Jon empieza a activarse', filas: [{ n: 'Ha visitado tu perfil' }, { n: 'Ha aceptado tu solicitud' }, { n: 'Has reaccionado a su post' }] },
+];
+// RONDA 118 · el índice y los textos de cada sección de la librería (los que se ven dentro) salen de `libreria` en home.ts
+const PG = L.paginas;
+const SECDE: Record<string, string> = { 'Color': 'color', 'Tipografía': 'tipo', 'Espaciado': 'esp', 'Botones': 'botones', 'Componentes de la web': 'comp' };
+const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobile de cada paso de la escala (la librería real: «48 / 32px»)
+---
+
+<section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube>
+  <div class="wrap section-y">
+    <h2 id="partitura-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
+    <p class="text-sub mt-6 lg:mt-8 max-w-[34ch] text-fg2" data-enfoca>{receta.arnes}</p>
+
+    <div
+      class="cine"
+      data-cine
+      data-entra-p={JSON.stringify(P.entra)}
+      data-sale-p={JSON.stringify(P.sale)}
+      data-titulo-p={JSON.stringify(L.titulo)}
+      data-resumen-p={JSON.stringify(P.resumen)}
+      data-picks-p={JSON.stringify(L.picks)}
+      data-estado-p={JSON.stringify(L.estado)}
+      data-peticion-p={JSON.stringify(L.peticion)}
+      role="img"
+      aria-label="Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y Diseño cogen piezas de la librería real de Neety (el color Base Cálida, el titular H1 XL, el botón Solicitar demo, el espaciado, el logotipo y el punto pulsante) y las colocan en su home. Al publicar en neety.com, la misma librería sirve para cambiar textos, editar ilustraciones, crear landings para anuncios y trabajar el CMS."
+    >
+      <svg class="mapa" aria-hidden="true" data-mapa></svg>
+
+      <!-- LA LIBRERÍA POR DENTRO (r118): la librería REAL de Neety en miniatura (índice + secciones que se recorren con el reloj) y, al lado, la home que se monta con lo que cogen los agentes. Escritorio 1360 × 720; móvil 580 × 800 -->
+      <div class="app" aria-hidden="true" data-ventana>
+        <div class="barra">
+          <span class="semaforo"><i></i><i></i><i></i></span>
+          <span class="ruta">{L.ruta}</span>
+          <span class="presencia">{P.agentes.slice(0, 3).map(([n, c]) => <i style={`--c: var(--color-${c})`}>{n.slice(0, 2)}</i>)}</span>
+          <span class="publicar" data-publicar>{L.publicar}</span>
+        </div>
+        <nav class="indice">
+          {L.indice.map(([g, items]) => (
+            <Fragment>
+              <p class="ind-g">{g}</p>
+              <ul>{items.map((x) => <li data-s={SECDE[x]}>{x}</li>)}</ul>
+            </Fragment>
+          ))}
+        </nav>
+        <div class="tabs-v">{['Color', 'Tipografía', 'Botones', 'Espaciado', 'Componentes de la web'].map((x) => <span data-s={SECDE[x]}>{x === 'Componentes de la web' ? 'Componentes' : x}</span>)}</div>
+        <div class="libmain">
+          <div class="scroller" data-scroller>
+            <section class="sec" data-sec="color">
+              <p class="eb">{PG.color.eyebrow}</p>
+              <h3 class="tt">{PG.color.titulo}</h3>
+              <p class="tx">{PG.color.texto}</p>
+              <p class="et">{PG.color.etiqueta}</p>
+              <div class="swatches">
+                {L.color.map(([n, hx]) => (
+                  <span class="sw pk" data-src={n === 'Base Cálida' ? 'base' : undefined}><i class="blk" style={`background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx}</small></span>
+                ))}
+              </div>
+              <p class="et et2">{PG.color.rampas}</p>
+              <div class="rampas">
+                {['#FE8238', '#A7C5F9'].map((c) => (
+                  <span class="rampa">{[80, 60, 40, 20, 10, 5, 2].map((o) => <i style={`background:color-mix(in srgb, ${c} ${o}%, transparent)`}><small>{o}</small></i>)}</span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="tipo">
+              <p class="eb">{PG.tipo.eyebrow}</p>
+              <h3 class="tt">{PG.tipo.titulo}</h3>
+              <p class="tx">Titulares en <b>Bricolage Grotesque</b>, cuerpo en <b>Switzer</b>.</p>
+              <p class="et">{PG.tipo.etiqueta}</p>
+              <div class="tps">
+                {[['H1 · XL', 'Desktop 112px · Mobile 64px · 120%', 'xl'], ['H1 · L', 'Desktop 80px · Mobile 48px · 120%', 'l'], ['H1 · M', 'Desktop 64px · Mobile 40px · 120%', 'm'], ['H2', 'Desktop 48px · Mobile 32px · 120%', 'h2']].map(([n, m, c]) => (
+                  <span class={`tp tp-${c} pk`} data-src={c === 'xl' ? 'h1xl' : undefined}><b>{n}</b><small>{m}</small></span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="botones">
+              <p class="eb">{PG.botones.eyebrow}</p>
+              <h3 class="tt">{PG.botones.titulo}</h3>
+              <p class="tx">{PG.botones.texto}</p>
+              <div class="btns">
+                {L.botonesTarjetas.map(([et, v, tx], j) => (
+                  <span class="bt-card">
+                    <small>{et}</small>
+                    <span class={`pill ${v} ${j === 0 ? 'pk' : ''}`} data-src={j === 0 ? 'cta' : undefined}>{tx}<i></i></span>
+                  </span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="esp">
+              <p class="eb">{PG.esp.eyebrow}</p>
+              <h3 class="tt">{PG.esp.titulo}</h3>
+              <p class="tx">{PG.esp.texto}</p>
+              <div class="esps">
+                {L.espaciado.map(([n, v], j) => (
+                  <span class={`sp-row ${n === 'large' ? 'pk' : ''}`} data-src={n === 'large' ? 'large' : undefined}><b>{n}</b><i><u style={`width:${(v / 160) * 100}%`}></u></i><small>{v} / {ESP_M[j]}px</small></span>
+                ))}
+              </div>
+            </section>
+            <section class="sec" data-sec="comp">
+              <p class="eb">{PG.comp.eyebrow}</p>
+              <h3 class="tt">{PG.comp.titulo}</h3>
+              <p class="tx">{PG.comp.texto}</p>
+              <div class="tabs-c">{L.tabsComponentes.map((x, j) => <span class={j === 0 ? 'on' : ''}>{x}<em>{[12, 13, 6, 4, 4, 5, 4, 3][j]}</em></span>)}</div>
+              <div class="fcs">
+                {L.fichas.map((f) => (
+                  <span class="fc">
+                    <b class="fc-t">{f.titulo}</b>
+                    <span class="chips-c">{f.chips.map((c) => <code>{c}</code>)}</span>
+                    <small class="fc-x">{f.texto}</small>
+                    <span class="fc-pre pk" data-src={f.id}>
+                      {f.id === 'logo'
+                        ? <svg class="fc-logo" viewBox="0 0 130 32" aria-hidden="true"><g fill="#2A0E2C">{NEETY.map((d) => <path d={d} />)}</g></svg>
+                        : <i class="fc-dot"></i>}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="lienzo" data-lienzo>
+          <!-- la home de Neety (sus colores, Bricolage Grotesque y su copy), que se monta con lo que cogen los agentes -->
+          <div class="neety" data-neety data-slot="fondo">
+            <span class="n-fondo" data-pz="fondo"></span>
+            <span class="n-nav">
+              <span class="n-logow" data-pz="logo" data-slot="logo"><svg class="n-logo" viewBox="0 0 130 32" aria-hidden="true"><g fill="#2A0E2C">{NEETY.map((d) => <path d={d} />)}</g></svg></span>
+              <span class="n-navr" data-pz="nav"><span class="n-menu">{L.hero.nav.map((x) => <i>{x}</i>)}</span><span class="n-navcta">{L.hero.ctas[0]}</span></span>
+            </span>
+            <span class="n-eyebrow" data-pz="eyebrow"><i class="n-punto" data-slot="punto"></i>{L.hero.eyebrow.map((x, j) => <b class={j === 2 ? 'on' : ''}>{x}</b>)}</span>
+            <p class="n-h1" data-pz="h1" data-slot="h1">{L.hero.h1} <span class="b">{L.hero.h1b}</span></p>
+            <span class="n-esp" data-pz="esp" data-slot="esp"><i></i><b>48</b></span>
+            <span class="n-ctas" data-pz="ctas" data-slot="ctas"><span class="pill primary">{L.hero.ctas[0]}<i></i></span><span class="n-link">{L.hero.ctas[1]}</span></span>
+            <span class="n-card" data-pz="card">
+              <span class="n-feed" data-feed>
+                {FEED.map((c) => (
+                  <span class={`sf sf-${c.tipo}`} data-sf>
+                    <span class="sf-cuerpo">
+                      <span class="sf-skel" data-skel>
+                        <span class="sk-head"><i></i><b></b></span>
+                        {c.filas.map(() => <span class="sk-fila"><i></i><b></b><em></em></span>)}
+                      </span>
+                      <span class="sf-head" data-head>
+                        <span class="sf-ic">{c.tipo === 'jon' ? 'J' : <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M136,32V216H40V85.35a8,8,0,0,1,3.56-6.66l80-53.33A8,8,0,0,1,136,32Z" opacity="0.2" /><path d="M240,208H224V96a16,16,0,0,0-16-16H144V32a16,16,0,0,0-24.88-13.32L39.12,72A16,16,0,0,0,32,85.34V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM208,96V208H144V96ZM48,85.34,128,32V208H48Z" /></svg>}</span>
+                        <b>{c.titulo}</b>
+                        {c.tipo === 'jon' && <span class="sf-pop" data-pop>Templado</span>}
+                      </span>
+                      {c.filas.map((f: any) => c.tipo === 'jon'
+                        ? <span class="sf-act" data-fila><i></i>{f.n}</span>
+                        : <span class="sf-fila" data-fila>
+                            {c.tipo === 'empresas' ? <i class="lg" style={`--lc: ${f.c}`}></i> : <i class="av" style={`--lc: ${f.c}`}>{f.n.split(' ').map((x: string) => x[0]).join('')}</i>}
+                            {c.tipo === 'empresas' ? <span class="nm">{f.n}</span> : <span class="nm">{f.n}<small>{f.r}</small></span>}
+                            <em>{f.v}%</em>
+                          </span>)}
+                      {c.tipo === 'personas' && <span class="sf-hl" data-hl></span>}
+                    </span>
+                  </span>
+                ))}
+              </span>
+            </span>
+            <p class="n-sub" data-pz="sub">{L.hero.sub}</p>
+          </div>
+          <!-- la PETICIÓN de Tu equipo: se teclea en vivo, se envía y se recoge en la píldora de estado -->
+          <div class="composer" data-composer>
+            <span class="quien"><i></i>{L.quien}</span>
+            <p class="campo"><span data-escrito></span><i class="caret" data-caret></i></p>
+            <span class="enviar" data-enviar><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg></span>
+          </div>
+          <div class="estado" data-estado><i class="punto"></i><svg class="ok" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5" /></svg><span data-estado-txt>{L.estado[0]}</span></div>
+        </div>
+        <!-- los CHIPS: la pieza de la librería que acaba de caer en la home -->
+        {L.picks.map((p) => <span class="chip" style={`--c: var(--color-${P.agentes[p.ag][1]})`} data-chip>{p.chip}</span>)}
+      </div>
+
+      {P.agentes.map(([n, c]) => (
+        <div class="cursor" style={`--c: var(--color-${c})`} aria-hidden="true" data-agente>
+          <i class="onda"></i>
+          <svg viewBox="0 0 16 16"><path d="M2 1.5 L14 7 L8.4 8.4 L6.2 14 Z" /></svg>
+          <span>{n}</span>
+        </div>
+      ))}
+    </div>
+
+    <p class="nota detail text-fg2" data-enfoca>{P.nota} <a class="link" href={P.enlace.href} target="_blank" rel="noopener">{P.enlace.label}</a></p>
+  </div>
+</section>
+
+<script>
+  import { tecla, clic, teclear, papel, posar, tocar } from '../scripts/sonidos';
+
+  const sec = document.querySelector<HTMLElement>('[data-partitura]');
+  if (sec) iniciar(sec);
+
+  function iniciar(sec: HTMLElement) {
+    const cine = sec.querySelector<HTMLElement>('[data-cine]')!;
+    const svg = sec.querySelector<SVGSVGElement>('[data-mapa]')!;
+    const win = sec.querySelector<HTMLElement>('[data-ventana]')!;
+    const curs = [...sec.querySelectorAll<HTMLElement>('[data-agente]')];
+    const ENTRA: string[] = JSON.parse(cine.dataset.entraP!), SALE: string[] = JSON.parse(cine.dataset.saleP!), TIT: string = JSON.parse(cine.dataset.tituloP!);
+    const RES: [string, string][] = JSON.parse(cine.dataset.resumenP!);
+    const PICKS: { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[] = JSON.parse(cine.dataset.picksP!);
+    const ESTADO: string[] = JSON.parse(cine.dataset.estadoP!), PETICION: string = JSON.parse(cine.dataset.peticionP!);
+    const NOMBRES = curs.map((c) => c.querySelector('span')!.textContent!);
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const NS = 'http://www.w3.org/2000/svg';
+
+    // ── el TIEMPO, en segundos: bucle de 16 s
+    const LOOP = 16;
+    // ronda 125 · «tiene que ir más lento» (en savvia.studio): el guion se reproduce al 62 % de su velocidad (un bucle dura ~26 s en vez de 16)
+    const VEL = 0.62;
+    const curva = (x1: number, y1: number, x2: number, y2: number) => {
+      const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+      const X = (u: number) => ((ax * u + bx) * u + cx) * u, Y = (u: number) => ((ay * u + by) * u + cy) * u;
+      return (x: number) => {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        let lo = 0, hi = 1, u = x;
+        for (let i = 0; i < 22; i++) { const v = X(u); if (Math.abs(v - x) < 1e-5) break; if (v < x) lo = u; else hi = u; u = (lo + hi) / 2; }
+        return Y(u);
+      };
+    };
+    const EZ = {
+      lin: (x: number) => x,
+      fundido: curva(0.5, 0, 0.5, 1),
+      sube: curva(0, 0, 0.2, 1),
+      sale: curva(0.16, 1, 0.3, 1), // expo out
+      quart: curva(0.25, 1, 0.5, 1), // quart out
+      flujo: curva(0.6, 0, 0.4, 1),
+      mano: curva(0.42, 0, 0.24, 1),
+      deriva: curva(0.3, 0, 0.7, 1),
+      camara: curva(0.6, 0, 0.25, 1),
+      zambullida: curva(0.72, 0, 0.17, 1),
+      subida: curva(0.56, 0, 0.2, 1),
+    };
+    const clamp = (v: number, a = 0, c = 1) => Math.min(c, Math.max(a, v));
+    const prog = (t: number, a: number, c: number) => clamp((t - a) / (c - a));
+    const lerp = (a: number, c: number, p: number) => a + (c - a) * p;
+    const sm = (t: number, a: number, c: number) => EZ.fundido(prog(t, a, c));
+    const blip = (t: number, t0: number, d: number) => {
+      const p = prog(t, t0, t0 + d);
+      return p <= 0 || p >= 1 ? 0 : p < 0.25 ? EZ.sube(p / 0.25) : 1 - EZ.fundido((p - 0.25) / 0.75);
+    };
+
+    const AG = ['coral', 'cobalto', 'cereza', 'nogal'].map((c) => `var(--color-${c})`);
+
+    const ult = new WeakMap<Element, Record<string, string>>();
+    const pon = (e: Element, k: string, v: string) => {
+      let m = ult.get(e);
+      if (!m) ult.set(e, (m = {}));
+      if (m[k] === v) return;
+      m[k] = v;
+      if (k[0] === '@') e.setAttribute(k.slice(1), v);
+      else if (k === '#') e.textContent = v;
+      else (e as HTMLElement).style.setProperty(k, v);
+    };
+    const f3 = (n: number) => n.toFixed(3), f2 = (n: number) => n.toFixed(2);
+    const el = <K extends keyof SVGElementTagNameMap>(tag: K, at: Record<string, string | number>, padre: Element) => {
+      const e = document.createElementNS(NS, tag);
+      for (const k in at) e.setAttribute(k, String(at[k]));
+      padre.appendChild(e);
+      return e;
+    };
+
+    // ── GUION (segundos)
+    // fuera: lo que entra llega a la librería y se indexa; los agentes editan cuatro entradas; la cámara se acerca a la tarjeta y entra
+    const CASC = ENTRA.map((_, i) => ({ i, t: 0.2 + 0.15 * i, ag: i % 4 }));
+    const EDIT = [{ ag: 0, i: 2, at: 2.55 }, { ag: 1, i: 5, at: 2.7 }, { ag: 2, i: 4, at: 2.85 }, { ag: 3, i: 0, at: 3.0 }];
+    const ABRE = 3.75, SEL_FIN = 3.35, SUBE = [12.6, 13.5];
+    // dentro: la petición (se teclea y se envía), los PASOS (cada agente lee una línea de la librería y monta su pieza) y publicar
+    const PIDE = [4.55, 5.55], ENVIA = 5.7, PUB = 11.95;
+    // RONDA 118 · los PICKS: cada agente va a un elemento de la librería (anillo y elevación), lo COGE (una copia se despega y viaja con su cursor) y lo suelta en su
+    // sitio de la home, donde la pieza se asienta. `tg` = el instante de coger; la copia llega 0,55 s después
+    const TG = [6.3, 7.2, 8.1, 9.0, 9.9, 10.8], VIAJE = 0.55;
+    const picks = PICKS.map((p, i) => ({ ...p, tg: TG[i], land: TG[i] + VIAJE }));
+    const SECS = ['color', 'tipo', 'botones', 'esp', 'comp'];
+    const PIEZA: Record<string, number> = {
+      fondo: picks[0].land, h1: picks[1].land, ctas: picks[2].land, sub: picks[3].land + 0.1, card: picks[3].land + 0.3,
+      logo: picks[4].land, nav: picks[4].land + 0.25, eyebrow: picks[5].land,
+    };
+    const ESP_T = picks[3].land;
+    // lo que se publica: cada salida se construye con una entrada que la librería ya tiene
+    const CONS = [
+      { o: 0, i: 1, ag: 0 }, { o: 1, i: 5, ag: 2 }, { o: 2, i: 7, ag: 1 }, { o: 3, i: 4, ag: 3 }, { o: 0, i: 2, ag: 0 }, { o: 2, i: 3, ag: 2 }, // ronda 126: cuatro salidas (antes seis)
+    ].map((c, j) => ({ ...c, A: 13.7 + 0.3 * j }));
+
+    type Pulso = { lado: 'in' | 'out'; i: number; t0: number; d: number; ag: number };
+    const PULSOS: Pulso[] = [
+      ...CASC.map((c) => ({ lado: 'in' as const, i: c.i, t0: c.t + 0.02, d: 0.5, ag: c.ag })),
+      ...EDIT.map((e) => ({ lado: 'in' as const, i: e.i, t0: e.at + 0.03, d: 0.55, ag: e.ag })),
+      ...CONS.flatMap((c) => [
+        { lado: 'in' as const, i: c.i, t0: c.A - 0.45, d: 0.35, ag: c.ag },
+        { lado: 'out' as const, i: c.o, t0: c.A - 0.15, d: 0.3, ag: c.ag },
+      ]),
+    ];
+    // cada pieza que llega a la librería indexa una fila de su árbol
+    const LLEGADAS = PULSOS.filter((p) => p.lado === 'in').map((p) => ({ t: p.t0 + p.d, ag: p.ag })).sort((x, y) => x.t - y.t).map((g, q) => ({ ...g, fila: q % 6 }));
+
+    // ── la escena: modo h (escritorio, 1600 × 900) o v (móvil, 600 × 840)
+    const mqV = matchMedia('(width < 64rem)');
+    let modo: 'h' | 'v' = mqV.matches ? 'v' : 'h';
+    let W = 1600, H = 900, k = 1;
+    const SW = 236, SH = 160, HOLD = 40;
+    type Caja = { lado: 'in' | 'out'; i: number; g: SVGGElement; x: number; y: number; w: number; h: number; P: number[]; tabla: number[]; hilo: SVGPathElement; pulso: SVGPathElement; cabeza: SVGCircleElement };
+    let cajas: Caja[] = [], ins: Caja[] = [], outs: Caja[] = [];
+    let cam: SVGGElement, filo: SVGRectElement, gTexto: SVGGElement, filas: { bg: SVGRectElement; ic: SVGRectElement }[] = [], gPub: SVGGElement;
+    type Vista = { S: number; cx: number; cy: number };
+    let REST: Vista, INS: Vista, INS2: Vista, FOLD: Vista, DENTRO: Vista;
+    let CAM: [number, Vista, (x: number) => number][] = [];
+
+    const bez = (P: number[], u: number) => {
+      const m = 1 - u, a = m * m * m, c = 3 * m * m * u, d = 3 * m * u * u, e = u * u * u;
+      return [a * P[0] + c * P[2] + d * P[4] + e * P[6], a * P[1] + c * P[3] + d * P[5] + e * P[7]];
+    };
+    const tablaArco = (P: number[]) => {
+      const n = 48, Lr = [0];
+      let [px, py] = bez(P, 0), tot = 0;
+      for (let q = 1; q <= n; q++) { const [x, y] = bez(P, q / n); tot += Math.hypot(x - px, y - py); Lr.push(tot); px = x; py = y; }
+      return Lr.map((v) => v / tot);
+    };
+    const uDe = (tab: number[], s: number) => {
+      const n = tab.length - 1;
+      let q = 1;
+      while (q < n && tab[q] < s) q++;
+      const a = tab[q - 1], c = tab[q];
+      return (q - 1 + (s - a) / (c - a || 1)) / n;
+    };
+    const dDe = (P: number[]) => `M${f2(P[0])} ${f2(P[1])}C${f2(P[2])} ${f2(P[3])} ${f2(P[4])} ${f2(P[5])} ${f2(P[6])} ${f2(P[7])}`;
+
+    const montar = () => {
+      modo = mqV.matches ? 'v' : 'h';
+      W = modo === 'h' ? 1600 : 600;
+      H = modo === 'h' ? 900 : 840;
+      cine.classList.toggle('v', modo === 'v');
+      win.classList.toggle('v', modo === 'v');
+      k = cine.clientWidth / W;
+      svg.innerHTML = '';
+      svg.setAttribute('viewBox', `0 0 ${cine.clientWidth} ${cine.clientHeight}`);
+      cam = el('g', { class: 'cam' }, svg);
+      const gC = el('g', {}, cam), gP = el('g', {}, cam), gH = el('g', { class: 'hoja' }, cam), gK = el('g', {}, cam), gN = el('g', {}, cam);
+      // LA TARJETA de la librería, cerrada: barra con su ruta, el título y las filas de su árbol (que se indexan al llegar cada pieza)
+      el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 6, class: 'papel' }, gH);
+      gTexto = el('g', {}, gH);
+      [0, 1, 2].forEach((q) => el('circle', { cx: -SW / 2 + 10 + q * 6, cy: -SH / 2 + 10, r: 1.7, class: 'sem' }, gTexto));
+      el('text', { x: -SW / 2 + 34, y: -SH / 2 + 12, class: 'ruta-t' }, gTexto).textContent = 'neety / library';
+      el('line', { x1: -SW / 2, x2: SW / 2, y1: -SH / 2 + 20, y2: -SH / 2 + 20, class: 'raya' }, gTexto);
+      el('text', { x: -SW / 2 + 12, y: -SH / 2 + 39, class: 'titulo' }, gTexto).textContent = TIT;
+      filas = RES.map(([n, m], q) => {
+        const y = -SH / 2 + 50 + q * 16;
+        const bg = el('rect', { x: -SW / 2 + 7, y, width: SW - 14, height: 13, rx: 3, class: 'fila-bg' }, gTexto);
+        const ic = el('rect', { x: -SW / 2 + 13, y: y + 3.5, width: 5, height: 6, rx: 1, class: 'fila-ic' }, gTexto);
+        el('text', { x: -SW / 2 + 23, y: y + 8.6, class: 'fila-n' }, gTexto).textContent = n;
+        el('text', { x: SW / 2 - 13, y: y + 8.6, class: 'fila-m', 'text-anchor': 'end' }, gTexto).textContent = m;
+        return { bg, ic };
+      });
+      gPub = el('g', { class: 'pub' }, gH);
+      el('rect', { x: SW / 2 - 92, y: -SH / 2 + 4, width: 84, height: 12, rx: 6 }, gPub);
+      el('text', { x: SW / 2 - 50, y: -SH / 2 + 12.2, 'text-anchor': 'middle' }, gPub).textContent = '✓ publicado · neety.com';
+      filo = el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 6, class: 'filo' }, gH);
+
+      // LAS CAJAS (lo que entra, lo que sale) y sus HILOS
+      const FS = 15, BH = 30, PAD = 12;
+      const nueva = (lado: 'in' | 'out', i: number, txt: string): Caja => {
+        const g = el('g', { class: 'caja' }, gK);
+        const r = el('rect', { rx: 6, height: BH }, g);
+        const tx = el('text', { class: 'rot' }, g);
+        tx.textContent = txt;
+        const w = tx.getComputedTextLength() + PAD * 2;
+        r.setAttribute('width', f2(w));
+        const hilo = el('path', { class: 'hilo', pathLength: 1 }, gC);
+        const pulso = el('path', { class: 'pulso', pathLength: 1 }, gP);
+        const cabeza = el('circle', { class: 'cabeza', r: 2.8, cx: 0, cy: 0 }, gN);
+        return { lado, i, g, x: 0, y: 0, w, h: BH, P: [], tabla: [], hilo, pulso, cabeza };
+      };
+      ins = ENTRA.map((s, i) => nueva('in', i, s));
+      outs = SALE.map((s, i) => nueva('out', i, s));
+      cajas = [...ins, ...outs];
+      const curvaH = (x0: number, y0: number, x1: number, y1: number, c0: number, c1: number) => [x0, y0, x0 + (x1 - x0) * c0, y0, x0 + (x1 - x0) * c1, y1, x1, y1];
+      const curvaV = (x0: number, y0: number, x1: number, y1: number, c0: number, c1: number) => [x0, y0, x0, y0 + (y1 - y0) * c0, x1, y0 + (y1 - y0) * c1, x1, y1];
+      if (modo === 'h') {
+        ins.forEach((c, i) => { const y = (i - 4.5) * 44; c.x = -250 - c.w; c.y = y - BH / 2; c.P = curvaH(-250, y, -SW / 2 - 1, 0, 0.55, 0.5); });
+        outs.forEach((c, j) => { const y = (j - (outs.length - 1) / 2) * 56; c.x = 250; c.y = y - BH / 2; c.P = curvaH(SW / 2 + 1, 0, 250, y, 0.5, 0.55); });
+      } else {
+        const filasDe = (cs: Caja[]) => {
+          const out: Caja[][] = [[]];
+          let ancho = 0;
+          for (const c of cs) { if (ancho && ancho + 10 + c.w > 440) { out.push([]); ancho = 0; } out[out.length - 1].push(c); ancho += (ancho ? 10 : 0) + c.w; }
+          return out;
+        };
+        const colocar = (fs: Caja[][], y0: number, dir: 1 | -1) => fs.forEach((fila, r) => {
+          const tw = fila.reduce((s, c) => s + c.w, 0) + (fila.length - 1) * 10;
+          let x = -tw / 2;
+          const yc = y0 + dir * (dir === 1 ? r : fs.length - 1 - r) * 40;
+          for (const c of fila) { c.x = x; c.y = yc - BH / 2; x += c.w + 10; }
+        });
+        colocar(filasDe(ins), -SH / 2 - 110 - BH / 2, -1);
+        colocar(filasDe(outs), SH / 2 + 110 + BH / 2, 1);
+        ins.forEach((c) => { c.P = curvaV(c.x + c.w / 2, c.y + BH, 0, -SH / 2 - 1, 0.55, 0.5); });
+        outs.forEach((c) => { c.P = curvaV(0, SH / 2 + 1, c.x + c.w / 2, c.y, 0.5, 0.45); });
+      }
+      for (const c of cajas) {
+        c.g.setAttribute('transform', `translate(${f2(c.x)} ${f2(c.y)})`);
+        const tx = c.g.querySelector('text')!;
+        tx.setAttribute('x', String(PAD));
+        tx.setAttribute('y', f2(BH / 2 + FS * 0.34));
+        c.tabla = tablaArco(c.P);
+        c.hilo.setAttribute('d', dDe(c.P));
+        c.pulso.setAttribute('d', dDe(c.P));
+      }
+
+      // ── LA CÁMARA: vistas calculadas de la geometría
+      const caja = (cs: { x: number; y: number; w: number; h: number }[]) => {
+        const x0 = Math.min(...cs.map((c) => c.x)), y0 = Math.min(...cs.map((c) => c.y)), x1 = Math.max(...cs.map((c) => c.x + c.w)), y1 = Math.max(...cs.map((c) => c.y + c.h));
+        return { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0 };
+      };
+      const hoja = { x: -SW / 2, y: -SH / 2, w: SW, h: SH };
+      const todo = caja([...cajas, hoja]), ci = caja(ins);
+      const sR = Math.min((W * 0.9) / todo.w, (H * 0.84) / todo.h);
+      REST = { S: sR, cx: (todo.x0 + todo.x1) / 2, cy: (todo.y0 + todo.y1) / 2 };
+      if (modo === 'h') {
+        const s = Math.min(sR * 1.24, (H * 0.92) / ci.h);
+        INS = { S: s, cx: ci.x0 + (W * 0.43) / s, cy: (ci.y0 + ci.y1) / 2 };
+        INS2 = { S: s * 1.04, cx: INS.cx + 6, cy: INS.cy };
+        FOLD = { S: (W * 0.42) / SW, cx: 0, cy: 0 };
+      } else {
+        const s = Math.min(sR * 1.3, (W * 0.94) / ci.w);
+        INS = { S: s, cx: 0, cy: ci.y0 + (H * 0.36) / s };
+        INS2 = { S: s * 1.04, cx: 0, cy: INS.cy + 6 };
+        FOLD = { S: (W * 0.72) / SW, cx: 0, cy: 0 };
+      }
+      DENTRO = { S: HOLD, cx: 0, cy: 0 };
+      CAM = [
+        [0, REST, EZ.lin], [1.9, REST, EZ.lin], [2.5, INS, EZ.camara], [3.1, INS2, EZ.deriva], [3.6, FOLD, EZ.camara], [ABRE, FOLD, EZ.lin],
+        [4.45, DENTRO, EZ.zambullida], [SUBE[0], DENTRO, EZ.lin], [SUBE[1], REST, EZ.subida], [LOOP, REST, EZ.lin],
+      ];
+      medirVentana();
+      montarPicks();
+      for (const c of curs) ult.delete(c);
+      for (const c of cajas) ult.delete(c.g);
+    };
+
+    const camara = (t: number): Vista => {
+      let q = 0;
+      while (q < CAM.length - 2 && CAM[q + 1][0] <= t) q++;
+      const [t0, A] = CAM[q], [t1, B, ez] = CAM[q + 1];
+      const p = ez(prog(t, t0, t1));
+      return { S: Math.exp(lerp(Math.log(A.S), Math.log(B.S), p)), cx: lerp(A.cx, B.cx, p), cy: lerp(A.cy, B.cy, p) };
+    };
+    const sx = (v: Vista, x: number) => W / 2 + v.S * (x - v.cx), sy = (v: Vista, y: number) => H / 2 + v.S * (y - v.cy);
+
+    // ── LA APP por dentro
+    const Q = <T extends Element>(s: string) => [...win.querySelectorAll<T>(s)];
+    const pz = Object.fromEntries(Q<HTMLElement>('[data-pz]').map((e) => [e.dataset.pz!, e])) as Record<string, HTMLElement>;
+    const composer = win.querySelector<HTMLElement>('[data-composer]')!, escrito = win.querySelector<HTMLElement>('[data-escrito]')!, caret = win.querySelector<HTMLElement>('[data-caret]')!;
+    const enviar = win.querySelector<HTMLElement>('[data-enviar]')!, estado = win.querySelector<HTMLElement>('[data-estado]')!, estadoTxt = win.querySelector<HTMLElement>('[data-estado-txt]')!;
+    const publicar = win.querySelector<HTMLElement>('[data-publicar]')!, lienzo = win.querySelector<HTMLElement>('[data-lienzo]')!;
+    const chips = Q<HTMLElement>('[data-chip]'), scroller = win.querySelector<HTMLElement>('[data-scroller]')!, secEls = SECS.map((n) => win.querySelector<HTMLElement>(`[data-sec="${n}"]`)!);
+    const neety = win.querySelector<HTMLElement>('[data-neety]')!;
+    // RONDA 94 · la cinta de tarjetas del hero real de Neety y el punto que late
+    const feed = win.querySelector<HTMLElement>('[data-feed]')!, tarjetas = Q<HTMLElement>('[data-sf]'), punto = win.querySelector<HTMLElement>('.n-punto')!, puntoLib = win.querySelector<HTMLElement>('.fc-dot')!;
+    const sf = tarjetas.map((e) => ({
+      e, skel: e.querySelector<HTMLElement>('[data-skel]')!, head: e.querySelector<HTMLElement>('[data-head]')!,
+      filas: [...e.querySelectorAll<HTMLElement>('[data-fila]')], pop: e.querySelector<HTMLElement>('[data-pop]'), hl: e.querySelector<HTMLElement>('[data-hl]'),
+    }));
+    let WW = 1360, WH = 720;
+    const sitio = new Map<Element, { x: number; y: number; w: number; h: number }>();
+    let offs: number[] = [0, 0, 0, 0, 0];
+    const medirVentana = () => {
+      WW = win.offsetWidth; WH = win.offsetHeight; sitio.clear();
+      const tope = Math.max(0, scroller.offsetHeight - scroller.parentElement!.offsetHeight);
+      offs = secEls.map((e) => Math.min(tope, e.offsetTop));
+    };
+    const rectLocal = (e: HTMLElement) => {
+      let r = sitio.get(e);
+      if (r) return r;
+      let x = 0, y = 0, n: HTMLElement | null = e;
+      while (n && n !== win) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      r = { x, y, w: e.offsetWidth, h: e.offsetHeight };
+      sitio.set(e, r);
+      return r;
+    };
+    const ventanaEn = (v: Vista) => { const s = v.S / HOLD; return { s, x: sx(v, 0) - (WW * s) / 2, y: sy(v, 0) - (WH * s) / 2 }; };
+
+    // ── EL SCROLL de la librería (función pura del tiempo): antes de cada pick la columna principal baja hasta su sección
+    const scrollE = curva(0.45, 0, 0.15, 1);
+    const VENT = picks.map((p, i) => (i > 0 && p.sec !== picks[i - 1].sec ? { a: SECS.indexOf(picks[i - 1].sec), b: SECS.indexOf(p.sec), t0: p.tg - 0.68, t1: p.tg - 0.2 } : null)).filter(Boolean) as { a: number; b: number; t0: number; t1: number }[];
+    const scrollY = (t: number) => {
+      let y = offs[0];
+      for (const v of VENT) if (t >= v.t0) y = lerp(offs[v.a], offs[v.b], scrollE(prog(t, v.t0, v.t1)));
+      return y;
+    };
+    // cuánto «mira» el índice a cada sección (el punto naranja de la barra lateral sigue al scroll)
+    const sobre = (t: number) => {
+      const o = [1, 0, 0, 0, 0];
+      for (const v of VENT) if (t >= v.t0) { const q = scrollE(prog(t, v.t0, v.t1)); o.fill(0); o[v.a] = 1 - q; o[v.b] = q; }
+      return o;
+    };
+    const indiceEls = SECS.map((n) => Q<HTMLElement>(`[data-s="${n}"]`));
+    // lo que se coge (en la librería) y dónde cae (en la home); la COPIA que viaja es un clon del elemento
+    const srcEl = picks.map((p) => win.querySelector<HTMLElement>(`[data-src="${p.src}"]`)!);
+    const slotEl = picks.map((p) => win.querySelector<HTMLElement>(`[data-slot="${p.slot}"]`)!);
+    const gh = srcEl.map((e) => { const c = e.cloneNode(true) as HTMLElement; c.removeAttribute('data-src'); c.classList.remove('pk'); c.classList.add('gh'); c.setAttribute('aria-hidden', 'true'); win.appendChild(c); return c; });
+    const GRAB: [number, number] = [0.6, 0.56];
+    const SEND = picks.map(() => 0.8);
+    type Datos = { gw: number; gh: number; s: number; ox: number; oy: number };
+    let dat: Datos[] = [];
+    const montarPicks = () => {
+      dat = picks.map((_, i) => {
+        const r = rectLocal(srcEl[i]), d = rectLocal(slotEl[i]);
+        gh[i].style.width = `${r.w}px`;
+        gh[i].style.height = `${r.h}px`;
+        // la copia acaba un poco más pequeña que el original, y nunca mayor que su hueco ×1,3
+        const s = clamp((d.w * 1.3) / r.w, 0.3, 0.84);
+        return { gw: r.w, gh: r.h, s, ox: (GRAB[0] - 0.5) * r.w, oy: (GRAB[1] - 0.5) * r.h };
+      });
+      // el chip, junto a su sitio en la home
+      const n = rectLocal(neety);
+      picks.forEach((p, i) => {
+        const d = rectLocal(slotEl[i]), ch = chips[i], cw = ch.offsetWidth, chh = ch.offsetHeight;
+        const pos: Record<string, [number, number]> = {
+          fondo: [n.x + n.w - cw - 16, n.y + 64],
+          h1: [n.x + (modo === 'h' ? 36 : 22), n.y + (modo === 'h' ? 56 : 40) - 3],
+          ctas: [d.x + d.w + 16, d.y + d.h / 2 - chh / 2],
+          esp: [d.x + 30, d.y + (modo === 'h' ? 0 : -2)],
+          logo: [d.x, d.y + d.h + 10],
+          punto: [d.x + (modo === 'h' ? 230 : 190), d.y - 8],
+        };
+        const [px, py] = pos[p.slot] ?? [d.x, d.y + d.h + 8];
+        ch.style.left = `${f2(clamp(px, n.x + 8, n.x + n.w - cw - 8))}px`;
+        ch.style.top = `${f2(py)}px`;
+      });
+    };
+
+    // ── LOS CURSORES: anclas (en unidades de la escena o de la ventana) y fotogramas clave en segundos
+    type Ancla = (t: number) => number[];
+    const Wp = (x: number, y: number): Ancla => (t) => { const v = camara(t); return [sx(v, x), sy(v, y)]; };
+    const congela = (a: Ancla, ts: number): Ancla => () => a(ts);
+    const enCaja = (lado: 'in' | 'out', i: number, fx = 0.66, fy = 0.64): Ancla => (t) => { const c = (lado === 'in' ? ins : outs)[i]; return Wp(c.x + c.w * fx, c.y + c.h * fy)(t); };
+    const Vp = (e: HTMLElement | (() => HTMLElement), fx = 0.7, fy = 0.6): Ancla => (t) => {
+      const r = rectLocal(typeof e === 'function' ? e() : e), w = ventanaEn(camara(t));
+      return [w.x + (r.x + r.w * fx) * w.s, w.y + (r.y + r.h * fy) * w.s];
+    };
+    const Of = (fx: number, fy: number): Ancla => () => [W * fx, H * fy];
+    const esquina = (ex: number, ey: number) => Wp(ex * (SW / 2 - 6), ey * (SH / 2 - 8));
+    type Kf = [number, Ancla, (x: number) => number];
+    const M = EZ.mano, Ln = EZ.lin;
+    // un PICK: el agente va al elemento de la librería, lo coge (la copia se despega y viaja con su cursor) y lo lleva a su sitio en la home
+    const Lloc = (f: (t: number) => [number, number]): Ancla => (t) => { const w = ventanaEn(camara(t)), [lx, ly] = f(t); return [w.x + lx * w.s, w.y + ly * w.s]; };
+    const srcAt = (i: number): Ancla => Lloc((t) => { const r = rectLocal(srcEl[i]); return [r.x + r.w * GRAB[0], r.y + r.h * GRAB[1] - scrollY(t)]; });
+    const slotAt = (i: number): Ancla => Lloc(() => { const r = rectLocal(slotEl[i]), d = dat[i]; return [r.x + r.w / 2 + d.ox * d.s, r.y + r.h / 2 + d.oy * d.s]; });
+    const tomar = (i: number): Kf[] => {
+      const p = picks[i];
+      return [[p.tg - 0.32, srcAt(i), M], [p.tg, srcAt(i), Ln], [p.land, slotAt(i), M], [p.land + 0.25, slotAt(i), Ln]];
+    };
+    const salida = (q: number): Kf[] => CONS.filter((c) => c.ag === q).flatMap((c) => [[c.A - 0.85, enCaja('in', c.i), M], [c.A - 0.45, enCaja('in', c.i), Ln]] as Kf[]);
+    const fuera = [Of(0.46, -0.25), Of(-0.3, 0.32), Of(-0.3, 0.86), Of(0.3, 1.25)];
+    const esq: [number, number][] = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    const ESPERA = [Vp(() => lienzo, 0.32, 0.13), Vp(() => lienzo, 0.8, 0.12), Vp(() => lienzo, 0.9, 0.66), Vp(() => composer, 0.96, 0.62)];
+    const intro = (q: number): Kf[] => {
+      const e = EDIT.find((x) => x.ag === q)!;
+      return [
+        [0, fuera[q], Ln], [e.at - 0.85, fuera[q], Ln], [e.at, enCaja('in', e.i), M], [3.15, enCaja('in', e.i), Ln], [3.55, esquina(...esq[q]), M], [ABRE, esquina(...esq[q]), Ln],
+        [4.2, congela(esquina(...esq[q]), ABRE), Ln],
+      ];
+    };
+    // Tu equipo, mientras trabajan los agentes: a un lado, sin tapar el estado
+    const aparte: Ancla = (t) => (modo === 'v' ? Vp(lienzo, 0.3, 0.97)(t) : Vp(lienzo, 0.6, 0.94)(t));
+    const KF: Kf[][] = [0, 1, 2, 3].map((q) => {
+      const kf: Kf[] = [...intro(q), [4.85, ESPERA[q], M]];
+      // Tu equipo: teclea la petición y la envía; luego se aparta a un lado
+      if (q === 3) kf.push([PIDE[1], ESPERA[3], Ln], [ENVIA - 0.05, Vp(enviar, 0.5, 0.55), M], [ENVIA + 0.3, Vp(enviar, 0.5, 0.55), Ln], [6.1, aparte, M]);
+      picks.forEach((p, i) => {
+        if (p.ag !== q) return;
+        kf.push([p.tg - 1.0, kf[kf.length - 1][1], Ln], ...tomar(i), [p.land + SEND[i], q === 3 ? aparte : ESPERA[q], M]);
+      });
+      if (q === 3) kf.push([PUB - 0.4, aparte, Ln], [PUB, Vp(publicar, 0.5, 0.6), M]);
+      const ult = kf[kf.length - 1];
+      kf.push([SUBE[0], ult[1], Ln], [SUBE[0] + 0.05, congela(ult[1], SUBE[0]), Ln], ...salida(q), [15.95, fuera[q], M]);
+      return kf;
+    });
+    const CLICS: number[][] = [0, 1, 2, 3].map((q) => [
+      EDIT.find((e) => e.ag === q)!.at, ABRE,
+      ...picks.filter((p) => p.ag === q).flatMap((p) => [p.tg, p.land]),
+      ...(q === 3 ? [ENVIA, PUB] : []),
+      ...CONS.filter((c) => c.ag === q).map((c) => c.A - 0.45),
+    ]);
+    const manoEn = (q: number, t: number) => {
+      const kf = KF[q];
+      let i = 0;
+      while (i < kf.length - 2 && kf[i + 1][0] <= t) i++;
+      const [a0, A0] = kf[i], [a1, A1, ez] = kf[i + 1];
+      const p = ez(prog(t, a0, a1)), P0 = A0(t), P1 = A1(t);
+      const arco = ez === Ln ? 0 : Math.sin(Math.PI * p) * -Math.min(40, Math.hypot(P1[0] - P0[0], P1[1] - P0[1]) * 0.12);
+      return [lerp(P0[0], P1[0], p), lerp(P0[1], P1[1], p) + arco];
+    };
+
+    // ── EL SONIDO: de ordenador (r109). Las piezas que llegan se POSAN, las ediciones son clic y tecleo, la petición se teclea de verdad, cada
+    // lectura y cada pieza puesta es un clic, enviar y publicar son la tecla grande, y al publicar suena un timbre suave. La música de la web sigue.
+    type Son = [number, () => void];
+    const SON: Son[] = [
+      ...CASC.map((c) => [c.t, () => posar({ vol: 0.03 + (c.i % 3) * 0.006 })] as Son),
+      ...EDIT.map((e) => [e.at, () => { clic({ vol: 0.04 }); teclear(3, { vol: 0.026, ritmo: 0.05 }); }] as Son),
+      [ABRE, () => papel({ vol: 0.05, dur: 0.3 })],
+      [PIDE[0], () => teclear(Math.round(PETICION.length / 2.6), { vol: 0.026, ritmo: 0.048 })],
+      [ENVIA, () => tecla({ vol: 0.05, fuerte: true })],
+      ...picks.flatMap((p) => [[p.tg, () => clic({ vol: 0.045 })], [p.land, () => posar({ vol: 0.045 })]] as Son[]),
+      [PUB, () => { tecla({ vol: 0.05, fuerte: true }); tocar(84, { vol: 0.03, dur: 1.4, cuando: 0.1 }); tocar(91, { vol: 0.02, dur: 1.6, cuando: 0.18 }); }],
+      ...CONS.map((c) => [c.A + 0.15, () => clic({ vol: 0.025 })] as Son),
+    ];
+    const sonar = (t0: number, t1: number) => {
+      for (const [ts, fn] of SON) if ((t1 >= t0 && ts > t0 && ts <= t1) || (t1 < t0 && (ts > t0 || ts <= t1))) fn();
+    };
+
+    // ── PINTAR el fotograma t (función pura del tiempo)
+    const pintar = (t: number) => {
+      const v = camara(t), K = k * v.S;
+      pon(cam, '@transform', `translate(${f2(k * (W / 2 - v.S * v.cx))} ${f2(k * (H / 2 - v.S * v.cy))}) scale(${K.toFixed(5)})`);
+      pon(cam, '--u', (1 / K).toFixed(5));
+      const fin = sm(t, 15.4, 15.95);
+
+      for (const r of cajas) {
+        let ver = 1, dib = 1;
+        if (r.lado === 'out') {
+          const cn = CONS.find((x) => x.o === r.i)!, p0 = cn.A - 0.15;
+          if (t >= 4.45 && t < p0) { ver = 0; dib = 0; }
+          else if (t >= p0 && t < cn.A + 0.15) { dib = EZ.flujo(prog(t, p0, cn.A + 0.15)); ver = 0; }
+          if (t >= cn.A + 0.15) ver = EZ.sale(prog(t, cn.A + 0.15, cn.A + 0.6));
+        }
+        pon(r.hilo, 'stroke-dasharray', dib >= 1 ? 'none' : `${f3(dib)} 2`);
+        let act: Pulso | null = null;
+        for (const p of PULSOS) if (p.lado === r.lado && p.i === r.i && t >= p.t0 && t <= p.t0 + p.d + 0.08) act = p;
+        if (act) {
+          const h = EZ.flujo(prog(t, act.t0, act.t0 + act.d)), seg = 0.18;
+          pon(r.pulso, 'stroke', AG[act.ag]);
+          pon(r.pulso, 'stroke-dasharray', `${f3(Math.min(seg, h))} 2`);
+          pon(r.pulso, 'stroke-dashoffset', f3(-(h - Math.min(seg, h))));
+          pon(r.pulso, 'opacity', f3(1 - prog(t, act.t0 + act.d, act.t0 + act.d + 0.08)));
+          const [x, y] = bez(r.P, uDe(r.tabla, h));
+          pon(r.cabeza, '@cx', f2(x));
+          pon(r.cabeza, '@cy', f2(y));
+          pon(r.cabeza, 'fill', AG[act.ag]);
+          pon(r.cabeza, 'opacity', f3(Math.min(1, prog(t, act.t0, act.t0 + 0.06)) * (1 - prog(t, act.t0 + act.d - 0.04, act.t0 + act.d + 0.04))));
+        } else {
+          pon(r.pulso, 'opacity', '0');
+          pon(r.cabeza, 'opacity', '0');
+        }
+        // la caja: se enciende con el color de quien la toca (cascada, edición, construcción) o queda seleccionada
+        let luz = 0, ag = 0;
+        const sube = (x: number, a: number) => { if (x > luz) { luz = x; ag = a; } };
+        if (r.lado === 'in') {
+          for (const q of CASC) if (q.i === r.i) sube(blip(t, q.t, 0.6) * 0.9, q.ag);
+          for (const e of EDIT) if (e.i === r.i) sube(sm(t, e.at, e.at + 0.1) * (1 - sm(t, SEL_FIN, SEL_FIN + 0.3)), e.ag);
+          for (const cn of CONS) if (cn.i === r.i) sube(blip(t, cn.A - 0.45, 0.7), cn.ag);
+        } else {
+          const cn = CONS.find((x) => x.o === r.i)!;
+          sube(blip(t, cn.A + 0.15, 0.8), cn.ag);
+          if (cn.o === 3) sube(sm(t, cn.A + 0.15, cn.A + 0.3) * (1 - fin), cn.ag);
+        }
+        pon(r.g, '--c', AG[ag]);
+        pon(r.g, '--l', f3(luz));
+        const pop = r.lado === 'out' ? lerp(0.9, 1, ver) : 1;
+        pon(r.g, 'opacity', f3(ver));
+        pon(r.g, '@transform', `translate(${f2(r.x + (r.w * (1 - pop)) / 2)} ${f2(r.y + (r.h * (1 - pop)) / 2)}) scale(${f3(pop)})`);
+      }
+
+      // la tarjeta: su filo se enciende con cada llegada y la fila que se indexa toma el color de quien la trae
+      let fl = 0, fa = 0;
+      const luzFila = filas.map(() => [0, 0]);
+      for (const g of LLEGADAS) {
+        const x = blip(t, g.t, 0.6);
+        if (x > fl) { fl = x; fa = g.ag; }
+        if (x > luzFila[g.fila][0]) luzFila[g.fila] = [x, g.ag];
+      }
+      filas.forEach((f, q) => {
+        pon(f.bg, 'fill', AG[luzFila[q][1]]);
+        pon(f.bg, 'opacity', f3(luzFila[q][0] * 0.16));
+        pon(f.ic, 'fill', `color-mix(in oklab, ${AG[luzFila[q][1]]} ${Math.round(luzFila[q][0] * 100)}%, var(--ic-reposo))`);
+      });
+      pon(filo, 'stroke', `color-mix(in oklab, ${AG[fa]} ${Math.round(fl * 100)}%, var(--filo-reposo))`);
+      pon(filo, '--g', f3(fl));
+      pon(gPub, 'opacity', f3(sm(t, SUBE[1] - 0.2, SUBE[1] + 0.2) * (1 - fin)));
+      const vT = 1 - clamp((Math.log(v.S) - Math.log(FOLD.S * 1.15)) / (Math.log(FOLD.S * 2.6) - Math.log(FOLD.S * 1.15)));
+      pon(gTexto, 'opacity', f3(vT));
+
+      // la app: nace del propio papel de la tarjeta según la cámara se acerca
+      const wo = clamp((Math.log(v.S) - Math.log(8)) / (Math.log(24) - Math.log(8)));
+      const w = ventanaEn(v);
+      pon(win, 'visibility', wo > 0.001 ? 'visible' : 'hidden');
+      pon(win, 'opacity', f3(EZ.fundido(wo)));
+      if (wo > 0.001) {
+        pon(win, 'transform', `translate(${f2(w.x * k)}px, ${f2(w.y * k)}px) scale(${(w.s * k).toFixed(5)})`);
+        pintarApp(t);
+      }
+
+      curs.forEach((c, q) => {
+        const [x, y] = manoEn(q, t);
+        pon(c, 'transform', `translate3d(${f2(x * k)}px, ${f2(y * k)}px, 0)`);
+        let cl = 0, on = 0;
+        for (const tc of CLICS[q]) { cl = Math.max(cl, blip(t, tc, 0.35)); const p = prog(t, tc, tc + 0.5); if (p > 0 && p < 1) on = p; }
+        pon(c, '--clic', f3(cl));
+        pon(c, '--onda', f3(on));
+      });
+    };
+
+    // ── RONDA 94 · LA CINTA (sf-card de la web real): cada tarjeta llega a su sitio con la cinta subiendo, nítida; la anterior se queda arriba al 28 %,
+    // desenfocada y a ×0,95; llega en esqueleto, el esqueleto se funde en la cabecera y las filas entran escalonadas (suben 6 px y crecen desde ×0,97)
+    const SF_A = [10.3, 11.05, 11.8], SF_VIAJE = 0.5;
+    const pintarCinta = (t: number) => {
+      const yF = rectLocal(feed).y, alto = feed.parentElement!.offsetHeight, ancla = alto * 0.2;
+      const ys = sf.map((c) => rectLocal(c.e).y - yF);
+      let y = ys[0] + (1 - EZ.flujo(prog(t, SF_A[0], SF_A[0] + SF_VIAJE))) * -alto * 0.55;
+      for (let j = 1; j < sf.length; j++) y += (ys[j] - ys[j - 1]) * EZ.flujo(prog(t, SF_A[j], SF_A[j] + SF_VIAJE));
+      pon(feed, 'transform', `translateY(${f2(ancla - y)}px)`);
+      sf.forEach((c, j) => {
+        const a = SF_A[j], sig = SF_A[j + 1] ?? 99;
+        const v = EZ.fundido(prog(t, a, a + SF_VIAJE)) * (1 - EZ.fundido(prog(t, sig, sig + SF_VIAJE)));
+        pon(c.e, 'opacity', f3(0.28 + 0.72 * v));
+        pon(c.e, 'filter', v > 0.995 ? 'none' : `blur(${f2(5 * (1 - v))}px)`);
+        pon(c.e, 'transform', `scale(${(0.95 + 0.05 * v).toFixed(4)})`);
+        const h = sm(t, a + 0.3, a + 0.5);
+        pon(c.skel, 'opacity', f3(1 - h));
+        pon(c.head, 'opacity', f3(h));
+        const f0 = a + (c.pop ? 0.65 : 0.42), pasoF = c.pop ? 0.17 : 0.13;
+        c.filas.forEach((e, i) => pon(e, '--p', f3(EZ.sale(prog(t, f0 + i * pasoF, f0 + i * pasoF + 0.3)))));
+        if (c.pop) pon(c.pop, '--p', f3(EZ.sale(prog(t, a + 0.5, a + 0.75))));
+        if (c.hl) pon(c.hl, 'opacity', f3(sm(t, a + 0.95, a + 1.15)));
+      });
+    };
+
+    const pintarApp = (t: number) => {
+      // la PETICIÓN: aparece, se teclea, se envía y se recoge
+      const ca = EZ.quart(prog(t, 4.15, 4.5)), col = EZ.sale(prog(t, ENVIA + 0.03, ENVIA + 0.5));
+      const n = Math.round(prog(t, PIDE[0], PIDE[1]) * PETICION.length);
+      pon(escrito, '#', PETICION.slice(0, n));
+      pon(caret, 'opacity', t < ENVIA && (Math.floor(t * 2.4) % 2 === 0 || (t > PIDE[0] && t < PIDE[1])) ? '1' : '0');
+      pon(composer, 'opacity', f3(ca * (1 - col)));
+      pon(composer, 'transform', `translateY(${f2((1 - ca) * 24 + col * 150)}px) scale(${f3(1 - col * 0.18)})`);
+      pon(enviar, '--l', f3(n >= PETICION.length ? 1 : 0));
+      pon(enviar, '--clic', f3(blip(t, ENVIA, 0.3)));
+      pon(neety, '--vacio', f3(1 - sm(t, PIEZA.fondo, PIEZA.fondo + 0.6)));
+      // el ESTADO: qué agente toma qué de la librería, y al final, publicado
+      pon(estado, 'opacity', f3(sm(t, ENVIA + 0.3, ENVIA + 0.55)));
+      pon(estado, 'transform', `translateY(${f2((1 - EZ.sale(prog(t, ENVIA + 0.3, ENVIA + 0.7))) * 16)}px)`);
+      let iAct = -1;
+      picks.forEach((p, i) => { if (t >= p.tg - 0.35) iAct = i; });
+      const pub = t >= PUB + 0.12, ult = picks[picks.length - 1];
+      pon(estadoTxt, '#', pub ? ESTADO[1] : iAct < 0 ? ESTADO[0] : t > ult.land + 0.5 ? ESTADO[2] : `${NOMBRES[picks[iAct].ag]} toma «${picks[iAct].label}»`);
+      pon(estado, '--pub', pub ? '1' : '0');
+      pon(estado, '--late', f3(0.5 - 0.5 * Math.cos(2 * Math.PI * t * 0.9)));
+      pon(publicar, '--l', f3(sm(t, PUB - 0.4, PUB - 0.15)));
+      pon(publicar, '--clic', f3(blip(t, PUB, 0.35)));
+      pon(neety, '--pub', f3(prog(t, PUB + 0.05, PUB + 0.85)));
+      // LA LIBRERÍA: la columna recorre sus secciones y el índice marca la que se mira
+      const sy0 = scrollY(t), on = sobre(t);
+      pon(scroller, 'transform', `translate3d(0, ${f2(-sy0)}px, 0)`);
+      on.forEach((o, j) => indiceEls[j].forEach((e) => pon(e, '--on', f3(o))));
+      // LOS PICKS: anillo y elevación en el elemento, la copia que viaja con el cursor, el chip y la pieza que se asienta en la home
+      const w = ventanaEn(camara(t));
+      picks.forEach((p, i) => {
+        const c = AG[p.ag], d = dat[i];
+        const anillo = sm(t, p.tg - 0.34, p.tg - 0.12) * (1 - sm(t, p.land - 0.1, p.land + 0.3));
+        const eleva = sm(t, p.tg - 0.34, p.tg - 0.12) * (1 - sm(t, p.tg - 0.02, p.tg + 0.2));
+        const atenua = sm(t, p.tg, p.tg + 0.14) * (1 - sm(t, p.land - 0.05, p.land + 0.35));
+        pon(srcEl[i], '--c', c);
+        pon(srcEl[i], '--pk', f3(anillo));
+        pon(srcEl[i], '--lift', f3(eleva));
+        pon(srcEl[i], '--dim', f3(atenua));
+        // la copia: se despega al coger, se hace un poco más pequeña mientras viaja y se posa en su hueco (donde la pieza real se asienta)
+        const vis = sm(t, p.tg - 0.02, p.tg + 0.06) * (1 - sm(t, p.land + 0.02, p.land + 0.22));
+        if (vis > 0.001) {
+          const [mx, my] = manoEn(p.ag, t), lx = (mx - w.x) / w.s, ly = (my - w.y) / w.s;
+          const e = EZ.sale(prog(t, p.tg, p.tg + VIAJE * 0.8)), esc = lerp(1, d.s, e);
+          pon(gh[i], 'transform', `translate(${f2(lx - d.ox * esc - d.gw / 2)}px, ${f2(ly - d.oy * esc - d.gh / 2)}px) rotate(${f2(-2.2 * Math.sin(Math.PI * prog(t, p.tg, p.land)))}deg) scale(${esc.toFixed(4)})`);
+        }
+        pon(gh[i], 'opacity', f3(vis));
+        const co = EZ.quart(prog(t, p.land + 0.02, p.land + 0.3));
+        pon(chips[i], '--o', f3(co * (1 - sm(t, p.land + 1.5, p.land + 1.9))));
+        pon(chips[i], '--y', f2((1 - co) * 8));
+      });
+      // las PIEZAS de la home: se asientan cuando cae la copia (fundido + subida corta, expo)
+      for (const [nm, a] of Object.entries(PIEZA)) pon(pz[nm], '--p', f3(EZ.sale(prog(t, a, a + (nm === 'fondo' ? 0.9 : 0.55)))));
+      pon(neety, '--esp', f3(EZ.sale(prog(t, ESP_T, ESP_T + 0.6))));
+      pon(pz.esp, '--p', f3(blip(t, ESP_T - 0.05, 1.7)));
+      const late = f3(0.5 - 0.5 * Math.cos((2 * Math.PI * t) / 2.4));
+      pon(punto, '--late', late);
+      pon(puntoLib, '--late', late);
+      pintarCinta(t);
+    };
+
+    // ── el reloj
+    let t0 = 0, raf = 0, jugando = false, tPrev = -1, tQuieto = 0, quietoDesde = 0, buscado: number | null = null;
+    const tAhora = () => ((((performance.now() - t0) / 1000) * VEL) % LOOP + LOOP) % LOOP;
+    const tick = () => {
+      raf = 0;
+      if (!jugando || buscado !== null) return;
+      const t = tAhora();
+      if (tPrev >= 0 && ((t - tPrev + LOOP) % LOOP) < 0.25) sonar(tPrev, t);
+      tPrev = t;
+      pintar(t);
+      raf = requestAnimationFrame(tick);
+    };
+
+    montar();
+    pintar(0);
+    const T_FIN = 12.45; // fotograma de reposo (movimiento reducido): la home montada y publicada
+    const rehacer = () => { montar(); pintar(buscado ?? (jugando ? tAhora() : reducido ? T_FIN : 0)); };
+    mqV.addEventListener('change', rehacer);
+    let anchoPrevio = cine.clientWidth;
+    new ResizeObserver(() => { if (Math.abs(cine.clientWidth - anchoPrevio) > 1) { anchoPrevio = cine.clientWidth; rehacer(); } }).observe(cine);
+    document.fonts?.ready.then(rehacer);
+
+    // sonda para las pruebas (BEAT = 1: los tiempos van en segundos)
+    (window as any).__partitura = {
+      LOOP, BEAT: 1,
+      ir: (t: number) => { buscado = t; pintar(t); },
+      seguir: () => { buscado = null; t0 = performance.now(); tPrev = -1; if (jugando && !raf) raf = requestAnimationFrame(tick); },
+      t: () => (buscado ?? tAhora()),
+    };
+
+    if (reducido) { sec.classList.add('quieta'); pintar(T_FIN); return; }
+    new IntersectionObserver((e) => {
+      const ver = e[0].isIntersecting;
+      if (ver && !jugando) {
+        jugando = true;
+        t0 = performance.now() - (performance.now() - quietoDesde > 2000 ? 0 : (tQuieto / VEL) * 1000);
+        tPrev = -1;
+        if (!raf) raf = requestAnimationFrame(tick);
+      } else if (!ver && jugando) {
+        jugando = false;
+        tQuieto = tAhora();
+        quietoDesde = performance.now();
+      }
+    }, { rootMargin: '0px 0px -12% 0px' }).observe(cine);
+  }
+</script>
+
+<style>
+  .la-partitura { overflow-x: clip; }
+  .cine {
+    --tinta: var(--fg);
+    --filo-reposo: color-mix(in oklab, var(--tinta) 26%, transparent);
+    --ic-reposo: color-mix(in oklab, var(--tinta) 28%, transparent);
+    --hoja-papel: color-mix(in oklab, var(--color-niebla) 45%, #fff);
+    position: relative;
+    margin-top: calc(var(--spacing) * 16);
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    contain: layout paint;
+    pointer-events: none;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent), linear-gradient(transparent, #000 5%, #000 95%, transparent);
+    mask-composite: intersect;
+  }
+  :global(html[data-paleta='clara']) .cine { --hoja-papel: #fbfbfa; }
+  .cine.v { aspect-ratio: 5 / 7; }
+  .mapa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .mapa :global(.hilo) { fill: none; stroke: color-mix(in oklab, var(--tinta) 26%, transparent); stroke-width: calc(var(--u) * 1px); }
+  .mapa :global(.pulso) { fill: none; stroke-width: calc(var(--u) * 2px); stroke-linecap: round; }
+  .mapa :global(.caja rect) {
+    fill: color-mix(in oklab, var(--c) calc(var(--l, 0) * 12%), var(--hoja-papel));
+    stroke: color-mix(in oklab, var(--c) calc(var(--l, 0) * 100%), color-mix(in oklab, var(--tinta) 16%, transparent));
+    stroke-width: calc(var(--u) * (1px + var(--l, 0) * 0.6px));
+  }
+  .mapa :global(.rot) { font-family: var(--font-sans); font-size: 15px; fill: var(--tinta); }
+  /* LA TARJETA de la librería (fuera): papel, barra con su ruta, título y las filas de su árbol */
+  .mapa :global(.papel) { fill: var(--hoja-papel); }
+  .mapa :global(.filo) { fill: none; stroke-width: calc(var(--u) * (1.2px + var(--g, 0) * 1.3px)); }
+  .mapa :global(.sem) { fill: color-mix(in oklab, var(--tinta) 22%, transparent); }
+  .mapa :global(.ruta-t) { font-family: var(--font-mono); font-size: 5.6px; fill: color-mix(in oklab, var(--tinta) 60%, transparent); }
+  .mapa :global(.raya) { stroke: color-mix(in oklab, var(--tinta) 12%, transparent); stroke-width: calc(var(--u) * 1px); }
+  .mapa :global(.titulo) { font-family: var(--font-display); font-size: 14px; fill: var(--tinta); }
+  .mapa :global(.fila-n) { font-family: var(--font-mono); font-size: 6.2px; fill: color-mix(in oklab, var(--tinta) 82%, transparent); }
+  .mapa :global(.fila-m) { font-family: var(--font-mono); font-size: 5.4px; fill: color-mix(in oklab, var(--tinta) 50%, transparent); }
+  .mapa :global(.pub rect) { fill: var(--tinta); }
+  .mapa :global(.pub text) { font-family: var(--font-mono); font-size: 5.4px; fill: var(--hoja-papel); }
+
+  /* LA LIBRERÍA POR DENTRO (r118): la librería REAL de Neety (Base cálida, Berenjena, Bricolage + Switzer) en miniatura a la izquierda y su home a la derecha.
+     Escritorio 1360 × 720, en px de diseño; la cámara la escala. Los elementos que se cogen llevan `.pk` (anillo y elevación por variables del reloj) */
+  .app {
+    --b: #431b44;
+    --b2: color-mix(in oklab, #431b44 62%, transparent);
+    --linea: rgb(67 27 68 / 0.1);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1360px;
+    height: 720px;
+    transform-origin: 0 0;
+    visibility: hidden;
+    display: grid;
+    grid-template-columns: 196px 560px 1fr;
+    grid-template-rows: 44px 1fr;
+    grid-template-areas: 'barra barra barra' 'indice libmain lienzo';
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f7ec;
+    color: var(--b);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--tinta) 10%, transparent), 0 40px 80px -44px rgb(36 28 25 / 0.4);
+    font-family: var(--font-switzer), var(--font-sans), system-ui, sans-serif;
+  }
+  .barra { grid-area: barra; display: flex; align-items: center; gap: 16px; padding: 0 14px 0 18px; border-bottom: 1px solid var(--linea); }
+  .semaforo { display: flex; gap: 7px; }
+  .semaforo i { width: 11px; height: 11px; border-radius: 50%; background: rgb(67 27 68 / 0.14); }
+  .barra .ruta { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--b2); }
+  .presencia { margin-left: auto; display: flex; }
+  .presencia i { display: grid; place-items: center; width: 24px; height: 24px; margin-left: -6px; border-radius: 50%; background: var(--c); color: #fff; font-style: normal; font-size: 9.5px; font-weight: 600; box-shadow: 0 0 0 2px #f8f7ec; }
+  .publicar {
+    padding: 7px 16px;
+    border-radius: 999px;
+    background: var(--b);
+    color: #f8f7ec;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 0 0 calc(var(--l, 0) * 4px) color-mix(in oklab, var(--color-coral) 35%, transparent);
+    scale: calc(1 - var(--clic, 0) * 0.08);
+  }
+  /* el ÍNDICE lateral: grupos en mono mayúsculas y, en el apartado que se mira, el punto naranja */
+  .indice { grid-area: indice; padding: 16px 8px 0 22px; overflow: hidden; border-right: 1px solid var(--linea); }
+  .ind-g { margin-top: 13px; padding-left: 14px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase; color: rgb(67 27 68 / 0.5); }
+  .ind-g:first-child { margin-top: 0; }
+  .indice ul { margin-top: 5px; }
+  .indice li { position: relative; padding: 2.5px 0 2.5px 14px; font-size: 12.5px; line-height: 1.22; color: rgb(67 27 68 / 0.72); }
+  .indice li[data-s] { color: color-mix(in oklab, #431b44 calc(72% + var(--on, 0) * 28%), transparent); font-weight: calc(400 + var(--on, 0) * 100); }
+  .indice li[data-s]::before { content: ''; position: absolute; left: -2px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #fe8238; opacity: var(--on, 0); scale: calc(0.4 + var(--on, 0) * 0.6); }
+  .tabs-v { display: none; }
+  /* la columna principal: las secciones se recorren con el reloj (translateY del `.scroller`) */
+  .libmain { grid-area: libmain; position: relative; overflow: hidden; min-height: 0; }
+  .scroller { position: relative; will-change: transform; padding-bottom: 260px; }
+  .sec { position: relative; min-height: 596px; padding: 26px 28px 0; }
+  .eb { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: rgb(67 27 68 / 0.55); }
+  .tt { margin-top: 6px; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 35px; line-height: 1.1; letter-spacing: -0.012em; }
+  .tx { margin-top: 10px; max-width: 46ch; font-size: 13.5px; line-height: 1.5; color: rgb(67 27 68 / 0.66); }
+  .tx b { font-weight: 600; color: var(--b); }
+  .et { margin-top: 20px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: rgb(67 27 68 / 0.7); }
+  .et2 { margin-top: 18px; }
+  .pk {
+    outline: calc(var(--pk, 0) * 2.5px) solid color-mix(in oklab, var(--c, #fe8238) calc(var(--pk, 0) * 100%), transparent);
+    outline-offset: 2px;
+    translate: 0 calc(var(--lift, 0) * -4px);
+    opacity: calc(1 - var(--dim, 0) * 0.5);
+  }
+  /* Color */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+  .sw { display: flex; flex-direction: column; border-radius: 8px; background: #fff; box-shadow: 0 0 0 1px var(--linea); overflow: hidden; }
+  .sw .blk { display: block; height: 58px; box-shadow: inset 0 -1px 0 var(--linea); }
+  .sw .nm { padding: 7px 9px 0; font-size: 12.5px; font-weight: 500; line-height: 1.15; }
+  .sw .hx { padding: 3px 9px 8px; font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.5); }
+  .rampas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .rampa { display: flex; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1px var(--linea); overflow: hidden; }
+  .rampa i { flex: 1; height: 38px; position: relative; }
+  .rampa small { position: absolute; left: 0; right: 0; bottom: 3px; text-align: center; font-family: var(--font-mono); font-size: 8px; color: rgb(67 27 68 / 0.5); }
+  /* Tipografía */
+  .tps { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+  .tp { display: block; width: fit-content; padding-right: 8px; }
+  .tp b { display: block; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 600; letter-spacing: -0.01em; line-height: 1.18; }
+  .tp small { display: block; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.02em; color: rgb(67 27 68 / 0.45); }
+  .tp-xl b { font-size: 64px; } .tp-l b { font-size: 48px; } .tp-m b { font-size: 37px; } .tp-h2 b { font-size: 28px; }
+  /* Botones: la pastilla REAL de Neety (label + punto), también la usa la home */
+  .pill { display: inline-flex; align-items: center; gap: 22px; padding: 12px 18px 12px 24px; border-radius: 999px; background: var(--b); color: #fff; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 16px; white-space: nowrap; }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+  .pill.outline { background: #fff; color: var(--b); box-shadow: inset 0 0 0 1px var(--linea); }
+  .pill.outline i { background: var(--b); }
+  .pill.block { display: flex; justify-content: center; width: 100%; }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+  .bt-card { display: flex; flex-direction: column; gap: 14px; padding: 14px 14px 16px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px var(--linea); }
+  .bt-card small { font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.55); }
+  .bt-card .pill { align-self: flex-start; }
+  .bt-card .pill.block { align-self: stretch; }
+  /* Espaciado: la escala de tokens con sus barras naranjas */
+  .esps { display: flex; flex-direction: column; gap: 3px; margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px var(--linea); }
+  .sp-row { display: grid; grid-template-columns: 54px 1fr 58px; align-items: center; gap: 12px; height: 23px; border-radius: 5px; }
+  .sp-row b { font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; color: rgb(67 27 68 / 0.7); }
+  .sp-row i { display: block; height: 100%; display: flex; align-items: center; }
+  .sp-row u { display: block; height: 9px; border-radius: 2px; background: color-mix(in oklab, #fe8238 62%, #fff); }
+  .sp-row small { text-align: right; font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.5); }
+  /* Componentes de la web */
+  .tabs-c { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .tabs-c span { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px var(--linea); font-size: 11.5px; }
+  .tabs-c span.on { background: var(--b); color: #fff; box-shadow: none; }
+  .tabs-c em { font-style: normal; font-size: 9px; opacity: 0.5; }
+  .fcs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .fc { display: flex; flex-direction: column; gap: 7px; padding: 14px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px var(--linea); }
+  .fc-t { font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 16px; }
+  .chips-c { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chips-c code { padding: 2px 6px; border-radius: 5px; background: #f3f1e4; font-family: var(--font-mono); font-size: 8.5px; color: rgb(67 27 68 / 0.7); }
+  .fc-x { font-size: 11.5px; line-height: 1.4; color: rgb(67 27 68 / 0.62); }
+  .fc-pre { display: grid; place-items: center; height: 92px; margin-top: 3px; border-radius: 8px; background: #f5f7f9; }
+  .fc-logo { height: 30px; width: auto; }
+  .fc-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--b); scale: calc(1 + var(--late, 0) * 0.35); }
+  .fc-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgb(67 27 68 / 0.3); scale: calc(1 + var(--late, 0) * 2); opacity: calc(1 - var(--late, 0)); }
+  /* la COPIA que se despega del elemento y viaja con el cursor (translate + scale por el reloj) */
+  .app > :global(.gh) { position: absolute; left: 0; top: 0; z-index: 9; margin: 0; pointer-events: none; opacity: 0; transform-origin: 50% 50%; outline: none; filter: drop-shadow(0 16px 20px rgb(36 28 25 / 0.32)); will-change: transform; }
+
+  .lienzo { grid-area: lienzo; position: relative; padding: 14px; min-width: 0; background: color-mix(in oklab, #431b44 6%, #f8f7ec); border-left: 1px solid var(--linea); }
+  /* la home vacía: una retícula de puntos que se va con el fondo */
+  .neety::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgb(67 27 68 / 0.16) 1px, transparent 1.4px) 0 0 / 22px 22px; opacity: var(--vacio, 1); }
+  /* al publicar, un barrido de luz cruza la página */
+  .neety::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 38%, rgb(255 255 255 / 0.6) 50%, transparent 62%);
+    transform: translateX(calc((var(--pub, 0) * 2.4 - 1.2) * 100%));
+    opacity: calc(var(--pub, 0) * (1 - var(--pub, 0)) * 4);
+  }
+  .neety {
+    position: relative;
+    height: 648px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f5f7f9;
+    color: var(--b);
+    font-family: var(--font-switzer), Inter, system-ui, sans-serif;
+    box-shadow: 0 0 0 1px rgb(67 27 68 / 0.1), 0 24px 50px -36px rgb(36 28 25 / 0.45);
+  }
+  .neety > * { position: absolute; }
+  /* «Base Cálida» cae en el fondo: crece desde el centro con el color real #F8F7EC */
+  .n-fondo { inset: 0; background: #f8f7ec; clip-path: circle(calc(var(--p, 0) * 80%) at 50% 50%); }
+  .n-fondo::after { content: ''; position: absolute; inset: 0; background: url('/media/grano.png') 0 0 / 180px 180px; opacity: 0.5; mix-blend-mode: multiply; }
+  .n-nav { left: 28px; right: 28px; top: 22px; height: 28px; display: flex; align-items: center; }
+  .n-logow { display: block; opacity: var(--p, 0); scale: calc(1.2 - var(--p, 0) * 0.2); transform-origin: 0 50%; }
+  .n-logo { display: block; height: 24px; width: auto; }
+  .n-navr { margin-left: auto; display: flex; align-items: center; gap: 18px; opacity: var(--p, 0); translate: calc((1 - var(--p, 0)) * 10px) 0; }
+  .n-menu { display: flex; gap: 16px; font-size: 12.5px; }
+  .n-menu i { font-style: normal; }
+  .n-menu i:nth-child(n + 4) { display: none; }
+  .n-navcta { padding: 7px 14px; border-radius: 999px; background: color-mix(in oklab, #431b44 75%, transparent); color: #fff; font-size: 12.5px; font-family: var(--font-bricolage), system-ui, sans-serif; }
+  .n-eyebrow { left: 36px; top: 84px; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: rgb(67 27 68 / 0.55); opacity: var(--p, 0); }
+  .n-eyebrow .on { color: var(--b); }
+  .n-eyebrow b { font-weight: 400; }
+  /* el punto late como en la web real: crece a ×1,35 y su halo (ciruela al 35 %) se abre a ×3 mientras se apaga */
+  .n-punto { position: relative; width: 6px; height: 6px; border-radius: 50%; background: var(--b); margin-right: 4px; scale: calc(1 + var(--late, 0) * 0.35); }
+  .n-punto::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgb(67 27 68 / 0.35); scale: calc(1 + var(--late, 0) * 2); opacity: calc(1 - var(--late, 0)); }
+  .n-h1 { left: 36px; top: 110px; width: 500px; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 42px; line-height: 1.1; letter-spacing: -0.015em; color: var(--b); opacity: var(--p, 0); }
+  .n-h1 .b { display: block; color: color-mix(in oklab, #431b44 40%, transparent); }
+  /* el espaciado «large» abre el hero: ctas, sub y tarjeta bajan; una cota naranja marca el hueco */
+  .n-ctas { left: 36px; top: 276px; margin-top: calc(var(--esp, 0) * 36px); display: flex; align-items: center; gap: 22px; opacity: var(--p, 0); }
+  .n-ctas .pill { font-size: 16px; padding: 12px 18px 12px 24px; }
+  .n-link { font-size: 16px; font-weight: 500; font-family: var(--font-bricolage), system-ui, sans-serif; }
+  .n-esp { left: 36px; top: 250px; height: 24px; display: flex; align-items: center; gap: 7px; opacity: var(--p, 0); scale: 1 calc(0.4 + var(--p, 0) * 0.6); transform-origin: 0 0; }
+  .n-esp i { display: block; width: 8px; height: calc(24px + var(--esp, 0) * 36px); border-radius: 2px; background: #fe8238; }
+  .n-esp b { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; color: #c2571a; }
+  /* la CINTA de tarjetas de la web real (sf-card): marco ciruela al 10 % con 4 px, cuerpo blanco, cabecera en Bricolage, filas en Switzer con su pastilla verde;
+     la columna se desvanece arriba y abajo (la misma máscara: 14 % · 72 %) */
+  .n-card {
+    left: 36px; right: 36px; top: 428px; height: 172px; margin-top: calc(var(--esp, 0) * 36px); opacity: var(--p, 0); overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 72%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 72%, transparent);
+  }
+  .n-feed { position: absolute; left: 0; right: 0; top: 0; display: flex; flex-direction: column; gap: 9px; will-change: transform; }
+  .sf { display: block; padding: 3px; border-radius: 10px; background: rgb(67 27 68 / 0.1); transform-origin: 50% 50%; }
+  .sf-cuerpo { position: relative; display: flex; flex-direction: column; gap: 9px; padding: 12px; border-radius: 8px; background: #fff; overflow: hidden; }
+  .sf-skel { position: absolute; inset: 0; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+  .sf-skel > span { display: flex; align-items: center; gap: 9px; padding-bottom: 9px; border-bottom: 1px solid rgb(67 27 68 / 0.04); }
+  .sf-skel i { width: 18px; height: 18px; border-radius: 3px; background: rgb(67 27 68 / 0.07); }
+  .sf-skel .sk-head i { width: 24px; height: 24px; border-radius: 6px; }
+  .sf-skel b { height: 9px; width: 26%; border-radius: 9px; background: rgb(67 27 68 / 0.055); }
+  .sf-skel .sk-head b { width: 58%; height: 10px; }
+  .sf-skel em { margin-left: auto; width: 30px; height: 16px; border-radius: 9px; background: rgb(67 27 68 / 0.07); }
+  .sf-head { display: flex; align-items: center; gap: 9px; padding-bottom: 9px; border-bottom: 1px solid rgb(67 27 68 / 0.05); }
+  .sf-head b { flex: 1; font-family: var(--font-bricolage), system-ui, sans-serif; font-weight: 500; font-size: 12.5px; line-height: 1.3; color: var(--b); }
+  .sf-ic { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: #f5f7f9; font-size: 10px; font-weight: 600; }
+  .sf-ic svg { width: 12px; height: 12px; fill: var(--b); }
+  .sf-jon .sf-ic { border-radius: 4px; background: #a7c5f9; color: var(--b); }
+  .sf-fila, .sf-act { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; padding-bottom: 9px; border-bottom: 1px solid rgb(67 27 68 / 0.05); font-size: 10px; font-weight: 500; line-height: 1.4; color: var(--b);
+    opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 6px); scale: calc(0.97 + var(--p, 0) * 0.03); }
+  .sf-fila .lg { flex: none; width: 18px; height: 18px; border-radius: 3px; background: #f5f7f9; position: relative; }
+  .sf-fila .lg::after { content: ''; position: absolute; inset: 5px; border-radius: 2px; background: var(--lc); }
+  .sf-fila .av { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 3px; background: var(--lc); font-style: normal; font-size: 8px; font-weight: 600; color: var(--b); }
+  .sf-fila .nm { flex: 1; display: flex; flex-direction: column; }
+  .sf-fila small { font-size: 8px; font-weight: 400; color: rgb(67 27 68 / 0.4); }
+  .sf-fila em { flex: none; width: 30px; text-align: center; font-style: normal; font-variant-numeric: tabular-nums; padding: 1px 0; border-radius: 9px; background: rgb(11 183 131 / 0.15); }
+  .sf-act { border: 0; padding: 0 0 0 14px; font-weight: 400; color: rgb(67 27 68 / 0.6); }
+  .sf-act i { position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--b); }
+  .sf-jon .sf-cuerpo::after { content: ''; position: absolute; left: 17px; top: 47px; bottom: 16px; width: 1px; background: rgb(67 27 68 / 0.12); }
+  .sf-pop { flex: none; padding: 2px 7px; border-radius: 24px; background: #fff9e5; color: #988c62; font-size: 8.5px; opacity: var(--p, 0); scale: calc(0.6 + var(--p, 0) * 0.4); }
+  .sf-hl { position: absolute; left: 6px; right: 6px; top: 50px; height: 34px; border-radius: 6px; background: rgb(167 197 249 / 0.2); opacity: 0; }
+  .n-sub { left: 36px; top: 336px; margin-top: calc(var(--esp, 0) * 36px); width: 430px; font-size: 13.5px; line-height: 1.5; color: color-mix(in oklab, #2a0e2c 60%, transparent); opacity: var(--p, 0); }
+  /* cada pieza que cae de la librería se ASIENTA: aparece algo grande y se posa (la copia se funde justo encima) */
+  .neety > [data-pz]:not(.n-fondo):not(.n-esp):not(.n-nav) { translate: 0 calc((1 - var(--p, 0)) * 6px); }
+
+  /* LA PETICIÓN: se teclea en el centro de la página vacía; al enviarla, se recoge hacia abajo */
+  .composer {
+    position: absolute;
+    left: calc(50% - 250px);
+    top: calc(46% - 66px);
+    z-index: 5;
+    width: 500px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 10px 18px;
+    padding: 16px 16px 16px 20px;
+    border-radius: 20px;
+    background: color-mix(in oklab, #fff 88%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 0 1px rgb(67 27 68 / 0.1), 0 30px 60px -30px rgb(36 28 25 / 0.45);
+    color: #2a0e2c;
+    opacity: 0;
+  }
+  .quien { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: rgb(42 14 44 / 0.55); }
+  .quien i { width: 8px; height: 8px; border-radius: 50%; background: var(--color-nogal); }
+  .campo { min-height: 56px; font-size: 19px; line-height: 1.35; letter-spacing: -0.005em; }
+  .caret { display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: -0.18em; background: var(--color-coral); }
+  .enviar {
+    align-self: end;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: color-mix(in oklab, #2a0e2c calc(25% + var(--l, 0) * 75%), transparent);
+    scale: calc(1 - var(--clic, 0) * 0.14);
+  }
+  .enviar svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .estado {
+    position: absolute;
+    right: 40px;
+    bottom: 36px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 16px 10px 14px;
+    border-radius: 999px;
+    background: color-mix(in oklab, #2a0e2c calc(88% - var(--pub, 0) * 88%), color-mix(in oklab, var(--color-coral) calc(var(--pub, 0) * 100%), #2a0e2c));
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    box-shadow: 0 16px 34px -18px rgb(36 28 25 / 0.6);
+    opacity: 0;
+  }
+  .estado .punto { width: 7px; height: 7px; border-radius: 50%; background: var(--color-coral); opacity: calc(0.45 + var(--late, 0) * 0.55);  }
+  .estado .ok { display: none; width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .estado[style*='--pub: 1'] .punto { display: none; }
+  .estado[style*='--pub: 1'] .ok { display: block; }
+  /* el CHIP: qué pieza de la librería acaba de caer, junto a su sitio en la home */
+  .chip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 7;
+    padding: 4px 9px;
+    border-radius: 6px;
+    background: var(--c);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.3;
+    white-space: nowrap;
+    opacity: var(--o, 0);
+    translate: 0 calc(var(--y, 8) * 1px);
+    box-shadow: 0 8px 18px -10px rgb(36 28 25 / 0.5);
+  }
+
+  /* MÓVIL (580 × 800): el índice pasa a una fila de pestañas, la librería arriba y la home debajo (la librería, al estilo real, sin el texto largo) */
+  .app.v { width: 580px; height: 800px; grid-template-columns: 1fr; grid-template-rows: 38px 34px 288px 1fr; grid-template-areas: 'barra' 'tabs' 'libmain' 'lienzo'; }
+  .app.v .barra { gap: 10px; padding: 0 10px 0 14px; }
+  .app.v .semaforo i { width: 8px; height: 8px; }
+  .app.v .barra .ruta { font-size: 11px; }
+  .app.v .presencia i { width: 19px; height: 19px; font-size: 9px; }
+  .app.v .publicar { font-size: 12px; padding: 5px 12px; }
+  .app.v .indice { display: none; }
+  .app.v .tabs-v { grid-area: tabs; display: flex; align-items: center; gap: 4px; padding: 0 10px; border-bottom: 1px solid var(--linea); overflow: hidden; }
+  .app.v .tabs-v span { position: relative; padding: 4px 9px 4px 14px; border-radius: 999px; font-size: 13px; color: rgb(67 27 68 / 0.62); white-space: nowrap; }
+  .app.v .tabs-v span::before { content: ''; position: absolute; left: 5px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #fe8238; opacity: var(--on, 0); scale: calc(0.4 + var(--on, 0) * 0.6); }
+  .app.v .tabs-v span[data-s] { color: color-mix(in oklab, #431b44 calc(62% + var(--on, 0) * 38%), transparent); }
+  .app.v .scroller { padding-bottom: 120px; }
+  .app.v .sec { min-height: 262px; padding: 14px 18px 0; }
+  .app.v .eb { font-size: 11px; }
+  .app.v .tt { margin-top: 3px; font-size: 27px; }
+  .app.v .tx { display: none; }
+  .app.v .et { margin-top: 10px; font-size: 12px; }
+  .app.v .et2, .app.v .rampas { display: none; }
+  .app.v .swatches { gap: 8px; margin-top: 7px; }
+  .app.v .sw .blk { height: 32px; }
+  .app.v .sw .nm { padding: 5px 7px 0; font-size: 13.5px; }
+  .app.v .sw .hx { padding: 2px 7px 6px; font-size: 11px; }
+  .app.v .tps { gap: 9px; margin-top: 8px; }
+  .app.v .tp-xl b { font-size: 47px; } .app.v .tp-l b { font-size: 35px; } .app.v .tp-m b { font-size: 27px; } .app.v .tp-h2 b { font-size: 21px; }
+  .app.v .tp small { font-size: 11px; margin-top: 1px; }
+  .app.v .tp-l small, .app.v .tp-m small, .app.v .tp-h2 small { display: none; }
+  .app.v .btns { gap: 8px; margin-top: 10px; }
+  .app.v .bt-card { gap: 9px; padding: 10px 11px 12px; }
+  .app.v .bt-card small { font-size: 11px; }
+  .app.v .pill { font-size: 15px; gap: 18px; padding: 9px 15px 9px 20px; }
+  .app.v .esps { margin-top: 9px; padding: 6px 12px; gap: 0; }
+  .app.v .sp-row { height: 17px; grid-template-columns: 54px 1fr 60px; }
+  .app.v .sp-row:nth-child(-n + 3) { display: none; }
+  .app.v .sp-row b { font-size: 11px; } .app.v .sp-row small { font-size: 10.5px; }
+  .app.v .sp-row u { height: 7px; }
+  .app.v .tabs-c { display: none; }
+  .app.v .fcs { gap: 8px; margin-top: 10px; }
+  .app.v .fc { gap: 5px; padding: 10px; }
+  .app.v .fc-t { font-size: 15px; }
+  .app.v .chips-c code { font-size: 10px; }
+  .app.v .fc-x { display: none; }
+  .app.v .fc-pre { height: 70px; }
+  .app.v .lienzo { padding: 12px; border-left: 0; border-top: 1px solid var(--linea); }
+  .app.v .composer { left: calc(50% - 224px); top: calc(46% - 54px); width: 448px; padding: 14px 14px 14px 16px; border-radius: 16px; gap: 8px 12px; }
+  .app.v .quien { font-size: 11px; }
+  .app.v .campo { min-height: 44px; font-size: 16px; }
+  .app.v .enviar { width: 32px; height: 32px; }
+  .app.v .estado { right: 14px; bottom: 14px; font-size: 11px; padding: 7px 12px 7px 10px; }
+  .app.v .chip { font-size: 10.5px; padding: 3px 7px; }
+  .app.v .neety { height: 412px; border-radius: 12px; }
+  .app.v .n-nav { left: 18px; right: 18px; top: 14px; }
+  .app.v .n-menu { display: none; }
+  .app.v .n-logo { height: 19px; }
+  .app.v .n-navcta { font-size: 12px; padding: 5px 11px; }
+  .app.v .n-eyebrow { left: 22px; top: 52px; font-size: 10.5px; gap: 6px; }
+  .app.v .n-punto { width: 5px; height: 5px; }
+  .app.v .n-h1 { left: 22px; top: 74px; width: 500px; font-size: 33px; }
+  .app.v .n-esp { left: 22px; top: 170px; height: 14px; }
+  .app.v .n-esp i { height: calc(14px + var(--esp, 0) * 20px); width: 6px; }
+  .app.v .n-esp b { font-size: 9.5px; }
+  .app.v .n-ctas { left: 22px; top: 186px; gap: 16px; margin-top: calc(var(--esp, 0) * 20px); }
+  .app.v .n-ctas .pill { font-size: 14px; padding: 9px 14px 9px 18px; gap: 16px; }
+  .app.v .n-link { font-size: 14px; }
+  .app.v .n-card { left: 22px; right: 22px; top: 252px; height: 132px; margin-top: calc(var(--esp, 0) * 20px); }
+  .app.v .n-sub { display: none; }
+  .cursor { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform; }
+  .cursor svg { position: relative; width: 18px; height: 18px; display: block; fill: var(--c); filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.18)); scale: calc(1 - var(--clic, 0) * 0.2); transform-origin: 2px 2px; }
+  .cursor span { position: absolute; left: 14px; top: 16px; padding: 0.15em 0.6em; border-radius: 999px; background: var(--c); color: #fff; font-size: 0.8125rem; line-height: 1.5; white-space: nowrap; }
+  .cursor .onda { position: absolute; left: 2px; top: 2px; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 1.5px solid var(--c); opacity: calc((1 - var(--onda, 0)) * min(1, var(--onda, 0) * 20)); scale: calc(0.2 + var(--onda, 0) * 1.3); }
+  .cine.v .cursor span { font-size: 0.6875rem; left: 11px; top: 13px; }
+  .cine.v .cursor svg { width: 14px; height: 14px; }
+  .quieta .cursor { display: none; }
+  .nota { margin-top: calc(var(--spacing) * 12); max-width: 60ch; }
+</style>

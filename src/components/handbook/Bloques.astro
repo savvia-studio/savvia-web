@@ -1,0 +1,706 @@
+---
+// RONDA 127–128 · los BLOQUES de una sección de capítulo. De la referencia (designhandbook.com/en/our-studio-mendesaltaren): texto a medida de lectura,
+// sub-apartados, listas, una cita destacada en tarjeta, imágenes con pie y una tira de ejemplos. Aquí, además, piezas del propio sistema de savvia:
+// fichas de ronda (lo que se dijo → lo que se cambió → lo que se midió), la lista de rechazados, muestras de color, tipografías y contraste medido.
+import type { Bloque } from '../../data/handbook';
+import { contacto, testimonios } from '../../data/handbook';
+import { servicios } from '../../data/home';
+import { proyectos } from '../../data/proyectos';
+import Medio from '../obra/Medio.astro';
+
+interface Props { bloques: Bloque[] }
+const { bloques } = Astro.props;
+const todas = servicios.lista[0].tags;
+import { flecha } from '../../lib/flecha';
+---
+
+<div class="bloques">
+  {
+    bloques.map((b) => {
+      if (b.tipo === 'lead') return <p class="lead">{b.texto}</p>;
+      if (b.tipo === 'p') return <p class="p">{b.texto}</p>;
+      if (b.tipo === 'h3') return <h3 class="h3">{b.texto}</h3>;
+      if (b.tipo === 'pasos')
+        return (
+          <ol class="pasos">
+            {b.items.map((it, i) => (
+              <li style={`--i:${i}`}>
+                <span class="k detail">{it.k}</span>
+                <h3 class="pt">{it.t}</h3>
+                <p class="pd">{it.d}</p>
+              </li>
+            ))}
+          </ol>
+        );
+      if (b.tipo === 'lista')
+        return (
+          <ul class={`lista ${b.items.some((it) => it.k) ? 'con-k' : ''}`}>
+            {b.items.map((it) => (
+              <li>
+                {it.k && <span class="k detail">{it.k}</span>}
+                <span class="lt">{it.t}</span>
+                {it.d && <span class="ld">{it.d}</span>}
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'chips')
+        return (
+          <ul class="chips">
+            {b.items.map((t) => (
+              <li class="detail">{t}</li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'cita')
+        return (
+          <figure class="cita">
+            <blockquote>{b.texto}</blockquote>
+            <figcaption class="detail">{b.de}</figcaption>
+          </figure>
+        );
+      // RONDA 132 · la tabla de documentación (docs.attio.com): cabecera en mono, primera columna como nombre, valores en mono como el «slug»;
+      // en móvil cada fila se apila con su rótulo (data-l), sin scroll horizontal
+      if (b.tipo === 'tabla')
+        return (
+          <div class={`tabla-envol cols-${b.cols.length}`}>
+            <table class="tabla">
+              <thead>
+                <tr>
+                  {b.cols.map((c) => (
+                    <th class="detail" scope="col">{c}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {b.filas.map((f) => (
+                  <tr>
+                    {f.map((v, j) =>
+                      j === 0 ? (
+                        <th scope="row">{v}</th>
+                      ) : (
+                        <td data-l={b.cols[j]}>
+                          {b.muestra === j && <i class="tsw" style={`background:${v}`} aria-hidden="true" />}
+                          {b.mono?.includes(j) ? <code class="val">{v}</code> : v}
+                        </td>
+                      ),
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {b.nota && <p class="detail tnota">{b.nota}</p>}
+          </div>
+        );
+      if (b.tipo === 'aviso')
+        return (
+          <aside class={`aviso ${b.nivel}`} role="note">
+            <span class="av-i" aria-hidden="true">
+              {b.nivel === 'importante' ? (
+                <svg viewBox="0 0 20 20"><path d="M10 3.5c2.6 3.4 4.4 6 4.4 8.3a4.4 4.4 0 0 1-8.8 0c0-2.3 1.8-4.9 4.4-8.3Z" /></svg>
+              ) : (
+                <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" /><path d="M10 9v4.5M10 6.4v.1" /></svg>
+              )}
+            </span>
+            <div class="av-c">
+              <p class="av-n detail detail-caps">{b.nivel === 'importante' ? 'Importante' : 'Nota'}{b.titulo ? ` · ${b.titulo}` : ''}</p>
+              <p class="av-t">{b.texto}</p>
+            </div>
+          </aside>
+        );
+      if (b.tipo === 'tarjetas')
+        return (
+          <ul class="tarjetas">
+            {b.items.map((t) => (
+              <li>
+                <a class="tj" href={t.href}>
+                  <span class="tj-c">
+                    {t.k && <span class="tj-k detail">{t.k}</span>}
+                    <Fragment set:html={flecha('der', 'tj-f')} />
+                  </span>
+                  <span class="tj-t">{t.t}</span>
+                  <span class="tj-d">{t.d}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'matriz')
+        return (
+          <div class="tabla-envol matriz-envol">
+            <table class="tabla matriz">
+              <thead>
+                <tr>
+                  <th class="detail" scope="col">Pieza</th>
+                  {servicios.lista.map((s) => (
+                    <th class="detail mc" scope="col">{s.corto}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {todas.map((t) => (
+                  <tr>
+                    <th scope="row">{t}</th>
+                    {servicios.lista.map((s) => {
+                      const si = s.tags.includes(t);
+                      return (
+                        <td class={`mc ${si ? 'si' : 'no'}`} data-l={s.corto}>
+                          <span aria-hidden="true">{si ? '●' : '—'}</span>
+                          <span class="sr-only">{si ? 'Incluida' : 'No incluida'}</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row" class="detail">Total</th>
+                  {servicios.lista.map((s) => (
+                    <td class="mc detail" data-l={s.corto}>{s.tags.length} / {todas.length}</td>
+                  ))}
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        );
+      if (b.tipo === 'arbol')
+        return (
+          <div class="arbol detail" role="group" aria-label={`Índice de ${b.raiz}`}>
+            <p class="raiz"><i class="punto" aria-hidden="true" />{b.raiz}</p>
+            <ul>
+              {b.grupos.map(([g, hojas]) => (
+                <li>
+                  <span class="g">{g}</span>
+                  <ul>
+                    {hojas.map((h) => (
+                      <li>{h}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      if (b.tipo === 'imagen')
+        return (
+          <figure class={`imagen ${b.ancho === 'entero' ? 'entero' : ''}`} data-entero={b.ancho === 'entero' ? '' : undefined}>
+            {b.ancho === 'entero' && <i class="linea" aria-hidden="true" data-carril-fila />}
+            <div class="marco" style={b.img.fondo ? `background:${b.img.fondo}` : ''}>
+              <img src={b.img.src} alt={b.img.alt} width={b.img.ancho} height={b.img.alto} loading="lazy" decoding="async" />
+            </div>
+            {b.ancho === 'entero' && <i class="linea" aria-hidden="true" data-carril-fila />}
+            <figcaption class="detail">{b.img.pie}</figcaption>
+          </figure>
+        );
+      if (b.tipo === 'galeria')
+        return (
+          <ul class="galeria">
+            {b.items.map((img) => (
+              <li>
+                <figure>
+                  <div class="marco gm" style={img.fondo ? `background:${img.fondo}` : ''}>
+                    <img src={img.src} alt={img.alt} width={img.ancho} height={img.alto} loading="lazy" decoding="async" />
+                  </div>
+                  <figcaption class="detail">{img.pie}</figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'obra')
+        return (
+          <ul class="obra">
+            {b.slugs.map((s) => {
+              const p = proyectos.find((x) => x.slug === s);
+              return p ? (
+                <li>
+                  <a class="ob" href={`/proyectos/${p.slug}`}>
+                    <Medio medio={p.portada} color={p.color} alt={`${p.nombre}: su web en movimiento`} al="vista" proporcion="16 / 10" />
+                    <span class="on detail">{p.sector}</span>
+                    <span class="ot">{p.nombre}</span>
+                    <span class="od">{p.resumen}</span>
+                  </a>
+                </li>
+              ) : null;
+            })}
+          </ul>
+        );
+      if (b.tipo === 'testimonios')
+        return (
+          <ul class="testimonios">
+            {testimonios.map((t) => (
+              <li>
+                <figure>
+                  <img class="retrato" src={t.retrato} alt="" width="96" height="96" loading="lazy" decoding="async" />
+                  <blockquote>«{t.q}»</blockquote>
+                  <figcaption>
+                    <strong>{t.n}</strong>
+                    <span class="detail">{t.r}</span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'rondas')
+        return (
+          <ol class="rondas">
+            {b.items.map((r) => (
+              <li class="ronda">
+                <p class="rc detail">
+                  <span>{r.n}</span>
+                  <span>{r.fecha}</span>
+                </p>
+                <blockquote class="rq">
+                  <span class="quien detail">{r.quien} dijo</span>«{r.dijo}»
+                </blockquote>
+                <dl class="rd">
+                  {r.causa && (
+                    <div>
+                      <dt class="detail detail-caps">Causa</dt>
+                      <dd>{r.causa}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt class="detail detail-caps">Cambio</dt>
+                    <dd>{r.hecho}</dd>
+                  </div>
+                  <div class="medido">
+                    <dt class="detail detail-caps">Medido</dt>
+                    <dd>{r.medido}</dd>
+                  </div>
+                </dl>
+              </li>
+            ))}
+          </ol>
+        );
+      if (b.tipo === 'rechazados')
+        return (
+          <ul class="rechazados">
+            {b.items.map((r) => (
+              <li>
+                <span class="rt">{r.t}</span>
+                <span class="rr">«{r.dijo}»</span>
+                <span class="rn detail">{r.ronda}</span>
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'muestras')
+        return (
+          <ul class="muestras">
+            {b.items.map((m) => (
+              <li>
+                <span class="sw" style={`background:${m.hex}`} />
+                <span class="mn">{m.n}</span>
+                <span class="mh detail">{m.hex}</span>
+                {m.uso && <span class="mu">{m.uso}</span>}
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'tipos')
+        return (
+          <ul class="tipos">
+            {b.items.map((t) => (
+              <li>
+                <span class="tm" style={`font-family:${t.css}`}>{t.muestra}</span>
+                <span class="tn">{t.n}</span>
+                <span class="tu detail">{t.uso}</span>
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'contraste')
+        return (
+          <ul class="contraste">
+            {b.items.map((c) => (
+              <li>
+                <span class="cm" style={`background:${c.bg};color:${c.fg}`}>Aa</span>
+                <span class="cp">{c.par}</span>
+                <span class="cu">{c.uso}</span>
+                <span class={`cr detail ${c.ok ? '' : 'no'}`}>
+                  {c.ratio}
+                  {c.ok ? '' : ' · no'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        );
+      if (b.tipo === 'peticion')
+        return (
+          <figure class="peticion" data-peticion>
+            <figcaption class="detail detail-caps">{b.quien}</figcaption>
+            <blockquote class="pq">«{b.texto}»</blockquote>
+            <ol class="pp">
+              {b.pasos.map((p, i) => (
+                <li class="detail" style={`--i:${i}`}>
+                  <span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span> {p}
+                </li>
+              ))}
+              <li class="detail fin" style={`--i:${b.pasos.length}`}>
+                <i class="punto" aria-hidden="true" /> {b.fin}
+              </li>
+            </ol>
+          </figure>
+        );
+      if (b.tipo === 'forma') {
+        const s = servicios.lista[b.i];
+        const suyas = new Set(s.tags);
+        return (
+          <div class="forma">
+            <p class="lead">{s.d}</p>
+            <p class="detail fc">
+              Incluye {s.tags.length} de las {todas.length} piezas que compartimos en las tres formas:
+            </p>
+            <ul class="chips">
+              {todas.filter((t) => suyas.has(t)).map((t) => (
+                <li class="detail">{t}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
+      if (b.tipo === 'enlace')
+        return (
+          <p class="mas">
+            <a class="link-hb" href={b.href} {...(b.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}>
+              <span>{b.label}</span>
+              <Fragment set:html={flecha(b.href.startsWith('http') ? 'fuera' : 'der')} />
+            </a>
+          </p>
+        );
+      if (b.tipo === 'contacto')
+        return (
+          <div class="contacto">
+            <a class="correo" href={`mailto:${contacto.correo}`}>{contacto.correo}</a>
+            <p class="detail cn">{contacto.nota} · {contacto.lugar}</p>
+            <ul class="paginas">
+              {contacto.paginas.map((p) => (
+                <li><a class="link" href={p.href}>{p.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        );
+      return null;
+    })
+  }
+</div>
+
+<style>
+  /* RONDA 134 · lectura tranquila: cuerpo 18–19 px a 1,65, párrafos con aire, y las piezas anchas separadas por más silencio */
+  .bloques { display: flow-root; }
+  .bloques > * + * { margin-top: calc(var(--spacing) * 6); }
+  .bloques > :is(.pasos, .tabla-envol, .tarjetas, .aviso, .arbol, .galeria, .obra, .testimonios, .rondas, .rechazados, .muestras, .tipos, .contraste, .forma, .imagen, .cita, .peticion, .lista),
+  .bloques > :is(.pasos, .tabla-envol, .tarjetas, .aviso, .arbol, .galeria, .obra, .testimonios, .rondas, .rechazados, .muestras, .tipos, .contraste, .forma, .imagen, .cita, .peticion, .lista) + * { margin-top: calc(var(--spacing) * 12); }
+  .bloques > :first-child { margin-top: 0; }
+  .bloques > .h3 { margin-top: calc(var(--spacing) * 12); }
+  .bloques > .h3 + * { margin-top: calc(var(--spacing) * 3); }
+  .bloques > :is(.p, .lead, .h3) { max-width: 66ch; }
+
+  .lead { font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.4375rem); line-height: 1.5; letter-spacing: -0.008em; color: color-mix(in oklab, var(--fg) 88%, transparent); text-wrap: pretty; }
+  .p { font-size: clamp(1.125rem, 1.07rem + 0.2vw, 1.1875rem); line-height: 1.65; color: color-mix(in oklab, var(--fg) 90%, transparent); text-wrap: pretty; hanging-punctuation: first; }
+  .h3 { font-size: 1.3125rem; line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; }
+  .k { color: var(--fg2); letter-spacing: 0.04em; }
+
+  /* pasos */
+  .pasos { display: grid; border-top: 1px solid var(--rule); }
+  .pasos > li {
+    position: relative;
+    display: grid;
+    grid-template-columns: calc(var(--spacing) * 12) 1fr;
+    column-gap: calc(var(--spacing) * 4);
+    row-gap: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 6);
+    border-bottom: 1px solid var(--rule);
+  }
+  .pasos .k { grid-row: span 2; padding-top: 0.45em; }
+  .pt { font-family: var(--font-display); font-weight: 400; font-size: var(--text-h3); line-height: var(--text-h3--line-height); }
+  .pd { color: var(--fg2); }
+  @media (width >= 64rem) {
+    .pasos { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); border-top: 0; }
+    .pasos > li { grid-template-columns: 1fr; align-content: start; border-bottom: 0; border-top: 1px solid var(--rule); padding-top: calc(var(--spacing) * 4); }
+    .pasos .k { grid-row: auto; padding-top: 0; }
+    .pasos > li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: -1px;
+      height: 1px;
+      width: 100%;
+      background: var(--color-coral);
+      transform-origin: 0 50%;
+      transform: scaleX(var(--savia, 0));
+      transition: transform 0.9s var(--ease-out-expo) calc(var(--i) * 0.18s);
+    }
+    :global(.seccion.visto) .pasos > li { --savia: 1; }
+  }
+
+  /* listas */
+  .lista { display: grid; border-top: 1px solid var(--rule); }
+  .lista > li { display: grid; gap: calc(var(--spacing) * 1); padding-block: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); }
+  .lista.con-k > li { grid-template-columns: calc(var(--spacing) * 8) 1fr; column-gap: calc(var(--spacing) * 4); }
+  .lista.con-k .k { grid-row: span 2; padding-top: 0.2em; }
+  .lt { font-weight: 500; }
+  .ld { color: var(--fg2); font-size: var(--text-aux); line-height: var(--text-aux--line-height); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); }
+  .chips li { padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3); border: 1px solid var(--rule); border-radius: var(--radius-full); }
+
+  /* la cita, en tarjeta (como la de la referencia) */
+  /* RONDA 130 · la tarjeta ocupa la columna entera: sus cantos caen en la col. 5 y en el carril derecho */
+  .bloques > .cita { max-width: none; }
+  .cita {
+    display: grid;
+    gap: calc(var(--spacing) * 4);
+    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 8) calc(var(--spacing) * 6);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--color-cacao) 5%, transparent);
+  }
+  .cita blockquote { font-family: var(--font-display); font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem); line-height: 1.15; letter-spacing: -0.015em; text-wrap: balance; }
+  .cita blockquote::before { content: ''; display: block; width: calc(var(--spacing) * 8); height: 2px; margin-bottom: calc(var(--spacing) * 4); background: var(--color-coral); }
+  .cita figcaption { color: var(--fg2); }
+
+  /* RONDA 132 · tablas de documentación (docs.attio.com): cabecera en mono sobre un filete fuerte, filas con filete fino, valores en mono como «slug» */
+  .tabla { width: 100%; border-collapse: collapse; text-align: left; font-size: var(--text-aux); line-height: var(--text-aux--line-height); }
+  .tabla th, .tabla td { padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4) calc(var(--spacing) * 3) 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .tabla th:last-child, .tabla td:last-child { padding-right: 0; }
+  .tabla thead th { color: var(--fg2); font-weight: 400; letter-spacing: 0.02em; padding-block: calc(var(--spacing) * 2); border-bottom: 1px solid var(--rule); white-space: nowrap; opacity: 0.8; }
+  .tabla tbody th { font-weight: 500; }
+  .cols-2 .tabla tbody th { width: 34%; }
+  .tabla td { color: color-mix(in oklab, var(--fg) 72%, transparent); }
+  .val {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+    line-height: 1.5;
+    padding: 0 calc(var(--spacing) * 1.5);
+    border-radius: 4px;
+    color: var(--fg);
+    background: color-mix(in oklab, var(--color-cacao) 7%, transparent);
+    white-space: nowrap;
+  }
+  .tsw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: calc(var(--spacing) * 2); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 18%, transparent); }
+  .tnota { color: var(--fg2); padding-top: calc(var(--spacing) * 3); }
+  /* en móvil: cada fila, una ficha con sus rótulos (sin desborde horizontal) */
+  @media (width < 48rem) {
+    .tabla-envol:not(.cols-2) .tabla thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .tabla-envol:not(.cols-2) .tabla tr { display: grid; gap: calc(var(--spacing) * 1); padding-block: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); }
+    .tabla-envol:not(.cols-2) .tabla tbody tr:first-child { border-top: 1px solid var(--rule); }
+    .tabla-envol:not(.cols-2) .tabla :is(th, td) { padding: 0; border: 0; }
+    .tabla-envol:not(.cols-2) .tabla td { display: grid; grid-template-columns: 7.5rem 1fr; gap: calc(var(--spacing) * 3); align-items: baseline; }
+    .tabla-envol:not(.cols-2) .tabla td::before { content: attr(data-l); font-family: var(--font-mono); font-size: var(--text-detail); color: var(--fg2); }
+    .tabla-envol:not(.cols-2) .tabla td .tsw { display: none; }
+    .val { white-space: normal; justify-self: start; }
+  }
+
+  /* la matriz de las formas: pieza × forma, con un punto de savia donde se incluye */
+  .matriz .mc { text-align: center; width: 18%; padding-right: 0; }
+  .matriz td.si { color: var(--color-coral); font-size: 0.75rem; }
+  .matriz td.no { color: color-mix(in oklab, var(--fg) 30%, transparent); }
+  .matriz tfoot th, .matriz tfoot td { border-bottom: 0; border-top: 1px solid var(--rule-strong); color: var(--fg2); font-weight: 400; }
+  @media (width < 48rem) {
+    .matriz-envol .tabla tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .matriz-envol .tabla th[scope='row'] { grid-column: 1 / -1; padding-bottom: calc(var(--spacing) * 1); }
+    .matriz-envol .tabla td { display: flex; flex-direction: column; gap: 2px; text-align: left; width: auto; }
+    .matriz-envol .tabla td::before { content: attr(data-l); font-family: var(--font-mono); font-size: var(--text-detail); color: var(--fg2); }
+  }
+
+  /* avisos (los «callouts» de la referencia): una franja con filo de color a la izquierda */
+  .aviso {
+    display: grid;
+    grid-template-columns: calc(var(--spacing) * 5) 1fr;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 4) calc(var(--spacing) * 5);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--color-cacao) 4%, transparent);
+  }
+  .aviso.importante { background: color-mix(in oklab, var(--color-coral) 8%, transparent); }
+  .av-i svg { width: calc(var(--spacing) * 5); height: calc(var(--spacing) * 5); fill: none; stroke: var(--fg2); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
+  .importante .av-i svg { stroke: none; fill: var(--color-coral); }
+  .av-c { display: grid; gap: calc(var(--spacing) * 1); }
+  .av-n { color: var(--fg2); }
+  .av-t { font-size: clamp(1.0625rem, 1.03rem + 0.12vw, 1.125rem); line-height: 1.6; text-wrap: pretty; }
+  .importante .av-t { font-weight: 500; }
+
+  /* tarjetas que llevan a otros apartados */
+  .tarjetas { display: grid; gap: calc(var(--spacing) * 3); }
+  @media (width >= 48rem) { .tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tj {
+    height: 100%;
+    display: grid;
+    align-content: start;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 5);
+    border-radius: var(--radius-lg);
+    border: 1px solid color-mix(in oklab, var(--color-cacao) 9%, transparent);
+    background: transparent;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+  .tj-c { display: flex; justify-content: space-between; align-items: center; min-height: calc(var(--spacing) * 5); }
+  .tj-k { color: var(--fg2); }
+  :global(.tj-f) { margin-left: auto; color: var(--fg2); transition: color 0.4s ease; } /* RONDA 135 · la flecha de la casa */
+  .tj-t { font-family: var(--font-display); font-size: 1.375rem; line-height: 1.15; }
+  .tj-d { color: var(--fg2); font-size: var(--text-aux); line-height: var(--text-aux--line-height); }
+  .tj:hover, .tj:focus-visible { border-color: var(--rule-strong); background: color-mix(in oklab, white 55%, transparent); }
+  .tj:hover :global(.tj-f), .tj:focus-visible :global(.tj-f) { color: var(--color-coral); }
+
+  .arbol { padding: calc(var(--spacing) * 6); border: 1px solid var(--rule); border-radius: var(--radius-lg); display: grid; gap: calc(var(--spacing) * 4); }
+  .raiz { display: flex; align-items: center; gap: calc(var(--spacing) * 2); }
+  .punto { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--color-coral); flex: none; }
+  .arbol > ul { display: grid; gap: calc(var(--spacing) * 4); padding-left: calc(var(--spacing) * 4); border-left: 1px solid var(--rule); }
+  @media (width >= 48rem) { .arbol > ul { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); } }
+  .g { letter-spacing: 0.04em; text-transform: uppercase; }
+  .arbol ul ul { padding-top: calc(var(--spacing) * 1); color: var(--fg2); }
+
+  .imagen { display: grid; gap: calc(var(--spacing) * 3); }
+  .marco { overflow: hidden; border-radius: var(--radius-lg); border: 1px solid var(--rule); background: color-mix(in oklab, var(--color-cacao) 6%, var(--color-niebla)); }
+  .marco img { width: 100%; height: auto; display: block; }
+  /* RONDA 130 · la imagen a todo lo ancho, ENTRE LOS CARRILES (de carril a carril, como la cabecera y el marco del hero de la home): sin radio ni
+     filete, y arriba y abajo una fila de los carriles con sus cruces ([data-carril-fila]). La columna va de la col. 5 a la 12 (8 col. + 7 medianiles
+     de 24 px): el ancho del wrap es 1,5 × la columna + medio medianil, y se adelanta media columna + medio medianil. */
+  .imagen.entero { gap: 0; }
+  .imagen.entero .linea { display: block; height: 0; }
+  .imagen.entero .marco { border: 0; border-radius: 0; }
+  .imagen.entero figcaption { padding-top: calc(var(--spacing) * 3); }
+  figcaption.detail { color: var(--fg2); }
+
+  .galeria { display: grid; gap: calc(var(--spacing) * 6) calc(var(--spacing) * 4); }
+  @media (width >= 48rem) { .galeria { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .galeria figure { display: grid; gap: calc(var(--spacing) * 2); }
+  .gm { aspect-ratio: 4 / 3; }
+  .gm img { height: 100%; object-fit: cover; object-position: 50% 0; }
+
+  .obra { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 4); }
+  @media (width >= 48rem) { .obra { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .ob { display: grid; gap: calc(var(--spacing) * 2); }
+  .ob :global(.medio) { margin-bottom: calc(var(--spacing) * 2); }
+  .on { color: var(--fg2); }
+  .ot { font-family: var(--font-display); font-size: var(--text-h3); line-height: 1.1; }
+  .od { color: var(--fg2); font-size: var(--text-aux); line-height: var(--text-aux--line-height); }
+  .ot { transition: color 0.45s ease; } /* RONDA 136 · sin subrayado al pasar: el título se tiñe apenas de savia */
+  .ob:hover .ot { color: color-mix(in oklab, var(--fg) 78%, var(--color-coral)); }
+
+  .testimonios { display: grid; gap: calc(var(--spacing) * 4); }
+  .testimonios figure {
+    display: grid;
+    grid-template-columns: calc(var(--spacing) * 16) 1fr;
+    column-gap: calc(var(--spacing) * 6);
+    row-gap: calc(var(--spacing) * 3);
+    padding-block: calc(var(--spacing) * 6);
+    border-top: 1px solid var(--rule);
+  }
+  .retrato { grid-row: span 2; width: calc(var(--spacing) * 16); height: calc(var(--spacing) * 16); object-fit: cover; border-radius: 50%; mix-blend-mode: multiply; }
+  .testimonios blockquote { font-size: var(--text-sub); line-height: var(--text-sub--line-height); }
+  .testimonios figcaption { display: grid; gap: calc(var(--spacing) * 1); }
+  .testimonios figcaption strong { font-weight: 500; }
+  .testimonios figcaption .detail { color: var(--fg2); }
+
+  /* las fichas de ronda: lo que se dijo → la causa → el cambio → lo medido */
+  .rondas { display: grid; gap: calc(var(--spacing) * 4); }
+  .ronda {
+    display: grid;
+    gap: calc(var(--spacing) * 4);
+    padding: calc(var(--spacing) * 6);
+    border-radius: var(--radius-lg);
+    background: color-mix(in oklab, var(--color-cacao) 4%, transparent);
+  }
+  .rc { display: flex; justify-content: space-between; color: var(--fg2); letter-spacing: 0.04em; }
+  .rq { font-family: var(--font-display); font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem); line-height: 1.15; letter-spacing: -0.01em; text-wrap: balance; }
+  .quien { display: block; font-family: var(--font-mono); font-size: var(--text-detail); color: var(--fg2); letter-spacing: 0.04em; margin-bottom: calc(var(--spacing) * 2); }
+  .rd { display: grid; gap: calc(var(--spacing) * 4); padding-top: calc(var(--spacing) * 4); border-top: 1px solid var(--rule); }
+  @media (width >= 48rem) { .rd { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); } }
+  .rd dt { color: var(--fg2); letter-spacing: 0.04em; margin-bottom: calc(var(--spacing) * 2); }
+  .rd dd { font-size: var(--text-aux); line-height: var(--text-aux--line-height); }
+  .medido dt { color: var(--fg); }
+  .medido dt::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: calc(var(--spacing) * 2); border-radius: 50%; background: var(--color-coral); vertical-align: 0.1em; }
+
+  /* la lista de rechazados: lo descartado, tachado, con la frase que lo tumbó */
+  .rechazados { display: grid; border-top: 1px solid var(--rule); }
+  .rechazados li {
+    display: grid;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 6);
+    padding-block: calc(var(--spacing) * 4);
+    border-bottom: 1px solid var(--rule);
+  }
+  @media (width >= 48rem) { .rechazados li { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) auto; align-items: baseline; } }
+  .rt { text-decoration: line-through; text-decoration-color: var(--color-coral); text-decoration-thickness: 1.5px; color: var(--fg2); }
+  .rr { font-family: var(--font-display); font-size: 1.1875rem; line-height: 1.3; }
+  .rn { color: var(--fg2); white-space: nowrap; }
+
+  .muestras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 6) calc(var(--spacing) * 4); }
+  @media (width >= 48rem) { .muestras { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .muestras li { display: grid; gap: calc(var(--spacing) * 1); }
+  .sw { aspect-ratio: 3 / 2; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 14%, transparent); margin-bottom: calc(var(--spacing) * 2); }
+  .mn { font-weight: 500; }
+  .mh, .mu { color: var(--fg2); }
+  .mu { font-size: var(--text-aux); line-height: var(--text-aux--line-height); }
+
+  .tipos { display: grid; border-top: 1px solid var(--rule); }
+  .tipos li { display: grid; grid-template-columns: 1fr auto; gap: calc(var(--spacing) * 1) calc(var(--spacing) * 4); padding-block: calc(var(--spacing) * 6); border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .tm { grid-column: 1 / -1; font-size: clamp(2rem, 1.2rem + 2.6vw, 3.5rem); line-height: 1.05; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+  .tn { font-weight: 500; }
+  .tu { color: var(--fg2); }
+
+  .contraste { display: grid; border-top: 1px solid var(--rule); }
+  .contraste li { display: grid; grid-template-columns: calc(var(--spacing) * 16) 1fr auto; column-gap: calc(var(--spacing) * 4); row-gap: calc(var(--spacing) * 1); align-items: center; padding-block: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); }
+  .cm { grid-row: span 2; display: grid; place-items: center; height: calc(var(--spacing) * 12); border-radius: var(--radius-lg); font-family: var(--font-display); font-size: 1.5rem; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 12%, transparent); }
+  .cp { font-weight: 500; }
+  .cu { grid-column: 2; color: var(--fg2); font-size: var(--text-aux); }
+  .cr { grid-column: 3; grid-row: 1 / span 2; }
+  .cr.no { color: var(--fg2); text-decoration: line-through; text-decoration-color: var(--color-coral); }
+
+  .peticion { padding: calc(var(--spacing) * 6); border-radius: var(--radius-lg); background: var(--color-cacao); color: var(--color-niebla); display: grid; gap: calc(var(--spacing) * 4); }
+  .peticion figcaption { color: color-mix(in oklab, var(--color-niebla) 60%, transparent); }
+  .pq { font-size: var(--text-sub); line-height: var(--text-sub--line-height); }
+  .pp { display: grid; gap: calc(var(--spacing) * 2); padding-top: calc(var(--spacing) * 3); border-top: 1px solid color-mix(in oklab, var(--color-niebla) 18%, transparent); }
+  .pp li { color: color-mix(in oklab, var(--color-niebla) 72%, transparent); }
+  .pp li span { color: color-mix(in oklab, var(--color-niebla) 45%, transparent); padding-right: calc(var(--spacing) * 2); }
+  .pp .fin { color: var(--color-niebla); display: flex; align-items: center; gap: calc(var(--spacing) * 2); }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .pp li { opacity: 0; transform: translateY(6px); transition: opacity 0.6s ease, transform 0.8s var(--ease-out-expo); transition-delay: calc(var(--i) * 0.35s); }
+    :global(html.js) .peticion:global(.visto) .pp li { opacity: 1; transform: none; }
+  }
+
+  .forma { display: grid; gap: calc(var(--spacing) * 6); }
+  .forma .lead { max-width: 40rem; }
+  .fc { color: var(--fg2); }
+  .piezas { display: grid; border-top: 1px solid var(--rule); }
+  @media (width >= 48rem) { .piezas { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); } }
+  .piezas li { display: grid; grid-template-columns: calc(var(--spacing) * 6) 1fr; align-items: baseline; padding-block: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); }
+  .piezas .marca { font-size: 0.625rem; color: var(--color-cacao); }
+  .piezas li.no { color: color-mix(in oklab, var(--fg) 42%, transparent); }
+  .piezas li.no .marca { color: inherit; }
+
+  .mas { padding-top: calc(var(--spacing) * 1); }
+  .link-hb {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    font-weight: 500;
+    padding-bottom: calc(var(--spacing) * 1);
+    opacity: 0.8;
+    transition: opacity 0.45s ease; /* RONDA 136 · sin subrayado: se enciende y la flecha da su empujón */
+  }
+  .link-hb:hover, .link-hb:focus-visible { opacity: 1; }
+  /* RONDA 135 · la flecha de la casa (antes «↳»): al pasar, sale y vuelve a entrar */
+
+  .contacto { display: grid; gap: calc(var(--spacing) * 6); justify-items: start; }
+  .correo {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1rem + 3.6vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+    padding-bottom: calc(var(--spacing) * 2);
+    transition: color 0.6s ease; /* RONDA 136 · sin subrayado: el correo se tiñe de savia */
+  }
+  .correo:hover, .correo:focus-visible { color: color-mix(in oklab, var(--fg) 55%, var(--color-coral)); }
+  .cn { color: var(--fg2); }
+  .paginas { display: flex; gap: calc(var(--spacing) * 6); flex-wrap: wrap; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pasos > li::before, .link-hb, .correo { transition: none; }
+  }
+</style>

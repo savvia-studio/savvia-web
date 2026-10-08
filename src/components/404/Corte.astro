@@ -1,0 +1,319 @@
+---
+// RONDA 136 · LA 404 «EL CORTE». Andoni: «La 404 no me gusta, trabajémosla más».
+// Un corte transversal del roble cuyo corazón es el número 404: los ANILLOS crecen alrededor de las cifras (contornos de su campo de distancia,
+// deformados como la veta). El cursor es un NUDO: la madera se dobla a su alrededor. «Toca madera» (clic, toque o el botón) manda un pulso de
+// SAVIA desde el corazón hacia fuera, anillo a anillo. Colores de la estación (en invierno, tinta sobre nieve). Sin bucle en reposo: solo se
+// pinta mientras algo se mueve (crecer, nudo, pulso, cambio de estación), y nada fuera de pantalla.
+// Sin WebGL: el 404 en Family, plano. Movimiento reducido: los anillos ya crecidos, sin pulsos automáticos ni nudo.
+---
+
+<div class="corte" data-corte>
+  <canvas class="lienzo" data-corte-lienzo aria-hidden="true"></canvas>
+  <p class="respaldo font-display" aria-hidden="true">404</p>
+</div>
+
+<script>
+  const VS = `#version 300 es
+  in vec2 a; void main(){ gl_Position = vec4(a, 0., 1.); }`;
+  const FS = `#version 300 es
+  precision highp float;
+  uniform sampler2D uS;
+  uniform vec2 uR;      // tamaño en px CSS
+  uniform float uDpr;
+  uniform vec2 uM;      // nudo (px CSS)
+  uniform float uK;     // fuerza del nudo 0–1
+  uniform float uKR;    // radio del nudo
+  uniform float uGrow;  // frente de crecimiento (px)
+  uniform float uMax;   // hasta dónde llegan los anillos
+  uniform vec4 uP;
+  uniform float uC;
+  uniform vec2 uE;      // semiejes de las cifras (px)     // altura del corazón (fracción)      // radios de los pulsos de savia (<0 = apagado)
+  uniform vec3 uInk, uWood, uSap;
+  out vec4 o;
+  float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+    return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+1.), f.x), f.y); }
+  float fbm(vec2 p){ float s = 0., a = .5; for (int i = 0; i < 4; i++){ s += a*n2(p); p *= 2.03; a *= .5; } return s; }
+  void main(){
+    vec2 p = vec2(gl_FragCoord.x, uR.y*uDpr - gl_FragCoord.y) / uDpr;
+    float d0 = texture(uS, p / uR).r;
+    // los primeros años abrazan las cifras; los de fuera se van redondeando hasta el tronco (una elipse)
+    vec2 c0 = uR*vec2(.5, uC);
+    vec2 ab = uE + uMax;
+    float e = (length((p - c0)/ab) - 1.) * min(ab.x, ab.y) + uMax;
+    float ee = max(e, 0.), dz = d0*.35, kk = 34.;
+    float hh = clamp(.5 + .5*(ee - dz)/kk, 0., 1.);
+    float sm = mix(dz, ee, hh) + kk*hh*(1. - hh);
+    float d = d0 < 0. ? d0 : mix(d0, sm, smoothstep(0., uMax*1.1, d0));
+    // la rodaja: su canto (la corteza) es una curva de nivel lejana del 404, muy deformada (un tronco no es un rótulo)
+    float wb = (fbm(p*.004 + 3.) - .5)*uMax*.45 + (fbm(p*.02) - .5)*7.;
+    float borde = d + wb - uMax;            // < 0 dentro de la rodaja
+    float enRodaja = 1. - smoothstep(-1., 1., borde);
+    // la veta: casi nula en el filo de las cifras (para que el 404 se lea), cada vez más libre hacia la corteza
+    float t = clamp(d / uMax, 0., 1.);
+    float w = (fbm(p*.0055) - .5)*28.*t + (fbm(p*.03 + 7.) - .5)*5.*t;
+    float dd = d + w;
+    // el nudo (el cursor): dentro de la rodaja la madera se dobla y cierra anillos a su alrededor
+    vec2 q = p - uM; float rk = dot(q, q) / (uKR*uKR);
+    float kn = uK * exp(-rk) * enRodaja;
+    dd -= kn * 2.3 * uKR;
+    // años de grosor distinto, más apretados hacia fuera
+    float yr = dd + 6.*(fbm(vec2(dd*.035, 3.1)) - .5);
+    float S = mix(11., 7., t);
+    float f = fract(yr / S);
+    float aa = fwidth(yr / S) * 1.1;
+    float line = 1. - smoothstep(0., aa + .04, min(f, 1. - f));
+    float late = smoothstep(.5, .95, f) * (1. - line);
+    float fib = n2(p*vec2(.7, .7) + vec2(dd*.3, 0.));
+    // radios medulares y dos grietas que salen del corazón
+    float ang = atan(p.y - c0.y, p.x - c0.x);
+    float ray = smoothstep(.985, 1., sin(ang*90. + fbm(p*.01)*6.)) * .35;
+    float grieta = 0.;
+    for (int i = 0; i < 2; i++){
+      float ga = (i == 0 ? -.55 : 2.35) + (fbm(p*.008 + float(i)*9.) - .5)*.35;
+      float da = abs(mod(ang - ga + 3.14159, 6.28318) - 3.14159) * length(p - c0);
+      float ancho = mix(.2, 2.6, smoothstep(uMax*.25, uMax*1.1, d));
+      grieta = max(grieta, (1. - smoothstep(ancho*.4, ancho, da)) * smoothstep(uMax*.25, uMax*.6, d));
+    }
+    float ring = clamp(line*.9 + late*.2 + ray*(1. - line), 0., 1.) * (.72 + .28*fib);
+    float fuera = smoothstep(-1.5, 1.5, d0);
+    float frente = 1. - smoothstep(uGrow - 30., uGrow, max(dd, 0.));
+    float aR = ring * fuera * enRodaja * frente * .5;
+    vec3 cR = mix(uInk, uWood, .45);
+    // la albura (el fondo de la rodaja): un velo del color de la estación, más claro junto al corazón
+    float aA = enRodaja * fuera * frente * (.10 + .06*(1. - t)) * (.8 + .2*fib);
+    // la corteza: un canto grueso y rugoso
+    float bk = (1. - smoothstep(0., 2., -borde)) * smoothstep(-18. - fbm(p*.05)*14., -12., borde);
+    bk = clamp(bk + (1. - smoothstep(-14., -1., borde))*0., 0., 1.);
+    float corteza = enRodaja * smoothstep(-16. - 10.*fbm(p*.06), -2., borde) * frente;
+    float aB = corteza * (.55 + .35*n2(p*vec2(.35, .35)));
+    vec3 cB = mix(uWood, uInk, .08) * .55;
+    // el corazón (las cifras): duramen, con sus anillos apretados hacia dentro
+    float dentro = 1. - smoothstep(-.9, .9, d0);
+    float fi = fract(-d0 / 9.);
+    float li = 1. - smoothstep(0., fwidth(d0/9.)*1.2 + .05, min(fi, 1. - fi));
+    vec3 cH = mix(uWood, uInk, .1 + .07*li) * (.82 + .18*fib);
+    float aH = dentro * clamp((uGrow + 40.)/40., 0., 1.) * .95;
+    // la savia: cada pulso corre de dentro afuera, más viva sobre las líneas (los vasos); al llegar a la corteza se apaga
+    float sap = 0., heat = 0.;
+    for (int i = 0; i < 4; i++){
+      float r = uP[i];
+      if (r < 0.) continue;
+      float g = exp(-pow((max(dd, 0.) - r) / 9., 2.));
+      heat += exp(-r / 14.);
+      sap += g * (.35 + .65*line) * (1. - smoothstep(uMax*.8, uMax*1.15, r));
+    }
+    sap *= fuera * enRodaja;
+    cH = mix(cH, uSap, clamp(heat, 0., 1.) * .8);
+    // composición (premultiplicada)
+    vec3 c = uWood*aA; float a = aA;
+    c = cR*aR + c*(1. - aR); a = aR + a*(1. - aR);
+    float aG = grieta * enRodaja * frente * .8; vec3 cG = uWood*.18;
+    c = cG*aG + c*(1. - aG); a = aG + a*(1. - aG);
+    c = cB*aB + c*(1. - aB); a = aB + a*(1. - aB);
+    c = cH*aH + c*(1. - aH); a = aH + a*(1. - aH);
+    float aS = clamp(sap, 0., 1.) * .95;
+    c = uSap*aS + c*(1. - aS); a = aS + a*(1. - aS);
+    o = vec4(c, a);
+  }`;
+
+  function edt1d(f: Float32Array, n: number, d: Float32Array, v: Int32Array, z: Float32Array) {
+    let k = 0; v[0] = 0; z[0] = -1e20; z[1] = 1e20;
+    for (let q = 1; q < n; q++) {
+      let s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+      while (s <= z[k]) { k--; s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]); }
+      k++; v[k] = q; z[k] = s; z[k + 1] = 1e20;
+    }
+    k = 0;
+    for (let q = 0; q < n; q++) { while (z[k + 1] < q) k++; d[q] = (q - v[k]) * (q - v[k]) + f[v[k]]; }
+  }
+  // distancia euclídea al cuadrado (Felzenszwalb): g = 0 en los píxeles «objetivo»
+  function edt(g: Float32Array, w: number, h: number) {
+    const n = Math.max(w, h), f = new Float32Array(n), d = new Float32Array(n), v = new Int32Array(n), z = new Float32Array(n + 1);
+    for (let x = 0; x < w; x++) { for (let y = 0; y < h; y++) f[y] = g[y * w + x]; edt1d(f, h, d, v, z); for (let y = 0; y < h; y++) g[y * w + x] = d[y]; }
+    for (let y = 0; y < h; y++) { for (let x = 0; x < w; x++) f[x] = g[y * w + x]; edt1d(f, w, d, v, z); for (let x = 0; x < w; x++) g[y * w + x] = d[x]; }
+  }
+  const css = (v: string, el: Element = document.documentElement) => getComputedStyle(el).getPropertyValue(v).trim();
+  function rgb(c: string): [number, number, number] {
+    const t = document.createElement('canvas').getContext('2d')!; t.fillStyle = c; const s = t.fillStyle as string;
+    if (s.startsWith('#')) return [1, 3, 5].map((i) => parseInt(s.slice(i, i + 2), 16) / 255) as [number, number, number];
+    const m = s.match(/[\d.]+/g)!.map(Number); return [m[0] / 255, m[1] / 255, m[2] / 255];
+  }
+
+  const raiz = document.querySelector<HTMLElement>('[data-corte]');
+  const zona = raiz?.closest<HTMLElement>('[data-corte-zona]') ?? raiz;
+  if (raiz && zona) {
+    const cv = raiz.querySelector<HTMLCanvasElement>('[data-corte-lienzo]')!;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const tactil = matchMedia('(hover: none)').matches;
+    const gl = cv.getContext('webgl2', { premultipliedAlpha: true, antialias: false, alpha: true });
+    if (!gl) raiz.classList.add('sin-gl');
+    else {
+      const sh = (t: number, s: string) => { const o = gl.createShader(t)!; gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(o)); return o; };
+      const pr = gl.createProgram()!;
+      gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr);
+      const ok = gl.getProgramParameter(pr, gl.LINK_STATUS);
+      if (!ok) { raiz.classList.add('sin-gl'); console.warn(gl.getProgramInfoLog(pr)); }
+      gl.useProgram(pr);
+      const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      const la = gl.getAttribLocation(pr, 'a'); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
+      const U = (n: string) => gl.getUniformLocation(pr, n);
+      const u = { E: U('uE'), C: U('uC'), R: U('uR'), Dpr: U('uDpr'), M: U('uM'), K: U('uK'), KR: U('uKR'), Grow: U('uGrow'), Max: U('uMax'), P: U('uP'), Ink: U('uInk'), Wood: U('uWood'), Sap: U('uSap') };
+      const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+      let ejes = [200, 100], cFr = .42, W = 0, H = 0, dpr = 1, maxR = 300, grow = reducido ? 1e5 : -40, visible = true;
+      // colores: los de la estación, leídos del CSS; al cambiar de estación se funden
+      let ink = [0, 0, 0], wood = [0, 0, 0], sap = rgb('#ff616b'), inkT = ink, woodT = wood, colorK = 1;
+      const leerColores = (fundir: boolean) => {
+        const inv = document.documentElement.dataset.estacion === 'invierno';
+        inkT = rgb(inv ? '#302018' : '#eadde7');
+        woodT = rgb(css('--arbol') || '#c65c2d');
+        if (!fundir) { ink = inkT; wood = woodT; colorK = 1; } else { colorK = 0; ink = [...ink]; wood = [...wood]; }
+      };
+      leerColores(false);
+      const nudo = { x: -999, y: -999, tx: -999, ty: -999, k: 0, kt: 0 };
+      const pulsos: number[] = [];
+      const t0 = performance.now(); let tAnt = t0;
+
+      // el 404 en Family, en la fuente real (la del titular), y su campo de distancia
+      const preparar = () => {
+        const r = raiz.getBoundingClientRect();
+        W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
+        dpr = Math.min(1.5, devicePixelRatio || 1);
+        cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+        gl.viewport(0, 0, cv.width, cv.height);
+        const cel = W > 1400 ? 2 : 1.5;
+        const gw = Math.ceil(W / cel), gh = Math.ceil(H / cel);
+        const c2 = document.createElement('canvas'); c2.width = gw; c2.height = gh;
+        const x = c2.getContext('2d', { willReadFrequently: true })!;
+        const fam = getComputedStyle(document.querySelector('h1') || document.body).fontFamily;
+        const movil = W < 700;
+        // el corazón va donde la página le guarda sitio ([data-corte-hueco]); si no, algo por encima del centro
+        const hu = zona.querySelector<HTMLElement>('[data-corte-hueco]')?.getBoundingClientRect();
+        const cyCss = hu && hu.height > 0 ? hu.top - r.top + hu.height / 2 : H * 0.42;
+        const cx = gw / 2, cy = cyCss / cel;
+        const altoMax = (hu && hu.height > 0 ? hu.height * 0.62 : H * 0.36) / cel;
+        const anchoMeta = Math.min(movil ? W * 0.56 : W * 0.44, 760) / cel;
+        x.font = `400 100px ${fam}`;
+        const m0 = x.measureText('404');
+        const altoA = m0.actualBoundingBoxAscent + m0.actualBoundingBoxDescent;
+        const fs = Math.min(100 * anchoMeta / m0.width, 100 * altoMax / altoA);
+        x.font = `400 ${fs}px ${fam}`;
+        const m = x.measureText('404');
+        const asc = m.actualBoundingBoxAscent, des = m.actualBoundingBoxDescent;
+        x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+        x.fillText('404', cx, cy + (asc - des) / 2);
+        const px = x.getImageData(0, 0, gw, gh).data;
+        const n = gw * gh, fuera = new Float32Array(n), dentro = new Float32Array(n);
+        for (let i = 0; i < n; i++) { const a = px[i * 4 + 3] > 127; fuera[i] = a ? 0 : 1e20; dentro[i] = a ? 1e20 : 0; }
+        edt(fuera, gw, gh); edt(dentro, gw, gh);
+        const sd = new Float32Array(n);
+        for (let i = 0; i < n; i++) { const al = px[i * 4 + 3] / 255; const dr = Math.sqrt(fuera[i]) - Math.sqrt(dentro[i]); sd[i] = (al > 0.01 && al < 0.99 ? 0.5 - al : dr - Math.sign(dr) * 0.5) * cel; }
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, gw, gh, 0, gl.RED, gl.FLOAT, sd);
+        maxR = Math.max(movil ? 46 : 70, (hu && hu.height > 0 ? hu.height : H * .5) * (movil ? .16 : .2));
+        cFr = cyCss / H;
+        ejes = [m.width * cel / 2 * 0.98, (asc + des) * cel / 2 * 1.05];
+        if (ok) cv.classList.add('listo');
+        pedir();
+      };
+
+      let raf = 0;
+      const vivo = () => grow < maxR + 40 || Math.abs(nudo.k - nudo.kt) > 0.002 || Math.abs(nudo.x - nudo.tx) + Math.abs(nudo.y - nudo.ty) > 0.4 || pulsos.length > 0 || colorK < 1;
+      const pintar = (ahora: number) => {
+        raf = 0;
+        const dt = Math.min(0.05, (ahora - tAnt) / 1000); tAnt = ahora;
+        if (grow < maxR + 40) grow += dt * (110 + grow * 0.9);
+        nudo.x += (nudo.tx - nudo.x) * Math.min(1, dt * 7); nudo.y += (nudo.ty - nudo.y) * Math.min(1, dt * 7);
+        nudo.k += (nudo.kt - nudo.k) * Math.min(1, dt * 3.2);
+        for (let i = pulsos.length - 1; i >= 0; i--) { pulsos[i] += dt * maxR * 0.8; if (pulsos[i] > maxR * 1.2) pulsos.splice(i, 1); }
+        if (colorK < 1) { colorK = Math.min(1, colorK + dt / 1.6); const e = colorK * colorK * (3 - 2 * colorK); ink = ink.map((v, i) => v + (inkT[i] - v) * e); wood = wood.map((v, i) => v + (woodT[i] - v) * e); }
+        gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(u.R, W, H); gl.uniform1f(u.C, cFr); gl.uniform2f(u.E, ejes[0], ejes[1]); gl.uniform1f(u.Dpr, dpr);
+        gl.uniform2f(u.M, nudo.x, nudo.y); gl.uniform1f(u.K, nudo.k); gl.uniform1f(u.KR, W < 700 ? 44 : 70);
+        gl.uniform1f(u.Grow, grow); gl.uniform1f(u.Max, maxR);
+        const P = [-1, -1, -1, -1]; pulsos.slice(0, 4).forEach((r, i) => (P[i] = r));
+        gl.uniform4f(u.P, P[0], P[1], P[2], P[3]);
+        gl.uniform3f(u.Ink, ink[0], ink[1], ink[2]); gl.uniform3f(u.Wood, wood[0], wood[1], wood[2]); gl.uniform3f(u.Sap, sap[0], sap[1], sap[2]);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        if (visible && !document.hidden && vivo()) pedir();
+      };
+      function pedir() { if (ok && !raf && visible) raf = requestAnimationFrame((t) => { if (tAnt < t - 100) tAnt = t - 16; pintar(t); }); }
+
+      // toca madera: un pulso de savia del corazón hacia fuera
+      const tocar = () => { if (pulsos.length < 4) pulsos.push(0); pedir(); };
+      (window as any).__tocaMadera = tocar;
+      zona.querySelector<HTMLButtonElement>('[data-toca]')?.addEventListener('click', tocar);
+      zona.addEventListener('pointerdown', (e) => {
+        if ((e.target as Element).closest('a, button')) return;
+        const r = raiz.getBoundingClientRect();
+        if (e.pointerType !== 'mouse') { nudo.x = nudo.tx = e.clientX - r.left; nudo.y = nudo.ty = e.clientY - r.top; nudo.kt = 1; setTimeout(() => { nudo.kt = 0; pedir(); }, 1400); }
+        tocar();
+      });
+      if (!reducido && !tactil) {
+        zona.addEventListener('pointermove', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          const r = raiz.getBoundingClientRect();
+          const enLink = !!(e.target as Element).closest('a, button');
+          nudo.tx = e.clientX - r.left; nudo.ty = e.clientY - r.top;
+          if (nudo.k < 0.01) { nudo.x = nudo.tx; nudo.y = nudo.ty; }
+          nudo.kt = enLink ? 0 : 1; pedir();
+        });
+        zona.addEventListener('pointerleave', () => { nudo.kt = 0; pedir(); });
+      }
+
+      new IntersectionObserver((e) => { visible = e[0].isIntersecting; if (visible) pedir(); }).observe(raiz);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) pedir(); });
+      addEventListener('savvia:estacion', () => { setTimeout(() => { leerColores(true); pedir(); }, 60); });
+      let rt = 0;
+      new ResizeObserver(() => { clearTimeout(rt); rt = window.setTimeout(preparar, 120); }).observe(raiz);
+      document.fonts.ready.then(() => {
+        preparar();
+        // la primera savia al terminar de crecer, y luego alguna de vez en cuando mientras se mira (la madera sigue viva)
+        if (!reducido) {
+          setTimeout(tocar, 1500);
+          setInterval(() => { if (visible && !document.hidden && pulsos.length === 0) tocar(); }, 11000);
+        }
+      });
+    }
+  }
+</script>
+
+<style>
+  .corte {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .lienzo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0; /* regla dura 3: lo que pinta el JS nace invisible */
+    transition: opacity 0.6s ease;
+  }
+  .lienzo:global(.listo) {
+    opacity: 1;
+  }
+  .respaldo {
+    display: none;
+  }
+  .sin-gl .respaldo {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    font-size: clamp(8rem, 30vw, 22rem);
+    line-height: 1;
+    color: var(--arbol);
+  }
+</style>

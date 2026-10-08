@@ -96,14 +96,41 @@
    La estación la fija el <head> (la de hoy) y la cambian el icono de la barra, el árbol del hero y Proyectos: html[data-estacion]. */
 @property --noche { syntax: '<color>'; inherits: true; initial-value: #3b231b; }
 @property --arbol { syntax: '<color>'; inherits: true; initial-value: #c65c2d; }
+/* RONDA 132 · Andoni: «el invierno me gustaría que se viera en versión clara, ya que sería como la nieve y el árbol sin hojas».
+   En invierno la «noche» deja de ser oscura: las secciones oscuras pasan a NIEVE (#ECEFF3, un blanco frío, con el grano de siempre) y tinta Cacao.
+     --noche       · el fondo de las secciones oscuras (en invierno, la nieve)
+     --noche-honda · el oscuro de la estación SIEMPRE (velos y cristales sobre la foto de Proyectos, el velo del menú): en invierno, Cacao ceniza
+     --tinta       · la tinta sobre la noche: Rosa niebla; en invierno, Cacao
+     --tinta-inv   · su contrario: Cacao; en invierno, la nieve
+     --k2          · el secundario (60 % de la tinta; sobre la nieve, 70 %: Cacao al 60 % daba 4,2:1)
+   Todo registrado: el fondo se funde en 2,4 s (como siempre) en los dos sentidos. Contraste en invierno: Cacao/nieve 13,5 · secundario 5,4 · Nogal 7,9. */
+@property --noche-honda { syntax: '<color>'; inherits: true; initial-value: #3b231b; }
+@property --tinta { syntax: '<color>'; inherits: true; initial-value: #eadde7; }
+@property --tinta-inv { syntax: '<color>'; inherits: true; initial-value: #302018; }
+@property --k2 { syntax: '<percentage>'; inherits: true; initial-value: 60%; }
 :root {
   --noche: #3b231b;
+  --noche-honda: #3b231b;
   --arbol: #c65c2d;
-  transition: --noche 2.4s ease, --arbol 2.4s ease;
+  --tinta: #eadde7;
+  --tinta-inv: #302018;
+  --k2: 60%;
+  /* la tinta cambia en un golpe corto cuando el fondo va por la mitad de su fundido (curva muy en S, a 0,72 s): así nunca hay un tramo con texto y fondo del mismo gris */
+  transition: --noche 2.4s ease, --noche-honda 2.4s ease, --arbol 2.4s ease, --tinta 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --tinta-inv 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --k2 2.4s ease;
 }
-html[data-estacion='primavera'] { --noche: #382a2d; --arbol: #c76b83; }
-html[data-estacion='verano'] { --noche: #1f352a; --arbol: #67834d; }
-html[data-estacion='invierno'] { --noche: #2a2932; --arbol: #6e7b91; }
+html[data-estacion='primavera'] { --noche: #382a2d; --noche-honda: #382a2d; --arbol: #c76b83; }
+html[data-estacion='verano'] { --noche: #1f352a; --noche-honda: #1f352a; --arbol: #67834d; }
+html[data-estacion='invierno'] { --noche: #eceff3; --noche-honda: #2a2932; --arbol: #6e7b91; --tinta: #302018; --tinta-inv: #eceff3; --k2: 70%; }
+/* las partes oscuras de la home invierten sus dos tintas: lo que era Rosa niebla (texto, trazos, puntos) pasa a --tinta y lo que era Cacao (texto de
+   los botones claros, iconos sobre niebla) a --tinta-inv. Fuera del invierno no cambia nada (niebla = niebla, cacao = cacao). Proyectos no entra:
+   su interfaz va sobre la foto de la mesa y sigue en claro sobre --noche-honda. */
+.hero,
+.cargador,
+.reposo,
+.surface-dark:not(#proyectos) {
+  --color-niebla: var(--tinta);
+  --color-cacao: var(--tinta-inv);
+}
 @media (prefers-reduced-motion: reduce) {
   :root { transition: none; }
 }
@@ -112,14 +139,21 @@ html[data-estacion='invierno'] { --noche: #2a2932; --arbol: #6e7b91; }
   :root,
   .surface-dark {
     --bg: var(--noche);
-    --fg: var(--color-niebla);
+    --fg: var(--tinta); /* ronda 132: Rosa niebla; en invierno, Cacao sobre la nieve */
     /* RONDA 11: «todos los subtítulos van en regular y con un 60 % de opacidad respecto al color principal claro» (5,4:1 sobre Cacao) */
-    --fg2: color-mix(in oklab, var(--color-niebla) 60%, transparent);
-    --rule: color-mix(in oklab, var(--color-niebla) 18%, transparent);
-    --rule-strong: color-mix(in oklab, var(--color-niebla) 55%, transparent);
-    --hole: color-mix(in oklab, var(--color-niebla) 9%, transparent); /* huecos de imagen pendientes */
-    --link: var(--color-niebla);
+    --fg2: color-mix(in oklab, var(--tinta) var(--k2), transparent);
+    --rule: color-mix(in oklab, var(--tinta) 18%, transparent);
+    --rule-strong: color-mix(in oklab, var(--tinta) 55%, transparent);
+    --hole: color-mix(in oklab, var(--tinta) 9%, transparent); /* huecos de imagen pendientes */
+    --link: var(--tinta);
     --mark: var(--color-coral); /* indicadores pequeños (ronda 50: Coral; el Cítrico se probó y cayó) */
+    --btn-filo: color-mix(in oklab, var(--tinta) 34%, transparent); /* RONDA 137 · el filo del CTA Cacao sobre lo oscuro */
+    /* RONDA 138 · Andoni: «los CTAs sobre fondo oscuro se tienen que adaptar a las estaciones». Sobre la noche, el CTA toma el COLOR DE LA
+       ESTACIÓN (--arbol, el acento de la tabla de arriba) hundido: reposo = árbol + 40 % de negro, al pasar = árbol + 24 % (más claro).
+       Texto Rosa niebla: otoño 8,6 → 5,9 · primavera 7,8 → 5,1 · verano 8,7 → 6,0 :1. --arbol está registrado y se funde 2,4 s: el CTA vira
+       con la estación. En invierno (la noche es nieve) vuelve a Cacao → Nogal, como sobre lo claro (regla fuera de la capa, al final). */
+    --btn-fondo: color-mix(in oklab, var(--arbol), #000 40%);
+    --btn-bano: color-mix(in oklab, var(--arbol), #000 24%);
   }
   .surface-light {
     --bg: var(--color-niebla);
@@ -130,6 +164,9 @@ html[data-estacion='invierno'] { --noche: #2a2932; --arbol: #6e7b91; }
     --hole: color-mix(in oklab, var(--color-cacao) 10%, transparent);
     --link: var(--color-cacao);
     --mark: var(--color-cacao);
+    --btn-filo: transparent;
+    --btn-fondo: #302018;
+    --btn-bano: #63402f;
   }
   /* RONDA 62 · «para la parte de servicios, el azul clarito de la nueva»: surface-warm = SALVIA BLUE con texto Cacao (7,1:1) */
   .surface-warm {
@@ -141,6 +178,9 @@ html[data-estacion='invierno'] { --noche: #2a2932; --arbol: #6e7b91; }
     --hole: color-mix(in oklab, var(--color-cacao) 10%, transparent);
     --link: var(--color-cacao);
     --mark: var(--color-cacao);
+    --btn-filo: transparent;
+    --btn-fondo: #302018;
+    --btn-bano: #63402f;
   }
   .surface-dark,
   .surface-light,
@@ -230,7 +270,7 @@ html.cargando {
   overflow: hidden;
 }
 [data-nav] {
-  transition: opacity 0.8s ease;
+  transition: opacity 0.8s ease, color 0.3s ease; /* ronda 141: el relevo claro/oscuro de la barra, suave */
 }
 html.cargando [data-nav],
 html.cargando .carriles,
@@ -268,6 +308,9 @@ html.tipo-antes {
     color: var(--fg);
     color-scheme: dark;
     font-family: var(--font-sans);
+  }
+  html[data-estacion='invierno'] {
+    color-scheme: light; /* ronda 132: la nieve */
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -324,7 +367,14 @@ html.tipo-antes {
     letter-spacing: 0.04em;
   }
 
-  /* Botones · 48 px de alto, 24 de relleno, Manrope 600 16 */
+  /* RONDA 134 · Andoni: «CTAs de este estilo, aplica a todo» (referencia: píldora llena, MAYÚSCULAS espaciadas, flecha fina y larga).
+     Un solo sistema para toda la web (marcado: src/components/Cta.astro):
+       .btn-primary   · píldora LLENA de Coral, texto Cacao (literal: en invierno no se invierte), sin borde, sombra ni cristal.
+       .btn-secondary · sin caja: el texto y la flecha en la tinta de su sitio (currentColor); al pasar, el texto se enciende (RONDA 136: sin subrayado).
+       .btn-sm        · el paso pequeño de los dos.
+       .btn-flecha    · la flecha de la casa (src/lib/flecha.ts, RONDA 136: una «→» fina). Al pasar, un empujón de 2,5 px.
+     Lo que reemplaza: el cristal con la GOTA de las rondas 66–76 (src/scripts/cta.ts, retirado).
+     Una sola acción principal por sección; el resto, secundarias. Los enlaces dentro de un párrafo siguen siendo .link. */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -342,48 +392,149 @@ html.tipo-antes {
       background-color 0.25s var(--ease-out-expo),
       color 0.25s var(--ease-out-expo);
   }
-  /* RONDA 67 · el CTA de cristal con la flecha «↳» y la GOTA de savia que cae donde entra el puntero (src/scripts/cta.ts pone --gx/--gy y .mojado).
-     RONDA 76 · Eric y Andoni: «recuperamos los redondeos que teníamos»: el CTA vuelve a ser una PÍLDORA y se van las cruces de sus esquinas (y de
-     todo lo que las llevaba: .cruces ya solo redondea). */
+  .btn-primary,
+  .btn-secondary {
+    --btn-ease: cubic-bezier(0.25, 1, 0.5, 1); /* ease-out quart */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    border: 0;
+    box-shadow: none;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: 0.9375rem; /* 15 */
+    line-height: 1;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* RONDA 137 · Andoni: «los CTAs no los quiero en coral: en el color más oscuro que tengamos y pasan a uno más claro al hacer hover».
+     Píldora CACAO #302018 (literal: en el hero y las secciones oscuras --color-cacao se invierte en invierno) con texto Rosa niebla (12,6:1); al
+     pasar se llena de NOGAL #63402f con el mismo líquido de la ronda 136 (niebla sobre Nogal 6,9:1: el texto no cambia de color a mitad).
+     Sobre lo OSCURO (la noche de la estación: hero, secciones oscuras, pie, carga) el Cacao casi desaparece contra el fondo (#3b231b): lleva un
+     FILO fino de la tinta (--btn-filo, 1 px por dentro) que lo recorta; sobre lo claro el filo es transparente. En invierno la noche es nieve y la
+     tinta es Cacao: el filo se funde con la píldora y queda como en lo claro. */
   .btn-primary {
-    --gx: 50%;
-    --gy: 50%;
     position: relative;
     isolation: isolate;
     overflow: hidden;
+    min-height: calc(var(--spacing) * 14); /* 56 */
+    padding-inline: 1.375rem 1.125rem; /* RONDA 139 · 22 · 18: más estrecho; la flecha pesa a la derecha */
     border-radius: var(--radius-full);
-    min-height: calc(var(--spacing) * 14);
-    padding-inline: calc(var(--spacing) * 6) calc(var(--spacing) * 8);
-    background: color-mix(in oklab, var(--fg) 10%, transparent);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fg) 22%, transparent);
-    color: var(--fg);
-    font-weight: 500;
-    transition: color 0.35s ease 0.1s;
+    background-color: var(--btn-fondo, #302018); /* RONDA 138 · sobre lo oscuro, el color de la estación (ver --btn-fondo) */
+    color: #eadde7;
+    box-shadow: inset 0 0 0 1px var(--btn-filo, transparent);
+    transition: background-color 0.5s var(--btn-ease), box-shadow 0.5s var(--btn-ease);
   }
-  .cruces { position: relative; border-radius: var(--radius-lg); }
-  /* la gota: recortada al botón (clip-path en el propio pseudo) */
-  .btn-primary::after {
+  /* RONDA 136 · el LÍQUIDO: una mancha nace en el punto de entrada (--gx/--gy, los pone src/scripts/cta-liquido.ts) y crece hasta llenar la
+     píldora (0,7 s, ease-out cubic); canto irregular (radio asimétrico que gira un poco al crecer). Al salir se recoge hacia el punto de salida.
+     Con teclado, desde el centro. Solo transform. --gd = diámetro justo para llegar a la esquina más lejana (sin script, 260 %).
+     La misma mancha llena las tarjetas anterior/siguiente del Handbook ([data-liquido], src/pages/handbook/[slug].astro). */
+  .btn-primary::before {
     content: '';
     position: absolute;
-    inset: 0;
     z-index: -1;
+    left: var(--gx, 50%);
+    top: var(--gy, 50%);
+    width: var(--gd, 260%);
+    aspect-ratio: 1;
+    border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%;
+    background: var(--btn-bano, #63402f);
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    transition: transform 0.7s cubic-bezier(0.33, 1, 0.68, 1);
     pointer-events: none;
-    background: var(--color-coral);
-    clip-path: circle(0 at var(--gx) var(--gy));
-    transition: clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .btn-primary.mojado { color: var(--color-cacao); }
-  .btn-primary.mojado::after {
-    clip-path: circle(150% at var(--gx) var(--gy));
-    transition: clip-path 0.75s var(--ease-out-expo);
+  .btn-primary:hover::before,
+  .btn-primary:focus-visible::before {
+    transform: translate(-50%, -50%) scale(1) rotate(28deg);
   }
-  .btn-primary .btn-ic { transition: translate 0.5s var(--ease-out-expo); }
-  .btn-primary.mojado .btn-ic { translate: 3px 0; }
+  .btn-primary:hover,
+  .btn-primary:focus-visible { box-shadow: inset 0 0 0 1px transparent; }
+  .btn-primary:active::before { filter: brightness(0.9); }
+  .btn-secondary {
+    min-height: calc(var(--spacing) * 6);
+    padding: 0;
+    background: none;
+    color: inherit;
+    transition: color 0.35s var(--btn-ease);
+  }
+  /* RONDA 136 · sin subrayado al pasar («al hacer hover se subrayan textos: eso no me gusta»): en reposo el texto va algo apagado y al pasar
+     se enciende a la tinta plena; la flecha da su empujón. */
+  .btn-secondary .btn-tx {
+    padding-block: 0.25em;
+    opacity: 0.78;
+    transition: opacity 0.45s var(--btn-ease);
+  }
+  .btn-secondary:hover .btn-tx,
+  .btn-secondary:focus-visible .btn-tx {
+    opacity: 1;
+  }
+  /* la alternativa / inactiva de la referencia: el mismo texto, apagado */
+  .btn-secondary.apagado,
+  .btn-secondary[aria-pressed='false'],
+  .btn-secondary[aria-disabled='true'] {
+    color: color-mix(in oklab, currentColor 42%, transparent);
+  }
+  .btn-sm.btn-primary {
+    min-height: calc(var(--spacing) * 11); /* 44: sigue siendo diana táctil */
+    padding-inline: calc(var(--spacing) * 4) calc(var(--spacing) * 3);
+    font-size: 0.8125rem; /* 13 */
+  }
+  .btn-sm.btn-secondary {
+    font-size: 0.8125rem;
+  }
+  /* RONDA 136 · LA FLECHA DE LA CASA (src/lib/flecha.ts): una «→» fina, astil y punta pequeña abierta, trazo 1,15 sin escalar. Una sola para toda
+     la web. RONDA 137 · AL PASAR por el <a> o <button> que la contiene (o un ancestro con .cta-abierto / [data-flecha-anima]:hover) SE DIBUJA:
+     el astil se traza de la cola a la punta (0,3 s) y luego la punta se abre desde el vértice hacia las dos alas (0,26 s, desde 0,22 s), ease-out.
+     Al salir se queda dibujada (sin deshacerse: lo más tranquilo). --fl-retraso retrasa el dibujo donde la flecha aparece más tarde (pie).
+     Las direcciones giran el SVG entero: el trazo sigue a la punta. */
+  .btn-flecha {
+    flex: none;
+    width: 1.5em;
+    height: 1em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.15;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    overflow: visible;
+  }
+  .btn-flecha path { vector-effect: non-scaling-stroke; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+  :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-astil {
+    animation: fl-traza 0.3s cubic-bezier(0.33, 1, 0.68, 1) var(--fl-retraso, 0s) both;
+  }
+  :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-ala {
+    animation: fl-traza 0.26s cubic-bezier(0.25, 1, 0.5, 1) calc(var(--fl-retraso, 0s) + 0.22s) both;
+  }
+  @keyframes fl-traza {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+  .btn-flecha.izq { transform: scaleX(-1); }
+  .btn-flecha.abajo,
+  .btn-flecha.arriba { width: 1em; height: 1.5em; }
+  .btn-flecha.arriba { transform: scaleY(-1); }
+  .btn-flecha.fuera { transform: rotate(-45deg); }
+  .btn-primary:focus-visible,
+  .btn-secondary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+  .btn-primary:focus-visible { outline-color: var(--fg, #302018); }
   @media (prefers-reduced-motion: reduce) {
-    .btn-primary::after, .btn-primary .btn-ic { transition: none; }
+    .btn-primary, .btn-primary::before, .btn-secondary, .btn-secondary .btn-tx { transition: none; }
+    /* sin movimiento: la flecha quieta, y el color cambia sin más (la mancha ya está entera, oculta) */
+    .btn-flecha path { animation: none !important; }
+    .btn-primary::before { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    .btn-primary:hover::before, .btn-primary:focus-visible::before { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   }
+  /* RONDA 76 · .cruces ya solo redondea (lo usan cajas que no son botones) */
+  .cruces { position: relative; border-radius: var(--radius-lg); }
+  /* icono genérico dentro de un botón (24 px, trazo 2) */
   .btn-ic {
     width: calc(var(--spacing) * 6);
     height: calc(var(--spacing) * 6);
@@ -394,17 +545,6 @@ html.tipo-antes {
     stroke-linecap: round;
     stroke-linejoin: round;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .btn-primary::after { animation: none !important; }
-  }
-  .btn-secondary {
-    border-color: var(--fg);
-    color: var(--fg);
-  }
-  .btn-secondary:hover {
-    background: var(--fg);
-    color: var(--bg);
-  }
 
   /* Enlace de texto: subrayado siempre, en el color del texto de su superficie. */
   .link {
@@ -413,8 +553,10 @@ html.tipo-antes {
     text-underline-offset: 0.2em;
     text-decoration-thickness: 1px;
   }
+  /* RONDA 136 · el subrayado se queda quieto al pasar (sin engordar): solo el color se aviva un poco */
+  .link { transition: opacity 0.3s ease; }
   .link:hover {
-    text-decoration-thickness: 2px;
+    opacity: 0.78;
   }
 
   /* DETALLE DE IA · Iris significa «la IA», en dosis MUY sutiles (Andoni, 21/09): la palabra no cambia de color
@@ -557,7 +699,7 @@ html.vt-local::view-transition-old(root) {
 .vt-logo {
   /* ronda 68: el logotipo definitivo (isotipo + savvia) */
   height: clamp(4.5rem, 2.5rem + 7vw, 9rem);
-  aspect-ratio: 1184 / 439;
+  aspect-ratio: 1170 / 439;
   background: var(--color-niebla);
   -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
   mask: url('/savvia-logo.svg') center / contain no-repeat;
@@ -591,3 +733,20 @@ html.vt-llega::after {
     mask: none;
   }
 }
+
+/* RONDA 138 · el CTA de la estación: en INVIERNO la noche es nieve (clara) → el CTA vuelve a Cacao → Nogal también en el hero y las secciones
+   oscuras. Y la puerta del «Contáctanos» del pie (Pie.astro › .cta-pastilla, estilo acotado con Nogal literal) se llena con el mismo color de
+   la estación que el CTA al pasar. Fuera de @layer: los estilos acotados de Astro no van en capa y ganarían a cualquier regla en capa. */
+html[data-estacion='invierno'],
+html[data-estacion='invierno'] .surface-dark {
+  --btn-fondo: #302018;
+  --btn-bano: #63402f;
+}
+/* RONDA 139 · Andoni: «en otoño el CTA, que sea más oscuro»: el cobre se hunde más (árbol + 58 % de negro; al pasar, + 40 %) */
+html[data-estacion='otono'],
+html[data-estacion='otono'] .surface-dark {
+  --btn-fondo: color-mix(in oklab, var(--arbol), #000 58%);
+  --btn-bano: color-mix(in oklab, var(--arbol), #000 40%);
+}
+html .cta-pastilla.cta-pastilla::before { background: var(--btn-bano, #63402f); }
+html .cta-caras.cta-caras img { box-shadow: 0 0 0 2px var(--btn-bano, #63402f); }

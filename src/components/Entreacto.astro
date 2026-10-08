@@ -1,0 +1,85 @@
+---
+// RONDA 125 · «Salvapantallas» (el ENTREACTO de la rama musical, ronda 124, llevado a naturaleza). Tras un minuto sin tocar nada (o al volver a la pestaña
+// después de más de 30 s fuera), la pantalla se funde a la noche de la estación y en el centro el ROBLE de la estación de hoy se dibuja y se pinta con el
+// motor del hero (estela.ts: líneas, pintura con canto rasgado, semitono, hervor), desde la base del tronco. Debajo, la hora de Donostia y la estación.
+// Cualquier gesto la retira. No sale durante la carga, sentado en Proyectos, con el menú o un diálogo abiertos.
+---
+
+<div class="reposo" data-reposo aria-hidden="true" hidden>
+  <div class="arbol"><canvas data-reposo-lienzo></canvas></div>
+  <div class="texto">
+    <p class="hora" data-reposo-hora></p>
+    <p class="volver"><span class="raton">Mueve el ratón para volver</span><span class="dedo">Toca para volver</span></p>
+  </div>
+</div>
+
+<style>
+  .reposo { position: fixed; inset: 0; z-index: 90; background-color: var(--noche, #3b231b); background-image: url('/media/grano.png'); color: var(--color-niebla, #eadde7);
+    opacity: 0; transition: opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 2.4s ease; overflow: hidden; cursor: none; }
+  .reposo.on { opacity: 1; }
+  /* el roble, grande y centrado; su pie, a dos tercios de la pantalla */
+  .arbol { position: absolute; left: 50%; bottom: 30%; height: min(62dvh, 92vw * 941 / 1672 * 1.6); aspect-ratio: 1672 / 941; transform: translateX(-50%); max-width: 96vw; }
+  .arbol canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .texto { position: absolute; left: 50%; top: 74%; transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity 1.2s ease 1.6s; }
+  .reposo.on .texto { opacity: 1; }
+  .hora { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 0.12em; opacity: 0.72; font-variant-numeric: tabular-nums; }
+  .volver { margin-top: calc(var(--spacing) * 6); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; opacity: 0.42; }
+  .dedo { display: none; }
+  @media (hover: none) { .raton { display: none; } .dedo { display: inline; } }
+  @media (prefers-reduced-motion: reduce) { .reposo, .texto { transition: none; } }
+</style>
+
+<script>
+  import { crearEstela, type Estela } from '../scripts/estela';
+  import { EST, NOMBRE, NOCHE, estacionActual } from '../scripts/estacion';
+  const caja = document.querySelector<HTMLElement>('[data-reposo]');
+  if (caja) {
+    const ESPERA = +(new URLSearchParams(location.search).get('reposo') ?? 60) * 1000, FUERA = 30000; // ?reposo=5 para probarlo
+    const html = document.documentElement;
+    const hora = caja.querySelector<HTMLElement>('[data-reposo-hora]')!;
+    let cv = caja.querySelector<HTMLCanvasElement>('[data-reposo-lienzo]')!;
+    let est: Estela | null = null, nEst = -1, abierto = false, temporizador = 0, reloj = 0, salida = 0, ocultoDesde = 0, abiertoEn = 0;
+    const fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    const puede = () => (window as any).__gotaSuelta && !html.classList.contains('estudio-sentado') && !html.classList.contains('menu-abierto') && !html.classList.contains('cargando') && !document.querySelector('dialog[open]');
+    // el roble de la estación que tiene la web AHORA (si se ha cambiado en el hero, esa); se monta la primera vez y al cambiar de estación
+    const montarArbol = () => {
+      const n = estacionActual(); if (n === nEst && est) return;
+      nEst = n;
+      const nuevo = cv.cloneNode() as HTMLCanvasElement; cv.replaceWith(nuevo); cv = nuevo; // lienzo nuevo: el contexto del roble anterior se queda con el viejo
+      const img = new Image(); img.decoding = 'async'; img.src = `/media/hero/arbol-${EST[n]}.webp`;
+      est = crearEstela(nuevo, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true, hd: true, intensidad: n === 2 ? 0.9 : 0 });
+      if (est && (n === 1 || n === 2)) est.estacion(n);
+      est?.fondo(...NOCHE[n]);
+      img.decode().then(() => setTimeout(() => est?.soltar(), 500), () => est?.soltar());
+    };
+    const abrir = () => {
+      if (abierto || !puede()) return;
+      caja.hidden = false; montarArbol();
+      abierto = true; abiertoEn = performance.now(); clearTimeout(salida);
+      const tic = () => (hora.textContent = `${fmt.format(new Date())} · Donostia · ${NOMBRE[estacionActual()]}`); tic(); reloj = window.setInterval(tic, 10000);
+      caja.setAttribute('aria-hidden', 'false'); est?.visible(true);
+      requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.add('on')));
+    };
+    const cerrar = () => {
+      if (!abierto) return; abierto = false; clearInterval(reloj);
+      caja.classList.remove('on'); caja.setAttribute('aria-hidden', 'true');
+      salida = window.setTimeout(() => { if (!abierto) { caja.hidden = true; est?.visible(false); } }, 1500); // oculto: el roble deja de pintarse
+    };
+    const armar = () => { clearTimeout(temporizador); temporizador = window.setTimeout(abrir, ESPERA); };
+    let ux = -1, uy = -1;
+    const gesto = (e: Event) => {
+      // un roce mínimo del ratón no la quita: hacen falta 12 px o medio segundo abierta
+      if (e.type === 'pointermove') { const p = e as PointerEvent; const lejos = ux < 0 || Math.hypot(p.clientX - ux, p.clientY - uy) > 12; ux = p.clientX; uy = p.clientY; if (abierto && (!lejos || performance.now() - abiertoEn < 500)) return; }
+      if (abierto) cerrar();
+      armar();
+    };
+    for (const ev of ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll']) addEventListener(ev, gesto, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { ocultoDesde = performance.now(); clearTimeout(temporizador); }
+      else if (ocultoDesde && performance.now() - ocultoDesde > FUERA) { abrir(); armar(); }
+      else armar();
+    });
+    armar();
+    (window as any).__reposo = { abrir, cerrar, estado: () => abierto };
+  }
+</script>

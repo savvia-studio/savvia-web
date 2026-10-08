@@ -9,22 +9,27 @@ import Carriles from '../../components/Carriles.astro';
 import Pie from '../../components/Pie.astro';
 import Pieza from '../../components/obra/Pieza.astro';
 import { proyectos, SERVICIOS } from '../../data/proyectos';
+import { flecha } from '../../lib/flecha';
 
-const destacados = proyectos.filter((p) => p.destacado);
-// el mosaico de los destacados: tipo de pieza y sitio en la retícula de 12 (escalonado, con aire, como «Más proyectos»)
-type Sitio = { tipo: 'mancha' | 'claro' | 'escena' | 'telefono'; col: string; ratio: string; baja: number; est?: string; zoom?: number; cy?: number; giro?: number };
+// RONDA 138 · Andoni: «el de Playground cambiarlo por alguno que se vea el móvil, ya que es más vertical. Y los destacados que sean un slider para
+// que tengas todos los proyectos más arriba y a mano». Los destacados, en UNA fila que se desliza (scroll-snap nativo): todas las piezas a la misma
+// altura y anchos distintos (`k` = ancho / alto); la del teléfono (Remerge), estrecha y vertical. Orden: ancho · estrecho · medio · ancho.
+type Sitio = { tipo: 'mancha' | 'claro' | 'escena' | 'telefono'; k: number; est?: string; zoom?: number; cy?: number; giro?: number };
 const SITIO: Record<string, Sitio> = {
-  multiverse: { tipo: 'mancha', col: '1 / span 7', ratio: '5 / 4', baja: 0, giro: -5 },
-  amarra: { tipo: 'escena', col: '9 / span 4', ratio: '4 / 5', baja: 32, est: 'verano', zoom: 3.2, cy: 0.6 },
-  playground: { tipo: 'mancha', col: '2 / span 5', ratio: '4 / 5', baja: 0, giro: 6 },
-  neety: { tipo: 'claro', col: '8 / span 5', ratio: '5 / 4', baja: 24 },
+  kuanta: { tipo: 'mancha', k: 1.6, giro: -5 },
+  remerge: { tipo: 'telefono', k: 0.74 },
+  arkdev: { tipo: 'escena', k: 0.9, est: 'verano', zoom: 3.2, cy: 0.6 },
+  neety: { tipo: 'claro', k: 1.6 },
 };
+const ORDEN = ['kuanta', 'remerge', 'arkdev', 'neety'];
+const destacados = proyectos.filter((p) => p.destacado).sort((a, b) => ORDEN.indexOf(a.slug) - ORDEN.indexOf(b.slug));
 const servicios = SERVICIOS.map((s) => [s, proyectos.filter((p) => p.servicios.includes(s)).length] as const).filter(([, n]) => n);
 const sectores = [...new Set(proyectos.map((p) => p.sector).filter(Boolean))].sort((a, b) => a!.localeCompare(b!, 'es')) as string[];
 const POR_PAGINA = 6;
 // el tipo de pieza de cada proyecto en la rejilla: web móvil → teléfono; fondo de marca claro → navegador recto; oscuro → navegador ladeado
 const luz = (hex: string) => { const n = parseInt(hex.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150; };
-const tipoDe = (p: (typeof proyectos)[number]) => (p.portada.movil ? 'telefono' : luz(p.colores[0]) ? 'claro' : 'mancha') as 'telefono' | 'claro' | 'mancha';
+// ronda 131 · «en portfolio, todos en desktop»: en la rejilla nunca teléfono; las webs móviles usan su grabación de escritorio (`escritorio`)
+const tipoDe = (p: (typeof proyectos)[number]) => (luz(p.colores[0]) ? 'claro' : 'mancha') as 'claro' | 'mancha';
 // lo que el buscador lee de cada proyecto (se normaliza en el navegador)
 const texto = (p: (typeof proyectos)[number]) =>
   [p.nombre, p.sector, p.ubicacion, p.con, p.servicios.join(' '), (p.stack ?? []).join(' '), p.resumen, p.entradilla, p.contexto.join(' '), p.apartados.map((a) => a.titulo + ' ' + a.texto.join(' ')).join(' ')].filter(Boolean).join(' · ');
@@ -33,29 +38,40 @@ const texto = (p: (typeof proyectos)[number]) =>
 <Base title="Proyectos — savvia" description="Webs a medida, de principio a fin: los proyectos de savvia, el estudio web de Eric y Andoni." carga={false}>
   <Nav />
   <Carriles />
+  <!-- ronda 129: con JS, el navegador de cada pieza espera bajo su borde y sube al entrar (sin JS, en su sitio). Antes de pintar las piezas. -->
+  <script is:inline>document.documentElement.classList.add('pz-js');</script>
   <main id="contenido" class="obras surface-light">
     <header class="wrap cabecera">
       <h1 class="font-display titular" data-entra>Webs a medida, de principio a fin.</h1>
       <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Para equipos que viven de su web. Estos son algunos de ellos.</p>
     </header>
 
-    <section class="wrap destacados" aria-label="Proyectos destacados">
-      {
-        destacados.map((p) => {
-          const s = SITIO[p.slug] ?? { tipo: 'mancha', col: '1 / -1', ratio: '16 / 9', baja: 0 };
-          return (
-            <div class="sitio" style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja}`} data-enfoca>
-              <Pieza p={p} tipo={s.tipo} est={s.est} zoom={s.zoom} cy={s.cy} giro={s.giro} transicion />
-            </div>
-          );
-        })
-      }
+    <section class="destacados" aria-roledescription="carrusel" aria-label="Proyectos destacados" data-slider>
+      <ul class="pista" data-pista>
+        {
+          destacados.map((p, i) => {
+            const s = SITIO[p.slug] ?? { tipo: 'mancha', k: 1.5 };
+            return (
+              <li class={`slide ${s.tipo}`} style={`--k:${s.k}`} aria-roledescription="diapositiva" aria-label={`${i + 1} de ${destacados.length}: ${p.nombre}`} data-slide>
+                <Pieza p={p} tipo={s.tipo} est={s.est} zoom={s.zoom} cy={s.cy} giro={s.giro} transicion />
+              </li>
+            );
+          })
+        }
+      </ul>
+      <div class="wrap mandos-s">
+        <div class="cuenta-s" role="group" aria-label="Navegación de destacados">
+          <button type="button" class="flecha-s" aria-label="Proyecto destacado anterior" data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
+          <span class="progreso detail" aria-hidden="true"><b data-n>01</b><span class="de">/ {String(destacados.length).padStart(2, '0')}</span></span>
+          <button type="button" class="flecha-s" aria-label="Proyecto destacado siguiente" data-paso="1"><Fragment set:html={flecha()} /></button>
+        </div>
+      </div>
     </section>
 
-    <section class="wrap todos section-y" aria-labelledby="todos-h" data-todos data-por-pagina={POR_PAGINA}>
+    <section class="wrap todos" aria-labelledby="todos-h" data-todos data-por-pagina={POR_PAGINA}>
       <!-- RONDA 64 · «dejamos solo el buscador; en el buscador está escrito por defecto "Todos los proyectos": el titular se convierte en el propio
            buscador». El h2 es el campo: en Family, del tamaño de un titular; al escribir, busca. A la derecha, discretos: «Filtros» (se despliegan)
-           y el orden de la rejilla (ordenada / libre). -->
+           y el orden de la rejilla (filas de 2 o de 3; ronda 129: fuera el «libre»). -->
       <div class="cabeza-todos">
         <h2 id="todos-h" class="sr-only">Todos los proyectos</h2>
         <label class="titular-buscador">
@@ -67,8 +83,9 @@ const texto = (p: (typeof proyectos)[number]) =>
           <span id="todos-ayuda" class="ayuda text-fg2">Escribe para buscar</span>
           <button type="button" class="mando" aria-expanded="false" aria-controls="filtros" data-abrir-filtros>Filtros<sup data-n-filtros></sup></button>
           <span class="orden" role="group" aria-label="Orden de la rejilla">
-            <button type="button" class="mando" aria-pressed="true" data-orden="rejilla" aria-label="Ordenado"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" /><rect x="9" y="1.5" width="5.5" height="5.5" /><rect x="1.5" y="9" width="5.5" height="5.5" /><rect x="9" y="9" width="5.5" height="5.5" /></svg></button>
-            <button type="button" class="mando" aria-pressed="false" data-orden="libre" aria-label="Libre"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2.5" width="6" height="4.5" transform="rotate(-6 4 4.75)" /><rect x="9.5" y="1" width="5" height="6.5" transform="rotate(5 12 4.25)" /><rect x="3" y="9.5" width="5.5" height="5" transform="rotate(4 5.75 12)" /><rect x="10.5" y="10" width="4" height="4" transform="rotate(-8 12.5 12)" /></svg></button>
+            <!-- RONDA 126 · Andoni: «la forma de organizar las webs: que puedas ponerlas en filas de 2 y de 3, y si se nos ocurre algo original, añadirlo» -->
+            <button type="button" class="mando" aria-pressed="true" data-orden="dos" aria-label="Dos por fila"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="13" /><rect x="9" y="1.5" width="5.5" height="13" /></svg></button>
+            <button type="button" class="mando" aria-pressed="false" data-orden="tres" aria-label="Tres por fila"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1.5" width="3.6" height="13" /><rect x="6.2" y="1.5" width="3.6" height="13" /><rect x="11.4" y="1.5" width="3.6" height="13" /></svg></button>
           </span>
         </div>
       </div>
@@ -89,11 +106,11 @@ const texto = (p: (typeof proyectos)[number]) =>
       <p class="detail text-fg2 cuenta" aria-live="polite" data-cuenta></p>
 
       <!-- cada proyecto, dentro de SU degradado (la pieza de «Más proyectos»), no la web a sangre -->
-      <ul class="rejilla" data-rejilla-obras data-orden-actual="rejilla">
+      <ul class="rejilla" data-rejilla-obras data-orden-actual="dos">
         {
           proyectos.map((p, i) => (
             <li data-obra data-slug={p.slug} data-servicios={p.servicios.join('|')} data-sector={p.sector ?? ''} data-texto={texto(p)} data-nombre={p.nombre} style={`view-transition-name: t-${p.slug}`}>
-              <Pieza p={p} tipo={tipoDe(p)} giro={i % 2 ? 5 : -5} transicion={!p.destacado} />
+              <Pieza p={p} tipo={tipoDe(p)} giro={i % 2 ? 5 : -5} transicion={!p.destacado} sube />
             </li>
           ))
         }
@@ -106,6 +123,48 @@ const texto = (p: (typeof proyectos)[number]) =>
 </Base>
 
 <script>
+  import { flecha } from '../../lib/flecha';
+  // ── RONDA 138 · EL SLIDER DE LOS DESTACADOS: scroll horizontal nativo con snap (trackpad, rueda con mayúsculas, dedo); con ratón, también se
+  // ARRASTRA; flechas (botones y ← → con el foco dentro); el progreso, «01 / 04» en mono y una línea fina que se llena.
+  {
+    const sl = document.querySelector<HTMLElement>('[data-slider]');
+    if (sl) {
+      const pista = sl.querySelector<HTMLElement>('[data-pista]')!, slides = [...sl.querySelectorAll<HTMLElement>('[data-slide]')];
+      const nEl = sl.querySelector<HTMLElement>('[data-n]')!;
+      const [ant, sig] = [...sl.querySelectorAll<HTMLButtonElement>('[data-paso]')];
+      const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const pad = () => parseFloat(getComputedStyle(pista).paddingLeft) || 0; // (scroll-padding sale sin resolver: «max(…)»)
+      const max = () => pista.scrollWidth - pista.clientWidth;
+      const actual = () => { const x = pista.scrollLeft + pad(); let m = 0, d = Infinity; slides.forEach((s, i) => { const e = Math.abs(s.offsetLeft - x); if (e < d) { d = e; m = i; } }); return m; };
+      // el hueco del final: lo justo para que la última pieza pueda quedar alineada a la izquierda (cada «siguiente» = una pieza, sin saltos)
+      const medir = () => { const ult = slides[slides.length - 1], gap = parseFloat(getComputedStyle(pista).columnGap) || 0; pista.style.setProperty('--fin', Math.max(0, pista.clientWidth - 2 * pad() - ult.offsetWidth - gap) + 'px'); };
+      const pintarS = () => {
+        const i = actual(), mx = max();
+        nEl.textContent = String(i + 1).padStart(2, '0');
+        ant.disabled = i === 0;
+        sig.disabled = i === slides.length - 1 || pista.scrollLeft >= mx - 4;
+      };
+      const ir = (i: number) => { const t = slides[Math.max(0, Math.min(slides.length - 1, i))]; pista.scrollTo({ left: t.offsetLeft - pad(), behavior: reducido ? 'auto' : 'smooth' }); };
+      ant.addEventListener('click', () => ir(actual() - 1));
+      sig.addEventListener('click', () => ir(actual() + 1));
+      sl.addEventListener('keydown', (e) => { if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' || (e.target as HTMLElement).closest('[data-paso]')) return; e.preventDefault(); ir(actual() + (e.key === 'ArrowRight' ? 1 : -1)); });
+      // al enfocar una pieza con el tabulador, que entre entera
+      slides.forEach((s, i) => s.addEventListener('focusin', () => { const r = s.getBoundingClientRect(), p = pista.getBoundingClientRect(); if (r.left < p.left || r.right > p.right) ir(i); }));
+      let raf = 0;
+      pista.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(pintarS); }, { passive: true });
+      addEventListener('resize', () => { medir(); pintarS(); });
+      // arrastrar con el ratón (el dedo y el trackpad ya los hace el navegador); si se ha movido, el clic no abre el caso
+      let x0 = 0, s0 = 0, movido = false, arrastra = false;
+      pista.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' || e.button !== 0) return; arrastra = true; movido = false; x0 = e.clientX; s0 = pista.scrollLeft; });
+      addEventListener('pointermove', (e) => { if (!arrastra) return; const dx = e.clientX - x0; if (!movido && Math.abs(dx) > 6) { movido = true; pista.classList.add('arrastra'); } if (movido) pista.scrollLeft = s0 - dx; });
+      addEventListener('pointerup', () => { if (!arrastra) return; arrastra = false; if (movido) { pista.classList.remove('arrastra'); ir(actual()); } });
+      pista.addEventListener('click', (e) => { if (movido) { e.preventDefault(); e.stopPropagation(); movido = false; } }, true);
+      pista.addEventListener('dragstart', (e) => e.preventDefault());
+      medir();
+      pintarS();
+      (window as any).__slider = () => ({ i: actual(), scroll: Math.round(pista.scrollLeft), max: max(), n: nEl.textContent });
+    }
+  }
   // ── EL BUSCADOR «inteligente», todo en el navegador (sin IA detrás): normaliza (minúsculas, sin acentos), amplía cada palabra con SINÓNIMOS del
   // oficio, acepta prefijos y una errata en palabras de 5 letras o más, y ordena por dónde aparece (nombre > sector y servicios > el resto del caso).
   const SINONIMOS: Record<string, string[]> = {
@@ -166,7 +225,7 @@ const texto = (p: (typeof proyectos)[number]) =>
   const opsServ = [...caja.querySelectorAll<HTMLButtonElement>('[data-servicio]')], opsSec = [...caja.querySelectorAll<HTMLButtonElement>('[data-sector]')];
   const paginas = caja.querySelector<HTMLElement>('[data-paginas]')!, cuenta = caja.querySelector<HTMLElement>('[data-cuenta]')!, vacio = caja.querySelector<HTMLElement>('[data-vacio]')!;
   const q = new URLSearchParams(location.search);
-  let busca = q.get('q') || '', servicio = q.get('servicio') || '', sector = q.get('sector') || '', pagina = Math.max(1, Number(q.get('p')) || 1), orden = q.get('orden') === 'libre' ? 'libre' : 'rejilla';
+  let busca = q.get('q') || '', servicio = q.get('servicio') || '', sector = q.get('sector') || '', pagina = Math.max(1, Number(q.get('p')) || 1), orden = q.get('orden') === 'tres' ? 'tres' : 'dos';
   input.value = busca;
 
   const pintar = (mover = false) => {
@@ -180,7 +239,7 @@ const texto = (p: (typeof proyectos)[number]) =>
     pagina = Math.min(pagina, total);
     items.forEach((it) => (it.hidden = true));
     pasan.forEach(({ it }) => lista.append(it)); // el orden, por relevancia
-    pasan.slice((pagina - 1) * POR, pagina * POR).forEach(({ it }, i) => { it.hidden = false; it.style.setProperty('--i', String(i)); it.dataset.pos = String(i % 6); });
+    pasan.slice((pagina - 1) * POR, pagina * POR).forEach(({ it }, i) => { it.hidden = false; it.style.setProperty('--i', String(i)); it.style.setProperty('--fila-i', String(i % (orden === 'tres' && innerWidth >= 1024 ? 3 : innerWidth >= 768 ? 2 : 1))); });
     opsServ.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.servicio === servicio)));
     opsSec.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sector === sector)));
     nF.textContent = [servicio, sector].filter(Boolean).length ? String([servicio, sector].filter(Boolean).length) : '';
@@ -190,13 +249,12 @@ const texto = (p: (typeof proyectos)[number]) =>
     cuenta.textContent = busca || servicio || sector ? `${String(pasan.length).padStart(2, '0')} de ${String(items.length).padStart(2, '0')}` : '';
     paginas.innerHTML = '';
     if (total > 1) {
-      const boton = (txt: string, n: number, extra = '') => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pag ' + extra; b.innerHTML = txt; b.disabled = n < 1 || n > total; if (n === pagina && !extra) b.setAttribute('aria-current', 'page'); b.addEventListener('click', () => { pagina = n; animar(() => pintar(true)); }); return b; };
-      paginas.append(boton('<span class="sr-only">Anterior</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M10 7l-5 5 5 5"/></svg>', pagina - 1, 'flecha'));
-      for (let n = 1; n <= total; n++) paginas.append(boton(String(n).padStart(2, '0'), n));
-      paginas.append(boton('<span class="sr-only">Siguiente</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>', pagina + 1, 'flecha'));
+      const boton = (txt: string, n: number, et: string) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pag'; b.setAttribute('aria-label', et); b.innerHTML = txt; b.disabled = n < 1 || n > total; b.addEventListener('click', () => { pagina = n; animar(() => pintar(true)); }); return b; };
+      const num = document.createElement('span'); num.setAttribute('aria-current', 'page'); num.innerHTML = `<b>${String(pagina).padStart(2, '0')}</b> / ${String(total).padStart(2, '0')}`;
+      paginas.append(boton(flecha('izq'), pagina - 1, 'Página anterior'), num, boton(flecha(), pagina + 1, 'Página siguiente'));
     }
     const u = new URL(location.href);
-    ([['q', busca], ['servicio', servicio], ['sector', sector], ['p', pagina > 1 ? String(pagina) : ''], ['orden', orden === 'libre' ? 'libre' : '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
+    ([['q', busca], ['servicio', servicio], ['sector', sector], ['p', pagina > 1 ? String(pagina) : ''], ['orden', orden !== 'dos' ? orden : '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
     history.replaceState(null, '', u);
     if (mover) caja.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
   };
@@ -223,6 +281,12 @@ const texto = (p: (typeof proyectos)[number]) =>
   .obras {
     padding-top: calc(var(--spacing) * 32);
   }
+  /* RONDA 138 · más compacta para que «Todos los proyectos» suba: en escritorio, la entradilla al lado del titular, apoyada en su base */
+  @media (width >= 64rem) {
+    .obras { padding-top: calc(var(--spacing) * 28); }
+    .cabecera { display: flex; align-items: flex-end; justify-content: space-between; gap: calc(var(--spacing) * 12); }
+    .cabecera p { margin-top: 0; max-width: 22rem; padding-bottom: calc(var(--spacing) * 3); }
+  }
   .titular {
     font-size: clamp(3rem, 1.2rem + 6vw, 7.5rem);
     line-height: 1.02;
@@ -230,23 +294,85 @@ const texto = (p: (typeof proyectos)[number]) =>
     max-width: 14ch;
     text-wrap: balance;
   }
-  /* LOS DESTACADOS: mosaico asimétrico sobre 12 columnas (como «Más proyectos») */
+  /* RONDA 138 · LOS DESTACADOS EN SLIDER: una fila a sangre por la derecha (la pieza siguiente asoma), alineada con la retícula por la izquierda.
+     Todas a la misma altura (--h); el ancho sale de --k. Snap nativo, sin barra de scroll. */
   .destacados {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: calc(var(--spacing) * 16) calc(var(--spacing) * 6);
-    margin-top: calc(var(--spacing) * 24);
+    --g: calc(var(--spacing) * 5);
+    --borde: max(var(--g), (100% - 75rem) / 2);
+    --h: clamp(20rem, 58lvh, 38rem);
+    margin-top: calc(var(--spacing) * 16);
+  }
+  @media (width >= 48rem) {
+    .destacados { --g: calc(var(--spacing) * 8); }
   }
   @media (width >= 64rem) {
-    .destacados {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items: start;
-      row-gap: calc(var(--spacing) * 24);
-    }
-    .sitio {
-      grid-column: var(--col);
-      margin-top: calc(var(--spacing) * var(--baja, 0));
-    }
+    .destacados { --g: calc(var(--spacing) * 12); margin-top: calc(var(--spacing) * 12); }
+  }
+  .pista {
+    display: flex;
+    gap: calc(var(--spacing) * 6);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--borde);
+    padding-inline: var(--borde);
+    padding-block: calc(var(--spacing) * 2) calc(var(--spacing) * 3); /* el anillo de foco no se recorta */
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .pista::-webkit-scrollbar { display: none; }
+  .pista::after { content: ''; flex: 0 0 var(--fin, calc(var(--borde) - var(--spacing) * 6)); } /* hueco final (JS): la última pieza también se alinea a la izquierda */
+  .pista.arrastra { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+  .pista.arrastra :global(a) { pointer-events: none; }
+  .slide {
+    flex: 0 0 auto;
+    --ratio: var(--k) / 1;
+    width: calc(var(--h) * var(--k));
+    scroll-snap-align: start;
+  }
+  .slide :global(.pieza) { -webkit-user-drag: none; }
+  .slide :global(.pie) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (width < 48rem) {
+    /* móvil: una pieza a ~85 vw, la siguiente asoma; el teléfono, algo más estrecho */
+    .slide { width: 85vw; --ratio: 4 / 5; }
+    .slide.telefono { width: 70vw; --ratio: 70 / 106.25; } /* a la misma altura que las demás */
+    .pista { gap: calc(var(--spacing) * 4); }
+  }
+  .mandos-s {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 6);
+    margin-top: calc(var(--spacing) * 3);
+  }
+  .progreso {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--fg2);
+  }
+  .progreso b { font-weight: 400; color: var(--fg); }
+  /* RONDA 139 · un solo sistema de paso: «←  01 / 04  →» en mono, flechas finas sin caja (slider y paginación) */
+  .cuenta-s { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 1); }
+  .flecha-s {
+    display: grid;
+    place-items: center;
+    padding: calc(var(--spacing) * 3);
+    margin: calc(var(--spacing) * -1);
+    color: var(--fg);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  .flecha-s:hover:not(:disabled) { opacity: 1; }
+  .flecha-s:focus-visible { outline: 1px solid var(--fg); outline-offset: 1px; opacity: 1; }
+  .flecha-s:disabled { opacity: 0.15; cursor: default; }
+  .flecha-s :global(.btn-flecha) { font-size: 0.75rem; }
+  .todos {
+    padding-top: calc(var(--spacing) * 14);
+    padding-bottom: var(--space-section, calc(var(--spacing) * 32));
   }
   .todos {
     scroll-margin-top: calc(var(--spacing) * 24);
@@ -449,47 +575,28 @@ const texto = (p: (typeof proyectos)[number]) =>
   }
   .rejilla {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: calc(var(--spacing) * 16) calc(var(--spacing) * 6);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 16) calc(var(--spacing) * 8);
     margin-top: calc(var(--spacing) * 12);
   }
+  .rejilla[data-orden-actual='tres'] { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 16) calc(var(--spacing) * 6); }
   @media (width < 64rem) {
-    .rejilla {
+    .rejilla[data-orden-actual='tres'] {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   @media (width < 48rem) {
-    .rejilla {
+    .rejilla,
+    .rejilla[data-orden-actual='tres'] {
       grid-template-columns: 1fr;
       gap: calc(var(--spacing) * 12);
     }
   }
+  /* RONDA 129 · «la card más pequeña»: más baja que antes (5 : 4 y 4 : 5) para que entre más rejilla; el navegador sale por abajo */
   .rejilla li {
-    --ratio: 4 / 3;
+    --ratio: 16 / 9; /* ronda 130: «esas cards tienen que tener menos altura» (antes 3 : 2) */
   }
-  /* LIBRE: seis sitios que se repiten, con anchos, alturas, proporciones y giros distintos */
-  @media (width >= 64rem) {
-    .rejilla[data-orden-actual='libre'] {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      row-gap: calc(var(--spacing) * 8);
-      align-items: start;
-    }
-    .rejilla[data-orden-actual='libre'] li { transition: rotate 0.8s var(--ease-out-expo); }
-    .rejilla[data-orden-actual='libre'] li[data-pos='0'] { grid-column: 1 / span 5; --ratio: 4 / 5; rotate: -2deg; }
-    .rejilla[data-orden-actual='libre'] li[data-pos='1'] { grid-column: 7 / span 4; --ratio: 1 / 1; margin-top: calc(var(--spacing) * 24); rotate: 3deg; }
-    .rejilla[data-orden-actual='libre'] li[data-pos='2'] { grid-column: 3 / span 4; --ratio: 5 / 4; margin-top: calc(var(--spacing) * -12); rotate: 2deg; }
-    .rejilla[data-orden-actual='libre'] li[data-pos='3'] { grid-column: 8 / span 5; --ratio: 4 / 5; margin-top: calc(var(--spacing) * 6); rotate: -3deg; }
-    .rejilla[data-orden-actual='libre'] li[data-pos='4'] { grid-column: 1 / span 4; --ratio: 1 / 1; margin-top: calc(var(--spacing) * -16); rotate: 4deg; }
-    .rejilla[data-orden-actual='libre'] li[data-pos='5'] { grid-column: 6 / span 6; --ratio: 16 / 10; margin-top: calc(var(--spacing) * 12); rotate: -1deg; }
-    .rejilla[data-orden-actual='libre'] li:hover { rotate: 0deg; }
-  }
-  .rejilla li:not([hidden]) {
-    animation: llega 0.7s var(--ease-out-expo) both;
-    animation-delay: calc(var(--i, 0) * 60ms);
-  }
-  @keyframes llega {
-    from { opacity: 0; translate: 0 calc(var(--spacing) * 4); filter: blur(4px); }
-  }
+  .rejilla[data-orden-actual='tres'] li { --ratio: 16 / 10; }
   .tarjeta {
     display: block;
     color: inherit;
@@ -515,50 +622,38 @@ const texto = (p: (typeof proyectos)[number]) =>
   .vacio {
     margin-top: calc(var(--spacing) * 12);
   }
+  /* RONDA 139 · la paginación, en el sistema del slider: «←  01 / 03  →» en mono, sin cajas ni subrayados */
   .paginas {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: calc(var(--spacing) * 1);
     margin-top: calc(var(--spacing) * 16);
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: var(--fg2);
   }
+  .paginas :global(b) { font-weight: 400; color: var(--fg); }
   .paginas :global(.pag) {
     display: grid;
     place-items: center;
-    min-width: calc(var(--spacing) * 12);
-    height: calc(var(--spacing) * 12);
-    border-radius: var(--radius-full);
-    font-family: var(--font-mono);
-    font-size: var(--text-detail);
-    color: var(--fg2);
-    cursor: pointer;
-    transition: color 0.3s ease, background-color 0.3s ease;
-  }
-  .paginas :global(.pag:hover:not(:disabled)) {
+    padding: calc(var(--spacing) * 3);
+    margin: calc(var(--spacing) * -1);
     color: var(--fg);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
   }
-  .paginas :global(.pag[aria-current='page']) {
-    background: var(--fg);
-    color: var(--bg);
-  }
-  .paginas :global(.pag:disabled) {
-    opacity: 0.3;
-    cursor: default;
-  }
-  .paginas :global(.pag svg) {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  .paginas :global(.pag:hover:not(:disabled)) { opacity: 1; }
+  .paginas :global(.pag:focus-visible) { outline: 1px solid var(--fg); outline-offset: 1px; opacity: 1; }
+  .paginas :global(.pag:disabled) { opacity: 0.15; cursor: default; }
+  .paginas :global(.pag .btn-flecha) { font-size: 0.75rem; }
+  @media (width < 48rem) {
+    .paginas { margin-bottom: calc(var(--spacing) * 24); } /* que la gota del pie no la tape tan pronto */
   }
   :global(::view-transition-group(*)) {
     animation-duration: 0.9s;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .rejilla li:not([hidden]) {
-      animation: none;
-    }
   }
 </style>

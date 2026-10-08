@@ -35,10 +35,15 @@ const FS = [
   '  float a=c.a;vec3 col=c.rgb/max(a,.001);',
   // mimetizarse: un poco hundido hacia el Cacao; lo translúcido, más tenue
   '  vec3 cacao=fo;',
-  '  col=mix(col,cacao,pai>.5?0.:.2);col=mix(vec3(dot(col,vec3(.299,.587,.114))),col,pai>.5?1.:.84);',
+  // RONDA 132 · el invierno en claro: sobre la NIEVE el árbol es tinta sobre papel; hundirlo un 20 % hacia el fondo lo lavaba (gris sobre blanco) → 6 %
+  '  float fcl=step(.5,dot(fo,vec3(.299,.587,.114)));',
+  '  col=mix(col,cacao,pai>.5?0.:mix(.2,.06,fcl));col=mix(vec3(dot(col,vec3(.299,.587,.114))),col,pai>.5?1.:.84);',
+  '  col*=pai>.5?1.:mix(1.,.8,fcl);',
   // RONDA 16 («aún más mimetizado»): hacia fuera la cobertura cae (elipse centrada en la copa) → más árbol se deshace en puntos
   '  float fuera=pai>.5?1.:1.-smoothstep(.42,1.02,length(vec2((v.x-.5)*1.85,(v.y-.56)*1.6)));',
-  '  a=pow(a,pai>.5?1.:1.2)*(.3+.7*fuera);',
+  // RONDA 133 · «en invierno, más tronco y ramas»: con el árbol desnudo (raleo 1) las ramas de fuera no se deshacen en puntos (la elipse casi no cae)
+  '  float inv=pai>.5?0.:smoothstep(.7,1.,est.w);fuera=mix(fuera,1.,inv*.8);',
+  '  a=pow(a,pai>.5?1.:mix(1.2,1.,fcl))*(.3+.7*fuera);',
   // ESTACIÓN (rondas 17 y 20): solo vira lo que es HOJA (lo cálido y saturado); la madera se queda. En invierno la copa RALEA (est.w):
   // las hojas más claras se van y quedan pocas, pálidas; en primavera y verano vira a verdes (tono) con su saturación y su luz.
   // RONDA 22 · «que parezca que se va pintando»: la estación nueva (estB) avanza sobre la vieja (est) con el MISMO frente rasgado de la
@@ -89,6 +94,8 @@ const FS = [
   '  vec2 ro=vec2(px.x+px.y,px.x-px.y)*.7071/5.;vec2 f=fract(ro)-.5;',
   '  float rad=sqrt(a)*.64;float punto=1.-smoothstep(rad-.07,rad+.07,length(f));',
   '  float canto=pai>.5?0.:1.-smoothstep(.5,.92,a);', // el paisaje no lleva semitono en los cantos (en la esquina de la hierba salía un parche de puntos)
+  // ronda 133: en invierno, casi sin semitono en los cantos: la rama se lee como trazo, no como puntos
+  '  canto*=1.-inv*.75;',
   '  a=a<.04?0.:mix(a,punto,canto);',
   '  col=mix(col,claro,canto*.22);', // los puntos del canto, algo más claros («que tenga un color clarito»)
   // DISTANCIA AL ORIGEN: el hero, radial desde el impacto; las raíces bajan desde el cuello

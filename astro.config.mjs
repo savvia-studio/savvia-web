@@ -69,6 +69,27 @@ export default defineConfig({
       subsets: ['latin'],
       fallbacks: ['ui-monospace', 'monospace'],
     },
+    {
+      // RONDA 83 · la ENTRADA de concierto de la partitura sigue la identidad de NEETY (su librería: titulares en Bricolage Grotesque). Solo se descarga
+      // donde se usa (la entrada). OFL (Google Fonts).
+      name: 'Bricolage Grotesque',
+      cssVariable: '--font-bricolage',
+      provider: fontProviders.google(),
+      weights: [500, 700, 800],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      // RONDA 92 · el texto de NEETY en la partitura (su librería: cuerpo en Switzer, de Fontshare; licencia ITF Free Font, uso comercial libre).
+      // Solo se descarga donde se usa (el ensayo de su web dentro de la partitura)
+      name: 'Switzer',
+      cssVariable: '--font-switzer',
+      provider: fontProviders.fontshare(),
+      weights: [400, 500],
+      styles: ['normal'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
   ],
   vite: {
     plugins: [tailwindcss()],

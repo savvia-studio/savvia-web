@@ -12,11 +12,28 @@ const [A, E] = estudio.personas;
     ~0,2 del ancho de la celda), así nunca patinan. El último 20 % frena; al llegar giran al frente y funden a la pose final.
   · La descripción de cada uno sale con el recurso de la web: la LÍNEA DE LLAMADA (la de «Sentarse»), y el otro se retira.
     Con ratón, al pasar; con teclado, al enfocar; en táctil, al tocar.
+  · RONDA 132 · Andoni: «en la versión musical teníamos unos monigotes que se veían más realistas, hay que recuperarlos»: la secuencia v03
+    (la de la ronda 95 de la rama `musica`: andoni-paso.webp · eric-paso.webp · juntos-v03.webp), montada como pide su LEEME. Los de la ronda 11
+    (andoni.webp · eric.webp) siguen en la carpeta, sin uso.
+  · RONDA 137 · Andoni: «te paso la nueva secuencia de andado y otra que funciona al hacer hover. Yo, Andoni, tiro a canasta. Eric hace un revés de
+    tenis.» Del storyboard (`tools/r137-equipo/montar.py`): tiras de 9 celdas por persona (8 de paso + llegada de pie, alineadas por el torso y la línea
+    de pies), la pose final nueva (juntos-r137.webp, lienzo 384 × 320 del tablero a ×1,5) y 8 fotogramas de gesto por persona en ese mismo lienzo.
+    Las figuras del tablero miden ~245 px: se sirven a ×1,5 y el paseo se queda en un tamaño comedido para que no se vean blandas.
+  · RONDA 138 · Andoni: «te paso los fotogramas a mayor calidad» (tools/r138-equipo/fuente: tiras a 4×) · «como entramos hay que dejar más aire por
+    abajo» · «el titular, con el tamaño del resto de titulares». `tools/r138-equipo/montar.py`: celdas de 504 × 840 (se sirven a ~×2), pose final en DOS
+    capas (juntos-andoni.webp + juntos-eric.webp, lienzo 1092 × 840) = el primer fotograma de cada gesto, así el gesto arranca sin salto; las tiras de
+    andar se escalan a su último fotograma (de frente) = la pose final. La «05_final_pose_exact_reference» NO se usa: es un recorte de la foto real
+    (otro estilo, cortado por los muslos y con Eric casi entero fuera). El paseo acaba con la fila al 70 % de la pantalla y deja aire debajo.
+  · RONDA 140 · Andoni descarta los fotogramas generados (r137–139: «las caras se veían mal») y vuelve a los REALES de la ronda 132, ahora desde los
+    MASTERS a resolución completa (tools/r140-equipo/fuente/masters, 600 × 1000 por pose, sin ampliar; `tools/r140-equipo/montar.cjs`): tiras de 5 celdas
+    (andoni-paso-r140.webp · eric-paso-r140.webp: 4 pasos + llegada) y la pose final conjunta (juntos-r140.webp, 1200 × 1000), montadas como la v03
+    (celda = alto × 0,6, pose final = alto × 1,2, centros a 477,253 y 705,270 / 1000; paseo hasta el 94 %, celda 4 desde el 93 %, fundido 96,5–100 %).
+    Sin gestos por ahora (`gesto: []`: el gancho queda, sin hacer nada). Lo de las rondas 137–138, en tools/retirados/equipo-r139/.
   · Con movimiento reducido: la pose final, sin paseo. Los textos de cada uno son FALTA (datos de Andoni y Eric: no se inventan).
 -->
 <section id="estudio" class="surface-dark section-y relative" aria-label={estudio.pregunta} data-equipo data-sube>
   <div class="wrap flex flex-col items-center text-center">
-    <h2 class="text-h2 max-w-[18ch]" data-entra>{estudio.titulo}</h2>
+    <h2 class="text-h1 max-w-[14ch]" data-entra>{estudio.titulo}</h2>
     <p class="text-sub text-fg2 measure mt-4 lg:mt-6" data-enfoca style="--d:2">{estudio.texto}</p>
   </div>
 
@@ -26,47 +43,209 @@ const [A, E] = estudio.personas;
     <canvas class="verde" aria-hidden="true" data-verde></canvas>
     <!-- RONDA 13: una segunda capa de briznas cortas DELANTE de los pies: los dos quedan dentro de la hierba, no encima -->
     <canvas class="verde delante" aria-hidden="true" data-verde-delante></canvas>
-    <i class="andador a" aria-hidden="true" data-a></i>
-    <i class="andador e" aria-hidden="true" data-e></i>
+    <!-- RONDA 141 · tiras de 12 poses reconstruidas (tools/r141-equipo/montar.cjs): tamaño y sitio de la celda, en unidades del alto (--ch) -->
+    {[A, E].map((p, i) => (
+      <i class={`andador ${i ? 'e' : 'a'}`} aria-hidden="true" data-andador={i}
+        style={`--src:url('${p.paseo.src}');--w:${(p.paseo.celda * p.paseo.s) / 1000};--h:${(p.paseo.alto * p.paseo.s) / 1000};--top:${p.paseo.arriba / 1000}`}
+        data-izq={p.paseo.izq} data-s={p.paseo.s}></i>
+    ))}
     <div class="juntos" data-juntos>
-      <img class="mitad ma" src="/media/equipo/juntos.webp" alt="" width="272" height="487" loading="lazy" decoding="async" />
-      <img class="mitad me" src="/media/equipo/juntos.webp" alt="Andoni y Eric, de pie, uno junto al otro" width="272" height="487" loading="lazy" decoding="async" />
+      <img class="mitad ma" src="/media/equipo/juntos-r140.webp" alt="" width="1200" height="1000" loading="lazy" decoding="async" />
+      <img class="mitad me" src="/media/equipo/juntos-r140.webp" alt="Andoni y Eric, de pie, uno junto al otro" width="1200" height="1000" loading="lazy" decoding="async" />
+      <!-- RONDA 129 · Andoni: «que el nombre salga como el de la silla, lo de sentarse, y cuando hagamos hover en uno de los dos cada uno hará
+           un gesto característico (los fotogramas llegarán) y saldrán sus hobbies como cayendo de su nombre».
+           · Cada uno: un punto en el pecho, la línea a 45° y su nombre (la llamada de «Sentarse»); todo ello es el botón. Andoni, hacia la
+             izquierda; Eric, hacia la derecha.
+           · Al pasar (ratón), enfocar (teclado) o tocar (dedo): caen sus aficiones del nombre, el otro se retira un poco y, si tiene fotogramas
+             (`estudio.personas[].gesto`), se reproduce su gesto sobre su mitad de la pose final.
+           · Las mitades de la figura también responden al ratón y al toque (no son botones: el botón es la llamada). -->
+      {[A, E].map((p, i) => <span class={`zona z${i}`} aria-hidden="true" data-zona={i}></span>)}
       {
         [A, E].map((p, i) => (
-          <button type="button" class={`quien q${i}`} aria-expanded="false" data-quien={i}>
-            <span class="sr-only">{p.n}</span>
-            <span class="nota" aria-hidden="false">
-              <svg class="hilo" viewBox="0 0 120 40" fill="none" aria-hidden="true"><path d={i === 0 ? 'M118 38L84 4H2' : 'M2 38L36 4H118'} pathLength="1" /></svg>
-              <span class="cuerpo">
-                <span class="font-display text-h3 block">{p.n}</span>
-                <span class="falta text-fg2 mt-2">FALTA · {p.falta}</span>
-              </span>
-            </span>
-          </button>
+          <div class={`persona p${i}`}>
+            <button type="button" class="llamada-q" aria-expanded="false" aria-controls={`aficiones-${i}`} aria-label={`${p.n}: sus aficiones`} data-quien={i} data-gesto-src={JSON.stringify(p.gesto)}>
+              <i class="punto" aria-hidden="true"></i>
+              <svg class="linea" viewBox="0 0 120 64" fill="none" aria-hidden="true"><path d="M2 62L58 6H118" pathLength="1" /></svg>
+              <span class="nombre detail detail-caps">{p.n}</span>
+            </button>
+            <ul class="aficiones" id={`aficiones-${i}`} aria-label={`Aficiones de ${p.n}`} data-aficiones={i}>
+              {p.hobbies.map((h, k) => <li style={`--k:${k}`}>{h}</li>)}
+            </ul>
+          </div>
         ))
       }
     </div>
   </div>
-  <!-- el aviso: que se sepa que cada uno tiene algo que contar -->
-  <p class="aviso detail text-fg2 mt-6 text-center" aria-hidden="true"><i class="pulso" /><span class="con-raton">Pasa el cursor por cada uno</span><span class="sin-raton">Toca a cada uno</span></p>
 </section>
 
 <script>
   import { estacionActual } from "../scripts/estacion";
   const raiz = document.querySelector<HTMLElement>('[data-equipo]');
   if (raiz) {
-    const paseo = raiz.querySelector<HTMLElement>('[data-paseo]')!, a = raiz.querySelector<HTMLElement>('[data-a]')!, e = raiz.querySelector<HTMLElement>('[data-e]')!;
+    const paseo = raiz.querySelector<HTMLElement>('[data-paseo]')!, [a, e] = [...raiz.querySelectorAll<HTMLElement>('[data-andador]')];
     const juntos = raiz.querySelector<HTMLElement>('[data-juntos]')!, quienes = [...raiz.querySelectorAll<HTMLButtonElement>('[data-quien]')];
+    const zonas = [...raiz.querySelectorAll<HTMLElement>('[data-zona]')], listas = [...raiz.querySelectorAll<HTMLElement>('[data-aficiones]')];
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // descripciones: una abierta cada vez
-    const abrir = (i: number | null) => { quienes.forEach((b, k) => b.setAttribute('aria-expanded', String(k === i))); juntos.dataset.mira = i === null ? '' : String(i); };
-    quienes.forEach((b, i) => {
-      b.addEventListener('pointerenter', (ev) => ev.pointerType === 'mouse' && abrir(i));
-      b.addEventListener('pointerleave', (ev) => ev.pointerType === 'mouse' && abrir(null));
-      b.addEventListener('focus', () => abrir(i));
-      b.addEventListener('blur', () => abrir(null));
-      b.addEventListener('click', () => abrir(b.getAttribute('aria-expanded') === 'true' ? null : i));
+    // ronda 141 · 12 poses por persona: 9 de paso (1–9, en ciclo, elegidas por lo andado) y 3 de giro a cámara (10–12, atadas al final del paseo).
+    // El sitio de la celda a la llegada (izq, en unidades de la foto de 1200 × 1000) y su escala (s: unidades por px nativo) los mide montar.cjs:
+    // el 12 cae sobre la figura de la foto (alto + máximo solape), así el fundido a la foto no salta.
+    const CICLO = 9, CELDAS = 12, ZANCADA = 42; // px nativos por pose (un ciclo de dos pasos ≈ 380 px de la pose)
+    const IZQ = [a, e].map((el) => +el.dataset.izq!), ESC = [a, e].map((el) => +el.dataset.s!);
+
+    // ── RONDA 129 · LAS AFICIONES CAEN DEL NOMBRE. Cada píldora sale del nombre (medido: dx, dy hasta su sitio final), cae acelerando como algo
+    //    con peso, se posa SIN rebote (frena en el último tramo) y queda casi recta, con un giro mínimo («nada que reste seriedad»). Al cerrar,
+    //    suben un poco y se apagan. Con movimiento reducido, aparecen sin caer.
+    const GIRO = [-1.2, 0.8, -0.5, 1, -0.8];
+    const caer = (i: number) => {
+      const ul = listas[i], nombre = quienes[i].querySelector<HTMLElement>('.nombre')!;
+      ul.getAnimations({ subtree: true }).forEach((an) => an.cancel());
+      ul.classList.add('abierta');
+      if (reducido) return;
+      const n = nombre.getBoundingClientRect(), cx = n.left + n.width / 2, cy = n.top + n.height / 2;
+      [...ul.children].forEach((li, k) => {
+        const r = (li as HTMLElement).getBoundingClientRect(), g = GIRO[k % GIRO.length];
+        const dx = cx - (r.left + r.width / 2), dy = cy - (r.top + r.height / 2);
+        const t = 620 + k * 60, giro0 = g * 6;
+        li.animate(
+          [
+            { transform: `translate(${dx}px, ${dy}px) rotate(${giro0}deg) scale(.86)`, opacity: 0, easing: 'cubic-bezier(.55,0,.85,.45)' },
+            { offset: 0.12, opacity: 1 },
+            { offset: 0.74, transform: `translate(0px, -3px) rotate(${g.toFixed(2)}deg) scale(1)`, easing: 'cubic-bezier(.2,.7,.3,1)' },
+            { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 }, // el giro final lo pone el CSS (`rotate`): sin salto al terminar
+          ],
+          { duration: t, delay: 40 + k * 110, fill: 'backwards' },
+        );
+      });
+    };
+    const recoger = (i: number) => {
+      const ul = listas[i];
+      if (!ul.classList.contains('abierta')) return;
+      ul.getAnimations({ subtree: true }).forEach((an) => an.cancel());
+      if (reducido) { ul.classList.remove('abierta'); return; }
+      const ans = [...ul.children].map((li, k) =>
+        li.animate([{ opacity: 1 }, { transform: 'translateY(-8px)', opacity: 0 }], { duration: 220, delay: k * 30, easing: 'ease-in', fill: 'forwards' }),
+      );
+      Promise.all(ans.map((an) => an.finished)).then(() => { ul.classList.remove('abierta'); ans.forEach((an) => an.cancel()); }, () => {});
+    };
+
+    // ── EL GESTO (ronda 141: 12 poses reconstruidas por persona; Andoni tira a canasta, Eric hace un revés). `estudio.personas[i].gesto` = lista de
+    //    {src, x, y, w, h}: cada fotograma recortado a su silueta, nativo, y su caja en % de la pose final (montar.cjs: 01 y 12 encajados sobre la foto).
+    //    Al pasar / enfocar / tocar: fundido de 120 ms de su mitad de la foto al 01, las 12 poses UNA vez a 11 fps y fundido de 120 ms del 12 a la foto.
+    //    Si el puntero se va a mitad, el gesto TERMINA (no se invierte ni se corta); volver a pasar mientras dura no lo reinicia. Cada uno, el suyo.
+    //    Con movimiento reducido, no se reproduce. Sonda: window.__gesto(i, f) pinta el fotograma f (−1 = la foto) sin reloj.
+    type Marco = { src: string; x: number; y: number; w: number; h: number };
+    const FPS = 11, FUNDE = 120;
+    const gestos = quienes.map((b, i) => {
+      let src: Marco[] = [];
+      try { src = JSON.parse(b.dataset.gestoSrc || '[]'); } catch {}
+      if (!src.length) return null;
+      const caja = document.createElement('div');
+      caja.className = `gesto g${i}`; caja.setAttribute('aria-hidden', 'true');
+      juntos.appendChild(caja);
+      return { src, caja, imgs: [] as HTMLImageElement[], cargados: null as Promise<unknown> | null, reloj: 0, va: false, saliendo: false };
     });
+    const precargar = (g: NonNullable<(typeof gestos)[number]>) =>
+      (g.cargados ??= Promise.all(g.src.map((m) => {
+        const im = document.createElement('img'); im.alt = ''; im.decoding = 'async'; im.src = m.src;
+        Object.assign(im.style, { left: `${m.x}%`, top: `${m.y}%`, width: `${m.w}%`, height: `${m.h}%` });
+        g.imgs.push(im); g.caja.appendChild(im);
+        return im.decode().catch(() => {});
+      })));
+    const ver = (g: NonNullable<(typeof gestos)[number]>, f: number) => g.imgs.forEach((im, k) => im.classList.toggle('on', k === f));
+    const mitades = [juntos.querySelector<HTMLElement>('.ma')!, juntos.querySelector<HTMLElement>('.me')!];
+    // la mitad de la foto se esconde / vuelve SIN transición (el fundido lo hace la capa del gesto, que va encima)
+    const mitad = (i: number, oculta: boolean) => {
+      const m = mitades[i]; m.style.transition = 'none'; juntos.classList.toggle(`oculta-${i}`, oculta);
+      void m.offsetWidth; requestAnimationFrame(() => { m.style.transition = ''; });
+    };
+    // RONDA 142 · «cerciorarse de que no se reproducen los 2»: nunca dos gestos a la vez. Si se mira al otro mientras el primero aún dura, el segundo
+    // ESPERA (pendiente) y arranca cuando el primero empieza su fundido de vuelta a la foto (los dos fundidos de 120 ms se cruzan; nada más).
+    let pendiente: number | null = null;
+    const ocupado = (i: number) => { const o = gestos[1 - i]; return !!o && o.va && !o.saliendo; };
+    const soltarPendiente = () => {
+      const k = pendiente; pendiente = null;
+      if (k !== null && juntos.dataset.mira === String(k)) tocarGesto(k);
+    };
+    const tocarGesto = (i: number) => {
+      const g = gestos[i]; if (!g || reducido || g.va) return;
+      if (ocupado(i)) { pendiente = i; return; }
+      precargar(g).then(() => {
+        if (g.va || juntos.dataset.mira !== String(i)) return;
+        if (ocupado(i)) { pendiente = i; return; }
+        g.va = true; g.saliendo = false;
+        ver(g, 0);
+        juntos.classList.add(`ve-gesto-${i}`);
+        // un solo reloj, que empieza en el PRIMER fotograma pintado (no en la promesa: el primer pintado puede tardar). La opacidad de la capa la
+        // lleva él (no una transición CSS): la mitad de la foto solo se esconde cuando la capa ya cubre del todo.
+        const dura = (g.src.length / FPS) * 1000;
+        let t0 = -1, oculta = false, saliendo = false;
+        const paso = (ahora: number) => {
+          if (t0 < 0) t0 = ahora;
+          const t = ahora - t0;
+          if (t < FUNDE) { g.caja.style.opacity = String(t / FUNDE); g.reloj = requestAnimationFrame(paso); return; }
+          if (!oculta) { g.caja.style.opacity = '1'; mitad(i, true); oculta = true; }
+          if (t < FUNDE + dura) { ver(g, Math.min(g.src.length - 1, Math.floor(((t - FUNDE) / 1000) * FPS))); g.reloj = requestAnimationFrame(paso); return; }
+          if (!saliendo) { saliendo = true; g.saliendo = true; ver(g, g.src.length - 1); mitad(i, false); soltarPendiente(); } // la foto vuelve DEBAJO del 12, que se funde
+          const k = (t - FUNDE - dura) / FUNDE;
+          if (k < 1) { g.caja.style.opacity = String(1 - k); g.reloj = requestAnimationFrame(paso); return; }
+          g.caja.style.opacity = '0'; juntos.classList.remove(`ve-gesto-${i}`); g.va = false; g.saliendo = false;
+        };
+        g.reloj = requestAnimationFrame(paso);
+      });
+    };
+    (window as any).__gesto = (i: number, f: number) => {
+      const g = gestos[i]; if (!g) return Promise.resolve(false);
+      return precargar(g).then(() => {
+        cancelAnimationFrame(g.reloj); g.va = false; g.saliendo = false;
+        if (f < 0) { mitad(i, false); g.caja.style.opacity = '0'; juntos.classList.remove(`ve-gesto-${i}`); return true; }
+        ver(g, f); g.caja.style.opacity = '1'; juntos.classList.add(`ve-gesto-${i}`); mitad(i, true); return true;
+      });
+    };
+
+    // una abierta cada vez
+    let abierta: number | null = null;
+    const abrir = (i: number | null) => {
+      if (i === abierta) return;
+      if (abierta !== null) recoger(abierta); // ronda 141: el gesto en marcha termina solo
+      abierta = i;
+      if (pendiente !== i) pendiente = null;
+      quienes.forEach((b, k) => b.setAttribute('aria-expanded', String(k === i)));
+      juntos.dataset.mira = i === null ? '' : String(i);
+      if (i !== null) { caer(i); tocarGesto(i); }
+    };
+    // ronda 128: con el dedo, tocar enfoca (abre) y en el mismo gesto llega el clic: si el foco acaba de abrirla, el clic no la cierra
+    let abiertaEn = 0;
+    quienes.forEach((b, i) => {
+      b.addEventListener('focus', () => { if (raton !== i) { abrir(i); abiertaEn = performance.now(); } });
+      b.addEventListener('blur', () => { if (raton === null) abrir(null); });
+      b.addEventListener('click', () => { if (performance.now() - abiertaEn < 400) return; abrir(abierta === i ? null : i); });
+    });
+    // ── RONDA 142 · EL RATÓN: una sola decisión para los dos. Antes cada zona y cada llamada tenía su pointerenter/leave: al pasar de la figura de Eric
+    //    a su nombre (otro elemento) saltaba leave → enter y el gesto volvía a empezar «al dejar de hacer hover»; y al cruzar de uno a otro, el
+    //    primero aún sonaba cuando arrancaba el segundo. Ahora `.juntos` escucha el movimiento y decide quién está debajo: su llamada (punto, línea y
+    //    nombre) cuenta como suya; sobre las figuras manda el TORSO más cercano (frontera a mitad de los dos pechos, 38 % y 54 % de la foto, con un
+    //    margen de histéresis para que no parpadee en la raya). Solo un cambio de persona abre o cierra: una vez por entrada.
+    const FRONTERA = 0.46, HIST = 0.015;
+    let raton: number | null = null;
+    const dentro = (r: DOMRect, x: number, y: number) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    const quienEn = (x: number, y: number): number | null => {
+      for (const k of [0, 1]) if (dentro(quienes[k].getBoundingClientRect(), x, y)) return k;
+      const j = juntos.getBoundingClientRect(), a0 = zonas[0].getBoundingClientRect(), a1 = zonas[1].getBoundingClientRect();
+      if (y < j.top || y > j.bottom || x < a0.left || x > a1.right) return null;
+      const f = (x - j.left) / j.width, lim = FRONTERA + (raton === 0 ? HIST : raton === 1 ? -HIST : 0);
+      return f < lim ? 0 : 1;
+    };
+    const mirar = (k: number | null) => { if (k === raton) return; raton = k; abrir(k); };
+    juntos.addEventListener('pointermove', (ev) => { if (ev.pointerType === 'mouse') mirar(quienEn(ev.clientX, ev.clientY)); }, { passive: true });
+    juntos.addEventListener('pointerleave', (ev) => { if (ev.pointerType === 'mouse') mirar(null); });
+    // las mitades de la figura con el dedo: tocar abre (no son botones: no cogen el foco)
+    let tipo = '';
+    zonas.forEach((z, i) => {
+      z.addEventListener('pointerdown', (ev) => { tipo = ev.pointerType; });
+      z.addEventListener('click', () => { if (tipo === 'mouse') return; abiertaEn = performance.now(); abrir(abierta === i ? null : i); });
+    });
+    // con el dedo, tocar fuera de los dos la cierra
+    document.addEventListener('pointerdown', (ev) => { if (ev.pointerType !== 'mouse' && abierta !== null && !juntos.contains(ev.target as Node)) abrir(null); }, { passive: true });
     // ── la vegetación (ronda 13 · «tiene que ser mucho más sintetizada con el fondo y orgánica; ahora parece un pegote»):
     //   · COLOR: los de la acuarela del hero (oliva, ocre, hoja seca, nogal), nunca verde saturado; cada brizna con su propia opacidad.
     //   · FORMA: briznas afiladas (un relleno que se estrecha hasta la punta), curvas, de grosor y altura desiguales; en MATAS, no en fila.
@@ -158,22 +337,38 @@ const [A, E] = estudio.personas;
       let visible = false, pedido = false, ult = -1;
       const pintar = () => {
         pedido = false;
-        const r = paseo.getBoundingClientRect(), vh = innerHeight, W = r.width, cw = a.offsetWidth;
-        const lin = Math.min(1, Math.max(0, (vh * 0.96 - r.top) / (vh * 0.66)));
-        if (Math.abs(lin - ult) < 0.001) return;
+        // RONDA 132 · secuencia v03 (LEEME): celdas de 600×1000 con su margen transparente (no se recorta: mantiene la escala) y pose final de
+        // 1200×1000. Celda y pose final, MISMO alto (--ch) y mismo borde superior: celda = alto × 0,6, pose final = alto × 1,2. Los centros de las
+        // celdas acaban en x = 477,253 (Andoni) y 705,270 (Eric) del lienzo de la pose final. El paseo acaba al 94 %; la celda 4 (de frente), desde
+        // el 93 %; el fundido al reposo, del 96,5 al 100 %, sin tocar escala ni posición.
+        const r = paseo.getBoundingClientRect(), vh = innerHeight, W = r.width, ch = paseo.offsetHeight, fw = ch * 1.2;
+        // ronda 138 · «hay que dejar más aire por abajo»: empieza al asomar la fila (su borde de arriba al 96 %) y acaba con su borde de ABAJO al 70 % de la
+        // pantalla (antes, con el de arriba al 30 %: con la fila más alta, la sección siguiente ya asomaba). Debajo queda el margen de .paseo.
+        const lin = Math.min(1, Math.max(0, (vh * 0.96 - r.top) / (vh * 0.26 + ch)));
+        if (Math.abs(lin - ult) < 0.0005) return;
         ult = lin;
-        // el último 20 % frena
-        const p = lin < 0.8 ? lin : 0.8 + (1 - Math.pow(1 - (lin - 0.8) / 0.2, 2)) * 0.2;
-        const fw = juntos.offsetWidth;
-        const xa0 = -cw * 1.1, xa1 = W / 2 - fw * 0.27 - cw / 2, xe0 = W + cw * 0.1, xe1 = W / 2 + fw * 0.23 - cw / 2;
+        // el paseo acaba al 94 %; su último 20 % frena
+        const tr = Math.min(1, lin / 0.94), p = tr < 0.8 ? tr : 0.8 + (1 - Math.pow(1 - (tr - 0.8) / 0.2, 2)) * 0.2;
+        const jl = W / 2 - fw / 2;
+        const wa = a.offsetWidth, we = e.offsetWidth;
+        const xa0 = -wa, xa1 = jl + (IZQ[0] * ch) / 1000, xe0 = W, xe1 = jl + (IZQ[1] * ch) / 1000;
         const xa = xa0 + (xa1 - xa0) * p, xe = xe0 + (xe1 - xe0) * p;
-        const paso = cw * 0.2, gira = lin > 0.93;
-        a.style.transform = `translateX(${xa.toFixed(1)}px)`; e.style.transform = `translateX(${xe.toFixed(1)}px)`;
-        a.style.backgroundPositionX = `${(gira ? 4 : Math.floor((xa - xa0) / paso) % 4) * 25}%`;
-        e.style.backgroundPositionX = `${(gira ? 4 : Math.floor((xe0 - xe) / paso) % 4) * 25}%`;
-        xaU = xa + cw / 2; xeU = xe + cw / 2; avanceU = lin; // ronda 28: la estela se desvanece con el avance
+        // ronda 141: una pose cada ZANCADA px nativos andados (no patinan); el giro a cámara (10–12), del 90 al 95,5 % del recorrido
+        const giro = () => CELDAS - 3 + Math.min(2, Math.floor(((lin - 0.9) / 0.055) * 3));
+        const ia = lin >= 0.9 ? giro() : Math.floor((xa - xa0) / ((ZANCADA * ESC[0] * ch) / 1000)) % CICLO;
+        const ie = lin >= 0.9 ? giro() : Math.floor((xe0 - xe) / ((ZANCADA * ESC[1] * ch) / 1000)) % CICLO;
+        a.style.transform = `translateX(${xa.toFixed(2)}px)`; e.style.transform = `translateX(${xe.toFixed(2)}px)`;
+        a.style.backgroundPositionX = `${(ia * 100) / (CELDAS - 1)}%`;
+        e.style.backgroundPositionX = `${(ie * 100) / (CELDAS - 1)}%`;
+        raiz.dataset.poses = `${ia},${ie}`;
+        // fundido al reposo: los andadores se van y la pose final llega, en el mismo sitio y a la misma escala
+        const f = lin <= 0.965 ? 1 : Math.max(0, 1 - (lin - 0.965) / 0.035);
+        a.style.opacity = e.style.opacity = String(f);
+        juntos.style.opacity = String(1 - f);
+        xaU = xa + wa / 2; xeU = xe + we / 2; avanceU = lin; // ronda 28: la estela se desvanece con el avance
         raiz.classList.toggle('llegaron', lin >= 0.985);
-        if (lin < 0.985) abrir(null);
+        if (lin >= 0.9) gestos.forEach((g) => g && precargar(g));
+        if (lin < 0.985 && performance.now() - abiertaEn > 800) { abrir(null); raton = null; } // ronda 128: el toque que la abre mueve la página un poco: no la cierra
       };
       const pedir = () => { if (visible && !pedido) { pedido = true; requestAnimationFrame(pintar); } };
       new IntersectionObserver((en) => { visible = en[0].isIntersecting; pedir(); }, { rootMargin: '10% 0px' }).observe(paseo);
@@ -186,10 +381,14 @@ const [A, E] = estudio.personas;
 
 <style>
   .paseo {
-    --ch: clamp(15rem, 34vw, 25rem); /* alto de la celda de cada fotograma (400 px en el original) */
+    --ch: clamp(16rem, 34vw, 26rem); /* alto de la pose final (ronda 141: las poses reconstruidas son nativas, figuras de 333–475 px; a 26rem las figuras miden
+      ~360–380 px CSS: ≤ 1,1× nativo a DPR 1, nunca más grandes de lo que dan) */
     position: relative;
     height: var(--ch);
-    overflow: clip;
+    overflow-x: clip; /* ronda 126: por abajo no recorta (ahí va el pie de foto) */
+    overflow-y: visible;
+    /* ronda 138: aire debajo para que, al acabar el paseo (fila al 70 %), la sección siguiente no asome: ≥ 30 % de la pantalla con el relleno de la sección */
+    margin-bottom: max(calc(var(--spacing) * 12), calc(36lvh - var(--space-section)));
   }
   .verde {
     position: absolute;
@@ -237,32 +436,31 @@ const [A, E] = estudio.personas;
     from { transform: scale(0.5); opacity: 0.9; }
     to { transform: scale(1.6); opacity: 0; }
   }
-  /* cada andador: una tira de 5 celdas (4 pasos + girando); el JS elige la celda según lo andado */
+  /* cada andador: una tira de 12 celdas (ronda 141: 9 de paso + 3 de giro); tamaño y sitio en unidades de --ch (montar.cjs); el JS elige la celda */
   .andador {
     position: absolute;
     left: 0;
-    bottom: 0;
-    width: calc(var(--ch) * 230 / 400);
-    height: var(--ch);
-    background-size: 500% 100%;
+    top: calc(var(--ch) * var(--top));
+    width: calc(var(--ch) * var(--w));
+    height: calc(var(--ch) * var(--h));
+    background-image: var(--src);
+    background-size: 1200% 100%;
     background-repeat: no-repeat;
     /* Regla dura 3: los coloca el JS → por defecto, fuera de la vista */
     transform: translateX(-200%);
-    transition: opacity 0.35s ease;
+    will-change: transform;
   }
-  .andador.a { background-image: url('/media/equipo/andoni.webp'); }
-  .andador.e { background-image: url('/media/equipo/eric.webp'); }
-  /* la pose final: a la MISMA escala que los fotogramas (Eric mide 342 px en su celda de 400 y 487 en la pose final) */
+  /* la pose final (1200×1000): MISMO alto y mismo borde superior que las celdas; ancho = alto × 1,2, centrada. Su opacidad la lleva el scroll
+     (fundido del 96,5 al 100 %); sin JS o con movimiento reducido, la pone .llegaron */
   .juntos {
     position: absolute;
     left: 50%;
-    bottom: calc(var(--ch) * 4 / 400);
-    height: calc(var(--ch) * 342 / 400);
-    aspect-ratio: 272 / 487;
+    bottom: 0;
+    height: var(--ch);
+    aspect-ratio: 1200 / 1000; /* ronda 140: pose final v03 */
     translate: -50% 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.35s ease;
   }
   .llegaron .juntos {
     opacity: 1;
@@ -281,88 +479,197 @@ const [A, E] = estudio.personas;
       filter 0.5s var(--ease-out-expo);
   }
   /* la pose final va dos veces, recortada por la mitad, para poder retirar a uno cuando se mira al otro */
-  .ma { clip-path: inset(0 54% 0 0); }
-  .me { clip-path: inset(0 0 0 46%); }
+  /* ronda 140: la misma foto dos veces, partida por donde no se tocan (las manos: en x 566 hasta y 560 y en x 590 por debajo, de 1200 × 1000) */
+  .ma { clip-path: polygon(0 0, 47.17% 0, 47.17% 56%, 49.17% 56%, 49.17% 100%, 0 100%); }
+  .me { clip-path: polygon(47.17% 0, 100% 0, 100% 100%, 49.17% 100%, 49.17% 56%, 47.17% 56%); }
   .juntos[data-mira='0'] .me,
   .juntos[data-mira='1'] .ma {
-    opacity: 0.3;
-    filter: blur(2px);
+    opacity: 0.45; /* ronda 129: el otro se retira, un poco */
+    filter: blur(1.5px);
   }
-  .quien {
+  /* ── RONDA 129 · LAS LLAMADAS: un punto en el pecho de cada uno, la línea a 45° y el nombre (la llamada de «Sentarse» de Proyectos).
+     Viven en coordenadas de la pose final (.juntos). La caja del botón va del punto a la palabra: área de clic y anillo de foco reales. */
+  .juntos {
+    --lw: 120px; /* ancho de la línea (diagonal + tramo recto) */
+    --lh: 64px;
+  }
+  .persona {
     position: absolute;
-    top: 0;
+    width: 0;
+    height: 0;
+  }
+  .p0 { left: 38%; top: 33%; } /* el pecho de Andoni (ronda 140, medido en juntos-r140: 456 · 330 de 1200 × 1000) */
+  .p1 { left: 54%; top: 33%; } /* el de Eric, sobre la sobrecamisa (648 · 330): en la camiseta blanca el punto no se veía */
+  .llamada-q {
+    position: absolute;
+    left: 0;
     bottom: 0;
-    width: 50%;
-    cursor: default;
-    outline-offset: -4px;
+    width: calc(var(--lw) + 8px + 4.5em);
+    height: var(--lh);
+    color: var(--fg);
+    cursor: pointer;
+    outline-offset: 4px;
   }
-  .q0 { left: 0; }
-  .q1 { right: 0; }
-  /* LA NOTA: línea de llamada desde el hombro hacia fuera, y el nombre con su descripción. Mismo recurso que «Sentarse». */
-  .nota {
+  .p0 .llamada-q { left: auto; right: 0; }
+  .punto {
     position: absolute;
-    top: 14%;
-    width: min(18rem, 34vw);
-    text-align: left;
-    pointer-events: none;
+    left: 0;
+    bottom: 0;
+    width: 8px;
+    height: 8px;
+    margin: -4px;
+    border-radius: var(--radius-full);
+    background: currentColor;
+    scale: 0;
+    transition: scale 0.5s var(--ease-out-expo) 0.3s;
   }
-  .q0 .nota { right: calc(100% - var(--spacing) * 2); }
-  .q1 .nota { left: calc(100% - var(--spacing) * 2); }
-  .hilo {
-    display: block;
-    width: 120px;
-    height: 40px;
+  .p0 .punto { left: auto; right: 0; }
+  .punto::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: inherit;
+    border: 1px solid currentColor;
+    animation: latido 2.6s var(--ease-out-expo) infinite;
+  }
+  @keyframes latido {
+    from { transform: scale(0.5); opacity: 0.9; }
+    to { transform: scale(1.5); opacity: 0; }
+  }
+  .linea {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--lw);
+    height: var(--lh);
     overflow: visible;
   }
-  .q0 .hilo { margin-left: auto; }
-  .hilo path {
-    stroke: var(--fg);
+  .p0 .linea { left: auto; right: 0; scale: -1 1; } /* Andoni: hacia la izquierda */
+  .linea path {
+    stroke: currentColor;
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    transition: stroke-dashoffset 0.5s var(--ease-out-expo);
+    transition: stroke-dashoffset 0.9s var(--ease-out-expo) 0.5s;
   }
-  .cuerpo {
-    display: block;
-    margin-top: calc(var(--spacing) * -12);
+  .nombre {
+    position: absolute;
+    left: calc(var(--lw) + 8px);
+    top: 0;
+    line-height: calc(var(--lh) * 12 / 64); /* la línea llega a y = 6 de 64: el centro del nombre cae ahí */
+    white-space: nowrap;
+    color: var(--fg);
     opacity: 0;
-    filter: blur(8px);
-    transition:
-      opacity 0.4s ease,
-      filter 0.6s var(--ease-out-expo);
+    transition: opacity 0.6s ease 1s;
   }
-  .q0 .cuerpo { margin-right: calc(var(--spacing) * 32); text-align: right; }
-  .q1 .cuerpo { margin-left: calc(var(--spacing) * 32); }
-  .quien[aria-expanded='true'] .hilo path {
-    stroke-dashoffset: 0;
+  .p0 .nombre { left: auto; right: calc(var(--lw) + 8px); }
+  .llegaron .punto { scale: 1; }
+  .llegaron .linea path { stroke-dashoffset: 0; }
+  .llegaron .nombre { opacity: 1; }
+  /* RONDA 136 · sin subrayado al pasar: el nombre se aviva */
+  .llamada-q .nombre { transition: opacity 0.35s ease; }
+  .llamada-q:not(:hover):not([aria-expanded='true']) .nombre { opacity: 0.82; }
+  /* las mitades de la figura: zonas de ratón y de toque (no son botones) */
+  .zona {
+    position: absolute;
+    top: 0;
+    bottom: 0;
   }
-  .quien[aria-expanded='true'] .cuerpo {
-    opacity: 1;
-    filter: none;
-    transition-delay: 0.18s;
+  /* solo donde está la figura de cada uno (ronda 140: Andoni 355–590, Eric 566–848 de 1200; se reparten por la línea de las manos, x ≈ 570) */
+  .z0 { left: 29.5%; width: 18%; }
+  .z1 { left: 47.5%; width: 23.3%; }
+
+  /* ── LAS AFICIONES: cuelgan del nombre hacia fuera de la figura. El JS las hace caer desde el nombre (WAAPI); aquí, su sitio final. */
+  .aficiones {
+    position: absolute;
+    top: calc(var(--lh) * -0.62);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+    visibility: hidden;
   }
-  /* móvil: no hay sitio a los lados → la nota sale DEBAJO de los dos */
+  .p0 .aficiones { right: calc(var(--lw) + 8px); align-items: flex-end; }
+  .p1 .aficiones { left: calc(var(--lw) + 8px); align-items: flex-start; }
+  .aficiones.abierta { visibility: visible; }
+  .aficiones li {
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, var(--noche) 70%, transparent);
+    color: var(--fg2);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  /* sueltas: cada una cae un poco desplazada de la anterior */
+  .p0 .aficiones li:nth-child(2) { margin-right: calc(var(--spacing) * 3); }
+  .p0 .aficiones li:nth-child(3) { margin-right: calc(var(--spacing) * 1); }
+  .p1 .aficiones li:nth-child(2) { margin-left: calc(var(--spacing) * 3); }
+  .p1 .aficiones li:nth-child(3) { margin-left: calc(var(--spacing) * 1); }
+  .aficiones.abierta li:nth-child(1) { rotate: -1.2deg; }
+  .aficiones.abierta li:nth-child(2) { rotate: 0.8deg; }
+  .aficiones.abierta li:nth-child(3) { rotate: -0.5deg; }
+
+  /* el gesto (ronda 141): una capa por persona sobre la pose final, con sus 12 fotogramas en su caja (inline, % de .juntos); entra y sale en 120 ms.
+     Mientras dura, su mitad de la foto se esconde sin transición (la capa ya la cubre). Sin recorte: el brazo puede salirse de su mitad. */
+  :global(.gesto) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: filter 0.5s var(--ease-out-expo); /* la opacidad la lleva el reloj del gesto */
+  }
+  :global(.gesto img) {
+    position: absolute;
+    max-width: none;
+    visibility: hidden;
+  }
+  :global(.gesto img.on) { visibility: visible; }
+  .juntos:global(.oculta-0) .ma,
+  .juntos:global(.oculta-1) .me { opacity: 0; }
+  /* si mientras uno termina su gesto se mira al otro, también se retira */
+  .juntos[data-mira='1'] :global(.gesto.g0),
+  .juntos[data-mira='0'] :global(.gesto.g1) { filter: blur(1.5px) opacity(0.45); }
+  /* mientras dura, el punto de su pecho se esconde (el cuerpo se mueve: el punto se quedaría flotando) */
+  .juntos:global(.ve-gesto-0) .p0 .punto,
+  .juntos:global(.ve-gesto-1) .p1 .punto { opacity: 0; transition: opacity 0.15s ease; }
+
+  /* móvil: la línea, más corta; las aficiones caen DEBAJO de la pareja, centradas (a los lados no caben) */
   @media (width < 64rem) {
     .paseo {
-      margin-bottom: calc(var(--spacing) * 32);
-      overflow: visible;
-      overflow-x: clip;
+      margin-bottom: max(calc(var(--spacing) * 32 + var(--spacing) * 16), calc(36lvh - var(--space-section))); /* sitio para las aficiones, que caen debajo */
     }
-    .nota {
+    .juntos {
+      --lw: 64px;
+      --lh: 40px;
+    }
+    .persona { position: static; }
+    .llamada-q { left: 54%; top: 33%; bottom: auto; translate: 0 -100%; }
+    .p0 .llamada-q { left: 38%; top: 33%; right: auto; translate: -100% -100%; }
+    .aficiones {
       top: calc(100% + var(--spacing) * 4);
-      width: min(20rem, 84vw);
+      left: 50%;
+      translate: -50% 0;
+      align-items: center;
     }
-    /* centrada bajo los dos: el centro de la pareja es el borde derecho del botón de Andoni y el izquierdo del de Eric */
-    .q0 .nota { right: auto; left: 100%; translate: -50% 0; }
-    .q1 .nota { left: 0; right: auto; translate: -50% 0; }
-    .hilo { display: none; }
-    .cuerpo,
-    .q0 .cuerpo,
-    .q1 .cuerpo { margin: 0; text-align: center; }
+    .p0 .aficiones { right: auto; align-items: center; }
+    .p1 .aficiones { left: 50%; align-items: center; }
+    .p0 .aficiones li:nth-child(n),
+    .p1 .aficiones li:nth-child(n) { margin: 0; }
+    .p0 .aficiones li:nth-child(2), .p1 .aficiones li:nth-child(2) { margin-left: calc(var(--spacing) * 6); }
+    .p0 .aficiones li:nth-child(3), .p1 .aficiones li:nth-child(3) { margin-right: calc(var(--spacing) * 4); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .andador, .juntos, .mitad, .cuerpo, .hilo path, .aviso { transition: none; }
+    .andador, .juntos, .mitad, .punto, .linea path, .nombre, .aviso { transition: none; }
+    .punto::after { animation: none; }
     .pulso::after { animation: none; }
   }
 </style>

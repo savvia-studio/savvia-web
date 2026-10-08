@@ -1,7 +1,8 @@
 ---
 import { preguntas, pie } from '../data/home';
-const CARA = ['/media/equipo/cara-andoni.webp', '/media/equipo/cara-eric.webp'];
+const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara-eric-transparente.webp'];
 const NOMBRE = ['Andoni', 'Eric'];
+import { flecha } from '../lib/flecha';
 ---
 
 <!--
@@ -53,7 +54,7 @@ const NOMBRE = ['Andoni', 'Eric'];
         <form class="compositor" data-libre novalidate>
           <label for="otra" class="sr-only">{preguntas.libre.etiqueta}</label>
           <input id="otra" name="otra" type="text" autocomplete="off" maxlength="160" placeholder="Escribe otra pregunta…" class="campo text-ui" aria-describedby="otra-ayuda" />
-          <button type="submit" class="mandar" aria-label={preguntas.libre.boton}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v11h13M13 10l5 5-5 5" /></svg></button>
+          <button type="submit" class="mandar" aria-label={preguntas.libre.boton}><Fragment set:html={flecha()} /></button>
         </form>
         <p id="otra-ayuda" class="text-aux text-fg2 mt-3">{preguntas.libre.ayuda}</p>
       </div>
@@ -139,7 +140,7 @@ const NOMBRE = ['Andoni', 'Eric'];
     height: calc(var(--spacing) * 12);
     border-radius: var(--radius-full); /* ronda 71: las caras, redondas */
     object-fit: cover;
-    background: var(--color-nogal);
+    background: var(--cara-fondo, color-mix(in oklab, var(--color-niebla) 72%, var(--color-salvia, #96BFE6)));
     box-shadow: 0 0 0 2px var(--bg);
   }
   .caras img + img {
@@ -205,7 +206,7 @@ const NOMBRE = ['Andoni', 'Eric'];
     height: calc(var(--spacing) * 8);
     border-radius: var(--radius-full);
     object-fit: cover;
-    background: var(--color-nogal);
+    background: var(--cara-fondo, color-mix(in oklab, var(--color-niebla) 72%, var(--color-salvia, #96BFE6)));
   }
   .burbuja.ellos {
     border-radius: 18px 18px 18px 4px;
@@ -314,23 +315,15 @@ const NOMBRE = ['Andoni', 'Eric'];
     background: var(--color-cacao);
     color: var(--color-niebla);
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1), color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
   }
   .mandar:hover,
   .mandar:focus-visible {
     background: var(--color-naranja);
     color: var(--color-cacao);
   }
-  .mandar svg {
-    width: calc(var(--spacing) * 5);
-    height: calc(var(--spacing) * 5);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linecap: square;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+  /* RONDA 135 · la flecha de la casa (antes «↳»): al pasar, sale y vuelve a entrar; el color cambia despacio, como el CTA primario */
+  .mandar :global(.btn-flecha) { font-size: 1.125rem; }
   @media (prefers-reduced-motion: reduce) {
     .q-on .tu,
     .a-on .resp,

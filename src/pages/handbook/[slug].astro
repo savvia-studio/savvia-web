@@ -1,0 +1,408 @@
+---
+// RONDA 128 · /handbook/<slug> — UN CAPÍTULO DEL HANDBOOK, en detalle.
+// RONDA 132 · leído como una documentación (Andoni: «el contenido haría una mezcla entre lo que tenemos y esto: docs.attio.com/docs/standard-objects»;
+// capturas en ../savvia-web/tools/ref132/attio-*): migas (Handbook › capítulo), título y entrada alineados con la columna de lectura, una ficha en mono
+// como la «configuración» de la referencia, la lámina entre carriles con sus cruces (ronda 130), y debajo tres columnas: el índice de todo el handbook
+// a la izquierda (Lector), la lectura en el centro y «En esta página» a la derecha (Riel). Al final, anterior / siguiente como en la referencia.
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Carriles from '../../components/Carriles.astro';
+import Pie from '../../components/Pie.astro';
+import PasarPagina from '../../components/handbook/PasarPagina.astro';
+import Lamina from '../../components/handbook/Lamina.astro';
+import Lector from '../../components/handbook/Lector.astro';
+import Riel from '../../components/handbook/Riel.astro';
+import Bloques from '../../components/handbook/Bloques.astro';
+import { capitulos, minutos, handbook, type Capitulo } from '../../data/handbook';
+
+export function getStaticPaths() {
+  return capitulos.map((c, i) => ({ params: { slug: c.slug }, props: { c, i } }));
+}
+interface Props { c: Capitulo; i: number }
+const { c, i } = Astro.props;
+const antes = capitulos[i - 1];
+const despues = capitulos[i + 1];
+const total = String(capitulos.length).padStart(2, '0');
+import { flecha } from '../../lib/flecha';
+---
+
+<Base title={`${c.titulo} — Handbook de savvia`} description={`${c.frase} Capítulo ${c.num} del handbook de savvia, el estudio web de Eric y Andoni en Donostia.`} carga={false}>
+  <PasarPagina />
+  <Nav />
+  <Carriles />
+  <main id="contenido" class="capitulo surface-light" data-capitulo>
+    <!-- RONDA 134 · el modo lectura se decide antes de pintar (se recuerda en este navegador) -->
+    <script is:inline>try{if(localStorage.getItem('savvia:hb-lectura')==='1')document.documentElement.classList.add('hb-focus')}catch(e){}</script>
+    <header class="cabecera surface-light">
+      <div class="wrap hb-rejilla cab-rejilla">
+        <p class="num detail" data-cromo><span>Capítulo {c.num}</span><span class="de"> / {total}</span></p>
+        <div class="cab-texto">
+          <nav class="migas detail" aria-label="Migas" data-cromo>
+            <ol>
+              <li><a href="/handbook">{handbook.nombre}</a></li>
+              <li aria-current="page">{c.titulo}</li>
+            </ol>
+          </nav>
+          <h1 class="titulo" data-entra>{c.titulo}</h1>
+          <p class="entrada">{c.entrada}</p>
+          <p class="ficha detail" data-cromo>
+            <span>{c.secciones.length} apartados</span><span aria-hidden="true">·</span><span>{minutos(c)} min de lectura</span>
+          </p>
+        </div>
+      </div>
+      <div class="wrap">
+        <!-- RONDA 130 · la foto superior entre dos líneas con las cruces, de carril a carril ([data-carril-fila]) -->
+        <div class="marco-cab">
+          <i class="linea" aria-hidden="true" data-carril-fila></i>
+          <div class="lamina-cab">
+            <Lamina portada={c.portada} proporcion="16 / 7" grande carga="eager" />
+          </div>
+          <i class="linea" aria-hidden="true" data-carril-fila></i>
+        </div>
+      </div>
+    </header>
+
+    <section class="lectura surface-light" aria-label={`Contenido del capítulo ${c.titulo}`} data-lectura data-sin-fila>
+      <div class="wrap hb-rejilla rejilla">
+        <Lector c={c} />
+        <div class="columna">
+          {
+            c.secciones.map((s, k) => (
+              <section id={s.id} class="seccion" aria-labelledby={`${s.id}-t`} data-seccion>
+                <h2 id={`${s.id}-t`} class="st">
+                  <span class="sn" aria-hidden="true">{k + 1}</span><span class="stt">{s.titulo}</span>
+                  <a class="ancla" href={`#${s.id}`} data-ancla aria-label={`Enlace a «${s.titulo}»`}>#</a>
+                </h2>
+                <Bloques bloques={s.bloques} />
+              </section>
+            ))
+          }
+          <nav class="pares" aria-label="Capítulo anterior y siguiente">
+            {
+              antes ? (
+                <a data-liquido class="par antes" href={`/handbook/${antes.slug}`}>
+                  <span class="pd detail detail-caps"><Fragment set:html={flecha('izq')} />Anterior</span>
+                  <span class="pt">{antes.titulo}</span>
+                </a>
+              ) : (
+                <a data-liquido class="par antes" href="/handbook">
+                  <span class="pd detail detail-caps"><Fragment set:html={flecha('izq')} />Portada</span>
+                  <span class="pt">{handbook.nombre}</span>
+                </a>
+              )
+            }
+            {
+              despues ? (
+                <a data-liquido class="par despues" href={`/handbook/${despues.slug}`}>
+                  <span class="pd detail detail-caps">Siguiente<Fragment set:html={flecha()} /></span>
+                  <span class="pt">{despues.titulo}</span>
+                </a>
+              ) : (
+                <a data-liquido class="par despues" href="/handbook">
+                  <span class="pd detail detail-caps">Fin del handbook<Fragment set:html={flecha()} /></span>
+                  <span class="pt">Volver al índice</span>
+                </a>
+              )
+            }
+          </nav>
+        </div>
+        <Riel c={c} />
+      </div>
+    </section>
+    <!-- RONDA 134 · MODO LECTURA: quita los dos menús, las migas y la ficha; queda solo el texto. Tecla F; Esc sale. -->
+    <button type="button" class="lectura-boton" aria-pressed="false" data-lectura-boton>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path class="ic-on" d="M4 5h12M4 9h12M4 13h8" /><path class="ic-off" d="M5 5l10 10M15 5L5 15" /></svg>
+      <span class="lb-t" data-lb-t>Modo lectura</span>
+      <kbd class="lb-k" data-lb-k>F</kbd>
+    </button>
+  </main>
+  <Pie />
+</Base>
+
+<style>
+  .capitulo { overflow-x: clip; }
+
+  /* ── RONDA 134 · una sola columna de lectura, centrada, con aire; los menús, a los lados y en voz baja.
+     Tres pistas: índice | lectura | en esta página. Simétricas en pantallas anchas: la columna queda en el centro de la página
+     y, en modo lectura, los menús se apagan sin que el texto se mueva. ── */
+  .hb-rejilla { --lat: 13rem; }
+  @media (width >= 64rem) {
+    .hb-rejilla { display: grid; grid-template-columns: var(--lat) minmax(0, 1fr) 0; column-gap: calc(var(--spacing) * 12); align-items: start; }
+  }
+  @media (width >= 80rem) { .hb-rejilla { grid-template-columns: var(--lat) minmax(0, 1fr) var(--lat); } }
+  /* la medida: ~66 caracteres de cuerpo */
+  .cab-texto, .columna { width: 100%; max-width: 43rem; margin-inline: auto; min-width: 0; }
+  @media (width >= 64rem) { .cab-texto, .columna { grid-column: 2; grid-row: 1; } }
+
+  /* ── cabecera ── */
+  .cabecera { padding-top: calc(var(--spacing) * 32 + 1rem); }
+  .num { color: var(--fg2); letter-spacing: 0.04em; opacity: 0.7; padding-bottom: calc(var(--spacing) * 4); }
+  .num .de { opacity: 0.7; }
+  @media (width >= 64rem) { .num { grid-column: 1; grid-row: 1; padding: 0.35rem 0 0; } }
+  .migas ol { display: flex; flex-wrap: wrap; align-items: center; gap: calc(var(--spacing) * 2); color: var(--fg2); letter-spacing: 0.02em; }
+  .migas li + li::before { content: '›'; padding-right: calc(var(--spacing) * 2); opacity: 0.6; }
+  .migas a { color: var(--fg2); text-decoration: none; transition: color 0.3s ease; } /* RONDA 136 · sin subrayado al pasar */
+  .migas a:hover { color: var(--fg); }
+  .migas [aria-current] { color: color-mix(in oklab, var(--fg) 70%, transparent); }
+  .titulo {
+    margin-top: calc(var(--spacing) * 6);
+    max-width: 14ch;
+    font-size: clamp(2.75rem, 1.6rem + 4.2vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .entrada {
+    margin-top: calc(var(--spacing) * 6);
+    font-size: clamp(1.1875rem, 1.05rem + 0.45vw, 1.375rem);
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+    color: color-mix(in oklab, var(--fg) 76%, transparent);
+    text-wrap: pretty;
+  }
+  /* la ficha, en una línea y en voz baja (antes una caja con filete) */
+  .ficha { margin-top: calc(var(--spacing) * 6); display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); color: var(--fg2); opacity: 0.8; }
+  .marco-cab { margin-top: calc(var(--spacing) * 16); }
+  .marco-cab .linea { display: block; height: 0; }
+  .lamina-cab :global(.lamina) { border-radius: 0; }
+  @media (width < 48rem) { .lamina-cab :global(.lamina) { aspect-ratio: 4 / 3; } }
+
+  /* ── lectura ── */
+  .lectura { padding-top: calc(var(--spacing) * 24); padding-bottom: var(--space-section); }
+  .seccion { scroll-margin-top: calc(var(--spacing) * 36); padding-bottom: calc(var(--spacing) * 8); }
+  @media (width >= 64rem) { .seccion { scroll-margin-top: calc(var(--spacing) * 28); } }
+  /* sin filetes entre apartados: los separa el aire */
+  .seccion + .seccion { padding-top: calc(var(--spacing) * 16); }
+  .st {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 3);
+    font-size: clamp(1.75rem, 1.3rem + 1.2vw, 2.375rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    padding-bottom: calc(var(--spacing) * 8);
+    max-width: 26ch;
+    text-wrap: balance;
+  }
+  .sn { flex: none; font-size: 0.5em; color: var(--fg2); opacity: 0.55; transform: translateY(-0.1em); min-width: 1.1em; }
+  .ancla { font-family: var(--font-mono); font-size: 0.45em; align-self: center; color: var(--fg2); opacity: 0; transition: opacity 0.3s ease, color 0.3s ease; }
+  .st:hover .ancla, .ancla:focus-visible { opacity: 0.8; }
+  .ancla:hover { color: var(--color-coral); }
+  @media (hover: none) { .ancla { display: none; } }
+
+  /* ── anterior / siguiente · RONDA 135 · Andoni: «me gustaba como los teníamos antes en el pie, que iban en un recuadro; lo único, que el hover sea
+     muy smooth»: vuelven las DOS TARJETAS (rótulo con la flecha de la casa + título del capítulo). Al pasar, todo a la vez y despacio (0,6 s,
+     ease-out): el filo se marca, el fondo se tiñe un poco, la tarjeta sube 2 px y la flecha da su empujón. RONDA 136: el título ya no se subraya:
+     pasa de tinta apagada a plena. ── */
+  .pares { display: grid; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 16); }
+  @media (width >= 40rem) { .pares { grid-template-columns: 1fr 1fr; } }
+  /* RONDA 137 · Andoni: «las cards para cambiar de capítulo se rellenan como los CTAs». Al pasar se LLENAN con el líquido del CTA primario: una
+     mancha de la tinta de la página (Cacao sobre el papel, el color del CTA) nace donde entra el cursor y crece hasta cubrir la tarjeta (0,8 s,
+     ease-out; --gx/--gy/--gd los pone src/scripts/cta-liquido.ts por [data-liquido]); el texto pasa al papel a la vez que la mancha lo alcanza
+     (0,15 s de retraso) y la flecha se dibuja. Al salir, la mancha se recoge hacia donde sale el cursor. Con teclado, desde el centro. */
+  .par {
+    --par-ease: cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    gap: calc(var(--spacing) * 3);
+    align-content: start;
+    padding: calc(var(--spacing) * 6);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    transition: border-color 0.6s var(--par-ease);
+  }
+  .par::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: var(--gx, 50%);
+    top: var(--gy, 50%);
+    width: var(--gd, 260%);
+    aspect-ratio: 1;
+    border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%;
+    background: var(--fg);
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    transition: transform 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+    pointer-events: none;
+  }
+  .par:hover::before, .par:focus-visible::before { transform: translate(-50%, -50%) scale(1) rotate(24deg); }
+  .despues { text-align: right; justify-items: end; }
+  .pd { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); color: var(--fg2); transition: color 0.45s var(--par-ease); }
+  .pt { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.15; text-wrap: balance; color: color-mix(in oklab, var(--fg) 82%, transparent); transition: color 0.45s var(--par-ease); }
+  .par:hover, .par:focus-visible { border-color: var(--fg); }
+  .par:hover .pd, .par:focus-visible .pd { color: color-mix(in oklab, var(--bg) 72%, transparent); transition-delay: 0.15s; }
+  .par:hover .pt, .par:focus-visible .pt { color: var(--bg); transition-delay: 0.15s; }
+  .par:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    .par, .par::before, .pd, .pt { transition: none; }
+    .par::before { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    .par:hover::before, .par:focus-visible::before { opacity: 1; }
+  }
+
+  /* ── MODO LECTURA ── */
+  [data-cromo] { transition: opacity 0.4s ease, visibility 0s linear 0s; }
+  :global(html.hb-focus) [data-cromo] { opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0s linear 0.4s; }
+  /* entre 64 y 80rem el índice ocupa sitio: al apagarse, la columna se centra */
+  @media (width >= 64rem) and (width < 80rem) {
+    :global(html.hb-focus) .hb-rejilla { grid-template-columns: 0 minmax(0, 1fr) 0; }
+  }
+  /* sin los menús, la letra un punto más grande */
+  :global(html.hb-focus) .columna { max-width: 45rem; }
+  :global(html.hb-focus) .columna :global(.p),
+  :global(html.hb-focus) .columna :global(.av-t) { font-size: clamp(1.1875rem, 1.1rem + 0.3vw, 1.3125rem); }
+
+  .lectura-boton {
+    position: fixed;
+    z-index: 30;
+    right: calc(var(--spacing) * 20);
+    bottom: max(calc(var(--spacing) * 5), env(safe-area-inset-bottom));
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    height: calc(var(--spacing) * 10);
+    padding: 0 calc(var(--spacing) * 3) 0 calc(var(--spacing) * 3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-aux);
+    font-weight: 500;
+    color: color-mix(in oklab, var(--color-cacao) 72%, transparent);
+    background: color-mix(in oklab, var(--color-niebla) 82%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 12%, transparent);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.5s var(--ease-out-expo), color 0.3s ease, box-shadow 0.3s ease, visibility 0s linear 0.4s;
+  }
+  .lectura-boton.ve { opacity: 1; visibility: visible; transform: none; transition: opacity 0.4s ease, transform 0.5s var(--ease-out-expo), color 0.3s ease, box-shadow 0.3s ease, visibility 0s; }
+  .lectura-boton:hover, .lectura-boton:focus-visible { color: var(--color-cacao); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 28%, transparent); }
+  .lectura-boton svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+  .lectura-boton .ic-off { display: none; }
+  .lectura-boton[aria-pressed='true'] .ic-on { display: none; }
+  .lectura-boton[aria-pressed='true'] .ic-off { display: inline; }
+  .lb-k { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1; padding: calc(var(--spacing) * 1) calc(var(--spacing) * 1.5); border-radius: 4px; color: var(--fg2); background: color-mix(in oklab, var(--color-cacao) 7%, transparent); }
+  @media (hover: none) { .lb-k { display: none; } }
+  @media (width < 64rem) { .lectura-boton { right: calc(var(--spacing) * 5); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pt, .ancla, .migas a, [data-cromo], .lectura-boton, :global(html.hb-focus) [data-cromo] { transition: none; }
+  }
+</style>
+
+<script>
+  const main = document.querySelector<HTMLElement>('[data-capitulo]')!;
+  const secs = [...main.querySelectorAll<HTMLElement>('[data-seccion]')];
+  const lat = new Map([...main.querySelectorAll<HTMLElement>('[data-sec]')].map((li) => [li.dataset.sec!, li]));
+  const riel = new Map([...main.querySelectorAll<HTMLElement>('[data-riel]')].map((li) => [li.dataset.riel!, li]));
+  const movil = [...main.querySelectorAll<HTMLElement>('[data-sec-movil]')];
+  const cajon = main.querySelector<HTMLDetailsElement>('[data-movil]');
+  const cajonT = main.querySelector<HTMLElement>('[data-movil-t]');
+  const titulos = new Map(secs.map((s, k) => [s.id, `${k + 1}. ${s.querySelector('.stt')?.textContent?.trim() ?? ''}`]));
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // geometría en coordenadas de la página: se mide al cargar y al cambiar de tamaño, nunca por fotograma
+  let pos: { id: string; top: number; bottom: number }[] = [];
+  let vh = innerHeight;
+  const medir = () => {
+    vh = innerHeight;
+    const y = scrollY;
+    pos = secs.map((s) => { const r = s.getBoundingClientRect(); return { id: s.id, top: r.top + y, bottom: r.bottom + y }; });
+  };
+
+  let activo = '';
+  const leer = () => {
+    const linea = scrollY + vh * 0.3;
+    let i = 0;
+    for (let k = 0; k < pos.length; k++) if (pos[k].top <= linea) i = k;
+    const s = pos[i];
+    if (!s) return;
+    const p = Math.min(1, Math.max(0, (linea - s.top) / Math.max(1, s.bottom - s.top)));
+    if (s.id !== activo) {
+      activo = s.id;
+      lat.forEach((li, id) => li.classList.toggle('on', id === activo));
+      riel.forEach((li, id) => li.classList.toggle('on', id === activo));
+      movil.forEach((a) => a.classList.toggle('on', a.dataset.secMovil === activo));
+      if (cajonT) cajonT.textContent = titulos.get(activo) ?? '';
+      // que el apartado en curso se vea en el índice lateral si este hace scroll
+      const li = lat.get(activo);
+      const nav = li?.closest<HTMLElement>('[data-indice]');
+      if (li && nav && nav.scrollHeight > nav.clientHeight) {
+        const top = li.offsetTop - nav.clientHeight / 2;
+        nav.scrollTo({ top, behavior: 'auto' });
+      }
+    }
+    riel.get(activo)?.querySelector<HTMLElement>('.leido i')?.style.setProperty('--p', p.toFixed(3));
+  };
+
+  // anclas: desplazamiento suave (instantáneo con movimiento reducido); en móvil, cierra el cajón
+  main.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-ancla]');
+    if (!a) return;
+    const id = a.getAttribute('href')!.slice(1);
+    const destino = document.getElementById(id);
+    if (!destino) return;
+    e.preventDefault();
+    if (cajon) cajon.open = false;
+    destino.scrollIntoView({ behavior: reducido ? 'auto' : 'smooth', block: 'start' });
+    history.replaceState(null, '', `#${id}`);
+  });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && cajon?.open) { cajon.open = false; cajon.querySelector('summary')?.focus(); } });
+
+  // lo que se anima una vez al verse (la savia de los pasos, la petición del equipo)
+  const vistos = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); vistos.unobserve(e.target); } }), { rootMargin: '0px 0px -25% 0px' });
+  main.querySelectorAll('[data-seccion], [data-peticion]').forEach((el) => vistos.observe(el));
+
+  let pedido = false;
+  const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(() => { pedido = false; leer(); }); } };
+  const rehacer = () => { medir(); activo = ''; leer(); };
+  rehacer();
+  document.fonts.ready.then(rehacer);
+  addEventListener('load', rehacer);
+  addEventListener('resize', rehacer);
+  addEventListener('scroll', pedir, { passive: true });
+  new ResizeObserver(() => { medir(); pedir(); }).observe(main);
+
+  // ── RONDA 134 · MODO LECTURA ─────────────────────────────────────────────────────────────────────────────
+  // Quita los menús, las migas y la ficha (html.hb-focus); F lo alterna, Esc sale; se recuerda en este navegador.
+  // Al cambiar, la letra crece o la columna se recoloca: se guarda qué bloque estaba a la vista y se devuelve a su sitio.
+  const raiz = document.documentElement;
+  const boton = main.querySelector<HTMLButtonElement>('[data-lectura-boton]')!;
+  const bT = boton.querySelector<HTMLElement>('[data-lb-t]')!;
+  const bK = boton.querySelector<HTMLElement>('[data-lb-k]')!;
+  const pintarBoton = () => {
+    const on = raiz.classList.contains('hb-focus');
+    boton.setAttribute('aria-pressed', String(on));
+    bT.textContent = on ? 'Salir del modo lectura' : 'Modo lectura';
+    bK.textContent = on ? 'Esc' : 'F';
+  };
+  const ancla = () => {
+    const bloques = main.querySelectorAll<HTMLElement>('.columna .st, .columna .bloques > *');
+    for (const el of bloques) { const r = el.getBoundingClientRect(); if (r.bottom > 96) return { el, top: r.top }; }
+    return null;
+  };
+  const enfoque = (on: boolean) => {
+    if (raiz.classList.contains('hb-focus') === on) return;
+    const a = scrollY > 200 ? ancla() : null;
+    raiz.classList.toggle('hb-focus', on);
+    try { localStorage.setItem('savvia:hb-lectura', on ? '1' : '0'); } catch {}
+    pintarBoton();
+    if (a) { const d = a.el.getBoundingClientRect().top - a.top; if (Math.abs(d) > 1) scrollBy({ top: d, behavior: 'instant' as ScrollBehavior }); }
+    if (cajon) cajon.open = false;
+    rehacer();
+  };
+  pintarBoton();
+  boton.addEventListener('click', () => enfoque(!raiz.classList.contains('hb-focus')));
+  addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target as HTMLElement | null;
+    if (t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName))) return;
+    if (document.querySelector('dialog[open]') || raiz.classList.contains('menu-abierto')) return;
+    if (e.key === 'f' || e.key === 'F') { e.preventDefault(); enfoque(!raiz.classList.contains('hb-focus')); }
+    else if (e.key === 'Escape' && raiz.classList.contains('hb-focus') && !cajon?.open) enfoque(false);
+  });
+  // el botón solo mientras se lee el capítulo (no sobre el pie)
+  new IntersectionObserver(([e]) => boton.classList.toggle('ve', e.isIntersecting), { rootMargin: '0px 0px -30% 0px' }).observe(main.querySelector('[data-lectura]')!);
+</script>

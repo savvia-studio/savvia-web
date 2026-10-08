@@ -10,6 +10,7 @@ import Base from '../../layouts/Base.astro';
 import Nav from '../../components/Nav.astro';
 import Carriles from '../../components/Carriles.astro';
 import Pie from '../../components/Pie.astro';
+import Cta from '../../components/Cta.astro';
 import Medio from '../../components/obra/Medio.astro';
 import { proyectos, type Proyecto, type Medio as TMedio } from '../../data/proyectos';
 
@@ -38,6 +39,7 @@ const luz = (hex: string) => { const n = parseInt(hex.slice(1), 16), r = n >> 16
 const claroMarca = (p.paleta ?? []).map((c) => c.hex).find((h) => luz(h)) ?? '#FFFFFF';
 const [primero, ...resto] = p.apartados;
 const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') : m.movil ? '16 / 10' : '16 / 9');
+import { flecha } from '../../lib/flecha';
 ---
 
 <Base title={`${p.nombre} — savvia`} description={p.resumen} carga={false}>
@@ -45,7 +47,7 @@ const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') 
   <Carriles />
   <main id="contenido" class="caso surface-light" style={`--claro-marca:${claroMarca}`}>
     <header class="wrap cabecera">
-      <a href="/proyectos" class="volver detail text-fg2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M10 7l-5 5 5 5" /></svg>Proyectos</a>
+      <Cta href="/proyectos" class="volver text-fg2" variante="secundario" tam="sm" flecha="izq">Proyectos</Cta>
       <h1 class="font-display nombre" data-entra>{p.nombre}</h1>
     </header>
 
@@ -63,7 +65,7 @@ const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') 
             </div>
           ))
         }
-        {p.url && <a href={p.url} class="ver text-aux" target="_blank" rel="noopener">Ver la web<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" /></svg></a>}
+        {p.url && <Cta href={p.url} class="ver" tam="sm" externo>Ver la web</Cta>}
       </dl>
     </section>
 
@@ -188,7 +190,7 @@ const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') 
     <nav class={`wrap siguiente section-y ${p.cita ? '' : 'borde'}`} aria-label="Siguiente proyecto">
       <p class="detail detail-caps text-fg2">Siguiente proyecto</p>
       <a href={`/proyectos/${sig.slug}`} class="font-display sig">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5" /></svg><span>{sig.nombre}</span>
+        <Fragment set:html={flecha()} /><span>{sig.nombre}</span>
       </a>
     </nav>
   </main>
@@ -205,24 +207,9 @@ const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') 
   .caso {
     padding-top: calc(var(--spacing) * 32);
   }
-  .volver {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    transition: color 0.3s ease;
-  }
+  /* RONDA 134 · «← Proyectos» y «Ver la web» son el CTA de la casa (Cta.astro) */
   .volver:hover {
     color: var(--fg);
-  }
-  .volver svg,
-  .ver svg {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
   }
   .nombre {
     margin-top: calc(var(--spacing) * 6);
@@ -304,12 +291,7 @@ const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') 
     margin-top: calc(var(--spacing) * 1);
   }
   .ver {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
     align-self: flex-start;
-    border-bottom: 1px solid var(--rule-strong);
-    padding-bottom: calc(var(--spacing) * 1);
   }
   .entradilla {
     font-size: clamp(1.375rem, 1.1rem + 1.1vw, 2rem);
@@ -585,26 +567,18 @@ const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') 
     letter-spacing: -0.02em;
     color: var(--fg);
   }
-  .sig svg {
-    flex: none;
-    width: 0.6em;
-    height: 0.6em;
-    fill: none;
+  /* RONDA 135 · la flecha de la casa, a la escala del nombre y en Coral; al pasar sale y vuelve a entrar (global.css) */
+  .sig :global(.btn-flecha) {
+    width: 0.75em;
+    height: 0.5em;
     stroke: var(--color-coral);
-    stroke-width: 1.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transition: translate 0.6s var(--ease-out-expo);
+    stroke-width: 1.4;
   }
-  .sig span {
-    background: linear-gradient(currentColor, currentColor) 0 100% / 0 2px no-repeat;
-    transition: background-size 0.6s var(--ease-out-expo);
-  }
-  .sig:hover svg {
-    translate: 0.15em 0;
-  }
-  .sig:hover span {
-    background-size: 100% 2px;
+  /* RONDA 136 · sin subrayado al pasar: el nombre se tiñe apenas de savia y la flecha da su empujón */
+  .sig span { transition: color 0.6s var(--ease-out-expo); }
+  .sig:hover span,
+  .sig:focus-visible span {
+    color: color-mix(in oklab, var(--fg) 80%, var(--color-coral));
   }
   @media (prefers-reduced-motion: reduce) {
     .bandas li,

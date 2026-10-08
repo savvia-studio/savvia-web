@@ -1,5 +1,6 @@
 ---
 import sharp from 'sharp';
+import Cta from './Cta.astro';
 import { proyectos } from '../data/home';
 import { HOJA_ROBLE, GIRO_HOJA, copo, flor, sol, aD } from '../scripts/formas-estacion';
 // RONDA 65 · los iconos de estación, las mismas formas que el icono de la barra (rellenas): cerezo · sol · hoja de roble · copo
@@ -8,7 +9,10 @@ const P = proyectos.nuevos;
 // RONDA 50 · el TINTE del cristal de la barra: el color medio de la cabecera de cada web (la franja de arriba de su captura, el 4,2 % de su ancho: ~60 px a 1440), medido al compilar
 const TINTE: Record<string, string> = {};
 for (const p of P) {
-  const img = sharp(`public/media/proyectos/${p.slug}.webp`), { width = 1 } = await img.metadata();
+  // ronda 126: si falta la captura (un proyecto recién renombrado), el tinte por defecto en vez de romper la página
+  const img = sharp(`public/media/proyectos/${p.slug}.webp`);
+  const { width = 1 } = await img.metadata().catch(() => ({ width: 0 }));
+  if (!width) { TINTE[p.slug] = 'rgb(251 251 250)'; continue; }
   const franja = await img.extract({ left: 0, top: 0, width, height: Math.round(width * 0.042) }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   let r = 0, g = 0, b = 0; const n = franja.data.length / 3;
   for (let i = 0; i < franja.data.length; i += 3) { r += franja.data[i]; g += franja.data[i + 1]; b += franja.data[i + 2]; }
@@ -124,7 +128,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 <p class="detail ficha-cat">{p.cat}</p>
                 <p class="ficha-n font-display">{p.n}</p>
                 <p class="text-aux mt-3 ficha-d">{p.d}</p>
-                <a class="ficha-ver mt-6" href={`/proyectos/${p.slug === 'zernio' ? 'amarra' : p.slug}`}><span>Ver caso de estudio</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5" /></svg></a>
+                <Cta class="ficha-ver mt-6" href={`/proyectos/${p.slug}`} variante="secundario" tam="sm">Ver caso de estudio</Cta>
               </div>
             ))
           }
@@ -221,7 +225,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   </div>
 </section>
 
-<script define:vars={{ datos: P.map((p) => ({ n: p.n, url: p.url, estacion: p.estacion })), nombreEst }} is:inline>
+<script define:vars={{ datos: P.map((p) => ({ n: p.n, url: p.url, dom: (p as any).dominio ?? new URL(p.url).host, estacion: p.estacion })), nombreEst }} is:inline>
   window.__ESTUDIO = { datos, nombreEst };
 </script>
 
@@ -232,7 +236,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   const raiz0 = document.querySelector<HTMLElement>('[data-estudio]');
   if (raiz0) {
     const raiz: HTMLElement = raiz0;
-    const { datos, nombreEst } = (window as any).__ESTUDIO as { datos: { n: string; url: string; estacion: string }[]; nombreEst: Record<string, string> };
+    const { datos, nombreEst } = (window as any).__ESTUDIO as { datos: { n: string; url: string; dom: string; estacion: string }[]; nombreEst: Record<string, string> };
     const $ = <T extends HTMLElement>(s: string) => raiz.querySelector<T>(s)!;
     const $$ = <T extends HTMLElement>(s: string) => [...raiz.querySelectorAll<T>(s)];
     const escenario = $('[data-escenario]'), escena = $('[data-escena]');
@@ -373,7 +377,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     function navegar(rapido: boolean) {
       inicio.classList.add('fuera'); // si se cambia de proyecto en pleno estreno, la página de inicio se retira
     pantallaTinte.classList.remove('estrenando');
-      const yo = ++turno, w = webs[activo], host = new URL(datos[activo].url).host;
+      const yo = ++turno, w = webs[activo], host = datos[activo].dom;
       tintar(null);
       if (reducido) { urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); return; }
       webs.forEach((x) => x.classList.add('cargando'));
@@ -405,7 +409,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // en la PANTALLA DE CARGA (la misma materia: noche con grano; el logotipo y la línea de savia que corre) y, cargada la web (mínimo 1,4 s), se descubre.
     function estrenar() {
       estrenado = true;
-      const yo = ++turno, w = webs[activo], host = new URL(datos[activo].url).host;
+      const yo = ++turno, w = webs[activo], host = datos[activo].dom;
       // RONDA 77 · Andoni: «cuando llegas a proyectos destacados quitamos la animación de carga, que salgan directamente los proyectos»: sin pantalla de
       // carga; el titular se funde y debajo ya está la web (la captura, de pie). La pantalla de carga queda solo al sentarse y al cambiar sentado.
       cargaUrl.textContent = '';
@@ -422,7 +426,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       webs.forEach((w, i) => { w.classList.toggle('on', i === activo); w.hidden = sentado && i !== activo; if (sentado && i !== activo) desmontar(w); });
       if (cargado) { if (sentado) montar(webs[activo]); else webs.forEach((w) => montar(w)); ajustar(); }
       // de pie, el relevo es un FUNDIDO (sin carga); sentado, la animación de carga
-      if (estrenado) { if (sentado) navegar(!primera); else { webs.forEach((x) => x.classList.remove('cargando')); urlEl.textContent = new URL(datos[activo].url).host; } }
+      if (estrenado) { if (sentado) navegar(!primera); else { webs.forEach((x) => x.classList.remove('cargando')); urlEl.textContent = datos[activo].dom; } }
       hechos.forEach((h, i) => (h.hidden = i !== activo));
       { otroN.textContent = `${String(activo + 1).padStart(2, '0')}/${String(datos.length).padStart(2, '0')}`; otroNombre.textContent = datos[activo].n; }
       $('[data-guia-nombre]').textContent = datos[activo].n;
@@ -674,6 +678,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
     overflow: hidden;
     background: var(--noche);
     container-type: size;
+  }
+  /* RONDA 132 · en invierno la noche es NIEVE: las tres pantallas que van sobre --noche (titular, inicio, carga) invierten su tinta (Cacao sobre nieve);
+     la interfaz sobre la foto sigue en claro sobre --noche-honda */
+  .titulo-pantalla,
+  .inicio,
+  .carga-web {
+    --color-niebla: var(--tinta);
+    --color-cacao: var(--tinta-inv);
   }
   /* El titular que «es» la pantalla: una caja con la proporción de la pantalla del monitor, centrada; el JS la escala y la mueve
      para que pise SIEMPRE la pantalla de la lámina. Regla dura 3: sin JS no tapa nada (ver html:not(.js)). */
@@ -1047,7 +1059,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .carga-logo {
     height: 9cqh;
-    aspect-ratio: 1184 / 439;
+    aspect-ratio: 1170 / 439; /* ronda 139: logotipo con el isotipo de raíces */
     background: currentColor;
     -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
     mask: url('/savvia-logo.svg') center / contain no-repeat;
@@ -1073,19 +1085,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   [data-estudio].sentado .pantalla:has(.web.cargando:not([hidden])) .carga-web { opacity: 1; transition-duration: 0.2s; }
   /* el botón de la ficha, más sutil */
   /* RONDA 77 · Andoni: «el botón de ver case study, sin card: que sea solo texto»: texto con el subrayado que crece y la flecha que avanza */
-  .ficha .ficha-ver {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    padding-block: calc(var(--spacing) * 1);
-    color: var(--color-niebla);
-    font-size: var(--text-ui);
-    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-    transition: background-size 0.5s var(--ease-out-expo);
-  }
-  .ficha .ficha-ver svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: translate 0.5s var(--ease-out-expo); }
-  .ficha .ficha-ver:hover, .ficha .ficha-ver:focus-visible { background-size: 100% 1px; }
-  .ficha .ficha-ver:hover svg { translate: calc(var(--spacing) * 1) 0; }
+  /* RONDA 134 · el CTA secundario de la casa (Cta.astro): solo el color, en la ficha de cristal sobre la foto */
+  .ficha .ficha-ver { color: var(--color-niebla); }
   /* RONDA 66 · «en proyectos destacados, quitamos el navegador» (y con él la píldora «desliza dentro») */
   .cromo,
   .tras-cromo,
@@ -1148,7 +1149,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .ui {
     position: absolute;
     color: var(--color-niebla);
-    text-shadow: 0 1px 2px color-mix(in oklab, var(--noche) 70%, transparent), 0 0 18px var(--noche);
+    text-shadow: 0 1px 2px color-mix(in oklab, var(--noche-honda) 70%, transparent), 0 0 18px var(--noche-honda);
   }
   /* un velo Cacao abajo y otro, más leve, arriba: lo justo para que el texto se lea sobre cualquier estación */
   .velo-ui {
@@ -1156,8 +1157,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     inset: 0;
     pointer-events: none;
     background:
-      linear-gradient(to top, color-mix(in oklab, var(--noche) 80%, transparent), transparent 22%),
-      linear-gradient(to bottom, color-mix(in oklab, var(--noche) 88%, transparent) 8%, transparent 40%);
+      linear-gradient(to top, color-mix(in oklab, var(--noche-honda) 80%, transparent), transparent 22%),
+      linear-gradient(to bottom, color-mix(in oklab, var(--noche-honda) 88%, transparent) 8%, transparent 40%);
   }
   /* móvil: la ficha va ARRIBA, sobre el cielo (abajo pisaba la llamada de la silla); en escritorio, abajo a la izquierda */
   .ui-info {
@@ -1221,8 +1222,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .ver {
     opacity: 0.7;
-    text-decoration: underline;
-    text-underline-offset: 0.3em;
   }
   .ver:hover {
     opacity: 1;
@@ -1237,7 +1236,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* CRISTAL (ronda 11): el material de la interfaz sobre la escena —lista, ficha y barra—, estilo Apple: desenfoque del fondo + velo
      Cacao + filo claro. Así se LEE sobre cualquier estación («el menú lateral con la info se lee mal»). */
   .cristal {
-    background: color-mix(in oklab, var(--noche) 58%, transparent);
+    background: color-mix(in oklab, var(--noche-honda) 58%, transparent);
     -webkit-backdrop-filter: blur(22px) saturate(1.5);
     backdrop-filter: blur(22px) saturate(1.5);
     box-shadow:
@@ -1334,7 +1333,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     place-items: center;
     border-radius: 50%;
     color: color-mix(in oklab, var(--color-niebla) 80%, transparent);
-    background: color-mix(in oklab, var(--noche) 52%, transparent);
+    background: color-mix(in oklab, var(--noche-honda) 52%, transparent);
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
     backdrop-filter: blur(18px) saturate(1.4);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 18%, transparent), 0 10px 28px -12px rgb(0 0 0 / 0.45);
@@ -1342,7 +1341,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .abanico .mas:hover {
     color: var(--color-niebla);
-    background: color-mix(in oklab, var(--noche) 40%, transparent);
+    background: color-mix(in oklab, var(--noche-honda) 40%, transparent);
   }
   .abanico .mas svg {
     width: calc(var(--spacing) * 6);
@@ -1367,7 +1366,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .ui-mando .abanico .grupo .est {
     display: grid;
     place-items: center;
-    background: color-mix(in oklab, var(--noche) 52%, transparent);
+    background: color-mix(in oklab, var(--noche-honda) 52%, transparent);
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
     backdrop-filter: blur(18px) saturate(1.4);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 18%, transparent);
@@ -1382,7 +1381,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     height: calc(var(--spacing) * 5);
   }
   .ui-mando .abanico .grupo .est:hover {
-    background: color-mix(in oklab, var(--color-niebla) 14%, color-mix(in oklab, var(--noche) 45%, transparent));
+    background: color-mix(in oklab, var(--color-niebla) 14%, color-mix(in oklab, var(--noche-honda) 45%, transparent));
     color: var(--color-niebla);
     scale: 1.1;
   }
@@ -1629,13 +1628,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     top: 0;
     line-height: 28px; /* la línea llega a y = 6 de 64 desde arriba de su caja: el centro de la palabra cae ahí */
     white-space: nowrap;
-    text-shadow: 0 1px 12px color-mix(in oklab, var(--noche) 80%, transparent);
+    text-shadow: 0 1px 12px color-mix(in oklab, var(--noche-honda) 80%, transparent);
   }
-  .llamada:hover span,
-  .llamada:focus-visible span {
-    text-decoration: underline;
-    text-underline-offset: 0.35em;
-  }
+  /* ronda 136 · sin subrayado al pasar: la palabra se aviva */
+  .llamada span { transition: opacity 0.4s var(--ease-out-expo); }
+  .llamada:not(:hover):not(:focus-visible) span { opacity: 0.86; }
   /* en móvil la silla queda cerca del borde derecho: la llamada sale hacia la izquierda */
   @media (width < 48rem) {
     .llamada {
@@ -1670,9 +1667,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
        centradas en el dial (izquierda) y en la ficha (derecha); lo más hondo cae justo detrás del texto y se abre hacia el monitor. */
     .velo-ui {
       background:
-        radial-gradient(ellipse min(26vw, 26rem) 42% at calc(var(--spacing) * 12 + min(12vw, 11rem)) 50%, color-mix(in oklab, var(--noche) 94%, transparent), color-mix(in oklab, var(--noche) 62%, transparent) 50%, transparent),
-        radial-gradient(ellipse min(25vw, 25rem) 42% at calc(100% - var(--spacing) * 12 - min(11vw, 10rem)) 50%, color-mix(in oklab, var(--noche) 94%, transparent), color-mix(in oklab, var(--noche) 62%, transparent) 50%, transparent),
-        linear-gradient(to top, color-mix(in oklab, var(--noche) 70%, transparent), transparent 24%);
+        radial-gradient(ellipse min(26vw, 26rem) 42% at calc(var(--spacing) * 12 + min(12vw, 11rem)) 50%, color-mix(in oklab, var(--noche-honda) 94%, transparent), color-mix(in oklab, var(--noche-honda) 62%, transparent) 50%, transparent),
+        radial-gradient(ellipse min(25vw, 25rem) 42% at calc(100% - var(--spacing) * 12 - min(11vw, 10rem)) 50%, color-mix(in oklab, var(--noche-honda) 94%, transparent), color-mix(in oklab, var(--noche-honda) 62%, transparent) 50%, transparent),
+        linear-gradient(to top, color-mix(in oklab, var(--noche-honda) 70%, transparent), transparent 24%);
     }
     /* el dial: una ventana de 5 filas; el activo en el centro; arriba y abajo se funde (máscara) y cada fila pierde foco con la distancia */
     .ui-lista {
@@ -1946,7 +1943,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .ficha-cat { color: color-mix(in oklab, var(--color-niebla) 70%, transparent); }
   .ficha-n { font-size: var(--text-h3); line-height: 1.1; margin-top: calc(var(--spacing) * 2); text-wrap: balance; }
   .ficha-d { color: color-mix(in oklab, var(--color-niebla) 80%, transparent); text-wrap: pretty; }
-  .ficha-ver { font-weight: 600; }
   .ficha,
   .ficha * { text-shadow: none; }
   @media (width >= 64rem) {

@@ -184,6 +184,10 @@ import { rich } from '../lib/rich';
   :global(html.hero-claro) .hero .luz {
     display: none;
   }
+  /* RONDA 132 · en invierno el hero es NIEVE: un haz de luz claro sobre blanco no se ve (y en oscuro sería una banda de sombra): se retira con un fundido */
+  :global(html[data-estacion='invierno']) .hero .luz {
+    opacity: 0;
+  }
   /* RONDA 83 · Eric: «esto tiene que estar más arriba, dejar más aire abajo» → (a partes iguales) «un poco más abajo»: el hueco libre ya no va
      entero ENCIMA del titular (ronda 14): dos tercios encima y un tercio debajo; el marco y el árbol se quedan abajo (los 40 px al marco pasan
      a ser el mínimo). La caja del titular ocupa el hueco y lo reparte con dos separadores */

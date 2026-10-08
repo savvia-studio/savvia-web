@@ -5,9 +5,10 @@
 export const EST = ['otono', 'invierno', 'primavera', 'verano'] as const;
 export const NOMBRE = ['otoño', 'invierno', 'primavera', 'verano'];
 // RONDA 40 · la paleta de Andoni: el fondo oscuro y el color del árbol de cada estación (los mismos de global.css › --noche y --arbol)
-export const NOCHE: [number, number, number][] = [[59, 35, 27], [42, 41, 50], [56, 42, 45], [31, 53, 42]];
+// RONDA 132 · «el invierno, en versión clara (la nieve)»: el fondo de invierno es la NIEVE (#ECEFF3); el motor del árbol se funde hacia ella (tinta sobre nieve)
+export const NOCHE: [number, number, number][] = [[59, 35, 27], [236, 239, 243], [56, 42, 45], [31, 53, 42]];
 export const ARBOL: [number, number, number][] = [[198, 92, 45], [110, 123, 145], [199, 107, 131], [103, 131, 77]];
-const HEX = ['#3b231b', '#2a2932', '#382a2d', '#1f352a'];
+const HEX = ['#3b231b', '#eceff3', '#382a2d', '#1f352a'];
 // la estación de HOY por meses (ronda 40): primavera mar–may · verano jun–ago · otoño sep–nov · invierno dic–feb
 export function estacionDeHoy(d = new Date()): number { const m = d.getMonth() + 1; return m >= 3 && m <= 5 ? 2 : m >= 6 && m <= 8 ? 3 : m >= 9 && m <= 11 ? 0 : 1; }
 

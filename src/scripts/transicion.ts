@@ -7,6 +7,7 @@
 //   igual —una gota desde el centro de abajo que se ensancha— y la Cacao se retira (0,55 s). `clip-path: polygon()` por fotograma.
 //   No se intercepta: otra web, anclas, nueva pestaña, modificadores, movimiento reducido.
 const SALE = 500, LLEGA = 550;
+const esLibro = (p: string) => /^\/handbook(\/[^/]+)?\/?$/.test(p);
 const reducido = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const campana = (t: number) => 1 / Math.pow(1 + t * t, 1.5);
 const curva = (k: number) => (k <= 0 ? 0 : k >= 1 ? 1 : k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
@@ -63,6 +64,8 @@ addEventListener('click', (e) => {
   if (url.origin !== location.origin) return;
   if (url.pathname === location.pathname && url.search === location.search) return; // anclas y la misma página
   if (reducido()) return;
+  // RONDA 133 · dentro del handbook se PASA PÁGINA (transición nativa entre documentos: components/handbook/PasarPagina.astro); sin soporte, la gota
+  if (esLibro(location.pathname) && esLibro(url.pathname) && 'CSSViewTransitionRule' in window) return;
   e.preventDefault();
   try { sessionStorage.setItem('savvia:vt', String(Date.now())); } catch {}
   inundar(() => location.assign(url.href));

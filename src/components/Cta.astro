@@ -1,0 +1,31 @@
+---
+// RONDA 134 · el CTA de la casa (Andoni: «CTAs de este estilo, aplica a todo»). Estilos en global.css (.btn-primary · .btn-secondary · .btn-sm · .btn-flecha).
+//   <Cta href="/proyectos">Todos los proyectos</Cta>                         primario (píldora Coral)
+//   <Cta href="/proyectos" variante="secundario">Ver caso de estudio</Cta>   secundario (texto + flecha; al pasar se enciende, sin subrayado)
+//   <Cta href="https://…" externo tam="sm">Ver la web</Cta>                  abre en otra pestaña (flecha en diagonal)
+//   <Cta flecha="izq" …>Proyectos</Cta> · flecha="abajo" · flecha="no"       dirección de la flecha («izq» va delante del texto)
+//   Sin href es un <button type="button">. Cualquier otro atributo (data-*, aria-*, class) pasa tal cual.
+// RONDA 136 · la flecha de la casa es una «→» fina (src/lib/flecha.ts) que da un empujón al pasar; el primario se llena como un líquido desde
+// donde entra el cursor (src/scripts/cta-liquido.ts, importado en Base.astro).
+// Marcado a mano (JS, set:html): import { flecha } from '../lib/flecha';  `<a class="btn-primary" href="…"><span class="btn-tx">Texto</span>${flecha()}</a>`
+import { flecha } from '../lib/flecha';
+interface Props {
+  href?: string;
+  variante?: 'primario' | 'secundario';
+  tam?: 'md' | 'sm';
+  externo?: boolean;
+  flecha?: 'der' | 'izq' | 'abajo' | 'fuera' | 'no';
+  class?: string;
+  [k: string]: unknown;
+}
+const { href, variante = 'primario', tam = 'md', externo = false, flecha: fl, class: extra = '', ...resto } = Astro.props;
+const dir = fl ?? (externo ? 'fuera' : 'der');
+const clase = [variante === 'secundario' ? 'btn-secondary' : 'btn-primary', tam === 'sm' ? 'btn-sm' : '', extra].filter(Boolean).join(' ');
+const Tag = href ? 'a' : 'button';
+const attrs: Record<string, string> = href ? { href, ...(externo ? { target: '_blank', rel: 'noopener' } : {}) } : { type: 'button' };
+---
+<Tag class={clase} {...attrs} {...resto}>
+  {dir === 'izq' && <Fragment set:html={flecha('izq')} />}
+  <span class="btn-tx"><slot /></span>
+  {dir !== 'izq' && dir !== 'no' && <Fragment set:html={flecha(dir)} />}
+</Tag>

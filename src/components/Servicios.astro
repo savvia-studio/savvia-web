@@ -1,18 +1,21 @@
 ---
 import { servicios } from '../data/home';
-// RONDA 73 · «la sección de tres maneras de trabajar contigo tenemos que mejorarla, no me gusta; démosle una vuelta». Lo que fallaba desde la ronda 66: una nube de
-// etiquetas que viajaba de una forma a otra y nunca quedaba claro de cuál era. Ahora es una TABLA: las tres formas en columnas (nombre y lo que es) y lo que
-// incluye cada una en filas, ordenadas en cuatro grupos. Donde una forma lo incluye cae una gota de savia; donde no, un filete. Una banda de CRISTAL con las
-// cruces del CTA marca la columna que miras (sigue al puntero; por defecto, la primera). Las gotas caen fila a fila al llegar. En móvil, tres fichas con su lista.
+// RONDA 132 · Andoni: «que saliera cada servicio y al lado una card marcándose con un check los puntos que cubre, uno detrás de otro».
+// RONDA 133 · Andoni: «en vez de hacerte pasar por todos en scroll, que tú puedas seleccionar cuál quieres y que la card cambie los checks en función de eso.
+// Para los checks quiero que pase como un cursor que los va marcando y hace el sonidito de click cuando lo marca. Y que los checks se rellenen animadamente
+// según se clican». Fuera la escena fija de 300 lvh. Sección normal: a la izquierda el SELECTOR de las tres formas (botones con aria-pressed, ← → con el
+// teclado; la activa enseña su descripción) y a la derecha la TARJETA con los dieciséis puntos. Al elegir una forma, un CURSOR (la flecha de un sistema
+// operativo, dibujada) recorre la tarjeta de arriba abajo y se para solo donde algo cambia: los puntos que sobran los desmarca deprisa; los que tocan, los
+// pulsa (se hunde, suena el clic de la web) y el check se RELLENA de tinta desde el punto del clic y luego se dibuja la marca. Cambiar a mitad cancela y
+// reempieza. La primera forma se recorre sola al llegar la sección (sin sonido si el audio aún no está despierto). Móvil: píldoras encima de la tarjeta.
+// Movimiento reducido: sin cursor, los checks en su sitio al instante.
 const L = servicios.lista;
-const GRUPOS: { n: string; items: string[] }[] = [
-  { n: 'Estrategia', items: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web'] },
-  { n: 'Diseño y movimiento', items: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP'] },
-  { n: 'Desarrollo', items: ['Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje', 'Migraciones de Webflow y WordPress a IA', 'SEO técnico', 'Accesibilidad y rendimiento'] },
-  { n: 'Después', items: ['La receta: savvia.md', 'Formación a tu equipo'] },
-];
-const tiene = (k: number, t: string) => L[k].tags.includes(t);
-let fila = 0;
+const GRUPOS = servicios.grupos;
+const quien = (t: string) => L.map((s, k) => (s.tags.includes(t) ? k : -1)).filter((k) => k >= 0).join(' ');
+const dos = (n: number) => String(n).padStart(2, '0');
+// la tarjeta, en dos columnas en escritorio: Estrategia + Diseño | Desarrollo + Después (8 y 8)
+const COLS = [GRUPOS.slice(0, 2), GRUPOS.slice(2)];
+const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle class="onda" cx="10" cy="10" r="9" /><circle class="aro" cx="10" cy="10" r="8.25" /><circle class="relleno" cx="10" cy="10" r="8.25" /><path class="v" d="M6 10.4 8.7 13 14 7.2" pathLength="1" /></svg>`;
 ---
 
 <section id="servicios" class="surface-warm" aria-labelledby="serv-h" data-servicios data-sube>
@@ -20,211 +23,376 @@ let fila = 0;
     <h2 id="serv-h" class="text-h2 max-w-[16ch]" data-entra>{servicios.titulo}</h2>
     <p class="text-sub text-fg2 mt-4">{servicios.sub}</p>
 
-    <!-- ESCRITORIO: la tabla -->
-    <div class="tabla mt-16 lg:mt-24" role="table" aria-label="Qué incluye cada forma de trabajar" data-tabla data-col="0">
-      <i class="banda" aria-hidden="true" data-banda></i>
-      <!-- RONDA 74 · «que los titulares sigan el scroll para que puedas seguir leyendo lo que incluye cada uno»: la cabecera se queda pegada bajo la barra
-           y, pegada, se recoge (solo nombre y cuenta) -->
-      <i class="centinela" aria-hidden="true" data-centinela></i>
-      <div class="fila cabeza" role="row" data-cabeza>
-        <span class="celda etiqueta" role="columnheader"><span class="sr-only">Qué incluye</span></span>
-        {
-          L.map((s, k) => (
-            <div class="celda col" role="columnheader" data-c={k}>
-              <h3 class="nombre font-display">{s.corto}</h3>
-              <p class="d text-aux mt-3">{s.d}</p>
-            </div>
-          ))
-        }
+    <div class="cuerpo mt-12" data-serv>
+      <!-- RONDA 134 · Andoni: «aprovechar las guías para poner la card y los servicios entre líneas que unen las guías de las esquinas y con las + en
+           los extremos». Dos filas de carriles (Carriles.astro las traza de carril a carril, con sus cruces) arriba y abajo del bloque, y un
+           divisor vertical entre selector y tarjeta con una cruz en cada extremo. -->
+      <i class="fila-guia arriba" data-carril-fila aria-hidden="true"></i>
+      <i class="fila-guia abajo" data-carril-fila aria-hidden="true"></i>
+      <span class="divisor" aria-hidden="true"><i class="cruz"></i><i class="cruz fin"></i></span>
+      <div class="izq">
+        <div class="selector" role="group" aria-label="Formas de trabajar" data-selector>
+          {
+            L.map((s, k) => (
+              <div class={`fila${k === 0 ? ' on' : ''}`} data-fila={k}>
+                <button type="button" class="opcion" aria-pressed={k === 0 ? 'true' : 'false'} aria-describedby={`serv-d-${k}`} aria-controls="serv-tarjeta" data-opcion={k} tabindex={k === 0 ? 0 : -1}>
+                  <span class="num detail" aria-hidden="true">{dos(k + 1)}</span>
+                  <span class="nombre font-display">{s.corto}</span>
+                </button>
+                <div class="d-caja">
+                  <p id={`serv-d-${k}`} class="d text-sub">{s.d}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div class="d-movil" aria-hidden="true">
+          {L.map((s, k) => <p class={`text-aux${k === 0 ? ' on' : ''}`} data-dm={k}>{s.d}</p>)}
+        </div>
       </div>
-      {
-        GRUPOS.map((g) => (
-          <>
-            <div class="fila grupo" role="row"><span class="celda detail" role="rowheader">{g.n}</span></div>
-            {g.items.map((t) => (
-              <div class="fila item" role="row" style={`--f:${fila++}`} data-fila>
-                <span class="celda etiqueta text-ui" role="rowheader">{t}</span>
-                {L.map((_, k) => (
-                  <span class="celda marca" role="cell" data-c={k}>
-                    {tiene(k, t) ? <i class="si" aria-label="Incluido" style={`--k:${k}`} /> : <i class="no" aria-label="No incluido" />}
-                  </span>
+
+      <div class="tarjeta" id="serv-tarjeta" data-tarjeta-serv>
+        <p class="cab detail">Qué incluye · <span data-cab>{L[0].corto}</span></p>
+        <div class="cols">
+          {
+            COLS.map((col) => (
+              <div class="col">
+                {col.map((g) => (
+                  <div class="grupo">
+                    <p class="g detail">{g.n}</p>
+                    <ul>
+                      {g.items.map((t) => (
+                        <li class={`punto text-aux${L[0].tags.includes(t) ? ' on' : ''}`} data-quien={quien(t)}>
+                          <Fragment set:html={Check} />
+                          <span>{t}</span>
+                          <span class="sr-only" data-sr>{L[0].tags.includes(t) ? '(incluido)' : '(no incluido)'}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
               </div>
-            ))}
-          </>
-        ))
-      }
-    </div>
-
-    <!-- MÓVIL: tres fichas, cada una con su lista -->
-    <div class="fichas mt-12">
-      {
-        L.map((s) => (
-          <article class="ficha-s">
-            <h3 class="nombre font-display">{s.corto}</h3>
-            <p class="d text-aux mt-3">{s.d}</p>
-            <ul class="lista-s mt-6">
-              {GRUPOS.flatMap((g) => g.items).filter((t) => s.tags.includes(t)).map((t) => <li class="text-ui"><i class="si" aria-hidden="true" />{t}</li>)}
-            </ul>
-          </article>
-        ))
-      }
+            ))
+          }
+        </div>
+        <div class="cursor" aria-hidden="true" data-cursor>
+          <svg class="flecha" viewBox="0 0 20 24"><path d="M1.5 1.5v17.2l4.4-4.1 2.9 6.6 3-1.3-2.9-6.5h6.1z" /></svg>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <script>
-  const tabla = document.querySelector<HTMLElement>('[data-tabla]');
-  if (tabla) {
-    const banda = tabla.querySelector<HTMLElement>('[data-banda]')!, cabezas = [...tabla.querySelectorAll<HTMLElement>('.cabeza [data-c]')];
-    // la banda de cristal se coloca sobre la columna activa (toda la altura de la tabla)
-    const colocar = () => {
-      const k = Number(tabla.dataset.col || 0), c = cabezas[k], t = tabla.getBoundingClientRect(), r = c.getBoundingClientRect();
-      banda.style.transform = `translateX(${(r.left - t.left).toFixed(1)}px)`; banda.style.width = `${r.width.toFixed(1)}px`;
+  import { clic } from '../scripts/sonidos';
+  const raiz = document.querySelector<HTMLElement>('[data-serv]');
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)');
+  if (raiz) {
+    const tarjeta = raiz.querySelector<HTMLElement>('[data-tarjeta-serv]')!;
+    const cursor = raiz.querySelector<HTMLElement>('[data-cursor]')!;
+    const flecha = cursor.querySelector<SVGElement>('.flecha')!;
+    const cab = raiz.querySelector<HTMLElement>('[data-cab]')!;
+    const opciones = [...raiz.querySelectorAll<HTMLButtonElement>('[data-opcion]')];
+    const filas = [...raiz.querySelectorAll<HTMLElement>('[data-fila]')];
+    const dm = [...raiz.querySelectorAll<HTMLElement>('[data-dm]')];
+    const nombres = opciones.map((o) => o.querySelector('.nombre')!.textContent || '');
+    const puntos = [...tarjeta.querySelectorAll<HTMLLIElement>('li[data-quien]')].map((li) => ({
+      li,
+      s: (li.dataset.quien || '').split(' ').filter(Boolean).map(Number),
+      sr: li.querySelector<HTMLElement>('[data-sr]')!,
+      c: li.querySelector<SVGElement>('.check')!,
+    }));
+    type Punto = (typeof puntos)[number];
+    let activa = 0, turno = 0, visto = false;
+    let pos = { x: 0, y: 0 }, movs: Animation[] = [];
+    const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+    const marcar = (p: Punto, on: boolean) => {
+      p.li.classList.toggle('on', on);
+      p.sr.textContent = on ? '(incluido)' : '(no incluido)';
     };
-    // RONDA 76 · Eric: «la interacción del cambio, no sé si está muy fina»: la columna cambia por INTENCIÓN (el puntero se queda 90 ms en ella), no al
-    // rozarla al cruzar en diagonal; y al salir de la tabla vuelve a la que se miraba (sin saltos)
-    let intento = 0;
-    tabla.addEventListener('pointerover', (e) => {
-      const c = (e.target as HTMLElement).closest<HTMLElement>('[data-c]');
-      clearTimeout(intento);
-      if (c && c.dataset.c !== tabla.dataset.col) intento = window.setTimeout(() => { tabla.dataset.col = c.dataset.c; colocar(); }, 90);
+    const fijar = (k: number) => puntos.forEach((p) => marcar(p, p.s.includes(k)));
+    const esperar = (ms: number, t: number) => new Promise<boolean>((r) => setTimeout(() => r(t === turno), ms));
+    const centro = (p: Punto) => {
+      const a = tarjeta.getBoundingClientRect(), b = p.c.getBoundingClientRect();
+      return { x: b.left - a.left + b.width / 2, y: b.top - a.top + b.height / 2 };
+    };
+    const parar = () => { movs.forEach((m) => m.cancel()); movs = []; cursor.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`; };
+    const llevar = async (x: number, y: number, ms: number, t: number) => {
+      const de = `translate3d(${pos.x}px, ${pos.y}px, 0)`, a = `translate3d(${x}px, ${y}px, 0)`;
+      pos = { x, y };
+      cursor.style.transform = a;
+      const m = cursor.animate([{ transform: de }, { transform: a }], { duration: ms, easing: EASE });
+      movs.push(m);
+      try { await m.finished; } catch { return false; }
+      return t === turno;
+    };
+    const pulsar = (rapido: boolean) => {
+      movs.push(flecha.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(0.8) translate(1px, 1px)', offset: 0.45 }, { transform: 'scale(1)' }],
+        { duration: rapido ? 150 : 230, easing: 'ease-out' },
+      ));
+    };
+
+    const recorrer = async (k: number, sonar: boolean) => {
+      const t = ++turno;
+      parar();
+      if (quieto.matches) { fijar(k); cursor.classList.remove('ve'); return; }
+      const cola = puntos.filter((p) => p.li.classList.contains('on') !== p.s.includes(k));
+      if (!cola.length) { cursor.classList.remove('ve'); return; }
+      // entra por la esquina de arriba a la derecha de la tarjeta (o sigue donde estaba, si ya se veía)
+      if (!cursor.classList.contains('ve')) {
+        pos = { x: tarjeta.clientWidth - 28, y: 14 };
+        cursor.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+        cursor.classList.add('ve');
+      }
+      for (const p of cola) {
+        const pone = p.s.includes(k);
+        const c = centro(p);
+        const d = Math.hypot(c.x - pos.x, c.y - pos.y);
+        const ms = pone ? Math.min(320, 140 + d * 0.28) : Math.min(200, 90 + d * 0.18);
+        if (!(await llevar(c.x, c.y, ms, t))) return;
+        pulsar(!pone);
+        if (!(await esperar(pone ? 70 : 40, t))) return;
+        marcar(p, pone);
+        if (sonar) clic({ vol: pone ? 0.032 : 0.016 });
+        if (!(await esperar(pone ? 70 : 30, t))) return;
+      }
+      if (!(await esperar(420, t))) return;
+      cursor.classList.remove('ve');
+    };
+
+    const elegir = (k: number, sonar = true) => {
+      activa = k;
+      opciones.forEach((o, i) => { o.setAttribute('aria-pressed', String(i === k)); o.tabIndex = i === k ? 0 : -1; });
+      filas.forEach((f, i) => f.classList.toggle('on', i === k));
+      dm.forEach((p, i) => p.classList.toggle('on', i === k));
+      cab.textContent = nombres[k];
+      visto = true;
+      recorrer(k, sonar);
+    };
+    opciones.forEach((o, i) => {
+      o.addEventListener('click', () => { if (i !== activa || !visto) elegir(i); });
+      o.addEventListener('keydown', (e) => {
+        const n = opciones.length;
+        let j = -1;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (activa + 1) % n;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (activa - 1 + n) % n;
+        else if (e.key === 'Home') j = 0;
+        else if (e.key === 'End') j = n - 1;
+        if (j < 0) return;
+        e.preventDefault();
+        opciones[j].focus();
+        elegir(j);
+      });
     });
-    tabla.addEventListener('pointerleave', () => clearTimeout(intento));
-    addEventListener('resize', colocar); document.fonts?.ready.then(colocar); colocar();
-    // pegada: cuando el centinela (justo encima de la cabecera) pasa bajo la barra
-    const cab = tabla.querySelector<HTMLElement>('[data-cabeza]')!;
-    const top = () => parseFloat(getComputedStyle(cab).top) || 0;
-    let ioP: IntersectionObserver | null = null;
-    const vigilar = () => { ioP?.disconnect(); ioP = new IntersectionObserver((e) => cab.classList.toggle('pegada', !e[0].isIntersecting && e[0].boundingClientRect.top < top()), { rootMargin: `-${Math.round(top()) + 1}px 0px 0px 0px` }); ioP.observe(tabla.querySelector('[data-centinela]')!); };
-    vigilar(); addEventListener('resize', vigilar);
-    // las gotas caen fila a fila al llegar
-    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('llega'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px' });
-    tabla.querySelectorAll('[data-fila]').forEach((f) => io.observe(f));
+
+    if (!quieto.matches) {
+      // con JS, la tarjeta espera vacía y la primera forma se marca al llegar la sección
+      tarjeta.classList.add('sin-transicion');
+      puntos.forEach((p) => marcar(p, false));
+      requestAnimationFrame(() => requestAnimationFrame(() => tarjeta.classList.remove('sin-transicion')));
+      const io = new IntersectionObserver((es) => {
+        if (!es.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        if (!visto) elegir(activa, true);
+      }, { rootMargin: '0px 0px -25% 0px', threshold: 0.15 });
+      io.observe(tarjeta);
+    }
+    quieto.addEventListener('change', () => { if (quieto.matches) { turno++; parar(); fijar(activa); cursor.classList.remove('ve'); } });
+    (window as any).__servicios = { elegir, activa: () => activa };
   }
 </script>
 
 <style>
-  /* ── LA TABLA (escritorio) */
-  .tabla {
+  /* ── EL BLOQUE ENTRE GUÍAS (ronda 134): las líneas de arriba y abajo son filas de los carriles; el bloque se apoya en ellas */
+  .cuerpo { --hueco: calc(var(--spacing) * 16); position: relative; display: grid; gap: calc(var(--spacing) * 8); align-items: stretch; padding-block: calc(var(--spacing) * 6); }
+  @media (width >= 64rem) {
+    .cuerpo { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--hueco); padding-block: 0; }
+  }
+  .fila-guia { position: absolute; left: 0; width: 0; height: 0; pointer-events: none; }
+  .fila-guia.arriba { top: 0; }
+  .fila-guia.abajo { bottom: 0; }
+  /* el divisor: la misma línea y las mismas cruces que los carriles (niebla al 14 % y al 70 %, mezcla por diferencia) */
+  .divisor {
     display: none;
-    position: relative;
-    --cols: minmax(0, 4fr) repeat(3, minmax(0, 2.6fr));
-  }
-  .fila {
-    display: grid;
-    grid-template-columns: var(--cols);
-    column-gap: calc(var(--spacing) * 6);
-    align-items: center;
-  }
-  .celda { position: relative; z-index: 1; }
-  .centinela { display: block; height: 1px; }
-  .cabeza {
-    position: sticky;
-    top: calc(var(--spacing) * 22); /* bajo la barra */
-    z-index: 2;
-    align-items: start;
-    padding-bottom: calc(var(--spacing) * 2);
-    background-color: var(--bg);
-    background-image: url('/media/grano.png');
-    background-size: 240px 240px;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.4s ease;
-  }
-  .cabeza .col { padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4) 0; }
-  /* la cabecera tapa la banda: la columna activa lleva su mismo tinte */
-  .tabla[data-col='0'] .cabeza [data-c='0'],
-  .tabla[data-col='1'] .cabeza [data-c='1'],
-  .tabla[data-col='2'] .cabeza [data-c='2'] { background: color-mix(in oklab, var(--fg) 6%, transparent); align-self: stretch; }
-  .cabeza .d { overflow: hidden; }
-  .cabeza .d { max-height: 12em; transition: max-height 0.5s var(--ease-out-expo), opacity 0.3s ease, margin 0.5s var(--ease-out-expo); }
-  .cabeza.pegada { border-bottom-color: var(--rule-strong, var(--rule)); }
-  /* pegada, el fondo sube hasta el borde de la pantalla: las filas no asoman bajo la barra */
-  .cabeza.pegada::before {
-    content: '';
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 100%;
-    height: calc(var(--spacing) * 22);
-    background: inherit;
-  }
-  .cabeza.pegada .d { max-height: 0; opacity: 0; margin-top: 0; }
-  .cabeza.pegada .col { padding-top: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 3); }
-  .nombre {
-    font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem);
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-  .d { color: var(--fg2); text-wrap: pretty; }
-  .grupo {
-    padding-top: calc(var(--spacing) * 8);
-    padding-bottom: calc(var(--spacing) * 3);
-    border-bottom: 1px solid var(--rule-strong, var(--rule));
-  }
-  .grupo .celda { color: var(--fg2); grid-column: 1 / -1; }
-  .item {
-    min-height: calc(var(--spacing) * 12);
-    border-bottom: 1px solid var(--rule);
-  }
-  .item .etiqueta { padding-block: calc(var(--spacing) * 3); }
-  .marca { display: grid; place-items: center; align-self: stretch; }
-  /* incluido: una gota de savia; no incluido: un filete */
-  .si {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--color-coral);
-  }
-  .no {
-    display: inline-block;
-    width: 14px;
-    height: 1px;
-    background: color-mix(in oklab, var(--fg) 28%, transparent);
-  }
-  /* las gotas caen fila a fila (y cada una, un poco después que la de su izquierda) */
-  :global(html.anima) .item .si {
-    scale: 0;
-    translate: 0 -10px;
-    transition: scale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), translate 0.6s var(--ease-out-expo);
-    transition-delay: calc(var(--k) * 90ms);
-  }
-  :global(html.anima) .item.llega .si { scale: 1; translate: 0 0; }
-  /* la columna que miras: menos tinta en las demás */
-  .col, .marca { transition: opacity 0.6s var(--ease-out-expo); }
-  .tabla[data-col='0'] [data-c]:not([data-c='0']),
-  .tabla[data-col='1'] [data-c]:not([data-c='1']),
-  .tabla[data-col='2'] [data-c]:not([data-c='2']) { opacity: 0.5; }
-  /* la BANDA de cristal sobre la columna activa (ronda 76: redondeada, sin cruces) */
-  .banda {
-    border-radius: calc(var(--spacing) * 4);
-    position: absolute;
-    z-index: 0;
     top: 0;
     bottom: 0;
-    left: 0;
-    width: 0;
-    background: color-mix(in oklab, var(--fg) 6%, transparent); /* sin desenfoque de fondo: emborronaba los filetes de las filas */
+    left: calc((100% - var(--hueco)) * 5 / 12 + var(--hueco) / 2);
+    width: 1px;
     pointer-events: none;
-    transition: transform 0.7s var(--ease-out-expo), width 0.7s var(--ease-out-expo);
+    mix-blend-mode: difference;
+    background: color-mix(in srgb, var(--color-niebla) 14%, transparent);
   }
-  /* ── LAS FICHAS (móvil) */
-  .fichas { display: grid; gap: calc(var(--spacing) * 12); }
-  .ficha-s {
-    border-radius: calc(var(--spacing) * 4);
-    padding: calc(var(--spacing) * 6);
-    background: color-mix(in oklab, var(--fg) 7%, transparent);
+  .divisor .cruz {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 9px;
+    height: 9px;
+    translate: -4px -4px;
+    background:
+      linear-gradient(color-mix(in srgb, var(--color-niebla) 70%, transparent), color-mix(in srgb, var(--color-niebla) 70%, transparent)) 50% 0 / 1px 100% no-repeat,
+      linear-gradient(color-mix(in srgb, var(--color-niebla) 70%, transparent), color-mix(in srgb, var(--color-niebla) 70%, transparent)) 0 50% / 100% 1px no-repeat;
   }
-  .lista-s { display: grid; gap: calc(var(--spacing) * 3); }
-  .lista-s li { display: flex; align-items: center; gap: calc(var(--spacing) * 3); }
-  .lista-s .si { flex: none; width: 8px; height: 8px; }
+  .divisor .cruz.fin { top: auto; bottom: 0; translate: -4px 4px; }
   @media (width >= 64rem) {
-    .tabla { display: block; }
-    .fichas { display: none; }
+    .divisor { display: block; }
+  }
+
+  /* ── EL SELECTOR (escritorio: tres filas grandes; la activa abre su descripción; la primera arranca en la línea de arriba) */
+  .selector { display: flex; flex-direction: column; }
+  .fila { border-bottom: 1px solid var(--rule); }
+  .fila:last-child { border-bottom: 0; } /* la línea de abajo ya es la guía */
+  .opcion {
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 4);
+    width: 100%;
+    padding-block: calc(var(--spacing) * 6);
+    text-align: left;
+    color: var(--fg);
+    cursor: pointer;
+    border-radius: calc(var(--spacing) * 2);
+  }
+  .opcion:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; }
+  .num { color: var(--fg2); font-variant-numeric: tabular-nums; min-width: 2ch; transition: color 0.3s ease; }
+  .nombre {
+    font-size: clamp(2.25rem, 1.4rem + 2.2vw, 3.75rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    opacity: 0.38;
+    transition: opacity 0.35s ease;
+  }
+  .fila:not(.on) .opcion:hover .nombre { opacity: 0.7; }
+  .fila.on .nombre { opacity: 1; }
+  .fila.on .num { color: var(--fg); }
+  .d-caja { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.55s var(--ease-out-expo); }
+  .d-caja > .d { overflow: hidden; min-height: 0; }
+  .fila.on .d-caja { grid-template-rows: 1fr; }
+  .d {
+    color: var(--fg2);
+    text-wrap: pretty;
+    max-width: 34ch;
+    padding-left: calc(2ch + var(--spacing) * 4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .fila.on .d { opacity: 1; padding-bottom: calc(var(--spacing) * 6); transition: opacity 0.5s ease 0.12s; }
+  .d-movil { display: none; }
+
+  /* ── MÓVIL Y TABLETA: píldoras encima de la tarjeta, la descripción debajo */
+  @media (width < 64rem) {
+    .selector { flex-direction: row; flex-wrap: wrap; gap: calc(var(--spacing) * 2); border-top: 0; }
+    .fila { border-bottom: 0; flex: none; }
+    .d-caja { display: none; }
+    .opcion {
+      padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1px var(--rule-strong);
+      align-items: center;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .opcion .num { display: none; }
+    .nombre { font-family: inherit; font-size: 0.875rem; font-weight: 600; letter-spacing: 0; line-height: 1.2; opacity: 0.8; }
+    .fila.on .opcion { background: var(--fg); color: var(--color-niebla); }
+    .d-movil { display: grid; margin-top: calc(var(--spacing) * 4); }
+    .d-movil p { grid-area: 1 / 1; color: var(--fg2); text-wrap: pretty; opacity: 0; transition: opacity 0.35s ease; }
+    .d-movil p.on { opacity: 1; transition-delay: 0.1s; }
+  }
+
+  /* ── LA TARJETA (papel claro sobre el salvia) */
+  /* ── LA TARJETA (ronda 134: sin caja propia; es la celda entre las guías, a la derecha del divisor) */
+  .tarjeta {
+    position: relative;
+    padding-block: calc(var(--spacing) * 8);
+  }
+  .cab { color: var(--fg2); }
+  .cab span { color: var(--fg); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(var(--spacing) * 8); margin-top: calc(var(--spacing) * 4); }
+  .grupo + .grupo { margin-top: calc(var(--spacing) * 6); }
+  .g { color: var(--fg2); padding-bottom: calc(var(--spacing) * 2); border-bottom: 1px solid var(--rule); }
+  .punto {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    min-height: calc(var(--spacing) * 8);
+    padding-block: calc(var(--spacing) * 1);
+    border-bottom: 1px solid var(--rule);
+    color: var(--fg);
+    opacity: 0.4;
+    transition: opacity 0.25s ease;
+  }
+  .punto.on { opacity: 1; transition: opacity 0.4s ease; }
+
+  /* el check: un aro; al pulsarlo, la tinta lo llena desde el punto del clic (el centro, donde cae la punta del cursor), sale una onda y se dibuja la marca */
+  .punto :global(.check) { flex: none; width: 20px; height: 20px; overflow: visible; }
+  .punto :global(.check) :global(circle),
+  .punto :global(.check) :global(.v) { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .punto :global(.check) :global(.aro) { stroke: var(--rule-strong); stroke-width: 1.1; opacity: 0.4; transition: opacity 0.25s ease; }
+  .punto :global(.check) :global(.relleno) {
+    fill: var(--fg);
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0);
+    transition: transform 0.18s ease-in;
+  }
+  .punto :global(.check) :global(.onda) {
+    stroke: var(--fg);
+    stroke-width: 1;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  .punto :global(.check) :global(.v) {
+    stroke: var(--color-niebla);
+    stroke-width: 2;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 0.12s ease-in;
+  }
+  .punto.on :global(.check) :global(.aro) { opacity: 1; }
+  .punto.on :global(.check) :global(.relleno) { transform: scale(1); transition: transform 0.36s cubic-bezier(0.34, 1.5, 0.64, 1); }
+  .punto.on :global(.check) :global(.onda) { animation: serv-onda 0.6s var(--ease-out-expo) both; }
+  .punto.on :global(.check) :global(.v) { stroke-dashoffset: 0; transition: stroke-dashoffset 0.4s var(--ease-out-expo) 0.14s; }
+  @keyframes serv-onda {
+    0% { opacity: 0.55; transform: scale(0.6); }
+    100% { opacity: 0; transform: scale(1.9); }
+  }
+  .tarjeta.sin-transicion .punto,
+  .tarjeta.sin-transicion :global(.check) :global(*) { transition: none !important; animation: none !important; }
+
+  /* el cursor: la flecha de un sistema operativo, con la punta en (0, 0) */
+  .cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 24px;
+    margin: -2px 0 0 -2px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 2;
+  }
+  .cursor.ve { opacity: 1; transition-duration: 0.2s; }
+  .flecha { display: block; width: 100%; height: 100%; overflow: visible; transform-origin: 2px 2px; filter: drop-shadow(0 2px 3px color-mix(in oklab, var(--color-cacao) 28%, transparent)); }
+  .flecha path { fill: var(--color-cacao); stroke: var(--color-niebla); stroke-width: 1.3; stroke-linejoin: round; }
+
+  @media (width < 64rem) {
+    .tarjeta { padding-block: calc(var(--spacing) * 6) 0; }
+    .cols { grid-template-columns: 1fr; }
+    .col + .col { margin-top: calc(var(--spacing) * 6); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .banda, .col, .marca { transition: none; }
-    :global(html.anima) .item .si { scale: 1; translate: 0 0; transition: none; }
+    .nombre,
+    .d,
+    .d-caja,
+    .punto,
+    .punto.on,
+    .punto :global(.check) :global(*) { transition: none !important; animation: none !important; }
+    .cursor { display: none; }
   }
 </style>

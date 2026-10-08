@@ -14,15 +14,18 @@ interface Props {
   cy?: number; // escena: a qué altura de la pieza cae el centro de la pantalla
   giro?: number;
   transicion?: boolean; // lleva el nombre de la transición compartida con la portada del caso
+  sube?: boolean; // ronda 130: solo la rejilla de «Todos los proyectos»: navegador recto, cortado por abajo, que sube al entrar
 }
-const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false } = Astro.props;
+const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false } = Astro.props;
 const [c1, c2, c3] = p.colores;
 const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // la pantalla del monitor en la lámina (ronda 26)
 const left = 50 - (PANT.x + PANT.w / 2) * zoom * 100, py = PANT.y + PANT.h / 2;
-const video = p.portada;
+const video = sube && tipo !== 'telefono' && p.portada.movil && p.escritorio ? p.escritorio : p.portada; // ronda 131: la rejilla, siempre en escritorio
+// ronda 129: sobre un fondo de marca claro (p. ej. el amarillo de Remerge en el teléfono), el nombre va en Cacao
+const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150; })();
 ---
 
-<a href={`/proyectos/${p.slug}`} class={`pieza ${tipo}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra>
+<a href={`/proyectos/${p.slug}`} class={`pieza ${tipo}${tipo !== 'escena' && claroFondo ? ' fondo-claro' : ''}${sube ? ' pz-sube' : ''}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra>
   <div class={`lamina ${tipo === 'escena' ? '' : 'g-marca'}`} style={transicion ? `view-transition-name: obra-${p.slug}` : undefined}>
     {
       tipo === 'escena' ? (
@@ -50,6 +53,9 @@ const video = p.portada;
   const tactil = matchMedia('(hover: none)').matches, reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const tocar = (v: HTMLVideoElement, si: boolean) => { if (si) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!reducido) v.play().catch(() => {}); } else v.pause(); };
   const io = new IntersectionObserver((es) => es.forEach((e) => tocar(e.target.querySelector('video')!, e.isIntersecting)), { threshold: 0.5 });
+  // ronda 126: la web sube desde abajo al entrar la pieza en pantalla (y se queda)
+  const ve = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('vista'); ve.unobserve(e.target); } }), { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll<HTMLElement>('[data-pieza-obra].pz-sube').forEach((pz) => ve.observe(pz));
   document.querySelectorAll<HTMLElement>('[data-pieza-obra]').forEach((pz) => {
     const v = pz.querySelector('video')!;
     v.addEventListener('playing', () => pz.classList.add('suena'));
@@ -106,8 +112,22 @@ const video = p.portada;
     color: var(--tinta, var(--color-niebla));
     text-wrap: balance;
   }
-  .claro {
+  /* RONDA 130 · «que el titular de cada proyecto no quede tan alto»: en la rejilla, el nombre baja un paso (h3 → lead), se separa del borde de arriba
+     (32 px) y se alinea con el canto izquierdo del navegador (7 %) */
+  .pieza.pz-sube .nombre {
+    left: 7%;
+    right: 7%;
+    top: calc(var(--spacing) * 8);
+    font-size: var(--text-lead);
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+  .claro,
+  .fondo-claro {
     --tinta: var(--color-cacao);
+  }
+  .pieza.fondo-claro .nombre {
+    text-shadow: none;
   }
   .escena .nombre,
   .mancha .nombre,
@@ -151,20 +171,46 @@ const video = p.portada;
     overflow: hidden;
     background: #fbfbfa;
     box-shadow: 0 0 0 1px rgb(0 0 0 / 0.18), 0 24px 48px -12px rgb(30 16 8 / 0.55);
-    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
   }
   /* RONDA 68 · «revisar que las miniaturas estén bien encajadas y la web no se vea cortada»: el navegador, ENTERO dentro de su pieza, bajo el nombre
      (lo más ancho que quepa en el 62 % de abajo), con la web a su proporción real (16:9, la de las grabaciones: ya no se recorta por los lados); la
      mancha, apenas ladeada; el claro, recto */
+  /* RONDA 126 · Andoni: «en todos los proyectos quiero que las webs se vean más grandes y salgan como desde abajo»: el navegador, mucho más ancho (88 %),
+     arranca bajo el nombre y se sale por el borde de abajo de la pieza (la pieza lo recorta); al entrar en pantalla SUBE desde abajo (`.vista`) */
+  /* RONDA 129 · Andoni: «la card más pequeña y que los proyectos salgan de abajo» (captura: el navegador RECTO, bajo el nombre, cortado por el borde de
+     abajo). El navegador mide el 86 % del ancho, va centrado y su alto (web 16:9 + barra) se conoce en cqw: `--top` lo coloca bajo el nombre o, si la
+     pieza es alta, lo baja hasta que al menos un 18 % quede fuera; nunca se le ven las esquinas de abajo. En reposo, ese es su sitio (sin JS, también);
+     con JS (`html.pz-js`), espera bajo el borde y SUBE al entrar en pantalla (`.vista`). Solo `transform` (nunca `translate:` junto a `transform:`). */
+  /* RONDA 130 · Andoni: «lo de que saliera de abajo solo era aplicarlo a la parte de todos los proyectos». Por defecto (los destacados) vuelve el
+     navegador de la ronda 68: ENTERO dentro de la pieza, bajo el nombre; la mancha, apenas ladeada; el claro, recto. Solo `transform`. */
   .mancha .mockup,
   .claro .mockup {
-    left: 50%;
+    left: 0;
+    right: 0;
+    margin-inline: auto;
     bottom: 9%;
     width: min(84%, calc((62cqh - 14px) * 16 / 9));
-    translate: -50% 0;
+    transition: transform 0.9s var(--ease-out-expo);
   }
   .mancha .mockup {
-    rotate: calc(var(--giro) * 0.4);
+    transform: rotate(calc(var(--giro) * 0.4));
+  }
+  /* LA REJILLA (`.pz-sube`, ronda 129 → 130): el navegador RECTO al 86 %, alineado con el nombre, cortado por el borde de abajo (nunca se le ven las
+     esquinas de abajo: al menos un 18 % fuera); con JS (`html.pz-js`) espera bajo el borde y SUBE al entrar en pantalla (`.vista`). */
+  .pieza.pz-sube .mockup {
+    --top: max(calc(var(--spacing) * 8 + var(--text-lead) * 1.3 + var(--spacing) * 4), calc(100cqh - 0.82 * (48.375cqw + 14px)));
+    left: 7%;
+    right: auto;
+    margin-inline: 0;
+    bottom: auto;
+    top: var(--top);
+    width: 86%;
+    transform: translateY(0);
+    transition: transform 1.1s var(--ease-out-expo);
+    transition-delay: calc(var(--fila-i, 0) * 90ms);
+  }
+  :global(html.pz-js) .pieza.pz-sube:not(.vista) .mockup {
+    transform: translateY(calc(100cqh - var(--top) + 8px));
   }
   .claro .mockup {
     box-shadow: 0 0 0 1px rgb(48 32 24 / 0.14), 0 18px 40px -14px rgb(48 32 24 / 0.4);
@@ -175,6 +221,8 @@ const video = p.portada;
     aspect-ratio: 16 / 9;
     object-fit: cover;
     object-position: 50% 0;
+    transform: scale(1.012); /* algunas grabaciones traen un filo claro en el canto derecho: se recorta */
+    transform-origin: 50% 0;
   }
   .cromo {
     display: flex;
@@ -247,19 +295,33 @@ const video = p.portada;
     z-index: 1;
     background: linear-gradient(to bottom, color-mix(in oklab, var(--color-cacao) 55%, transparent), transparent 34%);
   }
-  /* el teléfono de pie */
+  /* el teléfono de pie (ronda 68: por el alto, así entra entero en cualquier proporción de pieza) */
   .telefono-m {
     position: absolute;
-    left: 50%;
+    left: 0;
+    right: 0;
+    margin-inline: auto;
     bottom: 7%;
-    height: 68%; /* ronda 68: por el alto, así entra entero en cualquier proporción de pieza */
+    height: 68%;
     aspect-ratio: 390 / 844;
-    translate: -50% 0;
     padding: 1.2%;
     border-radius: 4.2cqh;
     background: #1a110c;
     box-shadow: 0 30px 60px -20px rgb(30 16 8 / 0.6);
-    transition: translate 0.9s var(--ease-out-expo);
+    transition: transform 0.9s var(--ease-out-expo);
+  }
+  /* en la rejilla: la misma lógica que el navegador, sube desde abajo y el borde lo corta */
+  .pieza.pz-sube .telefono-m {
+    --top: max(calc(var(--spacing) * 8 + var(--text-lead) * 1.3 + var(--spacing) * 4), 24cqh);
+    top: var(--top);
+    bottom: auto;
+    height: 96cqh;
+    transform: translateY(0);
+    transition: transform 1.1s var(--ease-out-expo);
+    transition-delay: calc(var(--fila-i, 0) * 90ms);
+  }
+  :global(html.pz-js) .pieza.pz-sube:not(.vista) .telefono-m {
+    transform: translateY(calc(100cqh - var(--top) + 8px));
   }
   .telefono-m .vid {
     display: block;
@@ -268,18 +330,17 @@ const video = p.portada;
     object-fit: cover;
     border-radius: 3.6cqh;
   }
-  /* al pasar */
-  .mancha:hover .mockup,
-  .mancha:focus-visible .mockup {
-    translate: -50% -4%;
-    rotate: 0deg;
+  /* al pasar: el navegador se endereza y sube un poco */
+  .pieza:not(.pz-sube):is(.mancha, .claro):is(:hover, :focus-visible) .mockup {
+    transform: translateY(-4%);
   }
-  .claro:hover .mockup,
-  .claro:focus-visible .mockup {
-    translate: -50% -4%;
+  .pieza:not(.pz-sube).telefono:is(:hover, :focus-visible) .telefono-m {
+    transform: translateY(-5%);
   }
-  .telefono:hover .telefono-m {
-    translate: -50% -5%;
+  .pieza.pz-sube.vista:is(.mancha, .claro):is(:hover, :focus-visible) .mockup,
+  .pieza.pz-sube.vista.telefono:is(:hover, :focus-visible) .telefono-m {
+    transform: translateY(calc(var(--spacing) * -2));
+    transition-delay: 0s;
   }
   .escena:hover .mesa,
   .escena:focus-visible .mesa {
@@ -293,6 +354,8 @@ const video = p.portada;
     outline-offset: calc(var(--spacing) * 1);
   }
   @media (prefers-reduced-motion: reduce) {
+    :global(html.pz-js) .pieza.pz-sube:not(.vista) .mockup,
+    :global(html.pz-js) .pieza.pz-sube:not(.vista) .telefono-m { transform: none; }
     .mockup,
     .mesa,
     .telefono-m,

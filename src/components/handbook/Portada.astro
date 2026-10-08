@@ -1,0 +1,351 @@
+---
+// RONDA 129 · LA PORTADA DEL HANDBOOK (en la 129–131 se llamó «Duramen»). Andoni: «ponemos un titular centrado y cuando pasas el ratón por esa zona salen proyectos que
+// hemos hecho […] Cuando haces scroll sale un texto centrado como en la referencia explicando qué es el handbook. Luego los capítulos y después
+// ya footer.» Como el manifiesto nuevo: papel claro, titular centrado, nada de ilustración alrededor.
+// Referencia (designhandbook.com/en, tools/ref128/handbook-portada-*): portada casi vacía con el titular; al bajar, un párrafo centrado
+// (alineado a la izquierda) que explica el manual. Lo de la ronda 128 («Empieza por aquí», «De dónde sale este manual», raíces) se va; el origen
+// queda dentro del párrafo.
+import { handbook, capitulos, minutos } from '../../data/handbook';
+import Cta from '../Cta.astro';
+
+const href = (slug: string) => `/handbook/${slug}`;
+const estela = handbook.estela.map(([f, n]) => ({ src: `/media/handbook/estela/${f}.webp`, n, movil: f.startsWith('remerge') }));
+// el párrafo, partido en palabras (se entintan con el scroll)
+let k = 0;
+const parrafos = handbook.intro.map((t) => t.split(' ').map((w) => ({ w, i: k++ })));
+const total = k;
+import { flecha } from '../../lib/flecha';
+---
+
+<section class="portada surface-light" aria-labelledby="hb-titulo" data-sin-fila data-hb-portada>
+  <div class="estela" aria-hidden="true" data-estela data-fotos={JSON.stringify(estela)}></div>
+  <div class="centro">
+    <h1 id="hb-titulo" class="titulo" data-entra>{handbook.titulo}</h1>
+    <p class="sub detail"><span>{handbook.sub}</span><span class="sep"> · </span><span>{handbook.firma}</span></p>
+  </div>
+  <p class="pista detail" aria-hidden="true"><span class="raton"></span>{handbook.pista}</p>
+</section>
+
+<section class="intro surface-light" aria-label={`Qué es ${handbook.nombre}`} data-hb-intro style={`--n:${total}`}>
+  <div class="wrap">
+    <div class="columna">
+      {
+        parrafos.map((ws) => (
+          <p class="parrafo">
+            {ws.map((x, j) => (
+              <Fragment>
+                {j ? ' ' : ''}
+                <span class="w" style={`--i:${x.i}`}>{x.w}</span>
+              </Fragment>
+            ))}
+          </p>
+        ))
+      }
+      <Cta class="empezar" href={href(capitulos[0].slug)} variante="secundario" tam="sm">{handbook.empezar}</Cta>
+    </div>
+  </div>
+</section>
+
+<!-- RONDA 138 · los capítulos vuelven a ser una LISTA (rondas 128–131): número, título, frase, lo que se tarda y la flecha. Sin iconos ni tarjetas. -->
+<section class="capitulos surface-light" aria-labelledby="hb-capitulos">
+  <div class="wrap">
+    <h2 id="hb-capitulos" class="oculto">Capítulos</h2>
+    <ol class="lista">
+      {
+        capitulos.map((c) => (
+          <li>
+            <a class="fila" href={href(c.slug)}>
+              <span class="f-n detail">{c.num}</span>
+              <span class="f-t">{c.titulo}</span>
+              <span class="f-d">{c.frase}</span>
+              <span class="f-m detail">
+                {c.secciones.length} {c.secciones.length === 1 ? 'apartado' : 'apartados'} · {minutos(c)} min
+                <Fragment set:html={flecha()} />
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+
+<script>
+  // ── La estela de webs: al mover el ratón por la portada, salen capturas de proyectos reales a lo largo del camino del cursor.
+  const sec = document.querySelector<HTMLElement>('[data-hb-portada]');
+  const capa = sec?.querySelector<HTMLElement>('[data-estela]');
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (sec && capa && !reducido) {
+    type Foto = { src: string; n: string; movil: boolean };
+    const fotos: Foto[] = JSON.parse(capa.dataset.fotos || '[]');
+    let cargadas = false;
+    const precargar = () => {
+      if (cargadas) return;
+      cargadas = true;
+      fotos.forEach((f) => { const im = new Image(); im.decoding = 'async'; im.src = f.src; });
+    };
+    const MAX = 7; // nunca más de siete a la vez
+    const vivas: HTMLElement[] = [];
+    let n = Math.floor(Math.random() * fotos.length);
+    const EXPO = 'cubic-bezier(.16,1,.3,1)';
+
+    const soltar = (x: number, y: number, escala = 1) => {
+      const f = fotos[n++ % fotos.length];
+      const el = document.createElement('figure');
+      el.className = 'foto' + (f.movil ? ' movil' : '');
+      const img = document.createElement('img');
+      img.src = f.src;
+      img.alt = '';
+      img.decoding = 'async';
+      const pie = document.createElement('figcaption');
+      pie.textContent = f.n;
+      el.append(img, pie);
+      const giro = (Math.random() - 0.5) * 9;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      vivas.forEach((v) => v.classList.remove('ultima'));
+      el.classList.add('ultima');
+      capa.append(el);
+      vivas.push(el);
+      while (vivas.length > MAX) quitar(vivas.shift()!, true);
+      el.animate(
+        [
+          { transform: `translate(-50%,-50%) rotate(${giro * 1.6}deg) scale(${0.55 * escala})`, opacity: 0, filter: 'blur(6px)' },
+          { transform: `translate(-50%,-50%) rotate(${giro}deg) scale(${escala})`, opacity: 1, filter: 'blur(0px)' },
+        ],
+        { duration: 900, easing: EXPO, fill: 'forwards' },
+      );
+      (el as any)._t = setTimeout(() => quitar(el), 1300);
+      (el as any)._g = giro;
+      (el as any)._e = escala;
+    };
+    const quitar = (el: HTMLElement, rapido = false) => {
+      if ((el as any)._fuera) return;
+      (el as any)._fuera = true;
+      clearTimeout((el as any)._t);
+      const i = vivas.indexOf(el);
+      if (i >= 0) vivas.splice(i, 1);
+      const g = (el as any)._g, e = (el as any)._e;
+      el.animate(
+        [
+          { transform: `translate(-50%,-50%) rotate(${g}deg) scale(${e})`, opacity: 1 },
+          { transform: `translate(-50%,-44%) rotate(${g * 0.6}deg) scale(${e * 0.9})`, opacity: 0 },
+        ],
+        { duration: rapido ? 420 : 750, easing: EXPO, fill: 'forwards' },
+      ).finished.then(() => el.remove(), () => el.remove());
+    };
+
+    // ratón: una foto cada ~120 px de camino
+    let ux = 0, uy = 0, camino = 0, dentro = false;
+    sec.addEventListener('pointerenter', (e) => {
+      precargar();
+      const r = sec.getBoundingClientRect();
+      ux = e.clientX - r.left; uy = e.clientY - r.top; camino = 90; dentro = true;
+    });
+    sec.addEventListener('pointerleave', () => { dentro = false; });
+    sec.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || !dentro) return;
+      const r = sec.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      camino += Math.hypot(x - ux, y - uy);
+      ux = x; uy = y;
+      if (camino > 120) { camino = 0; soltar(x, y); sec.classList.add('tocada'); }
+    });
+
+    // táctil: tres alrededor del toque, y una estela lenta sola mientras se ve
+    sec.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      precargar();
+      const r = sec.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      [0, 1, 2].forEach((i) => setTimeout(() => soltar(x + (i - 1) * 48, y + (i % 2 ? -36 : 24), 0.8), i * 140));
+    });
+    if (matchMedia('(hover: none)').matches) {
+      let visible = false, t = 0, raf = 0, ultima = 0;
+      const vuelta = (ahora: number) => {
+        raf = requestAnimationFrame(vuelta);
+        if (!visible || document.hidden) return;
+        if (!t) t = ahora;
+        if (ahora - ultima < 1100) return;
+        ultima = ahora;
+        const s = (ahora - t) / 1000;
+        const w = sec.clientWidth, h = sec.clientHeight;
+        soltar(w * (0.5 + 0.34 * Math.sin(s * 0.7)), h * (0.5 + 0.3 * Math.sin(s * 1.1 + 1)), 0.75);
+      };
+      new IntersectionObserver(([en]) => {
+        visible = en.isIntersecting;
+        if (visible) { precargar(); if (!raf) raf = requestAnimationFrame(vuelta); }
+        else { cancelAnimationFrame(raf); raf = 0; }
+      }, { threshold: 0.3 }).observe(sec);
+    }
+  }
+
+  // ── El párrafo: las palabras se entintan con el scroll (de la tinta tenue a la plena), con calma.
+  const intro = document.querySelector<HTMLElement>('[data-hb-intro]');
+  if (intro) {
+    if (reducido) intro.style.setProperty('--p', '1');
+    else {
+      let pend = false;
+      const medir = () => {
+        pend = false;
+        const r = intro.getBoundingClientRect();
+        const vh = innerHeight;
+        // empieza cuando el párrafo asoma al 85 % de la pantalla y termina cuando su final llega al 55 %
+        const p = (vh * 0.85 - r.top) / (r.height - vh * 0.3 + vh * 0.3);
+        intro.style.setProperty('--p', String(Math.min(1, Math.max(0, p))));
+      };
+      const pedir = () => { if (!pend) { pend = true; requestAnimationFrame(medir); } };
+      addEventListener('scroll', pedir, { passive: true });
+      addEventListener('resize', pedir);
+      medir();
+    }
+  }
+</script>
+
+<style>
+  /* ── PORTADA: papel, el titular en el centro y nada más. La estela de webs vive detrás del titular. ── */
+  .portada {
+    position: relative;
+    min-height: 100lvh;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    overflow: clip;
+    padding-inline: calc(var(--spacing) * 4);
+  }
+  .estela { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .centro { position: relative; z-index: 1; text-align: center; pointer-events: none; }
+  .titulo {
+    font-family: var(--font-display);
+    font-size: clamp(4.5rem, 1.5rem + 15vw, 15rem);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+  }
+  .sub { margin-top: calc(var(--spacing) * 6); letter-spacing: 0.04em; color: var(--fg2); }
+  @media (width < 40rem) {
+    .sub span { display: block; }
+    .sub .sep { display: none; }
+  }
+  .pista {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--spacing) * 8 + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    color: var(--fg2);
+    white-space: nowrap;
+    transition: opacity 0.8s var(--ease-out-expo);
+  }
+  .raton {
+    width: 12px;
+    height: 18px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    position: relative;
+  }
+  .raton::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 3px;
+    width: 2px;
+    height: 4px;
+    margin-left: -1px;
+    border-radius: 1px;
+    background: currentColor;
+    animation: rueda 2.2s var(--ease-out-expo) infinite;
+  }
+  @keyframes rueda { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(5px); opacity: 0; } 100% { opacity: 0; } }
+  .portada:global(.tocada) .pista { opacity: 0; }
+  @media (hover: none) { .pista { display: none; } }
+
+  .estela :global(.foto) {
+    position: absolute;
+    width: clamp(8.5rem, 4rem + 11vw, 15rem);
+    margin: 0;
+    will-change: transform, opacity;
+    opacity: 0;
+  }
+  .estela :global(.foto.movil) { width: clamp(4.5rem, 2rem + 5vw, 7rem); }
+  .estela :global(.foto img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--color-cacao) 12%, transparent), 0 18px 36px -22px color-mix(in oklab, var(--color-cacao) 55%, transparent);
+  }
+  .estela :global(.foto figcaption) {
+    margin-top: calc(var(--spacing) * 2);
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    color: var(--fg2);
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-out-expo);
+  }
+  .estela :global(.foto.ultima figcaption) { opacity: 1; }
+
+  /* ── EL PÁRRAFO: centrado en la página, alineado a la izquierda, letra grande de lectura; se entinta con el scroll ── */
+  /* RONDA 130 · «bastante más aire por arriba y por abajo»: el doble que en la 129 */
+  .intro { padding-block: calc(var(--spacing) * 32) calc(var(--spacing) * 40); }
+  @media (width >= 64rem) { .intro { padding-block: calc(var(--spacing) * 48) calc(var(--spacing) * 64); } }
+  .columna { max-width: 36rem; margin-inline: auto; display: grid; gap: calc(var(--spacing) * 8); }
+  .parrafo {
+    font-size: clamp(1.375rem, 1.05rem + 0.85vw, 1.75rem);
+    line-height: 1.32;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+  .w {
+    --t: clamp(0, calc(var(--p, 0) * (var(--n) + 14) - var(--i)), 14);
+    color: color-mix(in oklab, var(--fg) calc(22% + var(--t) / 14 * 78%), transparent);
+  }
+  /* RONDA 130 · «el cta mucho más sutil»: un enlace de texto con el subrayado que crece y una flecha pequeña (antes, píldora llena) */
+  /* RONDA 134 · el CTA de la casa, secundario (Cta.astro) */
+  .empezar { justify-self: start; }
+
+  /* ── CAPÍTULOS (ronda 138): lista de filas, separadores finos, hover tranquilo ── */
+  .capitulos { padding-bottom: calc(var(--spacing) * 24); }
+  .oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .lista { border-top: 1px solid var(--rule); }
+  .lista li { border-bottom: 1px solid var(--rule); }
+  .fila {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    grid-template-areas: 'n t m' '. d m';
+    column-gap: calc(var(--spacing) * 4);
+    row-gap: calc(var(--spacing) * 1);
+    align-items: baseline;
+    padding-block: calc(var(--spacing) * 6);
+  }
+  .f-n { grid-area: n; color: var(--fg2); }
+  .f-t {
+    grid-area: t;
+    font-family: var(--font-display);
+    font-size: clamp(1.875rem, 1rem + 3.2vw, 3.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    color: color-mix(in oklab, var(--fg) 55%, transparent);
+    transition: color 0.45s var(--ease-out-expo);
+  }
+  .f-d { grid-area: d; color: var(--fg2); text-wrap: pretty; max-width: 44ch; }
+  .f-m { grid-area: m; align-self: center; display: inline-flex; align-items: center; gap: calc(var(--spacing) * 3); color: var(--fg2); white-space: nowrap; }
+  .fila:hover .f-t, .fila:focus-visible .f-t { color: var(--fg); }
+  .fila:hover .f-m :global(.btn-flecha), .fila:focus-visible .f-m :global(.btn-flecha) { color: var(--color-coral); }
+  .f-m :global(.btn-flecha) { transition: color 0.4s ease; }
+  @media (width < 40rem) {
+    .fila { grid-template-columns: 2.25rem minmax(0, 1fr); grid-template-areas: 'n t' '. d' '. m'; padding-block: calc(var(--spacing) * 5); }
+    .f-m { align-self: start; margin-top: calc(var(--spacing) * 2); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .raton::after { animation: none; }
+    .f-t { transition: none; }
+  }
+</style>

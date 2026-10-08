@@ -1,0 +1,972 @@
+---
+import Cta from '../Cta.astro';
+// RONDA 128 · EL LABORATORIO, sobre matthewvernon.co (lienzo que se recorre, ventanas de archivo, selector de fondo).
+// RONDA 129 · Andoni: «el usuario elige el color de fondo como en la página de referencia. Es un loop infinito y cuando te mueves hacia los lados es
+// como que se distorsionan un poco los proyectos, como si cogieras velocidad. El logo y menú superior en color-dodge. Lo del laboratorio, savvia lab,
+// una card de cristal que deje ver lo de detrás. Y unir todos los proyectos con raíces que salen de la card del lab».
+// · MUNDO EN BUCLE: ya no es un scroll nativo: una cámara recorre un mundo de W × H que se repite. Cada pieza se pinta UNA vez, en la copia que cae
+//   más cerca del centro de la pantalla (W y H son siempre mayores que la pantalla + la pieza más grande: el salto ocurre fuera de la vista).
+//   Rueda / trackpad, arrastre (con inercia al soltar), dedo y flechas. Si la página ya bajó (hacia el pie), la rueda y el dedo vuelven a la página.
+// · VELOCIDAD: cada pieza persigue la velocidad del contenido con su propio retardo y se inclina y estira en la dirección del movimiento; en reposo
+//   vuelve a su forma. Solo transform. Movimiento reducido: sin distorsión ni inercia.
+// · RAÍCES: un lienzo 2D detrás de todo; de la card de cristal sale una raíz a cada proyecto (curva que se afina, con raicillas laterales y el
+//   extremo abierto en dos), en la tinta del fondo; siguen a las piezas y se apagan antes de que una pieza dé la vuelta al mundo.
+// · FONDO: un deslizador como el de la referencia («Choose Background Color») con la paleta de savvia (Rosa niebla → Salvia → Cobalto → Coral →
+//   Nogal → Cacao) interpolada en OKLab; la tinta (Cacao o Rosa niebla) se elige por luminancia. Se recuerda (localStorage «savvia:lab-fondo»).
+// · La barra (logo y menú) va en blanco con mix-blend-mode: difference (lab.astro; r130): siempre el contrario del fondo, sin placas.
+// · Sin `translate:` junto a `transform:` (ronda 119).
+// RONDA 132 · solo tres experimentos (Gravitas, Think Clearly, Skale), más grandes, cada uno con su línea y su web. Para que el lienzo infinito no
+// tenga huecos, el mundo es más pequeño (src/data/lab.ts › mundo) y cada experimento aparece dos veces por vuelta. Clic = se abre en grande, con el
+// enlace a su web (pestaña nueva). Fuera las notas sueltas.
+import { experimentos, lab, mundo } from '../../data/lab';
+const M = '/media/lab/';
+const piezas = experimentos
+  .flatMap((e, i) => e.lienzo.map((l, c) => ({ i, c, x: l.x, y: l.y, w: l.w, mx: l.m.x, my: l.m.y })))
+  .sort((a, b) => Math.hypot(a.x + a.w / 2, a.y) - Math.hypot(b.x + b.w / 2, b.y));
+---
+
+<section class="lab surface-light" aria-labelledby="lab-h" data-lab>
+  <canvas class="raices" aria-hidden="true" data-raices></canvas>
+  <div class="mundo" tabindex="0" aria-label="Lienzo de savvia lab: arrastra, desliza o usa las flechas para explorar; no tiene fin" data-mundo>
+    {
+      piezas.map((p, k) => {
+        const e = experimentos[p.i];
+        return (
+          <article
+            class="pieza"
+            tabindex="0"
+            aria-label={`${e.nombre}. ${e.que} Abrir de cerca`}
+            data-pieza
+            data-esp={p.i}
+            data-x={p.x}
+            data-y={p.y}
+            data-mx={p.mx}
+            data-my={p.my}
+            style={`--w:${p.w};--ar:${e.ar};--z:${k + 1};--d:${(k * 0.08).toFixed(2)}s`}
+          >
+            <header class="cab">
+              <span class="archivo font-display">{e.nombre}</span>
+              <span class="pill">{e.dominio}</span>
+            </header>
+            <div class="cuerpo">
+              <video muted loop playsinline preload="none" poster={`${M}${e.slug}.jpg`} data-src={`${M}${e.slug}.mp4`} aria-hidden="true" />
+              <button type="button" class="ver" data-ver aria-label={`Reproducir ${e.nombre}`}>
+                <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2l7 4-7 4z" /></svg>
+              </button>
+            </div>
+            <p class="linea">{e.que}</p>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  <div class="hola" data-hola>
+    <header class="cab">
+      <span class="archivo">savvia-lab.md</span>
+      <span class="pill">Texto</span>
+    </header>
+    <div class="hola-c">
+      <h1 id="lab-h" class="font-display titular">{lab.titulo}</h1>
+      <p class="sub">{lab.sub}</p>
+      <p class="registro">
+        {experimentos.length} experimentos · {experimentos.map((e) => e.nombre).join(' · ')}
+      </p>
+    </div>
+  </div>
+  <p class="pista" aria-hidden="true" data-pista>
+    <svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14M8 1l-2 2M8 1l2 2M8 15l-2-2M8 15l2-2M1 8l2-2M1 8l2 2M15 8l-2-2M15 8l-2 2" /></svg>
+    <span class="solo-raton">{lab.ayuda}</span><span class="solo-tactil">{lab.ayudaTactil}</span>
+  </p>
+
+  <div class="fondos" data-fondos>
+    <span class="fondos-t" id="fondo-t">Elige el fondo</span>
+    <div class="pista-color" data-pista-color>
+      <span
+        class="tirador"
+        role="slider"
+        tabindex="0"
+        aria-labelledby="fondo-t"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-valuetext="Rosa niebla"
+        data-tirador></span>
+    </div>
+  </div>
+
+  <Cta href="#contacto" class="al-pie" variante="secundario" tam="sm" flecha="abajo">Contacto</Cta>
+
+</section>
+
+<dialog class="lupa surface-light" data-lupa aria-labelledby="lupa-h">
+  <div class="lupa-in">
+    <video muted loop playsinline controls preload="none" data-lupa-video></video>
+    <div>
+      <p class="lupa-cod" data-lupa-cod></p>
+      <h2 id="lupa-h" class="font-display lupa-nombre" data-lupa-nombre></h2>
+      <p class="lupa-que" data-lupa-que></p>
+      <Cta class="ir" href="#" tam="sm" externo data-lupa-ir>{lab.abrir}</Cta>
+    </div>
+    <button type="button" class="cerrar" data-lupa-cerrar aria-label="Cerrar">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" /></svg>
+    </button>
+  </div>
+</dialog>
+
+<script>
+  import { experimentos, mundo as MUNDO } from '../../data/lab';
+  const sec = document.querySelector<HTMLElement>('[data-lab]')!;
+  const mundo = sec.querySelector<HTMLElement>('[data-mundo]')!;
+  const lienzo = sec.querySelector<HTMLCanvasElement>('[data-raices]')!;
+  const ctx = lienzo.getContext('2d')!;
+  const hola = sec.querySelector<HTMLElement>('[data-hola]')!;
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const raton = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (reducido) sec.classList.add('quieta');
+  if (!raton) sec.classList.add('tactil');
+  const html = document.documentElement;
+  const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+
+  // ───────────────────────── el FONDO: deslizador con la paleta de savvia, interpolada en OKLab ─────────────────────────
+  const PARADAS: [string, string][] = [
+    ['Rosa niebla', '#eadde7'],
+    ['Salvia', '#96bfe6'],
+    ['Cobalto', '#3456d3'],
+    ['Coral', '#ff616b'],
+    ['Nogal', '#63402f'],
+    ['Cacao', '#302018'],
+  ];
+  const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const gam = (c: number) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+  const hexRgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  const aLab = ([r, g, b]: number[]) => {
+    const R = lin(r), G = lin(g), B = lin(b);
+    const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+    const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+    const s = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+    return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s];
+  };
+  const deLab = ([L, a, b]: number[]) => {
+    const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+    return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s].map((c) => clamp(gam(c), 0, 1));
+  };
+  const LABS = PARADAS.map(([, h]) => aLab(hexRgb(h)));
+  const aHex = (rgb: number[]) => '#' + rgb.map((c) => Math.round(c * 255).toString(16).padStart(2, '0')).join('');
+  const luz = (rgb: number[]) => 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2]);
+  let tinta = hexRgb('#302018');
+  function colorEn(t: number) {
+    const f = clamp(t, 0, 0.99999) * (LABS.length - 1), i = Math.floor(f), u = f - i;
+    const a = LABS[i], b = LABS[i + 1];
+    return deLab([a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u]);
+  }
+  const pistaColor = sec.querySelector<HTMLElement>('[data-pista-color]')!;
+  const tirador = sec.querySelector<HTMLElement>('[data-tirador]')!;
+  let tFondo = 0;
+  function ponerFondo(t: number, guardar = true) {
+    tFondo = clamp(t, 0, 1);
+    const rgb = colorEn(tFondo), Y = luz(rgb), oscuro = Y < 0.2;
+    const hex = aHex(rgb), ti = oscuro ? '#eadde7' : '#302018';
+    tinta = hexRgb(ti);
+    html.style.setProperty('--lab-fondo', hex);
+    html.style.setProperty('--lab-tinta', ti);
+    html.classList.toggle('lab-oscuro', oscuro);
+    tirador.style.left = `${tFondo * 100}%`;
+    tirador.style.setProperty('--c', hex);
+    tirador.setAttribute('aria-valuenow', String(Math.round(tFondo * 100)));
+    tirador.setAttribute('aria-valuetext', PARADAS[Math.round(tFondo * (PARADAS.length - 1))][0]);
+    if (guardar) { try { localStorage.setItem('savvia:lab-fondo', JSON.stringify({ t: tFondo, c: hex, ti, o: oscuro })); } catch {} }
+    despertar();
+  }
+  let tiraId = -1;
+  const tDe = (x: number) => { const r = pistaColor.getBoundingClientRect(); return (x - r.left) / r.width; };
+  pistaColor.addEventListener('pointerdown', (ev) => {
+    tiraId = ev.pointerId; try { pistaColor.setPointerCapture(tiraId); } catch {} ponerFondo(tDe(ev.clientX)); tirador.focus({ preventScroll: true });
+  });
+  pistaColor.addEventListener('pointermove', (ev) => { if (ev.pointerId === tiraId) ponerFondo(tDe(ev.clientX)); });
+  const soltarTira = (ev: PointerEvent) => { if (ev.pointerId === tiraId) tiraId = -1; };
+  pistaColor.addEventListener('pointerup', soltarTira);
+  pistaColor.addEventListener('pointercancel', soltarTira);
+  tirador.addEventListener('keydown', (ev) => {
+    const paso = ev.shiftKey ? 0.2 : 0.02;
+    if (ev.key === 'Home') { ev.preventDefault(); ponerFondo(0); return; }
+    if (ev.key === 'End') { ev.preventDefault(); ponerFondo(1); return; }
+    const d = ({ ArrowLeft: -paso, ArrowDown: -paso, ArrowRight: paso, ArrowUp: paso } as Record<string, number>)[ev.key];
+    if (d === undefined) return;
+    ev.preventDefault(); ponerFondo(tFondo + d);
+  });
+
+  // ───────────────────────── el MUNDO en bucle ─────────────────────────
+  type P = { el: HTMLElement; esp: boolean; x: number; y: number; w: number; h: number; dx: number; dy: number; vx: number; vy: number; lag: number; semilla: number; ult: string };
+  const els = [...mundo.querySelectorAll<HTMLElement>('[data-pieza]')];
+  let k = 1, W = 3200, H = 1900, vw = innerWidth, vh = innerHeight;
+  const ps: P[] = els.map((el, i) => ({
+    el, esp: !!el.dataset.esp, x: +el.dataset.x!, y: +el.dataset.y!, w: 0, h: 0, dx: 0, dy: 0, vx: 0, vy: 0,
+    lag: 0.07 + (((i * 37) % 11) / 11) * 0.09, semilla: ((i * 9301 + 49297) % 233280) / 233280, ult: '',
+  }));
+  const cam = { x: 0, y: 0 }, meta = { x: 0, y: 0 }, prev = { x: 0, y: 0 };
+  let fling = { x: 0, y: 0 };
+  let holaR = new DOMRect(), secTop = 0;
+  function medir() {
+    vw = sec.clientWidth; vh = sec.clientHeight;
+    k = vw < 900 ? 0.62 : 1;
+    // r132: en móvil cada copia tiene su sitio propio (lab.ts › m)
+    ps.forEach((p) => { const d = p.el.dataset; p.x = k < 1 && d.mx ? +d.mx : +d.x!; p.y = k < 1 && d.my ? +d.my : +d.y!; });
+    let maxW = 0, maxH = 0;
+    ps.forEach((p) => { p.w = p.el.offsetWidth; p.h = p.el.offsetHeight; maxW = Math.max(maxW, p.w); maxH = Math.max(maxH, p.h); });
+    // el mundo: el diseño (lab.ts › mundo) a escala, pero siempre mayor que la pantalla + la pieza más grande (una sola copia por pieza)
+    W = Math.max(MUNDO.w * k, vw + maxW + 120);
+    H = Math.max(MUNDO.h * k, vh + maxH + 120);
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    lienzo.width = Math.round(vw * dpr); lienzo.height = Math.round(vh * dpr);
+    lienzo.style.width = vw + 'px'; lienzo.style.height = vh + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const sr = sec.getBoundingClientRect(); secTop = sr.top + scrollY;
+    const r = hola.getBoundingClientRect();
+    holaR = new DOMRect(r.left - sr.left, r.top - sr.top, r.width, r.height);
+    ps.forEach((p) => (p.ult = ''));
+  }
+  const cerca = (v: number, L: number) => v - L * Math.round(v / L); // la copia más cercana a 0
+
+  // ── recorrer: rueda / trackpad ──
+  const libre = () => scrollY > secTop + 2; // la página ya bajó: la rueda y el dedo vuelven a ella
+  mundo.addEventListener('wheel', (ev) => {
+    if (ev.ctrlKey || libre()) return;
+    ev.preventDefault();
+    const f = ev.deltaMode === 1 ? 32 : ev.deltaMode === 2 ? vh : 1;
+    const horiz = ev.shiftKey && !ev.deltaX;
+    meta.x += (horiz ? ev.deltaY : ev.deltaX) * f; meta.y += (horiz ? 0 : ev.deltaY) * f;
+    if (reducido) { cam.x = meta.x; cam.y = meta.y; }
+    fling = { x: 0, y: 0 };
+    despertar();
+  }, { passive: false });
+  addEventListener('scroll', () => sec.classList.toggle('libre', libre()), { passive: true });
+
+  // ── recorrer: arrastre (ratón, lápiz, dedo); con ratón, una pieza se puede coger y mover ──
+  let modo: '' | 'pan' | 'pieza' = '', pid = -1, sx0 = 0, sy0 = 0, mx0 = 0, my0 = 0, movido = false, zTop = ps.length + 1;
+  let cogida: P | null = null, tocada: P | null = null;
+  let muestras: { t: number; x: number; y: number }[] = [];
+  mundo.addEventListener('pointerdown', (ev) => {
+    if (ev.button > 0 || modo) return;
+    const objetivo = ev.target as HTMLElement;
+    if (objetivo.closest('[data-ver]')) return;
+    if (ev.pointerType === 'touch' && libre()) return;
+    const el = objetivo.closest<HTMLElement>('[data-pieza]');
+    tocada = el ? ps.find((p) => p.el === el) ?? null : null;
+    pid = ev.pointerId; sx0 = ev.clientX; sy0 = ev.clientY; movido = false; muestras = [{ t: performance.now(), x: ev.clientX, y: ev.clientY }];
+    if (tocada && ev.pointerType !== 'touch') { modo = 'pieza'; cogida = tocada; mx0 = tocada.dx; my0 = tocada.dy; tocada.el.style.setProperty('--z', String(++zTop)); }
+    else { modo = 'pan'; mx0 = meta.x; my0 = meta.y; fling = { x: 0, y: 0 }; }
+    try { mundo.setPointerCapture(pid); } catch {}
+    despertar();
+  });
+  mundo.addEventListener('pointermove', (ev) => {
+    if (ev.pointerId !== pid) return;
+    const dx = ev.clientX - sx0, dy = ev.clientY - sy0;
+    if (!movido && Math.hypot(dx, dy) < 5) return;
+    if (!movido) { movido = true; sec.classList.add(modo === 'pan' ? 'paneando' : 'cogiendo'); cogida?.el.classList.add('cogida'); }
+    if (modo === 'pan') {
+      meta.x = mx0 - dx; meta.y = my0 - dy;
+      if (reducido) { cam.x = meta.x; cam.y = meta.y; }
+      const t = performance.now(); muestras.push({ t, x: ev.clientX, y: ev.clientY });
+      while (muestras.length > 2 && t - muestras[0].t > 90) muestras.shift();
+    } else if (cogida) { cogida.dx = mx0 + dx; cogida.dy = my0 + dy; cogida.ult = ''; }
+    despertar();
+  });
+  const soltar = (ev: PointerEvent) => {
+    if (ev.pointerId !== pid) return;
+    if (modo === 'pan' && movido && !reducido && muestras.length > 1) {
+      const a = muestras[0], b = muestras[muestras.length - 1], dt = Math.max(16, b.t - a.t);
+      fling = { x: clamp((-(b.x - a.x) / dt) * 16, -70, 70), y: clamp((-(b.y - a.y) / dt) * 16, -70, 70) };
+    }
+    if (!movido && ev.type === 'pointerup' && tocada?.esp) abrir(+tocada.el.dataset.esp!, tocada.el);
+    cogida?.el.classList.remove('cogida');
+    sec.classList.remove('paneando', 'cogiendo');
+    modo = ''; pid = -1; cogida = null; tocada = null;
+    despertar();
+  };
+  mundo.addEventListener('pointerup', soltar);
+  mundo.addEventListener('pointercancel', soltar);
+
+  // ── teclado: flechas en el lienzo; Tab lleva a cada pieza y la cámara la acerca al centro; Intro la abre ──
+  mundo.addEventListener('keydown', (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-pieza]');
+    if (el && (ev.key === 'Enter' || ev.key === ' ')) {
+      if (el.dataset.esp) { ev.preventDefault(); abrir(+el.dataset.esp, el); }
+      return;
+    }
+    const paso = ev.shiftKey ? 480 : 160;
+    const d = ({ ArrowLeft: [-paso, 0], ArrowRight: [paso, 0], ArrowUp: [0, -paso], ArrowDown: [0, paso] } as Record<string, number[]>)[ev.key];
+    if (!d) return;
+    ev.preventDefault(); meta.x += d[0]; meta.y += d[1]; despertar();
+  });
+  ps.forEach((p) => p.el.addEventListener('focus', () => {
+    if (modo) return;
+    const rx = cerca(p.x * k + p.w / 2 + p.dx - cam.x, W), ry = cerca(p.y * k + p.h / 2 + p.dy - cam.y, H);
+    if (Math.abs(rx) > vw * 0.3 || Math.abs(ry) > vh * 0.3) { meta.x = cam.x + rx; meta.y = cam.y + ry * 0.9; despertar(); }
+  }));
+
+  // ───────────────────────── el bucle: cámara, distorsión por velocidad, raíces ─────────────────────────
+  type Pos = { X: number; Y: number; cx: number; cy: number; f: number };
+  const pos: Pos[] = ps.map(() => ({ X: 0, Y: 0, cx: 0, cy: 0, f: 1 }));
+  let raf = 0, tAnt = 0, visible = true, espera = 0;
+  const t0 = performance.now();
+  function despertar() { if (!raf && visible) { clearTimeout(espera); tAnt = 0; raf = requestAnimationFrame(paso); } }
+  function paso(ahora: number) {
+    raf = 0;
+    const dt = tAnt ? Math.min(50, ahora - tAnt) : 16.67, n = dt / 16.67;
+    tAnt = ahora;
+    if (fling.x || fling.y) {
+      meta.x += fling.x * n; meta.y += fling.y * n;
+      const dec = Math.pow(0.93, n); fling.x *= dec; fling.y *= dec;
+      if (Math.hypot(fling.x, fling.y) < 0.15) fling = { x: 0, y: 0 };
+    }
+    const a = reducido ? 1 : 1 - Math.pow(0.8, n);
+    cam.x += (meta.x - cam.x) * a; cam.y += (meta.y - cam.y) * a;
+    // velocidad del contenido (px por fotograma de 60 Hz): el contenido va al revés que la cámara
+    const cvx = -(cam.x - prev.x) / n, cvy = -(cam.y - prev.y) / n;
+    prev.x = cam.x; prev.y = cam.y;
+    let moviendo = Math.abs(meta.x - cam.x) + Math.abs(meta.y - cam.y) > 0.3 || !!(fling.x || fling.y) || modo !== '';
+    ps.forEach((p, i) => {
+      // cada pieza persigue la velocidad con su propio retardo: se deforman escalonadas, como una tela
+      const b = 1 - Math.pow(1 - p.lag, n);
+      p.vx += (cvx - p.vx) * b; p.vy += (cvy - p.vy) * b;
+      if (Math.abs(p.vx) < 0.02) p.vx = 0;
+      if (Math.abs(p.vy) < 0.02) p.vy = 0;
+      if (p.vx || p.vy) moviendo = true;
+      const cx = vw / 2 + cerca(p.x * k + p.w / 2 + p.dx - cam.x, W), cy = vh / 2 + cerca(p.y * k + p.h / 2 + p.dy - cam.y, H);
+      const X = cx - p.w / 2, Y = cy - p.h / 2;
+      let t = `translate3d(${X.toFixed(1)}px,${Y.toFixed(1)}px,0)`;
+      if (!reducido && (p.vx || p.vy)) {
+        const vx = clamp(p.vx, -70, 70), vy = clamp(p.vy, -70, 70), ax = Math.abs(vx), ay = Math.abs(vy);
+        // de lado: la parte de arriba se queda atrás (inclinación) y la pieza se estira a lo largo del movimiento
+        const sk = clamp(vx * 0.2, -9, 9);
+        const sxx = 1 + ax * 0.0016 - ay * 0.0004, syy = 1 + ay * 0.0016 - ax * 0.0006;
+        t += ` skewX(${sk.toFixed(2)}deg) scale(${sxx.toFixed(4)},${syy.toFixed(4)})`;
+      }
+      if (t !== p.ult) { p.el.style.transform = t; p.ult = t; }
+      // las raíces se apagan antes de que la pieza dé la vuelta al mundo (el salto ocurre a W/2)
+      const fx = 1 - clamp((Math.abs(cx - vw / 2) - W * 0.3) / (W * 0.16), 0, 1), fy = 1 - clamp((Math.abs(cy - vh / 2) - H * 0.3) / (H * 0.16), 0, 1);
+      pos[i] = { X, Y, cx, cy, f: fx * fy };
+    });
+    raices(ahora);
+    const creciendo = !reducido && ahora - t0 < 3000;
+    if (moviendo || creciendo) raf = requestAnimationFrame(paso);
+    // en reposo las raíces solo respiran: ~15 fps basta
+    else if (!reducido && visible) espera = window.setTimeout(despertar, 66);
+  }
+
+  // ── raíces: de la card de cristal a cada proyecto ──
+  const ruido = (s: number) => { const x = Math.sin(s * 127.1) * 43758.5453; return x - Math.floor(x); };
+  function raices(ahora: number) {
+    ctx.clearRect(0, 0, vw, vh);
+    const tiempo = (ahora - t0) / 1000;
+    const g = reducido ? 1 : clamp((ahora - t0 - 300) / 2200, 0, 1);
+    const cx0 = holaR.x + holaR.width / 2, cy0 = holaR.y + holaR.height / 2;
+    const [r, gg, bb] = tinta.map((c) => Math.round(c * 255));
+    let n = 0;
+    ps.forEach((p, i) => {
+      if (!p.esp) return;
+      n++;
+      const q = pos[i];
+      if (q.f <= 0.01) return;
+      // el extremo: el borde de la pieza que mira a la card, un poco por dentro (la raíz se mete bajo la ventana)
+      const ex = clamp(cx0, q.X + 14, q.X + p.w - 14), ey = clamp(cy0, q.Y + 10, q.Y + p.h - 10);
+      // el origen: el borde de la card en dirección a la pieza, por dentro (la raíz sale de debajo del cristal)
+      let dx = ex - cx0, dy = ey - cy0;
+      const L0 = Math.hypot(dx, dy) || 1;
+      dx /= L0; dy /= L0;
+      const tb = Math.min((holaR.width / 2 - 22) / Math.max(1e-3, Math.abs(dx)), (holaR.height / 2 - 22) / Math.max(1e-3, Math.abs(dy)));
+      const sx = cx0 + dx * tb, sy = cy0 + dy * tb;
+      const L = Math.hypot(ex - sx, ey - sy);
+      if (L < 30) return;
+      const ux = (ex - sx) / L, uy = (ey - sy) / L, nx = -uy, ny = ux;
+      const s = p.semilla * 10 + 1;
+      const o1 = (ruido(s) - 0.5) * 0.5 * L + Math.sin(tiempo * 0.5 + s) * 4, o2 = (ruido(s + 3) - 0.5) * 0.42 * L + Math.sin(tiempo * 0.4 + s * 2) * 5;
+      const c1x = sx + ux * L * 0.33 + nx * o1, c1y = sy + uy * L * 0.33 + ny * o1;
+      const c2x = sx + ux * L * 0.7 + nx * o2, c2y = sy + uy * L * 0.7 + ny * o2;
+      const fin = clamp(g * 1.6 - (n % 5) * 0.12, 0, 1);
+      if (fin <= 0) return;
+      ctx.fillStyle = `rgba(${r},${gg},${bb},${(0.34 * q.f).toFixed(3)})`;
+      const bez = (t: number) => {
+        const m = 1 - t;
+        return [m * m * m * sx + 3 * m * m * t * c1x + 3 * m * t * t * c2x + t * t * t * ex, m * m * m * sy + 3 * m * m * t * c1y + 3 * m * t * t * c2y + t * t * t * ey];
+      };
+      const esc = k < 1 ? 0.8 : 1;
+      const ancho = (t: number) => (3.4 - 2.6 * Math.pow(t, 0.7)) * esc;
+      cinta(bez, ancho, 0, fin, 30);
+      // raicillas: dos o tres brotes laterales que se afinan, y el extremo abierto en dos
+      const nb = 2 + Math.floor(ruido(s + 7) * 2);
+      for (let j = 0; j < nb; j++) {
+        const tj = 0.22 + j * (0.6 / nb) + ruido(s + j * 5) * 0.12;
+        if (tj > fin) continue;
+        ramita(bez, tj, (ruido(s + j * 11) > 0.5 ? 1 : -1) * (0.55 + ruido(s + j) * 0.5), (16 + ruido(s + j * 3) * 26) * esc, ancho(tj) * 0.55, tiempo + j);
+      }
+      if (fin >= 1) { ramita(bez, 0.985, 0.42, 14 * esc, ancho(1) * 0.9, tiempo); ramita(bez, 0.985, -0.42, 11 * esc, ancho(1) * 0.9, tiempo + 1); }
+    });
+  }
+  // una cinta que se afina a lo largo de una curva
+  function cinta(f: (t: number) => number[], w: (t: number) => number, a: number, b: number, N: number) {
+    const izq: number[][] = [], der: number[][] = [];
+    for (let j = 0; j <= N; j++) {
+      const t = a + ((b - a) * j) / N, p = f(t), p2 = f(Math.min(1, t + 0.01)), p1 = f(Math.max(0, t - 0.01));
+      let tx = p2[0] - p1[0], ty = p2[1] - p1[1];
+      const l = Math.hypot(tx, ty) || 1;
+      tx /= l; ty /= l;
+      const hw = w(t) / 2;
+      izq.push([p[0] - ty * hw, p[1] + tx * hw]); der.push([p[0] + ty * hw, p[1] - tx * hw]);
+    }
+    ctx.beginPath();
+    ctx.moveTo(izq[0][0], izq[0][1]);
+    for (const q of izq) ctx.lineTo(q[0], q[1]);
+    for (let j = der.length - 1; j >= 0; j--) ctx.lineTo(der[j][0], der[j][1]);
+    ctx.closePath(); ctx.fill();
+  }
+  function ramita(f: (t: number) => number[], t: number, giro: number, largo: number, w0: number, fase: number) {
+    const p = f(t), p2 = f(Math.min(1, t + 0.01)), p1 = f(Math.max(0, t - 0.01));
+    const ang = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) + giro + Math.sin(fase * 0.6) * 0.04;
+    const ex = p[0] + Math.cos(ang) * largo, ey = p[1] + Math.sin(ang) * largo;
+    const cxx = p[0] + Math.cos(ang - giro * 0.4) * largo * 0.55, cyy = p[1] + Math.sin(ang - giro * 0.4) * largo * 0.55;
+    cinta((u) => { const m = 1 - u; return [m * m * p[0] + 2 * m * u * cxx + u * u * ex, m * m * p[1] + 2 * m * u * cyy + u * u * ey]; }, (u) => Math.max(0.35, w0 * (1 - u)), 0, 1, 8);
+  }
+
+  // ───────────────────────── vídeos: solo a la vista ─────────────────────────
+  const cargar = (v: HTMLVideoElement) => { if (!v.src && v.dataset.src) v.src = v.dataset.src; };
+  let seVe = true;
+  const vistos = new IntersectionObserver(
+    (ents) => ents.forEach((en) => {
+      const p = en.target as HTMLElement, v = p.querySelector('video')!;
+      p.dataset.visto = en.isIntersecting ? '1' : '';
+      if (seVe && en.isIntersecting && (!reducido || p.classList.contains('quiere'))) { cargar(v); v.play().catch(() => {}); }
+      else v.pause();
+    }),
+    { rootMargin: '80px', threshold: 0.1 },
+  );
+  els.filter((p) => p.dataset.esp).forEach((p) => {
+    vistos.observe(p);
+    const v = p.querySelector('video')!;
+    p.querySelector('[data-ver]')!.addEventListener('click', () => {
+      p.classList.add('quiere');
+      cargar(v);
+      if (v.paused) v.play().catch(() => {});
+      else { v.pause(); p.classList.remove('quiere'); }
+    });
+  });
+  new IntersectionObserver(([en]) => {
+    seVe = visible = en.isIntersecting && !document.hidden;
+    els.forEach((p) => {
+      const v = p.querySelector('video');
+      if (!v) return;
+      if (seVe && p.dataset.visto && (!reducido || p.classList.contains('quiere'))) { cargar(v); v.play().catch(() => {}); }
+      else v.pause();
+    });
+    if (visible) despertar();
+  }).observe(sec);
+  document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible) despertar(); });
+
+  // ───────────────────────── la lupa ─────────────────────────
+  const lupa = document.querySelector<HTMLDialogElement>('[data-lupa]')!;
+  const lv = lupa.querySelector<HTMLVideoElement>('[data-lupa-video]')!;
+  let desde: HTMLElement | null = null;
+  function abrir(i: number, p: HTMLElement) {
+    const e = experimentos[i];
+    desde = p;
+    lupa.querySelector('[data-lupa-cod]')!.textContent = `${e.codigo} · ${e.dominio}`;
+    lupa.querySelector('[data-lupa-nombre]')!.textContent = e.nombre;
+    lupa.querySelector('[data-lupa-que]')!.textContent = e.que;
+    lupa.querySelector<HTMLAnchorElement>('[data-lupa-ir]')!.href = e.url;
+    lv.poster = `/media/lab/${e.slug}.jpg`;
+    lv.src = `/media/lab/${e.slug}.mp4`;
+    lv.style.aspectRatio = String(e.ar);
+    lupa.showModal();
+    if (!reducido) lv.play().catch(() => {});
+  }
+  lupa.querySelector('[data-lupa-cerrar]')!.addEventListener('click', () => lupa.close());
+  lupa.addEventListener('click', (ev) => { if (ev.target === lupa) lupa.close(); });
+  lupa.addEventListener('close', () => {
+    lv.pause();
+    lv.removeAttribute('src');
+    lv.load();
+    desde?.focus({ preventScroll: true });
+  });
+
+  // sonda para las pruebas
+  (window as any).__lab = { cam, meta, ps, pos, get W() { return W; }, get H() { return H; }, ponerFondo };
+
+  {
+    let tIni = 0;
+    try { const g = JSON.parse(localStorage.getItem('savvia:lab-fondo') || 'null'); if (g && typeof g.t === 'number') tIni = g.t; } catch {}
+    ponerFondo(tIni, false);
+  }
+  medir();
+  requestAnimationFrame(() => { medir(); sec.classList.add('entra'); despertar(); });
+  document.fonts?.ready.then(() => { medir(); despertar(); });
+  let rz = 0;
+  addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { medir(); despertar(); }, 120); });
+</script>
+
+<style>
+  .lab {
+    --tinta: var(--lab-tinta, var(--color-cacao));
+    --velo: color-mix(in oklab, var(--tinta) 6%, transparent);
+    position: relative;
+    height: 100dvh;
+    min-height: 560px;
+    overflow: hidden;
+    isolation: isolate;
+    background-color: var(--lab-fondo, var(--color-niebla));
+    color: var(--tinta);
+  }
+
+  .raices {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── el mundo: la cámara la mueve el script; cada pieza lleva su transform ── */
+  .mundo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    cursor: grab;
+    outline: none;
+    touch-action: none;
+  }
+  .lab.libre .mundo {
+    touch-action: pan-y;
+  }
+  .lab.paneando .mundo {
+    cursor: grabbing;
+    user-select: none;
+  }
+  .pieza {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(var(--w) * 1px);
+    z-index: var(--z);
+    transform-origin: 50% 50%;
+    will-change: transform;
+    background: var(--velo);
+    border-radius: 12px;
+    padding: 0 6px 6px;
+    box-shadow: 0 4px 24px color-mix(in oklab, var(--color-cacao) 12%, transparent);
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    outline: none;
+    opacity: 0;
+    transition: box-shadow 0.3s;
+  }
+  @media (max-width: 899px) {
+    .pieza {
+      width: calc(var(--w) * 0.62px);
+    }
+  }
+  .lab.entra .pieza {
+    animation: pieza-entra 0.9s var(--ease-out-expo) var(--d) both;
+  }
+  .lab.quieta .pieza {
+    animation: none;
+    opacity: 1;
+  }
+  @keyframes pieza-entra {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+  .pieza.cogida {
+    cursor: grabbing;
+    box-shadow: 0 10px 40px color-mix(in oklab, var(--color-cacao) 24%, transparent);
+  }
+  .pieza:focus-visible {
+    outline: 2px solid var(--tinta);
+    outline-offset: 3px;
+  }
+  .cab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 42px;
+    padding: 0 8px;
+    font-size: 15px;
+    color: var(--tinta);
+    pointer-events: none;
+  }
+  .archivo {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .archivo .cod {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.62;
+    margin-right: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pill {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    padding: 5px 10px 4px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--tinta) 9%, transparent);
+    white-space: nowrap;
+  }
+  .pill.est-en-pruebas {
+    background: var(--color-coral);
+    color: var(--color-cacao);
+  }
+  .pill.est-archivado {
+    background: transparent;
+    border: 1px dashed color-mix(in oklab, var(--tinta) 45%, transparent);
+  }
+  .cuerpo {
+    position: relative;
+    aspect-ratio: var(--ar);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-cacao);
+  }
+  .cuerpo video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+  .ver {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--color-niebla);
+    color: var(--color-cacao);
+    opacity: 0;
+    transition: opacity 0.3s;
+    cursor: pointer;
+  }
+  .ver svg {
+    width: 11px;
+    height: 11px;
+    fill: currentColor;
+  }
+  .lab.quieta .ver,
+  .pieza:focus-within .ver {
+    opacity: 1;
+  }
+  .archivo.font-display {
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .linea {
+    padding: 12px 8px 8px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--tinta);
+    opacity: 0.82;
+    text-wrap: pretty;
+    pointer-events: none;
+  }
+  /* RONDA 134 · «Abrir en su web» es el CTA primario de la casa (Cta.astro) */
+  .ir { align-self: flex-start; }
+  .nota {
+    background: color-mix(in oklab, var(--tinta) 6%, transparent);
+    border-radius: 8px;
+    padding: 16px 16px 20px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--tinta);
+    text-wrap: pretty;
+    pointer-events: none;
+  }
+
+  /* ── savvia lab: card de CRISTAL fija en el centro; deja ver las piezas y las raíces que pasan por detrás ── */
+  .hola {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(440px, calc(100vw - 48px));
+    transform: translate(-50%, -54%);
+    z-index: 5;
+    color: var(--tinta);
+    background:
+      linear-gradient(160deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.03) 46%, rgb(255 255 255 / 0.08)),
+      color-mix(in oklab, var(--lab-fondo, var(--color-niebla)) 32%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid color-mix(in oklab, var(--tinta) 14%, transparent);
+    border-radius: 16px;
+    padding: 0 6px 6px;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.32),
+      0 18px 56px color-mix(in oklab, var(--color-cacao) 14%, transparent);
+    pointer-events: none;
+  }
+  .hola-c {
+    padding: 20px 18px 22px;
+    text-align: center;
+  }
+  .titular {
+    font-size: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+  .sub {
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 1.5;
+    opacity: 0.8;
+    text-wrap: balance;
+  }
+  .registro {
+    margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    opacity: 0.72;
+    font-variant-numeric: tabular-nums;
+  }
+  .pista {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + 172px);
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--lab-fondo, var(--color-niebla));
+    background: var(--tinta);
+    border-radius: 999px;
+    padding: 7px 14px 7px 10px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .pista svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+  }
+  .solo-tactil {
+    display: none;
+  }
+  .lab.tactil .solo-raton {
+    display: none;
+  }
+  .lab.tactil .solo-tactil {
+    display: inline;
+  }
+
+  /* ── el selector de fondo (como «Choose Background Color» de la referencia, con la paleta de savvia) ── */
+  .fondos {
+    position: absolute;
+    left: 50%;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 6;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    width: min(276px, calc(100vw - 48px));
+    padding: 14px 22px 18px;
+    border-radius: 16px;
+    background: color-mix(in oklab, var(--color-cacao) 88%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    color: var(--color-niebla);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .pista-color {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #eadde7, #96bfe6, #3456d3, #ff616b, #63402f, #302018);
+    background: linear-gradient(in oklab 90deg, #eadde7, #96bfe6, #3456d3, #ff616b, #63402f, #302018);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+    cursor: pointer;
+    touch-action: none;
+  }
+  .pista-color::before {
+    content: '';
+    position: absolute;
+    inset: -12px -6px;
+  }
+  .tirador {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border-radius: 50%;
+    background: var(--c, #eadde7);
+    box-shadow:
+      0 0 0 3px #fff,
+      0 2px 8px rgb(0 0 0 / 0.35);
+    outline: none;
+  }
+  .tirador:focus-visible {
+    box-shadow:
+      0 0 0 3px #fff,
+      0 0 0 5px var(--color-coral),
+      0 2px 8px rgb(0 0 0 / 0.35);
+  }
+  /* RONDA 134 · «Contacto ↓», el CTA secundario de la casa, en la tinta del lienzo */
+  .al-pie {
+    position: absolute;
+    left: max(24px, env(safe-area-inset-left));
+    bottom: max(28px, env(safe-area-inset-bottom));
+    z-index: 6;
+    color: var(--tinta);
+  }
+
+  @media (max-width: 899px) {
+    .hola {
+      transform: translate(-50%, -60%);
+    }
+    .hola-c {
+      padding: 16px 14px 18px;
+    }
+    .sub {
+      font-size: 14px;
+    }
+    .pista {
+      top: calc(50% + 124px);
+    }
+    .cab {
+      height: 34px;
+      font-size: 12px;
+      padding: 0 4px;
+    }
+    .pill {
+      font-size: 9px;
+      padding: 4px 7px 3px;
+    }
+    .archivo .cod {
+      display: none;
+    }
+    .archivo.font-display {
+      font-size: 16px;
+    }
+    .linea {
+      font-size: 11.5px;
+      padding: 8px 4px 4px;
+    }
+    .nota {
+      font-size: 12px;
+      padding: 10px 10px 12px;
+    }
+    .fondos {
+      bottom: max(16px, env(safe-area-inset-bottom));
+      padding: 12px 18px 15px;
+      font-size: 13px;
+    }
+    .al-pie {
+      display: none;
+    }
+  }
+
+  /* ── la lupa ── */
+  .lupa {
+    width: min(1100px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    color: var(--fg);
+    overflow: auto;
+  }
+  .lupa::backdrop {
+    background: color-mix(in oklab, var(--color-cacao) 40%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  .lupa-in {
+    position: relative;
+    display: grid;
+    gap: 24px;
+    padding: 20px;
+  }
+  @media (min-width: 900px) {
+    .lupa-in {
+      grid-template-columns: 2.2fr 1fr;
+      align-items: end;
+      padding: 24px;
+    }
+  }
+  .lupa video {
+    width: 100%;
+    max-height: calc(100dvh - 220px);
+    object-fit: contain;
+    background: var(--color-cacao);
+    border-radius: 8px;
+    display: block;
+  }
+  .lupa-cod {
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+  }
+  .lupa-nombre {
+    font-size: var(--text-h3);
+    line-height: 1.15;
+    margin-top: 8px;
+  }
+  .lupa-que {
+    font-size: var(--text-body);
+    line-height: 1.55;
+    color: var(--fg2);
+    margin: 12px 0 16px;
+  }
+  .cerrar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--color-niebla);
+    border: 1px solid var(--rule-strong);
+    color: var(--color-cacao);
+    z-index: 2;
+  }
+  .cerrar svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lab,
+    .pieza {
+      transition: none !important;
+      animation: none !important;
+      opacity: 1;
+    }
+  }
+</style>

@@ -1,0 +1,65 @@
+---
+// RONDA 132 · «En esta página», el riel derecho de docs.attio.com («On this page»): los apartados del capítulo, con el que lees marcado y una raya
+// de savia que mide cuánto llevas de él. Solo en pantallas anchas (≥ 80rem); el estado lo pone el script del capítulo.
+import type { Capitulo } from '../../data/handbook';
+
+interface Props { c: Capitulo }
+const { c } = Astro.props;
+import { flecha } from '../../lib/flecha';
+---
+
+<aside class="riel" aria-label="En esta página">
+  <p class="rt detail">En esta página</p>
+  <ol>
+    {
+      c.secciones.map((s) => (
+        <li data-riel={s.id}>
+          <a href={`#${s.id}`} data-ancla>
+            {s.titulo}
+          </a>
+          <span class="leido" aria-hidden="true"><i /></span>
+        </li>
+      ))
+    }
+  </ol>
+  <a class="arriba detail" href="#contenido">Volver arriba <Fragment set:html={flecha('arriba')} /></a>
+</aside>
+
+<style>
+  /* RONDA 134 · «En esta página», casi en silencio: una línea fina con la savia que avanza y los apartados en tinta tenue que se avivan al acercarse */
+  .riel { display: none; }
+  @media (width >= 80rem) {
+    .riel {
+      display: block;
+      grid-column: 3;
+      grid-row: 1;
+      align-self: start;
+      position: sticky;
+      top: calc(var(--spacing) * 28);
+      transition: opacity 0.4s ease, visibility 0s linear 0s;
+    }
+    :global(html.hb-focus) .riel { opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0s linear 0.4s; }
+  }
+  .rt { color: var(--fg2); opacity: 0.7; padding-bottom: calc(var(--spacing) * 3); }
+  ol { display: grid; border-left: 1px solid var(--rule); }
+  li { position: relative; }
+  li a {
+    display: block;
+    padding: calc(var(--spacing) * 1) 0 calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--fg);
+    opacity: 0.38;
+    transition: opacity 0.3s ease;
+  }
+  .riel:hover li a, .riel:focus-within li a { opacity: 0.62; }
+  li a:hover, li.on a, .riel:hover li.on a { opacity: 1; }
+  .leido { position: absolute; left: -1px; top: 0; bottom: 0; width: 1px; opacity: 0; transition: opacity 0.3s ease; }
+  .leido i { display: block; width: 100%; height: 100%; background: var(--color-coral); transform-origin: 50% 0; transform: scaleY(var(--p, 0)); }
+  li.on .leido { opacity: 1; }
+  .arriba { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 4); color: var(--fg2); opacity: 0; transition: opacity 0.3s ease; }
+  .riel:hover .arriba, .arriba:focus-visible { opacity: 0.8; }
+  @media (prefers-reduced-motion: reduce) {
+    .riel, li a, .leido, .arriba { transition: none; }
+  }
+</style>
