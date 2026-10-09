@@ -20,15 +20,16 @@
   let pedido = false, trazadas = false;
   const colocar = () => {
     pedido = false;
+    // RONDA 148 · [data-carril-fila="sin-cruces"]: solo la línea (Andoni: «recupera solo la raya horizontal» del hero)
     const ys = [...document.querySelectorAll<HTMLElement>('main > section:not([data-sin-fila]), body > footer, [data-carril-fila]')]
-      .map((el) => Math.round(el.getBoundingClientRect().top + scrollY - (el.closest('[data-hero]') && hero ? new DOMMatrix(getComputedStyle(hero).transform).m42 : 0)))
-      .filter((y) => y > 8)
-      .sort((a, b) => a - b);
-    marcas.replaceChildren(...ys.map((y) => {
+      .map((el) => ({ y: Math.round(el.getBoundingClientRect().top + scrollY - (el.closest('[data-hero]') && hero ? new DOMMatrix(getComputedStyle(hero).transform).m42 : 0)), cruces: el.dataset.carrilFila !== 'sin-cruces' }))
+      .filter((f) => f.y > 8)
+      .sort((a, b) => a.y - b.y);
+    marcas.replaceChildren(...ys.map(({ y, cruces }) => {
       const f = document.createElement('div');
       f.className = 'fila' + (trazadas ? ' quieta' : ''); // RONDA 27: recolocada después (cambia el alto del body, p. ej. una FAQ abierta) no se vuelve a trazar
       f.style.top = `${y}px`;
-      f.innerHTML = '<div class="caja"><i class="cruz"></i><i class="cruz der"></i></div>';
+      f.innerHTML = cruces ? '<div class="caja"><i class="cruz"></i><i class="cruz der"></i></div>' : '<div class="caja"></div>';
       return f;
     }));
     if (ys.length) setTimeout(() => { trazadas = true; }, 1500);

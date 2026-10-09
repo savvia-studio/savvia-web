@@ -28,8 +28,8 @@ import { rich } from '../lib/rich';
     <!-- EL MARCO (rondas 15–17, captura de sythera): el recuadro de detrás del árbol, entre los dos carriles. RONDA 17: «lo hacemos más alto,
          que llegue hasta estar a 40 px del subtítulo» → ocupa toda la caja del pie (que empieza a 40 px del subtítulo) hasta el pie del hero.
          Puntos Rosa niebla al 10 % → 0 %. Arriba, su fila de carriles con cruces ([data-carril-fila]). -->
-    <!-- RONDA 147 · «del hero quita también las líneas horizontales y las cruces»: sin fila de carriles (ni la del marco ni la del hero) -->
-    <div class="marco" aria-hidden="true"></div>
+    <!-- RONDA 147–148 · el hero: sin cruces; vuelve solo la línea horizontal (la del marco y la de las raíces, data-carril-fila="sin-cruces") -->
+    <div class="marco" aria-hidden="true" data-carril-fila="sin-cruces"></div>
     <!-- RONDA 25 · en las esquinas de abajo DEL RECUADRO (en su misma caja, pero fuera de su máscara, que se desvanece a 0 abajo y los borraba):
          «desde 2020» y la estación (la de HOY al cargar; el clic en el árbol la cambia) -->
     <!-- RONDA 65 · «sustituimos desde 2020 por la hora y la estación por desde 2020»: la hora de Donostia (el estudio), en vivo -->

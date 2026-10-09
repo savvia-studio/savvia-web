@@ -2995,3 +2995,9 @@ en mono en el pie.
 - **Hecho:** logotipo de la barra 28/32 → 22/24 px de alto · el hero sin filas de carriles: `data-sin-fila` en la sección, fuera `data-carril-fila` del marco y de las raíces (la
   línea con cruces bajo el árbol); quedan los carriles verticales.
 - **Medido:** `astro check` 0 · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · captura del hero sin líneas ni cruces.
+
+### Ronda 148 · 2026-10-09 · vuelve la línea horizontal del hero (sin cruces) y «savvia» más apretado · PUBLICADA
+- **Andoni (textual):** «recupera solo la raya horizontal y el kerning de savvia en el menú, algo menos».
+- **Hecho:** `Carriles.astro` admite `data-carril-fila="sin-cruces"` (solo la línea); el marco del hero y las raíces la usan: vuelven sus dos líneas horizontales, sin cruces ·
+  `savvia-palabra.svg` regenerado con apretado −0,045 em (antes −0,02; viewBox 15 −689 2319 × 707; proporción en barra, transición, Agentic, Proyectos, receta y brandbook).
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · capturas del logotipo y del hero.
