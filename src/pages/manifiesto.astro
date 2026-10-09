@@ -1,14 +1,21 @@
 ---
-// RONDA 126 · EL MANIFIESTO. RONDA 128: en claro, tipo clusia/about. RONDA 129: en papel, el roble gofrado en seco y el texto que lo rodeaba.
-// RONDA 130: el texto centrado que se abría alrededor del cursor (fuera en la 131).
-// RONDA 131 (Andoni): «no quiero el titular debajo del árbol, lo quiero encima y el árbol un poco más pequeño. El árbol no se mueve con el
-// scroll. Y el ratón no mueve el texto. Si podemos hacer alguna animación chula al pasar de capítulo a capítulo es bienvenida.»
-// · Portada: «Manifiesto» arriba y, debajo, el roble GOFRADO en el propio papel (un ~22 % más pequeño que en la 130). No va fijo a la pantalla:
-//   es parte de la hoja y se va con ella al bajar. Se pinta una vez y solo se repinta al cambiar de tamaño.
-// · Párrafos: texto centrado y quieto (seleccionable).
-// · De capítulo a capítulo: el numeral del capítulo se IMPRIME en el papel (tipografía de imprenta): la plancha baja con su sombra, golpea,
-//   deja la tinta y el canto hundido (luz abajo a la derecha, sombra arriba a la izquierda) y del golpe sale un halo tenue. Una vez por
-//   capítulo (IntersectionObserver), solo transform y opacidad. Con movimiento reducido o sin JS: ya impreso.
+// RONDA 126 · EL MANIFIESTO. RONDA 128: en claro, tipo clusia/about. RONDAS 129–143: en papel. RONDA 144: 3 párrafos seguidos.
+// RONDA 152–153: sin papel; el roble del hero y la savia que baja por un canal hasta el texto (en tools/retirados/manifiesto-r153/).
+// RONDA 155 · Andoni: «Fuera la raíz que va al texto y la letra grande tiene que ser de este estilo [capitular caligráfica]. Y no quiero usar el
+// árbol del hero... Ponemos el brote y las raíces que no se vean de primeras y cuando haces scroll esas raíces te llevan al texto del manifesto.
+// Hay que darle el estilo dithering de todo.» · «el brote tiene que verse mucho más pequeño y centrado. Y tiene que coincidir con el 100 % de
+// visual height abajo solamente el brote. Solo se ve el brote y una vez empiezas a hacer scroll ya se ve la raíz que apunta al texto centrado.
+// Te paso todas las estaciones» · «la T del texto solo tiene que afectar a la primera línea, como el ejemplo».
+// · EL BROTE (una lámina por estación: tools/r155/brote-<estación>.webp → tools/r155/partir.cjs: 1000 × 1500, en espejo, sin velo, partida por el
+//   cuello de la bellota): primer pantallazo = solo el brote, pequeño, centrado, con la bellota en el borde de abajo (100 lvh). Cae una gota y se
+//   dibuja y se pinta con el motor del hero (estela.ts: semitono en los cantos, hervor, canto rasgado).
+// · LAS RAÍCES no existen hasta que bajas: crecen con el scroll desde la bellota (crecer(g)) y su punta principal acaba en la capitular. El JS
+//   encaja la lámina de las raíces entre la bellota y la capitular (alto, ancho e inclinación: skewX, con tope) → la punta llega siempre a la letra.
+// · LA CAPITULAR: la T en Pinyon Script (OFL; copperplate), grande, en la PRIMERA línea: misma línea base, sobresale por arriba, el resto del
+//   párrafo sin sangría. Espera apenas insinuada; cuando la raíz la alcanza, bebe (destello de savia) y se asienta en la tinta del texto.
+// · La estación manda (html[data-estacion] / savvia:estacion): al cambiar, la lámina nueva se descubre con el canto rasgado desde la bellota.
+// · Movimiento reducido o sin WebGL: todo a la vista y quieto.
+import { Font } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Carriles from '../components/Carriles.astro';
@@ -21,259 +28,184 @@ const rico = (t: string) =>
     const m = /^\[\[(.+)\]\]$/.exec(seg);
     return m ? { t: m[1], m: true } : { t: seg, m: false };
   });
+const parrafos = manifiesto.capitulos.map((c) => rico(c.parrafos.join(' ')));
+// la primera letra va a la capitular; el párrafo empieza en la segunda
+const inicial = parrafos[0][0].t.charAt(0);
+parrafos[0][0] = { ...parrafos[0][0], t: parrafos[0][0].t.slice(1) };
 ---
 
 <Base title="Manifiesto — savvia" description={`${manifiesto.cierre} El manifiesto de savvia, el estudio web de Eric y Andoni en Donostia.`} carga={false}>
+  <Font cssVariable="--font-capitular" preload />
   <Nav />
   <Carriles />
   <main id="contenido" class="manifiesto surface-light" data-manifiesto>
-    <div class="lectura">
-      <header class="portada wrap">
-        <h1 class="titulo font-display" data-entra>{manifiesto.titulo}</h1>
-        <!-- el roble gofrado en la hoja: bajo el titular, quieto en la página -->
-        <div class="roble" aria-hidden="true" data-roble>
-          <img class="respaldo" src="/media/manifiesto/roble-relieve.webp" alt="" width="1340" height="663" />
-          <canvas data-relieve></canvas>
-        </div>
-      </header>
+    <!-- primer pantallazo: «Manifiesto» y, debajo, el brote, con la bellota en el borde de abajo (ronda 155: «arriba del brote centrado tiene que poner manifiesto») -->
+    <header class="portada">
+      <h1 class="titulo font-display">{manifiesto.titulo}</h1>
+      <figure class="brote" aria-hidden="true" data-brote-caja>
+        <img class="respaldo" src="/media/manifiesto/brote-otono.webp" alt="" width="1000" height="310" data-brote-img />
+        <canvas data-brote></canvas>
+      </figure>
+    </header>
+    <!-- las raíces: cuelgan de la bellota; el JS las encaja hasta la capitular -->
+    <figure class="raices" aria-hidden="true" data-raices-caja>
+      <img class="respaldo" src="/media/manifiesto/raices-otono.webp" alt="" width="1000" height="1190" data-raices-img />
+      <canvas data-raices></canvas>
+    </figure>
 
-      <!-- RONDA 144 · Eric: «no me ha encantado; lo veo mejor como 3–4 párrafos seguidos». Fuera los capítulos con numeral romano (en
-           tools/r144/manifiesto.r143.astro.txt): el texto de Andoni, entero y seguido, en una sola columna; los párrafos entran uno tras otro.
-           El cierre («Eso es savvia agentic…») va debajo, grande, como siempre. -->
-      <section class="capitulo seguido" aria-label="El manifiesto">
-        {
-          manifiesto.capitulos.map((c) => (
-            <div class="bloque">
-              <p class="fuente">{rico(c.parrafos.join(' ')).map((s) => (s.m ? <span class="marca">{s.t}</span> : s.t))}</p>
-            </div>
-          ))
-        }
-      </section>
-    </div>
+    <section class="texto wrap" aria-label="El manifiesto">
+      <p class="parrafo primero text-pretty">
+        <span class="cap" aria-hidden="true" data-cap>{inicial}</span><span class="sr">{inicial}</span>{parrafos[0].map((s) => (s.m ? <span class="marca">{s.t}</span> : s.t))}
+      </p>
+      {
+        parrafos.slice(1).map((p) => (
+          <p class="parrafo text-pretty" data-enfoca>
+            {p.map((s) => (s.m ? <span class="marca">{s.t}</span> : s.t))}
+          </p>
+        ))
+      }
+    </section>
 
     <section class="cierre wrap" aria-label="Cierre">
-      <p class="frase font-display">{manifiesto.cierre}</p>
-      <p class="firma detail text-fg2">{manifiesto.firma}</p>
+      <p class="frase font-display" data-enfoca>{manifiesto.cierre}</p>
+      <p class="firma font-sans text-fg2">{manifiesto.firma}</p>
     </section>
   </main>
   <Pie />
 </Base>
 
 <style>
-  /* ── EL PAPEL: Rosa niebla con su grano (surface-light) y unas fibras largas, muy tenues ── */
   .manifiesto {
     position: relative;
-    isolation: isolate;
     overflow-x: clip;
+    /* EL BROTE: discreto (≈ 19 % de la pantalla en escritorio). La lámina del brote mide 1000 × 310; el cuello de la bellota, al 46 % del ancho */
+    --bh: clamp(7rem, 19lvh, 11rem);
+    --bw: calc(var(--bh) * 1000 / 310);
+    /* de la bellota a la capitular (lo que recorren las raíces) */
+    --dist: clamp(26rem, 92lvh, 54rem);
+    /* respaldo sin JS: las raíces a escala y sin inclinar (el JS las encaja) */
+    --rh: calc(var(--dist) / 0.937);
+    --rw: calc(var(--rh) * 1000 / 1190);
+    --rl: calc(50% - var(--rw) * 0.46);
+    --sk: 0deg;
+    /* ronda 155: «unos 160 px desde las raíces hasta el comienzo del texto» + «otros 80 px» */
+    --aire: 240px;
   }
-  .manifiesto::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.24;
-    mix-blend-mode: multiply;
-    background-image: url('/media/manifiesto/fibras.svg'); /* ronda 142: archivo aparte (en la build, el url(#f) dentro del data URI se rompía y pedía /%23f) */
-    background-size: 520px 520px;
+  @media (max-width: 47.99rem) {
+    .manifiesto {
+      --bh: clamp(6.5rem, 16lvh, 9rem);
+      --dist: clamp(22rem, 62lvh, 34rem);
+    }
   }
 
-  .lectura {
-    position: relative;
-    padding-bottom: 24lvh;
-  }
-
-  /* ── PORTADA: el titular arriba y el roble gofrado debajo, en la primera pantalla ── */
+  /* ── PRIMER PANTALLAZO: el brote, centrado, con la bellota justo en el borde de abajo (100 lvh) ── */
   .portada {
     position: relative;
-    z-index: 1;
-    min-height: 100lvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(1.5rem, 1rem + 2lvh, 3rem);
-    padding-top: calc(var(--spacing) * 24);
-    padding-bottom: calc(var(--spacing) * 12);
-    text-align: center;
+    height: 100lvh;
   }
   .titulo {
-    font-size: clamp(3.25rem, 1.6rem + 5.4vw, 7rem);
-    line-height: 0.95;
-    letter-spacing: -0.035em;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    translate: 0 -50%;
+    margin: 0;
+    text-align: center;
+    font-size: clamp(3.5rem, 2rem + 7vw, 8.5rem); /* ronda 155: «centrado verticalmente en el hero y más grande» */
+    letter-spacing: -0.02em;
+    line-height: 1;
     color: var(--fg);
   }
-  /* la caja del roble: su proporción (1340 × 663) y un margen para que el canto del gofrado respire */
-  .roble {
-    position: relative;
-    width: min(48vw, 46lvh * 2.021);
-    aspect-ratio: 1340 / 663;
+  .brote,
+  .raices {
+    position: absolute;
+    margin: 0;
     pointer-events: none;
   }
-  .roble canvas,
+  .brote {
+    bottom: 0;
+    left: calc(50% - var(--bw) * 0.46);
+    width: var(--bw);
+    height: var(--bh);
+  }
+  /* las raíces nacen en el cuello (100 lvh) y se inclinan desde él */
+  .raices {
+    top: 100lvh;
+    left: var(--rl);
+    width: var(--rw);
+    height: var(--rh);
+    transform-origin: 46% 0;
+    transform: skewX(var(--sk));
+    z-index: 0;
+  }
+  .brote canvas,
+  .raices canvas,
   .respaldo {
     position: absolute;
-    inset: -4%;
-    width: 108%;
-    height: 108%;
-  }
-  .respaldo {
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    opacity: 0.05;
-    mix-blend-mode: multiply;
   }
-  :global(html.relieve-listo) .respaldo { display: none; }
-  @media (max-width: 47.99rem) {
-    .roble { width: min(88vw, 34lvh * 2.021); }
-  }
+  .respaldo { object-fit: fill; }
+  .gl .respaldo { visibility: hidden; }
 
-  /* ── CAPÍTULOS: «Cap. uno · I · Voz propia», centrado ── */
-  .capitulo {
+  /* ── EL TEXTO: una columna centrada, con la capitular en la primera línea ── */
+  .texto {
+    --cuerpo: clamp(1.25rem, 0.95rem + 1vw, 1.75rem);
     position: relative;
     z-index: 1;
-    margin-top: 36lvh;
+    /* ronda 155: «por debajo del texto del manifiesto hasta la línea horizontal, 240 px» (la línea es la fila de carriles del cierre) */
+    padding-bottom: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--spacing) * 16);
+    font-size: var(--cuerpo);
+    /* la capitular sobresale ~1,6 renglones por encima del párrafo: su cima queda a --dist de la bellota */
+    padding-top: calc(var(--dist) - var(--cuerpo) * 1 + var(--aire));
   }
-  .capitulo:first-of-type { margin-top: 16lvh; }
-  .cabecera {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: baseline;
-    column-gap: calc(var(--spacing) * 8);
-    font-weight: 400;
-    margin-bottom: calc(var(--spacing) * 16);
-  }
-  .cap { justify-self: end; letter-spacing: 0.04em; }
-  .etq { justify-self: start; letter-spacing: 0.04em; }
-
-  /* ── EL NUMERAL IMPRESO (tipografía de imprenta) ──
-     capas: n-alta (la sombra de la plancha cuando aún está en el aire) · n-halo (el golpe) · n-luz (el canto bajo a la derecha, más claro
-     que el papel) · n-hondo (la sombra del canto, arriba a la izquierda) · n-tinta (la tinta, el texto real). */
-  .num {
-    position: relative;
-    display: inline-grid;
-    font-size: clamp(3rem, 2rem + 3vw, 5rem);
-    line-height: 1;
-  }
-  .num { justify-items: center; }
-  .num > span { grid-area: 1 / 1; }
-  .n-tinta { position: relative; color: var(--fg); }
-  .n-luz { color: rgb(255 252 253 / 0.95); transform: translate(0.012em, 0.018em); }
-  .n-hondo { color: rgb(48 32 24 / 0.5); transform: translate(-0.01em, -0.014em); }
-  .n-alta { color: transparent; text-shadow: 0.06em 0.12em 0.14em rgb(48 32 24 / 0.28); opacity: 0; }
-  .n-halo {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    margin: -0.75em 0 0 -1.3em;
-    width: 2.6em;
-    height: 1.5em;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(48 32 24 / 0.1), rgb(48 32 24 / 0.04) 62%, transparent);
-    opacity: 0;
-  }
-
-  /* estado de partida (solo con JS y con movimiento): la plancha en el aire, sin tinta ni canto */
-  :global(html.imprenta) .num:not(.impreso) .n-tinta,
-  :global(html.imprenta) .num:not(.impreso) .n-luz,
-  :global(html.imprenta) .num:not(.impreso) .n-hondo {
-    opacity: 0;
-    transform: scale(1.08);
-  }
-  :global(html.imprenta) .num:not(.impreso) .n-alta {
-    opacity: 0.9;
-    transform: translate(0.05em, 0.09em) scale(1.12);
-  }
-  :global(html.imprenta) .cabecera:not(.impresa) .cap,
-  :global(html.imprenta) .cabecera:not(.impresa) .etq {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  :global(html.imprenta) .capitulo:not(.leido) .bloque {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  /* la bajada (0,55 s) y el golpe: tinta y canto, con la curva expo */
-  .num > span,
-  .cap,
-  .etq,
-  .bloque {
-    transition:
-      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .num.impreso .n-alta {
-    opacity: 0;
-    transform: translate(0, 0) scale(1);
-    transition:
-      opacity 0.5s cubic-bezier(0.5, 0, 0.75, 0),
-      transform 0.55s cubic-bezier(0.5, 0, 0.75, 0);
-  }
-  .num.impreso .n-tinta,
-  .num.impreso .n-luz,
-  .num.impreso .n-hondo {
-    transition-delay: 0.5s;
-    transition-duration: 0.7s, 0.55s;
-  }
-  .num.impreso .n-halo { animation: golpe 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both; }
-  @keyframes golpe {
-    from { opacity: 0.9; transform: scale(0.7); }
-    to { opacity: 0; transform: scale(1.35); }
-  }
-  .cabecera.impresa .cap,
-  .cabecera.impresa .etq { transition-delay: 0.85s; }
-  .capitulo.leido .bloque { transition-duration: 1.2s; transition-delay: 0.95s; }
-  .capitulo.leido .bloque + .bloque { transition-delay: 1.1s; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .num > span, .cap, .etq, .bloque { transition: none !important; }
-    .n-halo { animation: none !important; }
-  }
-
-  /* ── EL TEXTO: una columna centrada, quieta ── */
-  .bloque {
-    position: relative;
-    font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.3125rem);
-    line-height: 1.6;
+  .parrafo {
+    width: 100%;
+    max-width: 30ch;
+    font-size: var(--cuerpo);
+    line-height: 1.45;
+    letter-spacing: -0.005em;
     color: var(--fg);
   }
-  .bloque + .bloque { margin-top: calc(var(--spacing) * 8); }
-  .seguido { margin-top: 14lvh; }
-  .seguido .bloque { font-size: clamp(1.25rem, 1rem + 0.8vw, 1.625rem); line-height: 1.5; }
-  .seguido .bloque + .bloque { margin-top: calc(var(--spacing) * 6); }
-  .seguido .fuente { max-width: 40ch; text-align: left; }
-  .seguido .bloque + .bloque { transition-delay: calc(0.95s + 0.15s); }
-  .seguido .bloque:nth-child(3) { transition-delay: 1.25s; }
-  .fuente {
-    position: relative;
-    max-width: 34ch;
-    margin-inline: auto;
-    padding-inline: 20px;
-    box-sizing: content-box;
-    text-align: center;
-    text-wrap: pretty;
+  .primero { margin-top: calc(var(--cuerpo) * 2.2); }
+  /* LA CAPITULAR (como la referencia): mayúscula caligráfica grande en la PRIMERA línea, sobre su línea base. line-height 0: no agranda el
+     renglón ni empuja el párrafo; sobresale por arriba y el travesaño cubre el comienzo de «u web» */
+  .cap {
+    font-family: var(--font-capitular), cursive;
+    font-weight: 400;
+    font-size: 4.2em;
+    line-height: 0;
+    letter-spacing: 0;
+    margin-right: -0.02em;
+    color: var(--fg);
   }
-  .fuente .marca {
+  /* ronda 155: «la T mayúscula, siempre en oscuro»: en la tinta del texto desde el principio, sin esperar a la raíz ni el destello de savia */
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .marca {
     background: linear-gradient(var(--color-coral), var(--color-coral)) 0 94% / 100% 2px no-repeat;
   }
-  .lista ul { list-style: none; padding: 0; margin-top: calc(var(--spacing) * 2); }
-  .lista-t { letter-spacing: 0.04em; color: var(--fg2); }
-  .listas {
-    position: relative;
-    z-index: 1;
-    margin-top: 36lvh;
+  @media (max-width: 47.99rem) {
+    .texto { gap: calc(var(--spacing) * 12); }
   }
-  .listas .bloque + .bloque { margin-top: calc(var(--spacing) * 16); }
 
   /* ── CIERRE ── */
   .cierre {
     position: relative;
     z-index: 1;
     text-align: center;
-    padding-block: calc(var(--spacing) * 24) var(--space-section);
+    padding-block: clamp(10rem, 5rem + 28lvh, 24rem) var(--space-section);
   }
   .frase {
     max-width: 18ch;
@@ -283,119 +215,172 @@ const rico = (t: string) =>
     letter-spacing: -0.03em;
     text-wrap: balance;
   }
-  .firma { margin-top: calc(var(--spacing) * 8); letter-spacing: 0.04em; }
+  .firma {
+    margin-top: calc(var(--spacing) * 8);
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+  }
 </style>
 
 <script>
-  import { crearRelieve } from '../components/manifiesto/relieve';
+  import { crearEstela, type Estela } from '../scripts/estela';
+  import { EST, estacionActual } from '../scripts/estacion';
+  import { rgbDe } from '../scripts/tinta';
 
   const main = document.querySelector<HTMLElement>('[data-manifiesto]')!;
-  const caja = main.querySelector<HTMLElement>('[data-roble]')!;
-  const lienzo = main.querySelector<HTMLCanvasElement>('[data-relieve]')!;
+  const cajaBrote = main.querySelector<HTMLElement>('[data-brote-caja]')!;
+  const cajaRaices = main.querySelector<HTMLElement>('[data-raices-caja]')!;
+  const imgBrote = main.querySelector<HTMLImageElement>('[data-brote-img]')!;
+  const imgRaices = main.querySelector<HTMLImageElement>('[data-raices-img]')!;
+  let cvBrote = main.querySelector<HTMLCanvasElement>('[data-brote]')!;
+  let cvRaices = main.querySelector<HTMLCanvasElement>('[data-raices]')!;
+  const cap = main.querySelector<HTMLElement>('[data-cap]')!;
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const ancho = matchMedia('(min-width: 48rem)');
+  const RASGO = "url('/media/rasgo-circulo.png')";
 
-  // ── LA IMPRENTA: cada capítulo se imprime una vez, al llegar (el numeral al 72 % de la pantalla) ──
-  const caps = [...main.querySelectorAll<HTMLElement>('.capitulo')];
-  if (!reducido && 'IntersectionObserver' in window) {
-    const html = document.documentElement;
-    html.classList.add('imprenta');
-    const io = new IntersectionObserver(
-      (es) => {
-        for (const e of es) {
-          if (!e.isIntersecting) continue;
-          const c = e.target as HTMLElement;
-          c.querySelector('.num')?.classList.add('impreso');
-          c.querySelector('.cabecera')?.classList.add('impresa');
-          c.classList.add('leido');
-          io.unobserve(c);
-        }
-      },
-      { rootMargin: '0px 0px -28% 0px' },
-    );
-    // lo que ya ha pasado al cargar (recarga a media página) va impreso, sin teatro
-    for (const c of caps) {
-      if (c.getBoundingClientRect().top < innerHeight * 0.72) {
-        c.querySelector('.num')?.classList.add('impreso');
-        c.querySelector('.cabecera')?.classList.add('impresa');
-        c.classList.add('leido');
-      } else io.observe(c);
+  // en la lámina en espejo: el cuello de la bellota, x 0,46; la punta VISIBLE de la raíz principal (lo último se deshace en puntos), en la mitad
+  // de abajo: (0,37 · 0,937). En la capitular (Pinyon Script, por em): el travesaño de la T arranca en x 0,33 y su cima queda 0,12 bajo la del
+  // cuadro del texto (ascendente 0,86 − tinta 0,74)
+  const BX = 0.46, PX = 0.37, PY = 0.937, SK_MAX = 21;
+  const fondo = () => rgbDe('niebla', main);
+  const cargar = (src: string) => { const i = new Image(); i.src = src; return i; };
+  // WebKit sube a veces la <img> webp con alfa como «bad image data» (textura incompleta: un recuadro negro con el semitono). La lámina ya
+  // descodificada se pasa al motor copiada en un lienzo 2D, que WebKit sube sin fallos; el motor solo mira complete/naturalWidth y la sube con texImage2D
+  const lienzoDe = (i: HTMLImageElement) => {
+    const c = document.createElement('canvas');
+    c.width = i.naturalWidth || 1; c.height = i.naturalHeight || 1;
+    c.getContext('2d')!.drawImage(i, 0, 0);
+    return Object.assign(c, { complete: true, naturalWidth: c.width }) as unknown as HTMLImageElement;
+  };
+  // WebGL 1 a propósito: con WebGL 2 el motor usa mipmaps y, en los destellos del hervor (una lectura dentro de una rama del shader), el nivel de
+  // mip queda indefinido: lee la lámina entera promediada y pinta filas de puntos de lado a lado sobre el claro. Sin mipmaps no pasa (la lámina se
+  // amplía, no se reduce). Si el lienzo ya tiene un contexto «webgl», crearEstela no puede abrir uno «webgl2» y usa este (mismos atributos).
+  const gl1 = (cv: HTMLCanvasElement) => cv.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
+  const OPC_BROTE = (gota: boolean) => ({ origen: [BX, 1] as [number, number], dir: -1 as const, soplo: true, gota, manual: gota, sinLuz: true, hd: true, intensidad: 0 });
+  const OPC_RAICES = { origen: [BX, 0] as [number, number], dir: 1 as const, soplo: true, sinLuz: true, intensidad: 0 };
+  const soltarLienzo = (c: HTMLCanvasElement) => {
+    const g = c.getContext('webgl2') || c.getContext('webgl');
+    if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext();
+    c.remove();
+  };
+  // el canto de papel de acuarela (el del hero al cambiar de estación) que se abre desde (ox, oy)
+  const pon = (el: HTMLElement, m: string) => { el.style.setProperty('-webkit-mask', m); el.style.setProperty('mask', m); };
+  const revelar = (el: HTMLElement, ox: number, oy: number, dur: number, fin: () => void, viejo: HTMLElement) => {
+    let a = 0;
+    const paso = (ahora: number) => {
+      if (!a) a = ahora;
+      const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), w = el.offsetWidth, h = el.offsetHeight;
+      const S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
+      pon(el, `${RASGO} ${(ox * w - S / 2).toFixed(1)}px ${(oy * h - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
+      viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
+      if (k < 1) requestAnimationFrame(paso);
+      else { pon(el, ''); fin(); }
+    };
+    pon(el, `${RASGO} 0 0 / 0 0 no-repeat`);
+    requestAnimationFrame(paso);
+  };
+
+  let est = estacionActual();
+  imgBrote.src = `/media/manifiesto/brote-${EST[est]}.webp`;
+  imgRaices.src = `/media/manifiesto/raices-${EST[est]}.webp`;
+  gl1(cvBrote); gl1(cvRaices);
+  const laminaBrote = cargar(imgBrote.src), laminaRaices = cargar(imgRaices.src);
+  let brote: Estela | null = null, raices: Estela | null = null;
+
+  // el frente del motor (hacia abajo): gr·1,4 − 0,1 = 0,85·dy + 0,35·|dx|. El g que lleva el frente central hasta dy (en 0 no asoma nada):
+  const gDe = (dy: number) => (dy <= 0.03 ? 0 : (0.85 * dy + 0.14 * Math.min(1, (dy - 0.03) / 0.06)) / 1.4);
+  const G_PUNTA = (0.85 * PY + 0.35 * Math.abs(PX - BX) + 0.12) / 1.4;
+  const AIRE = 240; // la punta de la raíz queda 240 px por encima de la cima de la capitular
+  const LINEA = 0.6; // la raíz alcanza la capitular cuando esta llega aquí (fracción de la pantalla)
+
+  // ── ENCAJAR las raíces entre la bellota y la capitular (alto, ancho a escala e inclinación), y atar su crecimiento al scroll ──
+  let top = 0, alto = 1, g = -1, pend = 0, vivo = true;
+  const actualizar = () => {
+    pend = 0;
+    // en 0 el frente está en la bellota; llega a la punta cuando la capitular está a LINEA de la pantalla
+    const S = Math.max(1, top + PY * alto - innerHeight * LINEA);
+    const k = reducido || !raices ? 1 : Math.min(1, gDe((scrollY / S) * PY));
+    if (Math.abs(k - g) < 0.0008) return;
+    g = k;
+    raices?.crecer(k);
+    const bebe = k >= G_PUNTA;
+    if (bebe !== cap.classList.contains('bebe')) {
+      cap.classList.toggle('bebe', bebe);
+      if (bebe && !reducido) { cap.classList.add('bebiendo'); setTimeout(() => cap.classList.remove('bebiendo'), 900); }
     }
-  }
+  };
+  const encajar = () => {
+    const sy = scrollY;
+    const b = cajaBrote.getBoundingClientRect();
+    const bellota = { x: b.left + b.width * BX, y: b.bottom + sy };
+    const r = cap.getBoundingClientRect(), F = parseFloat(getComputedStyle(cap).fontSize);
+    const punta = { x: r.left + F * 0.33, y: r.top + sy + F * 0.12 - AIRE };
+    const rh = Math.max(80, (punta.y - bellota.y) / PY), rw = rh * 1000 / 1190;
+    const lim = Math.tan(SK_MAX * Math.PI / 180);
+    const tan = Math.max(-lim, Math.min(lim, (punta.x - (bellota.x + (PX - BX) * rw)) / (PY * rh)));
+    const mr = main.getBoundingClientRect();
+    cajaRaices.style.setProperty('--rh', `${rh.toFixed(1)}px`);
+    cajaRaices.style.setProperty('--rw', `${rw.toFixed(1)}px`);
+    cajaRaices.style.setProperty('--rl', `${(bellota.x - mr.left - BX * rw).toFixed(1)}px`);
+    cajaRaices.style.setProperty('--sk', `${(Math.atan(tan) * 180 / Math.PI).toFixed(2)}deg`);
+    top = bellota.y; alto = rh;
+    g = -1; actualizar();
+  };
+  const pedir = () => { if (!pend) pend = requestAnimationFrame(actualizar); };
 
-  // ── EL ROBLE GOFRADO: parte de la hoja (no va fijo); se pinta una vez y al cambiar de tamaño ──
-  (async () => {
-    const R = await crearRelieve(lienzo, '/media/manifiesto/roble-relieve.webp').catch(() => null);
-    if (!R || !R.ok) return;
-    document.documentElement.classList.add('relieve-listo');
-    let tw0 = 0, th0 = 0;
-    const pintar = () => {
-      const w = lienzo.clientWidth, h = lienzo.clientHeight;
-      if (!w || !h) return;
-      if (w !== tw0 || h !== th0) { tw0 = w; th0 = h; R.tam(w, h); }
-      const tw = w / 1.08; // el lienzo lleva un 4 % de margen por lado
-      R.pintar({
-        cx: w / 2, cy: h / 2, w: tw, h: tw / (1340 / 663), giro: 0, luz: -2.36, fuerza: ancho.matches ? 3.2 : 2.2,
-        mano: { x: mx, y: my, f: mf, alza: reducido ? 0 : 0.6, r: ancho.matches ? 180 : 130 },
+  let vivoR = true;
+  // el motor arranca con las láminas YA descodificadas: WebKit subía a la GPU una lámina a medio descodificar (textura incompleta = un recuadro
+  // negro con el semitono) en las estaciones que no eran la del respaldo
+  const arrancar = () => {
+  brote = crearEstela(cvBrote, lienzoDe(laminaBrote), OPC_BROTE(true));
+  raices = brote ? crearEstela(cvRaices, lienzoDe(laminaRaices), OPC_RAICES) : null;
+  if (brote && raices) {
+    document.documentElement.classList.add('semilla-js');
+    cajaBrote.classList.add('gl'); cajaRaices.classList.add('gl');
+    brote.fondo(...fondo()); raices.fondo(...fondo());
+    // el brote: su gota cae en cuanto la lámina está lista
+    setTimeout(() => brote?.soltar(), reducido ? 0 : 450);
+    // fuera de la pantalla, no se pintan
+    new IntersectionObserver(([x]) => { vivo = x.isIntersecting; brote?.visible(vivo); }, { rootMargin: '10% 0px' }).observe(cajaBrote);
+    new IntersectionObserver(([x]) => { vivoR = x.isIntersecting; raices?.visible(vivoR); }, { rootMargin: '10% 0px' }).observe(cajaRaices);
+
+    // ── CAMBIO DE ESTACIÓN: la lámina nueva viene pintada y se descubre con el canto rasgado desde la bellota; las raíces, 0,6 s después ──
+    let pedida = -1;
+    addEventListener('savvia:estacion', (ev) => {
+      const n = (ev as CustomEvent).detail.n as number;
+      if (n === est) return;
+      est = n; pedida = n;
+      const nb = cargar(`/media/manifiesto/brote-${EST[n]}.webp`), nr = cargar(`/media/manifiesto/raices-${EST[n]}.webp`);
+      Promise.all([nb.decode(), nr.decode()]).catch(() => null).then(() => {
+        if (pedida !== n) return;
+        imgBrote.src = nb.src; imgRaices.src = nr.src;
+        const b2 = cvBrote.cloneNode(false) as HTMLCanvasElement, r2 = cvRaices.cloneNode(false) as HTMLCanvasElement;
+        cvBrote.after(b2); cvRaices.after(r2);
+        gl1(b2); gl1(r2);
+        const tb = crearEstela(b2, lienzoDe(nb), OPC_BROTE(false)), tr = crearEstela(r2, lienzoDe(nr), OPC_RAICES);
+        if (!tb || !tr) { b2.remove(); r2.remove(); return; }
+        tb.fondo(...fondo()); tr.fondo(...fondo());
+        tb.crecer(1); tr.crecer(Math.max(0, g));
+        tb.visible(vivo); tr.visible(vivoR);
+        const vb = cvBrote, vr = cvRaices;
+        cvBrote = b2; cvRaices = r2; brote = tb; raices = tr;
+        if (reducido) { soltarLienzo(vb); soltarLienzo(vr); return; }
+        revelar(b2, BX, 1, 2400, () => soltarLienzo(vb), vb);
+        setTimeout(() => revelar(r2, BX, 0, 2200, () => soltarLienzo(vr), vr), 600);
       });
-    };
-
-    // ── LA MANO: al pasar el puntero (o el dedo, mientras toca) el gofrado responde; con inercia y sin bucle en reposo ──
-    // Se escucha en la portada (el lienzo no coge el puntero: no estorba a la selección de texto).
-    let mx = -1e4, my = -1e4, mf = 0; // lo que se pinta
-    let tx = 0, ty = 0, tf = 0; // a dónde va
-    let raf = 0, tAnt = 0;
-    const portada = main.querySelector<HTMLElement>('.portada')!;
-    const paso = (t: number) => {
-      const dt = Math.min(0.05, tAnt ? (t - tAnt) / 1000 : 1 / 60);
-      tAnt = t;
-      const kp = reducido ? 1 : 1 - Math.pow(1 - 0.12, dt * 60); // lerp 0,12 por fotograma a 60 fps
-      if (mf < 0.002) { mx = tx; my = ty; } else { mx += (tx - mx) * kp; my += (ty - my) * kp; }
-      // entra en ~0,35 s y se relaja en ~0,8 s
-      const kf = 1 - Math.exp(-dt / (tf > mf ? 0.12 : 0.27));
-      mf += (tf - mf) * kf;
-      pintar();
-      const quieto = Math.abs(tf - mf) < 0.003 && Math.abs(tx - mx) < 0.3 && Math.abs(ty - my) < 0.3;
-      if (quieto) { mf = tf; raf = 0; tAnt = 0; if (!tf) pintar(); return; }
-      raf = requestAnimationFrame(paso);
-    };
-    const mover = () => { if (!raf) raf = requestAnimationFrame(paso); };
-    let cx0 = 0, cy0 = 0;
-    const apuntar = () => {
-      const r = lienzo.getBoundingClientRect();
-      const x = cx0 - r.left, y = cy0 - r.top;
-      const m = 60;
-      const dentro = x > -m && y > -m && x < r.width + m && y < r.height + m;
-      tx = x; ty = y; tf = dentro ? 1 : 0;
-      mover();
-    };
-    const sobre = (e: PointerEvent) => {
-      if (e.pointerType === 'touch' && !e.isPrimary) return;
-      cx0 = e.clientX; cy0 = e.clientY;
-      apuntar();
-    };
-    const fuera = () => { tf = 0; mover(); };
-    portada.addEventListener('pointermove', sobre, { passive: true });
-    portada.addEventListener('pointerdown', sobre, { passive: true });
-    portada.addEventListener('pointerleave', fuera);
-    portada.addEventListener('pointerup', (e) => { if (e.pointerType === 'touch') fuera(); });
-    portada.addEventListener('pointercancel', fuera);
-    // con la rueda la hoja se mueve bajo la mano quieta: se vuelve a apuntar
-    addEventListener('scroll', () => { if (tf) apuntar(); }, { passive: true });
-
-    pintar();
-    let t = 0;
-    let ultimo = caja.clientWidth;
-    new ResizeObserver(() => {
-      if (caja.clientWidth === ultimo) return; // la barra del móvil cambia el alto, no el ancho: no se repinta
-      ultimo = caja.clientWidth;
-      clearTimeout(t);
-      t = window.setTimeout(pintar, 80);
-    }).observe(caja);
-    (window as any).__manifiesto = () => ({
-      roble: caja.getBoundingClientRect().toJSON(),
-      impresos: main.querySelectorAll('.num.impreso').length,
-      mano: { x: mx, y: my, f: mf, animando: !!raf },
     });
-  })();
+  }
+  g = -1; actualizar();
+  };
+  Promise.all([laminaBrote.decode(), laminaRaices.decode()]).catch(() => null).then(arrancar);
+  addEventListener('scroll', pedir, { passive: true });
+  addEventListener('resize', encajar);
+  new ResizeObserver(encajar).observe(main);
+  document.fonts?.ready.then(encajar);
+  encajar();
+
+  (window as any).__manifiesto = () => {
+    const r = cap.getBoundingClientRect(), F = parseFloat(getComputedStyle(cap).fontSize);
+    return { g, gPunta: G_PUNTA, bebe: cap.classList.contains('bebe'), est: EST[est], sk: cajaRaices.style.getPropertyValue('--sk'), punta: { x: r.left + F * 0.33, y: r.top + scrollY + F * 0.12 }, brote: cajaBrote.getBoundingClientRect().toJSON(), raices: cajaRaices.getBoundingClientRect().toJSON() };
+  };
 </script>

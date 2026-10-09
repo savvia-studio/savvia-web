@@ -10,11 +10,17 @@ interface Props {
   proporcion?: string; // p. ej. '16 / 10'
   clase?: string;
   transicion?: string; // ronda 63: nombre de la transición compartida entre páginas (la tarjeta del listado ↔ la portada del caso)
+  // ronda 153 · el mosaico de los casos: `proporcion="auto"` llena el hueco que le da la fila; `placa` pone el vídeo ENTERO y centrado sobre ese
+  // color (con su proporción real, `natural`); `pos` encuadra el vídeo cuando llena un hueco de otra proporción
+  placa?: string;
+  natural?: string;
+  pos?: string;
 }
-const { medio, color, alt, al = 'vista', proporcion = '16 / 10', clase = '', transicion } = Astro.props;
+const { medio, color, alt, al = 'vista', proporcion = '16 / 10', clase = '', transicion, placa, natural = '16 / 9', pos } = Astro.props;
+const estilo = [`--color:${placa ?? color}`, `--prop:${proporcion}`, `--r:${natural}`, pos ? `--pos:${pos}` : '', transicion ? `view-transition-name:${transicion}` : ''].filter(Boolean).join(';');
 ---
 
-<div class={`medio ${medio.movil ? 'movil' : ''} ${clase}`} style={`--color:${color};--prop:${proporcion}${transicion ? `;view-transition-name:${transicion}` : ''}`} data-obra-medio data-al={al}>
+<div class={`medio ${medio.movil ? 'movil' : ''} ${placa ? 'placa' : ''} ${proporcion === 'auto' ? 'lleno' : ''} ${clase}`} style={estilo} data-obra-medio data-al={al}>
   <div class="marco">
     {
       medio.tipo === 'video' ? (
@@ -64,8 +70,28 @@ const { medio, color, alt, al = 'vista', proporcion = '16 / 10', clase = '', tra
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 0;
+    object-position: var(--pos, 50% 0);
     display: block;
+  }
+  /* ronda 153 · el mosaico: llena el hueco de su fila */
+  .lleno {
+    aspect-ratio: auto;
+    height: 100%;
+  }
+  /* sobre una placa de color: la web entera, a su proporción, centrada (todo dentro de transform: nunca translate y transform juntos) */
+  .placa {
+    container-type: size;
+  }
+  .placa:not(.movil) .marco {
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    width: min(86cqw, calc(82cqh * var(--r)));
+    aspect-ratio: var(--r);
+    transform: translate(-50%, -50%);
+    border-radius: calc(var(--radius-lg) * 0.6);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08);
   }
   /* las webs móviles: un teléfono centrado sobre el color de su web */
   .movil .marco {

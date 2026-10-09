@@ -6,7 +6,11 @@
 ---
 
 <div class="reposo" data-reposo aria-hidden="true" hidden>
+  <!-- RONDA 152 · Andoni: «el salvapantallas, que el árbol nazca desde abajo y que parezca que estás en la estación que toca: otoño caen hojas,
+       invierno nieve…». El roble crece desde el pie de la pantalla (sube y se pinta desde la base) y por delante cae el tiempo de la estación:
+       hojas (otoño), nieve (invierno), pétalos (primavera) y motas de luz con un haz (verano). Lo que cae se posa en el suelo. -->
   <div class="arbol"><canvas data-reposo-lienzo></canvas></div>
+  <canvas class="tiempo" data-reposo-tiempo></canvas>
   <div class="texto">
     <p class="hora" data-reposo-hora></p>
     <p class="volver"><span class="raton">Mueve el ratón para volver</span><span class="dedo">Toca para volver</span></p>
@@ -14,19 +18,22 @@
 </div>
 
 <style>
-  .reposo { position: fixed; inset: 0; z-index: 90; background-color: var(--noche, #3b231b); background-image: url('/media/grano.png'); color: var(--color-niebla, #eadde7);
+  .reposo { position: fixed; inset: 0; z-index: 90; background-color: var(--noche, #3b231b); background-image: none; color: var(--color-niebla, #eadde7);
     opacity: 0; transition: opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 2.4s ease; overflow: hidden; cursor: none; }
   .reposo.on { opacity: 1; }
   /* el roble, grande y centrado; su pie, a dos tercios de la pantalla */
-  .arbol { position: absolute; left: 50%; bottom: 30%; height: min(62dvh, 92vw * 941 / 1672 * 1.6); aspect-ratio: 1672 / 941; transform: translateX(-50%); max-width: 96vw; }
+  .arbol { position: absolute; left: 50%; bottom: 0; height: min(78dvh, 96vw * 941 / 1672 * 1.6); aspect-ratio: 1672 / 941; transform: translate(-50%, 22%); max-width: 98vw;
+    transition: transform 3.2s cubic-bezier(0.16, 1, 0.3, 1); }
+  .reposo.on .arbol { transform: translate(-50%, 0); }
+  .tiempo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .arbol canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .texto { position: absolute; left: 50%; top: 74%; transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity 1.2s ease 1.6s; }
+  .texto { position: absolute; left: 50%; top: calc(var(--spacing) * 16); transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity 1.2s ease 1.6s; }
   .reposo.on .texto { opacity: 1; }
-  .hora { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 0.12em; opacity: 0.72; font-variant-numeric: tabular-nums; }
-  .volver { margin-top: calc(var(--spacing) * 6); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; opacity: 0.42; }
+  .hora { font-size: 0.875rem; letter-spacing: 0.12em; opacity: 0.72; font-variant-numeric: tabular-nums; }
+  .volver { margin-top: calc(var(--spacing) * 6); font-size: 0.75rem; letter-spacing: 0.06em; opacity: 0.42; }
   .dedo { display: none; }
   @media (hover: none) { .raton { display: none; } .dedo { display: inline; } }
-  @media (prefers-reduced-motion: reduce) { .reposo, .texto { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .reposo, .texto, .arbol { transition: none; } .tiempo { display: none; } }
 </style>
 
 <script>
@@ -59,12 +66,70 @@
       const tic = () => (hora.textContent = `${fmt.format(new Date())} · Donostia · ${NOMBRE[estacionActual()]}`); tic(); reloj = window.setInterval(tic, 10000);
       caja.setAttribute('aria-hidden', 'false'); est?.visible(true);
       requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.add('on')));
+      setTimeout(() => abierto && empezarTiempo(), 1800); // el tiempo empieza cuando el roble ya ha brotado
     };
     const cerrar = () => {
       if (!abierto) return; abierto = false; clearInterval(reloj);
       caja.classList.remove('on'); caja.setAttribute('aria-hidden', 'true');
-      salida = window.setTimeout(() => { if (!abierto) { caja.hidden = true; est?.visible(false); } }, 1500); // oculto: el roble deja de pintarse
+      salida = window.setTimeout(() => { if (!abierto) { caja.hidden = true; est?.visible(false); cancelAnimationFrame(rafT); rafT = 0; } }, 1500); // oculto: el roble deja de pintarse
     };
+    // ── EL TIEMPO DE LA ESTACIÓN (ronda 152): pocas piezas, lentas; las que llegan al suelo se quedan (capa acumulada, con tope)
+    const tcv = caja.querySelector<HTMLCanvasElement>('[data-reposo-tiempo]')!, tc = tcv.getContext('2d')!;
+    const acu = document.createElement('canvas'), ac = acu.getContext('2d')!;
+    type P = { x: number; y: number; z: number; f: number; g: number; v: number };
+    const REC = [
+      { n: 26, col: ['#c8692b', '#e0a03a', '#8e3b1f', '#b4512a'], vy: 34, vx: 10, tam: 7, forma: 'hoja', posa: 260 },     // otoño
+      { n: 120, col: ['#aebfd3', '#c9d6e6', '#ffffff'], vy: 26, vx: 6, tam: 2.4, forma: 'copo', posa: 1400 },                          // invierno
+      { n: 30, col: ['#ffffff', '#f8d9e3', '#f2b8cb'], vy: 22, vx: 16, tam: 5, forma: 'petalo', posa: 300 },                // primavera
+      { n: 46, col: ['#fff3c4', '#ffe7a3'], vy: -9, vx: 5, tam: 1.8, forma: 'mota', posa: 0 },                              // verano
+    ];
+    let pzs: P[] = [], rafT = 0, tPrev = 0, posadas = 0, W = 0, H = 0, dpr = 1;
+    const suelo = () => H * 0.985;
+    const medirT = () => { dpr = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; tcv.width = acu.width = Math.round(W * dpr); tcv.height = acu.height = Math.round(H * dpr); posadas = 0; };
+    const nueva = (r: (typeof REC)[number], y?: number): P => ({ x: Math.random() * W, y: y ?? (r.vy > 0 ? -20 - Math.random() * H * 0.3 : H * (0.4 + Math.random() * 0.6)), z: 0.4 + Math.random() * 0.6, f: Math.random() * 9, g: Math.random() * 6.28, v: 0.7 + Math.random() * 0.6 });
+    const pieza = (cx: CanvasRenderingContext2D, r: (typeof REC)[number], p: P, i: number, tumbada = false) => {
+      const s = r.tam * p.z; cx.fillStyle = r.col[i % r.col.length];
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(tumbada ? p.g * 0.2 : p.g + Math.sin(p.f * 1.6) * 0.9);
+      cx.beginPath();
+      if (r.forma === 'hoja') { cx.moveTo(-s, 0); cx.quadraticCurveTo(0, -s * 0.62, s, 0); cx.quadraticCurveTo(0, s * 0.62, -s, 0); }
+      else if (r.forma === 'petalo') cx.ellipse(0, 0, s, s * 0.55, 0, 0, 6.283);
+      else cx.arc(0, 0, s, 0, 6.283);
+      cx.fill(); cx.restore();
+    };
+    const pasoT = (ahora: number) => {
+      rafT = 0; if (!abierto && caja.hidden) return;
+      const n = estacionActual(), r = REC[n];
+      const dt = Math.min(0.05, (ahora - (tPrev || ahora)) / 1000); tPrev = ahora;
+      tc.setTransform(dpr, 0, 0, dpr, 0, 0); tc.clearRect(0, 0, W, H);
+      if (n === 3) { // verano: un haz de luz oblicuo que respira
+        const a = 0.07 + Math.sin(ahora / 2600) * 0.025;
+        const gr = tc.createLinearGradient(W * 0.25, 0, W * 0.55, H); gr.addColorStop(0, `rgba(255,236,190,${a})`); gr.addColorStop(1, 'rgba(255,236,190,0)');
+        tc.fillStyle = gr; tc.beginPath(); tc.moveTo(W * 0.18, 0); tc.lineTo(W * 0.42, 0); tc.lineTo(W * 0.78, H); tc.lineTo(W * 0.38, H); tc.fill();
+      }
+      tc.drawImage(acu, 0, 0, W, H);
+      pzs.forEach((p, i) => {
+        p.f += dt;
+        p.y += r.vy * p.v * p.z * dt * (r.forma === 'copo' ? 1 : 1);
+        p.x += (r.vx + Math.sin(p.f * 0.8 + i) * r.vx * 1.4) * p.z * dt;
+        const fin = r.vy > 0 ? p.y > suelo() - Math.random() * H * 0.04 : p.y < -10;
+        if (fin || p.x > W + 30 || p.x < -30) {
+          if (fin && r.posa && posadas < r.posa) { ac.setTransform(dpr, 0, 0, dpr, 0, 0); ac.globalAlpha = 0.85; pieza(ac, r, p, i, true); posadas++; }
+          Object.assign(p, nueva(r)); return;
+        }
+        tc.globalAlpha = r.forma === 'mota' ? 0.35 + 0.4 * Math.abs(Math.sin(p.f * 1.3 + i)) : 0.55 + p.z * 0.4;
+        pieza(tc, r, p, i);
+      });
+      tc.globalAlpha = 1;
+      rafT = requestAnimationFrame(pasoT);
+    };
+    const empezarTiempo = () => {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      medirT(); ac.clearRect(0, 0, acu.width, acu.height);
+      const r = REC[estacionActual()];
+      pzs = Array.from({ length: r.n }, () => nueva(r, r.vy > 0 ? Math.random() * H * 0.9 - H * 0.2 : undefined));
+      tPrev = 0; if (!rafT) rafT = requestAnimationFrame(pasoT);
+    };
+    addEventListener('resize', () => abierto && medirT());
     const armar = () => { clearTimeout(temporizador); temporizador = window.setTimeout(abrir, ESPERA); };
     let ux = -1, uy = -1;
     const gesto = (e: Event) => {

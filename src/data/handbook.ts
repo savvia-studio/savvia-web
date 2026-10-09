@@ -360,8 +360,8 @@ export const capitulos: Capitulo[] = [
             tipo: 'tipos',
             items: [
               { n: 'Family', css: 'var(--font-display)', uso: 'Titulares · 400', muestra: 'Elevamos tu web' },
-              { n: 'ABC Areal', css: 'var(--font-sans)', uso: 'Lectura e interfaz', muestra: 'Frases claras y cortas.' },
-              { n: 'ABC Areal Mono', css: 'var(--font-mono)', uso: 'Números y detalles', muestra: '01 · 04 · 2026' },
+              { n: 'Timeless Sans', css: 'var(--font-sans)', uso: 'Lectura e interfaz', muestra: 'Frases claras y cortas.' },
+              { n: 'Timeless Grotesk', css: 'var(--font-mono)', uso: 'Números y detalles', muestra: '01 · 04 · 2026' },
             ],
           },
           { tipo: 'p', texto: 'El espacio sale de una sola escala de 4 px: 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128. Ningún hueco se decide a ojo.' },

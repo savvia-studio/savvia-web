@@ -14,5 +14,8 @@ export type DirFlecha = 'der' | 'izq' | 'abajo' | 'arriba' | 'fuera';
 
 export function flecha(dir: DirFlecha = 'der', clase = ''): string {
   const cls = ['btn-flecha', dir === 'der' ? '' : dir, clase].filter(Boolean).join(' ');
-  return `<svg class="${cls}" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g class="fl"><path class="fl-ala" pathLength="1" d="${ALAS[0]}"/><path class="fl-ala" pathLength="1" d="${ALAS[1]}"/></g></svg>`;
+  // RONDA 153 · «que la flecha se dibuje como lo hace el menú superior, como algo líquido»: una gota nace en el vértice y cada ala FLUYE desde ella con
+  // una gotita en la punta que tira del trazo, se pasa un poco y se funde con la punta redonda (global.css › .fl-gota). Las alas son rectas: la gotita
+  // viaja con `transform` (vale en Safari, que no anima cx/cy).
+  return `<svg class="${cls}" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g class="fl"><path class="fl-ala" pathLength="1" d="${ALAS[0]}"/><path class="fl-ala" pathLength="1" d="${ALAS[1]}"/><circle class="fl-gota fl-v" cx="10.75" cy="8" r="1.9"/><circle class="fl-gota fl-a" cx="10.75" cy="8" r="1.55"/><circle class="fl-gota fl-b" cx="10.75" cy="8" r="1.55"/></g></svg>`;
 }

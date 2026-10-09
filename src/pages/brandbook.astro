@@ -16,6 +16,19 @@ import Carriles from '../components/Carriles.astro';
 import Pie from '../components/Pie.astro';
 import Cta from '../components/Cta.astro';
 import { flecha } from '../lib/flecha';
+import { icono, ICONO_ESTACION } from '../lib/iconos';
+// RONDA 153 · «en iconografía, más iconos de la librería para mostrar todos los que podemos tener»: una muestra de Iconoir por grupos (en build)
+const ICONOIR = import.meta.glob('/node_modules/iconoir/icons/regular/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const ico = (n: string) => (ICONOIR[`/node_modules/iconoir/icons/regular/${n}.svg`] ?? '').replace(/\s(width|height)="24"/g, '').replace('<svg ', '<svg aria-hidden="true" focusable="false" ');
+const GRUPOS_ICONOS: [string, [string, string][]][] = [
+  ['Navegación', [['arrow-right', 'ir'], ['arrow-up-right', 'fuera'], ['nav-arrow-right', 'siguiente'], ['nav-arrow-down', 'abrir'], ['plus', 'más'], ['minus', 'menos'], ['xmark', 'cerrar'], ['check', 'hecho'], ['menu', 'menú'], ['search', 'buscar'], ['filter', 'filtrar'], ['sort', 'ordenar']]],
+  ['Contacto y tiempo', [['mail', 'correo'], ['send', 'enviar'], ['chat-bubble', 'chat'], ['phone', 'llamar'], ['calendar', 'agenda'], ['clock', 'hora'], ['map-pin', 'lugar'], ['globe', 'idiomas']]],
+  ['Acciones', [['link', 'enlace'], ['open-new-window', 'abrir web'], ['download', 'descargar'], ['upload', 'subir'], ['share-ios', 'compartir'], ['copy', 'copiar'], ['edit-pencil', 'editar'], ['trash', 'borrar'], ['eye', 'ver'], ['bookmark', 'guardar'], ['heart', 'me gusta'], ['star', 'destacar']]],
+  ['Oficio', [['light-bulb', 'idea'], ['sparks', 'IA'], ['code', 'código'], ['terminal-tag', 'terminal'], ['laptop', 'web'], ['design-pencil', 'diseño'], ['palette', 'color'], ['text', 'tipografía'], ['frame-select', 'retícula'], ['settings', 'ajustes'], ['user', 'persona'], ['group', 'equipo']]],
+  ['Medios', [['play', 'reproducir'], ['pause', 'pausa'], ['sound-high', 'sonido'], ['sound-off', 'silencio'], ['video-camera', 'vídeo'], ['camera', 'foto'], ['media-image', 'imagen'], ['home-simple', 'inicio']]],
+  ['Naturaleza', [['leaf', 'hoja'], ['flower', 'flor'], ['snow-flake', 'copo'], ['sun-light', 'sol'], ['rain', 'lluvia'], ['cloud', 'nube'], ['droplet', 'gota'], ['tree', 'árbol']]],
+];
+import isoBezier from '../data/isotipo-bezier.json';
 import logoRaw from '../../public/savvia-palabra.svg?raw'; // ronda 145: el logotipo es la palabra en Family (sin isotipo)
 
 const indice = [
@@ -24,8 +37,9 @@ const indice = [
   ['color', 'Color y estaciones'],
   ['tipografia', 'Tipografía'],
   ['voz', 'Voz'],
+  ['iconografia', 'Iconografía'],
   ['componentes', 'Componentes'],
-  ['materia', 'Textura y movimiento'],
+  ['materia', 'Movimiento'],
   ['aplicaciones', 'Aplicaciones'],
 ] as const;
 
@@ -73,19 +87,19 @@ const base6_r144 = [
   { n: 'Cereza', hex: '#B52C4C', uso: 'Reservado. Aún sin uso.', claro: false },
 ];
 const estaciones = [
-  { id: 'primavera', n: 'Primavera', meses: 'marzo – mayo', noche: '#382A2D', honda: '#382A2D', arbol: '#C76B83', acento: '#FF7FAE', tinta: '#EFDEE6', papel: '#EFDEE6', madera: '#6A3F47', cielo: '#A8C6EC', detalle: '#4A5FD0', fruto: '#C23A62', de: 'el cerezo', frase: 'El roble florece en rosa; la savia es el cerezo.' },
-  { id: 'verano', n: 'Verano', meses: 'junio – agosto', noche: '#1F352A', honda: '#1F352A', arbol: '#67834D', acento: '#A6D96A', tinta: '#E9E0DF', papel: '#E9E0DF', madera: '#5F4A31', cielo: '#8EC4E6', detalle: '#2F6FCF', fruto: '#A8433C', de: 'la hoja nueva', frase: 'Verdes hondos y luces lima; la savia es la hoja nueva.' },
-  { id: 'otono', n: 'Otoño', meses: 'septiembre – noviembre', noche: '#3B231B', honda: '#3B231B', arbol: '#C65C2D', acento: '#FF616B', tinta: '#EADDE7', papel: '#EADDE7', madera: '#63402F', cielo: '#96BFE6', detalle: '#3456D3', fruto: '#B52C4C', de: 'el Coral de siempre', frase: 'La casa: Cacao, cobre y el Coral de la savia.' },
-  { id: 'invierno', n: 'Invierno', meses: 'diciembre – febrero', noche: '#ECEFF3', honda: '#2A2932', arbol: '#6E7B91', acento: '#4F8AD6', tinta: '#302018', papel: '#E5E8EE', madera: '#4C403D', cielo: '#A9BFD6', detalle: '#3E5A9E', fruto: '#8E2F4A', de: 'el cielo de enero', frase: 'La web se vuelve nieve; el roble, desnudo; la savia, el azul glaciar.' },
+  { id: 'primavera', n: 'Primavera', meses: 'marzo – mayo', noche: '#3A2932', tinta: '#F5F5F7', colores: [['fondo', 'Ciruela', '#3A2932'], ['roble', 'Flor de cerezo', '#D98AA5'], ['savia', 'Cereza viva', '#FF8FB8'], ['bloque', 'Pétalo', '#F4C7D5']], frase: 'Ciruela al anochecer y el roble en flor; la savia es la cereza.' },
+  { id: 'verano', n: 'Verano', meses: 'junio – agosto', noche: '#1B3125', tinta: '#F5F5F7', colores: [['fondo', 'Bosque', '#1B3125'], ['roble', 'Hoja', '#6F9A4E'], ['savia', 'Lima', '#B9E26C'], ['bloque', 'Prado', '#CFE6A4']], frase: 'Bosque de noche y hoja al sol; la savia es la lima.' },
+  { id: 'otono', n: 'Otoño', meses: 'septiembre – noviembre', noche: '#3B231B', tinta: '#F5F5F7', colores: [['fondo', 'Cacao', '#3B231B'], ['roble', 'Cobre', '#C65C2D'], ['savia', 'Coral', '#FF616B'], ['bloque', 'Hoja seca', '#ECBF8F']], frase: 'La casa: Cacao tostado y cobre; la savia es el Coral.' },
+  { id: 'invierno', n: 'Invierno', meses: 'diciembre – febrero', noche: '#F5F5F7', tinta: '#22303E', colores: [['fondo', 'Nieve', '#F5F5F7'], ['roble', 'Roble desnudo', '#7D8BA3'], ['savia', 'Glaciar', '#4F8AD6'], ['bloque', 'Hielo', '#CADCEE'], ['tinta', 'Pizarra', '#22303E']], frase: 'La web se vuelve nieve y el roble, desnudo; la savia es el azul glaciar.' },
 ];
 const escala = [
   ['H1', 'var(--text-h1)', '44 → 72', 'Family 400', 'display'],
   ['H2', 'var(--text-h2)', '34 → 48', 'Family 400', 'display'],
   ['H3', 'var(--text-h3)', '26 → 32', 'Family 400', 'display'],
-  ['Lead', 'var(--text-lead)', '20', 'ABC Areal 400', 'sans'],
-  ['Cuerpo', 'var(--text-body)', '17 → 18', 'ABC Areal 400', 'sans'],
-  ['Interfaz', 'var(--text-ui)', '16', 'ABC Areal 500', 'sans'],
-  ['Detalle', 'var(--text-detail)', '13', 'ABC Areal Mono 400', 'mono'],
+  ['Lead', 'var(--text-lead)', '20', 'Timeless Sans 420', 'sans'],
+  ['Cuerpo', 'var(--text-body)', '17 → 18', 'Timeless Sans 420', 'sans'],
+  ['Interfaz', 'var(--text-ui)', '16', 'Timeless Sans 500', 'sans'],
+  ['Detalle', 'var(--text-detail)', '13', 'Timeless Grotesk 300', 'grot'],
 ] as const;
 const seDice = ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'contigo', 'Eric y Andoni', 'Donostia'];
 const noSeDice = ['prompt', 'vibe coding', '«lavado de cara»', 'años de experiencia', 'número de clientes', '«pioneros»', 'jerga de generador'];
@@ -119,19 +133,31 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         <!-- 01 · LOGOTIPO -->
         <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
           <h2 id="h-logotipo" class="font-display text-h2">Logotipo</h2>
-          <p class="cuerpo">El logotipo es la palabra: «savvia» en Family, la letra de los titulares, siempre en minúscula (también a principio de frase). Sin isotipo. El favicon es su «s».</p>
+          <!-- RONDA 153 · «en el brandbook hay que poner el logo nuevo con todos los colores, su construcción, la construcción del isotipo» -->
+          <p class="cuerpo">El logotipo son dos piezas: el isotipo —una gota que da la vuelta— y la palabra «savvia» en Family, la letra de los titulares, siempre en minúscula. Juntos, en una sola línea; el isotipo, solo, donde no cabe la palabra (favicon, avatares, la carga).</p>
           <div class="fila f2">
-            <figure class="placa oscura"><span class="logo-masc" role="img" aria-label="savvia sobre Cacao"></span><figcaption class="detail">Sobre Cacao · Rosa niebla</figcaption></figure>
-            <figure class="placa clara"><span class="logo-masc" role="img" aria-label="savvia sobre Rosa niebla"></span><figcaption class="detail">Sobre Rosa niebla · Cacao</figcaption></figure>
+            <figure class="placa oscura grande"><span class="lockup" role="img" aria-label="savvia sobre Cacao"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Sobre Cacao · Blanco</figcaption></figure>
+            <figure class="placa clara grande"><span class="lockup" role="img" aria-label="savvia sobre blanco"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Sobre blanco · Cacao</figcaption></figure>
+          </div>
+          <p class="detail detail-caps rotulo-bb">Con cada estación</p>
+          <div class="lockups-est">
+            {estaciones.map((e) => (
+              <>
+                <figure class="placa est" style={`background:${e.colores[0][2]};color:${e.id === 'invierno' ? '#22303E' : '#F5F5F7'}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[0][1]}`}><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">{e.n} · {e.colores[0][1]}</figcaption></figure>
+                <figure class="placa est" style={`background:${e.colores[3][2]};color:${e.id === 'invierno' ? '#22303E' : e.colores[0][2]}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[3][1]}`}><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">{e.colores[3][1]}</figcaption></figure>
+              </>
+            ))}
           </div>
           <div class="fila f3">
-            <figure class="placa oscura sm"><img class="fav" src="/favicon.svg?v=145" alt="Favicon" width="64" height="64" /><figcaption class="detail">Favicon · la «s»</figcaption></figure>
-            <figure class="placa clara sm"><span class="logo-masc peq" role="img" aria-label="savvia en pequeño"></span><figcaption class="detail">Tamaño mínimo · 16 px de alto</figcaption></figure>
-            <figure class="placa oscura sm"><span class="font-display en-texto">Hecho con <span class="logo-masc linea" role="img" aria-label="savvia"></span></span><figcaption class="detail">Dentro de una frase · a la altura de la letra</figcaption></figure>
+            <figure class="placa oscura sm"><span class="iso-masc solo" role="img" aria-label="El isotipo solo"></span><figcaption class="detail">El isotipo solo</figcaption></figure>
+            <figure class="placa clara sm fav-par"><span class="fav-m cla" role="img" aria-label="Favicon en modo claro"><span class="iso-masc"></span></span><span class="fav-m osc" role="img" aria-label="Favicon en modo oscuro"><span class="iso-masc"></span></span><figcaption class="detail">Favicon · modo claro y oscuro</figcaption></figure>
+            <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label="savvia en pequeño"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Tamaño mínimo · 24 px de alto</figcaption></figure>
           </div>
           <ul class="reglas">
-            <li><b>Aire</b> alrededor, como mínimo, la altura de x de la palabra. Tamaño mínimo: 16 px de alto en pantalla.</li>
-            <li><b>Sí</b> en Cacao o Rosa niebla, macizo, sobre fondo liso. <b>No</b> se estira, no se gira, no lleva sombra ni degradado, no cambia con la estación.</li>
+            <li><b>Un solo dibujo</b> el isotipo es el mismo en todos los tamaños (el de 24 px): barra, favicon, carga y aplicaciones.</li>
+            <li><b>Proporción áurea</b> el anillo del isotipo mide la altura de x de la palabra × φ (1,618); entre isotipo y palabra, el anillo ÷ φ² (0,382); el centro del anillo, en el centro de la altura de x.</li>
+            <li><b>Aire</b> alrededor, como mínimo, la altura de x de la palabra.</li>
+            <li><b>Sí</b> macizo, en el blanco o en la tinta de la estación, sobre fondo liso. <b>No</b> se estira, no se gira, no lleva sombra ni degradado.</li>
           </ul>
         </section>
 
@@ -154,12 +180,72 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             </svg>
             <figcaption class="detail leyenda"><span><i class="lg-a"></i>ancla</span><span><i class="lg-c"></i>manejador</span><span><i class="lg-g"></i>líneas de la letra</span></figcaption>
           </figure>
+
+          <!-- RONDA 153 · «la construcción del isotipo más de este estilo (casabien.com/proyectos/identidad-visual-taqta), acompañándolo de imágenes»: una
+               retícula editorial de piezas a sangre, oscuras y claras, pegadas: el diagrama de construcción, la secuencia REAL de la carga (la gota lo dibuja;
+               fotogramas de la propia web), el trazo, el remate, el roble, las aplicaciones y las frases del significado entre medias -->
+          <h3 class="font-display text-h3 sub-bb">El isotipo</h3>
+          <div class="iso-galeria">
+            <figure class="pz pz-osc pz-ancha construccion iso-cons" data-construccion>
+              <svg class="iso-diag" viewBox="-4 -4 72 72" aria-hidden="true" data-morfo-svg data-bezier={JSON.stringify(isoBezier.anclas)}>
+                <circle class="g-circ" cx="32" cy="32" r="26" />
+                <path class="iso-morfo" data-morfo d="" />
+                <g class="esq" data-esqueleto></g>
+                <path class="g-cursor" data-cursor d="M0 0 L0 4.4 L1.15 3.3 L2 5.1 L2.75 4.75 L1.9 3 L3.4 3 Z" />
+              </svg>
+              <figcaption class="detail pz-pie">Construcción · de un círculo perfecto, ancla a ancla: engorda al bajar, se afina al subir y remata en la gota</figcaption>
+            </figure>
+            <div class="pz pz-texto">
+              <p class="cuerpo">Su forma circular recoge la mirada integral de nuestra etapa como treseiscero y la convierte en un gesto orgánico, abierto y en movimiento. El trazo caligráfico expresa el criterio humano que da forma a cada proyecto; su remate sugiere la savia que alimenta lo que está por crecer.</p>
+            </div>
+            <figure class="pz pz-osc pz-sec">
+              <div class="sec-tira">{[1, 2, 3, 4, 5].map((k) => <img src={`/media/brandbook/carga-${k}.webp`} alt="" width="640" height="640" loading="lazy" decoding="async" />)}</div>
+              <figcaption class="detail pz-pie">La carga · la gota lo dibuja de una sola vez y se descuelga de la bolita</figcaption>
+            </figure>
+            <p class="pz pz-frase font-display">Representa un proceso vivo: nutrirse, interpretar, transformar y volver a empezar.</p>
+            <figure class="pz pz-cla pz-trazo">
+              <svg viewBox="3 3 58 58" aria-hidden="true"><path class="tz-iso" d="M19.79 9.04 L19.50 9.20 L19.21 9.36 L18.93 9.53 L18.64 9.69 L18.36 9.87 L18.08 10.04 L17.80 10.22 L17.53 10.40 L17.25 10.59 L16.98 10.78 L16.71 10.97 L16.45 11.17 L16.18 11.36 L15.92 11.57 L15.66 11.77 L15.41 11.98 L15.15 12.20 L14.90 12.41 L14.66 12.63 L14.41 12.85 L14.17 13.08 L13.93 13.31 L13.69 13.54 L13.46 13.77 L13.23 14.01 L13.00 14.25 L12.78 14.49 L12.56 14.74 L12.34 14.99 L12.12 15.24 L11.91 15.49 L11.70 15.75 L11.50 16.01 L11.30 16.27 L11.10 16.53 L10.90 16.80 L10.71 17.07 L10.53 17.34 L10.34 17.62 L10.16 17.89 L9.98 18.17 L9.81 18.45 L9.64 18.74 L9.47 19.02 L9.31 19.31 L9.15 19.60 L8.99 19.89 L8.84 20.18 L8.69 20.48 L8.55 20.78 L8.41 21.08 L8.27 21.38 L8.14 21.68 L8.01 21.98 L7.88 22.29 L7.76 22.60 L7.64 22.91 L7.53 23.22 L7.42 23.53 L7.31 23.84 L7.21 24.16 L7.11 24.47 L7.02 24.79 L6.93 25.11 L6.84 25.43 L6.76 25.75 L6.69 26.07 L6.61 26.39 L6.54 26.71 L6.48 27.04 L6.42 27.36 L6.36 27.69 L6.31 28.02 L6.26 28.34 L6.21 28.67 L6.17 29.00 L6.14 29.33 L6.11 29.66 L6.08 29.99 L6.05 30.32 L6.04 30.65 L6.02 30.98 L6.01 31.31 L6.00 31.64 L6.00 31.97 L6.00 32.30 L6.01 32.63 L6.02 32.96 L6.03 33.29 L6.05 33.62 L6.07 33.95 L6.10 34.28 L6.13 34.61 L6.17 34.94 L6.21 35.27 L6.25 35.59 L6.30 35.92 L6.35 36.25 L6.41 36.57 L6.47 36.90 L6.53 37.22 L6.60 37.55 L6.67 37.87 L6.75 38.19 L6.83 38.51 L6.91 38.83 L7.00 39.15 L7.09 39.47 L7.19 39.78 L7.29 40.10 L7.40 40.41 L7.51 40.72 L7.62 41.03 L7.74 41.34 L7.86 41.65 L7.98 41.96 L8.11 42.26 L8.24 42.56 L8.38 42.86 L8.52 43.16 L8.66 43.46 L8.81 43.76 L8.96 44.05 L9.12 44.34 L9.28 44.63 L9.44 44.92 L9.60 45.21 L9.77 45.49 L9.95 45.77 L10.12 46.05 L10.30 46.33 L10.49 46.60 L10.68 46.88 L10.87 47.15 L11.06 47.41 L11.26 47.68 L11.46 47.94 L11.66 48.20 L11.87 48.46 L12.08 48.71 L12.30 48.96 L12.51 49.21 L12.73 49.46 L12.96 49.70 L13.18 49.94 L13.41 50.18 L13.65 50.42 L13.88 50.65 L14.12 50.88 L14.36 51.10 L14.61 51.33 L14.85 51.55 L15.10 51.76 L15.36 51.98 L15.61 52.19 L15.87 52.39 L16.13 52.60 L16.39 52.80 L16.66 52.99 L16.93 53.19 L17.20 53.38 L17.47 53.56 L17.75 53.75 L18.02 53.92 L18.30 54.10 L18.59 54.27 L18.87 54.44 L19.16 54.61 L19.45 54.77 L19.74 54.93 L20.03 55.08 L20.32 55.23 L20.62 55.38 L20.92 55.52 L21.22 55.66 L21.52 55.79 L21.82 55.93 L22.13 56.05 L22.43 56.18 L22.74 56.30 L23.05 56.41 L23.36 56.52 L23.68 56.63 L23.99 56.74 L24.31 56.84 L24.62 56.93 L24.94 57.02 L25.26 57.11 L25.58 57.19 L25.90 57.27 L26.22 57.35 L26.54 57.42 L26.87 57.49 L27.19 57.55 L27.52 57.61 L27.84 57.67 L28.17 57.72 L28.50 57.76 L28.82 57.81 L29.15 57.84 L29.48 57.88 L29.81 57.91 L30.14 57.93 L30.47 57.96 L30.80 57.97 L31.13 57.99 L31.46 57.99 L31.79 58.00 L32.12 58.00 L32.45 58.00 L32.78 57.99 L33.11 57.98 L33.44 57.96 L33.77 57.94 L34.10 57.91 L34.43 57.89 L34.76 57.85 L35.09 57.82 L35.42 57.77 L35.75 57.73 L36.07 57.68 L36.40 57.63 L36.73 57.57 L37.05 57.50 L37.37 57.44 L37.70 57.37 L38.02 57.29 L38.34 57.22 L38.66 57.13 L38.98 57.05 L39.30 56.95 L39.61 56.86 L39.93 56.76 L40.24 56.66 L40.56 56.55 L40.87 56.44 L41.18 56.33 L41.49 56.21 L41.79 56.08 L42.10 55.96 L42.40 55.83 L42.71 55.69 L43.01 55.56 L43.30 55.41 L43.60 55.27 L43.90 55.12 L44.19 54.97 L44.48 54.81 L44.77 54.65 L45.06 54.48 L45.34 54.32 L45.62 54.14 L45.90 53.97 L46.18 53.79 L46.46 53.61 L46.73 53.42 L47.00 53.23 L47.27 53.04 L47.54 52.85 L47.80 52.65 L48.06 52.44 L48.32 52.24 L48.58 52.03 L48.83 51.82 L49.08 51.60 L49.33 51.38 L49.57 51.16 L49.82 50.94 L50.06 50.71 L50.29 50.48 L50.53 50.24 L50.76 50.01 L50.98 49.77 L51.21 49.52 L51.43 49.28 L51.65 49.03 L51.86 48.78 L52.07 48.52 L52.28 48.27 L52.49 48.01 L52.69 47.75 L52.89 47.48 L53.08 47.21 L53.28 46.94 L53.46 46.67 L53.65 46.40 L53.83 46.12 L54.01 45.84 L54.18 45.56 L54.35 45.28 L54.52 44.99 L54.68 44.71 L54.84 44.42 L55.00 44.13 L55.15 43.83 L55.30 43.54 L55.44 43.24 L55.59 42.94 L55.72 42.64 L55.86 42.34 L55.99 42.03 L56.11 41.73 L56.23 41.42 L56.35 41.11 L56.47 40.80 L56.58 40.49 L56.68 40.18 L56.78 39.86 L56.88 39.55 L56.97 39.23 L57.06 38.91 L57.15 38.59 L57.23 38.27 L57.31 37.95 L57.38 37.63 L57.45 37.30 L57.52 36.98 L57.58 36.66 L57.64 36.33 L57.69 36.00 L57.74 35.68 L57.78 35.35 L57.82 35.02 L57.86 34.69 L57.89 34.36 L57.92 34.03 L57.94 33.70 L57.96 33.37 L57.98 33.04 L57.99 32.71 L58.00 32.38 L58.00 32.05 L58.00 31.72 L57.99 31.39 L57.98 31.06 L57.97 30.73 L57.95 30.40 L57.93 30.07 L57.90 29.74 L57.87 29.41 L57.84 29.08 L57.80 28.75 L57.75 28.43 L57.71 28.10 L57.65 27.77 L57.60 27.45 L57.54 27.12 L57.47 26.80 L57.41 26.47 L57.33 26.15 L57.26 25.83 L57.18 25.51 L57.09 25.19 L57.00 24.87 L56.91 24.55 L56.81 24.24 L56.71 23.92 L56.61 23.61 L56.50 23.30 L56.39 22.99 L56.27 22.68 L56.15 22.37 L56.03 22.06 L55.90 21.76 L55.77 21.45 L55.63 21.15 L55.49 20.85 L55.35 20.56 L55.20 20.26 L55.05 19.97 L54.89 19.67 L54.73 19.38 L54.57 19.10 L54.41 18.81 L54.24 18.53 L54.06 18.24 L53.89 17.96 L53.71 17.69 L53.52 17.41 L53.34 17.14 L53.14 16.87 L52.95 16.60 L52.75 16.34 L52.55 16.07 L52.35 15.81 L52.14 15.56 L51.93 15.30 L51.72 15.05 L51.50 14.80 L51.28 14.55 L51.05 14.31 L50.83 14.07 L50.60 13.83 L50.37 13.60 L50.13 13.36 L49.89 13.14 L49.65 12.91 L49.41 12.69 L49.16 12.47 L48.91 12.25 L48.66 12.04 L48.40 11.83 L48.14 11.62 L47.88 11.42 L47.62 11.22 L47.36 11.02 L47.09 10.83 L46.82 10.64 L46.54 10.45 L46.27 10.27 L45.99 10.09 L45.71 9.91 L45.43 9.74 L45.15 9.57 L44.86 9.40 L44.57 9.24 L44.28 9.08 L43.99 8.93 L43.69 8.78 L43.40 8.63 L43.21 8.54 L43.01 8.44 L42.82 8.34 L42.63 8.24 L42.44 8.14 L42.25 8.03 L42.06 7.91 L41.88 7.80 L41.69 7.68 L41.50 7.56 L41.31 7.44 L41.12 7.31 L40.93 7.19 L40.74 7.06 L40.55 6.93 L40.35 6.80 L40.16 6.67 L39.96 6.54 L39.76 6.41 L39.55 6.28 L39.35 6.15 L39.13 6.02 L38.92 5.89 L38.70 5.76 L38.48 5.64 L38.26 5.52 L38.03 5.40 L37.79 5.28 L37.55 5.17 L37.31 5.06 L37.06 4.95 L36.81 4.85 L36.55 4.76 L36.28 4.67 L36.01 4.59 L35.73 4.52 L35.45 4.45 L35.17 4.40 L34.87 4.35 L34.58 4.31 L34.27 4.29 L33.97 4.27 L33.66 4.27 L33.34 4.28 L33.02 4.30 L32.70 4.34 L32.38 4.39 L32.05 4.45 L31.73 4.54 L31.47 4.61 L30.92 4.83 L30.41 5.13 L29.94 5.48 L29.53 5.89 L29.16 6.36 L28.87 6.87 L28.64 7.41 L28.48 7.98 L28.40 8.56 L28.40 9.15 L28.47 9.73 L28.62 10.30 L28.85 10.84 L29.14 11.36 L29.49 11.82 L29.91 12.24 L30.37 12.60 L30.88 12.90 L31.42 13.13 L31.99 13.28 L32.57 13.36 L33.16 13.37 L33.74 13.29 L34.31 13.14 L34.43 13.09 L34.49 13.06 L34.55 13.03 L34.62 12.99 L34.69 12.94 L34.76 12.89 L34.84 12.84 L34.93 12.79 L35.02 12.73 L35.12 12.68 L35.22 12.62 L35.33 12.56 L35.44 12.50 L35.56 12.44 L35.68 12.38 L35.81 12.32 L35.94 12.26 L36.08 12.20 L36.23 12.14 L36.37 12.09 L36.53 12.04 L36.68 11.99 L36.84 11.94 L37.00 11.89 L37.17 11.85 L37.34 11.81 L37.51 11.77 L37.69 11.74 L37.86 11.71 L38.04 11.69 L38.22 11.67 L38.41 11.65 L38.59 11.64 L38.77 11.63 L38.96 11.63 L39.14 11.63 L39.33 11.63 L39.51 11.64 L39.70 11.66 L39.88 11.68 L40.07 11.71 L40.25 11.74 L40.43 11.78 L40.61 11.83 L40.79 11.88 L40.96 11.93 L41.14 12.00 L41.31 12.07 L41.47 12.14 L41.64 12.23 L41.89 12.35 L42.14 12.48 L42.39 12.61 L42.64 12.74 L42.88 12.88 L43.12 13.02 L43.36 13.16 L43.60 13.31 L43.84 13.46 L44.07 13.61 L44.31 13.76 L44.54 13.92 L44.77 14.08 L44.99 14.25 L45.22 14.41 L45.44 14.58 L45.66 14.76 L45.88 14.93 L46.10 15.11 L46.31 15.29 L46.52 15.47 L46.73 15.66 L46.94 15.85 L47.14 16.04 L47.34 16.23 L47.54 16.43 L47.74 16.63 L47.93 16.83 L48.12 17.03 L48.31 17.24 L48.50 17.45 L48.68 17.66 L48.86 17.87 L49.04 18.09 L49.22 18.30 L49.39 18.52 L49.56 18.75 L49.73 18.97 L49.89 19.20 L50.05 19.43 L50.21 19.66 L50.37 19.89 L50.52 20.12 L50.67 20.36 L50.82 20.60 L50.96 20.84 L51.10 21.08 L51.24 21.32 L51.37 21.57 L51.50 21.82 L51.63 22.07 L51.75 22.32 L51.88 22.57 L51.99 22.82 L52.11 23.08 L52.22 23.33 L52.33 23.59 L52.43 23.85 L52.54 24.11 L52.64 24.37 L52.73 24.64 L52.82 24.90 L52.91 25.17 L53.00 25.43 L53.08 25.70 L53.16 25.97 L53.23 26.24 L53.30 26.51 L53.37 26.78 L53.44 27.05 L53.50 27.32 L53.56 27.60 L53.61 27.87 L53.66 28.15 L53.71 28.42 L53.75 28.70 L53.79 28.98 L53.83 29.25 L53.86 29.53 L53.89 29.81 L53.92 30.09 L53.94 30.37 L53.96 30.65 L53.97 30.93 L53.99 31.20 L53.99 31.48 L54.00 31.76 L54.00 32.04 L54.00 32.32 L53.99 32.60 L53.98 32.88 L53.97 33.16 L53.95 33.44 L53.93 33.72 L53.91 34.00 L53.88 34.28 L53.85 34.56 L53.82 34.83 L53.78 35.11 L53.74 35.39 L53.69 35.66 L53.64 35.94 L53.59 36.21 L53.54 36.49 L53.48 36.76 L53.42 37.03 L53.35 37.31 L53.28 37.58 L53.21 37.85 L53.13 38.12 L53.05 38.38 L52.97 38.65 L52.88 38.92 L52.79 39.18 L52.70 39.45 L52.60 39.71 L52.51 39.97 L52.40 40.23 L52.30 40.49 L52.19 40.75 L52.07 41.00 L51.96 41.26 L51.84 41.51 L51.72 41.76 L51.59 42.01 L51.46 42.26 L51.33 42.51 L51.19 42.75 L51.06 43.00 L50.91 43.24 L50.77 43.48 L50.62 43.71 L50.47 43.95 L50.32 44.18 L50.16 44.42 L50.00 44.65 L49.84 44.87 L49.68 45.10 L49.51 45.32 L49.34 45.54 L49.16 45.76 L48.99 45.98 L48.81 46.20 L48.63 46.41 L48.44 46.62 L48.25 46.83 L48.06 47.03 L47.87 47.24 L47.68 47.44 L47.48 47.63 L47.28 47.83 L47.08 48.02 L46.87 48.21 L46.66 48.40 L46.45 48.59 L46.24 48.77 L46.03 48.95 L45.81 49.12 L45.59 49.30 L45.37 49.47 L45.15 49.64 L44.92 49.80 L44.69 49.97 L44.47 50.13 L44.23 50.28 L44.00 50.44 L43.77 50.59 L43.53 50.74 L43.29 50.88 L43.05 51.03 L42.80 51.16 L42.56 51.30 L42.31 51.43 L42.07 51.56 L41.82 51.69 L41.57 51.81 L41.31 51.93 L41.06 52.05 L40.80 52.16 L40.55 52.27 L40.29 52.38 L40.03 52.48 L39.77 52.58 L39.50 52.68 L39.24 52.77 L38.98 52.86 L38.71 52.95 L38.44 53.04 L38.17 53.12 L37.91 53.19 L37.64 53.27 L37.36 53.34 L37.09 53.40 L36.82 53.47 L36.55 53.52 L36.27 53.58 L36.00 53.63 L35.72 53.68 L35.45 53.73 L35.17 53.77 L34.89 53.81 L34.62 53.84 L34.34 53.88 L34.06 53.90 L33.78 53.93 L33.50 53.95 L33.22 53.97 L32.94 53.98 L32.66 53.99 L32.38 54.00 L32.10 54.00 L31.82 54.00 L31.54 54.00 L31.27 53.99 L30.99 53.98 L30.71 53.96 L30.43 53.94 L30.15 53.92 L29.87 53.89 L29.59 53.86 L29.31 53.83 L29.04 53.79 L28.76 53.75 L28.49 53.70 L28.21 53.65 L27.94 53.59 L27.67 53.52 L27.40 53.45 L27.13 53.38 L26.86 53.29 L26.60 53.19 L26.34 53.09 L26.08 52.98 L25.83 52.85 L25.58 52.71 L25.34 52.56 L25.11 52.39 L24.88 52.21 L24.67 52.01 L24.46 51.79 L24.26 51.56 L24.08 51.31 L23.90 51.04 L23.74 50.75 L23.59 50.45 L23.46 50.13 L23.33 49.80 L23.23 49.46 L23.13 49.10 L23.05 48.74 L22.97 48.37 L22.91 48.00 L22.86 47.62 L22.81 47.25 L22.77 46.89 L22.74 46.53 L22.71 46.18 L22.68 45.84 L22.64 45.51 L22.61 45.20 L22.57 44.91 L22.52 44.63 L22.47 44.37 L22.41 44.12 L22.34 43.89 L22.27 43.68 L22.18 43.48 L22.09 43.30 L21.99 43.13 L21.88 42.96 L21.77 42.81 L21.65 42.66 L21.53 42.51 L21.41 42.36 L21.29 42.22 L21.16 42.07 L21.03 41.94 L20.90 41.81 L20.75 41.69 L20.59 41.57 L20.42 41.47 L20.24 41.37 L20.04 41.28 L19.83 41.20 L19.61 41.12 L19.37 41.05 L19.12 40.99 L18.85 40.92 L18.58 40.86 L18.30 40.80 L18.01 40.73 L17.72 40.67 L17.43 40.59 L17.14 40.51 L16.85 40.42 L16.57 40.32 L16.30 40.21 L16.04 40.09 L15.79 39.96 L15.56 39.82 L15.35 39.66 L15.15 39.49 L14.97 39.31 L14.81 39.12 L14.67 38.92 L14.56 38.72 L14.46 38.50 L14.38 38.28 L14.31 38.05 L14.26 37.81 L14.23 37.57 L14.21 37.33 L14.21 37.09 L14.21 36.84 L14.22 36.60 L14.25 36.35 L14.27 36.11 L14.31 35.86 L14.34 35.62 L14.38 35.38 L14.43 35.14 L14.47 34.90 L14.51 34.67 L14.56 34.43 L14.60 34.20 L14.64 33.97 L14.68 33.75 L14.72 33.52 L14.76 33.30 L14.79 33.07 L14.83 32.85 L14.86 32.63 L14.88 32.41 L14.91 32.20 L14.94 31.98 L14.96 31.76 L14.98 31.55 L15.00 31.33 L15.02 31.11 L15.03 30.90 L15.05 30.68 L15.07 30.47 L15.09 30.25 L15.11 30.04 L15.13 29.82 L15.15 29.61 L15.17 29.39 L15.18 29.17 L15.20 28.96 L15.21 28.74 L15.22 28.52 L15.23 28.30 L15.24 28.07 L15.24 27.85 L15.24 27.62 L15.25 27.39 L15.24 27.16 L15.24 26.93 L15.24 26.70 L15.23 26.46 L15.22 26.22 L15.22 25.98 L15.21 25.73 L15.20 25.48 L15.19 25.23 L15.18 24.98 L15.18 24.73 L15.17 24.47 L15.17 24.21 L15.17 23.94 L15.17 23.68 L15.17 23.41 L15.17 23.15 L15.18 22.88 L15.20 22.60 L15.22 22.33 L15.24 22.06 L15.27 21.79 L15.30 21.51 L15.33 21.24 L15.37 20.95 L15.40 20.67 L15.43 20.38 L15.47 20.09 L15.51 19.80 L15.55 19.50 L15.59 19.20 L15.64 18.90 L15.69 18.60 L15.75 18.30 L15.81 17.99 L15.88 17.69 L15.95 17.38 L16.03 17.08 L16.11 16.77 L16.20 16.46 L16.29 16.16 L16.39 15.85 L16.50 15.55 L16.61 15.25 L16.73 14.94 L16.85 14.64 L16.98 14.34 L17.11 14.04 L17.25 13.74 L17.40 13.44 L17.55 13.14 L17.70 12.85 L17.86 12.55 L18.03 12.26 L18.20 11.97 L18.38 11.67 L18.56 11.38 L18.75 11.10 L18.94 10.81 L19.14 10.52 L19.34 10.24 L19.55 9.96 L19.76 9.68 L19.98 9.40Z" /><path class="tz-flecha" d="M9 22 C 6 32 8 42 14 48" /><path class="tz-flecha" d="M57 40 C 59 30 57 20 50 13" /></svg>
+              <figcaption class="detail pz-pie">El trazo · grueso al bajar, fino al subir: una pluma</figcaption>
+            </figure>
+            <figure class="pz pz-osc pz-remate">
+              <svg viewBox="22 0 22 22" aria-hidden="true"><path class="rm-iso" d="M19.79 9.04 L19.50 9.20 L19.21 9.36 L18.93 9.53 L18.64 9.69 L18.36 9.87 L18.08 10.04 L17.80 10.22 L17.53 10.40 L17.25 10.59 L16.98 10.78 L16.71 10.97 L16.45 11.17 L16.18 11.36 L15.92 11.57 L15.66 11.77 L15.41 11.98 L15.15 12.20 L14.90 12.41 L14.66 12.63 L14.41 12.85 L14.17 13.08 L13.93 13.31 L13.69 13.54 L13.46 13.77 L13.23 14.01 L13.00 14.25 L12.78 14.49 L12.56 14.74 L12.34 14.99 L12.12 15.24 L11.91 15.49 L11.70 15.75 L11.50 16.01 L11.30 16.27 L11.10 16.53 L10.90 16.80 L10.71 17.07 L10.53 17.34 L10.34 17.62 L10.16 17.89 L9.98 18.17 L9.81 18.45 L9.64 18.74 L9.47 19.02 L9.31 19.31 L9.15 19.60 L8.99 19.89 L8.84 20.18 L8.69 20.48 L8.55 20.78 L8.41 21.08 L8.27 21.38 L8.14 21.68 L8.01 21.98 L7.88 22.29 L7.76 22.60 L7.64 22.91 L7.53 23.22 L7.42 23.53 L7.31 23.84 L7.21 24.16 L7.11 24.47 L7.02 24.79 L6.93 25.11 L6.84 25.43 L6.76 25.75 L6.69 26.07 L6.61 26.39 L6.54 26.71 L6.48 27.04 L6.42 27.36 L6.36 27.69 L6.31 28.02 L6.26 28.34 L6.21 28.67 L6.17 29.00 L6.14 29.33 L6.11 29.66 L6.08 29.99 L6.05 30.32 L6.04 30.65 L6.02 30.98 L6.01 31.31 L6.00 31.64 L6.00 31.97 L6.00 32.30 L6.01 32.63 L6.02 32.96 L6.03 33.29 L6.05 33.62 L6.07 33.95 L6.10 34.28 L6.13 34.61 L6.17 34.94 L6.21 35.27 L6.25 35.59 L6.30 35.92 L6.35 36.25 L6.41 36.57 L6.47 36.90 L6.53 37.22 L6.60 37.55 L6.67 37.87 L6.75 38.19 L6.83 38.51 L6.91 38.83 L7.00 39.15 L7.09 39.47 L7.19 39.78 L7.29 40.10 L7.40 40.41 L7.51 40.72 L7.62 41.03 L7.74 41.34 L7.86 41.65 L7.98 41.96 L8.11 42.26 L8.24 42.56 L8.38 42.86 L8.52 43.16 L8.66 43.46 L8.81 43.76 L8.96 44.05 L9.12 44.34 L9.28 44.63 L9.44 44.92 L9.60 45.21 L9.77 45.49 L9.95 45.77 L10.12 46.05 L10.30 46.33 L10.49 46.60 L10.68 46.88 L10.87 47.15 L11.06 47.41 L11.26 47.68 L11.46 47.94 L11.66 48.20 L11.87 48.46 L12.08 48.71 L12.30 48.96 L12.51 49.21 L12.73 49.46 L12.96 49.70 L13.18 49.94 L13.41 50.18 L13.65 50.42 L13.88 50.65 L14.12 50.88 L14.36 51.10 L14.61 51.33 L14.85 51.55 L15.10 51.76 L15.36 51.98 L15.61 52.19 L15.87 52.39 L16.13 52.60 L16.39 52.80 L16.66 52.99 L16.93 53.19 L17.20 53.38 L17.47 53.56 L17.75 53.75 L18.02 53.92 L18.30 54.10 L18.59 54.27 L18.87 54.44 L19.16 54.61 L19.45 54.77 L19.74 54.93 L20.03 55.08 L20.32 55.23 L20.62 55.38 L20.92 55.52 L21.22 55.66 L21.52 55.79 L21.82 55.93 L22.13 56.05 L22.43 56.18 L22.74 56.30 L23.05 56.41 L23.36 56.52 L23.68 56.63 L23.99 56.74 L24.31 56.84 L24.62 56.93 L24.94 57.02 L25.26 57.11 L25.58 57.19 L25.90 57.27 L26.22 57.35 L26.54 57.42 L26.87 57.49 L27.19 57.55 L27.52 57.61 L27.84 57.67 L28.17 57.72 L28.50 57.76 L28.82 57.81 L29.15 57.84 L29.48 57.88 L29.81 57.91 L30.14 57.93 L30.47 57.96 L30.80 57.97 L31.13 57.99 L31.46 57.99 L31.79 58.00 L32.12 58.00 L32.45 58.00 L32.78 57.99 L33.11 57.98 L33.44 57.96 L33.77 57.94 L34.10 57.91 L34.43 57.89 L34.76 57.85 L35.09 57.82 L35.42 57.77 L35.75 57.73 L36.07 57.68 L36.40 57.63 L36.73 57.57 L37.05 57.50 L37.37 57.44 L37.70 57.37 L38.02 57.29 L38.34 57.22 L38.66 57.13 L38.98 57.05 L39.30 56.95 L39.61 56.86 L39.93 56.76 L40.24 56.66 L40.56 56.55 L40.87 56.44 L41.18 56.33 L41.49 56.21 L41.79 56.08 L42.10 55.96 L42.40 55.83 L42.71 55.69 L43.01 55.56 L43.30 55.41 L43.60 55.27 L43.90 55.12 L44.19 54.97 L44.48 54.81 L44.77 54.65 L45.06 54.48 L45.34 54.32 L45.62 54.14 L45.90 53.97 L46.18 53.79 L46.46 53.61 L46.73 53.42 L47.00 53.23 L47.27 53.04 L47.54 52.85 L47.80 52.65 L48.06 52.44 L48.32 52.24 L48.58 52.03 L48.83 51.82 L49.08 51.60 L49.33 51.38 L49.57 51.16 L49.82 50.94 L50.06 50.71 L50.29 50.48 L50.53 50.24 L50.76 50.01 L50.98 49.77 L51.21 49.52 L51.43 49.28 L51.65 49.03 L51.86 48.78 L52.07 48.52 L52.28 48.27 L52.49 48.01 L52.69 47.75 L52.89 47.48 L53.08 47.21 L53.28 46.94 L53.46 46.67 L53.65 46.40 L53.83 46.12 L54.01 45.84 L54.18 45.56 L54.35 45.28 L54.52 44.99 L54.68 44.71 L54.84 44.42 L55.00 44.13 L55.15 43.83 L55.30 43.54 L55.44 43.24 L55.59 42.94 L55.72 42.64 L55.86 42.34 L55.99 42.03 L56.11 41.73 L56.23 41.42 L56.35 41.11 L56.47 40.80 L56.58 40.49 L56.68 40.18 L56.78 39.86 L56.88 39.55 L56.97 39.23 L57.06 38.91 L57.15 38.59 L57.23 38.27 L57.31 37.95 L57.38 37.63 L57.45 37.30 L57.52 36.98 L57.58 36.66 L57.64 36.33 L57.69 36.00 L57.74 35.68 L57.78 35.35 L57.82 35.02 L57.86 34.69 L57.89 34.36 L57.92 34.03 L57.94 33.70 L57.96 33.37 L57.98 33.04 L57.99 32.71 L58.00 32.38 L58.00 32.05 L58.00 31.72 L57.99 31.39 L57.98 31.06 L57.97 30.73 L57.95 30.40 L57.93 30.07 L57.90 29.74 L57.87 29.41 L57.84 29.08 L57.80 28.75 L57.75 28.43 L57.71 28.10 L57.65 27.77 L57.60 27.45 L57.54 27.12 L57.47 26.80 L57.41 26.47 L57.33 26.15 L57.26 25.83 L57.18 25.51 L57.09 25.19 L57.00 24.87 L56.91 24.55 L56.81 24.24 L56.71 23.92 L56.61 23.61 L56.50 23.30 L56.39 22.99 L56.27 22.68 L56.15 22.37 L56.03 22.06 L55.90 21.76 L55.77 21.45 L55.63 21.15 L55.49 20.85 L55.35 20.56 L55.20 20.26 L55.05 19.97 L54.89 19.67 L54.73 19.38 L54.57 19.10 L54.41 18.81 L54.24 18.53 L54.06 18.24 L53.89 17.96 L53.71 17.69 L53.52 17.41 L53.34 17.14 L53.14 16.87 L52.95 16.60 L52.75 16.34 L52.55 16.07 L52.35 15.81 L52.14 15.56 L51.93 15.30 L51.72 15.05 L51.50 14.80 L51.28 14.55 L51.05 14.31 L50.83 14.07 L50.60 13.83 L50.37 13.60 L50.13 13.36 L49.89 13.14 L49.65 12.91 L49.41 12.69 L49.16 12.47 L48.91 12.25 L48.66 12.04 L48.40 11.83 L48.14 11.62 L47.88 11.42 L47.62 11.22 L47.36 11.02 L47.09 10.83 L46.82 10.64 L46.54 10.45 L46.27 10.27 L45.99 10.09 L45.71 9.91 L45.43 9.74 L45.15 9.57 L44.86 9.40 L44.57 9.24 L44.28 9.08 L43.99 8.93 L43.69 8.78 L43.40 8.63 L43.21 8.54 L43.01 8.44 L42.82 8.34 L42.63 8.24 L42.44 8.14 L42.25 8.03 L42.06 7.91 L41.88 7.80 L41.69 7.68 L41.50 7.56 L41.31 7.44 L41.12 7.31 L40.93 7.19 L40.74 7.06 L40.55 6.93 L40.35 6.80 L40.16 6.67 L39.96 6.54 L39.76 6.41 L39.55 6.28 L39.35 6.15 L39.13 6.02 L38.92 5.89 L38.70 5.76 L38.48 5.64 L38.26 5.52 L38.03 5.40 L37.79 5.28 L37.55 5.17 L37.31 5.06 L37.06 4.95 L36.81 4.85 L36.55 4.76 L36.28 4.67 L36.01 4.59 L35.73 4.52 L35.45 4.45 L35.17 4.40 L34.87 4.35 L34.58 4.31 L34.27 4.29 L33.97 4.27 L33.66 4.27 L33.34 4.28 L33.02 4.30 L32.70 4.34 L32.38 4.39 L32.05 4.45 L31.73 4.54 L31.47 4.61 L30.92 4.83 L30.41 5.13 L29.94 5.48 L29.53 5.89 L29.16 6.36 L28.87 6.87 L28.64 7.41 L28.48 7.98 L28.40 8.56 L28.40 9.15 L28.47 9.73 L28.62 10.30 L28.85 10.84 L29.14 11.36 L29.49 11.82 L29.91 12.24 L30.37 12.60 L30.88 12.90 L31.42 13.13 L31.99 13.28 L32.57 13.36 L33.16 13.37 L33.74 13.29 L34.31 13.14 L34.43 13.09 L34.49 13.06 L34.55 13.03 L34.62 12.99 L34.69 12.94 L34.76 12.89 L34.84 12.84 L34.93 12.79 L35.02 12.73 L35.12 12.68 L35.22 12.62 L35.33 12.56 L35.44 12.50 L35.56 12.44 L35.68 12.38 L35.81 12.32 L35.94 12.26 L36.08 12.20 L36.23 12.14 L36.37 12.09 L36.53 12.04 L36.68 11.99 L36.84 11.94 L37.00 11.89 L37.17 11.85 L37.34 11.81 L37.51 11.77 L37.69 11.74 L37.86 11.71 L38.04 11.69 L38.22 11.67 L38.41 11.65 L38.59 11.64 L38.77 11.63 L38.96 11.63 L39.14 11.63 L39.33 11.63 L39.51 11.64 L39.70 11.66 L39.88 11.68 L40.07 11.71 L40.25 11.74 L40.43 11.78 L40.61 11.83 L40.79 11.88 L40.96 11.93 L41.14 12.00 L41.31 12.07 L41.47 12.14 L41.64 12.23 L41.89 12.35 L42.14 12.48 L42.39 12.61 L42.64 12.74 L42.88 12.88 L43.12 13.02 L43.36 13.16 L43.60 13.31 L43.84 13.46 L44.07 13.61 L44.31 13.76 L44.54 13.92 L44.77 14.08 L44.99 14.25 L45.22 14.41 L45.44 14.58 L45.66 14.76 L45.88 14.93 L46.10 15.11 L46.31 15.29 L46.52 15.47 L46.73 15.66 L46.94 15.85 L47.14 16.04 L47.34 16.23 L47.54 16.43 L47.74 16.63 L47.93 16.83 L48.12 17.03 L48.31 17.24 L48.50 17.45 L48.68 17.66 L48.86 17.87 L49.04 18.09 L49.22 18.30 L49.39 18.52 L49.56 18.75 L49.73 18.97 L49.89 19.20 L50.05 19.43 L50.21 19.66 L50.37 19.89 L50.52 20.12 L50.67 20.36 L50.82 20.60 L50.96 20.84 L51.10 21.08 L51.24 21.32 L51.37 21.57 L51.50 21.82 L51.63 22.07 L51.75 22.32 L51.88 22.57 L51.99 22.82 L52.11 23.08 L52.22 23.33 L52.33 23.59 L52.43 23.85 L52.54 24.11 L52.64 24.37 L52.73 24.64 L52.82 24.90 L52.91 25.17 L53.00 25.43 L53.08 25.70 L53.16 25.97 L53.23 26.24 L53.30 26.51 L53.37 26.78 L53.44 27.05 L53.50 27.32 L53.56 27.60 L53.61 27.87 L53.66 28.15 L53.71 28.42 L53.75 28.70 L53.79 28.98 L53.83 29.25 L53.86 29.53 L53.89 29.81 L53.92 30.09 L53.94 30.37 L53.96 30.65 L53.97 30.93 L53.99 31.20 L53.99 31.48 L54.00 31.76 L54.00 32.04 L54.00 32.32 L53.99 32.60 L53.98 32.88 L53.97 33.16 L53.95 33.44 L53.93 33.72 L53.91 34.00 L53.88 34.28 L53.85 34.56 L53.82 34.83 L53.78 35.11 L53.74 35.39 L53.69 35.66 L53.64 35.94 L53.59 36.21 L53.54 36.49 L53.48 36.76 L53.42 37.03 L53.35 37.31 L53.28 37.58 L53.21 37.85 L53.13 38.12 L53.05 38.38 L52.97 38.65 L52.88 38.92 L52.79 39.18 L52.70 39.45 L52.60 39.71 L52.51 39.97 L52.40 40.23 L52.30 40.49 L52.19 40.75 L52.07 41.00 L51.96 41.26 L51.84 41.51 L51.72 41.76 L51.59 42.01 L51.46 42.26 L51.33 42.51 L51.19 42.75 L51.06 43.00 L50.91 43.24 L50.77 43.48 L50.62 43.71 L50.47 43.95 L50.32 44.18 L50.16 44.42 L50.00 44.65 L49.84 44.87 L49.68 45.10 L49.51 45.32 L49.34 45.54 L49.16 45.76 L48.99 45.98 L48.81 46.20 L48.63 46.41 L48.44 46.62 L48.25 46.83 L48.06 47.03 L47.87 47.24 L47.68 47.44 L47.48 47.63 L47.28 47.83 L47.08 48.02 L46.87 48.21 L46.66 48.40 L46.45 48.59 L46.24 48.77 L46.03 48.95 L45.81 49.12 L45.59 49.30 L45.37 49.47 L45.15 49.64 L44.92 49.80 L44.69 49.97 L44.47 50.13 L44.23 50.28 L44.00 50.44 L43.77 50.59 L43.53 50.74 L43.29 50.88 L43.05 51.03 L42.80 51.16 L42.56 51.30 L42.31 51.43 L42.07 51.56 L41.82 51.69 L41.57 51.81 L41.31 51.93 L41.06 52.05 L40.80 52.16 L40.55 52.27 L40.29 52.38 L40.03 52.48 L39.77 52.58 L39.50 52.68 L39.24 52.77 L38.98 52.86 L38.71 52.95 L38.44 53.04 L38.17 53.12 L37.91 53.19 L37.64 53.27 L37.36 53.34 L37.09 53.40 L36.82 53.47 L36.55 53.52 L36.27 53.58 L36.00 53.63 L35.72 53.68 L35.45 53.73 L35.17 53.77 L34.89 53.81 L34.62 53.84 L34.34 53.88 L34.06 53.90 L33.78 53.93 L33.50 53.95 L33.22 53.97 L32.94 53.98 L32.66 53.99 L32.38 54.00 L32.10 54.00 L31.82 54.00 L31.54 54.00 L31.27 53.99 L30.99 53.98 L30.71 53.96 L30.43 53.94 L30.15 53.92 L29.87 53.89 L29.59 53.86 L29.31 53.83 L29.04 53.79 L28.76 53.75 L28.49 53.70 L28.21 53.65 L27.94 53.59 L27.67 53.52 L27.40 53.45 L27.13 53.38 L26.86 53.29 L26.60 53.19 L26.34 53.09 L26.08 52.98 L25.83 52.85 L25.58 52.71 L25.34 52.56 L25.11 52.39 L24.88 52.21 L24.67 52.01 L24.46 51.79 L24.26 51.56 L24.08 51.31 L23.90 51.04 L23.74 50.75 L23.59 50.45 L23.46 50.13 L23.33 49.80 L23.23 49.46 L23.13 49.10 L23.05 48.74 L22.97 48.37 L22.91 48.00 L22.86 47.62 L22.81 47.25 L22.77 46.89 L22.74 46.53 L22.71 46.18 L22.68 45.84 L22.64 45.51 L22.61 45.20 L22.57 44.91 L22.52 44.63 L22.47 44.37 L22.41 44.12 L22.34 43.89 L22.27 43.68 L22.18 43.48 L22.09 43.30 L21.99 43.13 L21.88 42.96 L21.77 42.81 L21.65 42.66 L21.53 42.51 L21.41 42.36 L21.29 42.22 L21.16 42.07 L21.03 41.94 L20.90 41.81 L20.75 41.69 L20.59 41.57 L20.42 41.47 L20.24 41.37 L20.04 41.28 L19.83 41.20 L19.61 41.12 L19.37 41.05 L19.12 40.99 L18.85 40.92 L18.58 40.86 L18.30 40.80 L18.01 40.73 L17.72 40.67 L17.43 40.59 L17.14 40.51 L16.85 40.42 L16.57 40.32 L16.30 40.21 L16.04 40.09 L15.79 39.96 L15.56 39.82 L15.35 39.66 L15.15 39.49 L14.97 39.31 L14.81 39.12 L14.67 38.92 L14.56 38.72 L14.46 38.50 L14.38 38.28 L14.31 38.05 L14.26 37.81 L14.23 37.57 L14.21 37.33 L14.21 37.09 L14.21 36.84 L14.22 36.60 L14.25 36.35 L14.27 36.11 L14.31 35.86 L14.34 35.62 L14.38 35.38 L14.43 35.14 L14.47 34.90 L14.51 34.67 L14.56 34.43 L14.60 34.20 L14.64 33.97 L14.68 33.75 L14.72 33.52 L14.76 33.30 L14.79 33.07 L14.83 32.85 L14.86 32.63 L14.88 32.41 L14.91 32.20 L14.94 31.98 L14.96 31.76 L14.98 31.55 L15.00 31.33 L15.02 31.11 L15.03 30.90 L15.05 30.68 L15.07 30.47 L15.09 30.25 L15.11 30.04 L15.13 29.82 L15.15 29.61 L15.17 29.39 L15.18 29.17 L15.20 28.96 L15.21 28.74 L15.22 28.52 L15.23 28.30 L15.24 28.07 L15.24 27.85 L15.24 27.62 L15.25 27.39 L15.24 27.16 L15.24 26.93 L15.24 26.70 L15.23 26.46 L15.22 26.22 L15.22 25.98 L15.21 25.73 L15.20 25.48 L15.19 25.23 L15.18 24.98 L15.18 24.73 L15.17 24.47 L15.17 24.21 L15.17 23.94 L15.17 23.68 L15.17 23.41 L15.17 23.15 L15.18 22.88 L15.20 22.60 L15.22 22.33 L15.24 22.06 L15.27 21.79 L15.30 21.51 L15.33 21.24 L15.37 20.95 L15.40 20.67 L15.43 20.38 L15.47 20.09 L15.51 19.80 L15.55 19.50 L15.59 19.20 L15.64 18.90 L15.69 18.60 L15.75 18.30 L15.81 17.99 L15.88 17.69 L15.95 17.38 L16.03 17.08 L16.11 16.77 L16.20 16.46 L16.29 16.16 L16.39 15.85 L16.50 15.55 L16.61 15.25 L16.73 14.94 L16.85 14.64 L16.98 14.34 L17.11 14.04 L17.25 13.74 L17.40 13.44 L17.55 13.14 L17.70 12.85 L17.86 12.55 L18.03 12.26 L18.20 11.97 L18.38 11.67 L18.56 11.38 L18.75 11.10 L18.94 10.81 L19.14 10.52 L19.34 10.24 L19.55 9.96 L19.76 9.68 L19.98 9.40Z" /><circle class="rm-guia" cx="32.9" cy="8.8" r="4.6" /></svg>
+              <figcaption class="detail pz-pie">El remate · la savia que alimenta lo que está por crecer</figcaption>
+            </figure>
+            <!-- RONDA 154 · «la captura la quiero cambiar por imágenes reales de naturaleza que tengan relación con el isotipo» · «en todas, el isotipo encima»:
+                 el brote de helecho que se enrosca (el círculo que remata en bola), los anillos del tronco (lo que crece) y la gota que cuelga (la savia).
+                 Ronda 155: los créditos no se ven (fotos: Soc Nang Dương y Wal_, licencia Pexels; la gota, de Andoni), las tres a la misma altura y el isotipo centrado -->
+            <figure class="pz pz-foto pz-helecho">
+              <img src="/media/brandbook/foto-helecho.webp" alt="Brote de helecho enroscado sobre fondo oscuro" width="2400" height="1600" loading="lazy" decoding="async" />
+              <span class="iso-sobre iso-masc" aria-hidden="true"></span>
+              <figcaption class="detail pz-pie">El brote · se enrosca en círculo y remata en una bola</figcaption>
+            </figure>
+            <figure class="pz pz-foto pz-anillos">
+              <img src="/media/brandbook/foto-anillos.webp" alt="Anillos de crecimiento en un tronco cortado" width="1600" height="1066" loading="lazy" decoding="async" />
+              <span class="iso-sobre iso-masc" aria-hidden="true"></span>
+              <figcaption class="detail pz-pie">Los anillos · lo que la savia hace crecer, vuelta a vuelta</figcaption>
+            </figure>
+            <figure class="pz pz-foto pz-gota">
+              <img src="/media/brandbook/foto-gota.webp" alt="Gota de agua colgando de la punta de una hoja" width="1037" height="1280" loading="lazy" decoding="async" />
+              <span class="iso-sobre iso-masc" aria-hidden="true"></span>
+              <figcaption class="detail pz-pie">La gota · a punto de caer</figcaption>
+            </figure>
+            <figure class="pz pz-cla pz-app">
+              <div class="mk-pestana"><span class="mk-fav iso-masc"></span><span class="mk-tit">savvia — Elevamos tu web con IA</span><span class="mk-x">×</span></div>
+              <div class="mk-icono"><span class="iso-masc"></span></div>
+              <figcaption class="detail pz-pie">Aplicaciones · pestaña e icono</figcaption>
+            </figure>
+            <figure class="pz pz-osc pz-tarjeta">
+              <div class="mk-tarjeta"><span class="lockup"><span class="iso-masc"></span><span class="logo-masc"></span></span><span class="detail mk-dato">hola@savvia.studio · Donostia</span></div>
+              <figcaption class="detail pz-pie">Aplicaciones · tarjeta</figcaption>
+            </figure>
+            <p class="pz pz-frase pz-frase-2 font-display">Como las estaciones, nuestra manera de trabajar tiene distintos ritmos. Observamos, desarrollamos, damos forma y aprendemos de lo que hacemos. El ciclo se repite, pero nunca regresamos exactamente al mismo lugar.</p>
+          </div>
         </section>
 
         <!-- 03 · COLOR Y ESTACIONES -->
         <section id="color" class="seccion" aria-labelledby="h-color">
           <h2 id="h-color" class="font-display text-h2">Color y estaciones</h2>
-          <p class="cuerpo">No hay una paleta común: cada estación tiene la suya, de diez colores. Cinco cambian de verdad —el fondo, el cristal, el roble, la savia y la tinta— y cinco viran apenas para entonar con ellos —el papel, la madera, el cielo, el detalle y el fruto—. Al bajar, esta página pasa por las cuatro.</p>
+          <p class="cuerpo">Cada estación tiene cinco colores propios, sacados de lo que se ve fuera ese trimestre: el fondo, el roble, la savia (el acento), el bloque claro (y, en invierno, la tinta de pizarra: el fondo es nieve). El texto sobre lo claro va en el propio fondo; el blanco de lo claro es el mismo todo el año. Al bajar, esta página pasa por las cuatro.</p>
         </section>
       </div>
     </div>
@@ -183,23 +269,19 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             <ol class="est-puntos" aria-hidden="true">{estaciones.map((e, i) => <li class={i === 0 ? 'on' : ''} data-punto={i}>{e.n}</li>)}</ol>
           </div>
           <div class="est-robles">
-            {estaciones.map((e, i) => <img class={i === 0 ? 'on' : ''} data-roble={i} src={`/media/hero/arbol-${e.id}.webp`} alt={i === 0 ? 'El roble de la estación' : ''} loading="lazy" decoding="async" />)}
+            {estaciones.map((e, i) => <div class={`rb${i === 0 ? ' on' : ''}`} data-roble={i} data-est={e.id}><img src={`/media/hero/arbol-${e.id}.webp`} alt={i === 0 ? 'El roble de la estación' : ''} decoding="async" /><canvas aria-hidden="true"></canvas></div>)}
           </div>
           <ul class="est-paleta">
             {[
-              ['Noche', 'var(--noche)', 'el fondo', 'noche'],
-              ['Noche honda', 'var(--noche-honda)', 'el cristal', 'honda'],
-              ['Roble', 'var(--arbol)', 'la hoja', 'arbol'],
-              ['Savia', 'var(--color-coral)', 'el acento', 'acento'],
-              ['Tinta', 'var(--tinta-est)', 'el texto', 'tinta'],
-              ['Papel', 'var(--color-niebla)', 'los fondos claros', 'papel'],
-              ['Madera', 'var(--color-nogal)', 'lo cálido', 'madera'],
-              ['Cielo', 'var(--color-salvia)', 'Servicios', 'cielo'],
-              ['Detalle', 'var(--color-cobalto)', 'las ilustraciones', 'detalle'],
-              ['Fruto', 'var(--color-cereza)', 'la receta', 'fruto'],
-            ].map(([n, v, u, k]) => (
-              <li style={`--c:${v}`}><i class="est-m" /><span class="est-mn">{n}</span><span class="detail" data-hex={k}>{(estaciones[0] as any)[k]}</span><span class="detail est-u">{u}</span></li>
+              ['fondo', 'var(--noche)', 'el fondo'],
+              ['roble', 'var(--arbol)', 'el roble'],
+              ['savia', 'var(--color-coral)', 'el acento'],
+              ['bloque', 'var(--color-salvia)', 'el bloque claro'],
+              ['tinta', 'var(--color-cacao)', 'el texto sobre lo claro'],
+            ].map(([k, v, u], j) => (
+              <li style={`--c:${v}`} data-c={j} hidden={!estaciones[0].colores[j]}><i class="est-m" /><span class="est-mn" data-nombre-c={j}>{estaciones[0].colores[j]?.[1]}</span><span class="detail" data-hex-c={j}>{estaciones[0].colores[j]?.[2]}</span><span class="detail est-u">{u}</span></li>
             ))}
+            <li class="comun" style="--c:#F5F5F7" data-comun><i class="est-m" /><span class="est-mn">Blanco</span><span class="detail">#F5F5F7</span><span class="detail est-u">lo claro · todo el año</span></li>
           </ul>
         </div>
       </div>
@@ -209,23 +291,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     <div class="wrap marco-libro">
       <div class="indice-hueco" aria-hidden="true"></div>
       <div class="hojas">
-        <!-- RONDA 150 · las cuatro paletas, una junto a otra, para consultarlas de un vistazo -->
-        <section class="seccion sin-borde" aria-label="Las cuatro paletas">
-          <!-- RONDA 151 · «el resumen de cada estación con su paleta, más visual y no tan pequeño»: una tarjeta grande por estación, sobre su propia noche,
-               con sus diez colores en franjas altas (las cinco que cambian, más anchas; las cinco que viran, más estrechas) -->
-          <div class="paletas">
-            {estaciones.map((e) => (
-              <article class={`paleta ${e.id === 'invierno' ? 'clara' : ''}`} style={`--pn:${e.noche};--pt:${e.tinta}`}>
-                <header class="pl-cab"><p class="pl-n font-display">{e.n}</p><p class="detail pl-m">{e.meses}</p></header>
-                <ul class="pl-franjas">
-                  {[['Noche', e.noche, 1], ['Noche honda', e.honda, 1], ['Roble', e.arbol, 1], ['Savia', e.acento, 1], ['Tinta', e.tinta, 1], ['Papel', e.papel, 0], ['Madera', e.madera, 0], ['Cielo', e.cielo, 0], ['Detalle', e.detalle, 0], ['Fruto', e.fruto, 0]].map(([n, h, mayor]) => (
-                    <li class={mayor ? 'mayor' : ''} style={`--c:${h}`}><span class="pl-t"><b>{n}</b><span class="detail">{h}</span></span></li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
+        <!-- RONDA 153 · «después de pasar las estaciones repetimos los colores en versión resumida: eso fuera» -->
         <section class="seccion sin-borde" aria-label="Reglas del color">
           <ul class="reglas">
             <li><b>Contraste</b> la tinta sobre la noche de cada estación pasa de 9:1 (en invierno, Cacao sobre la nieve 15:1).</li>
@@ -236,11 +302,11 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         <!-- 04 · TIPOGRAFÍA -->
         <section id="tipografia" class="seccion" aria-labelledby="h-tipografia">
           <h2 id="h-tipografia" class="font-display text-h2">Tipografía</h2>
-          <p class="cuerpo">Tres voces: Family para lo que se dice, ABC Areal para lo que se lee y ABC Areal Mono para los detalles. Sin cursivas, nunca.</p>
+          <p class="cuerpo">Tres voces: Family para lo que se dice, Timeless Sans para lo que se lee y Timeless Grotesk para los detalles. Sin mono y sin cursivas, nunca.</p>
           <div class="fila f3 familias">
             <figure class="placa clara fam"><span class="font-display aa">Aa</span><figcaption><b>Family</b><span class="detail">Titulares · 400</span></figcaption></figure>
-            <figure class="placa clara fam"><span class="aa sans">Aa</span><figcaption><b>ABC Areal</b><span class="detail">Texto e interfaz · 400 · 500</span></figcaption></figure>
-            <figure class="placa clara fam"><span class="aa mono">Aa</span><figcaption><b>ABC Areal Mono</b><span class="detail">Detalles · 400</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa sans">Aa</span><figcaption><b>Timeless Sans</b><span class="detail">Lectura e interfaz · 300 · 420 · 500</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa grot">Aa</span><figcaption><b>Timeless Grotesk</b><span class="detail">Detalles · 300</span></figcaption></figure>
           </div>
           <ol class="escala">
             {escala.map(([n, v, px, fam, cls]) => (
@@ -262,6 +328,45 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             <div class="placa clara lista-voz no"><p class="detail detail-caps">No se dice</p><ul>{noSeDice.map((w) => <li>{w}</li>)}</ul></div>
           </div>
           <blockquote class="font-display ejemplo">«Elevamos tu web con IA.»<span class="detail">El titular: corto, a quien entra, con el verbo delante.</span></blockquote>
+        </section>
+
+        <!-- RONDA 152 · ICONOGRAFÍA: «buscar una iconografía para usar siempre la misma en toda la web; las estaciones, siempre en fill» -->
+        <section id="iconografia" class="seccion" aria-labelledby="h-iconografia">
+          <h2 id="h-iconografia" class="font-display text-h2">Iconografía</h2>
+          <p class="cuerpo">Una sola familia, Iconoir: rejilla de 24 y trazo de 1,5 con puntas redondas. Las estaciones, siempre rellenas (su propio dibujo, relleno); lo que está encendido, en su versión sólida; la interfaz, en trazo. La flecha de la casa es su flecha de navegación, dibujada a trazo para poder animarla.</p>
+          <!-- RONDA 155 · «iconografía tenemos que ponerlo más bonito»: las estaciones, cada una en su color; la construcción en la rejilla; la interfaz -->
+          <div class="ic-est">
+            {estaciones.map((e) => (
+              <figure class={`ic-e${e.id === 'invierno' ? ' clara' : ''}`} style={`--f:${e.noche};--t:${e.tinta};--s:${e.colores[2][2]}`}>
+                <Fragment set:html={icono(ICONO_ESTACION[e.id as keyof typeof ICONO_ESTACION], 'fill')} />
+                <figcaption><span class="font-display">{e.n}</span><span class="detail">{e.meses}</span></figcaption>
+              </figure>
+            ))}
+          </div>
+          <div class="ic-par">
+            <figure class="ic-cons">
+              <svg class="ic-rej" viewBox="0 0 24 24" aria-hidden="true">
+                {Array.from({ length: 25 }, (_, k) => <><line x1={k} x2={k} y1="0" y2="24" /><line x1="0" x2="24" y1={k} y2={k} /></>)}
+                <rect class="k" x="3" y="3" width="18" height="18" rx="2" /><circle class="k" cx="12" cy="12" r="10" /><rect class="zona" x="2" y="2" width="20" height="20" />
+              </svg>
+              <Fragment set:html={ico('leaf').replace('<svg ', '<svg class="ic-gr" ')} />
+              <figcaption class="ic-cota"><span class="detail">24 × 24</span><span class="detail">trazo 1,5 · puntas redondas</span><span class="detail">zona viva 20 px</span></figcaption>
+            </figure>
+            <div class="ic-ui">
+              {([['plus', 'regular', 'más'], ['x', 'regular', 'cerrar'], ['caret-left', 'regular', 'anterior'], ['caret-right', 'regular', 'siguiente'], ['speaker-high', 'fill', 'sonido'], ['play', 'fill', 'reproducir'], ['pause', 'fill', 'pausa'], ['video-camera', 'fill', 'vídeo']] as const).map(([n, p, e]) => (
+                <div class="ic-c"><Fragment set:html={icono(n as any, p as any)} /><span class="detail">{e}</span><span class="detail ic-p">{p === 'fill' ? 'sólido' : 'trazo'}</span></div>
+              ))}
+            </div>
+          </div>
+          <div class="catalogo">
+            {GRUPOS_ICONOS.map(([g, lista]) => (
+              <div class="cat-g">
+                <p class="detail detail-caps">{g}</p>
+                <ul>{lista.map(([n, e]) => <li title={n}><Fragment set:html={ico(n)} /><span class="detail">{e}</span></li>)}</ul>
+              </div>
+            ))}
+            <p class="detail cat-pie">Iconoir tiene más de 1.600 iconos con el mismo dibujo (iconoir.com). Esta es la muestra de los que encajan en savvia; cualquiera de la librería vale, en trazo.</p>
+          </div>
         </section>
 
         <!-- 06 · COMPONENTES -->
@@ -339,44 +444,62 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
 
         <!-- 07 · TEXTURA Y MOVIMIENTO -->
         <section id="materia" class="seccion" aria-labelledby="h-materia">
-          <h2 id="h-materia" class="font-display text-h2">Textura y movimiento</h2>
-          <p class="cuerpo">La materia es papel y acuarela; el movimiento, el de algo vivo que crece: llega con curva expo, se posa sin rebote y nunca impide leer. Con movimiento reducido, todo queda quieto y en su sitio.</p>
+          <h2 id="h-materia" class="font-display text-h2">Movimiento</h2>
+          <p class="cuerpo">Todo lo que se mueve en savvia se mueve como algo vivo: una gota que cae, la savia que corre, algo que brota, crece o cambia con la estación. Llega con curva expo, se posa sin rebote y nunca impide leer. Con movimiento reducido, todo queda quieto y en su sitio.</p>
+          <!-- RONDA 155 · «en movimiento quitamos textura y solo ponemos movimientos que tengan que ver con naturaleza; los de sonido fuera; hay que ser consistentes» -->
           <div class="fila f3 materia">
-            <figure class="placa grano"><figcaption class="detail">Grano · en todas las superficies, ≤ 12 %</figcaption></figure>
-            <figure class="placa clara semitono"><figcaption class="detail">Semitono · el canto del roble, a 45°</figcaption></figure>
-            <figure class="placa clara carriles-d"><i class="cr-v a" /><i class="cr-v b" /><i class="cr-h" /><i class="cr-x a">+</i><i class="cr-x b">+</i><figcaption class="detail">Carriles · los bordes del contenido, a la vista</figcaption></figure>
-            <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">ease-out expo · 0,16 1 0,3 1</figcaption></figure>
-            <figure class="placa clara palabras"><span class="pal font-display"><span>Elevamos</span> <span>tu</span> <span>web</span></span><figcaption class="detail">Titulares · las palabras suben desde una máscara</figcaption></figure>
-            <figure class="placa clara enfoca"><span class="enf">Un párrafo que entra en foco.</span><figcaption class="detail">Bloques · de fuera de foco a nítido</figcaption></figure>
-            <figure class="placa campana"><i class="cp" /><figcaption class="detail">Entre secciones · una gota que se ensancha</figcaption></figure>
+            <figure class="placa clara gota-m"><span class="gota-d" aria-hidden="true"></span><figcaption class="detail">La gota · arranca la web y se descuelga del isotipo</figcaption></figure>
+            <figure class="placa campana"><i class="cp" /><figcaption class="detail">Entre secciones · la sección llega como una gota que se ensancha</figcaption></figure>
             <figure class="placa clara rasgado"><i class="rg" /><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado</figcaption></figure>
-            <figure class="placa clara liquido-d"><span class="liq">Pasa por aquí</span><figcaption class="detail">El líquido · desde donde entra el cursor</figcaption></figure>
-            <figure class="placa clara gota-m"><span class="gota-d" aria-hidden="true"></span><figcaption class="detail">La gota · arranca la web (dibuja un círculo)</figcaption></figure>
-            <figure class="placa oscura onda-d"><span class="onda-b">{Array.from({ length: 22 }, (_, k) => <i style={`--k:${k}`} />)}</span><figcaption class="detail">La voz · onda que se tiñe de savia</figcaption></figure>
-            <figure class="placa clara estacion-d"><span class="est-cic" aria-hidden="true"><i style="--c:#FF7FAE" /><i style="--c:#A6D96A" /><i style="--c:#FF616B" /><i style="--c:#4F8AD6" /></span><figcaption class="detail">Las estaciones · el acento cambia con el año</figcaption></figure>
+            <figure class="placa clara raices-d"><svg viewBox="0 0 100 75" aria-hidden="true"><path d="M50 6 C 48 20, 54 30, 49 42 S 46 60, 52 72" /><path d="M50 22 C 40 28, 30 30, 20 40" /><path d="M51 30 C 62 36, 72 40, 84 52" /><path d="M49 46 C 40 52, 34 58, 28 70" /><path d="M50 52 C 58 58, 64 64, 70 72" /><circle cx="50" cy="6" r="2.2" /></svg><figcaption class="detail">Las raíces · crecen con el scroll y llevan al texto</figcaption></figure>
+            <figure class="placa clara liquido-d"><span class="liq">Pasa por aquí</span><figcaption class="detail">La savia · llena desde donde entra el cursor</figcaption></figure>
+            <figure class="placa clara hoja-d"><span class="hj" aria-hidden="true"><Fragment set:html={icono('leaf', 'fill')} /></span><figcaption class="detail">El tiempo · cae lo de cada estación y se posa</figcaption></figure>
+            <figure class="placa clara estacion-d"><span class="est-cic" aria-hidden="true">{([['primavera', '#FF8FB8'], ['verano', '#8DB84A'], ['otono', '#FF616B'], ['invierno', '#4F8AD6']] as const).map(([e, c]) => <i style={`--c:${c}`}><Fragment set:html={icono(ICONO_ESTACION[e], 'fill')} /></i>)}</span><figcaption class="detail">Las estaciones · el acento cambia con el año</figcaption></figure>
+            <figure class="placa clara brota-d"><svg class="br" viewBox="0 0 60 60" aria-hidden="true"><path class="tallo" d="M30 56 C 30 46, 31 38, 30 28" /><path class="h1" d="M30 34 C 22 34, 15 28, 14 20 C 22 20, 29 25, 30 34 Z" /><path class="h2" d="M30 29 C 37 28, 44 22, 46 14 C 37 14, 31 20, 30 29 Z" /><path class="suelo" d="M14 56 H 46" /></svg><figcaption class="detail">Brotar · lo nuevo aparece desde su origen, como un brote</figcaption></figure>
+            <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">La caída · ease-out expo (0,16 1 0,3 1), sin rebote</figcaption></figure>
           </div>
           <ul class="reglas">
             <li><b>Curvas</b> ease-out expo (0,16 1 0,3 1) para lo que llega; ease-out quart para la interfaz. Sin rebotes.</li>
-            <li><b>Sonido</b> muy de fondo: una tecla suave al pasar, un clic al pulsar, el ambiente de la estación en Proyectos; nunca antes del primer gesto.</li>
+            <li><b>Todo crece</b> desde un origen (una gota, una raíz, el punto donde entra el cursor): nada aparece de golpe ni con el mismo fundido en todas partes.</li>
           </ul>
         </section>
 
         <!-- 08 · APLICACIONES -->
         <section id="aplicaciones" class="seccion" aria-labelledby="h-aplicaciones">
           <h2 id="h-aplicaciones" class="font-display text-h2">Aplicaciones</h2>
-          <p class="cuerpo">La marca fuera de la web: lo que se comparte, la pestaña del navegador y la tarjeta de visita.</p>
-          <div class="fila f2">
-            <figure class="placa clara app"><img class="og" src="/og.jpg?v=140" alt="Imagen para compartir de savvia" width="1200" height="630" loading="lazy" decoding="async" /><figcaption class="detail">Imagen para compartir · 1200 × 630</figcaption></figure>
-            <figure class="placa clara app">
-              <div class="pestana" aria-hidden="true"><span class="pt-tab"><img src="/favicon.svg?v=145" alt="" width="16" height="16" />savvia — Elevamos tu web con IA</span></div>
-              <figcaption class="detail">La pestaña · favicon sobre Cacao</figcaption>
-            </figure>
-          </div>
-          <div class="fila f2">
-            <figure class="placa clara app"><div class="tarjeta-v cara" aria-hidden="true"><span class="logo-masc"></span></div><figcaption class="detail">Tarjeta · anverso</figcaption></figure>
-            <figure class="placa clara app">
+          <p class="cuerpo">La marca fuera de la web: la tarjeta de visita, lo que se comparte y la pestaña del navegador.</p>
+          <!-- RONDA 155 · «aplicaciones también, más bonito»: escenas en lugar de muestras sueltas -->
+          <div class="apl">
+            <figure class="apl-p apl-tarjetas">
+              <div class="tv-sombra" aria-hidden="true"></div>
               <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio · Donostia</span></div>
-              <figcaption class="detail">Tarjeta · reverso</figcaption>
+              <div class="tarjeta-v cara" aria-hidden="true"><span class="lockup tv-lock"><span class="iso-masc"></span><span class="logo-masc"></span></span></div>
+              <figcaption class="detail apl-pie">Tarjeta de visita · 85 × 55 mm, anverso y reverso</figcaption>
+            </figure>
+            <figure class="apl-p apl-chat">
+              <div class="chat" aria-hidden="true">
+                <p class="burbuja yo">¿Te paso la web de los que nos van a hacer la nueva?</p>
+                <div class="burbuja yo enlace">
+                  <img src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
+                  <span class="en-t">savvia — Elevamos tu web con IA</span>
+                  <span class="en-d">savvia.studio</span>
+                </div>
+                <p class="burbuja otro">Qué bonita 🌱</p>
+              </div>
+              <figcaption class="detail apl-pie">Al compartir · imagen 1200 × 630</figcaption>
+            </figure>
+            <figure class="apl-p apl-nav">
+              <div class="ventana" aria-hidden="true">
+                <div class="v-barra">
+                  <span class="v-sem"><i /><i /><i /></span>
+                  <span class="v-tab on"><span class="iso-masc v-fav"></span><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab"><span class="iso-masc v-fav"></span><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-mas"><Fragment set:html={icono('plus')} /></span>
+                </div>
+                <div class="v-dir"><span>savvia.studio</span></div>
+                <img class="v-pag" src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
+              </div>
+              <figcaption class="detail apl-pie">El navegador · el favicon en la pestaña</figcaption>
             </figure>
           </div>
         </section>
@@ -387,7 +510,24 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
 </Base>
 
 <script>
-  import { fijarEstacion, estacionActual, EST } from '../scripts/estacion';
+  import { fijarEstacion, estacionActual, EST, NOCHE } from '../scripts/estacion';
+  import { crearEstela } from '../scripts/estela';
+  // RONDA 154 · el roble de cada estación, pintado por el motor del hero (mismas opciones: la primavera teñida de cerezo, el invierno sin hojas y sin hervor)
+  document.querySelectorAll<HTMLElement>('.est-robles .rb').forEach((rb) => {
+    const img = rb.querySelector('img')!, cv = rb.querySelector('canvas')!;
+    const n = EST.indexOf(rb.dataset.est as any);
+    const arrancar = () => {
+      const t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: n !== 1, hd: true, intensidad: n === 2 ? 0.9 : 0 });
+      if (!t) return;
+      if (n === 2 || n === 1) t.estacion(n);
+      t.fondo(...NOCHE[n]); t.crecer(1); t.visible(true);
+      rb.classList.add('motor');
+      new IntersectionObserver((es) => t.visible(es[0].isIntersecting && rb.classList.contains('on'))).observe(rb);
+      new MutationObserver(() => t.visible(rb.classList.contains('on'))).observe(rb, { attributes: true, attributeFilter: ['class'] });
+    };
+    if (img.complete && img.naturalWidth) arrancar(); else img.addEventListener('load', arrancar, { once: true });
+  });
+
   // el índice sigue la lectura
   const enlaces = [...document.querySelectorAll<HTMLAnchorElement>('[data-ir]')];
   const secciones = enlaces.map((a) => document.getElementById(a.dataset.ir!)!).filter(Boolean);
@@ -395,13 +535,12 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) marcar(e.target.id); }, { rootMargin: '-30% 0px -65% 0px' });
   secciones.forEach((s) => io.observe(s));
   // la construcción se dibuja al llegar
-  const cons = document.querySelector('[data-construccion]');
-  if (cons) new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { cons.classList.add('visto'); o.disconnect(); } }, { threshold: 0.3 }).observe(cons);
+  document.querySelectorAll('[data-construccion]').forEach((cons) => new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { cons.classList.add('visto'); o.disconnect(); } }, { threshold: 0.3 }).observe(cons));
   // LAS ESTACIONES (ronda 144, 3.ª): el avance por el tramo fijo elige la estación (cuatro cuartos); fuera del tramo, la de hoy
   const deHoy = estacionActual();
   const tramo = document.querySelector<HTMLElement>('[data-estaciones]');
   const escena = document.querySelector<HTMLElement>('[data-escena-est]');
-  const datos = JSON.parse(document.querySelector('[data-estaciones-datos]')?.textContent || '[]') as Record<string, string>[];
+  const datos = JSON.parse(document.querySelector('[data-estaciones-datos]')?.textContent || '[]') as Record<string, any>[];
   let actual = -2;
   const poner = (i: number) => {
     if (i === actual || !escena) return; actual = i;
@@ -409,7 +548,11 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     fijarEstacion(EST.indexOf(datos[i].id as any), 'brandbook');
     escena.dataset.actual = String(i);
     escena.querySelectorAll<HTMLElement>('[data-cab],[data-punto],[data-roble]').forEach((el) => el.classList.toggle('on', Number(el.dataset.cab ?? el.dataset.punto ?? el.dataset.roble) === i));
-    escena.querySelectorAll<HTMLElement>('[data-hex]').forEach((el) => (el.textContent = datos[i][el.dataset.hex!]));
+    const cs = (datos[i] as any).colores as string[][];
+    escena.querySelectorAll<HTMLElement>('[data-c]').forEach((el) => (el.hidden = !cs[+el.dataset.c!]));
+    const comun = escena.querySelector<HTMLElement>('[data-comun]'); if (comun) comun.hidden = cs[0][2] === '#F5F5F7'; // en invierno el fondo ya es el blanco: no se repite
+    escena.querySelectorAll<HTMLElement>('[data-hex-c]').forEach((el) => (el.textContent = cs[+el.dataset.hexC!]?.[2] ?? ''));
+    escena.querySelectorAll<HTMLElement>('[data-nombre-c]').forEach((el) => (el.textContent = cs[+el.dataset.nombreC!]?.[1] ?? ''));
     escena.classList.toggle('clara', datos[i].id === 'invierno');
   };
   const medir = () => {
@@ -428,6 +571,67 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     tapan.forEach((t) => ioI.observe(t));
   }
   (window as any).__bbEstacion = () => document.documentElement.dataset.estacion;
+  // RONDA 154 · la construcción del isotipo como en un editor de vectores: un CÍRCULO PERFECTO con sus anclas y manejadores (los mismos que el
+  // isotipo, ajustados con tools/r154/isotipo-bezier.cjs) y el cursor que los va moviendo uno a uno hasta la forma final.
+  document.querySelectorAll<SVGSVGElement>('[data-morfo-svg]').forEach((svg) => {
+    type A = { p: number[]; in: number[]; out: number[]; v: number; i: number };
+    const AN = JSON.parse(svg.dataset.bezier!) as A[];
+    const camino = svg.querySelector<SVGPathElement>('[data-morfo]')!, esq = svg.querySelector<SVGGElement>('[data-esqueleto]')!, cursor = svg.querySelector<SVGPathElement>('[data-cursor]')!;
+    const NS = 'http://www.w3.org/2000/svg', CX = 32, CY = 32, R = 23.6, n = AN.length;
+    const a0 = Math.atan2(AN[0].p[1] - CY, AN[0].p[0] - CX);
+    const m = AN.reduce((k, a, i) => (a.v > AN[k].v ? i : k), 0);
+    // el estado de partida: cada ancla sobre el círculo en su fracción del recorrido, con manejadores tangentes de longitud exacta (4/3·tan(Δ/4)·R)
+    const ang = (v: number) => a0 - v * 2 * Math.PI;
+    // el círculo perfecto: un anillo (contorno de fuera y de dentro, como el trazo del isotipo), cada ancla en su fracción del recorrido y
+    // manejadores tangentes de longitud exacta (4/3·tan(Δ/4)·r), orientados hacia el ancla vecina
+    const RAD = AN.map((_, i) => (i === 0 || i === m ? R : i < m ? R + 1.1 : R - 1.1));
+    const ANG = AN.map((a) => ang(a.v));
+    const dif = (x: number, y: number) => { let d = y - x; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; return d; };
+    const circ = AN.map((_, i) => {
+      const ap = ANG[i], r = RAD[i], p = [CX + r * Math.cos(ap), CY + r * Math.sin(ap)];
+      const man = (j: number) => { const d = dif(ap, ANG[j]), h = (4 / 3) * Math.tan(Math.abs(d) / 4) * r, sg = Math.sign(d) || 0; return [p[0] - Math.sin(ap) * h * sg, p[1] + Math.cos(ap) * h * sg]; };
+      return { p, out: man((i + 1) % n), in: man((i - 1 + n) % n) };
+    });
+    const el = (t: string, c: string) => { const e = document.createElementNS(NS, t); e.setAttribute('class', c); esq.append(e); return e; };
+    const vis = AN.map(() => ({ li: el('line', 'g-man'), lo: el('line', 'g-man'), hi: el('circle', 'g-mpt'), ho: el('circle', 'g-mpt'), q: el('rect', 'g-ancla') }));
+    const mix = (a: number[], b: number[], k: number) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+    const suave = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+    const PASO = 0.5; // cada ancla tarda 1 unidad; la siguiente empieza a 0,62
+    const total = (n - 1) * PASO + 1;
+    const pintar = (T: number) => {
+      const u = T * total;
+      const Q = AN.map((a, i) => { const k = suave(u - i * PASO); return { p: mix(circ[i].p, a.p, k), in: mix(circ[i].in, a.in, k), out: mix(circ[i].out, a.out, k), k }; });
+      let d = `M${Q[0].p[0].toFixed(2)} ${Q[0].p[1].toFixed(2)}`;
+      for (let i = 0; i < n; i++) { const a = Q[i], b = Q[(i + 1) % n]; d += `C${a.out[0].toFixed(2)} ${a.out[1].toFixed(2)} ${b.in[0].toFixed(2)} ${b.in[1].toFixed(2)} ${b.p[0].toFixed(2)} ${b.p[1].toFixed(2)}`; }
+      camino.setAttribute('d', d + 'Z');
+      const activo = Math.min(n - 1, Math.max(0, Math.floor(u / PASO)));
+      const fin = Math.min(1, Math.max(0, (u - total + 0.6) / 0.6));
+      Q.forEach((q, i) => {
+        const v = vis[i], on = i === activo && fin < 1;
+        v.q.setAttribute('x', String(q.p[0] - 0.75)); v.q.setAttribute('y', String(q.p[1] - 0.75)); v.q.setAttribute('width', '1.5'); v.q.setAttribute('height', '1.5');
+        v.q.classList.toggle('on', on);
+        ([[v.li, v.hi, q.in], [v.lo, v.ho, q.out]] as const).forEach(([l, c, h]) => { l.setAttribute('x1', String(q.p[0])); l.setAttribute('y1', String(q.p[1])); l.setAttribute('x2', String(h[0])); l.setAttribute('y2', String(h[1])); c.setAttribute('cx', String(h[0])); c.setAttribute('cy', String(h[1])); c.setAttribute('r', '0.5'); l.classList.toggle('on', on); c.classList.toggle('on', on); });
+      });
+      const qa = Q[activo].p;
+      cursor.setAttribute('transform', `translate(${(qa[0] + 0.5).toFixed(2)} ${(qa[1] + 0.5).toFixed(2)})`);
+      cursor.style.opacity = String(T > 0.01 ? 1 - fin : 0);
+      esq.style.opacity = String(1 - fin);
+      camino.style.fillOpacity = String(fin * 0.94);
+      camino.style.strokeWidth = String(0.35 * (1 - fin));
+    };
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { pintar(1); return; }
+    pintar(0);
+    let raf = 0;
+    const tocar = () => {
+      cancelAnimationFrame(raf);
+      const t0 = performance.now() + 700, DUR = 8400;
+      const paso = (ahora: number) => { const t = Math.min(1, Math.max(0, (ahora - t0) / DUR)); pintar(t); if (t < 1) raf = requestAnimationFrame(paso); };
+      raf = requestAnimationFrame(paso);
+    };
+    new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { tocar(); o.disconnect(); } }, { threshold: 0.45 }).observe(svg);
+    let ultimo = 0;
+    svg.closest('figure')?.addEventListener('pointerenter', () => { if (performance.now() - ultimo < 9000) return; ultimo = performance.now(); pintar(0); tocar(); });
+  });
 </script>
 
 <style>
@@ -477,11 +681,11 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     .indice .n { display: none; }
   }
   .titular { font-size: clamp(2.5rem, 1rem + 4vw, 5rem); line-height: 1.02; letter-spacing: -0.02em; max-width: 14ch; text-wrap: balance; }
-  .cubierta { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; margin-top: calc(var(--spacing) * 12); border-radius: var(--radius-lg); background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
+  .cubierta { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; margin-top: calc(var(--spacing) * 12); border-radius: var(--radius-lg); background: #302018; color: #eadde7; }
   .cubierta .logo-masc { width: min(46%, 22rem); }
   .pie-cub { position: absolute; left: calc(var(--spacing) * 5); bottom: calc(var(--spacing) * 4); opacity: 0.6; }
-  .logo-masc { display: block; background: currentColor; -webkit-mask: url('/savvia-palabra.svg') center / contain no-repeat; mask: url('/savvia-palabra.svg') center / contain no-repeat; }
-  .logo-masc { aspect-ratio: 2319 / 707; width: 62%; }
+  .logo-masc { display: block; background: currentColor; -webkit-mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat; mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat; }
+  .logo-masc { aspect-ratio: 2373 / 707; width: 62%; }
   .logo-masc.peq { width: auto; height: 16px; }
   .en-texto { display: inline-flex; align-items: baseline; gap: 0.3em; font-size: 1.75rem; }
   .logo-masc.linea { width: auto; height: 0.86em; translate: 0 0.12em; }
@@ -495,15 +699,15 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   @media (width < 48rem) { .fila.f2, .fila.f3 { grid-template-columns: 1fr; } }
   .placa { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; margin: 0; border-radius: var(--radius-lg); overflow: hidden; }
   .placa.sm { aspect-ratio: 1; }
-  .placa.oscura { background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
-  .placa.clara { background: color-mix(in oklab, #302018 5%, #eadde7); color: #302018; box-shadow: inset 0 0 0 1px var(--rule); }
+  .placa.oscura { background: #3B231B; color: #F5F5F7; }
+  .placa.clara { background: #F5F5F7; color: #3B231B; box-shadow: inset 0 0 0 1px var(--rule); }
   .placa > figcaption, .pie-p { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.65; }
   .fav { width: 30%; height: auto; border-radius: 22%; }
   .reglas { display: grid; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 6); font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); }
   .reglas b { font-weight: 500; color: var(--fg); margin-right: 0.4em; }
 
   /* ── CONSTRUCCIÓN */
-  .construccion { margin: calc(var(--spacing) * 10) 0 0; padding: clamp(1rem, 3vw, 2.5rem); border-radius: var(--radius-lg); background: color-mix(in oklab, #302018 5%, #eadde7); box-shadow: inset 0 0 0 1px var(--rule); }
+  .construccion { margin: calc(var(--spacing) * 10) 0 0; padding: clamp(1rem, 3vw, 2.5rem); border-radius: var(--radius-lg); background: #F5F5F7; box-shadow: inset 0 0 0 1px var(--rule); }
   .construccion svg { display: block; width: 100%; height: auto; overflow: visible; }
   .guias line { stroke: color-mix(in oklab, #302018 22%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 4 4; }
   .guias text { font-family: var(--font-mono); font-size: 28px; fill: color-mix(in oklab, #302018 55%, transparent); text-anchor: end; }
@@ -537,7 +741,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     gap: calc(var(--spacing) * 6);
     padding: calc(var(--spacing) * 6);
     border-radius: var(--radius-lg);
-    background: var(--pn) url('/media/grano.png') 0 0 / 240px;
+    background: var(--pn);
     color: var(--pt);
     min-height: 26rem;
   }
@@ -594,7 +798,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     height: 100lvh;
     display: grid;
     align-items: center;
-    background: var(--noche) url('/media/grano.png') 0 0 / 240px;
+    background: var(--noche);
     color: var(--tinta-est);
     transition: background-color 0.9s cubic-bezier(0.16, 1, 0.3, 1), color 0.9s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -602,16 +806,19 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .est-dentro { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); row-gap: calc(var(--spacing) * 8); align-items: center; }
   .est-txt { grid-column: 4 / span 4; }
   .est-robles { grid-column: 8 / span 5; display: grid; }
-  .est-robles img { grid-area: 1 / 1; width: 100%; height: auto; opacity: 0; scale: 0.98; filter: blur(6px); transition: opacity 0.9s ease, scale 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.9s ease; }
-  .est-robles img.on { opacity: 1; scale: 1; filter: none; }
-  /* en la web, la primavera la tiñe de cerezo el motor del árbol (la lámina es verde): aquí, un viraje que la acerca */
-  .est-robles img[data-roble='0'].on { filter: hue-rotate(-105deg) saturate(0.75) brightness(1.05); }
-  .est-paleta { grid-column: 4 / span 9; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 5) calc(var(--spacing) * 3); }
+  .est-robles .rb { grid-area: 1 / 1; position: relative; opacity: 0; scale: 0.98; filter: blur(6px); transition: opacity 0.9s ease, scale 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.9s ease; }
+  .est-robles .rb.on { opacity: 1; scale: 1; filter: none; }
+  .est-robles img { display: block; width: 100%; height: auto; }
+  /* RONDA 154 · «el árbol del brandbook, como lo tenemos en el hero, en todas las estaciones»: lo pinta el MISMO motor con las mismas opciones */
+  .est-robles canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+  .est-robles .rb.motor canvas { display: block; }
+  .est-robles .rb.motor img { visibility: hidden; }
+  .est-paleta { grid-column: 4 / span 9; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: calc(var(--spacing) * 5) calc(var(--spacing) * 3); }
   .est-paleta .est-m { aspect-ratio: 16 / 9; }
   @media (width < 64rem) {
     .est-txt, .est-robles, .est-paleta { grid-column: 1 / -1; }
     .est-robles { max-width: 18rem; }
-    .est-paleta { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 2); }
+    .est-paleta { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 4) calc(var(--spacing) * 2); }
     .est-paleta .est-u { display: none; }
   }
   .est-pila { display: grid; }
@@ -702,7 +909,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .rejilla-menu i { width: 6px; height: 6px; border-radius: 50%; background: #302018; }
 
   /* ── TEXTURA Y MOVIMIENTO */
-  .grano { background: #eadde7 url('/media/grano.png') 0 0 / 240px; box-shadow: inset 0 0 0 1px var(--rule); }
+  .grano { background: #eadde7; box-shadow: inset 0 0 0 1px var(--rule); }
   .semitono { background: radial-gradient(circle, rgb(48 32 24 / 0.55) 1.15px, transparent 1.7px) 0 0 / 8px 8px, radial-gradient(circle, rgb(48 32 24 / 0.55) 1.15px, transparent 1.7px) 4px 4px / 8px 8px, color-mix(in oklab, #302018 5%, #eadde7); }
   .carriles-d i { position: absolute; display: block; font-style: normal; }
   .cr-v { top: 0; bottom: 0; width: 1px; background: color-mix(in oklab, #302018 25%, transparent); }
@@ -720,7 +927,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .enf { font-size: 1.125rem; animation: bb-enf 3s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
   @keyframes bb-enf { 0% { filter: blur(8px); opacity: 0.2; } 40%, 100% { filter: blur(0); opacity: 1; } }
   .campana { background: color-mix(in oklab, #302018 5%, #eadde7); box-shadow: inset 0 0 0 1px var(--rule); }
-  .cp { position: absolute; inset: 0; background: #302018 url('/media/grano.png') 0 0 / 240px; animation: bb-cp 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  .cp { position: absolute; inset: 0; background: #302018; animation: bb-cp 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
   @keyframes bb-cp { 0% { clip-path: ellipse(0% 0% at 50% 100%); } 70%, 100% { clip-path: ellipse(90% 120% at 50% 100%); } }
   .campana figcaption { color: #eadde7; z-index: 1; }
   .rg { position: absolute; inset: 18% 22% 22%; background: url('/media/hero/arbol-otono.webp') center / contain no-repeat; -webkit-mask: url('/media/rasgo-circulo.png') 50% 100% / 0% 0% no-repeat; mask: url('/media/rasgo-circulo.png') 50% 100% / 0% 0% no-repeat; animation: bb-rg 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
@@ -736,10 +943,112 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   @keyframes bb-ola { from { scale: 1 0.25; } to { scale: 1 1; } }
   @keyframes bb-turno { 0%, 30%, 80%, 100% { background: color-mix(in oklab, #eadde7 38%, transparent); } 40%, 70% { background: var(--color-coral); } }
   .est-cic { position: relative; width: 56px; height: 56px; }
-  .est-cic i { position: absolute; inset: 0; border-radius: 50%; background: var(--c); animation: bb-est 8s ease infinite; opacity: 0; }
+  .est-cic i { position: absolute; inset: 0; color: var(--c); animation: bb-est 8s ease infinite; opacity: 0; }
+  .est-cic i :global(svg) { width: 100%; height: 100%; }
   .est-cic i:nth-child(2) { animation-delay: 2s; } .est-cic i:nth-child(3) { animation-delay: 4s; } .est-cic i:nth-child(4) { animation-delay: 6s; }
   @keyframes bb-est { 0% { opacity: 0; scale: 0.6; } 6%, 25% { opacity: 1; scale: 1; } 31%, 100% { opacity: 0; scale: 1.1; } }
+
+  /* RONDA 155 · movimiento solo de naturaleza: raíces que crecen, la hoja que cae y se posa, brotar */
+  .raices-d svg { width: 44%; translate: 0 -10%; fill: none; stroke: #3B231B; stroke-width: 1.1; stroke-linecap: round; overflow: visible; }
+  .raices-d circle { fill: var(--color-coral); stroke: none; }
+  .raices-d path { stroke-dasharray: 100; stroke-dashoffset: 100; animation: bb-raiz 4.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  .raices-d path:nth-of-type(n + 2) { stroke-width: 0.7; animation-delay: 0.5s; }
+  .raices-d path:nth-of-type(n + 4) { animation-delay: 0.9s; }
+  @keyframes bb-raiz { 0% { stroke-dashoffset: 100; } 55%, 85% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+  .hj { position: relative; width: 100%; height: 100%; }
+  .hj :global(svg) { position: absolute; left: 44%; top: 0; width: 26px; height: 26px; color: #C65C2D; animation: bb-hoja 5s cubic-bezier(0.37, 0, 0.63, 1) infinite; }
+  .hoja-d::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 26%; height: 1px; background: var(--rule); }
+  @keyframes bb-hoja { 0% { translate: 0 -10%; rotate: -20deg; opacity: 0; } 8% { opacity: 1; } 30% { translate: 34px 22%; rotate: 25deg; } 52% { translate: -18px 40%; rotate: -15deg; } 70%, 92% { translate: 8px 57%; rotate: 78deg; opacity: 1; } 100% { translate: 8px 57%; rotate: 78deg; opacity: 0; } }
+  .br { width: 34%; overflow: visible; }
+  .br .tallo, .br .suelo { fill: none; stroke: #3B231B; stroke-width: 1.4; stroke-linecap: round; }
+  .br .suelo { stroke: var(--rule); stroke-width: 1; }
+  .br .tallo { stroke-dasharray: 30; stroke-dashoffset: 30; animation: bb-tallo 4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  .br .h1, .br .h2 { fill: #8DB84A; transform-box: fill-box; scale: 0; animation: bb-brota 4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  .br .h1 { transform-origin: 100% 100%; animation-delay: 0.6s; } .br .h2 { transform-origin: 0% 100%; animation-delay: 0.85s; fill: #6F9A4E; }
+  @keyframes bb-tallo { 0% { stroke-dashoffset: 30; opacity: 1; } 40%, 85% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+  @keyframes bb-brota { 0% { scale: 0; opacity: 1; } 40%, 70% { scale: 1; opacity: 1; } 85%, 100% { scale: 1; opacity: 0; } }
+
+  /* RONDA 155 · iconografía */
+  .ic-est { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 10); }
+  .ic-e { position: relative; margin: 0; aspect-ratio: 3 / 4; border-radius: 4px; background: var(--f); color: var(--t); display: grid; place-items: center; overflow: hidden; }
+  .ic-e :global(svg) { width: 38%; height: auto; color: var(--s); transition: scale 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+  .ic-e:hover :global(svg) { scale: 1.08; }
+  .ic-e figcaption { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 2px; padding: calc(var(--spacing) * 4); }
+  .ic-e figcaption .font-display { font-size: 1.35rem; }
+  .ic-e figcaption .detail { opacity: 0.6; }
+  .ic-e.clara { box-shadow: inset 0 0 0 1px var(--rule); }
+  .ic-par { display: grid; grid-template-columns: 5fr 7fr; gap: 6px; margin-top: 6px; }
+  .ic-cons { position: relative; margin: 0; min-height: 18rem; border-radius: 4px; background: #3B231B; color: #F5F5F7; display: grid; place-items: center; overflow: hidden; }
+  .ic-rej, .ic-cons :global(.ic-gr) { grid-area: 1 / 1; height: 68%; width: auto; aspect-ratio: 1; }
+  .ic-cons { padding-bottom: calc(var(--spacing) * 6); }
+  .ic-rej line { stroke: rgb(245 245 247 / 0.09); stroke-width: 0.04; }
+  .ic-rej .k { fill: none; stroke: var(--color-coral); stroke-width: 0.05; opacity: 0.7; }
+  .ic-rej .zona { fill: none; stroke: rgb(245 245 247 / 0.35); stroke-width: 0.05; stroke-dasharray: 0.3 0.3; }
+  .ic-cons :global(.ic-gr) { color: #F5F5F7; }
+  .ic-cons :global(.ic-gr) { fill: none; } .ic-cons :global(.ic-gr path) { stroke-width: 1.5; }
+  .ic-cota { position: absolute; left: calc(var(--spacing) * 4); right: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); display: flex; justify-content: space-between; gap: 8px; opacity: 0.6; }
+  .ic-ui { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .ic-c { position: relative; display: grid; place-items: center; align-content: center; gap: calc(var(--spacing) * 2); border-radius: 4px; background: #F5F5F7; box-shadow: inset 0 0 0 1px var(--rule); color: #3B231B; padding: calc(var(--spacing) * 4) 0; transition: background 0.5s ease; }
+  .ic-c :global(svg) { width: 1.9rem; height: 1.9rem; }
+  .ic-c .detail { color: color-mix(in oklab, #3B231B 70%, transparent); }
+  .ic-c .ic-p { position: absolute; top: calc(var(--spacing) * 2); right: calc(var(--spacing) * 2.5); font-size: 0.6875rem; opacity: 0.6; }
+  .ic-c:hover { background: color-mix(in oklab, var(--color-coral) 14%, #F5F5F7); }
+  .cat-g ul { gap: 0 !important; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)) !important; }
+  .cat-g li { aspect-ratio: 1; align-content: center; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); transition: background 0.4s ease; }
+  .cat-g li:hover { background: color-mix(in oklab, var(--color-coral) 12%, transparent); }
+  .cat-g li :global(svg) { width: 1.75rem !important; height: 1.75rem !important; }
+  @media (width < 48rem) {
+    .ic-est { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ic-par { grid-template-columns: 1fr; }
+    .ic-ui { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  /* RONDA 155 · aplicaciones en escenas */
+  .apl { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 10); }
+  .apl-p { position: relative; margin: 0; border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
+  .apl-pie { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.6; }
+  .apl-tarjetas { grid-column: span 7; aspect-ratio: 7 / 5; background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: #3B231B; }
+  .apl-tarjetas .tarjeta-v { grid-area: 1 / 1; width: 54%; box-shadow: 0 1px 1px rgb(48 32 24 / 0.15), 0 14px 24px -12px rgb(48 32 24 / 0.45), 0 40px 60px -30px rgb(48 32 24 / 0.35); }
+  .apl-tarjetas .dorso { rotate: -9deg; translate: -14% -10%; background: #F5F5F7; color: #3B231B; }
+  .apl-tarjetas .cara { rotate: 6deg; translate: 14% 12%; background: #3B231B; color: #F5F5F7; display: grid; place-items: center; gap: 0.343em; font-size: clamp(1rem, 2.6vw, 1.9rem); }
+  .apl-tarjetas .tv-lock { font-size: clamp(1rem, 2.4vw, 1.8rem); translate: 0 -0.12em; }
+  .tv-sombra { display: none; }
+  .apl-chat { grid-column: span 5; aspect-ratio: 5 / 5; background: #3B231B; color: #F5F5F7; }
+  .chat { display: grid; gap: 8px; width: 78%; font-size: 0.9375rem; line-height: 1.35; }
+  .burbuja { margin: 0; max-width: 86%; padding: 10px 14px; border-radius: 18px; }
+  .burbuja.yo { justify-self: end; background: #F5F5F7; color: #3B231B; border-bottom-right-radius: 4px; }
+  .burbuja.otro { justify-self: start; background: rgb(245 245 247 / 0.14); border-bottom-left-radius: 4px; }
+  .burbuja.enlace { padding: 0; overflow: hidden; display: grid; max-width: 90%; }
+  .burbuja.enlace img { display: block; width: 100%; height: auto; }
+  .en-t { padding: 10px 14px 0; font-weight: 500; font-size: 0.875rem; }
+  .en-d { padding: 2px 14px 12px; font-size: 0.75rem; opacity: 0.6; }
+  .apl-nav { grid-column: 1 / -1; aspect-ratio: 21 / 9; background: var(--color-salvia, #ecbf8f); color: #3B231B; }
+  .apl-nav { place-items: end center; }
+  .ventana { width: 64%; border-radius: 12px 12px 0 0; overflow: hidden; background: #F5F5F7; box-shadow: 0 30px 60px -30px rgb(48 32 24 / 0.55), 0 0 0 1px rgb(48 32 24 / 0.08); max-height: 84%; }
+  .apl-nav .apl-pie { top: calc(var(--spacing) * 3); bottom: auto; }
+  .v-barra { display: flex; align-items: flex-end; gap: 0; padding: 8px 12px 0; background: #e6e1e4; }
+  .v-sem { display: flex; gap: 6px; align-self: center; margin: 0 14px 0 4px; } .v-sem i { width: 10px; height: 10px; border-radius: 50%; background: #c9c2c6; }
+  .v-tab { position: relative; display: flex; align-items: center; gap: 8px; flex: 0 1 15rem; min-width: 0; height: 34px; padding: 0 10px 0 12px; border-radius: 10px 10px 0 0; font-size: 0.75rem; color: rgb(48 32 24 / 0.65); }
+  .v-tab:not(.on)::before { content: ''; position: absolute; left: 0; top: 9px; bottom: 9px; width: 1px; background: rgb(48 32 24 / 0.18); }
+  .v-tab.on { background: #F5F5F7; color: #3B231B; }
+  .v-tab.on + .v-tab::before { display: none; }
+  .v-fav { flex: none; width: 16px; height: 16px; color: #3B231B; }
+  .v-tit { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .v-tab :global(.v-x) { flex: none; width: 14px; height: 14px; padding: 2px; border-radius: 50%; color: rgb(48 32 24 / 0.6); }
+  .v-mas { display: grid; place-items: center; width: 28px; height: 28px; margin: 0 0 3px 4px; color: rgb(48 32 24 / 0.6); }
+  .v-mas :global(svg) { width: 16px; height: 16px; }
+  .v-dir { padding: 8px 12px; border-bottom: 1px solid var(--rule); }
+  .v-dir span { display: block; width: 46%; margin: 0 auto; padding: 4px 12px; border-radius: 999px; background: #ece8ea; font-size: 0.75rem; text-align: center; color: rgb(48 32 24 / 0.7); }
+  .v-pag { display: block; width: 100%; height: auto; }
+  @media (width < 48rem) {
+    .apl-tarjetas, .apl-chat, .apl-nav { grid-column: 1 / -1; }
+    .apl-nav { aspect-ratio: 4 / 3; }
+    .ventana { width: 90%; }
+    .v-tab:not(.on), .v-mas { display: none; }
+  }
   @media (prefers-reduced-motion: reduce) {
+    .raices-d path { stroke-dashoffset: 0; }
+    .br .tallo { stroke-dashoffset: 0; } .br .h1, .br .h2 { scale: 1; }
     .materia *, .checks :global(*), .nivel i { animation: none !important; }
     .rg { -webkit-mask: none; mask: none; }
     .cp { clip-path: none; }
@@ -753,8 +1062,125 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .pt-tab { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); max-width: 100%; padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3); border-radius: 8px 8px 0 0; background: #f6f1f4; font-size: 0.8125rem; white-space: nowrap; overflow: hidden; }
   .pestana img { width: 16px; height: 16px; border-radius: 4px; }
   .tarjeta-v { width: 72%; aspect-ratio: 85 / 55; border-radius: 6px; display: grid; place-items: center; box-shadow: 0 22px 40px -22px rgb(48 32 24 / 0.65); }
-  .tarjeta-v.cara { background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
+  .tarjeta-v.cara { background: #302018; color: #eadde7; }
   .tarjeta-v.cara .logo-masc { width: 50%; }
-  .tarjeta-v.dorso { background: #eadde7 url('/media/grano.png') 0 0 / 240px; color: #302018; place-items: end start; align-content: end; gap: 4px; padding: 9%; }
+  .tarjeta-v.dorso { background: #eadde7; color: #302018; place-items: end start; align-content: end; gap: 4px; padding: 9%; }
   .tv-n { font-size: 1.375rem; line-height: 1.1; margin-bottom: 6px; }
+  /* ronda 152 · la iconografía */
+  .iconos-bb ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--spacing) * 6) calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 6); }
+  .iconos-bb li { display: grid; justify-items: center; gap: calc(var(--spacing) * 2); color: var(--fg); }
+  .iconos-bb :global(svg) { width: 2rem; height: 2rem; }
+  .iconos-bb .detail { color: var(--fg2); }
+  .aa.grot, .e-m.grot { font-family: var(--font-mono); font-weight: 300; }
+  .est-paleta .comun .est-m { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta-est) 30%, transparent); }
+  /* ronda 153 · el catálogo de Iconoir */
+  .catalogo { display: grid; gap: calc(var(--spacing) * 8); margin-top: calc(var(--spacing) * 12); }
+  .cat-g ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: calc(var(--spacing) * 6) calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 4); }
+  .cat-g li { display: grid; justify-items: center; gap: calc(var(--spacing) * 2); color: var(--fg); text-align: center; }
+  .cat-g li :global(svg) { width: 1.6rem; height: 1.6rem; }
+  .cat-g .detail { color: var(--fg2); }
+  .cat-pie { color: var(--fg2); max-width: 60ch; }
+  .est-paleta li[hidden] { display: none; }
+  /* ronda 153 · el logotipo nuevo: isotipo + palabra */
+  .iso-masc { display: block; background: currentColor; -webkit-mask: url('/savvia-isotipo-gota.svg') center / contain no-repeat; mask: url('/savvia-isotipo-gota.svg') center / contain no-repeat; aspect-ratio: 1; }
+  /* la proporción áurea del logotipo (igual que en la barra): anillo = altura de x × φ; separación = anillo ÷ φ²; centro en la altura de x (1em = alto de la palabra) */
+  .lockup { display: inline-flex; align-items: flex-end; font-size: clamp(2.2rem, 5vw, 3.6rem); }
+  .lockup .iso-masc { width: 1.1794em; height: 1.1794em; margin-right: 0.343em; translate: 0 0.2374em; }
+  .lockup .logo-masc { width: auto; height: 1em; }
+  .lockup.peq { font-size: 24px; }
+  .placa.grande { aspect-ratio: 16 / 10; }
+  .iso-masc.solo { width: 34%; }
+  .lockups-est { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(var(--spacing) * 3); margin-top: calc(var(--spacing) * 4); }
+  .lockups-est .placa { aspect-ratio: 4 / 3; }
+  .lockups-est .lockup { font-size: clamp(1.3rem, 2.2vw, 1.9rem); }
+  @media (width < 48rem) { .lockups-est { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .rotulo-bb { margin-top: calc(var(--spacing) * 10); color: var(--fg2); }
+  .sub-bb { margin-top: calc(var(--spacing) * 16); }
+  .iso-cons svg { width: 100%; height: 100%; max-width: none; margin: 0; }
+  .iso-cons { padding-bottom: calc(var(--spacing) * 14) !important; }
+  .rejilla-iso line { stroke: color-mix(in oklab, #3B231B 10%, transparent); stroke-width: 0.12; }
+  .iso-relleno { fill: color-mix(in oklab, #3B231B 12%, transparent); }
+  .iso-contorno { fill: none; stroke: #3B231B; stroke-width: 0.22; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+  .construccion.visto .iso-contorno { stroke-dashoffset: 0; transition: stroke-dashoffset 2.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  .g-circ, .g-eje { fill: none; stroke: var(--color-coral); stroke-width: 0.18; stroke-dasharray: 0.8 0.8; }
+  .g-eje { stroke-dasharray: none; opacity: 0.55; }
+  .g-remate { fill: none; stroke: #3B231B; stroke-width: 0.25; }
+  .g-cota { stroke: #3B231B; stroke-width: 0.25; }
+  .g-apertura { fill: none; stroke: var(--color-coral); stroke-width: 0.6; stroke-linecap: round; }
+  .g-punto { fill: var(--color-coral); }
+  .g-txt text { font-family: var(--font-mono); font-size: 2.6px; fill: color-mix(in oklab, #3B231B 70%, transparent); }
+  .g-lineas line { stroke: color-mix(in oklab, #3B231B 30%, transparent); stroke-width: 0.12; }
+  .significado { margin-top: calc(var(--spacing) * 12); display: grid; gap: calc(var(--spacing) * 5); max-width: 40rem; }
+  .sig-lead { font-size: var(--text-h3); line-height: var(--text-h3--line-height); text-wrap: balance; }
+  .lockups-est .placa { box-shadow: inset 0 0 0 1px color-mix(in oklab, #3B231B 10%, transparent); }
+  .fav-par { grid-auto-flow: column; gap: calc(var(--spacing) * 4); place-content: center; }
+  .fav-m { display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 0.9rem; }
+  .fav-m .iso-masc { width: 62%; }
+  .fav-m.cla { background: #fff; color: #3B231B; box-shadow: 0 0 0 1px var(--rule); }
+  .fav-m.osc { background: #202124; color: #F5F5F7; }
+  /* ronda 153 · la galería del isotipo (casabien · Taqta): piezas a sangre, pegadas, oscuras y claras */
+  .iso-galeria { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 8); }
+  .pz { position: relative; margin: 0; overflow: hidden; border-radius: 4px; min-height: 0; }
+  .pz-osc { background: #3B231B; color: #F5F5F7; }
+  .pz-cla { background: #ECECEE; color: #3B231B; }
+  .pz-pie { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.6; }
+  .pz-ancha { grid-column: span 4; aspect-ratio: 4 / 3; padding: clamp(1rem, 3vw, 2.5rem) !important; margin: 0 !important; background: #3B231B !important; box-shadow: none !important; }
+  .pz-sec { grid-column: 1 / -1; padding-bottom: calc(var(--spacing) * 10); }
+  .sec-tira { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .sec-tira img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-right: 1px solid rgb(245 245 247 / 0.06); }
+  .pz-frase { grid-column: 1 / -1; padding: clamp(3rem, 8vw, 7rem) clamp(1rem, 4vw, 3rem); font-size: var(--text-h2); line-height: var(--text-h2--line-height); text-wrap: balance; text-align: center; max-width: none; color: var(--fg); background: transparent; }
+  .pz-frase-2 { font-size: var(--text-h3); line-height: var(--text-h3--line-height); max-width: 38ch; margin-inline: auto; }
+  .pz-trazo, .pz-remate { grid-column: span 3; aspect-ratio: 1; display: grid; place-items: center; }
+  .pz-trazo svg, .pz-remate svg { width: 62%; height: auto; overflow: visible; }
+  .tz-iso { fill: #3B231B; }
+  .tz-flecha { fill: none; stroke: var(--color-coral); stroke-width: 0.5; stroke-linecap: round; marker-end: none; stroke-dasharray: 1 1.2; }
+  .rm-iso { fill: #F5F5F7; }
+  .rm-guia { fill: none; stroke: var(--color-coral); stroke-width: 0.12; stroke-dasharray: 0.5 0.5; }
+  .pz-foto { background: #3B231B; }
+  .pz-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pz-foto .pz-pie { color: #F5F5F7; opacity: 0.85; text-shadow: 0 1px 8px rgb(0 0 0 / 0.45); }
+  /* las tres a la misma altura: cada una ocupa columnas en proporción a su formato (3:2 · 3:2 · 4:5) */
+  .pz-helecho, .pz-anillos, .pz-gota { grid-column: auto; aspect-ratio: auto; height: clamp(16rem, 30vw, 26rem); }
+  .iso-galeria .pz-helecho { grid-column: span 2; } .iso-galeria .pz-anillos { grid-column: span 2; } .iso-galeria .pz-gota { grid-column: span 2; }
+  .pz-helecho img { object-position: 64% 60%; }
+  .pz-gota img { object-position: 50% 45%; }
+  /* el isotipo, centrado y legible sobre cualquier foto: un velo oscuro muy blando detrás y sombra */
+  .pz-foto::after { content: ''; position: absolute; inset: 0; background: radial-gradient(closest-side circle at 50% 50%, rgb(20 12 8 / 0.42), rgb(20 12 8 / 0.12) 60%, transparent); pointer-events: none; }
+  .iso-sobre { position: absolute; z-index: 1; left: 50%; top: 50%; translate: -50% -50%; width: auto; height: 30%; aspect-ratio: 1; color: #F5F5F7; filter: drop-shadow(0 2px 18px rgb(0 0 0 / 0.35)); }
+  .pz-foto .pz-pie { z-index: 1; opacity: 1; }
+  .pz-foto::before { content: ''; position: absolute; inset: 55% 0 0; z-index: 1; background: linear-gradient(transparent, rgb(20 12 8 / 0.7)); pointer-events: none; }
+  .pz-foto .pz-pie { z-index: 2; }
+  .pz-texto { grid-column: span 2; display: grid; align-content: end; padding: calc(var(--spacing) * 6); background: #ECECEE; color: #3B231B; }
+  .pz-texto .cuerpo { color: #3B231B; font-size: var(--text-aux); line-height: 1.6; }
+  .pz-app { grid-column: span 3; aspect-ratio: 4 / 3; display: grid; place-content: center; gap: calc(var(--spacing) * 8); justify-items: center; }
+  .mk-pestana { display: flex; align-items: center; gap: 10px; width: min(22rem, 80%); padding: 10px 14px; border-radius: 10px 10px 0 0; background: #fff; box-shadow: 0 1px 0 rgb(0 0 0 / 0.08), 0 8px 24px -14px rgb(0 0 0 / 0.3); font-size: 13px; color: #3B231B; }
+  .mk-fav { width: 16px; height: 16px; flex: none; color: #3B231B; }
+  .mk-tit { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mk-x { opacity: 0.4; }
+  .mk-icono { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 20px; background: #F5F5F7; box-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.35); color: #3B231B; }
+  .mk-icono .iso-masc { width: 62%; }
+  .pz-tarjeta { grid-column: span 3; aspect-ratio: 4 / 3; display: grid; place-items: center; background: #2A1A13; }
+  .mk-tarjeta { width: 62%; aspect-ratio: 85 / 55; padding: 7%; display: flex; flex-direction: column; justify-content: space-between; border-radius: 6px; background: #3B231B; color: #F5F5F7; box-shadow: 0 30px 50px -24px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(245 245 247 / 0.06); rotate: -4deg; }
+  .mk-tarjeta .lockup { font-size: clamp(1rem, 2.2vw, 1.6rem); }
+  .mk-dato { opacity: 0.6; }
+  .iso-morfo { fill: #F5F5F7; fill-opacity: 0; stroke: #F5F5F7; stroke-width: 0.35; stroke-linejoin: round; }
+  :global(.g-man) { stroke: rgb(245 245 247 / 0.4); stroke-width: 0.1; }
+  :global(.g-mpt) { fill: rgb(245 245 247 / 0.7); stroke: none; }
+  :global(.g-ancla) { fill: #3B231B; stroke: #F5F5F7; stroke-width: 0.16; }
+  :global(.g-ancla.on) { fill: var(--color-coral); stroke: var(--color-coral); }
+  :global(.g-man.on) { stroke: var(--color-coral); }
+  :global(.g-mpt.on) { fill: var(--color-coral); }
+  .g-cursor { fill: #F5F5F7; stroke: #3B231B; stroke-width: 0.25; stroke-linejoin: round; pointer-events: none; }
+  .iso-cons .iso-diag .rejilla-iso line { stroke: rgb(245 245 247 / 0.08); }
+  .iso-cons .iso-diag .iso-relleno { fill: rgb(245 245 247 / 0.1); }
+  .iso-cons .iso-diag .iso-contorno, .iso-cons .iso-diag .g-remate, .iso-cons .iso-diag .g-cota { stroke: #F5F5F7; }
+  .iso-cons .iso-diag .g-txt text { fill: rgb(245 245 247 / 0.65); }
+  .iso-cons .iso-diag .g-lineas line { stroke: rgb(245 245 247 / 0.3); }
+  @media (width < 48rem) {
+    .iso-galeria { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pz-ancha, .pz-frase { grid-column: 1 / -1; }
+    .iso-galeria .pz-helecho, .iso-galeria .pz-anillos, .iso-galeria .pz-gota { grid-column: 1 / -1; height: 22rem; }
+    .pz-trazo, .pz-remate, .pz-app, .pz-tarjeta { grid-column: span 1; }
+    .pz-texto { grid-column: 1 / -1; }
+  }
 </style>

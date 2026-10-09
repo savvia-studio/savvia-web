@@ -56,7 +56,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       data-estado-p={JSON.stringify(L.estado)}
       data-peticion-p={JSON.stringify(L.peticion)}
       role="img"
-      aria-label="Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y Diseño cogen piezas de la librería real de Neety (el color Base Cálida, el titular H1 XL, el botón Solicitar demo, el espaciado, el logotipo y el punto pulsante) y las colocan en su home. Al publicar en neety.com, la misma librería sirve para cambiar textos, editar ilustraciones, crear landings para anuncios y trabajar el CMS."
+      aria-label="Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y Diseño cogen piezas de la librería real de Neety (el degradado del hero, el titular H1 XL, el botón Solicitar demo, el espaciado, el logotipo y el punto pulsante) y las colocan en su home. Al publicar en neety.com, la misma librería sirve para cambiar textos, editar ilustraciones, crear landings para anuncios y trabajar el CMS."
     >
       <svg class="mapa" aria-hidden="true" data-mapa></svg>
 
@@ -86,7 +86,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
               <p class="et">{PG.color.etiqueta}</p>
               <div class="swatches">
                 {L.color.map(([n, hx]) => (
-                  <span class="sw pk" data-src={n === 'Base Cálida' ? 'base' : undefined}><i class="blk" style={`background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx}</small></span>
+                  <span class="sw pk" data-src={hx === 'grad' ? 'base' : undefined}><i class={`blk ${hx === 'grad' ? 'grad' : ''}`} style={hx === 'grad' ? undefined : `background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx === 'grad' ? 'azul → naranja · grano' : hx}</small></span>
                 ))}
               </div>
               <p class="et et2">{PG.color.rampas}</p>
@@ -978,6 +978,9 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
   .sw { display: flex; flex-direction: column; border-radius: 8px; background: #fff; box-shadow: 0 0 0 1px var(--linea); overflow: hidden; }
   .sw .blk { display: block; height: 58px; box-shadow: inset 0 -1px 0 var(--linea); }
+  /* ronda 152 · «cogemos un color sólido y se pone el degradado: hay que corregirlo»: la muestra que se coge ES el degradado del hero, con su grano */
+  .sw .blk.grad { position: relative; background: radial-gradient(120% 90% at 100% 100%, rgb(244 132 64 / 0.85), transparent 58%), radial-gradient(110% 100% at 0% 40%, rgb(174 196 245 / 0.95), transparent 60%), linear-gradient(105deg, #c9d6f6 0%, #e7e2f2 46%, #f5c3a6 100%); }
+  .sw .blk.grad::after { content: ''; position: absolute; inset: 0; background: url('/media/grano.png') 0 0 / 140px 140px; opacity: 0.85; mix-blend-mode: multiply; }
   .sw .nm { padding: 7px 9px 0; font-size: 12.5px; font-weight: 500; line-height: 1.15; }
   .sw .hx { padding: 3px 9px 8px; font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.5); }
   .rampas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
@@ -1051,7 +1054,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     box-shadow: 0 0 0 1px rgb(67 27 68 / 0.1), 0 24px 50px -36px rgb(36 28 25 / 0.45);
   }
   .neety > * { position: absolute; }
-  /* «Base Cálida» cae en el fondo: crece desde el centro con el color real #F8F7EC */
+  /* el «Degradado del hero» cae en el fondo: crece desde el centro */
   .n-fondo { inset: 0; background: #f8f7ec; clip-path: circle(calc(var(--p, 0) * 80%) at 50% 50%); }
   /* RONDA 144 · Eric: «que se muestre el hero con su fondo: el fondo granulado le da mucha personalidad a Neety»: su degradado real (azul bebé →
      lavanda → naranja, de izquierda a derecha y más intenso abajo) bajo un grano marcado */

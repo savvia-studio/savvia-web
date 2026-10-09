@@ -1,0 +1,258 @@
+// RONDA 153 · LA SAVIA: el manifiesto es lo que corre por dentro del roble.
+// Un hilo de savia (--color-coral) nace en el cuello de las raíces, baja por la raíz principal hasta su punta y, ya fuera, cae hasta la capitular:
+// allí la savia ES la tinta de la pluma y escribe la T trazo a trazo. Por la cola de la letra sale al canal (un vaso fino a la izquierda de la
+// columna, como el xilema) y baja leyendo contigo: cada párrafo se ALIMENTA cuando la savia llega a su altura (la tinta sube de 16 % a plena
+// fila a fila) y por un capilar le entra una gota; al final se abre hacia el centro y alimenta la frase de cierre. Mientras lees, pulsos de luz
+// suben por lo ya recorrido hacia el árbol. Atado al scroll (la cabeza va a 62 % de la pantalla) pero con su propio paso: lo recorrido se queda.
+// Movimiento reducido: todo recorrido, escrito y alimentado, sin pulsos.
+
+type Pt = [number, number];
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+export function iniciarSavia(main: HTMLElement, opc: { reducido: boolean; listo: () => boolean }) {
+  const capa = main.querySelector<SVGSVGElement>('[data-savia]')!;
+  const canal = capa.querySelector<SVGPathElement>('[data-canal]')!;
+  const vasoA = capa.querySelector<SVGPathElement>('[data-vaso-a]')!;
+  const vasoB = capa.querySelector<SVGPathElement>('[data-vaso-b]')!;
+  const grupoCap = capa.querySelector<SVGGElement>('[data-capilares]')!;
+  const cabeza = capa.querySelector<SVGGElement>('[data-cabeza]')!;
+  const pulsos = [...capa.querySelectorAll<SVGGElement>('[data-pulso]')];
+  const roble = main.querySelector<HTMLElement>('[data-raiz]')!;
+  const cap = main.querySelector<SVGSVGElement>('[data-capitular]')!;
+  const tintas = [...cap.querySelectorAll<SVGPathElement>('[data-guia]')];
+  const cola = cap.querySelector<SVGPathElement>('[data-cola]')!;
+  const parrafos = [...main.querySelectorAll<HTMLElement>('[data-alimenta]')];
+  const sonda = main.querySelector<HTMLElement>('[data-sonda]')!;
+  const vb = cap.viewBox.baseVal;
+
+  const html = document.documentElement;
+  html.classList.add('savia-js');
+
+  // ── la geometría (en coordenadas de <main>), rehecha al cambiar de tamaño ──
+  let lenA = 0, lenB = 0, lenCap: number[] = [], lenCola = 0;
+  let sA: { l: number; y: number }[] = [], sB: { l: number; y: number }[] = [];
+  let capCaja = { x: 0, y: 0, s: 1 };
+  let pars: { el: HTMLElement; top: number; bot: number; lleno: boolean }[] = [];
+  let capilares: { el: SVGPathElement; gota: SVGCircleElement; desde: number; on: boolean }[] = [];
+  let finY = 0;
+
+  const muestrear = (p: SVGPathElement, L: number) => {
+    const out: { l: number; y: number }[] = [];
+    for (let l = 0; l <= L; l += 4) out.push({ l, y: p.getPointAtLength(l).y });
+    out.push({ l: L, y: p.getPointAtLength(L).y });
+    return out;
+  };
+  // hasta dónde llega la savia en un vaso para una cabeza a la altura y (el vaso baja casi siempre: se para en la primera muestra que pasa)
+  const hasta = (s: { l: number; y: number }[], y: number) => {
+    let l = 0;
+    for (const m of s) { if (m.y > y) break; l = m.l; }
+    return l;
+  };
+  const fx = (n: number) => n.toFixed(1);
+
+  const medir = () => {
+    const M = main.getBoundingClientRect();
+    const W = main.clientWidth, H = main.scrollHeight;
+    capa.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    capa.style.height = `${H}px`;
+    const rel = (r: DOMRect) => ({ x: r.left - M.left, y: r.top - M.top, w: r.width, h: r.height });
+
+    // la raíz: su eje (medido en las cuatro láminas: la raíz principal acaba en 0,511 · 0,886 del recuadro)
+    const R = rel(roble.getBoundingClientRect());
+    const eje: Pt[] = [[0.5, 0.03], [0.5, 0.15], [0.512, 0.3], [0.507, 0.45], [0.514, 0.6], [0.505, 0.74], [0.511, 0.886]];
+    const P = eje.map(([u, v]) => [R.x + u * R.w, R.y + v * R.h] as Pt);
+    // la capitular
+    const C = rel(cap.getBoundingClientRect());
+    capCaja = { x: C.x, y: C.y, s: C.w / vb.width };
+    const ent: Pt = [C.x + 8 * capCaja.s, C.y + 50 * capCaja.s];
+    const sal: Pt = [C.x + 4 * capCaja.s, C.y + 231 * capCaja.s];
+
+    // vaso A: por dentro de la raíz (Catmull-Rom) y, desde la punta, una S que cae hasta la entrada de la pluma
+    let d = `M${fx(P[0][0])} ${fx(P[0][1])}`;
+    for (let i = 0; i < P.length - 1; i++) {
+      const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+      d += `C${fx(p1[0] + (p2[0] - p0[0]) / 6)} ${fx(p1[1] + (p2[1] - p0[1]) / 6)} ${fx(p2[0] - (p3[0] - p1[0]) / 6)} ${fx(p2[1] - (p3[1] - p1[1]) / 6)} ${fx(p2[0])} ${fx(p2[1])}`;
+    }
+    const tip = P[P.length - 1], caida = ent[1] - tip[1];
+    d += `C${fx(tip[0])} ${fx(tip[1] + caida * 0.55)} ${fx(ent[0] - 70)} ${fx(ent[1] - caida * 0.32)} ${fx(ent[0])} ${fx(ent[1])}`;
+    vasoA.setAttribute('d', d);
+
+    // el canal: a la izquierda de la columna, con una ondulación lenta (orgánico, no regla)
+    const primero = parrafos[0].getBoundingClientRect();
+    const izq = primero.left - M.left + parseFloat(getComputedStyle(parrafos[0]).paddingLeft);
+    const movil = W < 768;
+    // en móvil el canal corre justo por el carril (el borde de la columna); en escritorio, a 44 px de la columna
+    const vx = movil ? primero.left - M.left : izq - 44;
+    const frase = parrafos[parrafos.length - 1];
+    const F = rel(frase.getBoundingClientRect());
+    const ultimo = rel(parrafos[parrafos.length - 2].getBoundingClientRect());
+    const yFin = ultimo.y + ultimo.h + 40;
+    let e = `M${fx(sal[0])} ${fx(sal[1])}C${fx(sal[0] - 8)} ${fx(sal[1] + 18)} ${fx(vx)} ${fx(sal[1] + 14)} ${fx(vx)} ${fx(sal[1] + 52)}`;
+    let y = sal[1] + 52, lado = 1;
+    while (y < yFin - 10) {
+      const y2 = Math.min(yFin, y + 180);
+      const a = (movil ? 2 : 4) * lado;
+      e += `C${fx(vx + a)} ${fx(y + (y2 - y) * 0.33)} ${fx(vx + a)} ${fx(y + (y2 - y) * 0.66)} ${fx(vx)} ${fx(y2)}`;
+      y = y2; lado = -lado;
+    }
+    const cx = F.x + F.w / 2;
+    finY = F.y - 26;
+    e += `C${fx(vx)} ${fx(y + (finY - y) * 0.55)} ${fx(cx)} ${fx(finY - (finY - y) * 0.5)} ${fx(cx)} ${fx(finY)}`;
+    vasoB.setAttribute('d', e);
+    canal.setAttribute('d', `${d} ${e}`);
+
+    lenA = vasoA.getTotalLength(); lenB = vasoB.getTotalLength();
+    sA = muestrear(vasoA, lenA); sB = muestrear(vasoB, lenB);
+    for (const p of [vasoA, vasoB]) { const L = p.getTotalLength(); p.style.strokeDasharray = `${L} ${L + 2}`; }
+
+    // los párrafos que se alimentan (el primero lo alimenta la propia capitular) y sus capilares
+    pars = parrafos.map((el) => { const r = rel(el.getBoundingClientRect()); return { el, top: r.y, bot: r.y + r.h, lleno: el.classList.contains('lleno') }; });
+    grupoCap.replaceChildren();
+    capilares = [];
+    parrafos.slice(1, -1).forEach((el) => {
+      const r = rel(el.getBoundingClientRect());
+      const lh = parseFloat(getComputedStyle(el).lineHeight) || 36;
+      const x1 = izq - (movil ? 5 : 10), y1 = r.y + lh * 0.52, y0 = y1 - (movil ? 22 : 34);
+      const pth = document.createElementNS(SVGNS, 'path');
+      pth.setAttribute('d', `M${fx(vx)} ${fx(y0)}C${fx(vx + 3)} ${fx(y0 + 14)} ${fx(x1 - (x1 - vx) * 0.55)} ${fx(y1)} ${fx(x1)} ${fx(y1)}`);
+      pth.setAttribute('class', 'capilar');
+      const gota = document.createElementNS(SVGNS, 'circle');
+      gota.setAttribute('cx', fx(x1)); gota.setAttribute('cy', fx(y1)); gota.setAttribute('r', '2');
+      gota.setAttribute('class', 'gota');
+      grupoCap.append(pth, gota);
+      const Lc = pth.getTotalLength();
+      pth.style.strokeDasharray = `${Lc} ${Lc + 2}`;
+      pth.style.setProperty('--l', String(Lc));
+      capilares.push({ el: pth, gota, desde: hasta(sB, y0), on: false });
+    });
+    lenCap = tintas.map((t) => t.getTotalLength());
+    tintas.forEach((t, i) => { t.style.strokeDasharray = `${lenCap[i]} ${lenCap[i] + 2}`; });
+    lenCola = cola.getTotalLength();
+    cola.style.strokeDasharray = `${lenCola} ${lenCola + 2}`;
+  };
+
+  // ── el estado: lo recorrido (nunca retrocede) ──
+  let vA = 0, vB = 0, capK = 0, capT0 = 0, capListo = false;
+  const DUR_CAP = 1900;
+  const linea = () => sonda.offsetHeight; // 62 lvh, medidos (no innerHeight)
+  const escribirCap = (k: number) => {
+    // barra 30 % · asta 36 % · remate 14 % · cola 20 % (uno tras otro)
+    const tramos = [0.3, 0.36, 0.14, 0.2];
+    let a = 0;
+    const local = tramos.map((t) => { const v = Math.min(1, Math.max(0, (k - a) / t)); a += t; return v * v * (3 - 2 * v); });
+    const nt = tintas.length;
+    tintas.forEach((t, i) => { t.style.strokeDashoffset = String(lenCap[i] * (1 - local[i])); });
+    cola.style.strokeDashoffset = String(lenCola * (1 - local[nt]));
+    // dónde está la punta de la pluma (para la cabeza de savia)
+    let i = 0;
+    while (i < nt && local[i] >= 1) i++;
+    const p = i < nt ? tintas[i].getPointAtLength(lenCap[i] * local[i]) : cola.getPointAtLength(lenCola * local[nt]);
+    return [capCaja.x + p.x * capCaja.s, capCaja.y + p.y * capCaja.s] as Pt;
+  };
+
+  const pintarNivel = (yAlim: number) => {
+    for (const p of pars) {
+      if (p.lleno) continue;
+      const nivel = yAlim - p.top;
+      p.el.style.setProperty('--nivel', `${Math.max(0, nivel).toFixed(0)}px`);
+      if (yAlim >= p.bot + 8) { p.lleno = true; p.el.classList.add('lleno'); }
+    }
+  };
+
+  const cab = (x: number, y: number, o: number) => {
+    cabeza.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    cabeza.style.opacity = String(o);
+  };
+
+  // ── el bucle: solo con la página a la vista y mientras haya algo que mover ──
+  let raf = 0, visible = true, t0 = performance.now();
+  const paso = (ahora: number) => {
+    raf = 0;
+    const dt = Math.min(64, ahora - t0); t0 = ahora;
+    const M = main.getBoundingClientRect();
+    const yCab = linea() - M.top; // la línea de lectura, en coordenadas de main
+    const k = 1 - Math.pow(0.9, dt / 16.7); // persecución suave
+    const maxV = 2.2 * dt; // como mucho ~2200 px/s: la savia fluye, no salta
+
+    if (opc.listo()) {
+      const tA = hasta(sA, yCab);
+      vA = Math.min(lenA, vA + Math.min(maxV, Math.max(0, tA - vA) * k * 2.2));
+    }
+    vasoA.style.strokeDashoffset = String(lenA - vA);
+    let punta: Pt = (() => { const p = vasoA.getPointAtLength(vA); return [p.x, p.y]; })();
+    let yAlim = -1;
+
+    if (vA >= lenA - 1.5 && !capListo) {
+      if (!capT0) capT0 = ahora;
+      capK = Math.min(1, (ahora - capT0) / DUR_CAP);
+      punta = escribirCap(capK);
+      yAlim = capCaja.y + 232 * capCaja.s * capK;
+      if (capK >= 1) capListo = true;
+    }
+    if (capListo) {
+      const tB = hasta(sB, yCab);
+      vB = Math.min(lenB, vB + Math.min(maxV, Math.max(0, tB - vB) * k * 2.2));
+      const p = vasoB.getPointAtLength(vB);
+      punta = [p.x, p.y];
+      yAlim = Math.max(capCaja.y + 232 * capCaja.s, p.y + 18);
+      for (const c of capilares) if (!c.on && vB >= c.desde) { c.on = true; c.el.classList.add('on'); c.gota.classList.add('on'); }
+      if (vB >= lenB - 1.5) yAlim = 1e9;
+    }
+    vasoB.style.strokeDashoffset = String(lenB - vB);
+    if (yAlim >= 0) pintarNivel(yAlim);
+
+    // la cabeza: una gota de savia que respira; se va al terminar
+    cab(punta[0], punta[1], vA > 2 ? 1 : 0); // al terminar se queda: la última gota, sobre la frase
+
+    // los pulsos: suben por lo recorrido (desde la cabeza hacia el árbol), escalonados, cada 5,2 s
+    const recorrido = vB + (capListo ? lenA : vA);
+    pulsos.forEach((g, i) => {
+      if (recorrido < 160) { g.style.opacity = '0'; return; }
+      const u = (((ahora / 5200) + i / pulsos.length) % 1);
+      const dd = u * recorrido;
+      const p = dd < vB ? vasoB.getPointAtLength(vB - dd) : vasoA.getPointAtLength((capListo ? lenA : vA) - (dd - vB));
+      g.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+      g.style.opacity = String((Math.sin(Math.PI * u) * 0.9).toFixed(3));
+    });
+
+    capa.classList.toggle('viva', vA > 1);
+    if (visible) raf = requestAnimationFrame(paso);
+  };
+  const arrancar = () => { if (!raf && visible) { t0 = performance.now(); raf = requestAnimationFrame(paso); } };
+
+  const todo = () => {
+    vasoA.style.strokeDashoffset = '0'; vasoB.style.strokeDashoffset = '0';
+    escribirCap(1);
+    for (const c of capilares) { c.on = true; c.el.classList.add('on'); c.gota.classList.add('on'); }
+    for (const p of pars) { p.lleno = true; p.el.classList.add('lleno'); }
+    const pf = vasoB.getPointAtLength(lenB);
+    cab(pf.x, pf.y, 1);
+    pulsos.forEach((g) => (g.style.opacity = '0'));
+    vA = lenA; vB = lenB; capK = 1; capListo = true;
+    capa.classList.add('viva');
+  };
+
+  const rehacer = () => {
+    medir();
+    if (opc.reducido) { todo(); return; }
+    escribirCap(capListo ? 1 : capK);
+    for (const c of capilares) if (vB >= c.desde) { c.on = true; c.el.classList.add('on'); c.gota.classList.add('on'); }
+    arrancar();
+  };
+  rehacer();
+  capa.classList.add('lista');
+  cap.classList.add('lista');
+
+  let tRes = 0;
+  new ResizeObserver(() => { clearTimeout(tRes); tRes = window.setTimeout(rehacer, 120); }).observe(main);
+  document.fonts?.ready.then(rehacer);
+  if (!opc.reducido) {
+    new IntersectionObserver((es) => { visible = es[0].isIntersecting; if (visible) arrancar(); }, { rootMargin: '20% 0px' })
+      .observe(main);
+    document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible) arrancar(); });
+  }
+
+  return {
+    sonda: () => ({ vA: Math.round(vA), lenA: Math.round(lenA), cap: capK, vB: Math.round(vB), lenB: Math.round(lenB), llenos: pars.filter((p) => p.lleno).length, total: pars.length }),
+  };
+}

@@ -15,17 +15,22 @@ interface Props {
   giro?: number;
   transicion?: boolean; // lleva el nombre de la transición compartida con la portada del caso
   sube?: boolean; // ronda 130: solo la rejilla de «Todos los proyectos»: navegador recto, cortado por abajo, que sube al entrar
+  grande?: boolean; // ronda 154: la CARÁTULA del caso de estudio: la misma pieza a todo el ancho y alta, sin nombre ni pie, con el vídeo a la vista
 }
-const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false } = Astro.props;
+const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false, grande = false } = Astro.props;
 const [c1, c2, c3] = p.colores;
 const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // la pantalla del monitor en la lámina (ronda 26)
 const left = 50 - (PANT.x + PANT.w / 2) * zoom * 100, py = PANT.y + PANT.h / 2;
-const video = sube && tipo !== 'telefono' && p.portada.movil && p.escritorio ? p.escritorio : p.portada; // ronda 131: la rejilla, siempre en escritorio
+const video = grande ? (p.cubierta ?? p.portada) : sube && tipo !== 'telefono' && p.portada.movil && p.escritorio ? p.escritorio : p.portada; // ronda 131: la rejilla, siempre en escritorio · ronda 154: la carátula, con su toma grande (1920 px)
+// RONDA 154 · Andoni: «la primera carátula de los case studies, con el gradiente y saliendo desde abajo el proyecto, como en todos los proyectos, pero
+// más grande». `grande`: la pieza no es un enlace (ya estás en el caso), ocupa las 12 columnas y ~78 lvh, el navegador (o el teléfono) va RECTO y
+// centrado, cortado por el borde de abajo, y SUBE un poco al llegar; el vídeo corre a la vista (póster primero)
+const Tag = grande ? 'div' : 'a';
 // ronda 129: sobre un fondo de marca claro (p. ej. el amarillo de Remerge en el teléfono), el nombre va en Cacao
 const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150; })();
 ---
 
-<a href={`/proyectos/${p.slug}`} class={`pieza ${tipo}${tipo !== 'escena' && claroFondo ? ' fondo-claro' : ''}${sube ? ' pz-sube' : ''}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra>
+<Tag href={grande ? undefined : `/proyectos/${p.slug}`} class={`pieza ${tipo}${tipo !== 'escena' && claroFondo ? ' fondo-claro' : ''}${sube ? ' pz-sube' : ''}${grande ? ' pz-grande' : ''}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra data-a-la-vista={grande ? '' : undefined}>
   <div class={`lamina ${tipo === 'escena' ? '' : 'g-marca'}`} style={transicion ? `view-transition-name: obra-${p.slug}` : undefined}>
     {
       tipo === 'escena' ? (
@@ -42,11 +47,11 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
         </div>
       )
     }
-    <h3 class="nombre font-display">{p.nombre}</h3>
-    <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>
+    {!grande && <h3 class="nombre font-display">{p.nombre}</h3>}
+    {!grande && <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>}
   </div>
-  <p class="pie detail text-fg2">{p.sector && <span class="text-fg">{p.sector}</span>}{p.sector && ' · '}{p.servicios.slice(0, 3).join(', ')}</p>
-</a>
+  {!grande && <p class="pie detail text-fg2">{p.sector && <span class="text-fg">{p.sector}</span>}{p.sector && ' · '}{p.servicios.slice(0, 3).join(', ')}</p>}
+</Tag>
 
 <script>
   // el vídeo: al pasar el cursor (o al enfocar); en táctil, mientras la pieza está a la vista
@@ -55,12 +60,12 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   const io = new IntersectionObserver((es) => es.forEach((e) => tocar(e.target.querySelector('video')!, e.isIntersecting)), { threshold: 0.5 });
   // ronda 126: la web sube desde abajo al entrar la pieza en pantalla (y se queda)
   const ve = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('vista'); ve.unobserve(e.target); } }), { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
-  document.querySelectorAll<HTMLElement>('[data-pieza-obra].pz-sube').forEach((pz) => ve.observe(pz));
+  document.querySelectorAll<HTMLElement>('[data-pieza-obra]:is(.pz-sube, .pz-grande)').forEach((pz) => ve.observe(pz));
   document.querySelectorAll<HTMLElement>('[data-pieza-obra]').forEach((pz) => {
     const v = pz.querySelector('video')!;
     v.addEventListener('playing', () => pz.classList.add('suena'));
     v.addEventListener('pause', () => pz.classList.remove('suena'));
-    if (tactil) { io.observe(pz); return; }
+    if (tactil || pz.hasAttribute('data-a-la-vista')) { io.observe(pz); return; }
     pz.addEventListener('pointerenter', () => tocar(v, true));
     pz.addEventListener('pointerleave', () => tocar(v, false));
     pz.addEventListener('focus', () => tocar(v, true));
@@ -82,23 +87,16 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     isolation: isolate;
     container-type: size;
   }
-  /* los fondos de degradado: manchas muy desenfocadas (aerógrafo) con los colores de la web del cliente + el grano de la web */
+  /* los fondos de degradado: manchas muy desenfocadas (aerógrafo) con los colores de la web del cliente (RONDA 152: sin el grano: fuera grano.png en toda la web) */
   .g-marca::before {
     content: '';
     position: absolute;
     inset: -30%;
     z-index: -2;
-    background: radial-gradient(70% 60% at 72% 22%, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96%, var(--c3), transparent 70%), var(--c1);
+    /* RONDA 154 · «el gradiente de Neety se ve sucio»: las manchas se mezclan en OKLAB (en sRGB, dos colores claros se cruzan por un gris turbio) */
+    background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3), transparent 70%), var(--c1);
     filter: blur(34px);
     transition: transform 1.6s var(--ease-out-expo);
-  }
-  .lamina::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: url('/media/grano.png') 0 0 / 240px 240px;
   }
   .nombre {
     position: absolute;
@@ -346,8 +344,61 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   .escena:focus-visible .mesa {
     scale: 1.06;
   }
-  .pieza:hover .g-marca::before {
+  .pieza:not(.pz-grande):hover .g-marca::before {
     transform: scale(1.15) rotate(8deg);
+  }
+  /* RONDA 154 · LA CARÁTULA del caso (`grande`): la lámina a lo ancho y alta; el navegador recto, centrado y grande, con un 18 % por debajo del borde
+     (nunca se le ven las esquinas de abajo); en móvil, una lámina 4:5 con el navegador casi a lo ancho. Con JS, espera un poco más abajo y SUBE al
+     llegar (`.vista`). Solo `transform`. */
+  .pz-grande .lamina {
+    aspect-ratio: auto;
+    height: clamp(26rem, 78lvh, 54rem);
+  }
+  .pz-grande .mockup {
+    --ancho: min(80cqw, 74rem);
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+    bottom: auto;
+    width: var(--ancho);
+    top: max(11cqh, calc(100cqh - 0.82 * (var(--ancho) * 9 / 16 + var(--cromo-h))));
+    transform: translateY(0);
+    transition: transform 1.6s var(--ease-out-expo);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.14), 0 40px 90px -30px rgb(30 16 8 / 0.5);
+    --cromo-h: clamp(16px, 2.1cqw, 30px);
+  }
+  .pz-grande .cromo {
+    height: var(--cromo-h);
+    gap: calc(var(--cromo-h) * 0.3);
+    padding-inline: calc(var(--cromo-h) * 0.6);
+  }
+  .pz-grande .cromo i { width: calc(var(--cromo-h) * 0.36); height: calc(var(--cromo-h) * 0.36); }
+  .pz-grande .cromo b {
+    height: calc(var(--cromo-h) * 0.62);
+    line-height: calc(var(--cromo-h) * 0.62);
+    font-size: calc(var(--cromo-h) * 0.4);
+    padding-inline: calc(var(--cromo-h) * 1.4);
+    border-radius: calc(var(--cromo-h) * 0.16);
+  }
+  .pz-grande .mockup .vid { transform: none; }
+  .pz-grande .telefono-m {
+    top: 12cqh;
+    bottom: auto;
+    height: 112cqh;
+    padding: 0.9%;
+    border-radius: 6.2cqh;
+    transform: translateY(0);
+    transition: transform 1.6s var(--ease-out-expo);
+  }
+  .pz-grande .telefono-m .vid { border-radius: 5.4cqh; }
+  :global(html.pz-js) .pz-grande:not(.vista) :is(.mockup, .telefono-m) {
+    transform: translateY(12cqh);
+  }
+  @media (width < 48rem) {
+    .pz-grande .lamina { height: auto; aspect-ratio: 6 / 5; }
+    .pz-grande .mockup { --ancho: 92cqw; --cromo-h: 14px; }
+    .pz-grande.telefono .lamina { aspect-ratio: 4 / 5; }
+    .pz-grande .telefono-m { top: 10cqh; height: 104cqh; }
   }
   .pieza:focus-visible {
     outline: 2px solid var(--fg);
@@ -355,7 +406,8 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   }
   @media (prefers-reduced-motion: reduce) {
     :global(html.pz-js) .pieza.pz-sube:not(.vista) .mockup,
-    :global(html.pz-js) .pieza.pz-sube:not(.vista) .telefono-m { transform: none; }
+    :global(html.pz-js) .pieza.pz-sube:not(.vista) .telefono-m,
+    :global(html.pz-js) .pz-grande:not(.vista) :is(.mockup, .telefono-m) { transform: none; }
     .mockup,
     .mesa,
     .telefono-m,

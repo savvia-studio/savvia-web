@@ -29,7 +29,7 @@ export const lab = {
 };
 
 // el mundo de diseño (a escala 1): las copias se reparten en él
-export const mundo = { w: 2200, h: 1420 };
+export const mundo = { w: 2600, h: 1640 }; // ronda 154: con Pulso son cuatro experimentos (ocho copias): el mundo crece para que respiren
 
 export const experimentos: Experimento[] = [
   {
@@ -69,6 +69,20 @@ export const experimentos: Experimento[] = [
     lienzo: [
       { x: 300, y: 240, w: 460, m: { x: -532, y: 290 } },
       { x: 980, y: -250, w: 460, m: { x: -200, y: 800 } },
+    ],
+  },
+  {
+    // RONDA 154 · Andoni: «en el lab añade esto: savvia-pulso.vercel.app». Grabado con una canción puesta (tools/r154/grabar-pulso.cjs).
+    codigo: 'EXP-004',
+    slug: 'pulso',
+    nombre: 'Pulso',
+    que: 'Pon una canción y la web de savvia suena con ella: el fondo, los bloques y cada sección laten al ritmo de lo que escuchas.',
+    url: 'https://savvia-pulso.vercel.app/',
+    dominio: 'savvia-pulso.vercel.app',
+    ar: 16 / 10,
+    lienzo: [
+      { x: -1020, y: 160, w: 420, m: { x: 1055, y: 682 } },
+      { x: -1300, y: -780, w: 440, m: { x: -929, y: 908 } },
     ],
   },
 ];

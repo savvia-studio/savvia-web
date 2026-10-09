@@ -7,11 +7,12 @@ export const nav = {
   // RONDA 126 · Andoni: «las páginas del menú van a ser Portfolio, Lab y Manifesto. Luego, en pequeño, nuestro correo y handbook»
   // RONDA 131 · Andoni: «menú superior simplemente añadimos el reel, el resto va fuera» (fuera: hora, cuentas y último proyecto)
   links: [
+    { label: 'Servicios', href: '/#servicios' }, // ronda 152 · «en el menú ponemos un ancla a servicios»
     { label: 'Portfolio', href: '/proyectos' },
     { label: 'Lab', href: '/lab' },
     { label: 'Manifiesto', href: '/manifiesto' },
   ] as { label: string; href: string }[],
-  reel: { label: 'Reel', duracion: '0:36' }, // ronda 130: el reel vuelve, montado con Kuanta y Arkdev (marca blanca)
+  reel: { label: 'Reel', duracion: '0:30' }, // ronda 130: el reel vuelve, montado con Kuanta y Arkdev (marca blanca)
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete): el correo (de `pie.correo`) y el handbook (sin `href` saldría como «pronto»)
   mas: { titulo: 'Más', links: [{ label: 'Handbook', href: '/handbook' }, { label: 'Brandbook', href: '/brandbook' }] as { label: string; href: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
 };
@@ -78,7 +79,7 @@ export const laSavvia = {
   // Los INGREDIENTES del sistema. Todos los valores son REALES: son los de la Savvia de esta misma web (DESIGN.md + AGENTS.md).
   ingredientes: [
     { id: 'color', n: 'Color', v: 'Cacao · Rosa niebla · Nogal · Coral · Cobalto · Cereza', d: 'Seis colores, cada uno con su papel. El Coral es la acción; cada bloque, un solo acento.' },
-    { id: 'tipo', n: 'Tipografía', v: 'Family · ABC Areal · ABC Areal Mono', d: 'Tres voces: la editorial, la de lectura y la de los detalles.' },
+    { id: 'tipo', n: 'Tipografía', v: 'Family · Timeless Sans · Timeless Grotesk', d: 'Tres voces: la editorial, la de lectura y la de los detalles.' },
     { id: 'espacio', n: 'Espaciado', v: '4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128', d: 'Una sola escala. Ningún hueco se decide a ojo.' },
     { id: 'piezas', n: 'Componentes', v: 'Botón · enlace · tarjeta · detalle', d: 'Las piezas con las que se monta cualquier página nueva.' },
     { id: 'voz', n: 'Voz', v: 'orquestar · criterio · a medida · contigo', d: 'Lo que se dice y lo que no. También las palabras son del sistema.' },
@@ -100,7 +101,7 @@ export const laSavvia = {
       { k: 'p', v: 'Coral #F65340 · botones y llamadas a la acción' },
       { k: 'p', v: 'Cobalto · Cereza · un acento por bloque' },
       { k: 'h', v: '## Tipografía' },
-      { k: 'p', v: 'Family 400 · ABC Areal · ABC Areal Mono' },
+      { k: 'p', v: 'Family 400 · Timeless Sans · Timeless Grotesk' },
       { k: 'h', v: '## Rechazado' },
       { k: 'p', v: 'Cursivas. Fondos de paisaje en el hero.' },
       { k: 'p', v: 'Un efecto como protagonista de la página.' },
@@ -254,7 +255,7 @@ export const proyectos = {
     { n: 'Remerge', slug: 'remerge', dominio: 'remerge.io', sector: '', logo: 'remerge', color: ['#eceed9', '#f2ff71', '#ffffff'] },
     { n: 'Isotrol', slug: 'isotrol', dominio: 'isotrol.com', sector: 'Renovables', logo: 'isotrol', color: ['#19171d', '#635850', '#8d8478'] },
     // RONDA 65 · «añadir más proyectos»: cuatro del portfolio de Eric y Andoni (sector y lugar, de sus casos; colores medidos en su web; vídeo, de la grabación real)
-    { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#26352a', '#4d7a52', '#9fd39a'] }, // ronda 76: su verde (antes, el crema de su fondo: se perdía en la página)
+    { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#e4efe0', '#b8d8b1', '#86b98a'] }, // ronda 152 · Andoni: «el gradiente de Monad, una versión light» (su verde, aclarado; nombre en tinta oscura)
     { n: 'Naterra', slug: 'naterra', dominio: 'naterra.pro', sector: 'Vivienda ecológica', logo: '', color: ['#593c28', '#9e6f47', '#caae8d'] },
     { n: 'Routal', slug: 'routal', dominio: 'routal.com', sector: 'Logística', logo: '', color: ['#3d6360', '#557a76', '#9dc7b5'] },
     { n: 'THX', slug: 'thx', dominio: 'thx.vision', sector: 'Consultoría', logo: '', color: ['#3f86bd', '#7fb3dc', '#c9dff0'] }, // ronda 76: Eric, «con este azulito»
@@ -493,14 +494,14 @@ export const partitura = {
     tabsComponentes: ['Comunes', 'Home', 'Plataforma', 'Casos de uso', 'Blog', 'Artículo', 'Eventos', 'Academia'],
     fichas: [{ id: 'logo', titulo: 'Logotipo', chips: ['Logotipo', 'Logo', 'components/Logo.tsx'], texto: 'Wordmark de Neety en SVG inline. Props: className (tamaño) y fill (color).' }, { id: 'punto', titulo: 'Punto pulsante', chips: ['Punto pulsante', 'PulsingDot', 'components/PulsingDot.tsx'], texto: 'Punto de marca cuyo halo respira con GSAP. Encabeza el eyebrow de casi todas las secciones.' }],
     picks: [
-      { ag: 2, sec: 'color', src: 'base', slot: 'fondo', label: 'Base Cálida', chip: 'Base Cálida · #F8F7EC' },
+      { ag: 2, sec: 'color', src: 'base', slot: 'fondo', label: 'Degradado del hero', chip: 'Degradado del hero · con grano' }, // ronda 152: lo que se coge es lo que cae (antes, un color liso que caía como degradado)
       { ag: 0, sec: 'tipo', src: 'h1xl', slot: 'h1', label: 'H1 · XL', chip: 'Bricolage · H1 XL' },
       { ag: 1, sec: 'botones', src: 'cta', slot: 'ctas', label: 'Solicitar demo', chip: '<PillCta variant="primary" />' },
       { ag: 2, sec: 'esp', src: 'large', slot: 'esp', label: 'large · 48', chip: 'espaciado · large 48' },
       { ag: 3, sec: 'comp', src: 'logo', slot: 'logo', label: 'Logotipo', chip: '<Logo />' },
       { ag: 1, sec: 'comp', src: 'punto', slot: 'punto', label: 'Punto pulsante', chip: '<PulsingDot />' },
     ] as { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[],
-    color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Blanco', '#FFFFFF']] as [string, string][],
+    color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Degradado del hero', 'grad']] as [string, string][],
     tipografia: [['Bricolage Grotesque', 'titulares · H1 XL 112 / 64 · 120 %'], ['Switzer', 'cuerpo · regular 16 · 150 %']] as [string, string][],
     espaciado: [['xtiny', 4], ['tiny', 8], ['xxsmall', 16], ['xsmall', 20], ['small', 24], ['medium', 32], ['large', 48], ['xlarge', 64], ['xxlarge', 80], ['huge', 96], ['xhuge', 112], ['xxhuge', 160]] as [string, number][],
     gradiente: { clase: '.rail-gradient-x', paradas: ['#F8F7EC', '#FE8238', '#431B44', '#A7C5F9', '#FFFFFF'], nota: 'crema → naranja → berenjena → azul → blanco' },

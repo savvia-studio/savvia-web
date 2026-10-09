@@ -1,0 +1,168 @@
+@@kuanta
+    // ronda 153 · el mosaico de «Los detalles», la escala medida (tools/r153/estilos.cjs, en dist/index.html a 1440 px) y la conclusión
+    mosaico: [
+      { f: 'ancha', p: [pz('kuanta', 'x-esfera', 'La esfera que se comprime', '3.000 puntos atados al scroll forman el isotipo mientras el tamaño baja del 100 % al 5 %.')] },
+      { f: 'par57', p: [pz('kuanta', 'd2', 'Un plano que se construye', 'Cada ilustración isométrica se traza a línea y después se rellena.', { prop: '1 / 1' }), pz('kuanta', 'x-matriz', 'Del tensor a cuatro sitios', 'La matriz de 4096 × 4096 pierde dos tercios y el modelo viaja de la nube al dispositivo.', { placa: 3 })] },
+      { f: 'sangre', p: [pz('kuanta', 'x-tarjetas', 'Cuatro casos, cuatro dibujos', 'Al pasar el cursor, cada ilustración se rehace: primero el contorno, después el color.', { prop: '1440 / 618' })] },
+      { f: 'par75', p: [pz('kuanta', 'x-pila', 'La pila que cae', 'Los productos caen con gravedad y lo de debajo cede 3,2 px al recibirlos.', { placa: 2 }), pz('kuanta', 'c-casos', 'Quién usa IA comprimida', 'Los casos de uso, de cerca: el rótulo en JetBrains Mono y el texto en Schibsted Grotesk.', { prop: '1 / 1' })] },
+      { f: 'ancha', p: [pz('kuanta', 'x-tensor', 'El tensor del pie', '512 cubos giran y un plano rojo marca los 210 que forman el logotipo.')] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Schibsted Grotesk', px: 97.9, lh: 94, peso: 500, ls: '−0,04 em' },
+      { n: 'H2', fam: 'Schibsted Grotesk', px: 66, lh: 67.3, peso: 500, ls: '−0,025 em' },
+      { n: 'H3', fam: 'Schibsted Grotesk', px: 21.6, lh: 27, peso: 500 },
+      { n: 'Texto', fam: 'Schibsted Grotesk', px: 19.4, lh: 29.2, peso: 400 },
+      { n: 'Detalle', fam: 'JetBrains Mono', px: 12, lh: 18, peso: 400 },
+    ],
+    boton: { fam: 'Schibsted Grotesk', px: 15, peso: 500, radio: 6, alto: 40, fondo: '#F01438', tinta: '#FFFFFF' },
+    medido: 'Medido en la web entregada, a 1440 px',
+    conclusion: [
+      'Una sola página explica el catálogo entero sin pedir conocimientos técnicos: cada idea tiene su imagen, y la esfera del hero resume el producto antes de leer nada.',
+      'Se cerró en 26 rondas de diseño, con 73 reglas de lo que no vuelve, y se midió antes de optimizar: el hilo principal bajó un 30 % en escritorio y un 32 % en móvil.',
+    ],
+@@arkdev
+    mosaico: [
+      { f: 'ancha', p: [pz('arkdev', 'x-terminal', 'La intro y el terminal', 'La marca se llena de bermellón y el ejemplo se escribe solo, una línea cada 190 ms.')] },
+      { f: 'par75', p: [pz('arkdev', 'x-muelle', 'El muelle', 'Los 23 canales en un arco; cada 2,4 segundos uno atraca en la API.', { placa: 1, prop: '4 / 3' }), pz('arkdev', 'd1', 'El cambio de ritmo', 'Una sección oscura con seis piezas sobre la nueva capa de infraestructura.', { prop: '1 / 1' })] },
+      { f: 'sangre', p: [pz('arkdev', 'x-canales', 'Veintitrés fichas técnicas', 'Una pestaña por canal, con lo que admite de verdad: formatos, límites y estados.', { prop: '2 / 1' })] },
+      { f: 'par57', p: [pz('arkdev', 'c-clientes', 'Clientes', 'Un caso destacado que rota y las reseñas, con nombre y empresa.', { prop: '1 / 1' }), pz('arkdev', 'x-pasos', 'En marcha en minutos', 'Tres pasos cronometrados: la clave se genera a la vista y los canales se conectan.', { placa: 2 })] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Instrument Sans', px: 68, lh: 66.6, peso: 600, ls: '−0,04 em' },
+      { n: 'H2', fam: 'Instrument Sans', px: 44, lh: 47.5, peso: 600, ls: '−0,032 em' },
+      { n: 'H3', fam: 'Instrument Sans', px: 19, lh: 'normal', peso: 600 },
+      { n: 'Texto', fam: 'Instrument Sans', px: 19.5, lh: 30.2, peso: 400 },
+      { n: 'Detalle', fam: 'JetBrains Mono', px: 11, lh: 'normal', peso: 400, ls: '0,1 em · mayúsculas' },
+    ],
+    boton: { fam: 'Instrument Sans', px: 14, peso: 600, radio: 10, alto: 38, fondo: '#EB3514', tinta: '#FFFFFF' },
+    medido: 'Medido en la web entregada, a 1440 px',
+    conclusion: [
+      'Veintitrés integraciones se leen como una sola: el muelle ordena la página y cada canal tiene su ficha con lo que admite de verdad. Quien programa ve el ejemplo funcionando desde el primer pantallazo.',
+      'Todo cabe en un único HTML de 258 KB, con el movimiento en CSS y el sonido sintetizado en el navegador, sin librerías de animación.',
+    ],
+@@playground
+    mosaico: [
+      { f: 'ancha', p: [pz('playground', 'x-app', 'La app, de verdad', 'El hero es la app navegable: al bajar se fija y la app sube y crece.')] },
+      { f: 'par', p: [pz('playground', 'x-historia', 'Una tarjeta, cuatro escenas', 'Cada frase elige su escena: el archivo, el borrador, la comprobación y la familia.', { placa: 0 }), pz('playground', 'x-copilot', '21 herramientas sin saltos', 'Cuatro pasos que se pulsan; la pantalla más alta fija la altura de la app.', { placa: 1 })] },
+      { f: 'sangre', p: [pz('playground', 'x-cromos', 'Testimonios en cromos', 'Siete cartas apiladas: la nueva sube en arco y el resto la sigue en ola.')] },
+      { f: 'par', p: [pz('playground', 'x-compatible', 'Los datos, limpios', 'Los sistemas del colegio entran por las líneas y el contador de duplicados baja.', { placa: 3 }), pz('playground', 'x-notas', 'Preguntas en notas', 'Ocho notas adhesivas que giran en 3D para enseñar la respuesta.', { placa: 4 })] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Politetype', px: 64, lh: 70.4, peso: 400, ls: '−0,01 em' },
+      { n: 'H2', fam: 'Politetype', px: 48, lh: 57.6, peso: 400 },
+      { n: 'H3', fam: 'Politetype', px: 32, lh: 38.4, peso: 400 },
+      { n: 'Texto', fam: 'Inter', px: 20, lh: 30, peso: 300 },
+      { n: 'Detalle', fam: 'Politetype', px: 14, lh: 21, peso: 400, ls: 'mayúsculas' },
+    ],
+    medido: 'Medido en playgroundiep.com, a 1440 px',
+    conclusion: [
+      'Primero, una web en Webflow con CMS y animaciones a medida. Después, la home rehecha en código propio, sin dependencias externas, para que su equipo cree páginas nuevas con IA.',
+      'Pesa 1,91 MB (antes 4,67), no da fotogramas lentos al bajar en escritorio y se comprobó en 17 tamaños de pantalla, en Chrome y WebKit.',
+    ],
+@@neety
+    mosaico: [
+      { f: 'ancha', p: [pz('neety', 'x-ruido', 'De ruido a señal', '64 píxeles y 26 cruces se ordenan mientras la lista fría se vuelve priorizada.', { prop: '2 / 1' })] },
+      { f: 'par75', p: [pz('neety', 'x-feed', 'El feed de señales', 'Siete tarjetas en bucle: la activa, nítida; las demás se desenfocan y encogen.', { placa: 0, prop: '4 / 3' }), pz('neety', 'x-cifras', 'Por qué Neety', 'Seis cifras del producto que cuentan al entrar.', { pos: '84% 50%' })] },
+      { f: 'sangre', p: [pz('neety', 'x-dentro', 'Neety por dentro', 'Las pantallas reales del producto se relevan al bajar, cada una con su cifra.')] },
+      { f: 'par', p: [pz('neety', 'x-rail', 'Cómo funciona', 'Un raíl recorre el proceso: detecta, prioriza y actúa.', { placa: 1 }), pz('neety', 'x-casos', 'Un caso por equipo', 'Cuatro pestañas; cada una cambia el texto y la tarjeta de producto.', { placa: 3 })] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Bricolage Grotesque', px: 64, lh: 71.7, peso: 500, ls: '−0,02 em' },
+      { n: 'H2', fam: 'Bricolage Grotesque', px: 40, lh: 48, peso: 500 },
+      { n: 'H3', fam: 'Bricolage Grotesque', px: 24, lh: 28.8, peso: 500 },
+      { n: 'Texto', fam: 'Switzer', px: 20, lh: 30, peso: 400 },
+      { n: 'Detalle', fam: 'Roboto Mono', px: 12, lh: 16, peso: 500, ls: 'mayúsculas' },
+    ],
+    boton: { fam: 'Bricolage Grotesque', px: 14, peso: 500, radio: 999, alto: 36, fondo: '#431B44', tinta: '#FFFFFF', nota: 'Ciruela al 75 %' },
+    medido: 'Medido en la web entregada (neety.treseiscero.app), a 1440 px',
+    conclusion: [
+      'La web enseña el producto antes de explicarlo: el feed de señales abre la página y cada sección lo desmonta hasta la acción, con el naranja reservado para la señal.',
+      'Con ella se entregó una librería viva, generada desde el propio código, con sus fundamentos, sus componentes, el mapa de la web en español e inglés y una guía para que su equipo la cambie con Claude.',
+    ],
+@@invopop
+    mosaico: [
+      { f: 'ancha', p: [pz('invopop', 'x-mapa', 'El mapa', 'Los países con factura electrónica obligatoria; al pasar, la ficha de cada uno.', { prop: '1440 / 930' })] },
+      { f: 'par57', p: [pz('invopop', 'c-alcance', 'Por tipo de factura', 'El mapa se filtra por B2G, B2B y B2C.', { prop: '1 / 1' }), pz('invopop', 'x-ficha', 'La ficha de un país', 'Requisitos, e-reporting y noticias, sincronizados desde Notion con WhaleSync.', { placa: 2, prop: '1440 / 930' })] },
+      { f: 'par75', p: [pz('invopop', 'x-flujos', 'El producto, en piezas', 'Flujos que se arrastran, errores que se gestionan, reintentos y la consola.', { placa: 1, prop: '1440 / 930' }), pz('invopop', 'c-flujo', 'Un flujo, de cerca', 'Cada paso con su estado: código secuencial, envío a la autoridad, aviso por Slack.', { prop: '1 / 1' })] },
+      { f: 'par', p: [pz('invopop', 'x-paises', 'Cobertura por países', 'Una rejilla que se filtra por región y se busca por nombre, sin recargar.', { placa: 2, prop: '1440 / 930' }), pz('invopop', 'c-fichas', 'Tres tipos por país', 'Cada ficha marca qué tipos de factura le afectan: B2G, B2B o B2C.', { prop: '1 / 1' })] },
+    ],
+    nota: 'Grabado en la web tal como se entregó, en Webflow. Hoy invopop.com es otra web.',
+    conclusion: [
+      'El contenido por país ya no pasa por la web: el equipo lo edita en Notion y WhaleSync lo sincroniza campo a campo con el CMS de Webflow, en inglés y en español.',
+      'Más de cien fichas con referencias cruzadas alimentan la cobertura, las guías y el mapa.',
+    ],
+@@business-online-payroll
+    mosaico: [
+      { f: 'ancha', p: [pz('business-online-payroll', 'x-banco', 'Un banco, su marca', 'Sus colores son variables de Webflow conectadas al CMS: cambiar de banco es cambiar de ficha.', { prop: '1440 / 936' })] },
+      { f: 'par57', p: [pz('business-online-payroll', 'd2', 'La web principal', 'Business Online Payroll, con su terracota y su fotografía.', { prop: '1 / 1' }), pz('business-online-payroll', 'x-ventajas', 'Las mismas piezas', 'Beneficios y bloques de producto que cada banco reutiliza: cambian el texto y la marca.', { placa: 3, prop: '1440 / 936' })] },
+      { f: 'par', p: [pz('business-online-payroll', 'x-precio', 'Precio y preguntas', 'Su propia colección, conectada a cada banco por referencias.', { placa: 2, prop: '1440 / 936' }), pz('business-online-payroll', 'g3', 'La misma sección, otra marca', 'El precio y el contacto en la web principal, con sus colores.', { placa: 3 })] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Untitled Sans', px: 72, lh: 80, peso: 500, ls: '−0,04 em' },
+      { n: 'H2', fam: 'Untitled Sans', px: 48, lh: 54, peso: 500, ls: '−0,04 em' },
+      { n: 'H3', fam: 'Untitled Sans', px: 32, lh: 40, peso: 500, ls: '−0,04 em' },
+      { n: 'Texto', fam: 'Untitled Sans', px: 16, lh: 24, peso: 400 },
+      { n: 'Detalle', fam: 'Untitled Sans', px: 16, lh: 24, peso: 400, ls: '0,15 em · mayúsculas' },
+    ],
+    boton: { fam: 'Untitled Sans', px: 16, peso: 500, radio: 8, alto: 58, fondo: '#F0764B', tinta: '#FFFFFF' },
+    medido: 'Medido en businessonlinepayroll.com, a 1440 px',
+    conclusion: [
+      'Un sistema de CMS crea el microsite de cada banco sin rehacer nada: sus colores son variables conectadas a su ficha y sus páginas salen de colecciones compartidas.',
+      'Veintiún bancos socios, cada uno con su marca, sobre una sola arquitectura. Se hizo dentro del equipo de desarrollo Webflow de Farco Studio, para SurePayroll.',
+    ],
+@@cubbo
+    mosaico: [
+      { f: 'ancha', p: [pz('cubbo', 'x-operacion', 'Cómo conecta Cubbo', 'Cuatro pasos de la operación que se pulsan y cambian la imagen.')] },
+      { f: 'par75', p: [pz('cubbo', 'x-capas', 'Seis productos, un sistema', 'La capa tecnológica: cada producto con su icono isométrico animado y su texto.', { placa: 1 }), pz('cubbo', 'd2', 'La red, de cerca', 'Mapas y almacenes: la operación física detrás de la capa tecnológica.', { prop: '1 / 1' })] },
+      { f: 'sangre', p: [pz('cubbo', 'g3', 'Tecnología, red y expansión', 'La infraestructura de Cubbo con sus cifras, en fotografía.')] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Manrope', px: 79.2, lh: 95.1, peso: 500, ls: '−0,036 em' },
+      { n: 'H2', fam: 'Manrope', px: 40, lh: 48, peso: 500, ls: '−0,036 em' },
+      { n: 'H3', fam: 'Manrope', px: 24, lh: 28.8, peso: 500, ls: '−0,027 em' },
+      { n: 'Texto', fam: 'Inter', px: 16, lh: 24, peso: 400 },
+      { n: 'Entradilla', fam: 'Inter', px: 21.6, lh: 36, peso: 400 },
+    ],
+    boton: { fam: 'DM Sans', px: 16, peso: 600, radio: 6, alto: 39, fondo: '#0741DD', tinta: '#FFFFFF' },
+    medido: 'Medido en cubbo.com, a 1440 px',
+    conclusion: [
+      'México y Brasil viven ahora en un solo proyecto de Webflow, con localización es-MX y pt-BR, el contenido de los dos países migrado y redirecciones 301 para no perder posicionamiento.',
+      'Los formularios de ventas llegan a HubSpot y avisan al equipo en Slack.',
+    ],
+@@remerge
+    mosaico: [
+      { f: 'ancha', p: [pz('remerge', 'escritorio', 'La home', 'El hero, los clientes y los objetivos que se abren, en escritorio.')] },
+      { f: 'par57', p: [pz('remerge', 'x-idiomas', 'Cuatro idiomas, cuatro escrituras', 'Inglés, coreano, japonés y chino, revisados a mano en los cuatro.', { placa: 1, medio: { movil: true } }), pz('remerge', 'x-objetivos', 'Componentes para marketing', 'Objetivos que se abren y cambian su ilustración, sobre las variables de estilo.', { placa: 3 })] },
+      { f: 'trio', p: [pz('remerge', 'd1', 'Método y equipo', 'La serif ultraligera y los botones de filete en las secciones de enfoque y equipo.', { prop: '1 / 1' }), pz('remerge', 'd2', 'Reconocimientos', 'La oficina y el sello Top DSP 2023 de Business of Apps.', { prop: '1 / 1' }), pz('remerge', 'g2', 'En el móvil', 'La misma web, recompuesta para el móvil.', { placa: 0, medio: { movil: true } })] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Editorial New', px: 96, lh: 105.6, peso: 200 },
+      { n: 'H2', fam: 'Editorial New', px: 70, lh: 75.9, peso: 200 },
+      { n: 'H3', fam: 'Editorial New', px: 50, lh: 54.3, peso: 200 },
+      { n: 'Texto', fam: 'GT America', px: 19, lh: 26, peso: 400 },
+      { n: 'Detalle', fam: 'GT America Condensed', px: 15, lh: 22, peso: 400, ls: 'mayúsculas' },
+    ],
+    medido: 'Medido en remerge.io, a 1440 px',
+    conclusion: [
+      'La web pasó de Craft CMS a Webflow en dos meses, en cuatro idiomas: más de treinta páginas y 350 fichas de CMS, sin que nada se moviera de su sitio.',
+      'Su arquitectura se reconstruyó desde el código original, con componentes pensados para que marketing los reutilice. La IA aceleró la migración; la revisión, en los cuatro idiomas, se hizo a mano.',
+    ],
+@@isotrol
+    mosaico: [
+      { f: 'ancha', p: [pz('isotrol', 'x-mapa', 'Su impacto, en un mapa', 'Las cifras cuentan al entrar y, al pasar por un país, enseña su proyecto.', { prop: '1440 / 936' })] },
+      { f: 'par75', p: [pz('isotrol', 'x-bluence', 'Bluence', 'El producto, con su sección: soluciones con la captura del software al lado.', { placa: 1, prop: '1440 / 936' }), pz('isotrol', 'd1', 'El hero, de cerca', 'Fotografía a sangre, con la última noticia encima.', { prop: '1 / 1' })] },
+      { f: 'par57', p: [pz('isotrol', 'c-cifras', 'Las cifras, de cerca', 'Plantas y gigavatios que cuentan al entrar.', { prop: '1 / 1' }), pz('isotrol', 'x-historia', 'La historia que se entinta', 'La presentación pasa de gris a tinta, palabra a palabra, al bajar.', { placa: 2, prop: '1440 / 936' })] },
+    ],
+    escala: [
+      { n: 'H1', fam: 'Aspekta', px: 68, lh: 81.6, peso: 300, ls: '−0,024 em' },
+      { n: 'H2', fam: 'Aspekta', px: 48, lh: 57.6, peso: 300, ls: '−0,02 em' },
+      { n: 'H3', fam: 'Aspekta', px: 32, lh: 38.4, peso: 300, ls: '−0,025 em' },
+      { n: 'Texto', fam: 'Aspekta', px: 20, lh: 30, peso: 400 },
+      { n: 'Detalle', fam: 'Aspekta', px: 14, lh: 16.8, peso: 400, ls: '0,1 em · mayúsculas' },
+    ],
+    boton: { fam: 'Aspekta', px: 16, peso: 600, radio: 6, alto: 36, fondo: '#1A1AFF', tinta: '#FFFFFF' },
+    medido: 'Medido en isotrol.com, a 1440 px',
+    conclusion: [
+      'Una empresa técnica con presencia en todo el mundo, contada en una web sobria: fotografía a sangre, cifras que se leen de lejos y su impacto en un mapa.',
+      'El CMS y la localización de Webflow quedaron montados para que su equipo mantenga el contenido.',
+    ],

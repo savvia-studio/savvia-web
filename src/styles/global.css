@@ -18,7 +18,7 @@
      Sobre coral y cítrico, texto Cacao; sobre cobalto y cereza, Rosa niebla. Fuera: Rosa arcilla e Iris (la paleta anterior, en el backup r49). */
   --color-cacao: #302018;
   --color-nogal: #63402f;
-  --color-niebla: #eadde7;
+  --color-niebla: #f5f5f7; /* ronda 152 (2.ª): blanco neutro, igual en las cuatro estaciones */
   --color-coral: #ff616b; /* ronda 62: Grenadine Pink (de la paleta 3: «el nuevo naranja, más suave»; antes #F65340) */
   --color-salvia: #96bfe6; /* ronda 62: Salvia Blue, el fondo de Servicios (de la paleta 3) */
   --color-cobalto: #3456d3;
@@ -28,10 +28,13 @@
   --color-current: currentColor;
 
   /* Tipografía: tres voces */
-  --font-display: var(--font-family-display), Georgia, serif; /* Family 400 · voz editorial */
+  /* RONDA 153 · «volvemos a la tipografía de titulares de antes»: Family 400 (Timeless Text, probada y retirada) */
+  --font-display: var(--font-family-display), Georgia, serif;
   /* RONDA 39 · a prueba: ABC Areal (lectura e interfaz) y ABC Areal Mono (detalles). Con ?tipo=antes vuelven Manrope y IBM Plex Mono. */
-  --font-sans: var(--font-areal), system-ui, sans-serif;
-  --font-mono: var(--font-areal-mono), ui-monospace, monospace;
+  /* RONDA 152 · Timeless: Sans para la lectura y la interfaz; Grotesk para los detalles (lo que era mono: rótulos, metadatos, cifras) */
+  --font-sans: var(--font-timeless-sans), system-ui, sans-serif;
+  /* RONDA 152 · Andoni: «no quiero tener una typo mono, no me gusta»: el token mono pasa a ser la de texto (Timeless, cuando lleguen los archivos) */
+  --font-mono: var(--font-timeless-grotesk), var(--font-timeless-sans), system-ui, sans-serif;
 
   /* Escala tipográfica de la guía, fluida entre 390 y 1200 px */
   --text-*: initial;
@@ -43,8 +46,10 @@
   --text-h3--line-height: 1.18;
   --text-lead: 1.25rem; /* 20 · RONDA 19: «el del hero a 20px» (antes 20 → 22 fluido) */
   --text-lead--line-height: 1.5;
+  --text-lead--font-weight: 300; /* RONDA 152 (2.ª) · «el subtítulo tiene un peso demasiado alto, menos gordo»: Timeless Sans Light */
   --text-sub: 1.125rem; /* 18 · RONDA 19: «los subtítulos después del hero van a 18px» */
   --text-sub--line-height: 1.55;
+  --text-sub--font-weight: 300;
   --text-body: clamp(1.0625rem, 1.0324rem + 0.1235vw, 1.125rem); /* 17 → 18 */
   --text-body--line-height: 1.6;
   --text-aux: 0.875rem; /* 14 */
@@ -105,37 +110,42 @@
      --k2          · el secundario (60 % de la tinta; sobre la nieve, 70 %: Cacao al 60 % daba 4,2:1)
    Todo registrado: el fondo se funde en 2,4 s (como siempre) en los dos sentidos. Contraste en invierno: Cacao/nieve 13,5 · secundario 5,4 · Nogal 7,9. */
 @property --noche-honda { syntax: '<color>'; inherits: true; initial-value: #3b231b; }
-@property --tinta { syntax: '<color>'; inherits: true; initial-value: #eadde7; }
+@property --tinta { syntax: '<color>'; inherits: true; initial-value: #f5f5f7; }
 @property --tinta-inv { syntax: '<color>'; inherits: true; initial-value: #302018; }
 @property --k2 { syntax: '<percentage>'; inherits: true; initial-value: 60%; }
 :root {
   --noche: #3b231b;
   --noche-honda: #3b231b;
   --arbol: #c65c2d;
-  --tinta: #eadde7;
+  --tinta: #f5f5f7;
   --tinta-inv: #302018;
   --k2: 60%;
   /* la tinta cambia en un golpe corto cuando el fondo va por la mitad de su fundido (curva muy en S, a 0,72 s): así nunca hay un tramo con texto y fondo del mismo gris */
   transition: --noche 2.4s ease, --noche-honda 2.4s ease, --arbol 2.4s ease, --tinta 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --tinta-inv 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --k2 2.4s ease;
 }
-html[data-estacion='primavera'] { --noche: #382a2d; --noche-honda: #382a2d; --arbol: #c76b83; }
-html[data-estacion='verano'] { --noche: #1f352a; --noche-honda: #1f352a; --arbol: #67834d; }
-html[data-estacion='invierno'] { --noche: #eceff3; --noche-honda: #2a2932; --arbol: #6e7b91; --tinta: #302018; --tinta-inv: #eceff3; --k2: 70%; }
-/* RONDA 144 · Andoni: «buscar un acento para cada estación» (y Eric: «en verano, un verde más clarito que el de fuera en vez del coral»). El acento
-   (--color-coral: savia, puntos, filos, indicadores) cambia con la estación; sale de su naturaleza: primavera, el cerezo · verano, la hoja nueva ·
-   otoño, el Coral de siempre · invierno, el azul glaciar del cielo de enero. Nunca como texto pequeño sobre claro (DESIGN.md). */
-html[data-estacion='primavera'] { --color-coral: #ff7fae; }
-html[data-estacion='verano'] { --color-coral: #a6d96a; }
-html[data-estacion='otono'] { --color-coral: #ff616b; }
-html[data-estacion='invierno'] { --color-coral: #4f8ad6; } /* ronda 144 (3.ª): «otro acento para invierno que pegue mejor que el rojo»: azul glaciar */
-/* RONDA 151 · Andoni: «hay colores de la web que quedan en el aire: incluirlos en cada paleta y darles su tonalidad para cada estación». Los cinco
-   colores sueltos pasan a ser de la estación, con un viraje sutil (sin tocar los contrastes: el papel sigue siendo papel y la madera, madera):
-   papel (Rosa niebla) · madera (Nogal) · cielo (Salvia, el fondo de Servicios) · detalle (Cobalto, las ilustraciones) · fruto (Cereza, la receta).
-   Otoño conserva los valores de siempre. */
-html[data-estacion='primavera'] { --color-niebla: #efdee6; --color-nogal: #6a3f47; --color-salvia: #a8c6ec; --color-cobalto: #4a5fd0; --color-cereza: #c23a62; }
-html[data-estacion='verano'] { --color-niebla: #e9e0df; --color-nogal: #5f4a31; --color-salvia: #8ec4e6; --color-cobalto: #2f6fcf; --color-cereza: #a8433c; }
-html[data-estacion='otono'] { --color-niebla: #eadde7; --color-nogal: #63402f; --color-salvia: #96bfe6; --color-cobalto: #3456d3; --color-cereza: #b52c4c; }
-html[data-estacion='invierno'] { --color-niebla: #e5e8ee; --color-nogal: #4c403d; --color-salvia: #a9bfd6; --color-cobalto: #3e5a9e; --color-cereza: #8e2f4a; }
+/* RONDA 152 · Andoni: «pulir los colores de cada estación para que cada una te transmita su esencia; que cada estación tenga colores propios, todos y
+   cada uno de ellos». Las once tintas de la web son de la estación (ninguna común), sacadas de lo que se ve fuera ese trimestre:
+     primavera · ciruela de anochecer, flor de cerezo, pétalo, corteza de cerezo, cielo de abril, lila de glicinia, cereza
+     verano    · bosque de noche, hoja al sol, lima, sombra de hoja (sin crema: DESIGN.md), madera seca, mar de agosto, azul de mar hondo, sandía
+     otoño     · la casa: Cacao tostado, cobre, Coral, hoja seca clara, castaño, cielo de noviembre, ámbar, granada
+     invierno  · nieve, pizarra, roble desnudo, azul glaciar, hielo, corteza fría, cielo de enero, azul de pizarra, acebo
+   RONDA 152 (2.ª) · Andoni: «las partes claras, siempre iguales entre estaciones: un claro cercano al blanco sin nada de crema» → papel #F5F5F7 (blanco
+   neutro) en las cuatro; «el azul de Servicios no me convence: una paleta para cada estación más temática» → el cielo (fondo de Servicios) es pétalo de
+   cerezo (primavera) · prado al sol (verano) · hoja seca (otoño) · hielo (invierno).
+   Medido (WCAG): tinta/noche 11,0–11,8 · secundario 4,8–5,2 · cacao/papel 11,8–13,2 · madera/papel 6,7–7,4 · cacao/cielo 7,8–10,3. */
+/* RONDA 153 · Andoni: «en el brandbook los colores de cada estación: algunos repetidos, algunos con nombres que no corresponden; menos colores por estación,
+   simplificar». Cada estación tiene sus colores propios, con su nombre: el fondo · el roble · la savia (acento) · el bloque claro (Servicios); la tinta
+   (texto sobre lo claro) es el propio fondo, salvo en invierno (el fondo es nieve: tinta Pizarra). El blanco de lo claro es común (#F5F5F7). Lo demás se DERIVA de esos cinco (ya no son colores sueltos): el cristal = el fondo
+   (en invierno, la tinta) · la madera = tinta + roble · el detalle = savia + tinta · el fruto = savia + tinta, más hondo. */
+html[data-estacion='primavera'] { --noche: #3a2932; --noche-honda: #3a2932; --arbol: #d98aa5; --tinta: #f5f5f7; --tinta-inv: #3a2932; --color-coral: #ff8fb8; --color-niebla: #f5f5f7; --color-cacao: #3a2932; --color-salvia: #f4c7d5; }
+html[data-estacion='verano'] { --noche: #1b3125; --noche-honda: #1b3125; --arbol: #6f9a4e; --tinta: #f5f5f7; --tinta-inv: #1b3125; --color-coral: #b9e26c; --color-niebla: #f5f5f7; --color-cacao: #1b3125; --color-salvia: #cfe6a4; }
+html[data-estacion='otono'] { --noche: #3b231b; --noche-honda: #3b231b; --arbol: #c65c2d; --tinta: #f5f5f7; --tinta-inv: #3b231b; --color-coral: #ff616b; --color-niebla: #f5f5f7; --color-cacao: #3b231b; --color-salvia: #ecbf8f; }
+html[data-estacion='invierno'] { --noche: #f5f5f7; --noche-honda: #22303e; --arbol: #7d8ba3; --tinta: #22303e; --tinta-inv: #f5f5f7; --k2: 70%; --color-coral: #4f8ad6; --color-niebla: #f5f5f7; --color-cacao: #22303e; --color-salvia: #cadcee; }
+html[data-estacion] {
+  --color-nogal: color-mix(in oklab, var(--color-cacao) 70%, var(--arbol));
+  --color-cobalto: color-mix(in oklab, var(--color-coral) 62%, var(--color-cacao));
+  --color-cereza: color-mix(in oklab, var(--color-coral) 48%, var(--color-cacao));
+}
 /* las partes oscuras de la home invierten sus dos tintas: lo que era Rosa niebla (texto, trazos, puntos) pasa a --tinta y lo que era Cacao (texto de
    los botones claros, iconos sobre niebla) a --tinta-inv. Fuera del invierno no cambia nada (niebla = niebla, cacao = cacao). Proyectos no entra:
    su interfaz va sobre la foto de la mesa y sigue en claro sobre --noche-honda. */
@@ -209,8 +219,7 @@ html[data-estacion='invierno'] { --color-niebla: #e5e8ee; --color-nogal: #4c403d
   .surface-dark,
   .surface-light,
   .surface-warm {
-    background-image: url('/media/grano.png');
-    background-size: 240px 240px;
+    background-image: none; /* RONDA 152 · «quitar la textura de los fondos para que no compita con el contenido» */
   }
 }
 
@@ -369,10 +378,10 @@ html.tipo-antes {
 }
 
 @layer components {
-  /* Detalles y metadatos · IBM Plex Mono 400 */
+  /* Detalles y metadatos · Timeless Grotesk Light (ronda 152) */
   .detail {
     font-family: var(--font-mono);
-    font-weight: 400;
+    font-weight: 300;
     font-size: var(--text-detail);
     line-height: var(--text-detail--line-height);
     font-variant-numeric: tabular-nums;
@@ -522,11 +531,38 @@ html.tipo-antes {
   }
   .btn-flecha path { vector-effect: non-scaling-stroke; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
   :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-ala {
-    animation: fl-traza 0.34s cubic-bezier(0.25, 1, 0.5, 1) var(--fl-retraso, 0s) both;
+    animation: fl-traza 0.52s cubic-bezier(0.3, 1.25, 0.5, 1) calc(var(--fl-retraso, 0s) + 0.08s) both;
   }
   @keyframes fl-traza {
     from { stroke-dashoffset: 1; }
     to { stroke-dashoffset: 0; }
+  }
+  /* RONDA 153 · LA FLECHA LÍQUIDA: las gotas (src/lib/flecha.ts). En reposo no se ven; al pasar, la del vértice se hincha y se recoge, y las de las alas
+     viajan con la punta del trazo (se pasan un poco y vuelven, como un líquido) y se funden con la punta redonda */
+  .btn-flecha .fl-gota { fill: currentColor; stroke: none; opacity: 0; transform-box: view-box; transform-origin: 10.75px 8px; }
+  :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-v {
+    animation: fl-gota-v 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) var(--fl-retraso, 0s) both;
+  }
+  :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-a {
+    animation: fl-gota-a 0.6s cubic-bezier(0.3, 1.25, 0.5, 1) calc(var(--fl-retraso, 0s) + 0.08s) both;
+  }
+  :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-b {
+    animation: fl-gota-b 0.6s cubic-bezier(0.3, 1.25, 0.5, 1) calc(var(--fl-retraso, 0s) + 0.08s) both;
+  }
+  @keyframes fl-gota-v {
+    0% { opacity: 1; transform: scale(0); }
+    45% { opacity: 1; transform: scale(1.15); }
+    100% { opacity: 0; transform: scale(0.6); }
+  }
+  @keyframes fl-gota-a {
+    0% { opacity: 1; transform: translate(0, 0) scale(0.9); }
+    80% { opacity: 1; transform: translate(-4.5px, -4.5px) scale(0.85); }
+    100% { opacity: 0; transform: translate(-4.5px, -4.5px) scale(0.6); }
+  }
+  @keyframes fl-gota-b {
+    0% { opacity: 1; transform: translate(0, 0) scale(0.9); }
+    80% { opacity: 1; transform: translate(-4.5px, 4.5px) scale(0.85); }
+    100% { opacity: 0; transform: translate(-4.5px, 4.5px) scale(0.6); }
   }
   .btn-flecha.izq { transform: scaleX(-1); }
   .btn-flecha.abajo { transform: rotate(90deg); }
@@ -591,6 +627,7 @@ html.tipo-antes {
     .btn-primary, .btn-primary::before, .btn-secondary, .btn-secondary .btn-tx { transition: none; }
     /* sin movimiento: la flecha quieta, y el color cambia sin más (la mancha ya está entera, oculta) */
     .btn-flecha path { animation: none !important; }
+    .btn-flecha .fl-gota { animation: none !important; opacity: 0; }
     .btn-primary::before { transform: translate(-50%, -50%) scale(1); opacity: 0; transition: opacity 0.2s; }
     .btn-primary:hover::before, .btn-primary:focus-visible::before { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   }
@@ -708,7 +745,7 @@ html.tipo-antes {
     pointer-events: none;
     z-index: 3;
     /* el MISMO fondo que la sección que llega: color + grano (ronda 12) */
-    background: var(--bg) url('/media/grano.png') 0 0 / 240px 240px;
+    background: var(--bg);
     clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
   }
 
@@ -754,17 +791,17 @@ html.vt-local::view-transition-old(root) {
   display: grid;
   place-items: center;
   pointer-events: none;
-  background: var(--color-cacao) url('/media/grano.png') 0 0 / 240px 240px;
+  background: var(--color-cacao);
   -webkit-mask: var(--m, none);
   mask: var(--m, none);
 }
 .vt-logo {
   /* ronda 68: el logotipo definitivo (isotipo + savvia) */
   height: clamp(4.5rem, 2.5rem + 7vw, 9rem);
-  aspect-ratio: 2319 / 707;
+  aspect-ratio: 2373 / 707;
   background: var(--color-niebla);
-  -webkit-mask: url('/savvia-palabra.svg') center / contain no-repeat;
-  mask: url('/savvia-palabra.svg') center / contain no-repeat;
+  -webkit-mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
+  mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
   opacity: 0;
   scale: 0.92;
   filter: blur(6px);
@@ -782,7 +819,7 @@ html.vt-llega::after {
   inset: 0;
   z-index: 2147483000;
   pointer-events: none;
-  background: var(--color-cacao) url('/media/grano.png') 0 0 / 240px 240px;
+  background: var(--color-cacao);
 }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
@@ -801,8 +838,8 @@ html.vt-llega::after {
    la estación que el CTA al pasar. Fuera de @layer: los estilos acotados de Astro no van en capa y ganarían a cualquier regla en capa. */
 html[data-estacion='invierno'],
 html[data-estacion='invierno'] .surface-dark {
-  --btn-fondo: #302018;
-  --btn-bano: #63402f;
+  --btn-fondo: #22303e; /* la tinta de pizarra del invierno */
+  --btn-bano: color-mix(in oklab, #22303e 70%, #7d8ba3);
 }
 /* RONDA 139 · Andoni: «en otoño el CTA, que sea más oscuro»: el cobre se hunde más (árbol + 58 % de negro; al pasar, + 40 %) */
 html[data-estacion='otono'],

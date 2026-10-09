@@ -33,18 +33,15 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
                 <div class="onda" aria-hidden="true">
                   {Array.from({ length: 34 }, (_, b) => <i style={`--h:${(0.28 + 0.72 * Math.abs(Math.sin(b * 1.7) * Math.cos(b * 0.45))).toFixed(2)};--d:${(-(b * 0.137) % 1.1).toFixed(2)}s`} />)}
                 </div>
-                {[
-                  ['¿Qué vendes?', 'Software de facturación ', 'para pymes'],
-                  ['¿A quién?', 'Equipos financieros ', 'en Europa'],
-                  ['¿Qué ha dejado de contar?', 'Que ya facturamos ', 'en 14 países'],
-                ].map(([q, r, clave], k) => (
+                {/* RONDA 152 · Andoni: «que no salgan respuestas, solo el check de las preguntas: si ponemos respuestas, la gente puede pensar que son
+                     nuestras y encasillarnos en lo que pone ahí» */}
+                {['¿Qué vendes?', '¿A quién?', '¿Qué ha dejado de contar tu web?', '¿Adónde quieres llegar?'].map((q, k) => (
                   <p class="preg" style={`--k:${k}`}>
-                    <span class="q detail">{q}</span>
-                    <span class="r"><span class="txt">{r}<mark>{clave}</mark></span></span>
-                    <b class="ok detail">✓</b>
+                    <span class="q">{q}</span>
+                    <b class="ok detail" aria-hidden="true">✓</b>
                   </p>
                 ))}
-                <p class="brief detail"><span class="pt" />brief.md · 3 claves guardadas</p>
+                <p class="brief detail"><span class="pt" />brief.md · 4 respuestas guardadas</p>
               </>
             )}
             {i === 1 && (
@@ -393,10 +390,12 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
     border-radius: calc(var(--spacing) * 3);
     background: color-mix(in oklab, var(--color-niebla) 6%, transparent);
     animation: llegar 9s var(--ease-out-expo) infinite both;
-    animation-delay: calc(0.6s + var(--k) * 1.6s);
+    animation-delay: calc(0.6s + var(--k) * 1.2s);
   }
   .preg .q {
-    color: color-mix(in oklab, var(--color-niebla) 62%, transparent);
+    font-size: var(--text-aux);
+    line-height: 1.35;
+    color: var(--color-niebla);
   }
   .preg .r {
     grid-column: 1;
@@ -424,11 +423,11 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
     animation-delay: calc(1s + var(--k) * 1.6s);
   }
   .preg .ok {
-    grid-row: 1 / span 2;
+    grid-row: 1;
     grid-column: 2;
     color: var(--color-naranja);
     animation: marcar 9s ease infinite both;
-    animation-delay: calc(2.1s + var(--k) * 1.6s);
+    animation-delay: calc(1.5s + var(--k) * 1.2s);
   }
   .brief {
     display: inline-flex;

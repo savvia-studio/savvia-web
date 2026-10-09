@@ -24,7 +24,8 @@ export function crearSonido() {
   let enfocado = false;
   let on = false, visible = false, est: Estacion = 'primavera', n = 0;
   const relojes = new Set<number>();
-  try { on = localStorage.getItem(CLAVE) === '1'; } catch {}
+  // RONDA 153 · un solo interruptor para toda la web (el (+) flotante): el ambiente suena salvo que el visitante lo haya apagado ('0'), como los clics
+  try { on = localStorage.getItem(CLAVE) !== '0'; } catch {}
   // Recordado «On», pero sin gesto todavía: el contexto se crea en el primer gesto del visitante.
   if (on) addEventListener('pointerdown', () => on && (asegurar(), tick()), { once: true });
 
@@ -105,6 +106,13 @@ export function crearSonido() {
     if (tipo === 'levantarse') peso(t, 70, 110, 0.015, 0.08);
   }
 
+  // RONDA 152 · el altavoz de la barra manda sobre todo el sonido: el ambiente lo sigue
+  addEventListener('savvia:son', (e) => {
+    const d = (e as CustomEvent).detail as { on: boolean; origen?: string };
+    if (d.origen === 'estudio' || d.on === on) return;
+    on = d.on; if (on) asegurar(); tick();
+    dispatchEvent(new CustomEvent('savvia:son-estudio', { detail: { on } }));
+  });
   const api = {
     activo: () => on,
     alternar() {
@@ -112,6 +120,7 @@ export function crearSonido() {
       try { localStorage.setItem(CLAVE, on ? '1' : '0'); } catch {}
       if (on) asegurar();
       tick();
+      dispatchEvent(new CustomEvent('savvia:son', { detail: { on, origen: 'estudio' } })); // ronda 152: el altavoz de la barra lo refleja
     },
     estacion(e: string) { est = e as Estacion; tick(); },
     visible(v: boolean) { visible = v; tick(); },

@@ -9,6 +9,43 @@ export default defineConfig({
   devToolbar: { enabled: false },
   fonts: [
     {
+      // RONDA 152 · Andoni: «la typo, Timeless: Sans para textos de lectura y Grotesk para detalles; luego la serifa». Timeless Free Font License 1.2
+      // (tools/fuentes-timeless/LICENSE.pdf): uso web y comercial libre; NO redistribuir ni subir a un repositorio público (el nuestro es privado).
+      // Cortes del configurador de timeless.co (enlaces en tools/fuentes-timeless/README-*.txt). Pesos de la Sans: 300 · 420 (regular) · 500 · 537.
+      name: 'Timeless Sans',
+      cssVariable: '--font-timeless-sans',
+      provider: fontProviders.local(),
+      fallbacks: ['system-ui', 'sans-serif'],
+      options: {
+        variants: [
+          { src: ['./src/assets/fonts/timeless/TimelessSans-Light.woff2'], weight: 300, style: 'normal' },
+          { src: ['./src/assets/fonts/timeless/TimelessSans-Regular.woff2'], weight: 420, style: 'normal' },
+          { src: ['./src/assets/fonts/timeless/TimelessSans-Medium.woff2'], weight: 500, style: 'normal' },
+          { src: ['./src/assets/fonts/timeless/TimelessSans-W537.woff2'], weight: 537, style: 'normal' },
+        ],
+      },
+    },
+    {
+      // RONDA 152 · «aquí va la serifa para probar»: Timeless Text (400 · 500) para los titulares, a prueba (?titular=family vuelve a Family)
+      name: 'Timeless Text',
+      cssVariable: '--font-timeless-text',
+      provider: fontProviders.local(),
+      fallbacks: ['Georgia', 'serif'],
+      options: {
+        variants: [
+          { src: ['./src/assets/fonts/timeless/TimelessText-Regular.woff2'], weight: 400, style: 'normal' },
+          { src: ['./src/assets/fonts/timeless/TimelessText-Medium.woff2'], weight: 500, style: 'normal' },
+        ],
+      },
+    },
+    {
+      name: 'Timeless Grotesk',
+      cssVariable: '--font-timeless-grotesk',
+      provider: fontProviders.local(),
+      fallbacks: ['system-ui', 'sans-serif'],
+      options: { variants: [{ src: ['./src/assets/fonts/timeless/TimelessGrotesk-Light.woff2'], weight: 300, style: 'normal' }] },
+    },
+    {
       // Titulares. OJO: es la versión de PRUEBA de Klim (sin acentos, ñ, ¿ ¡).
       // Al comprar la licencia: sustituir el archivo y quitar "TRIAL" del nombre.
       name: 'Family',
@@ -79,6 +116,17 @@ export default defineConfig({
       styles: ['normal'],
       subsets: ['latin'],
       fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      // RONDA 155 · la CAPITULAR del Manifiesto (Andoni: «la letra grande de este estilo», una mayúscula caligráfica tipo copperplate). Pinyon Script,
+      // OFL (Google Fonts). Solo la capitular la usa y solo se carga en /manifiesto (<Font> en la propia página). Excepción expresa a «sin cursivas».
+      name: 'Pinyon Script',
+      cssVariable: '--font-capitular',
+      provider: fontProviders.google(),
+      weights: [400],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['cursive'],
     },
     {
       // RONDA 92 · el texto de NEETY en la partitura (su librería: cuerpo en Switzer, de Fontshare; licencia ITF Free Font, uso comercial libre).

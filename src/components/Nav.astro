@@ -1,5 +1,7 @@
 ---
 import { nav, pie } from '../data/home';
+import Mando from './Mando.astro';
+import { icono } from '../lib/iconos';
 ---
 
 <!--
@@ -19,18 +21,16 @@ import { nav, pie } from '../data/home';
   <!-- Logotipo (ronda 139): `public/savvia-logo.svg` como máscara en el color de la barra (ronda 141: sólido, según el fondo que pisa). -->
   <!-- RONDA 24: el logotipo es una máscara con el color de la barra: blanco por diferencia sobre lo oscuro, Cacao sobre lo claro (sin mezcla:
        la diferencia daba un azul sucio sobre Rosa arcilla y Rosa niebla) -->
-  <a href="/" class="marca" aria-label="savvia, inicio"><span class="logo-marca" aria-hidden="true"></span></a>
+  <a href="/" class="marca" aria-label="savvia, inicio"><span class="logo-iso" aria-hidden="true"></span><span class="logo-marca" aria-hidden="true"></span></a>
   <div class="acciones-nav">
-    <!-- RONDA 40 · «al lado del desplegable del menú un icono para cambiar de estación: que sea mórfico, que el mismo icono se transforme en los 4
-         de las estaciones». Una sola línea que se deforma: flor (primavera) · sol (verano) · hoja (otoño) · copo (invierno). Clic = la siguiente. -->
-    <button type="button" class="estacion-ic" aria-label="Cambiar de estación" data-estacion-ic data-nombre="otoño">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path data-forma /></svg>
-    </button>
     <button type="button" class="rejilla" aria-expanded="false" aria-controls="menu" aria-label="Abrir el menú" data-rejilla>
       {Array.from({ length: 9 }).map((_, i) => <span style={`--i:${i}`} />)}
     </button>
   </div>
 </header>
+
+<!-- RONDA 153 · el sonido y la estación viven en el (+) flotante de abajo a la derecha (Mando.astro) -->
+<Mando />
 
 <div class="velo" data-velo hidden></div>
 
@@ -57,7 +57,7 @@ import { nav, pie } from '../data/home';
            al pulsarla, el reproductor grande se pinta desde ella -->
       <button type="button" class="reel" data-reel aria-label={`Ver el reel de proyectos (${nav.reel.duracion})`}>
         <video muted loop playsinline preload="none" poster="/media/reel/reel-mini.jpg" data-reel-mini></video>
-        <span class="reel-pie"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>{nav.reel.label} · {nav.reel.duracion}</span>
+        <span class="reel-pie"><Fragment set:html={icono('play', 'fill')} />{nav.reel.label} · {nav.reel.duracion}</span>
       </button>
     </div>
   </nav>
@@ -68,24 +68,22 @@ import { nav, pie } from '../data/home';
     <video class="reel-video" playsinline preload="none" poster="/media/reel/reel.jpg" data-reel-video></video>
     <div class="reel-mandos">
       <button type="button" class="reel-bt" aria-label="Pausar" data-reel-play>
-        <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
-        <svg class="ic-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
+        <Fragment set:html={icono('play', 'fill', 'ic-play')} />
+        <Fragment set:html={icono('pause', 'fill', 'ic-pausa')} />
       </button>
       <span class="reel-hilo" aria-hidden="true" data-reel-hilo><i></i></span>
       <button type="button" class="reel-bt" aria-label="Silenciar" data-reel-son>
-        <svg class="ic-son" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M15.5 9.2a4 4 0 010 5.6M18 6.8a7.5 7.5 0 010 10.4" /></svg>
-        <svg class="ic-mudo" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path d="M16 10l4 4M20 10l-4 4" /></svg>
+        <Fragment set:html={icono('speaker-high', 'fill', 'ic-son')} />
+        <Fragment set:html={icono('speaker-slash', 'fill', 'ic-mudo')} />
       </button>
-      <button type="button" class="reel-bt" aria-label="Cerrar el reel" data-reel-cerrar><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+      <button type="button" class="reel-bt" aria-label="Cerrar el reel" data-reel-cerrar><Fragment set:html={icono('x')} /></button>
     </div>
   </div>
 </dialog>
 
 <script>
-  import { HOJA_ROBLE, GIRO_HOJA, copo, flor, sol, remuestrear } from '../scripts/formas-estacion';
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
-  import { EST, NOMBRE, estacionActual, fijarEstacion } from '../scripts/estacion';
   const btn = document.querySelector<HTMLButtonElement>('[data-rejilla]')!;
   const menu = document.querySelector<HTMLElement>('[data-menu]')!;
   const velo = document.querySelector<HTMLElement>('[data-velo]')!;
@@ -179,43 +177,6 @@ import { nav, pie } from '../data/home';
   dlg.addEventListener('cancel', (e) => { e.preventDefault(); cerrarReel(); });
   dlg.addEventListener('click', (e) => { if (!panel.contains(e.target as Node)) cerrarReel(); });
   (window as any).__reel = () => ({ abierto: dlg.open, suena: !vid.paused, t: vid.currentTime, mudo: vid.muted, mini: !((menu.querySelector('[data-reel-mini]') as HTMLVideoElement | null)?.paused ?? true) });
-  // ── EL ICONO DE ESTACIÓN (ronda 40): una misma línea cerrada de 96 puntos que se deforma entre las cuatro formas. Todas se muestrean en los MISMOS
-  // ángulos alrededor del centro (en polares), así cada punto viaja a su sitio sin cruzarse. Orden de estacion.ts: otoño · invierno · primavera · verano.
-  {
-    const ic = document.querySelector<HTMLButtonElement>('[data-estacion-ic]')!, forma = ic.querySelector<SVGPathElement>('[data-forma]')!;
-    const N = 160, reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // RONDA 65 · «que parezcan más cada estación»: hoja de roble, copo con ramas, flor de cerezo y sol (src/scripts/formas-estacion.ts), cada una
-    // remuestreada a los mismos N puntos, en el mismo sentido y empezando por arriba: la transformación sigue siendo una sola línea que se deforma
-    const hojaPts = (() => {
-      const svgEl = forma.ownerSVGElement!, tmp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      tmp.setAttribute('d', HOJA_ROBLE); tmp.style.visibility = 'hidden'; svgEl.append(tmp);
-      const L = tmp.getTotalLength(), g = (GIRO_HOJA * Math.PI) / 180, cg = Math.cos(g), sg = Math.sin(g);
-      const out = Array.from({ length: 400 }, (_, k) => { const q = tmp.getPointAtLength((k / 400) * L), x = q.x - 12, y = q.y - 12; return [12 + x * cg - y * sg, 12 + x * sg + y * cg] as [number, number]; });
-      tmp.remove(); return out;
-    })();
-    const FORMAS = [hojaPts, copo(), flor(), sol()].map((f) => remuestrear(f, N));
-    const d = (p: number[][]) => 'M' + p.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join('L') + 'Z';
-    let actual = FORMAS[estacionActual()], est = estacionActual(), raf = 0;
-    const rotular = () => { const sig = (est + 1) % 4; ic.dataset.nombre = NOMBRE[est]; ic.setAttribute('aria-label', `Estación: ${NOMBRE[est]}. Cambiar a ${NOMBRE[sig]}`); };
-    forma.setAttribute('d', d(actual)); rotular();
-    const ir = (n: number) => {
-      est = n; rotular();
-      const de = actual.map((p) => [...p]), a = FORMAS[n];
-      if (reducido) { actual = a; forma.setAttribute('d', d(a)); return; }
-      cancelAnimationFrame(raf); let t0 = 0;
-      const paso = (ahora: number) => {
-        if (!t0) t0 = ahora;
-        const k = Math.min(1, (ahora - t0) / 750), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        actual = de.map((p, i) => [p[0] + (a[i][0] - p[0]) * e, p[1] + (a[i][1] - p[1]) * e]);
-        forma.setAttribute('d', d(actual));
-        if (k < 1) raf = requestAnimationFrame(paso);
-      };
-      raf = requestAnimationFrame(paso);
-    };
-    ic.addEventListener('click', () => fijarEstacion(est + 1, 'nav'));
-    addEventListener('savvia:estacion', (e) => { const n = (e as CustomEvent).detail.n as number; if (n !== est) ir(n); });
-    void EST;
-  }
   // RONDA 141 · «que se vea con el color claro en el marrón y en el resto de fondos oscuros; ese efecto [la diferencia], solo en lab»: vuelve la
   // detección de las rondas 24/65 (html.sobre-claro → Cacao; si no, Rosa niebla), pero mirando el COLOR REAL del fondo bajo el logotipo en vez de
   // una lista de clases: así sirven solas las estaciones (en invierno la noche es nieve), las páginas claras, Salvia, el 404 y lo que venga.
@@ -498,13 +459,32 @@ import { nav, pie } from '../data/home';
   /* RONDA 16 · «el logo de savvia del menú lo veo muy grande»: 24/32 px de alto → 16/24 */
   /* RONDA 66 · «el logo: savvia con la tipografía (luego añadiremos otro)»: la palabra en Family, en el color del texto */
   /* RONDA 68 · el LOGOTIPO DEFINITIVO de Andoni (isotipo + «savvia», `public/savvia-logo.svg`): una máscara en el color del texto */
+  /* RONDA 153 · el isotipo delante de la palabra, con la PROPORCIÓN ÁUREA (Andoni: «para el tamaño del isotipo, la regla del golden ratio en todos lados»):
+       · diámetro del anillo = altura de x de «savvia» × φ          (la x es 462/707 del alto de la palabra: 0,6535 h → D = 1,0574 h)
+       · separación anillo–palabra = D ÷ φ²  (0,382 D = 0,404 h)
+       · el centro del anillo, en el centro de la altura de x
+     La caja del isotipo (viewBox 3 3 58 58) mide 58/52 del anillo (52) → 1,1794 h; su margen derecho ya es 3/58 de la caja. --h = el alto de la palabra */
+  .marca:has(.logo-iso) { --h: 1.375rem; display: inline-flex; align-items: flex-end; }
+  .logo-iso {
+    display: block;
+    flex: none;
+    width: calc(var(--h) * 1.1794);
+    height: calc(var(--h) * 1.1794);
+    margin-right: calc(var(--h) * 0.343);
+    translate: 0 calc(var(--h) * 0.2374);
+    background: currentColor;
+    -webkit-mask: url('/savvia-isotipo-gota.svg') center / contain no-repeat;
+    mask: url('/savvia-isotipo-gota.svg') center / contain no-repeat;
+    transition: background-color 0.12s linear;
+  }
+  @media (width >= 64rem) { .marca:has(.logo-iso) { --h: 1.5rem; } }
   .logo-marca {
     display: block;
     height: 1.375rem; /* ronda 147: «savvia del menú, más pequeño» (antes 1,75 rem) */
-    aspect-ratio: 2319 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
+    aspect-ratio: 2373 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
     background: currentColor;
-    -webkit-mask: url('/savvia-palabra.svg') center / contain no-repeat;
-    mask: url('/savvia-palabra.svg') center / contain no-repeat;
+    -webkit-mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
+    mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
     transition: background-color 0.12s linear;
   }
   @media (width >= 64rem) {
@@ -517,35 +497,7 @@ import { nav, pie } from '../data/home';
     align-items: center;
     gap: calc(var(--spacing) * 6);
   }
-  .estacion-ic {
-    position: relative;
-    width: calc(var(--spacing) * 6);
-    height: calc(var(--spacing) * 6);
-    padding: 0;
-    margin: calc(var(--spacing) * -2);
-    box-sizing: content-box;
-    border: calc(var(--spacing) * 2) solid transparent;
-    cursor: pointer;
-    background: none;
-    color: inherit;
-  }
-  .estacion-ic svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    transition: rotate 0.75s var(--ease-out-expo);
-  }
-  .estacion-ic path {
-    fill: none; /* RONDA 144 · Eric: «este icono, un poco más finito»: de relleno (ronda 41) a trazo fino */
-    stroke: currentColor;
-    stroke-width: 1.25;
-    vector-effect: non-scaling-stroke;
-    stroke-linejoin: round;
-  }
-  .estacion-ic:hover svg {
-    rotate: 12deg;
-  }
+  /* ronda 153: el sonido y la estación, en el (+) flotante (Mando.astro) */
   /* RONDA 144 (4.ª) · Andoni: «al pasar por estos iconos no quiero que salga nada de info»: sin rótulo al pasar (el nombre sigue en aria-label) */
   .rejilla {
     display: grid;
@@ -707,7 +659,7 @@ import { nav, pie } from '../data/home';
     font-size: var(--text-detail);
     line-height: 1.2;
   }
-  .reel-pie svg {
+  .reel-pie :global(svg) {
     width: 12px;
     height: 12px;
     fill: var(--color-coral);
@@ -785,27 +737,18 @@ import { nav, pie } from '../data/home';
   .reel-bt:focus-visible {
     background: color-mix(in oklab, var(--color-niebla) 12%, transparent);
   }
-  .reel-bt svg {
+  .reel-bt :global(svg) {
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
   }
-  .reel-bt .ic-play {
-    fill: currentColor;
-    stroke: none;
-  }
-  .reel-bt .ic-pausa,
-  .reel-dlg.suena .reel-bt .ic-play,
-  .reel-bt .ic-mudo,
-  .reel-dlg.mudo .reel-bt .ic-son {
+  .reel-bt :global(.ic-pausa),
+  .reel-dlg.suena .reel-bt :global(.ic-play),
+  .reel-bt :global(.ic-mudo),
+  .reel-dlg.mudo .reel-bt :global(.ic-son) {
     display: none;
   }
-  .reel-dlg.suena .reel-bt .ic-pausa,
-  .reel-dlg.mudo .reel-bt .ic-mudo {
+  .reel-dlg.suena .reel-bt :global(.ic-pausa),
+  .reel-dlg.mudo .reel-bt :global(.ic-mudo) {
     display: block;
   }
   /* el hilo de savia que mide el reel; un clic busca */
@@ -878,8 +821,7 @@ import { nav, pie } from '../data/home';
   html.menu-abierto [data-nav] {
     color: var(--color-niebla);
   }
-  html.menu-abierto [data-rejilla],
-  html.menu-abierto [data-estacion-ic] {
+  html.menu-abierto [data-rejilla] {
     color: var(--color-cacao);
   }
   html.estudio-sentado [data-nav] {

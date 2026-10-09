@@ -1,0 +1,606 @@
+{
+ "neety": [
+  {
+   "nombre": "x-feed",
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 2500,
+   "caja": [
+    800,
+    170,
+    560,
+    420
+   ],
+   "dur": 9
+  },
+  {
+   "nombre": "x-cifras",
+   "y": 700,
+   "arriba": 0,
+   "espera": 600,
+   "caja": [
+    630,
+    400,
+    780,
+    440
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 600,
+   "frac": 0.4,
+   "dur": 5
+  },
+  {
+   "nombre": "x-ruido",
+   "y": 1700,
+   "arriba": 0,
+   "espera": 600,
+   "caja": [
+    30,
+    80,
+    1380,
+    690
+   ],
+   "formato": [
+    2,
+    1
+   ],
+   "accion": "bajar",
+   "dy": 600,
+   "frac": 0.4,
+   "dur": 5
+  },
+  {
+   "nombre": "x-dentro",
+   "y": 3050,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    0,
+    60,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 1800,
+   "dur": 8
+  },
+  {
+   "nombre": "x-casos",
+   "texto": "Abre nuevos mercados con más criterio",
+   "arriba": 260,
+   "espera": 800,
+   "caja": [
+    20,
+    70,
+    1400,
+    720
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "sobre": "[role=tab], .tabs button, [class*=tab] button",
+   "dur": 8
+  }
+ ],
+ "kuanta": [
+  {
+   "nombre": "x-esfera",
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 2500,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 1700,
+   "dur": 8
+  },
+  {
+   "nombre": "x-tarjetas",
+   "texto": "Built for whoever pays the compute bill.",
+   "arriba": 60,
+   "espera": 1200,
+   "caja": [
+    0,
+    260,
+    1440,
+    500
+   ],
+   "formato": [
+    7,
+    3
+   ],
+   "accion": "pasar",
+   "sobre": "#for article, #for .card, #for li",
+   "dur": 8
+  },
+  {
+   "nombre": "x-matriz",
+   "y": 6700,
+   "arriba": 0,
+   "espera": 600,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 1000,
+   "dur": 8
+  },
+  {
+   "nombre": "x-pila",
+   "y": 13600,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 200,
+   "caja": [
+    330,
+    150,
+    1100,
+    620
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 400,
+   "frac": 0.3,
+   "dur": 6
+  },
+  {
+   "nombre": "x-tensor",
+   "y": 19500,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 9
+  }
+ ],
+ "arkdev": [
+  {
+   "nombre": "x-terminal",
+   "y": 350,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 600,
+   "espera": 200,
+   "caja": [
+    200,
+    320,
+    1040,
+    585
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 7
+  },
+  {
+   "nombre": "x-canales",
+   "y": 1550,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    40,
+    200,
+    1360,
+    680
+   ],
+   "formato": [
+    2,
+    1
+   ],
+   "accion": "pulsar",
+   "textos": [
+    "Instagram",
+    "TikTok",
+    "LinkedIn",
+    "YouTube",
+    "Reddit"
+   ],
+   "dur": 9
+  },
+  {
+   "nombre": "x-muelle",
+   "y": 4100,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    100,
+    50,
+    700,
+    525
+   ],
+   "formato": [
+    4,
+    3
+   ],
+   "dur": 10
+  },
+  {
+   "nombre": "x-pasos",
+   "y": 6500,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    120,
+    170,
+    1200,
+    675
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 8
+  }
+ ],
+ "playground": [
+  {
+   "nombre": "x-app",
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 2500,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 900,
+   "dur": 7
+  },
+  {
+   "nombre": "x-historia",
+   "y": 1900,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 2800,
+   "dur": 10
+  },
+  {
+   "nombre": "x-copilot",
+   "y": 5600,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    110,
+    214,
+    1220,
+    686
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "dur": 9,
+   "sobre": "[role=tab]"
+  },
+  {
+   "nombre": "x-compatible",
+   "y": 6900,
+   "arriba": 0,
+   "espera": 600,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "bajar",
+   "dy": 380,
+   "dur": 7,
+   "frac": 0.75
+  },
+  {
+   "nombre": "x-cromos",
+   "y": 10300,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    0,
+    140,
+    1440,
+    760
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 10
+  },
+  {
+   "nombre": "x-notas",
+   "y": 12400,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    100,
+    200,
+    1240,
+    690
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "exacto": false,
+   "textos": [
+    "Wait, is this another",
+    "Does it help with",
+    "Can I talk instead",
+    "Can I bring"
+   ],
+   "dur": 8
+  },
+  {
+   "nombre": "portada",
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 1500,
+   "espera": 300,
+   "caja": [
+    0,
+    0,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 7
+  }
+ ],
+ "cubbo": [
+  {
+   "nombre": "x-infra",
+   "y": 1050,
+   "arriba": 0,
+   "espera": 1200,
+   "caja": [
+    300,
+    90,
+    840,
+    472
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 6
+  },
+  {
+   "nombre": "x-capas",
+   "y": 2150,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pasar",
+   "exacto": false,
+   "textos": [
+    "Fulfillment",
+    "Supply Chain",
+    "WMS",
+    "Puntos de recolección",
+    "Infraestructura para IOR",
+    "Cubbo Engage"
+   ],
+   "dur": 8
+  },
+  {
+   "nombre": "x-operacion",
+   "y": 3350,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    0,
+    45,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "textos": [
+    "Centralizamos la operación",
+    "Ejecutamos el fulfillment",
+    "Activamos la red de entrega",
+    "Ampliamos tus capacidades"
+   ],
+   "dur": 9
+  }
+ ],
+ "remerge": [
+  {
+   "nombre": "x-en",
+   "url": "https://remerge.io/",
+   "movil": true,
+   "vp": [
+    390,
+    844
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 2500,
+   "caja": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "formato": [
+    390,
+    844
+   ],
+   "dur": 2.4
+  },
+  {
+   "nombre": "x-ko",
+   "url": "https://remerge.io/ko",
+   "movil": true,
+   "vp": [
+    390,
+    844
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 2500,
+   "caja": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "formato": [
+    390,
+    844
+   ],
+   "dur": 2.4
+  },
+  {
+   "nombre": "x-ja",
+   "url": "https://remerge.io/ja",
+   "movil": true,
+   "vp": [
+    390,
+    844
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 2500,
+   "caja": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "formato": [
+    390,
+    844
+   ],
+   "dur": 2.4
+  },
+  {
+   "nombre": "x-zh",
+   "url": "https://remerge.io/zh",
+   "movil": true,
+   "vp": [
+    390,
+    844
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera": 2500,
+   "caja": [
+    0,
+    0,
+    390,
+    844
+   ],
+   "formato": [
+    390,
+    844
+   ],
+   "dur": 2.4
+  },
+  {
+   "nombre": "x-objetivos",
+   "y": 850,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    0,
+    60,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "textos": [
+    "Acquire high-value users",
+    "Measure and analyze performance",
+    "Find and re-engage app users"
+   ],
+   "dur": 8
+  }
+ ]
+}

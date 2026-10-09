@@ -1,0 +1,446 @@
+---
+// RONDA 126 · EL MANIFIESTO. RONDA 128: en claro, tipo clusia/about. RONDAS 129–143: en papel (roble gofrado, fibras, «la imprenta»).
+// RONDA 144 · Eric: «mejor como 3–4 párrafos seguidos»: sin capítulos ni numerales romanos.
+// RONDA 153 · Andoni: «Manifesto tenemos que darle una vuelta, quitarle textura e igual tirar por algo más natural, no tanto papel.»
+// Fuera TODO el papel (fibras, grano, gofrado, imprenta). La idea, una: TODO EN ESTA PÁGINA SE PINTA COMO EL ROBLE.
+// · Portada: «Manifiesto» y, debajo, el roble de la estación de hoy en acuarela (el motor del hero, estela.ts): cae una gota de savia, el árbol se
+//   dibuja a línea y se pinta con el canto rasgado; después sus raíces bajan desde el cuello. Quieto en la página (no se mueve con el scroll ni con el ratón).
+// · El texto: tres párrafos seguidos que crecen de la raíz. Cada uno se PINTA al llegar con el mismo canto rasgado del árbol (máscara que se abre desde
+//   su primera palabra) y su frase subrayada recibe la savia después. Ese es el paso de un párrafo a otro.
+// · La estación manda (html[data-estacion]): fondo, tinta, savia y lámina. Si cambia, el roble nuevo se pinta encima del viejo desde la base.
+// · Movimiento reducido o sin JS: todo pintado y quieto.
+// RONDA 153 · Andoni: «El manifiesto en realidad es nuestra forma de ser, de actuar: lo que fluye por dentro del árbol. El texto del medio necesita
+// mucho más aire y empezar con una letra estilo pluma.» → EL MANIFIESTO ES LA SAVIA (components/manifiesto/savia.ts): un hilo de savia baja por dentro
+// de la raíz, cae a la capitular y la ESCRIBE (la T de pluma de punta ancha, capitular.ts), sale por su cola a un canal junto a la columna y alimenta
+// cada párrafo al llegar a su altura (la tinta sube fila a fila); pulsos de luz suben hacia el árbol mientras lees. Fuera el canto rasgado sobre el
+// texto (se leía como un corte vertical).
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Carriles from '../components/Carriles.astro';
+import Pie from '../components/Pie.astro';
+import { manifiesto } from '../data/manifiesto';
+import { capitular } from '../components/manifiesto/capitular';
+
+// [[…]] = la frase que se subraya con savia
+const rico = (t: string) =>
+  t.split(/(\[\[.+?\]\])/).filter(Boolean).map((seg) => {
+    const m = /^\[\[(.+)\]\]$/.exec(seg);
+    return m ? { t: m[1], m: true } : { t: seg, m: false };
+  });
+const parrafos = manifiesto.capitulos.map((c) => rico(c.parrafos.join(' ')));
+// la primera letra va a la capitular; el párrafo empieza en la segunda
+const inicial = parrafos[0][0].t.charAt(0);
+parrafos[0][0] = { ...parrafos[0][0], t: parrafos[0][0].t.slice(1) };
+---
+
+<Base title="Manifiesto — savvia" description={`${manifiesto.cierre} El manifiesto de savvia, el estudio web de Eric y Andoni en Donostia.`} carga={false}>
+  <Nav />
+  <Carriles />
+  <main id="contenido" class="manifiesto surface-light" data-manifiesto>
+    <header class="portada wrap">
+      <h1 class="titulo font-display text-balance" data-entra>{manifiesto.titulo}</h1>
+      <!-- el roble de la estación: la copa y, partidas por la línea de suelo, sus raíces. Las <img> son el respaldo sin WebGL (o sin JS: otoño) -->
+      <figure class="roble" aria-hidden="true" data-roble>
+        <div class="copa">
+          <img class="respaldo" src="/media/hero/arbol-otono.webp" alt="" width="1260" height="583" data-copa-img />
+          <canvas data-copa></canvas>
+        </div>
+        <div class="raiz">
+          <img class="respaldo" src="/media/hero/raices-otono.webp" alt="" width="1260" height="361" data-raiz-img />
+          <canvas data-raiz></canvas>
+        </div>
+      </figure>
+    </header>
+
+    <section class="texto wrap" aria-label="El manifiesto">
+      <div class="abre">
+        <!-- la capitular: la T a pluma de punta ancha; la escribe la savia (máscaras con las líneas centrales de cada trazo) -->
+        <svg class="capitular" data-capitular viewBox={capitular.viewBox} aria-hidden="true">
+          <defs>
+            {capitular.guias.map((g, i) => (
+              <mask id={`cap-m-${i}`} maskUnits="userSpaceOnUse" x="-20" y="-20" width="240" height="272">
+                <path data-guia d={g} fill="none" stroke="#fff" stroke-width={capitular.anchos[i]} stroke-linecap="round" stroke-linejoin="round" />
+              </mask>
+            ))}
+          </defs>
+          {capitular.tinta.map((t, i) => <path class="tinta" d={t} mask={`url(#cap-m-${i})`} />)}
+          <path class="cola" data-cola d={capitular.cola} />
+        </svg>
+        <p class="parrafo text-pretty" data-alimenta>
+          <span class="hueco" aria-hidden="true"></span><span class="sr">{inicial}</span>{parrafos[0].map((s) => (s.m ? <span class="marca">{s.t}</span> : s.t))}
+        </p>
+      </div>
+      {
+        parrafos.slice(1).map((p) => (
+          <p class="parrafo text-pretty" data-alimenta>
+            {p.map((s) => (s.m ? <span class="marca">{s.t}</span> : s.t))}
+          </p>
+        ))
+      }
+    </section>
+
+    <section class="cierre wrap" aria-label="Cierre">
+      <p class="frase font-display" data-alimenta>{manifiesto.cierre}</p>
+      <p class="firma font-sans text-fg2">{manifiesto.firma}</p>
+    </section>
+
+    <!-- LA SAVIA: el canal (la ruta, tenue), los dos vasos (raíz → capitular · capitular → canal → cierre), capilares, pulsos y la gota que la lleva -->
+    <svg class="savia" data-savia aria-hidden="true">
+      <path class="canal" data-canal />
+      <path class="vaso a" data-vaso-a />
+      <path class="vaso b" data-vaso-b />
+      <g data-capilares></g>
+      <g class="pulso" data-pulso><circle r="5.5" class="halo" /><circle r="1.6" class="nucleo" /></g>
+      <g class="pulso" data-pulso><circle r="5.5" class="halo" /><circle r="1.6" class="nucleo" /></g>
+      <g class="pulso" data-pulso><circle r="5.5" class="halo" /><circle r="1.6" class="nucleo" /></g>
+      <g class="cabeza" data-cabeza><circle r="8" class="halo" /><circle r="2.8" class="nucleo" /></g>
+    </svg>
+    <div class="sonda" data-sonda aria-hidden="true"></div>
+  </main>
+  <Pie />
+</Base>
+
+<style>
+  /* ── LA PÁGINA: el claro de la estación, liso (sin grano ni fibras) ── */
+  .manifiesto {
+    position: relative;
+    overflow-x: clip;
+  }
+
+  /* ── PORTADA: el titular arriba y el roble debajo, en la primera pantalla ── */
+  .portada {
+    min-height: 100lvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.5rem, 0.75rem + 3lvh, 3rem);
+    padding-top: calc(var(--spacing) * 24);
+    padding-bottom: calc(var(--spacing) * 8);
+    text-align: center;
+  }
+  .titulo {
+    font-size: clamp(3.25rem, 1.6rem + 5.4vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    color: var(--fg);
+  }
+  /* el roble, algo pequeño: copa (1260 × 583) y raíces (1260 × 361) con el mismo ancho, pegadas por la línea de suelo */
+  .roble {
+    margin: 0;
+    width: min(44vw, 34lvh * 2.161, 36rem);
+    pointer-events: none;
+  }
+  .copa,
+  .raiz {
+    position: relative;
+    width: 100%;
+  }
+  .copa { aspect-ratio: 1260 / 583; }
+  /* la franja de tierra bajo el cuello se queda en semitono denso: se aligera para que la raíz lea limpia (la máscara va en la caja: la del lienzo es la del relevo) */
+  .raiz {
+    aspect-ratio: 1260 / 361;
+    -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.45), #000 26%);
+    mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.45), #000 26%);
+  }
+  .roble canvas,
+  .respaldo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .respaldo { object-fit: contain; }
+  /* con WebGL el lienzo manda; el respaldo se retira */
+  .roble.gl .respaldo { visibility: hidden; }
+  @media (max-width: 47.99rem) {
+    .roble { width: min(84vw, 30lvh * 2.161); }
+  }
+
+  /* ── EL TEXTO: tres párrafos seguidos, una columna, con MUCHO aire (ronda 153): arriba, el tramo por el que la savia cae de la raíz ── */
+  .texto {
+    --cuerpo: clamp(1.25rem, 0.95rem + 1vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--spacing) * 16);
+    padding-top: clamp(12rem, 6rem + 36lvh, 30rem);
+  }
+  .abre {
+    position: relative;
+    width: 100%;
+    max-width: 36ch;
+    font-size: var(--cuerpo);
+  }
+  .parrafo {
+    width: 100%;
+    max-width: 36ch;
+    font-size: var(--cuerpo);
+    line-height: 1.45;
+    letter-spacing: -0.005em;
+    color: var(--fg);
+  }
+  .abre .parrafo { max-width: none; }
+  /* la capitular ocupa cuatro renglones (tres en móvil): un hueco flotante en el texto y, encima, la letra (fuera de la máscara del párrafo) */
+  .hueco {
+    float: left;
+    width: calc(5.75em * 200 / 232);
+    height: 5.75em;
+    margin: 0.02em 0.32em 0 -0.06em;
+  }
+  .capitular {
+    position: absolute;
+    top: 0.02em;
+    left: -0.06em;
+    width: calc(5.75em * 200 / 232);
+    height: 5.75em;
+    overflow: visible;
+  }
+  .capitular .tinta { fill: var(--fg); }
+  .capitular .cola {
+    fill: none;
+    stroke: var(--color-coral);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (max-width: 47.99rem) {
+    .texto { padding-top: clamp(9rem, 4rem + 30lvh, 18rem); gap: calc(var(--spacing) * 12); }
+    .abre .parrafo,
+    .texto > .parrafo { padding-left: 0.75rem; }
+    .hueco,
+    .capitular { width: calc(4.25em * 200 / 232); height: 4.25em; }
+    .capitular { left: calc(0.75rem - 0.06em); }
+  }
+  /* la frase de savia: el subrayado se pinta cuando el párrafo ya está alimentado */
+  .marca {
+    background: linear-gradient(var(--color-coral), var(--color-coral)) 0 94% / 100% 2px no-repeat;
+    transition: background-size 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
+  }
+  /* ALIMENTAR: sin alimentar, la tinta al 14 %; la savia la sube fila a fila (--nivel, en px desde arriba del párrafo) */
+  :global(html.savia-js) .parrafo:not(.lleno) {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(var(--nivel, 0px) - 1.1em), rgb(0 0 0 / 0.14) calc(var(--nivel, 0px) + 0.5em));
+    mask-image: linear-gradient(to bottom, #000 calc(var(--nivel, 0px) - 1.1em), rgb(0 0 0 / 0.14) calc(var(--nivel, 0px) + 0.5em));
+  }
+  :global(html.savia-js) .parrafo:not(.lleno) .marca { background-size: 0% 2px; }
+  /* la frase de cierre se enciende entera cuando la savia llega a ella */
+  :global(html.savia-js) .frase { opacity: 0.14; transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1); }
+  :global(html.savia-js) .frase.lleno { opacity: 1; }
+
+  /* ── LA SAVIA (capa sobre la página, sin puntero) ── */
+  .savia {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .savia path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .canal {
+    stroke: var(--rule);
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+  }
+  .savia.viva .canal { opacity: 1; }
+  .vaso { stroke: var(--color-coral); stroke-width: 1.5; }
+  .vaso.a { stroke-width: 1.25; }
+  :global(.capilar) {
+    fill: none;
+    stroke-linecap: round;
+    stroke: var(--color-coral);
+    stroke-width: 1;
+    opacity: 0.85;
+    stroke-dashoffset: var(--l);
+    transition: stroke-dashoffset 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  :global(.capilar.on) { stroke-dashoffset: 0; }
+  :global(.savia .gota) {
+    fill: var(--color-coral);
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0);
+    transition: transform 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) 0.9s;
+  }
+  :global(.savia .gota.on) { transform: scale(1); }
+  .halo { fill: var(--color-coral); opacity: 0.16; }
+  .nucleo { fill: var(--color-coral); }
+  .pulso { opacity: 0; }
+  .pulso .nucleo { fill: color-mix(in oklab, var(--color-coral), #fff 40%); }
+  .pulso .halo { opacity: 0.22; }
+  .cabeza { opacity: 0; transition: opacity 0.6s ease; }
+  .cabeza .halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: respira 2.4s ease-in-out infinite;
+  }
+  @keyframes respira {
+    50% { transform: scale(1.45); opacity: 0.08; }
+  }
+  .sonda {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 62lvh;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cabeza .halo { animation: none; }
+  }
+
+  /* ── CIERRE ── */
+  .cierre {
+    text-align: center;
+    padding-block: clamp(12rem, 6rem + 34lvh, 28rem) var(--space-section);
+  }
+  .frase {
+    max-width: 18ch;
+    margin-inline: auto;
+    font-size: clamp(2.25rem, 1.2rem + 3.6vw, 4.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .firma {
+    margin-top: calc(var(--spacing) * 8);
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+  }
+</style>
+
+<script>
+  import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
+  import { EST, estacionActual } from '../scripts/estacion';
+  import { rgbDe } from '../scripts/tinta';
+  import { iniciarSavia } from '../components/manifiesto/savia';
+
+  const main = document.querySelector<HTMLElement>('[data-manifiesto]')!;
+  const roble = main.querySelector<HTMLElement>('[data-roble]')!;
+  const imgCopa = main.querySelector<HTMLImageElement>('[data-copa-img]')!;
+  const imgRaiz = main.querySelector<HTMLImageElement>('[data-raiz-img]')!;
+  let cvCopa = main.querySelector<HTMLCanvasElement>('[data-copa]')!;
+  let cvRaiz = main.querySelector<HTMLCanvasElement>('[data-raiz]')!;
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const RASGO = "url('/media/rasgo-circulo.png')";
+
+  // ── LA MÁSCARA RASGADA: el canto de papel de acuarela (el mismo con que el hero repinta el árbol) se abre desde (ox, oy) ──
+  const pon = (el: HTMLElement, m: string) => { el.style.setProperty('-webkit-mask', m); el.style.setProperty('mask', m); };
+  const revelar = (el: HTMLElement, ox: number, oy: number, dur: number, fin?: () => void, viejo?: HTMLElement) => {
+    let a = 0;
+    const paso = (ahora: number) => {
+      if (!a) a = ahora;
+      const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), w = el.offsetWidth, h = el.offsetHeight;
+      const S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
+      pon(el, `${RASGO} ${(ox * w - S / 2).toFixed(1)}px ${(oy * h - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
+      if (viejo) viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
+      if (k < 1) requestAnimationFrame(paso);
+      else { pon(el, ''); fin?.(); }
+    };
+    pon(el, `${RASGO} 0 0 / 0 0 no-repeat`);
+    requestAnimationFrame(paso);
+  };
+
+  // ── EL ROBLE: la lámina de la estación, pintada por el motor del hero ──
+  // copa: gota de savia, líneas, pintura rasgada desde la base. En invierno no hierve (ronda 144: «más blanquecino»); en primavera el motor tiñe (cerezo).
+  const tinteCopa = (n: number) => (n === 2 ? 0.9 : 0);
+  const TINTE_RAIZ = [0, 0.8, 0.65, 0.5]; // otoño · invierno · primavera · verano (Raices.astro, ronda 81)
+  const fondo = () => rgbDe('niebla', main); // el claro de la página: el árbol se funde hacia él
+  const OPC_COPA = (n: number, gota: boolean) => ({ origen: [0.5, 1] as [number, number], dir: -1 as const, soplo: n !== 1, gota, manual: gota, hd: true, sinLuz: true, intensidad: tinteCopa(n) });
+  const OPC_RAIZ = (n: number) => ({ origen: [0.5, 0] as [number, number], dir: 1 as const, soplo: false, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: TINTE_RAIZ[n] });
+  const cargar = (src: string) => { const i = new Image(); i.decoding = 'async'; i.src = src; return i; };
+  const soltarLienzo = (c: HTMLCanvasElement) => {
+    const g = c.getContext('webgl2') || c.getContext('webgl');
+    if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext();
+    c.remove();
+  };
+
+  let est = estacionActual();
+  imgCopa.src = `/media/hero/arbol-${EST[est]}.webp`;
+  imgRaiz.src = `/media/hero/raices-${EST[est]}.webp`;
+  const laminaCopa = cargar(imgCopa.src), laminaRaiz = cargar(imgRaiz.src);
+  let copa: Estela | null = crearEstela(cvCopa, laminaCopa, OPC_COPA(est, true));
+  let raiz: Estela | null = copa ? crearEstela(cvRaiz, laminaRaiz, OPC_RAIZ(est)) : null;
+  let visible = true, gRaiz = reducido ? 1 : 0, creciendo = false;
+
+  if (copa && raiz) {
+    roble.classList.add('gl');
+    if (est === 1 || est === 2) copa.estacion(est);
+    raiz.estacion(est);
+    copa.fondo(...fondo()); raiz.fondo(...fondo());
+    raiz.crecer(gRaiz);
+    // las raíces bajan desde el cuello cuando la copa ya ha brotado (3,6 s, la curva del árbol)
+    const crecerRaiz = () => {
+      if (creciendo || gRaiz >= 1) return;
+      creciendo = true;
+      let a = 0;
+      const paso = (ahora: number) => {
+        if (!a) a = ahora;
+        const k = Math.min(1, (ahora - a) / 3600);
+        gRaiz = 1 - Math.pow(1 - k, 1.6);
+        raiz?.crecer(gRaiz);
+        if (k < 1) requestAnimationFrame(paso);
+      };
+      requestAnimationFrame(paso);
+    };
+    Promise.all([laminaCopa.decode(), laminaRaiz.decode()]).catch(() => null).then(() => {
+      setTimeout(() => {
+        copa?.soltar();
+        if (reducido) return;
+        // abierta ya más abajo: raíces pintadas sin más
+        if (roble.getBoundingClientRect().bottom < 0) { gRaiz = 1; raiz?.crecer(1); return; }
+        setTimeout(crecerRaiz, 2600);
+      }, reducido ? 0 : 350);
+    });
+    // fuera de la pantalla, el roble no se pinta
+    new IntersectionObserver((e) => { visible = e[0].isIntersecting; copa?.visible(visible); raiz?.visible(visible); }, { rootMargin: '10% 0px' }).observe(roble);
+
+    // ── CAMBIO DE ESTACIÓN: la lámina nueva viene pintada y se descubre con el canto rasgado desde la base; las raíces, 0,7 s después ──
+    let pedida = -1;
+    addEventListener('savvia:estacion', (ev) => {
+      const n = (ev as CustomEvent).detail.n as number;
+      if (n === est) return;
+      est = n; pedida = n;
+      const nc = cargar(`/media/hero/arbol-${EST[n]}.webp`), nr = cargar(`/media/hero/raices-${EST[n]}.webp`);
+      Promise.all([nc.decode(), nr.decode()]).catch(() => null).then(() => {
+        if (pedida !== n) return;
+        imgCopa.src = nc.src; imgRaiz.src = nr.src;
+        const c2 = cvCopa.cloneNode(false) as HTMLCanvasElement, r2 = cvRaiz.cloneNode(false) as HTMLCanvasElement;
+        cvCopa.after(c2); cvRaiz.after(r2);
+        const tc = crearEstela(c2, nc, OPC_COPA(n, false)), tr = crearEstela(r2, nr, OPC_RAIZ(n));
+        if (!tc || !tr) { c2.remove(); r2.remove(); return; }
+        if (n === 1 || n === 2) tc.estacion(n);
+        tr.estacion(n);
+        tc.fondo(...fondo()); tr.fondo(...fondo());
+        tc.crecer(1); tr.crecer(gRaiz);
+        tc.visible(visible); tr.visible(visible);
+        const vc = cvCopa, vr = cvRaiz;
+        cvCopa = c2; cvRaiz = r2; copa = tc; raiz = tr;
+        if (!visible || reducido) { soltarLienzo(vc); soltarLienzo(vr); return; }
+        revelar(c2, 0.5, 1, 2600, () => soltarLienzo(vc), vc);
+        setTimeout(() => revelar(r2, 0.5, 0, 2200, () => soltarLienzo(vr), vr), 700);
+      });
+    });
+  }
+
+  // ── LA SAVIA: espera a que la raíz haya bajado (o a que no haya motor) ──
+  const savia = iniciarSavia(main, { reducido, listo: () => !copa || gRaiz >= 0.85 || roble.getBoundingClientRect().bottom < 0 });
+
+  (window as any).__manifiesto = () => ({
+    roble: roble.getBoundingClientRect().toJSON(),
+    gl: roble.classList.contains('gl'),
+    raiz: gRaiz,
+    savia: savia.sonda(),
+  });
+</script>

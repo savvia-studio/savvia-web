@@ -32,7 +32,7 @@ import { flecha } from '../lib/flecha';
     <div class="grid-12 gap-y-12">
       <div class="col-span-4 lg:col-span-7">
         <p class="text-h1 font-display tracking-[-0.02em] titular" data-entra>
-          {antes}<span class="marca" data-marca>savvia</span>{despues}
+          {antes}<span class="marca" data-marca>sa<span class="v1">v</span>v<span class="tras-v">ia</span></span>{despues}
         </p>
         <p class="text-sub measure mt-4 lg:mt-6">{pie.pitch}</p>
       </div>
@@ -430,6 +430,9 @@ import { flecha } from '../lib/flecha';
      entero (el punto de la i arriba) = la altura de ascendentes de Family (medida: 0,71 em; la «l»), con lo que su «a» queda a 0,494 em, un 5 % por
      encima de la x de Family, como pide el ojo; el pie de las letras, en la línea base, sin desplazar */
   /* RONDA 66 · la marca es la palabra en Family (la del titular); se DIBUJA al llegar, de izquierda a derecha con canto blando, y de su última «a» cae la gota */
+  /* RONDA 154 · «la v de la izquierda, un poco más a la izquierda, en todos lados»: como en el logotipo (−46/1000) */
+  .titular .marca .v1 { margin-inline: -0.026em 0.052em; }
+  .titular .marca .tras-v { margin-left: 0.028em; } /* ojo: no «.ia», que es la clase global del píxel de la IA */
   .titular .marca {
     display: inline-block;
     -webkit-mask: linear-gradient(90deg, #000 42%, transparent 58%) 100% 0 / 240% 100% no-repeat;
@@ -619,7 +622,7 @@ import { flecha } from '../lib/flecha';
   .cta-dice { max-width: 17rem; white-space: normal; text-wrap: balance; }
   .cta-pastilla :global(.btn-flecha) { margin-left: calc(var(--spacing) * -1); }
   .cta-pastilla :global(.btn-flecha) { --fl-retraso: 0.95s; } /* RONDA 137 · se dibuja cuando la puerta ya está llena */
-  .cta-abierto .cta-pastilla { transform: translate(-50%, -100%) perspective(520px) rotateX(0deg); opacity: 1; color: #eadde7; transition: transform 0.8s var(--ease-out-expo) 0.2s, opacity 0.15s ease 0.2s, color 0.4s ease 0.75s; }
+  .cta-abierto .cta-pastilla { transform: translate(-50%, -100%) perspective(520px) rotateX(0deg); opacity: 1; color: var(--color-niebla); transition: transform 0.8s var(--ease-out-expo) 0.2s, opacity 0.15s ease 0.2s, color 0.4s ease 0.75s; }
   .cta-abierto .cta-pastilla::before { clip-path: inset(0 0 0 0); transition: clip-path 0.8s var(--ease-out-expo) 0.5s; }
   @media (prefers-reduced-motion: reduce) { .cta-hilo, .cta-pastilla, .cta-pastilla::before { transition: none !important; } }
   .cta-abierto .contacta-delante .contacta-luz { opacity: 0; }
@@ -693,7 +696,7 @@ import { flecha } from '../lib/flecha';
     z-index: 1; /* ronda 32: bajo el formulario de cristal (z 2); la hierba (z 3) delante de todo */
     /* ronda 26: el GRANO de la página por encima del velo; si no, el filo superior del velo (arcilla lisa contra la sección con grano) se veía como un
        cambio de color */
-    background: url('/media/grano.png') 0 0 / 240px 240px, linear-gradient(to bottom, var(--noche), color-mix(in oklab, var(--noche) 88%, transparent) 30%, color-mix(in oklab, var(--noche) 45%, transparent) 65%, transparent);
+    background: linear-gradient(to bottom, var(--noche), color-mix(in oklab, var(--noche) 88%, transparent) 30%, color-mix(in oklab, var(--noche) 45%, transparent) 65%, transparent);
     pointer-events: none;
   }
   .capa {

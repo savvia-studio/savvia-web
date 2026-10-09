@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- RONDA 152 · «la gota de la carga como favicon; la gota redonda, sin empezar a caer»: la misma agua translúcida de Cargador.astro (cuerpo que deja
+       ver el fondo, canto que refracta, luz transmitida abajo y brillo especular arriba a la izquierda), redonda, sobre el Cacao -->
+  <defs>
+    <radialGradient id="agua" cx="32" cy="32" r="19" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f3dcc0" stop-opacity=".16"/>
+      <stop offset=".62" stop-color="#e9c9a3" stop-opacity=".26"/>
+      <stop offset=".86" stop-color="#f6e4cc" stop-opacity=".62"/>
+      <stop offset="1" stop-color="#fff3e4" stop-opacity=".95"/>
+    </radialGradient>
+    <radialGradient id="luz" cx="32" cy="43" r="14.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd9a8" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#ffd9a8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#3b231b"/>
+  <circle cx="32" cy="32" r="19" fill="url(#agua)"/>
+  <circle cx="32" cy="33.3" r="14.5" fill="url(#luz)"/>
+  <circle cx="32" cy="32" r="18.9" fill="none" stroke="#fff3e4" stroke-opacity=".9" stroke-width="2"/>
+  <ellipse cx="25.3" cy="23.8" rx="5.4" ry="3.3" transform="rotate(-35 25.3 23.8)" fill="#fff" fill-opacity=".95"/>
+  <circle cx="39.6" cy="28.2" r="1.4" fill="#fff" fill-opacity=".65"/>
+</svg>

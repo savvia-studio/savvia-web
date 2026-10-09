@@ -407,7 +407,7 @@ const TRAZO: Record<string, string> = {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: color-mix(in oklab, var(--color-niebla) 22%, #fff) url('/media/grano.png') 0 0 / 240px 240px;
+    background: color-mix(in oklab, var(--color-niebla) 22%, #fff);
     filter: drop-shadow(0 0 0 transparent);
     -webkit-mask: conic-gradient(from 135deg at 50% 0, #0000, #000 1deg 89deg, #0000 90deg) top / calc(var(--diente) * 2) var(--diente) repeat-x, linear-gradient(#000 0 0) center / 100% calc(100% - var(--diente) * 2) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--diente) * 2) var(--diente) repeat-x;
     mask: conic-gradient(from 135deg at 50% 0, #0000, #000 1deg 89deg, #0000 90deg) top / calc(var(--diente) * 2) var(--diente) repeat-x, linear-gradient(#000 0 0) center / 100% calc(100% - var(--diente) * 2) no-repeat, conic-gradient(from -45deg at 50% 100%, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--diente) * 2) var(--diente) repeat-x;
@@ -434,10 +434,10 @@ const TRAZO: Record<string, string> = {
   .logo-t {
     display: block;
     height: 2.5rem;
-    aspect-ratio: 2319 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
+    aspect-ratio: 2373 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
     background: currentColor;
-    -webkit-mask: url('/savvia-palabra.svg') center / contain no-repeat;
-    mask: url('/savvia-palabra.svg') center / contain no-repeat;
+    -webkit-mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
+    mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
   }
   .sub-cab {
     margin-top: calc(var(--spacing) * 2);

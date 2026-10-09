@@ -2,9 +2,8 @@
 import sharp from 'sharp';
 import Cta from './Cta.astro';
 import { proyectos } from '../data/home';
-import { HOJA_ROBLE, GIRO_HOJA, copo, flor, sol, aD } from '../scripts/formas-estacion';
-// RONDA 65 · los iconos de estación, las mismas formas que el icono de la barra (rellenas): cerezo · sol · hoja de roble · copo
-const IC = { primavera: aD(flor()), verano: aD(sol()), invierno: aD(copo()) };
+import { icono, ICONO_ESTACION } from '../lib/iconos';
+// RONDA 152 · los iconos de estación y de la interfaz, de la iconografía de la casa (Phosphor: estaciones rellenas, interfaz regular)
 const P = proyectos.nuevos;
 // RONDA 50 · el TINTE del cristal de la barra: el color medio de la cabecera de cada web (la franja de arriba de su captura, el 4,2 % de su ancho: ~60 px a 1440), medido al compilar
 const TINTE: Record<string, string> = {};
@@ -18,6 +17,9 @@ for (const p of P) {
   for (let i = 0; i < franja.data.length; i += 3) { r += franja.data[i]; g += franja.data[i + 1]; b += franja.data[i + 2]; }
   TINTE[p.slug] = `rgb(${Math.round(r / n)} ${Math.round(g / n)} ${Math.round(b / n)})`;
 }
+// ronda 152: la captura de página entera (las webs que no se dejan embeber, para recorrerlas)
+const LARGO: Record<string, boolean> = {};
+for (const p of P) LARGO[p.slug] = await sharp(`public/media/proyectos/${p.slug}-largo.webp`).metadata().then(() => true).catch(() => false);
 const EST = ['primavera', 'verano', 'otono', 'invierno'];
 const nombreEst: Record<string, string> = { primavera: 'Primavera', verano: 'Verano', otono: 'Otoño', invierno: 'Invierno' };
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -89,13 +91,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <i class="capta" aria-hidden="true" data-capta></i>
             <!-- RONDA 50 · «el indicador de scroll como estaba antes, encima de la pantalla del ordenador»: vuelve la píldora de la ronda 39, al pie
                  de la web; se va con el primer gesto sobre ella (la capa `capta`, ronda 41) -->
-            <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span>desliza dentro</span></p>
+            <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span>desliza dentro del monitor · fuera, para levantarte</span></p>
             <!-- RONDA 67 · la PANTALLA DE CARGA al sentarse o al cambiar de proyecto sentado: savvia, una línea de savia que corre y el dominio -->
             <div class="carga-web" aria-hidden="true"><i class="carga-logo"></i><i class="linea-carga"></i><span class="detail" data-carga-url></span></div>
             <div class="visor">
             {
               P.map((p, i) => (
-                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-tinte={TINTE[p.slug]} data-embed={(p as any).embed === false ? 'no' : 'si'} tabindex="-1" role="region" aria-label={`Web de ${p.n}`} hidden={i !== 0}>
+                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-cap-largo={LARGO[p.slug] ? `/media/proyectos/${p.slug}-largo.webp` : undefined} data-tinte={TINTE[p.slug]} data-embed={(p as any).embed === false ? 'no' : 'si'} tabindex="-1" role="region" aria-label={`Web de ${p.n}`} hidden={i !== 0}>
                   <!-- RONDA 19: aquí se monta, al acercarse, el <iframe> con la web REAL (o su captura si la web no se deja embeber) -->
                 </div>
               ))
@@ -141,8 +143,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="ui ui-guia" data-guia>
           <!-- RONDA 40 · «quitamos proyectos con números: con las flechas ya es suficiente». En móvil, las flechas a los lados del nombre -->
           <p class="guia-nombre" aria-live="polite" data-guia-nombre>{P[0].n}</p>
-          <button type="button" class="giro arriba" data-giro="-1" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14.5l6-6 6 6" /></svg></button>
-          <button type="button" class="giro abajo" data-giro="1" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6" /></svg></button>
+          <button type="button" class="giro arriba" data-giro="-1" aria-label="Proyecto anterior"><Fragment set:html={icono('caret-up')} /></button>
+          <button type="button" class="giro abajo" data-giro="1" aria-label="Proyecto siguiente"><Fragment set:html={icono('caret-down')} /></button>
         </div>
         <div class="ui ui-lista" data-lista>
           <ol class="dial" data-dial>
@@ -168,36 +170,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
              como si se fuesen multiplicando haciendo una circunferencia alrededor de él. La animación de separarse del (+) tiene que ser
              líquida»: una capa de GOTAS Rosa niebla (la del (+) y cuatro que nacen de ella) bajo un filtro gooey mientras se separan, y encima
              los botones (transparentes, con el icono). Las gotas se colocan en una circunferencia de 60 px alrededor del (+). -->
-        <div class="ui ui-mando" data-mando>
-          <svg width="0" height="0" class="absolute" aria-hidden="true"><filter id="goo-estaciones" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="6" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" /></filter></svg>
-          <div class="abanico" data-abanico>
-            <span class="blobs" aria-hidden="true"><i class="blob mas-blob"></i>{[0, 1, 2, 3, 4].map((k) => <i class="blob" style={`--i:${k}`} />)}</span>
-            <button type="button" class="mas" data-mas aria-expanded="false" aria-label="Cambiar de estación">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-            </button>
-            <!-- RONDA 65 · la escena invita también a cambiar de estación -->
-            <span class="mas-rotulo detail detail-caps" aria-hidden="true">Cambia la estación</span>
-          <div class="grupo" role="group" aria-label="Estación y sonido" inert>
-            <button type="button" class="est" data-est="primavera" aria-pressed="false" aria-label="Primavera" style="--i:0">
-              <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={IC.primavera} /></svg><span class="rotulo detail">Primavera</span>
-            </button>
-            <button type="button" class="est" data-est="verano" aria-pressed="false" aria-label="Verano" style="--i:1">
-              <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={IC.verano} /></svg><span class="rotulo detail">Verano</span>
-            </button>
-            <button type="button" class="est" data-est="otono" aria-pressed="false" aria-label="Otoño" style="--i:2">
-              <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={HOJA_ROBLE} transform={`rotate(${GIRO_HOJA} 12 12)`} /></svg><span class="rotulo detail">Otoño</span>
-            </button>
-            <button type="button" class="est" data-est="invierno" aria-pressed="false" aria-label="Invierno" style="--i:3">
-              <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={IC.invierno} /></svg><span class="rotulo detail">Invierno</span>
-            </button>
-          <!-- RONDA 20 · «dentro del + también ponemos el sonido»: la quinta gota -->
-          <button type="button" class="est" aria-pressed="false" aria-label="Sonido" data-sonido style="--i:4">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" /><path class="ondas" d="M15.5 9a4.2 4.2 0 010 6M18 6.5a7.8 7.8 0 010 11" /><path class="mudo" d="M15.5 9.5l5 5m0-5l-5 5" /></svg>
-            <span class="rotulo detail">Sonido <span data-sonido-estado>off</span></span>
-          </button>
-          </div>
-          </div>
-        </div>
+        <!-- RONDA 153 · el (+) de estación y sonido sale de la escena: es el mando flotante de toda la web (Mando.astro) -->
 
         <!-- SENTADO (ronda 12): que quede claro cómo se sale: una (x) arriba a la derecha y, abajo, la tecla Esc. Sin «Abrir la web» aquí. -->
         <div class="barra" data-barra hidden>
@@ -206,7 +179,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <div class="arriba cristal">
             <p class="salir detail"><kbd>esc</kbd> para levantarte</p>
             <button type="button" class="cerrar" data-levantarse aria-label="Levantarse y volver">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+              <Fragment set:html={icono('x')} />
             </button>
           </div>
           <!-- RONDA 14 · «en la vista sentado de proyectos que también puedas ver otros»: sin levantarte, anterior · proyecto · siguiente -->
@@ -231,7 +204,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 <script>
   import { crearSonido } from '../scripts/sonido-estudio';
-  import { EST, fijarEstacion, estacionActual } from '../scripts/estacion';
+  import { EST, estacionActual } from '../scripts/estacion';
 
   const raiz0 = document.querySelector<HTMLElement>('[data-estudio]');
   if (raiz0) {
@@ -245,9 +218,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const sonido = crearSonido();
     // RONDA 65 · «los proyectos no tienen su propia estación, la cambias tú con los botones»: la escena lleva la estación de la web
+    let explorando = false;
     let activo = 0, sentado = false, cargado = false, estManual: string | null = EST[estacionActual()];
     const estActual = () => estManual ?? EST[estacionActual()];
-    const ests = $$<HTMLButtonElement>('[data-est]');
+    const ests: HTMLButtonElement[] = []; // ronda 153: los botones de estación viven en el mando flotante
 
     // Las láminas se piden al acercarse la sección: primero la de la estación visible.
     // RONDA 39 · «los mockups del ordenador hay que hacerlos más nítidos»: láminas nuevas de Andoni a 8K → 1600 (móvil), 2560 y 5120 px.
@@ -284,8 +258,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const m: Montada = { el: null as any, listo: false, cbs: [] };
       const listo = () => { m.listo = true; m.cbs.splice(0).forEach((f) => f()); };
       // RONDA 67 · «cuando te sientas, carga un proyecto»: de pie se enseña su CAPTURA (ligera, para que roten); sentado, la web real
-      if (w.dataset.embed === 'no' || !sentado) {
-        const img = new Image(); img.src = w.dataset.cap!; img.alt = `${w.getAttribute('aria-label')}, completa`; img.decoding = 'async';
+      const vivo = sentado || explorando;
+      if (w.dataset.embed === 'no' || !vivo) {
+        // ronda 152: sentado o explorando de pie, la que no se deja embeber enseña su página ENTERA (Neety: 1440 × 12 144), que se recorre
+        const img = new Image(); img.src = (vivo && w.dataset.capLargo) || w.dataset.cap!; img.alt = `${w.getAttribute('aria-label')}, completa`; img.decoding = 'async';
         img.complete && img.naturalWidth ? listo() : img.addEventListener('load', listo, { once: true });
         m.el = img;
       } else {
@@ -400,7 +376,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     capta.addEventListener('touchstart', scrollDescubierto, { passive: true });
     capta.addEventListener('pointerdown', scrollDescubierto);
     $('.visor').addEventListener('scroll', scrollDescubierto, { capture: true, passive: true });
-    if (reducido) avisarScroll();
+    void avisarScroll; // ronda 152: la píldora sale al explorar la pantalla de pie (explorar)
 
     // ── EL ESTRENO (ronda 13): la primera web se busca en la página de inicio Cacao (la misma materia que el titular: sin corte).
     const inicio = $('[data-inicio]');
@@ -414,7 +390,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       // carga; el titular se funde y debajo ya está la web (la captura, de pie). La pantalla de carga queda solo al sentarse y al cambiar sentado.
       cargaUrl.textContent = '';
       inicio.classList.add('fuera');
-      urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); avisarScroll();
+      urlEl.textContent = host; w.classList.remove('cargando'); tintar(w);
       cuandoListo(w, () => { if (yo === turno) tintar(w); });
     }
 
@@ -470,10 +446,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     addEventListener('resize', () => girar(true));
     let ultRueda = 0;
     $('[data-lista]').addEventListener('wheel', (ev) => { ev.preventDefault(); const t = performance.now(); if (t - ultRueda < 260 || Math.abs(ev.deltaY) < 4) return; ultRueda = t; rodar(ev.deltaY > 0 ? 1 : -1); }, { passive: false });
-    ests.forEach((b) => b.addEventListener('click', () => {
-      estManual = b.dataset.est!; cargar(); capas.forEach(pedir); pintar();
-      fijarEstacion(EST.indexOf(estManual as any), 'proyectos'); // RONDA 39: elegir una estación aquí la elige para toda la web (fondo, árbol, raíces)
-    }));
     // RONDA 65 · si la estación se cambia en otro sitio (el árbol del hero, el icono de la barra), la escena la sigue sin recargar la web del monitor
     addEventListener('savvia:estacion', (ev) => {
       const { n, origen } = (ev as CustomEvent).detail as { n: number; origen: string };
@@ -484,20 +456,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
       ests.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.est === estActual())));
       sonido.estacion(estActual()); aire.estacion(estActual());
     });
-    // ── EL (+) DE LAS ESTACIONES (ronda 19): abre y cierra el abanico; el filtro gooey solo mientras las gotas se separan o se juntan
-    const abanico = $('[data-abanico]'), mas = $<HTMLButtonElement>('[data-mas]'), grupoEst = abanico.querySelector<HTMLElement>('.grupo')!;
-    let abierto = false, finGoo = 0;
-    function abrir(si: boolean) {
-      if (si === abierto) return;
-      abierto = si;
-      abanico.classList.toggle('abierto', si);
-      mas.setAttribute('aria-expanded', String(si));
-      grupoEst.inert = !si;
-      if (!reducido) { abanico.classList.add('fundiendo'); clearTimeout(finGoo); finGoo = window.setTimeout(() => abanico.classList.remove('fundiendo'), si ? 900 : 650); }
-    }
-    mas.addEventListener('click', () => abrir(!abierto));
-    document.addEventListener('pointerdown', (ev) => { if (abierto && !abanico.contains(ev.target as Node)) abrir(false); });
-
     // Acercar la cámara al monitor: el centro de la pantalla va al centro del escenario.
     const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // ronda 26: la caja blanca entera de las láminas, sin hueco («encajar mejor la pantalla al ordenador»)
     function encuadrar() {
@@ -526,6 +484,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (si === sentado) return;
       const antes = escenario.getBoundingClientRect();
       sentado = si;
+      if (si) { explorando = false; escenario.classList.remove('explora'); pistaScroll.classList.remove('on'); }
       raiz.classList.toggle('sentado', si);
       if (si) escenario.classList.add('viva');
       // RONDA 21 · «la (x) para salir activa el menú superior»: la × está donde el botón del menú; al levantarse, la barra sigue oculta y sin puntero
@@ -533,7 +492,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (si) document.documentElement.classList.add('estudio-sentado');
       else { (window as any).__levantado = performance.now(); clearTimeout(finLevantar); finLevantar = window.setTimeout(() => document.documentElement.classList.remove('estudio-sentado'), reducido ? 0 : 1500); }
       $('[data-barra]').hidden = !si;
-      $('[data-mando]').hidden = si; if (si) abrir(false);
       const ahora = escenario.getBoundingClientRect();
       if (!reducido) {
         // RONDA 20: el escenario y la escena viajan JUNTOS con la misma curva de cámara: arranca despacio, planea y se posa (1,5 s)
@@ -563,7 +521,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     $('[data-levantarse]').addEventListener('click', () => sentar(false));
     addEventListener('resize', encuadrar);
     addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && abierto) return abrir(false);
       if (e.key === 'Escape' && sentado) return sentar(false);
       const dentro = sentado || raiz.contains(document.activeElement);
       if (!dentro) return;
@@ -576,55 +533,56 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // cámara se ALEJA hasta descubrir la mesa, y el titular queda del tamaño de la pantalla del monitor; entonces salen los proyectos.
     const pista = $('[data-pista]'), titulo = $('[data-titulo]'), tituloH2 = titulo.querySelector('h2')!;
     let e = reducido ? 1 : -1, pedidoE = false, empujado = false;
+    // RONDA 152 (3.ª) · Andoni: «empiezas SENTADO pero entrando a esa pantalla como ahora; si sigues haciendo scroll te levantas; y que puedas hacer
+    // scroll en los proyectos sin que influya en tu scroll». La pista (100 lvh pegados + 250 de recorrido) en fracciones del recorrido:
+    //   A 0 → 0,34      ENTRAR: la cámara sale de la pantalla (el titular la llena) y se queda en el encuadre de SENTADO (el `k` de encuadrar)
+    //   B 0,34 → 0,52   SENTADO: quieto y nítido; al mover el ratón sobre el monitor, la web se recorre (la rueda no mueve la página)
+    //   C 0,52 → 0,82   TE LEVANTAS: la cámara se aleja hasta la mesa
+    //   D 0,82 → 1      DE PIE: la silla invita a sentarse; el monitor también se puede recorrer
+    let kNitido = 1, fase = '';
+    const kSentado = (E: DOMRect, sw: number, sh: number) => Math.min((E.width * (E.width < 700 ? 0.92 : 0.52)) / (PANT.w * sw), (E.height * 0.6) / (PANT.h * sh));
     const entrar = () => {
       pedidoE = false;
       if (reducido || sentado) return;
-      const r = pista.getBoundingClientRect(), vh = innerHeight, T = r.height - vh, y = -r.top;
-      // RONDA 14: la pista tiene ENTRADA (0 → 34 % del recorrido: la cámara se aleja de la pantalla), descanso, y SALIDA (71 → 96,5 %: la
-      // cámara vuelve a meterse en la pantalla, que se funde con el Cacao de lo que sigue). Fracciones del recorrido: misma unidad que la pista.
-      // RONDA 18 · «si scrolleas demasiado te pierdes los proyectos»: el DESCANSO entre entrar y salir pasa de 25 a 130 lvh (mismas
-      // distancias de entrada, 120 lvh, y de salida, 90 lvh): hay más de una pantalla entera de scroll con los proyectos quietos.
-      // RONDA 40 · «la salida de proyectos destacados quitamos la animación, dejamos scroll normal»: sin SALIDA; la pista es entrada (120 lvh) +
-      // descanso (130 lvh) y luego la escena sube con la página
-      const lin = Math.min(1, Math.max(0, y / (T * 0.48)));
-      const sal = 0;
-      const clave = lin + sal * 2;
-      if (Math.abs(clave - e) < 0.0008) return;
+      const r = pista.getBoundingClientRect(), T = r.height - innerHeight, y = -r.top, f = y / T;
+      const clave = Math.min(1, Math.max(0, f));
+      if (Math.abs(clave - e) < 0.0004) return;
       e = clave;
       const E = escenario.getBoundingClientRect(), sw = escena.offsetWidth, sh = escena.offsetHeight;
       const pw = PANT.w * sw, ph = PANT.h * sh;
       const K = Math.max(E.width / pw, E.height / ph) * 1.03; // a K, la pantalla cubre la ventana
-      // entrada: k va de 0 (pantalla a sangre) a 1 (la mesa); salida: de vuelta a 0
-      const kk = sal > 0 ? 1 - sal * sal * (3 - 2 * sal) : lin * lin * (3 - 2 * lin);
-      const s2 = Math.pow(K, 1 - kk); // zoom exponencial: el alejamiento se percibe uniforme
-      const m = (s2 - 1) / (K - 1); // 1 = centrado en la pantalla · 0 = la escena en su sitio
+      const kS = Math.min(K, kSentado(E, sw, sh));
+      const sm = (x: number) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); };
+      const a = Math.min(1, Math.max(0, f / 0.34)), c = Math.min(1, Math.max(0, (f - 0.52) / 0.3));
+      let s2: number, m: number;
+      if (c <= 0) { s2 = Math.exp(Math.log(K) + (Math.log(kS) - Math.log(K)) * sm(a)); m = 1; } // A y B: siempre centrado en el monitor
+      else { s2 = Math.exp(Math.log(kS) * (1 - sm(c))); m = kS > 1.001 ? (s2 - 1) / (kS - 1) : 0; } // C: del encuadre de sentado a la mesa
       const cx = (PANT.x + PANT.w / 2) * sw, cy = (PANT.y + PANT.h / 2) * sh;
       const dx = (E.width - sw) / 2 + cx - E.width / 2, dy = (E.height - sh) / 2 + cy - E.height / 2;
-      const quieta = kk >= 1;
-      escena.classList.toggle('entrando', !quieta);
+      const quieta = c >= 1;
+      const nf = a < 1 ? 'A' : c <= 0 ? 'B' : c < 1 ? 'C' : 'D';
+      escena.classList.toggle('entrando', nf === 'A' || nf === 'C');
       escena.style.transformOrigin = `${cx}px ${cy}px`;
       escena.style.transform = quieta ? '' : `translate(${-dx * m}px, ${-dy * m}px) scale(${s2})`;
-      // un 1,4 % mayor que la pantalla: pisa el marco negro del monitor y no deja ver un filo blanco por subpíxeles
+      // nítido sentado (B): la pantalla se maqueta kS veces mayor y se contra-escala (escala neta 1); en marcha, a 1
+      const kn = nf === 'B' ? kS : 1;
+      if (Math.abs(kn - kNitido) > 0.001) { kNitido = kn; nitido(kn); }
+      // el titular-pantalla: un 1,4 % mayor que la pantalla (pisa el marco negro), encoge con ella y se funde al final de A
       titulo.style.width = `${pw * K * 1.014}px`; titulo.style.height = `${ph * K * 1.014}px`;
       titulo.style.transform = `translate(-50%, -50%) translate(${dx * (1 - m)}px, ${dy * (1 - m)}px) scale(${s2 / K})`;
-      // RONDA 13: el grano del titular se contra-escala (en pantalla mide siempre 240 px, como el de la sección): sin «corte» de materia
       titulo.style.setProperty('--gr', `${(240 * K) / s2}px`);
-      // la página de inicio del monitor repite el titular al MISMO tamaño relativo: el fundido de uno a otro no se ve
       inicio.style.setProperty('--ft', `${(parseFloat(getComputedStyle(tituloH2).fontSize) / (pw * K * 1.014)) * 100}cqw`);
-      if (sal > 0) {
-        // SALIDA: la pantalla se llena de Cacao (sin texto) mientras la cámara entra; al final es la página que sigue
-        titulo.classList.add('vacio');
-        titulo.style.opacity = String(Math.min(1, Math.max(0, (sal - 0.3) / 0.45)));
-        titulo.style.visibility = sal > 0.3 ? 'visible' : 'hidden';
-        escenario.classList.remove('dentro', 'viva');
-      } else {
-        titulo.classList.remove('vacio');
-        titulo.style.opacity = String(1 - Math.min(1, Math.max(0, (lin - 0.84) / 0.12)));
-        titulo.style.visibility = lin >= 0.97 ? 'hidden' : 'visible';
-        escenario.classList.toggle('dentro', lin > 0.93);
-        if (lin > 0.93 && !empujado) empujar();
-        if (lin > 0.965 && !estrenado) estrenar(); // cuando el titular-pantalla ya se ha fundido con el de la página de inicio
-        if (lin < 0.93) escenario.classList.remove('viva');
+      titulo.classList.remove('vacio');
+      titulo.style.opacity = String(1 - Math.min(1, Math.max(0, (a - 0.84) / 0.12)));
+      titulo.style.visibility = a >= 0.97 ? 'hidden' : 'visible';
+      if (a > 0.965 && !estrenado) estrenar();
+      escenario.classList.toggle('dentro', nf === 'D');
+      escenario.classList.toggle('asiento', nf === 'B');
+      if (nf !== fase) {
+        fase = nf;
+        if (nf === 'A' || nf === 'C') { explorar(false); escenario.classList.remove('viva'); }
+        if (nf === 'B' && !scrollVisto) { pistaScroll.classList.add('on'); }
+        else if (nf !== 'B') pistaScroll.classList.remove('on');
       }
     };
     const pedirE = () => { if (!pedidoE) { pedidoE = true; requestAnimationFrame(entrar); } };
@@ -644,16 +602,31 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // La web del monitor se recorre SIEMPRE, pero solo se activa cuando el ratón se MUEVE por la escena: un scroll de página con
     // el cursor quieto en el centro no debe quedarse atrapado dentro del monitor. En táctil, siempre activa.
     escenario.addEventListener('pointermove', (ev) => { if (ev.pointerType !== 'mouse' || e > 0.93) escenario.classList.add('viva'); }, { passive: true });
-    escenario.addEventListener('pointerleave', () => !sentado && escenario.classList.remove('viva'));
+    escenario.addEventListener('pointerleave', () => { if (!sentado) { escenario.classList.remove('viva'); explorar(false); } });
+    // RONDA 152 (2.ª) · EXPLORAR DE PIE: solo con un movimiento REAL del ratón sobre la pantalla (si el cursor está quieto y la página pasa por debajo,
+    // no se activa: el scroll de la página nunca se queda atrapado). La web activa pasa de captura a la real y la rotación se para mientras.
+    function explorar(si: boolean) {
+      if (si === explorando || sentado) return;
+      explorando = si;
+      escenario.classList.toggle('explora', si);
+      const w = webs[activo]; desmontar(w); montar(w); ajustar();
+      clearTimeout(finAviso);
+      if (si) { pistaScroll.classList.add('on'); finAviso = window.setTimeout(() => pistaScroll.classList.remove('on'), 3200); }
+      else pistaScroll.classList.remove('on');
+    }
+    let finAviso = 0, ultX = -1, ultY = -1;
+    // la pantalla no coge el puntero de pie: el movimiento se mira en el escenario y se comprueba si cae dentro del rectángulo del monitor
+    escenario.addEventListener('pointermove', (ev) => {
+      if (explorando || sentado || ev.pointerType !== 'mouse' || !(fase === 'B' || fase === 'D')) return;
+      const primero = ultX < 0, mov = Math.abs(ev.clientX - ultX) + Math.abs(ev.clientY - ultY); ultX = ev.clientX; ultY = ev.clientY;
+      if (primero) return;
+      if (mov < 1) return; // Safari no siempre da movementX: el movimiento se mide a mano
+      const r = $('[data-pantalla]').getBoundingClientRect();
+      if (ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom) explorar(true);
+    }, { passive: true });
 
-    // Sonido: nace con un gesto (este clic) y se recuerda.
-    const bs = $<HTMLButtonElement>('[data-sonido]');
-    const pintarSonido = () => {
-      bs.setAttribute('aria-pressed', String(sonido.activo()));
-      $('[data-sonido-estado]').textContent = sonido.activo() ? 'on' : 'off';
-    };
-    bs.addEventListener('click', () => { sonido.alternar(); sonido.estacion(estActual()); pintarSonido(); });
-    pintarSonido();
+    // ronda 153: el sonido lo manda el (+) flotante (Mando.astro → savvia:son); el ambiente lo sigue (sonido-estudio.ts)
+    addEventListener('savvia:son-estudio', () => sonido.estacion(estActual()));
 
     pintar(true);
   }
@@ -663,7 +636,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* La pista: una pantalla pegada + 250 lvh de recorrido: 120 para ALEJARSE de la pantalla (entrada), 25 de descanso, 90 para volver a
      METERSE en ella (salida, ronda 14) y 15 con la pantalla ya a sangre en Cacao. Misma unidad que el alto del pegado (lvh). */
   .pista {
-    height: 350lvh; /* ronda 40: 120 de entrada + 130 de descanso + los 100 del pegado (sin salida: «scroll normal») */
+    height: 350lvh; /* ronda 152 (3.ª): 85 entrar + 45 sentado + 75 levantarse + 45 de pie + los 100 del pegado */
   }
   .pegado {
     position: sticky;
@@ -699,7 +672,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: grid;
     place-items: center;
     padding: 8%;
-    background: var(--noche) url('/media/grano.png') 50% 50% / var(--gr, 240px) var(--gr, 240px);
+    background: var(--noche);
     color: var(--color-niebla);
     text-align: center;
     pointer-events: none;
@@ -930,7 +903,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: grid;
     place-items: center; /* el titular, SOLO en el centro: pisa exactamente al del titular-pantalla (padding 8 % igual) */
     padding: 8%;
-    background: var(--noche) url('/media/grano.png') 0 0 / 240px 240px;
+    background: var(--noche);
     color: var(--color-niebla);
     text-align: center;
     pointer-events: none; /* la rueda pasa a la web de debajo */
@@ -1051,7 +1024,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     place-content: center;
     justify-items: center;
     gap: 1.6cqh;
-    background: var(--noche) url('/media/grano.png') 0 0 / 240px 240px;
+    background: var(--noche);
     color: var(--color-niebla);
     opacity: 0;
     pointer-events: none;
@@ -1059,10 +1032,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .carga-logo {
     height: 9cqh;
-    aspect-ratio: 2319 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
+    aspect-ratio: 2373 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
     background: currentColor;
-    -webkit-mask: url('/savvia-palabra.svg') center / contain no-repeat;
-    mask: url('/savvia-palabra.svg') center / contain no-repeat;
+    -webkit-mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
+    mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
   }
   .pantalla.estrenando .carga-web { opacity: 1; transition: opacity 0.7s ease 0.15s; }
   .carga-web .detail { font-size: 2.2cqh; color: color-mix(in oklab, var(--color-niebla) 60%, transparent); }
@@ -1090,10 +1063,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* RONDA 66 · «en proyectos destacados, quitamos el navegador» (y con él la píldora «desliza dentro») */
   .cromo,
   .tras-cromo,
-  .pista-scroll,
   .capta {
     display: none !important;
   }
+  /* RONDA 152 (2.ª) · «la entrada como antes, pero que puedas hacer scroll en la pantalla para ver el proyecto»: de pie, al mover el ratón sobre el
+     monitor la pantalla coge el puntero (la web real o su página entera) y la píldora «desliza dentro» lo cuenta */
+  [data-estudio]:not(.sentado) .escenario.explora .pantalla { pointer-events: auto; cursor: ns-resize; }
+  [data-estudio]:not(.sentado) .escenario.explora .web { overscroll-behavior: contain; }
   .web {
     position: absolute;
     inset: 0;
@@ -1343,16 +1319,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     color: var(--color-niebla);
     background: color-mix(in oklab, var(--noche-honda) 40%, transparent);
   }
-  .abanico .mas svg {
+  .abanico .mas :global(svg) {
     width: calc(var(--spacing) * 6);
     height: calc(var(--spacing) * 6);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
     transition: rotate 0.5s var(--ease-out-expo);
   }
-  .abanico.abierto .mas svg {
+  .abanico.abierto .mas :global(svg) {
     rotate: 45deg; /* el (+) se vuelve una × */
   }
   .abanico .grupo {
@@ -1376,7 +1348,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .ui-mando .abanico.abierto .grupo .est {
     opacity: 1;
   }
-  .ui-mando .abanico .grupo .est svg {
+  .ui-mando .abanico .grupo .est :global(svg) {
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
   }
@@ -1416,16 +1388,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
       color 0.3s var(--ease-out-expo),
       scale 0.3s var(--ease-out-expo);
   }
-  .ui-mando .est svg {
+  .ui-mando .est :global(svg) {
     width: calc(var(--spacing) * 6);
     height: calc(var(--spacing) * 6);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
   }
-  .ui-mando .est svg.relleno { fill: currentColor; stroke: none; }
   .ui-mando .est:hover {
     color: var(--color-niebla);
     background: color-mix(in oklab, var(--color-niebla) 10%, transparent);
@@ -1437,9 +1403,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     color: var(--color-cacao);
     background: var(--color-niebla);
   }
-  [data-sonido] .ondas { display: none; }
-  [data-sonido][aria-pressed='true'] .ondas { display: inline; }
-  [data-sonido][aria-pressed='true'] .mudo { display: none; }
+  [data-sonido] .son-on,
+  [data-sonido][aria-pressed='true'] .son-off { display: none; }
+  [data-sonido][aria-pressed='true'] .son-on,
+  [data-sonido] .son-off { display: grid; }
   /* la etiqueta del botón: sale encima al pasar o enfocar */
   .rotulo {
     position: absolute;
@@ -1506,13 +1473,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .cerrar:active {
     scale: 0.94;
   }
-  .cerrar svg {
+  .cerrar :global(svg) {
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linecap: round;
   }
   .otros {
     border-radius: var(--radius-full);
@@ -1656,6 +1619,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .llamada span {
       left: auto;
       right: 128px;
+      width: 8.5rem; /* ronda 152: en móvil la palabra se salía de la pantalla por la izquierda: en dos líneas */
+      white-space: normal;
+      text-align: right;
     }
   }
 
@@ -1752,7 +1718,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     -webkit-backdrop-filter: blur(6px);
     color: #fff;
     font-family: var(--font-mono);
-    font-size: max(9px, 5.4cqh);
+    font-size: max(9px, 4.2cqh); /* ronda 152 (3.ª): la frase es más larga */
     line-height: 1;
     white-space: nowrap;
     pointer-events: none;
@@ -1821,14 +1787,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     place-items: center;
     color: var(--color-niebla);
   }
-  .ui-guia .giro svg {
+  .ui-guia .giro :global(svg) {
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
     rotate: -90deg;
   }
   .ui-guia .giro.arriba { order: -1; }
@@ -1837,7 +1798,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   @media (width >= 64rem) {
     .guia-nombre { display: none; }
-    .ui-guia .giro svg { rotate: none; }
+    .ui-guia .giro :global(svg) { rotate: none; }
     .ui-guia {
       --fila: calc(var(--spacing) * 12);
       display: block;
@@ -1865,14 +1826,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       opacity: 1;
       background: color-mix(in oklab, var(--color-niebla) 12%, transparent);
     }
-    .giro svg {
+    .giro :global(svg) {
       width: calc(var(--spacing) * 5);
       height: calc(var(--spacing) * 5);
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.6;
-      stroke-linecap: round;
-      stroke-linejoin: round;
     }
     .giro.arriba {
       bottom: calc(var(--fila) * 2.5 + var(--spacing) * 1);

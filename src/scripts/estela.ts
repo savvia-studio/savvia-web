@@ -136,7 +136,7 @@ const FS = [
 
 // el color del árbol por estación (la paleta de Andoni, ronda 40), en el orden de src/scripts/estacion.ts: otoño · invierno · primavera · verano
 const c = (h: string, raleo = 0) => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255, raleo];
-export const ESTACIONES_ARBOL = [c('#c65c2d'), c('#6e7b91', 1), c('#c76b83'), c('#67834d')]; // ronda 65: invierno sin hojas (raleo 1)
+export const ESTACIONES_ARBOL = [c('#c65c2d'), c('#7d8ba3', 1), c('#d98aa5'), c('#6f9a4e')]; // ronda 65: invierno sin hojas (raleo 1)
 export const ESTACIONES_SIN_RALEO = ESTACIONES_ARBOL.map((e) => [e[0], e[1], e[2], 0]);
 // RONDA 76 · Eric: «en invierno, las hierbas todo nevado, nieve pura»: el paisaje del pie en invierno se pinta en blanco de nieve (con su sombra azulada)
 export const ESTACIONES_PIE = ESTACIONES_SIN_RALEO.map((e, i) => (i === 1 ? [0.95, 0.96, 0.99, 0] : e));
