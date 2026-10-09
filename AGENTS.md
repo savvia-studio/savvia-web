@@ -3006,3 +3006,19 @@ en mono en el pie.
 - **Andoni (textual):** «pon la línea horizontal más arriba 40 px y que las líneas verticales sean continuas, que no haya ningún dashed».
 - **Hecho:** `Carriles.astro` admite `data-carril-desfase`; la línea del marco del hero, −40 px · fuera los lados a trazos del marco (`border-inline` dashed): solo quedan los carriles continuos.
 - **Medido:** `astro check` 0 · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · captura: la línea 40 px más arriba y las verticales continuas.
+
+### Ronda 150 · 2026-10-09 · el brandbook sin paleta común: cada estación, la suya · PUBLICADA
+- **Andoni (textual):** «los colores en el brandbook: que no haya una paleta común, sino que cada estación tenga la suya propia».
+- **Hecho:** fuera las seis muestras comunes (Cacao, Nogal, Rosa niebla, Salvia, Cobalto, Cereza); el texto lo dice («no hay una paleta común»); tras la escena de estaciones, las
+  cuatro paletas una junto a otra (noche, noche honda, roble, savia y tinta) · el índice lateral pasa a fijo y se aparta mientras pasan la escena y el pie (antes subía y se montaba
+  sobre el logotipo al acabar su bloque).
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en /brandbook (Chrome y WebKit, 1280 y 390) limpio · índice visible (opacidad 1) en logotipo, construcción, tipografía y componentes.
+
+### Ronda 151 · 2026-10-09 · los colores sueltos entran en cada estación; el resumen de paletas, en grande · PUBLICADA
+- **Andoni (textual):** «hay ciertos colores que teníamos en la web que quedan en el aire: incluirlos en cada paleta y darles su tonalidad para cada estación» · «el resumen de cada
+  estación con su paleta, más visual y no tan pequeño».
+- **Hecho:** `global.css`: papel (Rosa niebla), madera (Nogal), cielo (Salvia, fondo de Servicios), detalle (Cobalto) y fruto (Cereza) cambian con la estación, con un viraje sutil
+  (primavera rosada · verano cálido y cielo vivo · otoño los de siempre · invierno fríos); la web los usa ya (Servicios, superficies claras, la receta…) · brandbook: cada paleta tiene
+  diez colores (cinco que cambian y cinco que viran), en la escena y en el resumen; la tinta de las estaciones oscuras es su papel · el resumen: cuatro tarjetas grandes sobre su
+  noche, con las diez franjas altas (las cinco principales más anchas; al pasar, la franja se abre) y nombre y valor en vertical.
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en /, /proyectos, /proyectos/kuanta, /brandbook, /manifiesto (Chrome y WebKit, 1280 y 390) limpio · Servicios en verano (#8EC4E6) e invierno (#A9BFD6).

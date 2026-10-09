@@ -64,7 +64,7 @@ const ascend = Math.round(Math.min(...cajas.map((c) => c.y0)));
 const f = (v: number) => v.toFixed(1);
 const dManejos = manejos.map(([a, b]) => `M${f(a[0])} ${f(a[1])}L${f(b[0])} ${f(b[1])}`).join('');
 
-const base6 = [
+const base6_r144 = [
   { n: 'Cacao', hex: '#302018', uso: 'La tinta y la noche. Texto sobre claro, fondos oscuros.', claro: false },
   { n: 'Nogal', hex: '#63402F', uso: 'La madera. Superficies cálidas y estados de pulsado.', claro: false },
   { n: 'Rosa niebla', hex: '#EADDE7', uso: 'El papel. Fondos claros y texto sobre oscuro.', claro: true },
@@ -73,10 +73,10 @@ const base6 = [
   { n: 'Cereza', hex: '#B52C4C', uso: 'Reservado. Aún sin uso.', claro: false },
 ];
 const estaciones = [
-  { id: 'primavera', n: 'Primavera', meses: 'marzo – mayo', noche: '#382A2D', honda: '#382A2D', arbol: '#C76B83', acento: '#FF7FAE', tinta: '#EADDE7', de: 'el cerezo', frase: 'El roble florece en rosa; la savia es el cerezo.' },
-  { id: 'verano', n: 'Verano', meses: 'junio – agosto', noche: '#1F352A', honda: '#1F352A', arbol: '#67834D', acento: '#A6D96A', tinta: '#EADDE7', de: 'la hoja nueva', frase: 'Verdes hondos y luces lima; la savia es la hoja nueva.' },
-  { id: 'otono', n: 'Otoño', meses: 'septiembre – noviembre', noche: '#3B231B', honda: '#3B231B', arbol: '#C65C2D', acento: '#FF616B', tinta: '#EADDE7', de: 'el Coral de siempre', frase: 'La casa: Cacao, cobre y el Coral de la savia.' },
-  { id: 'invierno', n: 'Invierno', meses: 'diciembre – febrero', noche: '#ECEFF3', honda: '#2A2932', arbol: '#6E7B91', acento: '#4F8AD6', tinta: '#302018', de: 'el cielo de enero', frase: 'La web se vuelve nieve; el roble, desnudo; la savia, el azul glaciar.' },
+  { id: 'primavera', n: 'Primavera', meses: 'marzo – mayo', noche: '#382A2D', honda: '#382A2D', arbol: '#C76B83', acento: '#FF7FAE', tinta: '#EFDEE6', papel: '#EFDEE6', madera: '#6A3F47', cielo: '#A8C6EC', detalle: '#4A5FD0', fruto: '#C23A62', de: 'el cerezo', frase: 'El roble florece en rosa; la savia es el cerezo.' },
+  { id: 'verano', n: 'Verano', meses: 'junio – agosto', noche: '#1F352A', honda: '#1F352A', arbol: '#67834D', acento: '#A6D96A', tinta: '#E9E0DF', papel: '#E9E0DF', madera: '#5F4A31', cielo: '#8EC4E6', detalle: '#2F6FCF', fruto: '#A8433C', de: 'la hoja nueva', frase: 'Verdes hondos y luces lima; la savia es la hoja nueva.' },
+  { id: 'otono', n: 'Otoño', meses: 'septiembre – noviembre', noche: '#3B231B', honda: '#3B231B', arbol: '#C65C2D', acento: '#FF616B', tinta: '#EADDE7', papel: '#EADDE7', madera: '#63402F', cielo: '#96BFE6', detalle: '#3456D3', fruto: '#B52C4C', de: 'el Coral de siempre', frase: 'La casa: Cacao, cobre y el Coral de la savia.' },
+  { id: 'invierno', n: 'Invierno', meses: 'diciembre – febrero', noche: '#ECEFF3', honda: '#2A2932', arbol: '#6E7B91', acento: '#4F8AD6', tinta: '#302018', papel: '#E5E8EE', madera: '#4C403D', cielo: '#A9BFD6', detalle: '#3E5A9E', fruto: '#8E2F4A', de: 'el cielo de enero', frase: 'La web se vuelve nieve; el roble, desnudo; la savia, el azul glaciar.' },
 ];
 const escala = [
   ['H1', 'var(--text-h1)', '44 → 72', 'Family 400', 'display'],
@@ -159,16 +159,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         <!-- 03 · COLOR Y ESTACIONES -->
         <section id="color" class="seccion" aria-labelledby="h-color">
           <h2 id="h-color" class="font-display text-h2">Color y estaciones</h2>
-          <p class="cuerpo">Una web oscura con detalles en claro, que vive la estación en que la visitas: cambian la noche del fondo, el roble y la savia (el acento). Al bajar, esta página pasa por las cuatro.</p>
-          <ul class="muestras">
-            {base6.map((c) => (
-              <li class={c.claro ? 'sobre-claro' : 'sobre-oscuro'} style={`--c:${c.hex}`}>
-                <span class="mu-n">{c.n}</span>
-                <span class="detail mu-h">{c.hex}</span>
-                <span class="mu-u">{c.uso}</span>
-              </li>
-            ))}
-          </ul>
+          <p class="cuerpo">No hay una paleta común: cada estación tiene la suya, de diez colores. Cinco cambian de verdad —el fondo, el cristal, el roble, la savia y la tinta— y cinco viran apenas para entonar con ellos —el papel, la madera, el cielo, el detalle y el fruto—. Al bajar, esta página pasa por las cuatro.</p>
         </section>
       </div>
     </div>
@@ -201,6 +192,11 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
               ['Roble', 'var(--arbol)', 'la hoja', 'arbol'],
               ['Savia', 'var(--color-coral)', 'el acento', 'acento'],
               ['Tinta', 'var(--tinta-est)', 'el texto', 'tinta'],
+              ['Papel', 'var(--color-niebla)', 'los fondos claros', 'papel'],
+              ['Madera', 'var(--color-nogal)', 'lo cálido', 'madera'],
+              ['Cielo', 'var(--color-salvia)', 'Servicios', 'cielo'],
+              ['Detalle', 'var(--color-cobalto)', 'las ilustraciones', 'detalle'],
+              ['Fruto', 'var(--color-cereza)', 'la receta', 'fruto'],
             ].map(([n, v, u, k]) => (
               <li style={`--c:${v}`}><i class="est-m" /><span class="est-mn">{n}</span><span class="detail" data-hex={k}>{(estaciones[0] as any)[k]}</span><span class="detail est-u">{u}</span></li>
             ))}
@@ -213,9 +209,26 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     <div class="wrap marco-libro">
       <div class="indice-hueco" aria-hidden="true"></div>
       <div class="hojas">
+        <!-- RONDA 150 · las cuatro paletas, una junto a otra, para consultarlas de un vistazo -->
+        <section class="seccion sin-borde" aria-label="Las cuatro paletas">
+          <!-- RONDA 151 · «el resumen de cada estación con su paleta, más visual y no tan pequeño»: una tarjeta grande por estación, sobre su propia noche,
+               con sus diez colores en franjas altas (las cinco que cambian, más anchas; las cinco que viran, más estrechas) -->
+          <div class="paletas">
+            {estaciones.map((e) => (
+              <article class={`paleta ${e.id === 'invierno' ? 'clara' : ''}`} style={`--pn:${e.noche};--pt:${e.tinta}`}>
+                <header class="pl-cab"><p class="pl-n font-display">{e.n}</p><p class="detail pl-m">{e.meses}</p></header>
+                <ul class="pl-franjas">
+                  {[['Noche', e.noche, 1], ['Noche honda', e.honda, 1], ['Roble', e.arbol, 1], ['Savia', e.acento, 1], ['Tinta', e.tinta, 1], ['Papel', e.papel, 0], ['Madera', e.madera, 0], ['Cielo', e.cielo, 0], ['Detalle', e.detalle, 0], ['Fruto', e.fruto, 0]].map(([n, h, mayor]) => (
+                    <li class={mayor ? 'mayor' : ''} style={`--c:${h}`}><span class="pl-t"><b>{n}</b><span class="detail">{h}</span></span></li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
         <section class="seccion sin-borde" aria-label="Reglas del color">
           <ul class="reglas">
-            <li><b>Contraste</b> Rosa niebla sobre Cacao 12,6:1 · Cacao sobre Rosa niebla 12,6:1.</li>
+            <li><b>Contraste</b> la tinta sobre la noche de cada estación pasa de 9:1 (en invierno, Cacao sobre la nieve 15:1).</li>
             <li><b>Sin</b> degradados, brillos ni sombras por defecto. La savia es un punto, un filo, lo que se mueve; nunca texto pequeño sobre claro.</li>
           </ul>
         </section>
@@ -407,6 +420,13 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     poner(r.top > innerHeight * 0.5 || r.bottom < innerHeight * 0.5 ? -1 : Math.min(datos.length - 1, Math.max(0, Math.floor(p * datos.length))));
   };
   addEventListener('scroll', medir, { passive: true }); addEventListener('resize', medir); medir();
+  // el índice se aparta mientras la escena de estaciones o el pie ocupan la pantalla
+  {
+    const tapan = [document.querySelector('[data-escena-est]'), document.querySelector('body > footer, footer')].filter(Boolean) as Element[];
+    const vis = new Map<Element, boolean>();
+    const ioI = new IntersectionObserver((es) => { es.forEach((e) => vis.set(e.target, e.isIntersecting)); document.documentElement.classList.toggle('bb-sin-indice', [...vis.values()].some(Boolean)); }, { rootMargin: '-10% 0px -10% 0px' });
+    tapan.forEach((t) => ioI.observe(t));
+  }
   (window as any).__bbEstacion = () => document.documentElement.dataset.estacion;
 </script>
 
@@ -415,10 +435,14 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .marco-libro { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); }
   .indice, .indice-hueco { grid-column: 1 / span 3; }
   .hojas { grid-column: 4 / span 9; min-width: 0; }
+  /* RONDA 150 · el índice, FIJO (antes sticky dentro del primer bloque: al acabar ese bloque subía y se montaba sobre el logotipo); se aparta
+     mientras pasa la escena de las estaciones y al llegar al pie */
   .indice {
-    position: sticky;
+    position: fixed;
     top: calc(var(--spacing) * 28);
-    align-self: start;
+    left: max(var(--gutter, 3rem), (100vw - 75rem) / 2);
+    width: 14rem;
+    transition: opacity 0.4s ease;
     display: flex;
     flex-direction: column;
     gap: calc(var(--spacing) * 4);
@@ -429,11 +453,15 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .indice a:hover, .indice a[aria-current] { color: var(--fg); }
   .indice .n { opacity: 0.6; font-variant-numeric: tabular-nums; }
   .indice a[aria-current] .n { color: var(--color-coral); opacity: 1; }
+  :global(html.bb-sin-indice) .indice { opacity: 0; pointer-events: none; }
+  @media (width >= 64rem) { .marco-libro > .indice + .hojas { grid-column: 4 / span 9; } }
   @media (width < 64rem) {
     .indice, .hojas, .indice-hueco { grid-column: 1 / -1; }
     .indice-hueco { display: none; }
     .indice {
       position: sticky;
+      left: auto;
+      width: auto;
       top: calc(var(--spacing) * 18);
       z-index: 5;
       margin-inline: calc(var(--gutter) * -1);
@@ -500,6 +528,55 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     .anclas rect { opacity: 1; }
   }
 
+  /* ── COLOR · las cuatro paletas, en grande */
+  .paletas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); }
+  @media (width < 48rem) { .paletas { grid-template-columns: 1fr; } }
+  .paleta {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 6);
+    padding: calc(var(--spacing) * 6);
+    border-radius: var(--radius-lg);
+    background: var(--pn) url('/media/grano.png') 0 0 / 240px;
+    color: var(--pt);
+    min-height: 26rem;
+  }
+  .paleta.clara { box-shadow: inset 0 0 0 1px var(--rule); }
+  .pl-cab { display: flex; align-items: baseline; justify-content: space-between; gap: calc(var(--spacing) * 4); }
+  .pl-n { font-size: clamp(2rem, 1.4rem + 1.6vw, 3rem); line-height: 1; }
+  .pl-m { opacity: 0.6; }
+  .pl-franjas { flex: 1; display: flex; gap: 4px; min-height: 18rem; }
+  .pl-franjas li {
+    position: relative;
+    flex: 1;
+    border-radius: 8px;
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--pt) 16%, transparent);
+    transition: flex-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pl-franjas li.mayor { flex-grow: 1.8; }
+  .pl-franjas:hover li { flex-grow: 0.8; }
+  .pl-franjas li:hover { flex-grow: 3.2; }
+  /* el nombre y el valor, en vertical dentro de cada franja, en la tinta que se lea sobre ella */
+  .pl-t {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--spacing) * 3);
+    translate: -50% 0;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    white-space: nowrap;
+    font-size: var(--text-aux);
+    color: color-mix(in oklab, var(--c), #000 70%);
+    mix-blend-mode: normal;
+  }
+  .pl-t b { font-weight: 500; }
+  .pl-t .detail { opacity: 0.75; }
+  /* sobre las franjas oscuras, el texto en claro */
+  .pl-franjas li:is([style*='#382A2D'], [style*='#1F352A'], [style*='#3B231B'], [style*='#2A2932'], [style*='#302018'], [style*='#6A3F47'], [style*='#5F4A31'], [style*='#63402F'], [style*='#4C403D'], [style*='#3E5A9E'], [style*='#4A5FD0'], [style*='#2F6FCF'], [style*='#3456D3'], [style*='#C23A62'], [style*='#A8433C'], [style*='#B52C4C'], [style*='#8E2F4A'], [style*='#6E7B91'], [style*='#67834D'], [style*='#C65C2D']) .pl-t { color: color-mix(in oklab, var(--c), #fff 85%); }
+  @media (prefers-reduced-motion: reduce) { .pl-franjas li { transition: none; } }
   /* ── COLOR */
   .muestras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 10); }
   @media (width < 48rem) { .muestras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -511,7 +588,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .mu-u { margin-top: auto; font-size: var(--text-aux); line-height: 1.4; opacity: 0.85; }
   .estaciones { position: relative; height: calc(var(--n) * 100lvh); margin-top: calc(var(--spacing) * 16); }
   .escena-est {
-    --tinta-est: #eadde7;
+    --tinta-est: var(--color-niebla); /* ronda 151: la tinta de las estaciones oscuras es su papel */
     position: sticky;
     top: 0;
     height: 100lvh;
@@ -529,7 +606,8 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .est-robles img.on { opacity: 1; scale: 1; filter: none; }
   /* en la web, la primavera la tiñe de cerezo el motor del árbol (la lámina es verde): aquí, un viraje que la acerca */
   .est-robles img[data-roble='0'].on { filter: hue-rotate(-105deg) saturate(0.75) brightness(1.05); }
-  .est-paleta { grid-column: 4 / span 9; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 3); }
+  .est-paleta { grid-column: 4 / span 9; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 5) calc(var(--spacing) * 3); }
+  .est-paleta .est-m { aspect-ratio: 16 / 9; }
   @media (width < 64rem) {
     .est-txt, .est-robles, .est-paleta { grid-column: 1 / -1; }
     .est-robles { max-width: 18rem; }

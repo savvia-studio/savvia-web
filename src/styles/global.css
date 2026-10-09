@@ -128,6 +128,14 @@ html[data-estacion='primavera'] { --color-coral: #ff7fae; }
 html[data-estacion='verano'] { --color-coral: #a6d96a; }
 html[data-estacion='otono'] { --color-coral: #ff616b; }
 html[data-estacion='invierno'] { --color-coral: #4f8ad6; } /* ronda 144 (3.ª): «otro acento para invierno que pegue mejor que el rojo»: azul glaciar */
+/* RONDA 151 · Andoni: «hay colores de la web que quedan en el aire: incluirlos en cada paleta y darles su tonalidad para cada estación». Los cinco
+   colores sueltos pasan a ser de la estación, con un viraje sutil (sin tocar los contrastes: el papel sigue siendo papel y la madera, madera):
+   papel (Rosa niebla) · madera (Nogal) · cielo (Salvia, el fondo de Servicios) · detalle (Cobalto, las ilustraciones) · fruto (Cereza, la receta).
+   Otoño conserva los valores de siempre. */
+html[data-estacion='primavera'] { --color-niebla: #efdee6; --color-nogal: #6a3f47; --color-salvia: #a8c6ec; --color-cobalto: #4a5fd0; --color-cereza: #c23a62; }
+html[data-estacion='verano'] { --color-niebla: #e9e0df; --color-nogal: #5f4a31; --color-salvia: #8ec4e6; --color-cobalto: #2f6fcf; --color-cereza: #a8433c; }
+html[data-estacion='otono'] { --color-niebla: #eadde7; --color-nogal: #63402f; --color-salvia: #96bfe6; --color-cobalto: #3456d3; --color-cereza: #b52c4c; }
+html[data-estacion='invierno'] { --color-niebla: #e5e8ee; --color-nogal: #4c403d; --color-salvia: #a9bfd6; --color-cobalto: #3e5a9e; --color-cereza: #8e2f4a; }
 /* las partes oscuras de la home invierten sus dos tintas: lo que era Rosa niebla (texto, trazos, puntos) pasa a --tinta y lo que era Cacao (texto de
    los botones claros, iconos sobre niebla) a --tinta-inv. Fuera del invierno no cambia nada (niebla = niebla, cacao = cacao). Proyectos no entra:
    su interfaz va sobre la foto de la mesa y sigue en claro sobre --noche-honda. */
