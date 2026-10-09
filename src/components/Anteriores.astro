@@ -37,7 +37,9 @@ for (const url of new Set(CELDAS.flat().map((it) => it.logo).filter(Boolean) as 
   try { const m = await sharp(`public${url}`).metadata(); PROP[url] = (m.width ?? 3) / (m.height ?? 1); } catch { PROP[url] = 3; }
 }
 const proporcion = (url: string) => PROP[url] ?? 3;
-const talla = (url: string) => { const r = Math.sqrt(proporcion(url)); return `--lw:${(3.1 * r).toFixed(2)}rem;--lh:${(3.1 / r).toFixed(2)}rem`; };
+// RONDA 144 · Andoni: «los logos, que todos tengan siempre el mismo tamaño, coherencia»: la MISMA ALTURA para todos (1,75 rem) y el ancho que dé su
+// proporción; solo si pasa de 8,5 rem (muy apaisado) se encoge para caber
+const talla = (url: string) => { const r = proporcion(url), h = Math.min(1.75, 8.5 / r); return `--lw:${(h * r).toFixed(2)}rem;--lh:${h.toFixed(2)}rem`; };
 // RONDA 65 · dos FRANJAS entre filas del mosaico: HECHOS Y LOGOTIPOS tras la primera (estilo minimum.run: una línea, la frase a la izquierda, los hechos
 // numerados a la derecha y el muro de logotipos en baldosas, cada logotipo una máscara en el color del texto) y TESTIMONIOS tras la tercera (la captura de
 // Andoni: franja oscura a sangre, una línea sobre cada uno, el RETRATO grabado —la imagen la prepara Andoni; sin ella, la tarjeta empieza por la cita—,
@@ -177,7 +179,7 @@ import { flecha } from '../lib/flecha';
                 <!-- RONDA 67 · «a los retratos, el estilo dithering, que se mimeticen más con el fondo; el cambio, animado con el estilo de savvia»: cada retrato
                      se pinta como TRAMA DE PUNTOS en el color del texto (lienzo 2D; la imagen es solo la fuente) y el relevo es el pintado rasgado de savvia -->
                 <div class="retratos" aria-hidden="true" data-retratos>
-                  {T.map((t) => <img class="fuente-r" src={t.retrato} alt="" width="1254" height="1254" loading="lazy" decoding="async" data-retrato />)}
+                  {T.map((t, k) => <img class="fuente-r" src={t.retrato} alt="" width="1254" height="1254" loading={k === 0 ? 'eager' : 'lazy'} decoding="async" data-retrato />)}
                   <canvas class="retrato-cv" data-rc></canvas>
                   <canvas class="retrato-cv" data-rc></canvas>
                 </div>
@@ -185,13 +187,18 @@ import { flecha } from '../lib/flecha';
                   <div class="citas">
                     {T.map((t, k) => <blockquote class={`vq font-display ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-vq>«{t.q}»</blockquote>)}
                   </div>
+                  <div class="pie-voz">
                   <figcaption class="autor">
-                    <button type="button" class="flecha-v" aria-label="Testimonio anterior" data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
                     <span class="quienes">
                       {T.map((t, k) => <span class={`quien ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-quien><b>{t.n}</b><span>{t.r}</span></span>)}
                     </span>
-                    <button type="button" class="flecha-v" aria-label="Testimonio siguiente" data-paso="1"><Fragment set:html={flecha()} /></button>
                   </figcaption>
+                  <!-- RONDA 144 · la barra de cristal de la casa (Eric: «las flechas no tienen el mismo espacio a cada lado») -->
+                  <div class="barra-cristal barra-voz" role="group" aria-label="Testimonios">
+                    <button type="button" class="paso" aria-label="Testimonio anterior" data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
+                    <button type="button" class="paso" aria-label="Testimonio siguiente" data-paso="1"><Fragment set:html={flecha()} /></button>
+                  </div>
+                  </div>
                 </div>
               </figure>
             )}
@@ -334,17 +341,20 @@ import { flecha } from '../lib/flecha';
       };
       let anchoR = 0;
       const listo = (img: HTMLImageElement) => (img.complete && img.naturalWidth ? Promise.resolve() : new Promise<void>((r) => img.addEventListener('load', () => r(), { once: true })));
+      // RONDA 144 · Eric: «la ilustración tiene que aparecer a la vez que el texto»: la cita espera al retrato (antes se escribía mientras la
+      // imagen aún cargaba) y los dos duran lo mismo (1,6 s)
       const pintarRetrato = async (n: number, dibujado = true) => {
         const mia = ++gen, img = fuentes[n]; if (img.loading === 'lazy') img.loading = 'eager';
         await listo(img);
         if (mia !== gen) return;
+        escribir(n, true);
         const nuevo = lienzos[1 - frente], viejo = lienzos[frente];
         const P = preparar(img, nuevo); if (!P) return;
         anchoR = innerWidth; frente = 1 - frente;
         nuevo.style.zIndex = '2'; viejo.style.zIndex = '1';
         viejo.classList.remove('on'); nuevo.classList.add('on');
         if (!dibujado || reducido) { pintar(nuevo, P, 1); return; }
-        const t0 = performance.now(), DUR = 2400;
+        const t0 = performance.now(), DUR = 1600;
         let impar = false;
         const paso = (ahora: number) => {
           if (mia !== gen) return;
@@ -365,7 +375,7 @@ import { flecha } from '../lib/flecha';
         cursor.className = 'cursor-cita'; falta.className = 'falta-cita';
         q.append(hecho, cursor, falta);
         if (!animar || reducido) { hecho.textContent = txt; cursor.remove(); return; }
-        const t0 = performance.now(), porLetra = Math.min(26, 2600 / txt.length);
+        const t0 = performance.now(), porLetra = Math.min(22, 1600 / txt.length);
         const paso = (ahora: number) => {
           if (mia !== genCita) return;
           const k2 = Math.min(txt.length, Math.floor((ahora - t0) / porLetra));
@@ -378,11 +388,11 @@ import { flecha } from '../lib/flecha';
       const poner = (n: number) => {
         k = (n + grupos[0].length) % grupos[0].length;
         grupos.forEach((g) => g.forEach((el, i) => { el.classList.toggle('on', i === k); if (el.hasAttribute('aria-hidden')) el.setAttribute('aria-hidden', String(i !== k)); }));
-        escribir(k, true);
+        const vn = voz.querySelector('[data-voz-n]'); if (vn) vn.textContent = `${String(k + 1).padStart(2, '0')}/${String(grupos[0].length).padStart(2, '0')}`;
         pintarRetrato(k);
       };
       // la primera vez, al asomar: el retrato se dibuja y la cita se escribe
-      new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { pintarRetrato(0); escribir(0, true); o.disconnect(); } }, { threshold: 0.35 }).observe(voz);
+      new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { pintarRetrato(0); o.disconnect(); } }, { threshold: 0.35 }).observe(voz);
       addEventListener('resize', () => { const img = fuentes[k], cv = lienzos[frente]; if (!img.naturalWidth || innerWidth === anchoR) return; anchoR = innerWidth; gen++; const P = preparar(img, cv); if (P) pintar(cv, P, 1); });
       const programar = () => { clearTimeout(reloj); if (visible && !quieto && !reducido) reloj = window.setTimeout(() => { poner(k + 1); programar(); }, 9000); };
       voz.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => b.addEventListener('click', () => { poner(k + Number(b.dataset.paso)); programar(); }));
@@ -522,7 +532,7 @@ import { flecha } from '../lib/flecha';
     -webkit-mask: var(--logo) center / contain no-repeat;
     mask: var(--logo) center / contain no-repeat;
   }
-  .mk.grande { width: min(var(--lw), 90%); height: var(--lh); max-height: 5rem; }
+  .mk.grande { width: min(var(--lw), 90%); height: var(--lh); }
   .marca-txt {
     display: inline-flex;
     align-items: center;
@@ -601,6 +611,25 @@ import { flecha } from '../lib/flecha';
   .quien.on { opacity: 1; transition-delay: 0.3s; }
   .quien b { font-weight: 500; color: var(--fg); }
   .quien span { color: var(--fg2); }
+  /* RONDA 144 (2.ª) · Andoni: «los botones del slider de testimonios, a la derecha de los nombres, pegados a la guía derecha y mucho más sutiles,
+     mimetizados con el fondo»: la barra de la casa sin velo ni sombra, un filete del color de las reglas y la tinta apagada */
+  /* RONDA 144 (3.ª) · «los botones de cambiar de testimonio, debajo del nombre, y solo las flechas: sin número, sin la caja que lo rodea» */
+  .pie-voz { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 8); }
+  .pie-voz .autor { margin-top: 0; }
+  .barra-voz {
+    gap: calc(var(--spacing) * 1);
+    padding: 0;
+    margin-left: calc(var(--spacing) * -2);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    color: var(--fg2);
+  }
+  .barra-voz .paso { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); }
+  .barra-voz .paso:hover:not(:disabled) { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+  .barra-voz .paso :global(.btn-flecha) { width: 1rem; height: 1rem; }
+
   .flecha-v {
     display: grid;
     place-items: center;

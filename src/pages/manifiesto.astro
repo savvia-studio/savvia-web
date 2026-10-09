@@ -37,39 +37,14 @@ const rico = (t: string) =>
         </div>
       </header>
 
-      {
-        manifiesto.capitulos.map((c, i) => (
-          <section class="capitulo" aria-labelledby={`cap-${i}`}>
-            <h2 id={`cap-${i}`} class="cabecera wrap">
-              <span class="cap detail">{c.cap}</span>
-              <span class="num font-display" data-imprenta>
-                <span class="n-alta" aria-hidden="true">{c.num}</span>
-                <span class="n-halo" aria-hidden="true"></span>
-                <span class="n-luz" aria-hidden="true">{c.num}</span>
-                <span class="n-hondo" aria-hidden="true">{c.num}</span>
-                <span class="n-tinta">{c.num}</span>
-              </span>
-              <span class="etq detail">{c.etiqueta}</span>
-            </h2>
-            {c.parrafos.map((t, k) => (
-              <div class="bloque">
-                <p class="fuente">
-                  {rico(t).map((s) => (s.m ? <span class="marca">{s.t}</span> : s.t))}
-                </p>
-              </div>
-            ))}
-          </section>
-        ))
-      }
-
-      <section class="listas" aria-label="El método y lo que hacemos">
+      <!-- RONDA 144 · Eric: «no me ha encantado; lo veo mejor como 3–4 párrafos seguidos». Fuera los capítulos con numeral romano (en
+           tools/r144/manifiesto.r143.astro.txt): el texto de Andoni, entero y seguido, en una sola columna; los párrafos entran uno tras otro.
+           El cierre («Eso es savvia agentic…») va debajo, grande, como siempre. -->
+      <section class="capitulo seguido" aria-label="El manifiesto">
         {
-          manifiesto.listas.map((l, k) => (
-            <div class="bloque lista" data-lista>
-              <div class="fuente">
-                <p class="lista-t detail">{l.titulo}</p>
-                <ul>{l.items.map((it) => <li>{it}</li>)}</ul>
-              </div>
+          manifiesto.capitulos.map((c) => (
+            <div class="bloque">
+              <p class="fuente">{rico(c.parrafos.join(' ')).map((s) => (s.m ? <span class="marca">{s.t}</span> : s.t))}</p>
             </div>
           ))
         }
@@ -266,6 +241,12 @@ const rico = (t: string) =>
     color: var(--fg);
   }
   .bloque + .bloque { margin-top: calc(var(--spacing) * 8); }
+  .seguido { margin-top: 14lvh; }
+  .seguido .bloque { font-size: clamp(1.25rem, 1rem + 0.8vw, 1.625rem); line-height: 1.5; }
+  .seguido .bloque + .bloque { margin-top: calc(var(--spacing) * 6); }
+  .seguido .fuente { max-width: 40ch; text-align: left; }
+  .seguido .bloque + .bloque { transition-delay: calc(0.95s + 0.15s); }
+  .seguido .bloque:nth-child(3) { transition-delay: 1.25s; }
   .fuente {
     position: relative;
     max-width: 34ch;

@@ -66,7 +66,9 @@ import { rich } from '../lib/rich';
     const fondoDe = (n: number) => fondoClaro ?? NOCHE[n];
     // RONDA 67 · «en primavera me gustaba el tono rosáceo, estilo cerezo»: en primavera el motor vuelve a teñir la hoja (su color de la tabla, rosa)
     const tinte = (n: number) => (n === 2 ? 0.9 : 0);
-    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: true, gota: true, manual: true, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(estacionActual()) });
+    // RONDA 144 · Eric: «en invierno quitaría la rendija y ese gradiente que hace efecto de ruido, que sea todo más blanquecino»: en invierno el árbol
+    // no hierve ni lanza destellos horizontales (soplo apagado); en las demás estaciones sí («parece más vivo»)
+    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: estacionActual() !== 1, gota: true, manual: true, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(estacionActual()) });
     if (t && (estacionActual() === 2 || estacionActual() === 1)) t.estacion(estacionActual()); // ronda 76: el invierno, sin hojas (raleo) y nevado
     const w = window as any;
     // RONDA 30: al caer la gota, primero ENTRA EL HAZ desde arriba (luz-entra); la luz sobre el árbol la pone el shader al terminar de pintarse
@@ -117,7 +119,7 @@ import { rich } from '../lib/rich';
         if (pedida !== n || !t) return;
         // clonado del lienzo actual: así lleva el atributo de ámbito de Astro (con createElement los estilos del componente no le llegan)
         const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2);
-        const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: true, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(n) });
+        const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: n !== 1, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(n) });
         if (!t2) { cv2.remove(); return; }
         if (n === 2 || n === 1) t2.estacion(n);
         const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
@@ -187,6 +189,10 @@ import { rich } from '../lib/rich';
   /* RONDA 132 · en invierno el hero es NIEVE: un haz de luz claro sobre blanco no se ve (y en oscuro sería una banda de sombra): se retira con un fundido */
   :global(html[data-estacion='invierno']) .hero .luz {
     opacity: 0;
+  }
+  /* RONDA 144 · y sin la trama de puntos del recuadro (el «gradiente con ruido»): el invierno, limpio y blanco */
+  :global(html[data-estacion='invierno']) .hero .marco {
+    background: none;
   }
   /* RONDA 83 · Eric: «esto tiene que estar más arriba, dejar más aire abajo» → (a partes iguales) «un poco más abajo»: el hueco libre ya no va
      entero ENCIMA del titular (ronda 14): dos tercios encima y un tercio debajo; el marco y el árbol se quedan abajo (los 40 px al marco pasan

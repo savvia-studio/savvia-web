@@ -13,7 +13,7 @@ export const nav = {
   ] as { label: string; href: string }[],
   reel: { label: 'Reel', duracion: '0:36' }, // ronda 130: el reel vuelve, montado con Kuanta y Arkdev (marca blanca)
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete): el correo (de `pie.correo`) y el handbook (sin `href` saldría como «pronto»)
-  mas: { titulo: 'Más', links: [{ label: 'Handbook', href: '/handbook' }] as { label: string; href: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
+  mas: { titulo: 'Más', links: [{ label: 'Handbook', href: '/handbook' }, { label: 'Brandbook', href: '/brandbook' }] as { label: string; href: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
 };
 
 export const hero = {
@@ -389,7 +389,7 @@ export const estudio = {
       {src: '/media/equipo/r141/a-gesto-10.webp', x: 28.65, y: 10.591, w: 21.041, h: 85.887},
       {src: '/media/equipo/r141/a-gesto-11.webp', x: 26.313, y: 9.538, w: 22.46, h: 87},
       {src: '/media/equipo/r141/a-gesto-12.webp', x: 27.111, y: 10.075, w: 23.211, h: 86.524}] },
-    { n: 'Eric', falta: 'Frase de 2–3 líneas y rol.', hobbies: ['Tenis', 'Naturaleza', 'Música'],
+    { n: 'Eric', falta: 'Frase de 2–3 líneas y rol.', hobbies: ['Deporte', 'Naturaleza', 'Música'], // ronda 144 · Eric: «deporte, naturaleza y música» (antes Tenis)
       paseo: {src: '/media/equipo/r141/e-paseo.webp', s: 2.53, celda: 540, alto: 520, izq: 27.567, arriba: -334.178},
       gesto: [{src: '/media/equipo/r141/e-gesto-01.webp', x: 45.686, y: 4.327, w: 25.485, h: 88.785},
       {src: '/media/equipo/r141/e-gesto-02.webp', x: 45.694, y: 8.08, w: 26.597, h: 85.109},

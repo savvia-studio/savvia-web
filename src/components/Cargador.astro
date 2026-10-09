@@ -25,12 +25,9 @@
 // del isotipo y se vuelve la gota, que dibuja la v de savvia. «Saltar» es la píldora de cristal de la casa (.btn-primary, con su gota), en pequeño.
 // Y la consigna, a solas en la pantalla, es un TITULAR (Family, como todos), no una línea mono pequeña: «me parece AI slop» (Eric).
 import isoRaw from '../../public/savvia-isotipo.svg?raw';
-// RONDA 139 · el isotipo con raíces (tres trazos: la raíz de la izquierda, la v y la raíz de arriba): una sola forma
-const TRAZOS = [...isoRaw.matchAll(/ d="([^"]+)"/g)].map((m) => m[1].replace(/\s+/g, ' '));
-const ISO = TRAZOS.join(' ');
-// RONDA 143 · la v y las raíces, por separado: la plumada solo destapa la v (antes, su punta redonda destapaba un trozo de la raíz izquierda bajo el gancho
-// y quedaba un «mordisco»); las raíces las destapan solo sus trazos
-const ISO_V = TRAZOS[1] ?? ISO, ISO_R = [TRAZOS[0], TRAZOS[2]].filter(Boolean).join(' ');
+// RONDA 144 · Andoni: «el logotipo, de momento, vuelve a un estado anterior» (el isotipo de naturaleza, sin raíces: un solo trazo)
+// y «la carga volvemos al círculo»
+const ISO = [...isoRaw.matchAll(/ d="([^"]+)"/g)].map((m) => m[1].replace(/\s+/g, ' ')).join(' ');
 import { flecha } from '../lib/flecha';
 ---
 
@@ -40,20 +37,15 @@ import { flecha } from '../lib/flecha';
   <!-- RONDA 66 · el tiempo de la ESTACIÓN alrededor de la carga: hojas en otoño, nieve en invierno, pétalos en primavera, motas de luz en verano -->
   <canvas class="tiempo" data-tiempo></canvas>
   <!-- el ISOTIPO: apenas visible, y encima su copia a plena tinta que destapa la plumada de la gota (fuera del «mundo»: no baja con la cámara, vuela a la barra) -->
-  <svg class="logo" viewBox="10 7 552 657" aria-hidden="true" data-logo>
+  <svg class="logo" viewBox="6.39 6.44 469.69 425.38" aria-hidden="true" data-logo>
     <defs><mask id="cg-vv" maskUnits="userSpaceOnUse" x="-100" y="-100" width="800" height="900">
-      <path fill="none" stroke="#fff" stroke-width="56" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000 3000" stroke-dashoffset="1000" data-plumada />
-    </mask><mask id="cg-r" maskUnits="userSpaceOnUse" x="-100" y="-100" width="800" height="900">
-      <!-- RONDA 139 · las dos RAÍCES brotan de la v cuando la gota ya la ha dibujado (cada una, de su arranque a su rizo) -->
-      <path fill="none" stroke="#fff" stroke-width="52" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000 3000" stroke-dashoffset="1000" data-raiz />
-      <path fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000 3000" stroke-dashoffset="1000" data-raiz />
+      <path fill="none" stroke="#fff" stroke-width="66" stroke-linecap="round" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000 3000" stroke-dashoffset="1000" data-plumada />
     </mask></defs>
     <path class="fija" d={ISO} />
-    <path class="vv" d={ISO_V} mask="url(#cg-vv)" />
-    <path class="vv" d={ISO_R} mask="url(#cg-r)" />
+    <path class="vv" d={ISO} mask="url(#cg-vv)" />
   </svg>
   <div class="mundo" data-mundo>
-    <p class="pista" data-carga-pista><span class="dicho">Dibuja una v.</span><span class="como"><span class="con-raton">Basta con mover el ratón.</span><span class="con-dedo">Arrastra el dedo.</span></span></p>
+    <p class="pista" data-carga-pista><span class="dicho">Dibuja un círculo.</span><span class="como"><span class="con-raton">Basta con mover el ratón.</span><span class="con-dedo">Arrastra el dedo.</span></span></p>
     <!-- «esc para saltar»: abajo, centrado, con un poco de aire; aparece y se va con la consigna -->
     <button type="button" class="btn-secondary btn-sm saltar" data-saltar><kbd>esc</kbd><span class="btn-tx"><span class="con-tecla">para saltar</span><span class="sin-tecla">Saltar</span></span><Fragment set:html={flecha()} /></button>
     <!-- el CUELLO que sujeta la gota mientras se descuelga, el resto que se retrae y el satélite (en el sistema del mundo) -->
@@ -106,7 +98,6 @@ import { flecha } from '../lib/flecha';
   else {
     const $ = <T extends Element>(s: string) => velo.querySelector<T>(s)!;
     const mundo = $<HTMLElement>('[data-mundo]'), logo = $<SVGSVGElement>('[data-logo]'), plumada = $<SVGPathElement>('[data-plumada]');
-    const raices = [...velo.querySelectorAll<SVGPathElement>('[data-raiz]')];
     const gota = $<SVGSVGElement>('[data-gota]'), estela = $<SVGPathElement>('[data-estela]'), mb = $<SVGElement>('[data-mb]'), mbc = $<SVGElement>('[data-mbc]');
     const cuello = $<SVGSVGElement>('[data-cuello]'), cuelloD = $<SVGPathElement>('[data-cuello-d]'), resto = $<SVGCircleElement>('[data-resto]');
     const satelite = $<HTMLElement>('[data-satelite]'), pista = $<HTMLElement>('[data-carga-pista]'), rastro = $<HTMLCanvasElement>('[data-rastro]');
@@ -120,23 +111,18 @@ import { flecha } from '../lib/flecha';
     // EL CAMINO (ronda 68): el eje del isotipo, medido sobre su dibujo (370 × 439; con un trazo de 50 cubre el 99,8 % de la forma), suavizado; y al
     // final, la bola, de cuya parte de abajo cuelga la gota. `nVV`: cuántos puntos dibuja la plumada.
     let nVV = 1, destino = { x: 0, y: 0, s: 1 };
-    // RONDA 139 · el isotipo CON RAÍCES (viewBox 10 7 552 657): el eje de la v (del gancho de arriba, baja por el trazo grueso, sube por el fino y remata
-    // en la bola) y el de cada raíz, de su arranque en la v a su rizo; medidos sobre el dibujo (v con trazo de 56 y raíces con 34: cubren el 99,4 %).
-    const VX = 10, VY = 7, VW = 552;
-    const EJE: [number, number][] = [[165, 274], [192, 262], [220, 264], [226, 292], [214, 336], [196, 385], [174, 445], [152, 512], [138, 575], [140, 628], [160, 648], [184, 636], [212, 610], [246, 560], [286, 480], [328, 392], [366, 300], [398, 226], [424, 168], [452, 122], [482, 94], [514, 88], [544, 80], [556, 72]];
-    const RAICES: [number, number][][] = [
-      [[186, 290], [170, 300], [150, 306], [126, 316], [100, 342], [80, 374], [58, 390], [36, 386], [22, 370], [22, 356]],
-      [[442, 98], [422, 82], [409, 62], [404, 40], [394, 22], [378, 16], [366, 20], [360, 30]],
-    ];
+    // RONDA 144 (2.ª) · Andoni: «el isotipo de la carga es distinto al del resto de sitios»: el isotipo ES la v del logotipo (su primer trazo,
+    // viewBox 6,39 6,44 469,69 × 425,38 del propio logotipo). Su eje, el esqueleto del trazo medido sobre el dibujo (skeletonize), del gancho a la bola
+    const VX = 6.39, VY = 6.44, VW = 469.69;
+    const EJE: [number, number][] = [[11, 156], [35, 181], [67, 196], [87, 225], [90, 261], [83, 296], [80, 332], [85, 368], [102, 399], [136, 402], [162, 378], [182, 348], [200, 317], [215, 286], [230, 254], [243, 222], [257, 190], [270, 157], [284, 125], [300, 93], [319, 63], [345, 38], [377, 24], [414, 26], [435, 52], [436, 84]];
     const liso = (q: [number, number][], n = 6): [number, number][] => { const o: [number, number][] = []; for (let k = 0; k < q.length - 1; k++) for (let j = 0; j < n; j++) { const t = j / n; o.push([q[k][0] + (q[k + 1][0] - q[k][0]) * t, q[k][1] + (q[k + 1][1] - q[k][1]) * t]); } o.push(q[q.length - 1]); return o.map((_, i) => { if (i === 0 || i === o.length - 1) return o[i]; let x = 0, y = 0, c = 0; for (let k = -3; k <= 3; k++) { const r = o[Math.min(o.length - 1, Math.max(0, i + k))]; x += r[0]; y += r[1]; c++; } return [x / c, y / c] as [number, number]; }); };
     const trazo = (q: [number, number][]) => 'M' + q.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L');
-    raices.forEach((r, i) => r.setAttribute('d', trazo(liso(RAICES[i]))));
     const caminoIso = (): [number, number][] => {
       const eje = liso(EJE);
       nVV = eje.length;
       plumada.setAttribute('d', trazo(eje));
       // la gota se descuelga de la parte de abajo de la bola
-      const cuelga = liso([eje[eje.length - 1], [548, 88], [540, 104], [536, 114]], 5).slice(1);
+      const cuelga = liso([eje[eje.length - 1], [442, 102], [445, 116]], 5).slice(1);
       const r = logo.getBoundingClientRect(), k = r.width / VW;
       return [...eje, ...cuelga].map(([x, y]) => [r.left + (x - VX) * k, r.top + (y - VY) * k] as [number, number]);
     };
@@ -144,9 +130,9 @@ import { flecha } from '../lib/flecha';
       const hr = hero.getBoundingClientRect(); D = hr.top; // el hero nace desplazado: esa es la distancia que baja la cámara
       const r = logo.getBoundingClientRect();
       pts = caminoIso();
-      // el sitio del isotipo en la barra (ronda 139): en el logotipo (1170 × 439) la caja del isotipo empieza en 6·4 y mide 657 × 0,66 de alto
+      // el sitio del isotipo en la barra: en el logotipo (1184 × 439) su caja empieza en 6,39 · 6,44 y mide 425,38 de alto
       const nl = document.querySelector('.logo-marca')?.getBoundingClientRect();
-      if (nl && nl.height) { const u = nl.height / 439; destino = { x: nl.left + 6 * u - r.left, y: nl.top + 4 * u - r.top, s: (657 * 0.66 * u) / r.height }; }
+      if (nl && nl.height) { const u = nl.height / 439; destino = { x: nl.left + 6.39 * u - r.left, y: nl.top + 6.44 * u - r.top, s: (425.38 * u) / r.height }; }
       const c = hero.querySelector('.arbol-caja')!.getBoundingClientRect();
       meta = { x: c.left + c.width / 2, y: c.bottom - 4 }; // en el MUNDO (el hero ya lleva sumada la distancia D)
       largo = [0]; for (let i = 1; i < pts.length; i++) largo.push(largo[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
@@ -184,9 +170,6 @@ import { flecha } from '../lib/flecha';
       const [ax, ay] = pts[pts.length - 1]; // la punta del rabo de la «a» (pantalla)
       let x = 0, y = 0, cam = 0, ang = 0, sx = 1, sy = 1, gordo = 1;
       const t = ahora - t0;
-      // RONDA 139 · las raíces brotan de la v al final del dibujo y mientras la gota se descuelga
-      const gr = seno(entre(t, RODAR * 0.7, RODAR + COLGAR * 0.9));
-      raices.forEach((r) => r.setAttribute('stroke-dashoffset', String(1000 * (1 - gr))));
       if (t < RODAR) {
         // RODAR: por las v (se dibujan a su paso, con la plumada), luego por encima de la i y de la a
         const k = seno(entre(t, 0, RODAR));
@@ -300,33 +283,22 @@ import { flecha } from '../lib/flecha';
       };
       requestAnimationFrame(enc);
     };
-    // ¿hay una V en el rastro? Se lee HACIA ATRÁS desde el puntero (lo que hiciera antes el ratón no cuenta: quien llega desde abajo y dibuja la V a
-    // continuación también vale): el segundo brazo es la subida que acaba aquí; el vértice, lo más bajo de esa subida; el primer brazo, la bajada que
-    // llega al vértice. Con histéresis de 6 px para el pulso. Devuelve dónde empieza el primer brazo o −1.
-    const leerV = (): number => {
-      const n = traza.length, H = 6; if (n < 6) return -1;
-      let iv = n - 1, i = n - 2;
-      for (; i >= 0; i--) { if (traza[i].y >= traza[iv].y) iv = i; else if (traza[i].y < traza[iv].y - H) break; }
-      if (i < 0) return -1; // aún no hay bajada antes del vértice
-      let ia = i;
-      for (i--; i >= 0; i--) { if (traza[i].y <= traza[ia].y) ia = i; else if (traza[i].y > traza[ia].y + H) break; }
-      const a = traza[ia], v = traza[iv], f = traza[n - 1];
-      const baja = v.y - a.y, sube = v.y - f.y, u = Math.max(36, Math.min(innerWidth, innerHeight) * 0.045);
-      if (baja < u || sube < Math.max(u, baja * 0.55)) return -1; // dos brazos de verdad; el segundo, al menos media altura del primero
-      const da = a.x - v.x, df = f.x - v.x;
-      if (da * df >= 0 || Math.abs(da) < baja * 0.06 || Math.abs(df) < sube * 0.06) return -1; // abierta: un brazo a cada lado
-      // en PICO, no en U: a un cuarto de altura sobre el vértice la V mide la cuarta parte de su boca (un círculo, dos tercios)
-      const xEn = (i: number, j: number, y: number) => { for (let k = i; k < j; k++) { const p = traza[k], q = traza[k + 1]; if ((p.y - y) * (q.y - y) <= 0 && p.y !== q.y) return p.x + ((q.x - p.x) * (y - p.y)) / (q.y - p.y); } return traza[j].x; };
-      const m = Math.min(baja, sube), ancho = (h: number) => Math.abs(xEn(iv, n - 1, v.y - h) - xEn(ia, iv, v.y - h));
-      if (ancho(m * 0.25) > 0.5 * ancho(m * 0.98) + 6) return -1;
-      // y brazos sin garabatos: ningún punto se separa de la cuerda de su brazo más de la cuarta parte de su largo
-      const recto = (i: number, j: number) => {
-        const p = traza[i], q = traza[j], L = Math.hypot(q.x - p.x, q.y - p.y);
-        for (let k = i + 1; k < j; k++) if (Math.abs((q.x - p.x) * (traza[k].y - p.y) - (q.y - p.y) * (traza[k].x - p.x)) / L > 0.25 * L) return false;
-        return true;
-      };
-      if (!recto(ia, iv) || !recto(iv, n - 1)) return -1;
-      return ia;
+    // RONDA 144 · EL CÍRCULO (vuelve el de las rondas 20–82): hacia atrás desde el puntero se suma el giro alrededor del centro de lo dibujado; cuando
+    // la vuelta se cierra (≥ 342°) con un radio de verdad (≥ 18 px) y redonda (el radio no varía más de un 55 %), arranca. Devuelve dónde empieza.
+    const leerCirculo = (): number => {
+      const n = traza.length; if (n < 14) return -1;
+      for (let ini = Math.max(0, n - 120); ini <= n - 14; ini += 2) {
+        const q = traza.slice(ini);
+        let cx = 0, cy = 0; for (const p of q) { cx += p.x; cy += p.y; } cx /= q.length; cy /= q.length;
+        let giro = 0, rMin = 1e9, rMax = 0, rSum = 0, prev = Math.atan2(q[0].y - cy, q[0].x - cx);
+        for (let i = 1; i < q.length; i++) {
+          const a = Math.atan2(q[i].y - cy, q[i].x - cx); let d = a - prev; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; giro += d; prev = a;
+          const r = Math.hypot(q[i].x - cx, q[i].y - cy); rSum += r; rMin = Math.min(rMin, r); rMax = Math.max(rMax, r);
+        }
+        const rMed = rSum / (q.length - 1);
+        if (Math.abs(giro) >= Math.PI * 1.9 && rMed >= 18 && (rMax - rMin) <= rMed * 1.1) return ini;
+      }
+      return -1;
     };
     // RONDA 137 · Andoni: «al dibujar la V inicial, que funcione con el hover». Con ratón (o lápiz) basta con MOVERLO: el puntero deja el rastro de
     // pincel y el rastro SE SECA (lo que tiene más de 1,6 s se va; es la ventana en la que se busca la V). Con el dedo, arrastrando (el táctil no tiene
@@ -349,7 +321,7 @@ import { flecha } from '../lib/flecha';
       while (traza.length && ahora - traza[0].t > VIDA) traza.shift();
       pintar(pincel(traza));
       if (!secando) secando = requestAnimationFrame(secar);
-      const ia = leerV();
+      const ia = leerCirculo();
       if (ia >= 0) { cancelAnimationFrame(secando); secando = 0; arrancar(traza.slice(ia).map(({ x, y }) => ({ x, y }))); }
     };
     let dedo = false;
@@ -374,7 +346,7 @@ import { flecha } from '../lib/flecha';
     $('[data-saltar]').addEventListener('click', saltar);
     addEventListener('keydown', (e) => {
       if (e.key === 'Escape') return saltar();
-      if ((e.key === ' ' || e.key === 'Enter') && !rota && !arrancando) { e.preventDefault(); medir(); const cx = innerWidth / 2, cy = innerHeight / 2; arrancar([{ x: cx - 34, y: cy - 40 }, { x: cx, y: cy + 40 }, { x: cx + 34, y: cy - 40 }]); }
+      if ((e.key === ' ' || e.key === 'Enter') && !rota && !arrancando) { e.preventDefault(); medir(); const cx = innerWidth / 2, cy = innerHeight / 2; arrancar(Array.from({ length: 41 }, (_, i) => ({ x: cx + 40 * Math.cos((i / 40) * Math.PI * 2 - Math.PI / 2), y: cy + 40 * Math.sin((i / 40) * Math.PI * 2 - Math.PI / 2) }))); }
     });
     // la rueda salta, pero solo un scroll de verdad (≥ 90 px seguidos y pasado el primer medio segundo): un roce del trackpad —o la inercia de la página
     // anterior— saltaba la carga sin que nadie lo pidiera, y dibujando la V con el dedo es fácil rozarlo
@@ -453,9 +425,9 @@ import { flecha } from '../lib/flecha';
   .logo {
     --ih: clamp(10rem, 30lvh, 16rem);
     position: absolute;
-    left: calc(50% - var(--ih) * 552 / 657 / 2);
+    left: calc(50% - var(--ih) * 469.69 / 425.38 / 2);
     top: calc(50% - var(--ih) / 2);
-    width: calc(var(--ih) * 552 / 657);
+    width: calc(var(--ih) * 469.69 / 425.38);
     height: var(--ih);
     overflow: visible;
     fill: var(--color-niebla);

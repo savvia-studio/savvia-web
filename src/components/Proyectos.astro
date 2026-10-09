@@ -2,7 +2,7 @@
 import sharp from 'sharp';
 import Cta from './Cta.astro';
 import { proyectos } from '../data/home';
-import { HOJA_ROBLE, GIRO_HOJA, copo, flor, sol, aD } from '../scripts/formas-estacion';
+import { HOJA_ROBLE, NERVIOS_HOJA, GIRO_HOJA, copo, flor, sol, aD } from '../scripts/formas-estacion';
 // RONDA 65 · los iconos de estación, las mismas formas que el icono de la barra (rellenas): cerezo · sol · hoja de roble · copo
 const IC = { primavera: aD(flor()), verano: aD(sol()), invierno: aD(copo()) };
 const P = proyectos.nuevos;
@@ -185,7 +185,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
               <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={IC.verano} /></svg><span class="rotulo detail">Verano</span>
             </button>
             <button type="button" class="est" data-est="otono" aria-pressed="false" aria-label="Otoño" style="--i:2">
-              <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={HOJA_ROBLE} transform={`rotate(${GIRO_HOJA} 12 12)`} /></svg><span class="rotulo detail">Otoño</span>
+              <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><g transform={`rotate(${GIRO_HOJA} 12 12)`}><path d={HOJA_ROBLE} /><path class="nervios" d={NERVIOS_HOJA} /></g></svg><span class="rotulo detail">Otoño</span>
             </button>
             <button type="button" class="est" data-est="invierno" aria-pressed="false" aria-label="Invierno" style="--i:3">
               <svg class="relleno" viewBox="0 0 24 24" aria-hidden="true"><path d={IC.invierno} /></svg><span class="rotulo detail">Invierno</span>
@@ -1059,7 +1059,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .carga-logo {
     height: 9cqh;
-    aspect-ratio: 1170 / 439; /* ronda 139: logotipo con el isotipo de raíces */
+    aspect-ratio: 1184 / 439; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
     background: currentColor;
     -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
     mask: url('/savvia-logo.svg') center / contain no-repeat;
@@ -1462,6 +1462,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     opacity: 1;
     translate: -50% 0;
   }
+  /* RONDA 144 (3.ª) · «al pasar por los iconos no sale el tooltip»: el icono que se mira sube por encima de sus vecinos (el de al lado tapaba su rótulo) */
+  .abanico .grupo .est:hover,
+  .abanico .grupo .est:focus-visible { z-index: 5; }
+  .rotulo { z-index: 6; box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.5); }
+  .est .nervios { fill: none !important; stroke: #302018; stroke-width: 1.1; stroke-linecap: round; opacity: 0.6; }
+  .est[aria-pressed='true'] .nervios { stroke: #eadde7; }
   .barra {
     position: absolute;
     inset: 0;

@@ -1,0 +1,409 @@
+---
+// RONDA 62 · CASO DE ESTUDIO (referencia: focuslab.agency/work/marketo). RONDA 63: en claro y con mucha más información.
+// RONDA 64 (Andoni): «quitamos métricas en grande; más estilo agencia creativa: ir intercalando detalles de la web + detalles de la marca (colores
+// puestos de forma animada, tipografía, etc.)». El caso alterna TEXTO y MARCA:
+//   nombre · entradilla y ficha (las cifras, pequeñas, en la ficha) · portada · la frase · COLOR (bandas de su paleta que crecen al llegar) ·
+//   un DETALLE de la web junto al reto · galería · TIPOGRAFÍA (su muestra, escrita en SU web con SU fuente, que se imprime al llegar) · la web sección
+//   a sección · galería · apartados con otro DETALLE · galería · por dentro y lo descartado · la cita · el siguiente.
+// Detalles (d1, d2) y muestras (tipo-1, tipo-2): public/media/obra/<slug>/ (tools/r64-detalles.py, tools/r64-tipos.cjs).
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Carriles from '../../components/Carriles.astro';
+import Pie from '../../components/Pie.astro';
+import Cta from '../../components/Cta.astro';
+import Medio from '../../components/obra/Medio.astro';
+import { proyectos, type Proyecto, type Medio as TMedio } from '../../data/proyectos';
+
+export function getStaticPaths() {
+  return proyectos.map((p, i) => ({ params: { slug: p.slug }, props: { p, sig: proyectos[(i + 1) % proyectos.length], ant: proyectos[(i - 1 + proyectos.length) % proyectos.length] } }));
+}
+const { p, sig, ant } = Astro.props as { p: Proyecto; sig: Proyecto; ant: Proyecto };
+const g = [...p.galeria];
+const tomar = (): TMedio[] => {
+  if (!g.length) return [];
+  if (g[0].ancho === 'mitad' && g[1]?.ancho === 'mitad') return g.splice(0, 2);
+  return g.splice(0, 1);
+};
+const huecos = [tomar(), tomar(), g.splice(0)];
+const det = (n: number): TMedio => ({ tipo: 'video', src: `/media/obra/${p.slug}/d${n}.mp4`, poster: `/media/obra/${p.slug}/d${n}.jpg` });
+const ficha = [
+  ['Servicios', p.servicios],
+  ['Sector', p.sector ? [p.sector] : []],
+  ['Lugar', p.ubicacion ? [p.ubicacion] : []],
+  ['Con', p.con ? [p.con] : []],
+  ['Herramientas', p.stack ?? []],
+  ['En cifras', (p.cifras ?? []).map((c) => `${c.v} ${c.t}`)],
+].filter(([, v]) => (v as string[]).length) as [string, string[]][];
+const luz = (hex: string) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, gg = (n >> 8) & 255, b = n & 255; return (r * 299 + gg * 587 + b * 114) / 1000 > 150; };
+// el fondo de las muestras tipográficas: el color más claro de su paleta (la tinta de la muestra es la suya)
+const claroMarca = (p.paleta ?? []).map((c) => c.hex).find((h) => luz(h)) ?? '#FFFFFF';
+const media = (m: TMedio, dos: boolean) => (dos ? (m.movil ? '4 / 5' : '4 / 3') : m.movil ? '16 / 10' : '16 / 9');
+import { flecha } from '../../lib/flecha';
+---
+
+<Base title={`${p.nombre} — savvia`} description={p.resumen} carga={false}>
+  <Nav />
+  <Carriles />
+  <!-- RONDA 144 (2.ª) · Andoni: «en los casos tenemos que conseguir algo así (athleticsnyc.com/work/salesforce), que se sienta toda la info con mucho
+       aire: ahora todo se siente muy apretado». Lo que se toma de la referencia (medido): el nombre y debajo, en gris, la idea; TODO el texto a un solo
+       tamaño tranquilo; cada bloque, un encabezado pequeño, un hueco grande y el párrafo en MEDIA retícula (alternando izquierda y derecha); los medios
+       a lo ancho entre bloque y bloque; sin filetes: el orden lo hace el aire (160 px entre bloques). -->
+  <main id="contenido" class="caso surface-light" style={`--claro-marca:${claroMarca}`}>
+    <header class="wrap cabecera">
+      <Cta href="/proyectos" class="volver text-fg2" variante="secundario" tam="sm" flecha="izq">Proyectos</Cta>
+      <h1 class="font-display nombre" data-entra>{p.nombre}{p.frase && <span class="idea">{p.frase}</span>}</h1>
+    </header>
+
+    <section class="wrap rej intro" aria-label="El proyecto">
+      <div class="izq">
+        <p class="texto fuerte" data-enfoca>{p.entradilla}</p>
+        {p.contexto.map((t) => <p class="texto" data-enfoca>{t}</p>)}
+      </div>
+      <dl class="ficha" data-enfoca>
+        {
+          ficha.map(([k, v]) => (
+            <div>
+              <dt>{k}</dt>
+              {v.map((x) => <dd>{x}</dd>)}
+            </div>
+          ))
+        }
+        {p.url && <Cta href={p.url} class="ver" tam="sm" externo>Ver la web</Cta>}
+      </dl>
+    </section>
+
+    <div class="wrap medio-ancho portada" data-enfoca>
+      <Medio medio={p.portada} color={p.color} alt={`La web de ${p.nombre}`} proporcion={p.portada.movil ? '16 / 11' : '16 / 9'} transicion={`obra-${p.slug}`} />
+    </div>
+
+    <section class="wrap rej bloque" aria-labelledby="reto-h">
+      <h2 id="reto-h" class="enc">El reto</h2>
+      <p class="texto izq">{p.reto}</p>
+    </section>
+
+    <div class="wrap fila f2" data-vivo>
+      <div class="det"><Medio medio={det(1)} color={p.color} alt={`Un detalle de la web de ${p.nombre}`} proporcion="4 / 3" /></div>
+      <div class="det"><Medio medio={det(2)} color={p.color} alt={`Otro detalle de la web de ${p.nombre}`} proporcion="4 / 3" /></div>
+    </div>
+
+    {
+      p.secciones && (
+        <section class="wrap rej bloque" aria-labelledby="secc-h">
+          <h2 id="secc-h" class="enc der">La web, sección a sección</h2>
+          <ol class="secciones der">
+            {p.secciones.map((s, i) => (
+              <li data-enfoca>
+                <span class="num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="sn">{s.n}</span>
+                <span class="sd">{s.d}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {huecos[0].length > 0 && <div class={`wrap fila ${huecos[0].length === 2 ? 'f2' : ''}`}>{huecos[0].map((m) => <Medio medio={m} color={p.color} alt={`Un momento de la web de ${p.nombre}`} proporcion={media(m, huecos[0].length === 2)} />)}</div>}
+
+    <!-- COLOR: su paleta en bandas verticales que suben una tras otra al llegar; al pasar, la banda se ensancha -->
+    {
+      p.paleta && (
+        <section class="wrap rej bloque" aria-labelledby="color-h">
+          <h2 id="color-h" class="enc">Color</h2>
+          <div class="color ancho" data-vivo>
+            <ul class="bandas">
+              {p.paleta.map((c, i) => (
+                <li style={`--c:${c.hex};--i:${i}`} class={luz(c.hex) ? 'sobre-claro' : 'sobre-oscuro'}>
+                  <span class="nm">{c.n}</span>
+                  <span class="hx">{c.hex}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- TIPOGRAFÍA: la muestra, escrita en su propia web con su fuente; se imprime de abajo arriba al llegar -->
+    {
+      p.tipos && (
+        <section class="wrap rej bloque" aria-labelledby="tipo-h">
+          <h2 id="tipo-h" class="enc der">Tipografía</h2>
+          <div class={`ancho tipos ${p.tipos.length > 1 ? 'f2' : ''}`}>
+            {p.tipos.slice(0, 2).map((t, i) => (
+              <figure class="muestra" data-vivo>
+                <div class="hoja"><img src={`/media/obra/${p.slug}/tipo-${i + 1}.png`} alt={`Muestra de ${t.n}`} loading="lazy" decoding="async" /></div>
+                <figcaption><span>{t.n}</span><span class="gris">{t.uso}</span></figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {huecos[1].length > 0 && <div class={`wrap fila ${huecos[1].length === 2 ? 'f2' : ''}`}>{huecos[1].map((m) => <Medio medio={m} color={p.color} alt={`Un momento de la web de ${p.nombre}`} proporcion={media(m, huecos[1].length === 2)} />)}</div>}
+
+    {
+      p.apartados.map((a, k) => (
+        <section class="wrap rej bloque" aria-label={a.titulo}>
+          <h2 class={`enc ${k % 2 ? '' : 'der'}`}>{a.titulo}</h2>
+          <div class={`textos ${k % 2 ? 'izq' : 'der'}`}>{a.texto.map((t) => <p class="texto">{t}</p>)}</div>
+        </section>
+      ))
+    }
+
+    {huecos[2].length > 0 && <div class={`wrap fila ${huecos[2].length === 2 ? 'f2' : huecos[2].length >= 3 ? 'f3' : ''}`}>{huecos[2].map((m) => <Medio medio={m} color={p.color} alt={`Un momento de la web de ${p.nombre}`} proporcion={media(m, huecos[2].length > 1)} />)}</div>}
+
+    {
+      (p.tecnica || p.descartado) && (
+        <section class="wrap rej bloque" aria-label="Por dentro">
+          {p.tecnica && (
+            <div class="izq">
+              <h2 class="enc">Por dentro</h2>
+              <ul class="lista">{p.tecnica.map((t) => <li>{t}</li>)}</ul>
+            </div>
+          )}
+          {p.descartado && (
+            <div class="der">
+              <h2 class="enc">Lo que se descartó</h2>
+              <ul class="lista tachada">{p.descartado.map((t) => <li>{t}</li>)}</ul>
+            </div>
+          )}
+        </section>
+      )
+    }
+
+    <!-- RONDA 144 (2.ª) · «los testimonios dentro del caso, mucho más pequeños y sin cambio de color; si tienen vídeo, lo indicamos» -->
+    {
+      p.cita && (
+        <section class="wrap rej bloque" aria-label="Lo que cuenta el cliente">
+          <figure class="cita der">
+            <blockquote class="font-display">«{p.cita.texto}»</blockquote>
+            <figcaption><span>{p.cita.autor}</span><span class="gris">{p.cita.rol}</span></figcaption>
+            {p.cita.video && (
+              <a class="btn-primary btn-sm con-video" href={p.cita.video} target="_blank" rel="noopener">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7.5-4.5z" /></svg><span class="btn-tx">Ver el testimonio en vídeo</span>
+              </a>
+            )}
+          </figure>
+        </section>
+      )
+    }
+
+    <!-- RONDA 144 (2.ª) · «el siguiente proyecto, con las mismas cards del handbook, y que puedas ir al siguiente y al anterior» -->
+    <nav class="wrap pares" aria-label="Proyecto anterior y siguiente">
+      <a data-liquido class="par antes" href={`/proyectos/${ant.slug}`}>
+        <span class="pd detail detail-caps"><Fragment set:html={flecha('izq')} />Anterior</span>
+        <span class="pt">{ant.nombre}</span>
+      </a>
+      <a data-liquido class="par despues" href={`/proyectos/${sig.slug}`}>
+        <span class="pd detail detail-caps">Siguiente<Fragment set:html={flecha()} /></span>
+        <span class="pt">{sig.nombre}</span>
+      </a>
+    </nav>
+  </main>
+  <Pie />
+</Base>
+
+<script>
+  // lo que se anima al llegar (bandas de color, muestras, detalles): una vez, cuando asoma un 25 %
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { threshold: 0.25 });
+  document.querySelectorAll('[data-vivo]').forEach((el) => io.observe(el));
+</script>
+
+<style>
+  /* ── RONDA 144 (2.ª) · EL CASO CON AIRE (referencia: athleticsnyc.com/work/salesforce) ── */
+  .caso {
+    --aire: clamp(6rem, 3rem + 8vw, 10rem); /* 96 → 160 entre bloque y bloque */
+    --t: clamp(1.125rem, 1rem + 0.35vw, 1.3125rem); /* EL tamaño del texto del caso: 18 → 21, como la referencia */
+    padding-top: calc(var(--spacing) * 32);
+  }
+  .volver:hover { color: var(--fg); }
+  .nombre {
+    margin-top: calc(var(--spacing) * 8);
+    font-size: clamp(2.75rem, 1.4rem + 4.4vw, 5.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .idea { display: block; color: color-mix(in oklab, var(--fg) 45%, transparent); }
+  /* la retícula de 12; las piezas van a la MITAD izquierda o derecha (o a lo ancho) */
+  .rej {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: calc(var(--spacing) * 6);
+    align-items: start;
+  }
+  .rej > * { grid-column: 1 / -1; }
+  @media (width >= 64rem) {
+    .rej > .izq { grid-column: 1 / span 6; }
+    .rej > .der { grid-column: 7 / span 6; }
+    .rej > .enc { grid-column: 1 / span 6; }
+    .rej > .enc.der { grid-column: 7 / span 6; }
+    .intro > .izq { grid-column: 1 / span 6; }
+    .intro > .ficha { grid-column: 9 / span 4; }
+  }
+  .texto {
+    font-size: var(--t);
+    line-height: 1.5;
+    color: var(--fg);
+    max-width: 34em;
+    text-wrap: pretty;
+  }
+  .texto + .texto { margin-top: 1em; }
+  .texto.fuerte { color: var(--fg); }
+  .intro .texto:not(.fuerte) { color: color-mix(in oklab, var(--fg) 72%, transparent); }
+  .intro { margin-top: var(--aire); row-gap: calc(var(--spacing) * 12); }
+  .ficha { display: grid; gap: calc(var(--spacing) * 6); }
+  .ficha dt { font-size: var(--t); line-height: 1.45; color: color-mix(in oklab, var(--fg) 45%, transparent); }
+  .ficha dd { font-size: var(--t); line-height: 1.45; color: var(--fg); }
+  .ver { justify-self: start; margin-top: calc(var(--spacing) * 2); }
+  .portada { margin-top: var(--aire); }
+  /* cada bloque: el encabezado pequeño (el mismo tamaño que el texto, en Family), un hueco grande y el párrafo */
+  .bloque { padding-block: var(--aire); row-gap: clamp(3rem, 2rem + 3vw, 6rem); }
+  .enc {
+    font-family: var(--font-display);
+    font-size: calc(var(--t) * 1.25);
+    line-height: 1.2;
+    font-weight: 400;
+    color: var(--fg);
+  }
+  .fila + .bloque, .portada + .bloque { padding-top: var(--aire); }
+  .bloque + .fila { margin-top: 0; }
+  .bloque + .bloque { padding-top: 0; }
+  /* ── FILAS DE MEDIOS: a lo ancho; 1, 2 o 3, con la misma proporción */
+  .fila { display: grid; gap: calc(var(--spacing) * 6); }
+  .fila + .fila { margin-top: calc(var(--spacing) * 6); }
+  .fila.f2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fila.f3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (width < 48rem) { .fila.f2, .fila.f3 { grid-template-columns: 1fr; } }
+  .det {
+    clip-path: inset(10% 10% 10% 10% round var(--radius-lg));
+    scale: 1.04;
+    transition: clip-path 1.2s var(--ease-out-expo), scale 1.4s var(--ease-out-expo);
+  }
+  .det + .det { transition-delay: 0.12s; }
+  .fila.visto .det { clip-path: inset(0 0 0 0 round var(--radius-lg)); scale: 1; }
+  /* ── LA WEB, SECCIÓN A SECCIÓN: una lista tranquila, todo al mismo tamaño */
+  .secciones li {
+    display: grid;
+    grid-template-columns: 2.5em minmax(0, 1fr);
+    column-gap: calc(var(--spacing) * 3);
+    padding-block: calc(var(--spacing) * 3);
+    font-size: var(--t);
+    line-height: 1.4;
+  }
+  .num { color: color-mix(in oklab, var(--fg) 40%, transparent); font-variant-numeric: tabular-nums; }
+  .sn { color: var(--fg); }
+  .sd { grid-column: 2; color: color-mix(in oklab, var(--fg) 55%, transparent); }
+  /* ── COLOR */
+  .color.ancho { grid-column: 1 / -1; }
+  .bandas { display: flex; gap: calc(var(--spacing) * 1); height: clamp(16rem, 48lvh, 30rem); }
+  .bandas li {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: calc(var(--spacing) * 1);
+    padding: calc(var(--spacing) * 5);
+    border-radius: var(--radius-lg);
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 10%, transparent);
+    overflow: hidden;
+    clip-path: inset(100% 0 0 0 round var(--radius-lg));
+    transition: clip-path 1.1s var(--ease-out-expo) calc(var(--i) * 110ms), flex-grow 0.9s var(--ease-out-expo);
+  }
+  .bandas li:first-child { flex-grow: 2.4; }
+  .bandas:hover li { flex-grow: 0.8; }
+  .bandas li:hover { flex-grow: 3; }
+  .color.visto .bandas li { clip-path: inset(0 0 0 0 round var(--radius-lg)); }
+  .sobre-claro { color: var(--color-cacao); }
+  .sobre-oscuro { color: var(--color-niebla); }
+  .nm, .hx { font-size: var(--text-aux); white-space: nowrap; }
+  .hx { font-family: var(--font-mono); opacity: 0.7; }
+  @media (width < 48rem) { .bandas { flex-direction: column; height: auto; } .bandas li { min-height: calc(var(--spacing) * 16); } }
+  /* ── TIPOGRAFÍA */
+  .tipos.ancho { grid-column: 1 / -1; display: grid; gap: calc(var(--spacing) * 6); }
+  .tipos.f2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (width < 48rem) { .tipos.f2 { grid-template-columns: 1fr; } }
+  .muestra { margin: 0; }
+  .hoja {
+    display: grid;
+    place-items: center start;
+    aspect-ratio: 4 / 3;
+    padding: clamp(1.5rem, 4vw, 3.5rem);
+    border-radius: var(--radius-lg);
+    background: var(--claro-marca);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 10%, transparent);
+    overflow: hidden;
+  }
+  .hoja img {
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: left center;
+    clip-path: inset(100% 0 0 0);
+    translate: 0 calc(var(--spacing) * 6);
+    transition: clip-path 1.4s var(--ease-out-expo) 0.15s, translate 1.4s var(--ease-out-expo) 0.15s;
+  }
+  .muestra.visto .hoja img { clip-path: inset(0 0 0 0); translate: 0 0; }
+  .muestra figcaption { display: flex; justify-content: space-between; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 4); font-size: var(--t); }
+  .gris { color: color-mix(in oklab, var(--fg) 50%, transparent); }
+  /* ── TEXTOS de los apartados (alternan de lado) y LISTAS de por dentro */
+  .textos { max-width: 34em; }
+  .lista { margin-top: clamp(2rem, 1.5rem + 2vw, 4rem); }
+  .lista li { padding-block: calc(var(--spacing) * 2); font-size: var(--t); line-height: 1.45; color: color-mix(in oklab, var(--fg) 75%, transparent); }
+  .lista.tachada li { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: color-mix(in oklab, var(--fg) 40%, transparent); color: color-mix(in oklab, var(--fg) 50%, transparent); }
+  @media (width >= 64rem) { .bloque > .izq + .der { grid-row: 1; } }
+  /* ── LA CITA: pequeña, en el papel (sin banda oscura) */
+  .cita { margin: 0; }
+  .cita blockquote { font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem); line-height: 1.3; text-wrap: pretty; }
+  .cita figcaption { display: flex; flex-direction: column; gap: 2px; margin-top: calc(var(--spacing) * 6); font-size: var(--t); }
+  .con-video { margin-top: calc(var(--spacing) * 6); }
+  .con-video svg { width: 0.875rem; height: 0.875rem; fill: currentColor; }
+  /* ── ANTERIOR / SIGUIENTE: las tarjetas del handbook (se llenan como el CTA, desde donde entra el cursor) */
+  .pares { display: grid; gap: calc(var(--spacing) * 4); padding-top: var(--aire); padding-bottom: var(--space-section); }
+  @media (width >= 40rem) { .pares { grid-template-columns: 1fr 1fr; } }
+  .par {
+    --par-ease: cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    gap: calc(var(--spacing) * 3);
+    align-content: start;
+    padding: calc(var(--spacing) * 6);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    transition: border-color 0.6s var(--par-ease);
+  }
+  .par::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: var(--gx, 50%);
+    top: var(--gy, 50%);
+    width: var(--gd, 260%);
+    aspect-ratio: 1;
+    border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%;
+    background: var(--fg);
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    transition: transform 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+    pointer-events: none;
+  }
+  .par:hover::before, .par:focus-visible::before { transform: translate(-50%, -50%) scale(1) rotate(24deg); }
+  .despues { text-align: right; justify-items: end; }
+  .pd { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); color: var(--fg2); transition: color 0.45s var(--par-ease); }
+  .pt { font-family: var(--font-display); font-size: 1.75rem; line-height: 1.15; color: color-mix(in oklab, var(--fg) 82%, transparent); transition: color 0.45s var(--par-ease); }
+  .par:hover, .par:focus-visible { border-color: var(--fg); }
+  .par:hover .pd, .par:focus-visible .pd { color: color-mix(in oklab, var(--bg) 72%, transparent); transition-delay: 0.15s; }
+  .par:hover .pt, .par:focus-visible .pt { color: var(--bg); transition-delay: 0.15s; }
+  .par:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    .bandas li, .det, .hoja img, .par, .par::before, .pd, .pt { transition: none; }
+    .bandas li, .det, .hoja img { clip-path: none !important; translate: 0 0 !important; scale: 1 !important; }
+    .par::before { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    .par:hover::before, .par:focus-visible::before { opacity: 1; }
+  }
+</style>

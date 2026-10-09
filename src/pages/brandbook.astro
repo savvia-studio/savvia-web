@@ -1,0 +1,679 @@
+---
+// RONDA 144 · EL BRANDBOOK. Andoni: «si podemos montar un brandbook como este sería top» (referencia: el vídeo de kargul.studio, x.com/marcelkargul,
+// 08/10/2026: un documento web con índice lateral fijo y una sola columna larga). Aquí, el sistema REAL de savvia, sacado de sus tokens (global.css),
+// sus scripts y su diccionario (AGENTS.md): nada inventado. La versión anterior, en tools/r144/brandbook.v1.astro.txt.
+// RONDA 144 (2.ª) · Andoni: «el isotipo es distinto al resto (el de la carga): tiene que ir el del resto de sitios · que se muestre la CONSTRUCCIÓN del
+// logotipo con sus curvas · el color organizado por estaciones, con sus paletas, y que el brandbook pase por esas estaciones · en componentes tenemos más:
+// añadirlos todos · en textura y movimiento también hay más: añadirlo bien».
+//   · El isotipo es la v del logotipo (savvia-isotipo.svg ya es su primer trazo).
+//   · CONSTRUCCIÓN: los trazos del logotipo leídos al compilar (M · C · L · H · V · Z absolutos): contorno, anclas (cuadrados), manejadores (líneas y
+//     puntos) y las líneas de la letra (base, altura de x, ascendentes); se dibuja al llegar.
+//   · COLOR: cuatro paneles a sangre, uno por estación, con su noche de fondo y su paleta; al pasar por cada uno, la página ENTERA cambia a esa estación
+//     (fijarEstacion: el acento, la barra, el pie) y al salir del tramo vuelve a la de hoy.
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Carriles from '../components/Carriles.astro';
+import Pie from '../components/Pie.astro';
+import Cta from '../components/Cta.astro';
+import { flecha } from '../lib/flecha';
+import logoRaw from '../../public/savvia-logo.svg?raw';
+
+const indice = [
+  ['logotipo', 'Logotipo'],
+  ['construccion', 'Construcción'],
+  ['color', 'Color y estaciones'],
+  ['tipografia', 'Tipografía'],
+  ['voz', 'Voz'],
+  ['componentes', 'Componentes'],
+  ['materia', 'Textura y movimiento'],
+  ['aplicaciones', 'Aplicaciones'],
+] as const;
+
+// ── LA CONSTRUCCIÓN: anclas y manejadores de cada trazo del logotipo (comandos absolutos)
+const trazos = [...logoRaw.matchAll(/ d="([^"]+)"/g)].map((m) => m[1]);
+type Pt = [number, number];
+const anclas: Pt[] = [], manejos: [Pt, Pt][] = [], controles: Pt[] = [];
+const cajas: { x0: number; x1: number; y0: number; y1: number }[] = [];
+for (const d of trazos) {
+  const tk = d.match(/[MCLHVZ]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? [];
+  let i = 0, cmd = '', cx = 0, cy = 0;
+  const n = () => parseFloat(tk[i++]);
+  const caja = { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 };
+  const mete = (p: Pt) => { caja.x0 = Math.min(caja.x0, p[0]); caja.x1 = Math.max(caja.x1, p[0]); caja.y0 = Math.min(caja.y0, p[1]); caja.y1 = Math.max(caja.y1, p[1]); };
+  while (i < tk.length) {
+    if (/[MCLHVZ]/i.test(tk[i])) cmd = tk[i++].toUpperCase();
+    if (cmd === 'Z') continue;
+    if (cmd === 'M' || cmd === 'L') { cx = n(); cy = n(); anclas.push([cx, cy]); mete([cx, cy]); if (cmd === 'M') cmd = 'L'; }
+    else if (cmd === 'H') { cx = n(); anclas.push([cx, cy]); mete([cx, cy]); }
+    else if (cmd === 'V') { cy = n(); anclas.push([cx, cy]); mete([cx, cy]); }
+    else if (cmd === 'C') {
+      const a: Pt = [n(), n()], b: Pt = [n(), n()], e: Pt = [n(), n()];
+      manejos.push([[cx, cy], a], [b, e]); controles.push(a, b); anclas.push(e); mete(e);
+      cx = e[0]; cy = e[1];
+    } else i++;
+  }
+  cajas.push(caja);
+}
+// las líneas de la letra, de las cajas de «savvia» (trazos 1–6; el 0 es la v del isotipo)
+const letras = cajas.slice(1);
+const base = Math.round(Math.max(...letras.map((c) => c.y1)) - 3);
+const ascend = Math.round(Math.min(...letras.map((c) => c.y0)));
+const xAlto = Math.round([...letras].sort((a, b) => b.y0 - a.y0)[0].y0); // la letra más baja de arriba: la altura de x
+const f = (v: number) => v.toFixed(1);
+const dManejos = manejos.map(([a, b]) => `M${f(a[0])} ${f(a[1])}L${f(b[0])} ${f(b[1])}`).join('');
+
+const base6 = [
+  { n: 'Cacao', hex: '#302018', uso: 'La tinta y la noche. Texto sobre claro, fondos oscuros.', claro: false },
+  { n: 'Nogal', hex: '#63402F', uso: 'La madera. Superficies cálidas y estados de pulsado.', claro: false },
+  { n: 'Rosa niebla', hex: '#EADDE7', uso: 'El papel. Fondos claros y texto sobre oscuro.', claro: true },
+  { n: 'Salvia', hex: '#96BFE6', uso: 'El cielo. Solo el fondo de Servicios.', claro: true },
+  { n: 'Cobalto', hex: '#3456D3', uso: 'Detalles mínimos de las ilustraciones.', claro: false },
+  { n: 'Cereza', hex: '#B52C4C', uso: 'Reservado. Aún sin uso.', claro: false },
+];
+const estaciones = [
+  { id: 'primavera', n: 'Primavera', meses: 'marzo – mayo', noche: '#382A2D', honda: '#382A2D', arbol: '#C76B83', acento: '#FF7FAE', tinta: '#EADDE7', de: 'el cerezo', frase: 'El roble florece en rosa; la savia es el cerezo.' },
+  { id: 'verano', n: 'Verano', meses: 'junio – agosto', noche: '#1F352A', honda: '#1F352A', arbol: '#67834D', acento: '#A6D96A', tinta: '#EADDE7', de: 'la hoja nueva', frase: 'Verdes hondos y luces lima; la savia es la hoja nueva.' },
+  { id: 'otono', n: 'Otoño', meses: 'septiembre – noviembre', noche: '#3B231B', honda: '#3B231B', arbol: '#C65C2D', acento: '#FF616B', tinta: '#EADDE7', de: 'el Coral de siempre', frase: 'La casa: Cacao, cobre y el Coral de la savia.' },
+  { id: 'invierno', n: 'Invierno', meses: 'diciembre – febrero', noche: '#ECEFF3', honda: '#2A2932', arbol: '#6E7B91', acento: '#4F8AD6', tinta: '#302018', de: 'el cielo de enero', frase: 'La web se vuelve nieve; el roble, desnudo; la savia, el azul glaciar.' },
+];
+const escala = [
+  ['H1', 'var(--text-h1)', '44 → 72', 'Family 400', 'display'],
+  ['H2', 'var(--text-h2)', '34 → 48', 'Family 400', 'display'],
+  ['H3', 'var(--text-h3)', '26 → 32', 'Family 400', 'display'],
+  ['Lead', 'var(--text-lead)', '20', 'ABC Areal 400', 'sans'],
+  ['Cuerpo', 'var(--text-body)', '17 → 18', 'ABC Areal 400', 'sans'],
+  ['Interfaz', 'var(--text-ui)', '16', 'ABC Areal 500', 'sans'],
+  ['Detalle', 'var(--text-detail)', '13', 'ABC Areal Mono 400', 'mono'],
+] as const;
+const seDice = ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'contigo', 'Eric y Andoni', 'Donostia'];
+const noSeDice = ['prompt', 'vibe coding', '«lavado de cara»', 'años de experiencia', 'número de clientes', '«pioneros»', 'jerga de generador'];
+const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25" /><path d="M6 10.4 8.7 13 14 7.2" pathLength="1" /></svg>`;
+---
+
+<Base title="Brandbook — savvia" description="El sistema de marca de savvia: logotipo y su construcción, color por estaciones, tipografía, voz, componentes y movimiento." carga={false}>
+  <Nav />
+  <Carriles />
+  <main id="contenido" class="libro surface-light">
+    <div class="wrap marco-libro">
+      <nav class="indice" aria-label="Secciones del brandbook">
+        <p class="detail detail-caps text-fg2">Brandbook</p>
+        <ol>
+          {indice.map(([id, t], i) => (
+            <li><a href={`#${id}`} data-ir={id}><span class="detail n">{String(i + 1).padStart(2, '0')}</span>{t}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="hojas">
+        <header class="portada">
+          <h1 class="font-display titular" data-entra>La marca, en una página.</h1>
+          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Cómo se ve, cómo suena y cómo se mueve savvia. Todo lo que hay aquí sale del sistema real de la web.</p>
+          <div class="cubierta">
+            <span class="logo-masc" role="img" aria-label="savvia"></span>
+            <span class="detail pie-cub">savvia · Donostia · desde 2020</span>
+          </div>
+        </header>
+
+        <!-- 01 · LOGOTIPO -->
+        <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
+          <h2 id="h-logotipo" class="font-display text-h2">Logotipo</h2>
+          <p class="cuerpo">El isotipo es la v caligráfica del logotipo: un trazo que entra fino por un gancho, baja, sube largo y remata en una gota. Junto a «savvia», siempre en minúscula, también a principio de frase. El mismo isotipo en la carga, la barra, el favicon y aquí.</p>
+          <div class="fila f2">
+            <figure class="placa oscura"><span class="logo-masc" role="img" aria-label="savvia sobre Cacao"></span><figcaption class="detail">Sobre Cacao · Rosa niebla</figcaption></figure>
+            <figure class="placa clara"><span class="logo-masc" role="img" aria-label="savvia sobre Rosa niebla"></span><figcaption class="detail">Sobre Rosa niebla · Cacao</figcaption></figure>
+          </div>
+          <div class="fila f3">
+            <figure class="placa clara sm"><span class="iso-masc" role="img" aria-label="Isotipo"></span><figcaption class="detail">Isotipo</figcaption></figure>
+            <figure class="placa oscura sm"><span class="iso-masc" role="img" aria-label="Isotipo sobre Cacao"></span><figcaption class="detail">Isotipo · sobre Cacao</figcaption></figure>
+            <figure class="placa oscura sm"><img class="fav" src="/favicon.svg?v=144" alt="Favicon" width="64" height="64" /><figcaption class="detail">Favicon</figcaption></figure>
+          </div>
+          <ul class="reglas">
+            <li><b>Aire</b> alrededor, como mínimo, el alto de la gota del isotipo. Tamaño mínimo: 24 px de alto en pantalla.</li>
+            <li><b>Sí</b> en Cacao o Rosa niebla, macizo, sobre fondo liso. <b>No</b> se estira, no se gira, no lleva sombra ni degradado, no cambia con la estación.</li>
+          </ul>
+        </section>
+
+        <!-- 02 · CONSTRUCCIÓN -->
+        <section id="construccion" class="seccion" aria-labelledby="h-construccion">
+          <h2 id="h-construccion" class="font-display text-h2">Construcción</h2>
+          <p class="cuerpo">Cómo está dibujado: {trazos.length} trazos, {anclas.length} anclas y {controles.length} manejadores. La v se apoya en la línea base y sube hasta las ascendentes; su gota cae a la altura del punto de la i.</p>
+          <figure class="construccion" data-construccion>
+            <svg viewBox="-20 -20 1224 479" aria-hidden="true">
+              <g class="guias">
+                <line x1="-20" x2="1204" y1={base} y2={base} /><text x="1204" y={base - 8}>línea base</text>
+                <line x1="-20" x2="1204" y1={xAlto} y2={xAlto} /><text x="1204" y={xAlto - 8}>altura de x</text>
+                <line x1="-20" x2="1204" y1={ascend} y2={ascend} /><text x="1204" y={ascend - 8}>ascendentes</text>
+                <rect x={cajas[0].x0} y={cajas[0].y0} width={cajas[0].x1 - cajas[0].x0} height={cajas[0].y1 - cajas[0].y0} class="caja-iso" />
+              </g>
+              <g class="relleno">{trazos.map((d) => <path d={d} />)}</g>
+              <g class="contorno">{trazos.map((d) => <path d={d} pathLength="1" />)}</g>
+              <path class="manejos" d={dManejos} />
+              <g class="controles">{controles.map(([x, y]) => <circle cx={f(x)} cy={f(y)} r="3.2" />)}</g>
+              <g class="anclas">{anclas.map(([x, y]) => <rect x={f(x - 3.6)} y={f(y - 3.6)} width="7.2" height="7.2" />)}</g>
+            </svg>
+            <figcaption class="detail leyenda"><span><i class="lg-a"></i>ancla</span><span><i class="lg-c"></i>manejador</span><span><i class="lg-g"></i>líneas de la letra</span></figcaption>
+          </figure>
+        </section>
+
+        <!-- 03 · COLOR Y ESTACIONES -->
+        <section id="color" class="seccion" aria-labelledby="h-color">
+          <h2 id="h-color" class="font-display text-h2">Color y estaciones</h2>
+          <p class="cuerpo">Una web oscura con detalles en claro, que vive la estación en que la visitas: cambian la noche del fondo, el roble y la savia (el acento). Al bajar, esta página pasa por las cuatro.</p>
+          <ul class="muestras">
+            {base6.map((c) => (
+              <li class={c.claro ? 'sobre-claro' : 'sobre-oscuro'} style={`--c:${c.hex}`}>
+                <span class="mu-n">{c.n}</span>
+                <span class="detail mu-h">{c.hex}</span>
+                <span class="mu-u">{c.uso}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- RONDA 144 (3.ª) · «en color y estaciones, que los colores que están cambien con la estación»: UNA escena fija (sticky) durante cuatro pantallas;
+         al bajar, la estación avanza y todo cambia con ella: la noche del fondo, el roble, la paleta (sus muestras leen los colores de la página) y sus
+         valores. La página entera la sigue (fijarEstacion); al salir del tramo vuelve la de hoy. -->
+    <div class="estaciones" data-estaciones style={`--n:${estaciones.length}`}>
+      <div class="escena-est" data-escena-est data-actual="0">
+        <div class="wrap est-dentro">
+          <div class="est-txt">
+            <div class="est-pila">
+              {estaciones.map((e, i) => (
+                <div class={`est-cab ${i === 0 ? 'on' : ''}`} data-cab={i}>
+                  <p class="detail detail-caps">{e.meses}</p>
+                  <h3 class="font-display est-n">{e.n}</h3>
+                  <p class="est-frase">{e.frase}</p>
+                </div>
+              ))}
+            </div>
+            <ol class="est-puntos" aria-hidden="true">{estaciones.map((e, i) => <li class={i === 0 ? 'on' : ''} data-punto={i}>{e.n}</li>)}</ol>
+          </div>
+          <div class="est-robles">
+            {estaciones.map((e, i) => <img class={i === 0 ? 'on' : ''} data-roble={i} src={`/media/hero/arbol-${e.id}.webp`} alt={i === 0 ? 'El roble de la estación' : ''} loading="lazy" decoding="async" />)}
+          </div>
+          <ul class="est-paleta">
+            {[
+              ['Noche', 'var(--noche)', 'el fondo', 'noche'],
+              ['Noche honda', 'var(--noche-honda)', 'el cristal', 'honda'],
+              ['Roble', 'var(--arbol)', 'la hoja', 'arbol'],
+              ['Savia', 'var(--color-coral)', 'el acento', 'acento'],
+              ['Tinta', 'var(--tinta-est)', 'el texto', 'tinta'],
+            ].map(([n, v, u, k]) => (
+              <li style={`--c:${v}`}><i class="est-m" /><span class="est-mn">{n}</span><span class="detail" data-hex={k}>{(estaciones[0] as any)[k]}</span><span class="detail est-u">{u}</span></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script type="application/json" data-estaciones-datos set:html={JSON.stringify(estaciones)} />
+
+    <div class="wrap marco-libro">
+      <div class="indice-hueco" aria-hidden="true"></div>
+      <div class="hojas">
+        <section class="seccion sin-borde" aria-label="Reglas del color">
+          <ul class="reglas">
+            <li><b>Contraste</b> Rosa niebla sobre Cacao 12,6:1 · Cacao sobre Rosa niebla 12,6:1.</li>
+            <li><b>Sin</b> degradados, brillos ni sombras por defecto. La savia es un punto, un filo, lo que se mueve; nunca texto pequeño sobre claro.</li>
+          </ul>
+        </section>
+
+        <!-- 04 · TIPOGRAFÍA -->
+        <section id="tipografia" class="seccion" aria-labelledby="h-tipografia">
+          <h2 id="h-tipografia" class="font-display text-h2">Tipografía</h2>
+          <p class="cuerpo">Tres voces: Family para lo que se dice, ABC Areal para lo que se lee y ABC Areal Mono para los detalles. Sin cursivas, nunca.</p>
+          <div class="fila f3 familias">
+            <figure class="placa clara fam"><span class="font-display aa">Aa</span><figcaption><b>Family</b><span class="detail">Titulares · 400</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa sans">Aa</span><figcaption><b>ABC Areal</b><span class="detail">Texto e interfaz · 400 · 500</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa mono">Aa</span><figcaption><b>ABC Areal Mono</b><span class="detail">Detalles · 400</span></figcaption></figure>
+          </div>
+          <ol class="escala">
+            {escala.map(([n, v, px, fam, cls]) => (
+              <li>
+                <span class="detail e-n">{n}</span>
+                <span class={`e-m ${cls}`} style={`font-size:${v}`}>Elevamos tu web</span>
+                <span class="detail e-d">{px} px · {fam}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <!-- 05 · VOZ -->
+        <section id="voz" class="seccion" aria-labelledby="h-voz">
+          <h2 id="h-voz" class="font-display text-h2">Voz</h2>
+          <p class="cuerpo">Se habla siempre a quien entra; la primera persona, solo cuando hablan Eric y Andoni. No se presume: el trabajo lo demuestra.</p>
+          <div class="fila f2">
+            <div class="placa clara lista-voz"><p class="detail detail-caps">Se dice</p><ul>{seDice.map((w) => <li>{w}</li>)}</ul></div>
+            <div class="placa clara lista-voz no"><p class="detail detail-caps">No se dice</p><ul>{noSeDice.map((w) => <li>{w}</li>)}</ul></div>
+          </div>
+          <blockquote class="font-display ejemplo">«Elevamos tu web con IA.»<span class="detail">El titular: corto, a quien entra, con el verbo delante.</span></blockquote>
+        </section>
+
+        <!-- 06 · COMPONENTES -->
+        <section id="componentes" class="seccion" aria-labelledby="h-componentes">
+          <h2 id="h-componentes" class="font-display text-h2">Componentes</h2>
+          <p class="cuerpo">Un solo idioma para todo lo que se pulsa: el cristal de la barra de la vista sentado, chevrones finos y, al pasar, la niebla lo llena como un líquido desde donde entra el cursor.</p>
+
+          <div class="comp">
+            <h3 class="comp-t">Botones</h3>
+            <div class="placa oscura demos">
+              <Cta href="#componentes">Cuéntanos tu proyecto</Cta>
+              <Cta href="#componentes" tam="sm">Ver la web</Cta>
+              <Cta href="#componentes" variante="secundario">Ver caso de estudio</Cta>
+              <Cta href="#componentes" variante="secundario" flecha="izq">Proyectos</Cta>
+            </div>
+            <p class="comp-d detail">Primario: cristal (noche al 58 %, desenfoque 22 px, filo claro 16 %), ABC Areal 500, sin mayúsculas · Pequeño: 40 px · Secundario: texto y chevrón, sin caja.</p>
+          </div>
+
+          <div class="comp">
+            <h3 class="comp-t">Barra de cristal</h3>
+            <div class="placa oscura demos">
+              <div class="barra-cristal" role="group" aria-label="Ejemplo de barra">
+                <button type="button" class="paso" aria-label="Anterior"><Fragment set:html={flecha('izq')} /></button>
+                <p class="cual"><span class="n">02/04</span><span>Arkdev</span></p>
+                <button type="button" class="paso" aria-label="Siguiente"><Fragment set:html={flecha()} /></button>
+              </div>
+              <div class="barra-cristal" role="group" aria-label="Ejemplo de paginación">
+                <button type="button" class="paso" aria-label="Anterior" disabled><Fragment set:html={flecha('izq')} /></button>
+                <p class="cual"><span class="n">Página</span><span>01/03</span></p>
+                <button type="button" class="paso" aria-label="Siguiente"><Fragment set:html={flecha()} /></button>
+              </div>
+            </div>
+            <p class="comp-d detail">Para pasar de una cosa a otra: los destacados, las páginas del portfolio, los testimonios y los proyectos con la vista sentado. Sobre claro, la misma barra sin velo (filete del color de las reglas).</p>
+          </div>
+
+          <div class="comp">
+            <h3 class="comp-t">Buscador y filtros</h3>
+            <div class="placa clara demos">
+              <div class="buscar-demo" aria-hidden="true">
+                <span class="bd-l"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>Busca un proyecto</span>
+                <span class="bd-f"><svg viewBox="0 0 16 16"><path d="M2 4.5h12M4.5 8h7M7 11.5h2" /></svg>Filtros<b>2</b></span>
+              </div>
+              <div class="chips" aria-hidden="true"><span class="on">Todos</span><span>Diseño web<sup>7</sup></span><span>Webflow<sup>5</sup></span><span>España<sup>2</sup></span></div>
+            </div>
+            <p class="comp-d detail">Una sola barra: se escribe a la izquierda; a la derecha, tras un separador, los filtros con su recuento. Las etiquetas: filete fino; la elegida, llena de tinta.</p>
+          </div>
+
+          <div class="comp">
+            <h3 class="comp-t">Tarjetas anterior y siguiente</h3>
+            <div class="fila f2 pares-demo">
+              <a href="#componentes" data-liquido class="par antes"><span class="pd detail detail-caps"><Fragment set:html={flecha('izq')} />Anterior</span><span class="pt">Playground IEP</span></a>
+              <a href="#componentes" data-liquido class="par despues"><span class="pd detail detail-caps">Siguiente<Fragment set:html={flecha()} /></span><span class="pt">Invopop</span></a>
+            </div>
+            <p class="comp-d detail">Al final de cada capítulo del handbook y de cada caso de estudio. Al pasar se llenan de tinta desde donde entra el cursor.</p>
+          </div>
+
+          <div class="comp">
+            <h3 class="comp-t">Pequeñas piezas</h3>
+            <div class="fila f3">
+              <div class="placa oscura sm">
+                <span class="escuchando"><span class="caras"><img src="/media/equipo/cara-andoni.webp" alt="" width="72" height="72" loading="lazy" /><img src="/media/equipo/cara-eric.webp" alt="" width="72" height="72" loading="lazy" /></span>Escuchando…<i class="nivel"><i></i><i></i><i></i><i></i></i></span>
+                <span class="detail pie-p">Píldora de estado</span>
+              </div>
+              <div class="placa clara sm">
+                <span class="checks"><Fragment set:html={check} /><Fragment set:html={check} /><Fragment set:html={check} /></span>
+                <span class="detail pie-p">El check (Servicios)</span>
+              </div>
+              <div class="placa clara sm">
+                <span class="rejilla-menu" aria-hidden="true">{Array.from({ length: 9 }, () => <i />)}</span>
+                <span class="detail pie-p">El botón del menú</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 07 · TEXTURA Y MOVIMIENTO -->
+        <section id="materia" class="seccion" aria-labelledby="h-materia">
+          <h2 id="h-materia" class="font-display text-h2">Textura y movimiento</h2>
+          <p class="cuerpo">La materia es papel y acuarela; el movimiento, el de algo vivo que crece: llega con curva expo, se posa sin rebote y nunca impide leer. Con movimiento reducido, todo queda quieto y en su sitio.</p>
+          <div class="fila f3 materia">
+            <figure class="placa grano"><figcaption class="detail">Grano · en todas las superficies, ≤ 12 %</figcaption></figure>
+            <figure class="placa clara semitono"><figcaption class="detail">Semitono · el canto del roble, a 45°</figcaption></figure>
+            <figure class="placa clara carriles-d"><i class="cr-v a" /><i class="cr-v b" /><i class="cr-h" /><i class="cr-x a">+</i><i class="cr-x b">+</i><figcaption class="detail">Carriles · los bordes del contenido, a la vista</figcaption></figure>
+            <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">ease-out expo · 0,16 1 0,3 1</figcaption></figure>
+            <figure class="placa clara palabras"><span class="pal font-display"><span>Elevamos</span> <span>tu</span> <span>web</span></span><figcaption class="detail">Titulares · las palabras suben desde una máscara</figcaption></figure>
+            <figure class="placa clara enfoca"><span class="enf">Un párrafo que entra en foco.</span><figcaption class="detail">Bloques · de fuera de foco a nítido</figcaption></figure>
+            <figure class="placa campana"><i class="cp" /><figcaption class="detail">Entre secciones · una gota que se ensancha</figcaption></figure>
+            <figure class="placa clara rasgado"><i class="rg" /><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado</figcaption></figure>
+            <figure class="placa clara liquido-d"><span class="liq">Pasa por aquí</span><figcaption class="detail">El líquido · desde donde entra el cursor</figcaption></figure>
+            <figure class="placa clara gota-m"><span class="gota-d" aria-hidden="true"></span><figcaption class="detail">La gota · arranca la web (dibuja un círculo)</figcaption></figure>
+            <figure class="placa oscura onda-d"><span class="onda-b">{Array.from({ length: 22 }, (_, k) => <i style={`--k:${k}`} />)}</span><figcaption class="detail">La voz · onda que se tiñe de savia</figcaption></figure>
+            <figure class="placa clara estacion-d"><span class="est-cic" aria-hidden="true"><i style="--c:#FF7FAE" /><i style="--c:#A6D96A" /><i style="--c:#FF616B" /><i style="--c:#4F8AD6" /></span><figcaption class="detail">Las estaciones · el acento cambia con el año</figcaption></figure>
+          </div>
+          <ul class="reglas">
+            <li><b>Curvas</b> ease-out expo (0,16 1 0,3 1) para lo que llega; ease-out quart para la interfaz. Sin rebotes.</li>
+            <li><b>Sonido</b> muy de fondo: una tecla suave al pasar, un clic al pulsar, el ambiente de la estación en Proyectos; nunca antes del primer gesto.</li>
+          </ul>
+        </section>
+
+        <!-- 08 · APLICACIONES -->
+        <section id="aplicaciones" class="seccion" aria-labelledby="h-aplicaciones">
+          <h2 id="h-aplicaciones" class="font-display text-h2">Aplicaciones</h2>
+          <p class="cuerpo">La marca fuera de la web: lo que se comparte, la pestaña del navegador y la tarjeta de visita.</p>
+          <div class="fila f2">
+            <figure class="placa clara app"><img class="og" src="/og.jpg?v=140" alt="Imagen para compartir de savvia" width="1200" height="630" loading="lazy" decoding="async" /><figcaption class="detail">Imagen para compartir · 1200 × 630</figcaption></figure>
+            <figure class="placa clara app">
+              <div class="pestana" aria-hidden="true"><span class="pt-tab"><img src="/favicon.svg?v=144" alt="" width="16" height="16" />savvia — Elevamos tu web con IA</span></div>
+              <figcaption class="detail">La pestaña · favicon sobre Cacao</figcaption>
+            </figure>
+          </div>
+          <div class="fila f2">
+            <figure class="placa clara app"><div class="tarjeta-v cara" aria-hidden="true"><span class="logo-masc"></span></div><figcaption class="detail">Tarjeta · anverso</figcaption></figure>
+            <figure class="placa clara app">
+              <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio · Donostia</span></div>
+              <figcaption class="detail">Tarjeta · reverso</figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <Pie />
+</Base>
+
+<script>
+  import { fijarEstacion, estacionActual, EST } from '../scripts/estacion';
+  // el índice sigue la lectura
+  const enlaces = [...document.querySelectorAll<HTMLAnchorElement>('[data-ir]')];
+  const secciones = enlaces.map((a) => document.getElementById(a.dataset.ir!)!).filter(Boolean);
+  const marcar = (id: string) => enlaces.forEach((a) => a.toggleAttribute('aria-current', a.dataset.ir === id));
+  const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) marcar(e.target.id); }, { rootMargin: '-30% 0px -65% 0px' });
+  secciones.forEach((s) => io.observe(s));
+  // la construcción se dibuja al llegar
+  const cons = document.querySelector('[data-construccion]');
+  if (cons) new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { cons.classList.add('visto'); o.disconnect(); } }, { threshold: 0.3 }).observe(cons);
+  // LAS ESTACIONES (ronda 144, 3.ª): el avance por el tramo fijo elige la estación (cuatro cuartos); fuera del tramo, la de hoy
+  const deHoy = estacionActual();
+  const tramo = document.querySelector<HTMLElement>('[data-estaciones]');
+  const escena = document.querySelector<HTMLElement>('[data-escena-est]');
+  const datos = JSON.parse(document.querySelector('[data-estaciones-datos]')?.textContent || '[]') as Record<string, string>[];
+  let actual = -2;
+  const poner = (i: number) => {
+    if (i === actual || !escena) return; actual = i;
+    if (i < 0) { fijarEstacion(deHoy, 'brandbook'); return; }
+    fijarEstacion(EST.indexOf(datos[i].id as any), 'brandbook');
+    escena.dataset.actual = String(i);
+    escena.querySelectorAll<HTMLElement>('[data-cab],[data-punto],[data-roble]').forEach((el) => el.classList.toggle('on', Number(el.dataset.cab ?? el.dataset.punto ?? el.dataset.roble) === i));
+    escena.querySelectorAll<HTMLElement>('[data-hex]').forEach((el) => (el.textContent = datos[i][el.dataset.hex!]));
+    escena.classList.toggle('clara', datos[i].id === 'invierno');
+  };
+  const medir = () => {
+    if (!tramo) return;
+    const r = tramo.getBoundingClientRect(), recorrido = r.height - innerHeight;
+    const p = -r.top / Math.max(1, recorrido);
+    // fuera del tramo (la escena ya no cubre el centro de la pantalla), la de hoy; dentro, la del cuarto que se recorre
+    poner(r.top > innerHeight * 0.5 || r.bottom < innerHeight * 0.5 ? -1 : Math.min(datos.length - 1, Math.max(0, Math.floor(p * datos.length))));
+  };
+  addEventListener('scroll', medir, { passive: true }); addEventListener('resize', medir); medir();
+  (window as any).__bbEstacion = () => document.documentElement.dataset.estacion;
+</script>
+
+<style>
+  .libro { padding-top: calc(var(--spacing) * 32); padding-bottom: var(--space-section); }
+  .marco-libro { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); }
+  .indice, .indice-hueco { grid-column: 1 / span 3; }
+  .hojas { grid-column: 4 / span 9; min-width: 0; }
+  .indice {
+    position: sticky;
+    top: calc(var(--spacing) * 28);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+    z-index: 2;
+  }
+  .indice ol { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); }
+  .indice a { display: flex; align-items: baseline; gap: calc(var(--spacing) * 3); padding-block: calc(var(--spacing) * 1); font-size: var(--text-ui); color: var(--fg2); transition: color 0.3s ease; }
+  .indice a:hover, .indice a[aria-current] { color: var(--fg); }
+  .indice .n { opacity: 0.6; font-variant-numeric: tabular-nums; }
+  .indice a[aria-current] .n { color: var(--color-coral); opacity: 1; }
+  @media (width < 64rem) {
+    .indice, .hojas, .indice-hueco { grid-column: 1 / -1; }
+    .indice-hueco { display: none; }
+    .indice {
+      position: sticky;
+      top: calc(var(--spacing) * 18);
+      z-index: 5;
+      margin-inline: calc(var(--gutter) * -1);
+      padding: calc(var(--spacing) * 2) var(--gutter);
+      background: color-mix(in oklab, var(--bg, #eadde7) 88%, transparent);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .indice > p { display: none; }
+    .indice ol { flex-direction: row; gap: calc(var(--spacing) * 5); white-space: nowrap; }
+    .indice .n { display: none; }
+  }
+  .titular { font-size: clamp(2.5rem, 1rem + 4vw, 5rem); line-height: 1.02; letter-spacing: -0.02em; max-width: 14ch; text-wrap: balance; }
+  .cubierta { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; margin-top: calc(var(--spacing) * 12); border-radius: var(--radius-lg); background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
+  .cubierta .logo-masc { width: min(46%, 22rem); }
+  .pie-cub { position: absolute; left: calc(var(--spacing) * 5); bottom: calc(var(--spacing) * 4); opacity: 0.6; }
+  .logo-masc, .iso-masc { display: block; background: currentColor; -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat; mask: url('/savvia-logo.svg') center / contain no-repeat; }
+  .logo-masc { aspect-ratio: 1184 / 439; width: 62%; }
+  .iso-masc { aspect-ratio: 469.69 / 425.38; height: 52%; -webkit-mask-image: url('/savvia-isotipo.svg'); mask-image: url('/savvia-isotipo.svg'); }
+  .seccion { padding-top: calc(var(--spacing) * 24); margin-top: calc(var(--spacing) * 24); border-top: 1px solid var(--rule); scroll-margin-top: calc(var(--spacing) * 20); }
+  .seccion.sin-borde { border-top: 0; margin-top: 0; padding-top: calc(var(--spacing) * 12); }
+  .cuerpo { margin-top: calc(var(--spacing) * 4); max-width: 60ch; font-size: var(--text-body); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
+  .fila { display: grid; gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); }
+  .fila.f2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fila.f3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cuerpo + .fila { margin-top: calc(var(--spacing) * 10); }
+  @media (width < 48rem) { .fila.f2, .fila.f3 { grid-template-columns: 1fr; } }
+  .placa { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; margin: 0; border-radius: var(--radius-lg); overflow: hidden; }
+  .placa.sm { aspect-ratio: 1; }
+  .placa.oscura { background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
+  .placa.clara { background: color-mix(in oklab, #302018 5%, #eadde7); color: #302018; box-shadow: inset 0 0 0 1px var(--rule); }
+  .placa > figcaption, .pie-p { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.65; }
+  .fav { width: 30%; height: auto; border-radius: 22%; }
+  .reglas { display: grid; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 6); font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); }
+  .reglas b { font-weight: 500; color: var(--fg); margin-right: 0.4em; }
+
+  /* ── CONSTRUCCIÓN */
+  .construccion { margin: calc(var(--spacing) * 10) 0 0; padding: clamp(1rem, 3vw, 2.5rem); border-radius: var(--radius-lg); background: color-mix(in oklab, #302018 5%, #eadde7); box-shadow: inset 0 0 0 1px var(--rule); }
+  .construccion svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .guias line { stroke: color-mix(in oklab, #302018 22%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 4 4; }
+  .guias text { font-family: var(--font-mono); font-size: 13px; fill: color-mix(in oklab, #302018 55%, transparent); text-anchor: end; }
+  .caja-iso { fill: none; stroke: var(--color-coral); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 4; opacity: 0.8; }
+  .relleno path { fill: color-mix(in oklab, #302018 9%, transparent); }
+  .contorno path { fill: none; stroke: #302018; stroke-width: 1.25; vector-effect: non-scaling-stroke; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+  .manejos { fill: none; stroke: var(--color-coral); stroke-width: 0.9; vector-effect: non-scaling-stroke; opacity: 0; }
+  .controles circle { fill: #eadde7; stroke: var(--color-coral); stroke-width: 1; vector-effect: non-scaling-stroke; opacity: 0; }
+  .anclas rect { fill: #302018; opacity: 0; }
+  .construccion.visto .contorno path { stroke-dashoffset: 0; transition: stroke-dashoffset 2.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  .construccion.visto .manejos, .construccion.visto .controles circle { opacity: 0.85; transition: opacity 1s ease 1.6s; }
+  .construccion.visto .anclas rect { opacity: 1; transition: opacity 0.8s ease 1.2s; }
+  .leyenda { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 4); color: var(--fg2); }
+  .leyenda span { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); }
+  .leyenda i { display: inline-block; }
+  .lg-a { width: 7px; height: 7px; background: #302018; }
+  .lg-c { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--color-coral); }
+  .lg-g { width: 18px; border-top: 1px dashed color-mix(in oklab, #302018 40%, transparent); }
+  @media (prefers-reduced-motion: reduce) {
+    .contorno path { stroke-dashoffset: 0; }
+    .manejos, .controles circle { opacity: 0.85; }
+    .anclas rect { opacity: 1; }
+  }
+
+  /* ── COLOR */
+  .muestras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 10); }
+  @media (width < 48rem) { .muestras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .muestras li { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); min-height: calc(var(--spacing) * 40); padding: calc(var(--spacing) * 4); border-radius: var(--radius-lg); background: var(--c); box-shadow: inset 0 0 0 1px color-mix(in oklab, #302018 10%, transparent); }
+  .sobre-claro { color: #302018; }
+  .sobre-oscuro { color: #eadde7; }
+  .mu-n { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.1; }
+  .mu-h { opacity: 0.75; }
+  .mu-u { margin-top: auto; font-size: var(--text-aux); line-height: 1.4; opacity: 0.85; }
+  .estaciones { position: relative; height: calc(var(--n) * 100lvh); margin-top: calc(var(--spacing) * 16); }
+  .escena-est {
+    --tinta-est: #eadde7;
+    position: sticky;
+    top: 0;
+    height: 100lvh;
+    display: grid;
+    align-items: center;
+    background: var(--noche) url('/media/grano.png') 0 0 / 240px;
+    color: var(--tinta-est);
+    transition: background-color 0.9s cubic-bezier(0.16, 1, 0.3, 1), color 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .escena-est.clara { --tinta-est: #302018; }
+  .est-dentro { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); row-gap: calc(var(--spacing) * 8); align-items: center; }
+  .est-txt { grid-column: 4 / span 4; }
+  .est-robles { grid-column: 8 / span 5; display: grid; }
+  .est-robles img { grid-area: 1 / 1; width: 100%; height: auto; opacity: 0; scale: 0.98; filter: blur(6px); transition: opacity 0.9s ease, scale 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.9s ease; }
+  .est-robles img.on { opacity: 1; scale: 1; filter: none; }
+  /* en la web, la primavera la tiñe de cerezo el motor del árbol (la lámina es verde): aquí, un viraje que la acerca */
+  .est-robles img[data-roble='0'].on { filter: hue-rotate(-105deg) saturate(0.75) brightness(1.05); }
+  .est-paleta { grid-column: 4 / span 9; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 3); }
+  @media (width < 64rem) {
+    .est-txt, .est-robles, .est-paleta { grid-column: 1 / -1; }
+    .est-robles { max-width: 18rem; }
+    .est-paleta { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 2); }
+    .est-paleta .est-u { display: none; }
+  }
+  .est-pila { display: grid; }
+  .est-cab { grid-area: 1 / 1; opacity: 0; translate: 0 12px; transition: opacity 0.6s ease, translate 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+  .est-cab.on { opacity: 1; translate: 0 0; }
+  .est-cab .detail { opacity: 0.6; }
+  .est-n { margin-top: calc(var(--spacing) * 3); font-size: var(--text-h1); line-height: 1; }
+  .est-frase { margin-top: calc(var(--spacing) * 5); font-size: var(--text-body); line-height: 1.55; opacity: 0.8; max-width: 30ch; }
+  .est-puntos { display: flex; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 8); font-size: var(--text-aux); }
+  .est-puntos li { opacity: 0.4; transition: opacity 0.4s ease; }
+  .est-puntos li.on { opacity: 1; }
+  .est-paleta li { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .est-m { display: block; aspect-ratio: 4 / 3; margin-bottom: calc(var(--spacing) * 3); border-radius: var(--radius-lg); background: var(--c); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta-est) 22%, transparent); transition: background-color 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+  .est-mn { font-size: var(--text-ui); font-weight: 500; }
+  .est-paleta .detail { opacity: 0.7; }
+  .est-u { opacity: 0.5 !important; }
+  @media (prefers-reduced-motion: reduce) { .escena-est, .est-m, .est-cab, .est-robles img { transition: none; } }
+
+  /* ── TIPOGRAFÍA */
+  .familias .fam { aspect-ratio: 1; }
+  .aa { font-size: clamp(4rem, 2rem + 6vw, 7rem); line-height: 1; }
+  .aa.sans { font-family: var(--font-sans); }
+  .aa.mono { font-family: var(--font-mono); }
+  .fam figcaption { display: flex; flex-direction: column; gap: 2px; opacity: 1 !important; }
+  .fam b { font-weight: 500; }
+  .fam .detail { opacity: 0.65; }
+  .escala { margin-top: calc(var(--spacing) * 10); }
+  .escala li { display: grid; grid-template-columns: calc(var(--spacing) * 20) minmax(0, 1fr) auto; align-items: baseline; gap: calc(var(--spacing) * 4); padding-block: calc(var(--spacing) * 4); border-bottom: 1px solid var(--rule); }
+  .e-n, .e-d { color: var(--fg2); }
+  .e-m { line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .e-m.display { font-family: var(--font-display); }
+  .e-m.sans { font-family: var(--font-sans); }
+  .e-m.mono { font-family: var(--font-mono); }
+  @media (width < 48rem) { .escala li { grid-template-columns: 1fr; gap: calc(var(--spacing) * 1); } }
+
+  /* ── VOZ */
+  .lista-voz { place-items: start; align-content: start; padding: calc(var(--spacing) * 6); aspect-ratio: auto; min-height: calc(var(--spacing) * 64); }
+  .lista-voz ul { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 4); }
+  .lista-voz li { padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3); border-radius: var(--radius-full); box-shadow: inset 0 0 0 1px var(--rule-strong, var(--rule)); font-size: var(--text-aux); }
+  .lista-voz.no li { text-decoration: line-through; text-decoration-color: var(--color-coral); color: var(--fg2); }
+  .ejemplo { display: flex; flex-direction: column; gap: calc(var(--spacing) * 3); margin-top: calc(var(--spacing) * 10); font-size: var(--text-h2); line-height: 1.1; }
+  .ejemplo .detail { font-family: var(--font-mono); color: var(--fg2); }
+
+  /* ── COMPONENTES */
+  .comp { margin-top: calc(var(--spacing) * 16); }
+  .comp-t { font-family: var(--font-display); font-size: var(--text-h3); line-height: 1.2; font-weight: 400; }
+  .comp-d { margin-top: calc(var(--spacing) * 3); color: var(--fg2); max-width: 70ch; line-height: 1.5; }
+  .comp .placa, .comp .fila { margin-top: calc(var(--spacing) * 5); }
+  .demos { aspect-ratio: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: calc(var(--spacing) * 6); padding: calc(var(--spacing) * 14) calc(var(--spacing) * 6); }
+  .placa.clara.demos { flex-direction: column; }
+  .buscar-demo { display: flex; align-items: center; width: min(100%, 30rem); height: 44px; padding: 4px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--rule); font-size: var(--text-ui); }
+  .bd-l { flex: 1; display: flex; align-items: center; gap: 8px; padding-inline: 12px; color: var(--fg2); }
+  .bd-f { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 100%; padding-inline: 16px; font-weight: 500; color: var(--fg2); }
+  .bd-f::before { content: ''; position: absolute; left: 0; top: 25%; bottom: 25%; width: 1px; background: var(--rule); }
+  .bd-f b { display: grid; place-items: center; min-width: 20px; height: 20px; border-radius: 999px; background: #302018; color: #eadde7; font: 400 11px var(--font-mono); }
+  .buscar-demo svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .chips span { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding-inline: 12px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--rule); font-size: 0.875rem; color: color-mix(in oklab, #302018 75%, transparent); }
+  .chips sup { font: 400 10px var(--font-mono); opacity: 0.6; vertical-align: 0; }
+  .chips .on { background: #302018; color: #eadde7; box-shadow: none; }
+  .par { --par-ease: cubic-bezier(0.25, 1, 0.5, 1); position: relative; isolation: isolate; overflow: hidden; display: grid; gap: calc(var(--spacing) * 3); align-content: start; padding: calc(var(--spacing) * 6); border: 1px solid var(--rule); border-radius: var(--radius-lg); transition: border-color 0.6s var(--par-ease); }
+  .par::before { content: ''; position: absolute; z-index: -1; left: var(--gx, 50%); top: var(--gy, 50%); width: var(--gd, 260%); aspect-ratio: 1; border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%; background: var(--fg); transform: translate(-50%, -50%) scale(0); transition: transform 0.8s cubic-bezier(0.33, 1, 0.68, 1); pointer-events: none; }
+  .par:hover::before { transform: translate(-50%, -50%) scale(1) rotate(24deg); }
+  .despues { text-align: right; justify-items: end; }
+  .pd { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); color: var(--fg2); transition: color 0.45s var(--par-ease); }
+  .pt { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.15; color: color-mix(in oklab, var(--fg) 82%, transparent); transition: color 0.45s var(--par-ease); }
+  .par:hover { border-color: var(--fg); }
+  .par:hover .pd { color: color-mix(in oklab, var(--bg) 72%, transparent); transition-delay: 0.15s; }
+  .par:hover .pt { color: var(--bg); transition-delay: 0.15s; }
+  .escuchando { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 999px; background: color-mix(in oklab, #eadde7 9%, transparent); font-size: var(--text-ui); font-weight: 500; }
+  .caras { display: flex; }
+  .caras img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px #302018; }
+  .caras img + img { margin-left: -8px; }
+  .nivel { display: inline-flex; align-items: center; gap: 2px; height: 12px; }
+  .nivel i { width: 2px; height: 100%; border-radius: 2px; background: color-mix(in oklab, #eadde7 70%, transparent); animation: bb-nivel 1.1s ease-in-out infinite alternate; }
+  .nivel i:nth-child(2) { animation-delay: -0.4s; }
+  .nivel i:nth-child(3) { animation-delay: -0.8s; }
+  .nivel i:nth-child(4) { animation-delay: -0.2s; }
+  @keyframes bb-nivel { from { scale: 1 0.25; } to { scale: 1 1; } }
+  .checks { display: flex; gap: 14px; }
+  .checks :global(.chk) { width: 30px; height: 30px; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .checks :global(.chk circle) { fill: #302018; stroke: #302018; }
+  .checks :global(.chk path) { stroke: #eadde7; stroke-width: 1.4; stroke-dasharray: 1; animation: bb-check 2.4s ease infinite; }
+  .checks :global(.chk:nth-child(2) path) { animation-delay: 0.3s; }
+  .checks :global(.chk:nth-child(3) path) { animation-delay: 0.6s; }
+  @keyframes bb-check { 0%, 10% { stroke-dashoffset: 1; } 30%, 100% { stroke-dashoffset: 0; } }
+  .rejilla-menu { display: grid; grid-template-columns: repeat(3, 6px); gap: 6px; }
+  .rejilla-menu i { width: 6px; height: 6px; border-radius: 50%; background: #302018; }
+
+  /* ── TEXTURA Y MOVIMIENTO */
+  .grano { background: #eadde7 url('/media/grano.png') 0 0 / 240px; box-shadow: inset 0 0 0 1px var(--rule); }
+  .semitono { background: radial-gradient(circle, rgb(48 32 24 / 0.55) 1.15px, transparent 1.7px) 0 0 / 8px 8px, radial-gradient(circle, rgb(48 32 24 / 0.55) 1.15px, transparent 1.7px) 4px 4px / 8px 8px, color-mix(in oklab, #302018 5%, #eadde7); }
+  .carriles-d i { position: absolute; display: block; font-style: normal; }
+  .cr-v { top: 0; bottom: 0; width: 1px; background: color-mix(in oklab, #302018 25%, transparent); }
+  .cr-v.a { left: 18%; } .cr-v.b { right: 18%; }
+  .cr-h { left: 0; right: 0; top: 40%; height: 1px; background: color-mix(in oklab, #302018 25%, transparent); }
+  .cr-x { top: 40%; translate: -50% -52%; font: 300 16px var(--font-mono); color: #302018; }
+  .cr-x.a { left: 18%; } .cr-x.b { left: 82%; }
+  .curva svg { width: 60%; fill: none; stroke: var(--color-coral); stroke-width: 1.6; stroke-linecap: round; overflow: visible; }
+  .bola { fill: #302018; stroke: none; offset-path: path('M4 56 C 20 8, 40 4, 96 4'); animation: bb-curva 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  @keyframes bb-curva { 0% { offset-distance: 0%; } 70%, 100% { offset-distance: 100%; } }
+  .pal { display: inline-flex; gap: 0.25em; font-size: 2rem; overflow: hidden; padding-block: 0.1em; }
+  .pal span { display: inline-block; animation: bb-pal 3s cubic-bezier(0.16, 1, 0.3, 1) infinite both; }
+  .pal span:nth-child(2) { animation-delay: 0.08s; } .pal span:nth-child(3) { animation-delay: 0.16s; }
+  @keyframes bb-pal { 0% { translate: 0 110%; } 30%, 100% { translate: 0 0; } }
+  .enf { font-size: 1.125rem; animation: bb-enf 3s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  @keyframes bb-enf { 0% { filter: blur(8px); opacity: 0.2; } 40%, 100% { filter: blur(0); opacity: 1; } }
+  .campana { background: color-mix(in oklab, #302018 5%, #eadde7); box-shadow: inset 0 0 0 1px var(--rule); }
+  .cp { position: absolute; inset: 0; background: #302018 url('/media/grano.png') 0 0 / 240px; animation: bb-cp 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  @keyframes bb-cp { 0% { clip-path: ellipse(0% 0% at 50% 100%); } 70%, 100% { clip-path: ellipse(90% 120% at 50% 100%); } }
+  .campana figcaption { color: #eadde7; z-index: 1; }
+  .rg { position: absolute; inset: 18% 22% 22%; background: url('/media/hero/arbol-otono.webp') center / contain no-repeat; -webkit-mask: url('/media/rasgo-circulo.png') 50% 100% / 0% 0% no-repeat; mask: url('/media/rasgo-circulo.png') 50% 100% / 0% 0% no-repeat; animation: bb-rg 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  @keyframes bb-rg { 0% { -webkit-mask-size: 0% 0%; mask-size: 0% 0%; } 70%, 100% { -webkit-mask-size: 260% 260%; mask-size: 260% 260%; } }
+  .liq { position: relative; isolation: isolate; overflow: hidden; display: inline-grid; place-items: center; height: 48px; padding-inline: 24px; border-radius: 999px; box-shadow: inset 0 0 0 1px #302018; font-weight: 500; transition: color 0.45s ease; }
+  .liq::before { content: ''; position: absolute; z-index: -1; left: 10%; top: 50%; width: 260%; aspect-ratio: 1; border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%; background: #302018; transform: translate(-50%, -50%) scale(0); transition: transform 0.7s cubic-bezier(0.33, 1, 0.68, 1); }
+  .liquido-d:hover .liq { color: #eadde7; }
+  .liquido-d:hover .liq::before { transform: translate(-50%, -50%) scale(1) rotate(28deg); }
+  .gota-d { width: 28px; height: 28px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, transparent 13%), radial-gradient(circle, rgb(255 243 228 / 0.15), rgb(48 32 24 / 0.35)); box-shadow: inset 0 -3px 6px rgb(48 32 24 / 0.25), 0 6px 10px -6px rgb(48 32 24 / 0.5); animation: gota-cae 2.4s cubic-bezier(0.55, 0, 0.85, 0.45) infinite; }
+  @keyframes gota-cae { 0% { translate: 0 -60px; opacity: 0; } 15% { opacity: 1; } 80% { translate: 0 30px; opacity: 1; } 100% { translate: 0 30px; opacity: 0; scale: 1.6 0.3; } }
+  .onda-b { display: flex; align-items: center; gap: 3px; height: 40px; width: 60%; }
+  .onda-b i { flex: 1; height: 100%; border-radius: 2px; background: color-mix(in oklab, #eadde7 38%, transparent); animation: bb-ola 1.1s ease-in-out calc(var(--k) * -0.13s) infinite alternate, bb-turno 4s ease infinite; }
+  @keyframes bb-ola { from { scale: 1 0.25; } to { scale: 1 1; } }
+  @keyframes bb-turno { 0%, 30%, 80%, 100% { background: color-mix(in oklab, #eadde7 38%, transparent); } 40%, 70% { background: var(--color-coral); } }
+  .est-cic { position: relative; width: 56px; height: 56px; }
+  .est-cic i { position: absolute; inset: 0; border-radius: 50%; background: var(--c); animation: bb-est 8s ease infinite; opacity: 0; }
+  .est-cic i:nth-child(2) { animation-delay: 2s; } .est-cic i:nth-child(3) { animation-delay: 4s; } .est-cic i:nth-child(4) { animation-delay: 6s; }
+  @keyframes bb-est { 0% { opacity: 0; scale: 0.6; } 6%, 25% { opacity: 1; scale: 1; } 31%, 100% { opacity: 0; scale: 1.1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .materia *, .checks :global(*), .nivel i { animation: none !important; }
+    .rg { -webkit-mask: none; mask: none; }
+    .cp { clip-path: none; }
+    .est-cic i:first-child { opacity: 1; }
+  }
+
+  /* ── APLICACIONES */
+  .app { place-items: center; }
+  .og { width: 84%; height: auto; border-radius: 8px; box-shadow: 0 18px 40px -22px rgb(48 32 24 / 0.6); }
+  .pestana { width: 84%; padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2) 0; border-radius: 10px 10px 0 0; background: #dcd2d9; box-shadow: 0 18px 40px -26px rgb(48 32 24 / 0.6); }
+  .pt-tab { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); max-width: 100%; padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3); border-radius: 8px 8px 0 0; background: #f6f1f4; font-size: 0.8125rem; white-space: nowrap; overflow: hidden; }
+  .pestana img { width: 16px; height: 16px; border-radius: 4px; }
+  .tarjeta-v { width: 72%; aspect-ratio: 85 / 55; border-radius: 6px; display: grid; place-items: center; box-shadow: 0 22px 40px -22px rgb(48 32 24 / 0.65); }
+  .tarjeta-v.cara { background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
+  .tarjeta-v.cara .logo-masc { width: 50%; }
+  .tarjeta-v.dorso { background: #eadde7 url('/media/grano.png') 0 0 / 240px; color: #302018; place-items: end start; align-content: end; gap: 4px; padding: 9%; }
+  .tv-n { font-size: 1.375rem; line-height: 1.1; margin-bottom: 6px; }
+</style>

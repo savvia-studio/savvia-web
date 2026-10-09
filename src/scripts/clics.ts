@@ -11,7 +11,7 @@ document.addEventListener('pointerover', (e) => {
   if (!el || el === ultimo) return;
   ultimo = el;
   const t = performance.now(); if (t - tUlt < 70) return; tUlt = t; // al barrer una lista, no una ráfaga
-  tecla({ vol: 0.022 });
+  tecla({ vol: 0.008 }); // ronda 144 · Andoni: «al hacer hover, sonido mucho más sutil» (antes 0,022)
 }, { passive: true });
 document.addEventListener('pointerout', (e) => { const el = (e.target as Element | null)?.closest?.(SEL); if (el && el === ultimo && !el.contains(e.relatedTarget as Node | null)) ultimo = null; }, { passive: true });
 document.addEventListener('click', (e) => { if ((e.target as Element | null)?.closest?.(SEL)) clic({ vol: 0.045 }); }, { passive: true, capture: true });

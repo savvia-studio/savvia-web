@@ -24,7 +24,7 @@ import { nav, pie } from '../data/home';
     <!-- RONDA 40 · «al lado del desplegable del menú un icono para cambiar de estación: que sea mórfico, que el mismo icono se transforme en los 4
          de las estaciones». Una sola línea que se deforma: flor (primavera) · sol (verano) · hoja (otoño) · copo (invierno). Clic = la siguiente. -->
     <button type="button" class="estacion-ic" aria-label="Cambiar de estación" data-estacion-ic data-nombre="otoño">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path data-forma /></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path data-forma /><path class="nervios" data-nervios /></svg>
     </button>
     <button type="button" class="rejilla" aria-expanded="false" aria-controls="menu" aria-label="Abrir el menú" data-rejilla>
       {Array.from({ length: 9 }).map((_, i) => <span style={`--i:${i}`} />)}
@@ -82,7 +82,7 @@ import { nav, pie } from '../data/home';
 </dialog>
 
 <script>
-  import { HOJA_ROBLE, GIRO_HOJA, copo, flor, sol, remuestrear } from '../scripts/formas-estacion';
+  import { HOJA_ROBLE, NERVIOS_HOJA, GIRO_HOJA, copo, flor, sol, remuestrear } from '../scripts/formas-estacion';
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
   import { EST, NOMBRE, estacionActual, fijarEstacion } from '../scripts/estacion';
@@ -197,9 +197,13 @@ import { nav, pie } from '../data/home';
     const d = (p: number[][]) => 'M' + p.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join('L') + 'Z';
     let actual = FORMAS[estacionActual()], est = estacionActual(), raf = 0;
     const rotular = () => { const sig = (est + 1) % 4; ic.dataset.nombre = NOMBRE[est]; ic.setAttribute('aria-label', `Estación: ${NOMBRE[est]}. Cambiar a ${NOMBRE[sig]}`); };
-    forma.setAttribute('d', d(actual)); rotular();
+    // RONDA 144 (3.ª) · la hoja lleva su nervio (solo en otoño; se funde al cambiar)
+    const nerv = ic.querySelector<SVGPathElement>('[data-nervios]')!;
+    nerv.setAttribute('d', NERVIOS_HOJA); nerv.setAttribute('transform', `rotate(${GIRO_HOJA} 12 12)`);
+    const verNervios = () => nerv.classList.toggle('on', est === 0);
+    forma.setAttribute('d', d(actual)); rotular(); verNervios();
     const ir = (n: number) => {
-      est = n; rotular();
+      est = n; rotular(); verNervios();
       const de = actual.map((p) => [...p]), a = FORMAS[n];
       if (reducido) { actual = a; forma.setAttribute('d', d(a)); return; }
       cancelAnimationFrame(raf); let t0 = 0;
@@ -501,7 +505,7 @@ import { nav, pie } from '../data/home';
   .logo-marca {
     display: block;
     height: 2.125rem; /* 34 px: las letras quedan a la altura de la palabra de antes */
-    aspect-ratio: 1170 / 439; /* ronda 139: logotipo con el isotipo de raíces */
+    aspect-ratio: 1184 / 439; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
     background: currentColor;
     -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
     mask: url('/savvia-logo.svg') center / contain no-repeat;
@@ -537,33 +541,45 @@ import { nav, pie } from '../data/home';
     transition: rotate 0.75s var(--ease-out-expo);
   }
   .estacion-ic path {
-    fill: currentColor; /* ronda 41: «que sea relleno» */
+    fill: none; /* RONDA 144 · Eric: «este icono, un poco más finito»: de relleno (ronda 41) a trazo fino */
     stroke: currentColor;
-    stroke-width: 0.6;
+    stroke-width: 1.25;
+    vector-effect: non-scaling-stroke;
     stroke-linejoin: round;
   }
   .estacion-ic:hover svg {
     rotate: 12deg;
   }
-  /* el nombre de la estación, en mono, al pasar */
+  .estacion-ic .nervios { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; stroke-linecap: round; opacity: 0; transition: opacity 0.4s ease; }
+  .estacion-ic .nervios.on { opacity: 0.85; }
+  /* RONDA 144 (3.ª) · «al pasar por el icono no sale el tooltip» (era un texto mono suelto, casi invisible): una PÍLDORA clara bajo el icono, con el
+     nombre de la estación y la pista de que se cambia al pulsar */
   .estacion-ic::after {
-    content: attr(data-nombre);
+    content: attr(data-nombre) ' · cambiar';
     position: absolute;
-    right: calc(100% + var(--spacing) * 2);
-    top: 50%;
-    translate: 4px -50%;
-    font-family: var(--font-mono);
-    font-size: var(--text-detail);
+    left: 50%;
+    top: calc(100% + var(--spacing) * 2);
+    translate: -50% -4px;
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+    border-radius: var(--radius-full);
+    background: #eadde7;
+    color: #302018;
+    box-shadow: 0 8px 20px -10px rgb(0 0 0 / 0.45);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
     line-height: 1;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease, translate 0.4s var(--ease-out-expo);
+    transition: opacity 0.25s ease, translate 0.4s var(--ease-out-expo);
+    z-index: 10;
   }
+  :global(html.sobre-claro) .estacion-ic::after { background: #302018; color: #eadde7; }
   .estacion-ic:hover::after,
   .estacion-ic:focus-visible::after {
-    opacity: 0.8;
-    translate: 0 -50%;
+    opacity: 1;
+    translate: -50% 0;
   }
   .rejilla {
     display: grid;

@@ -32,7 +32,7 @@ export type Proyecto = {
   tecnica?: string[]; // por dentro
   descartado?: string[]; // lo que se probó y cayó
   cifras?: { v: string; t: string }[]; // del PROYECTO (nunca del proceso)
-  cita?: { texto: string; autor: string; rol: string };
+  cita?: { texto: string; autor: string; rol: string; video?: string }; // ronda 144: si el testimonio tiene vídeo, se indica
   con?: string;
   color: string; // fondo de su tarjeta
   colores: [string, string, string]; // fondo · secundario · acento de su web (el degradado de su pieza)

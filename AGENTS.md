@@ -2905,3 +2905,66 @@ en mono en el pie.
 - **Causa:** la plumada de la gota (trazo de 56 con punta redonda) destapaba también la base de la raíz izquierda bajo el gancho: aparecía una mancha suelta con una rendija oscura (en el diseño la raíz y el gancho están separados por una línea).
 - **Hecho (`Cargador.astro`):** la v (`ISO_V`) y las raíces (`ISO_R`) en dos trazos con máscaras distintas: la plumada solo destapa la v; las raíces, solo sus trazos (la izquierda arranca en 186·290 con trazo de 52 y la de arriba con 40: cubren el 100 % de su forma).
 - **Medido:** fotogramas a DPR 3 (`../savvia-web/tools/shots/r143-isov-zoom-despues.jpg`): gancho limpio hasta el brote · `astro check` 0 · `tools/verify.cjs` en / limpio · `tools/r137/carga-hover.cjs` (Chrome, WebKit, dedo) sin errores.
+
+### Ronda 144 · 2026-10-09 · el feedback de Eric (vídeo del 8/10) + las decisiones de Andoni (en local)
+- **Fuente:** vídeo de Eric (https://screen.studio/share/BPQmHaY6, 20 min), transcrito en local y cruzado con fotogramas → `docs/feedback-eric-8oct.md` (35 puntos con minuto).
+- **Andoni (textual):** «1. Logotipo tocamos nosotros, de momento vuelve a un estado anterior · 2. Carga volvemos al círculo · 3. [lo de pulso] se refiere a la ilustración animada del
+  problema 1, enriquecerla · 4. un acento para cada estación; y montar un brandbook como este [x.com/marcelkargul, kargul.studio] · 5. los logos de Más proyectos, que todos tengan siempre
+  el mismo tamaño · 6. los CTAs, todos con el formato de la vista en detalle: la barra de cambiar de proyecto, como cristal, todos ese estilo; y las flechas como las de ahí en todos lados ·
+  7. el portfolio: organizar la información para que parezca ordenado, es lo más importante».
+- **Hecho:**
+  · **Logotipo:** vuelve el de naturaleza (commit f413aed): `savvia-logo.svg` 1184 × 439, `savvia-isotipo.svg` 370 × 439 (sin raíces), favicon y apple-touch `?v=144`; proporción en barra, Agentic, Proyectos, receta.
+  · **Carga (`Cargador.astro`):** «Dibuja un círculo.» (giro ≥ 342°, radio ≥ 18 px, redondo) en vez de la V; la gota dibuja el isotipo de naturaleza (su eje de la ronda 83) y vuela a la barra.
+  · **Portfolio · caso (`proyectos/[slug].astro`, antes en `tools/r144/slug.r143.astro.txt`):** retícula en TERCIOS: todo bloque ocupa 1/3, 2/3 o el ancho; textos en «título 1/3 + texto 2/3»
+    (El reto · Color · Tipografía · La web, sección a sección · apartados · Por dentro); filas de medios de 1, 2 o 3 con la misma proporción; ficha en dos columnas con valores a tamaño de interfaz;
+    fuera el punto coral de la frase; nombre algo más pequeño.
+  · **Portfolio · listado (`proyectos/index.astro`, antes en `tools/r144/index.r143.astro.txt`):** titular más pequeño; el slider de destacados termina en el último (cada pieza con su parada, sin hueco
+    final) con la barra de cristal «‹ 01/04 Nombre ›»; «Todos los proyectos» con buscador de verdad y «Filtros» (CTA de cristal con recuento) en la misma línea; filtros de Servicio, Sector, PAÍS y
+    TECNOLOGÍA (los de Webflow) como etiquetas; rejilla de 3 (9 por página); paginación en barra de cristal.
+  · **CTAs y flechas (global.css, `lib/flecha.ts`; antes en `tools/r144/`):** `.btn-primary` = píldora de CRISTAL (velo de la noche al 58 %, desenfoque 22 px, filo claro, sombra), Areal 500 sin
+    mayúsculas; al pasar, la niebla la llena como líquido y el texto pasa a Cacao. La flecha de la casa es un CHEVRÓN «›» (trazo 1,6). Nueva `.barra-cristal` (.paso + .cual) para sliders, páginas y testimonios.
+  · **Acento por estación (global.css):** `--color-coral` = primavera #FF7FAE (cerezo) · verano #A6D96A (hoja nueva; Eric) · otoño #FF616B · invierno #D42C40 (acebo).
+  · **Brandbook (`src/pages/brandbook.astro`, en el menú bajo Handbook):** índice lateral fijo + columna: logotipo, color, las estaciones, tipografía, voz, componentes, textura y movimiento, aplicaciones.
+  · **Problema 1 (`TarjetaPaso.astro`):** onda de voz de 34 barras que se tiñe de savia cuando contesta el cliente; las respuestas se escriben con su idea clave subrayada; «brief.md · 3 claves guardadas».
+  · **Más proyectos:** logotipos a la misma altura (1,75 rem); testimonio con la barra de cristal ‹ 01/03 › y el retrato y la cita a la vez (1,6 s, la cita espera al retrato).
+  · **Eric:** invierno sin hervor ni destellos y sin la trama de puntos del recuadro · icono de estación a trazo fino · tic de Servicios 1,4 · Neety en savvia agentic con su degradado y grano ·
+    etiquetas de los lados a 13 px · Eric y Andoni aparecen directamente (sin paseo) y Andoni salta en el tiro · aficiones de Eric «Deporte · Naturaleza · Música» · Manifiesto en tres párrafos seguidos.
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en /, /proyectos, /proyectos/neety, /proyectos/remerge, /manifiesto, /brandbook, /handbook, /lab (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400,
+  desborde 0 · `tools/r144/circulo.cjs` (Chrome y WebKit) · `tools/r144/listado.cjs` (slider 01→04 sin saltos; filtro España → Invopop e Isotrol) · capturas en /tmp/r144-*.
+- **Pendiente:** el logotipo nuevo (lo hacen Andoni y Eric) · Eric: el pase con el pie (hacen falta fotogramas nuevos; sigue el revés) · el reel (recortarlo a los 3 primeros y otro titular: re-render
+  en HyperFrames) · el subtítulo del hero ya está en Areal 400 (no hay peso menor en el archivo) · las ~40 webs del portfolio (faltan sus medios) · no publicado.
+
+### Ronda 144 (2.ª) · 2026-10-09 · sonido más sutil, Contáctanos de cristal, barra única de búsqueda, casos con aire, isotipo único y brandbook ampliado (en local)
+- **Andoni (textual):** «1. al hacer hover, sonido mucho más sutil · 2. en proyectos destacados, el ambiente bastante más bajo por defecto · 3. lo que sale al pasar por Contáctanos,
+  con efecto cristal, sin color sólido · 4. buscador y filtros más integrados con el fondo, en la misma barra · 5. los testimonios del caso, mucho más pequeños y sin cambio de
+  color; si tienen vídeo, lo indicamos · 6. el siguiente proyecto, con las cards del handbook, anterior y siguiente · 7. los casos, como athleticsnyc.com/work/salesforce: toda
+  la info con mucho aire · 8. los botones del slider de testimonios, a la derecha de los nombres, pegados a la guía derecha y mimetizados · 9. brandbook: el isotipo de la
+  carga es distinto al resto; la construcción del logotipo con sus curvas; el color por estaciones y que el brandbook pase por ellas; todos los componentes; toda la textura y el movimiento».
+- **Hecho:** tecla al pasar 0,022 → 0,008 · ambiente de Proyectos 0,09 → 0,035 · `.cta-pastilla` (pie) en cristal (velo de la noche al 42 % + desenfoque 22 px, sin relleno de Nogal,
+  texto 500 sin mayúsculas) · `/proyectos`: buscador y Filtros en UNA barra con filete y separador · casos (`[slug].astro`, antes en `tools/r144/slug.r144a.astro.txt`): la referencia
+  medida (texto a un solo tamaño 18–21 px, encabezado pequeño + hueco + párrafo en media retícula alternando, medios a lo ancho, 96–160 px entre bloques, sin filetes); el nombre con
+  la idea en gris debajo; la cita pequeña en el papel (y botón «Ver el testimonio en vídeo» si `cita.video`); anterior/siguiente con las tarjetas del handbook · testimonio de la home:
+  barra sin velo, filete de las reglas, a la derecha del nombre · ISOTIPO ÚNICO: `savvia-isotipo.svg` = el primer trazo del logotipo (viewBox 6,39 6,44 469,69 × 425,38; el de la ronda
+  83, en `tools/r144/savvia-isotipo.r83.svg`); la carga lo dibuja con su eje medido por esqueleto (skeletonize) y lo encaja en su sitio exacto del logotipo · BRANDBOOK: construcción
+  (contorno, 142 anclas, 228 manejadores, línea base, altura de x, ascendentes; se dibuja al llegar) · cuatro paneles de estación a sangre con su roble y su paleta (noche, noche
+  honda, roble, savia, tinta): al pasar, la página entera cambia de estación (`fijarEstacion`) y vuelve a la de hoy · componentes (botones, barra de cristal, buscador y filtros,
+  tarjetas anterior/siguiente, píldora de estado, check, botón del menú) · textura y movimiento (grano, semitono, carriles, curva expo, palabras que suben, enfoque, gota entre
+  secciones, papel rasgado, líquido, la gota de la carga, la onda de voz, las estaciones).
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en /, /proyectos, /proyectos/kuanta, /proyectos/cubbo, /brandbook (Chrome y WebKit, 1280 y 390): limpio, 0 ≥ 400, desborde 0 · brandbook:
+  primavera #ff7fae → verano #a6d96a → otoño #ff616b → invierno #d42c40 al pasar, y vuelta a otoño al salir · `tools/r144/circulo.cjs`: la carga dibuja la v del logotipo y encaja.
+
+### Ronda 144 (3.ª) · 2026-10-09 · estaciones vivas en el brandbook, acento glaciar, casos en tres columnas, tooltips y la hoja con nervios · PUBLICADA
+- **Andoni (textual):** «1. en brandbook, color y estaciones, que los colores cambien con la estación; otro acento para invierno que pegue mejor que el rojo · 2. testimonios de la
+  home: los botones debajo del nombre y solo las flechas, sin número ni card · 3. case studies: arriba hay demasiada información; la parte de la derecha, más sutil o reducida; los
+  controles de cambiar de proyecto atados a las guías de izquierda y derecha, que nazcan de ahí y se junten en el medio; todo en 3 columnas: el titular de las explicaciones siempre a
+  la izquierda del todo y los textos jugando en esas columnas con bastante aire · 4. al pasar por los iconos de estación no sale el tooltip; la hoja de otoño, con más detalle» ·
+  «después de esto publica, que quiero enseñárselo a Eric».
+- **Hecho:** acento de invierno = azul glaciar #4F8AD6 (antes acebo #D42C40) · brandbook: UNA escena fija durante cuatro pantallas: al bajar avanza la estación y cambian fondo,
+  roble (la primavera, virada a cerezo), paleta (las muestras leen los colores de la página) y valores; la página entera la sigue y vuelve a la de hoy al salir · testimonio de la
+  home: dos flechas solas bajo el nombre · casos (`[slug].astro`, antes en `tools/r144/slug.r144b.astro.txt`): arriba solo nombre + idea + entradilla y una línea pequeña con
+  servicios, sector y lugar (herramientas y cifras bajan a «Por dentro»); retícula en TRES columnas: el titular de cada bloque en la primera (y se queda pegado al bajar), los
+  textos en la segunda, la tercera o las dos, en escalera; «El proyecto» con el contexto; anterior/siguiente = una franja a lo ancho del contenido partida en dos, cada mitad nace
+  de su guía y se encuentran en un filete central · tooltips: el icono de la barra, píldora clara «otoño · cambiar» bajo el icono; en el abanico de Proyectos, el icono que se mira
+  sube por encima de sus vecinos · la hoja de otoño con nervio central y cuatro laterales (barra y abanico; `formas-estacion.ts › NERVIOS_HOJA`).
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en /, /proyectos, /proyectos/kuanta, /proyectos/remerge, /brandbook, /manifiesto, /handbook, /lab (Chrome y WebKit, 1280 y 390):
+  limpio, 0 ≥ 400, desborde 0 · brandbook: primavera → verano → otoño → invierno (#4f8ad6) al bajar.

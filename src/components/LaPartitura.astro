@@ -391,7 +391,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       filo = el('rect', { x: -SW / 2, y: -SH / 2, width: SW, height: SH, rx: 6, class: 'filo' }, gH);
 
       // LAS CAJAS (lo que entra, lo que sale) y sus HILOS
-      const FS = 15, BH = 30, PAD = 12;
+      const FS = 13, BH = 26, PAD = 10; // RONDA 144 · Eric: «la tipografía de los tags de los lados, un poquito más pequeña» (antes 15 · 30 · 12)
       const nueva = (lado: 'in' | 'out', i: number, txt: string): Caja => {
         const g = el('g', { class: 'caja' }, gK);
         const r = el('rect', { rx: 6, height: BH }, g);
@@ -896,7 +896,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     stroke: color-mix(in oklab, var(--c) calc(var(--l, 0) * 100%), color-mix(in oklab, var(--tinta) 16%, transparent));
     stroke-width: calc(var(--u) * (1px + var(--l, 0) * 0.6px));
   }
-  .mapa :global(.rot) { font-family: var(--font-sans); font-size: 15px; fill: var(--tinta); }
+  .mapa :global(.rot) { font-family: var(--font-sans); font-size: 13px; fill: var(--tinta); }
   /* LA TARJETA de la librería (fuera): papel, barra con su ruta, título y las filas de su árbol */
   .mapa :global(.papel) { fill: var(--hoja-papel); }
   .mapa :global(.filo) { fill: none; stroke-width: calc(var(--u) * (1.2px + var(--g, 0) * 1.3px)); }
@@ -1053,7 +1053,19 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .neety > * { position: absolute; }
   /* «Base Cálida» cae en el fondo: crece desde el centro con el color real #F8F7EC */
   .n-fondo { inset: 0; background: #f8f7ec; clip-path: circle(calc(var(--p, 0) * 80%) at 50% 50%); }
-  .n-fondo::after { content: ''; position: absolute; inset: 0; background: url('/media/grano.png') 0 0 / 180px 180px; opacity: 0.5; mix-blend-mode: multiply; }
+  /* RONDA 144 · Eric: «que se muestre el hero con su fondo: el fondo granulado le da mucha personalidad a Neety»: su degradado real (azul bebé →
+     lavanda → naranja, de izquierda a derecha y más intenso abajo) bajo un grano marcado */
+  .n-fondo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 90% at 100% 100%, rgb(244 132 64 / 0.85), transparent 58%),
+      radial-gradient(90% 80% at 72% 70%, rgb(236 176 150 / 0.7), transparent 62%),
+      radial-gradient(110% 100% at 0% 40%, rgb(174 196 245 / 0.95), transparent 60%),
+      linear-gradient(105deg, #c9d6f6 0%, #e7e2f2 46%, #f5c3a6 100%);
+  }
+  .n-fondo::after { content: ''; position: absolute; inset: 0; background: url('/media/grano.png') 0 0 / 140px 140px; opacity: 0.85; mix-blend-mode: multiply; }
   .n-nav { left: 28px; right: 28px; top: 22px; height: 28px; display: flex; align-items: center; }
   .n-logow { display: block; opacity: var(--p, 0); scale: calc(1.2 - var(--p, 0) * 0.2); transform-origin: 0 50%; }
   .n-logo { display: block; height: 24px; width: auto; }

@@ -121,6 +121,13 @@
 html[data-estacion='primavera'] { --noche: #382a2d; --noche-honda: #382a2d; --arbol: #c76b83; }
 html[data-estacion='verano'] { --noche: #1f352a; --noche-honda: #1f352a; --arbol: #67834d; }
 html[data-estacion='invierno'] { --noche: #eceff3; --noche-honda: #2a2932; --arbol: #6e7b91; --tinta: #302018; --tinta-inv: #eceff3; --k2: 70%; }
+/* RONDA 144 · Andoni: «buscar un acento para cada estación» (y Eric: «en verano, un verde más clarito que el de fuera en vez del coral»). El acento
+   (--color-coral: savia, puntos, filos, indicadores) cambia con la estación; sale de su naturaleza: primavera, el cerezo · verano, la hoja nueva ·
+   otoño, el Coral de siempre · invierno, el azul glaciar del cielo de enero. Nunca como texto pequeño sobre claro (DESIGN.md). */
+html[data-estacion='primavera'] { --color-coral: #ff7fae; }
+html[data-estacion='verano'] { --color-coral: #a6d96a; }
+html[data-estacion='otono'] { --color-coral: #ff616b; }
+html[data-estacion='invierno'] { --color-coral: #4f8ad6; } /* ronda 144 (3.ª): «otro acento para invierno que pegue mejor que el rojo»: azul glaciar */
 /* las partes oscuras de la home invierten sus dos tintas: lo que era Rosa niebla (texto, trazos, puntos) pasa a --tinta y lo que era Cacao (texto de
    los botones claros, iconos sobre niebla) a --tinta-inv. Fuera del invierno no cambia nada (niebla = niebla, cacao = cacao). Proyectos no entra:
    su interfaz va sobre la foto de la mesa y sigue en claro sobre --noche-honda. */
@@ -392,48 +399,57 @@ html.tipo-antes {
       background-color 0.25s var(--ease-out-expo),
       color 0.25s var(--ease-out-expo);
   }
+  /* RONDA 144 · Andoni: «los CTAs, todos con el mismo formato que la barra de cambiar de proyecto de la vista sentado: esa barra como cristal, todos
+     ese estilo; y las flechas como las de ahí, en todos lados». Un solo sistema (Cta.astro):
+       .btn-primary   · píldora de CRISTAL (velo de la noche al 58 % + desenfoque + filo claro + sombra), texto Rosa niebla en Manrope 500, sin
+                        mayúsculas; al pasar, la niebla la llena como un líquido desde donde entra el cursor (cta-liquido.ts) y el texto pasa a Cacao
+                        (lo mismo que hacen los botones ‹ › de la barra).
+       .btn-secondary · sin caja: texto + chevrón en la tinta de su sitio; al pasar se enciende.
+       .btn-flecha    · el chevrón «›» (src/lib/flecha.ts), trazo 1,6, puntas redondas.
+       .barra-cristal · la barra entera (‹ 01/04 Nombre ›) para sliders, paginación y testimonios: .paso (círculo) + .cual (cuenta y nombre). */
   .btn-primary,
   .btn-secondary {
     --btn-ease: cubic-bezier(0.25, 1, 0.5, 1); /* ease-out quart */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.6em;
+    gap: 0.5em;
     border: 0;
-    box-shadow: none;
     font-family: var(--font-sans);
-    font-weight: 400;
-    font-size: 0.9375rem; /* 15 */
+    font-weight: 500;
+    font-size: var(--text-ui);
     line-height: 1;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
-  /* RONDA 137 · Andoni: «los CTAs no los quiero en coral: en el color más oscuro que tengamos y pasan a uno más claro al hacer hover».
-     Píldora CACAO #302018 (literal: en el hero y las secciones oscuras --color-cacao se invierte en invierno) con texto Rosa niebla (12,6:1); al
-     pasar se llena de NOGAL #63402f con el mismo líquido de la ronda 136 (niebla sobre Nogal 6,9:1: el texto no cambia de color a mitad).
-     Sobre lo OSCURO (la noche de la estación: hero, secciones oscuras, pie, carga) el Cacao casi desaparece contra el fondo (#3b231b): lleva un
-     FILO fino de la tinta (--btn-filo, 1 px por dentro) que lo recorta; sobre lo claro el filo es transparente. En invierno la noche es nieve y la
-     tinta es Cacao: el filo se funde con la píldora y queda como en lo claro. */
   .btn-primary {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    min-height: calc(var(--spacing) * 14); /* 56 */
-    padding-inline: 1.375rem 1.125rem; /* RONDA 139 · 22 · 18: más estrecho; la flecha pesa a la derecha */
+    min-height: calc(var(--spacing) * 12); /* 48 */
+    padding-inline: calc(var(--spacing) * 5) calc(var(--spacing) * 4);
     border-radius: var(--radius-full);
-    background-color: var(--btn-fondo, #302018); /* RONDA 138 · sobre lo oscuro, el color de la estación (ver --btn-fondo) */
+    background: color-mix(in oklab, var(--noche-honda, #302018) 58%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, #eadde7 16%, transparent),
+      0 12px 32px -12px rgb(0 0 0 / 0.4);
     color: #eadde7;
-    box-shadow: inset 0 0 0 1px var(--btn-filo, transparent);
-    transition: background-color 0.5s var(--btn-ease), box-shadow 0.5s var(--btn-ease);
+    transition: color 0.45s var(--btn-ease), box-shadow 0.45s var(--btn-ease);
   }
-  /* RONDA 136 · el LÍQUIDO: una mancha nace en el punto de entrada (--gx/--gy, los pone src/scripts/cta-liquido.ts) y crece hasta llenar la
-     píldora (0,7 s, ease-out cubic); canto irregular (radio asimétrico que gira un poco al crecer). Al salir se recoge hacia el punto de salida.
-     Con teclado, desde el centro. Solo transform. --gd = diámetro justo para llegar a la esquina más lejana (sin script, 260 %).
-     La misma mancha llena las tarjetas anterior/siguiente del Handbook ([data-liquido], src/pages/handbook/[slug].astro). */
+  /* sobre lo claro, el mismo cristal algo más hondo (si no, el velo se queda en un marrón lavado) */
+  :is(.surface-light, .surface-warm, .sobre-claro-local) .btn-primary {
+    background: color-mix(in oklab, var(--noche-honda, #302018) 82%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, #eadde7 12%, transparent),
+      0 12px 28px -14px rgb(48 32 24 / 0.45);
+  }
+  /* el LÍQUIDO de la ronda 136, ahora en Rosa niebla (la barra: al pasar, el círculo se llena de niebla y el chevrón pasa a Cacao) */
   .btn-primary::before {
     content: '';
     position: absolute;
@@ -443,7 +459,7 @@ html.tipo-antes {
     width: var(--gd, 260%);
     aspect-ratio: 1;
     border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%;
-    background: var(--btn-bano, #63402f);
+    background: #eadde7;
     transform: translate(-50%, -50%) scale(0) rotate(0deg);
     transition: transform 0.7s cubic-bezier(0.33, 1, 0.68, 1);
     pointer-events: none;
@@ -453,8 +469,8 @@ html.tipo-antes {
     transform: translate(-50%, -50%) scale(1) rotate(28deg);
   }
   .btn-primary:hover,
-  .btn-primary:focus-visible { box-shadow: inset 0 0 0 1px transparent; }
-  .btn-primary:active::before { filter: brightness(0.9); }
+  .btn-primary:focus-visible { color: #302018; }
+  .btn-primary:active { scale: 0.98; }
   .btn-secondary {
     min-height: calc(var(--spacing) * 6);
     padding: 0;
@@ -462,8 +478,6 @@ html.tipo-antes {
     color: inherit;
     transition: color 0.35s var(--btn-ease);
   }
-  /* RONDA 136 · sin subrayado al pasar («al hacer hover se subrayan textos: eso no me gusta»): en reposo el texto va algo apagado y al pasar
-     se enciende a la tinta plena; la flecha da su empujón. */
   .btn-secondary .btn-tx {
     padding-block: 0.25em;
     opacity: 0.78;
@@ -473,52 +487,92 @@ html.tipo-antes {
   .btn-secondary:focus-visible .btn-tx {
     opacity: 1;
   }
-  /* la alternativa / inactiva de la referencia: el mismo texto, apagado */
   .btn-secondary.apagado,
   .btn-secondary[aria-pressed='false'],
   .btn-secondary[aria-disabled='true'] {
     color: color-mix(in oklab, currentColor 42%, transparent);
   }
   .btn-sm.btn-primary {
-    min-height: calc(var(--spacing) * 11); /* 44: sigue siendo diana táctil */
+    min-height: calc(var(--spacing) * 10); /* 40 */
     padding-inline: calc(var(--spacing) * 4) calc(var(--spacing) * 3);
-    font-size: 0.8125rem; /* 13 */
+    font-size: 0.875rem; /* 14 */
   }
   .btn-sm.btn-secondary {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
-  /* RONDA 136 · LA FLECHA DE LA CASA (src/lib/flecha.ts): una «→» fina, astil y punta pequeña abierta, trazo 1,15 sin escalar. Una sola para toda
-     la web. RONDA 137 · AL PASAR por el <a> o <button> que la contiene (o un ancestro con .cta-abierto / [data-flecha-anima]:hover) SE DIBUJA:
-     el astil se traza de la cola a la punta (0,3 s) y luego la punta se abre desde el vértice hacia las dos alas (0,26 s, desde 0,22 s), ease-out.
-     Al salir se queda dibujada (sin deshacerse: lo más tranquilo). --fl-retraso retrasa el dibujo donde la flecha aparece más tarde (pie).
-     Las direcciones giran el SVG entero: el trazo sigue a la punta. */
+  /* el CHEVRÓN de la casa: al pasar por el <a>/<button> que lo contiene, se dibuja desde el vértice hacia las alas; al salir se queda */
   .btn-flecha {
     flex: none;
-    width: 1.5em;
+    width: 1em;
     height: 1em;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.15;
+    stroke-width: 1.6;
     stroke-linecap: round;
     stroke-linejoin: round;
     overflow: visible;
   }
   .btn-flecha path { vector-effect: non-scaling-stroke; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
-  :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-astil {
-    animation: fl-traza 0.3s cubic-bezier(0.33, 1, 0.68, 1) var(--fl-retraso, 0s) both;
-  }
   :is(a, button, label, [data-flecha-anima], .cta-abierto):is(:hover, :focus-visible, .cta-abierto):not(:disabled, [aria-disabled='true']) .btn-flecha .fl-ala {
-    animation: fl-traza 0.26s cubic-bezier(0.25, 1, 0.5, 1) calc(var(--fl-retraso, 0s) + 0.22s) both;
+    animation: fl-traza 0.34s cubic-bezier(0.25, 1, 0.5, 1) var(--fl-retraso, 0s) both;
   }
   @keyframes fl-traza {
     from { stroke-dashoffset: 1; }
     to { stroke-dashoffset: 0; }
   }
   .btn-flecha.izq { transform: scaleX(-1); }
-  .btn-flecha.abajo,
-  .btn-flecha.arriba { width: 1em; height: 1.5em; }
-  .btn-flecha.arriba { transform: scaleY(-1); }
+  .btn-flecha.abajo { transform: rotate(90deg); }
+  .btn-flecha.arriba { transform: rotate(-90deg); }
   .btn-flecha.fuera { transform: rotate(-45deg); }
+  /* ── LA BARRA DE CRISTAL (la de la vista sentado, para toda la web): ‹ 01/04 Nombre › */
+  .barra-cristal {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 1);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, var(--noche-honda, #302018) 58%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, #eadde7 16%, transparent),
+      0 12px 32px -12px rgb(0 0 0 / 0.4);
+    color: #eadde7;
+    white-space: nowrap;
+  }
+  :is(.surface-light, .surface-warm) .barra-cristal {
+    background: color-mix(in oklab, var(--noche-honda, #302018) 82%, transparent);
+  }
+  .barra-cristal .paso {
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 10);
+    height: calc(var(--spacing) * 10);
+    border-radius: 50%;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, scale 0.3s var(--ease-out-expo), opacity 0.3s ease;
+  }
+  .barra-cristal .paso:hover:not(:disabled) {
+    background: #eadde7;
+    color: #302018;
+  }
+  .barra-cristal .paso:active:not(:disabled) { scale: 0.94; }
+  .barra-cristal .paso:disabled { opacity: 0.3; cursor: default; }
+  .barra-cristal .paso:focus-visible { outline: 1px solid #eadde7; outline-offset: 2px; }
+  .barra-cristal .paso .btn-flecha { width: 1.25rem; height: 1.25rem; }
+  .barra-cristal .cual {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: calc(var(--spacing) * 3);
+    min-width: calc(var(--spacing) * 20);
+    padding-inline: calc(var(--spacing) * 1);
+    font-size: var(--text-ui);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .barra-cristal .cual .n { font-family: var(--font-mono); font-size: var(--text-detail); font-weight: 400; opacity: 0.6; }
   .btn-primary:focus-visible,
   .btn-secondary:focus-visible {
     outline: 2px solid currentColor;
@@ -529,7 +583,7 @@ html.tipo-antes {
     .btn-primary, .btn-primary::before, .btn-secondary, .btn-secondary .btn-tx { transition: none; }
     /* sin movimiento: la flecha quieta, y el color cambia sin más (la mancha ya está entera, oculta) */
     .btn-flecha path { animation: none !important; }
-    .btn-primary::before { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    .btn-primary::before { transform: translate(-50%, -50%) scale(1); opacity: 0; transition: opacity 0.2s; }
     .btn-primary:hover::before, .btn-primary:focus-visible::before { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   }
   /* RONDA 76 · .cruces ya solo redondea (lo usan cajas que no son botones) */
@@ -699,7 +753,7 @@ html.vt-local::view-transition-old(root) {
 .vt-logo {
   /* ronda 68: el logotipo definitivo (isotipo + savvia) */
   height: clamp(4.5rem, 2.5rem + 7vw, 9rem);
-  aspect-ratio: 1170 / 439;
+  aspect-ratio: 1184 / 439;
   background: var(--color-niebla);
   -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
   mask: url('/savvia-logo.svg') center / contain no-repeat;
@@ -748,5 +802,3 @@ html[data-estacion='otono'] .surface-dark {
   --btn-fondo: color-mix(in oklab, var(--arbol), #000 58%);
   --btn-bano: color-mix(in oklab, var(--arbol), #000 40%);
 }
-html .cta-pastilla.cta-pastilla::before { background: var(--btn-bano, #63402f); }
-html .cta-caras.cta-caras img { box-shadow: 0 0 0 2px var(--btn-bano, #63402f); }

@@ -1,0 +1,534 @@
+---
+// RONDA 144 · EL BRANDBOOK. Andoni: «si podemos montar un brandbook como este sería top» (referencia: el vídeo de kargul.studio, x.com/marcelkargul,
+// 08/10/2026: un documento web con índice lateral fijo y una sola columna larga: logotipo en claro y oscuro, colores con nombre y uso, tipografía en
+// tamaño real, voz, y aplicaciones de la marca en el mundo). Aquí, el sistema REAL de savvia, sacado de sus tokens (global.css) y de su diccionario
+// (AGENTS.md): nada inventado. Las aplicaciones (tarjeta, pestaña, imagen para compartir) se maquetan con la propia marca.
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Carriles from '../components/Carriles.astro';
+import Pie from '../components/Pie.astro';
+import Cta from '../components/Cta.astro';
+import { flecha } from '../lib/flecha';
+
+const indice = [
+  ['logotipo', 'Logotipo'],
+  ['color', 'Color'],
+  ['estaciones', 'Las estaciones'],
+  ['tipografia', 'Tipografía'],
+  ['voz', 'Voz'],
+  ['componentes', 'Componentes'],
+  ['materia', 'Textura y movimiento'],
+  ['aplicaciones', 'Aplicaciones'],
+] as const;
+
+const base = [
+  { n: 'Cacao', hex: '#302018', uso: 'La tinta y la noche. Texto sobre claro, fondos oscuros.', claro: false },
+  { n: 'Nogal', hex: '#63402F', uso: 'La madera. Superficies cálidas y estados de pulsado.', claro: false },
+  { n: 'Rosa niebla', hex: '#EADDE7', uso: 'El papel. Fondos claros y texto sobre oscuro.', claro: true },
+  { n: 'Coral', hex: '#FF616B', uso: 'La savia. Acento: un punto, un filo, lo que se mueve.', claro: false },
+  { n: 'Salvia', hex: '#96BFE6', uso: 'El cielo. Solo el fondo de Servicios.', claro: true },
+  { n: 'Cobalto', hex: '#3456D3', uso: 'Detalles mínimos de las ilustraciones.', claro: false },
+];
+const estaciones = [
+  { n: 'Primavera', meses: 'mar – may', noche: '#382A2D', arbol: '#C76B83', acento: '#FF7FAE', de: 'el cerezo' },
+  { n: 'Verano', meses: 'jun – ago', noche: '#1F352A', arbol: '#67834D', acento: '#A6D96A', de: 'la hoja nueva' },
+  { n: 'Otoño', meses: 'sep – nov', noche: '#3B231B', arbol: '#C65C2D', acento: '#FF616B', de: 'el Coral de siempre' },
+  { n: 'Invierno', meses: 'dic – feb', noche: '#ECEFF3', arbol: '#6E7B91', acento: '#D42C40', de: 'la baya del acebo' },
+];
+const escala = [
+  ['H1', 'var(--text-h1)', '44 → 72', 'Family 400', 'display'],
+  ['H2', 'var(--text-h2)', '34 → 48', 'Family 400', 'display'],
+  ['H3', 'var(--text-h3)', '26 → 32', 'Family 400', 'display'],
+  ['Lead', 'var(--text-lead)', '20', 'ABC Areal 400', 'sans'],
+  ['Cuerpo', 'var(--text-body)', '17 → 18', 'ABC Areal 400', 'sans'],
+  ['Interfaz', 'var(--text-ui)', '16', 'ABC Areal 500', 'sans'],
+  ['Detalle', 'var(--text-detail)', '13', 'ABC Areal Mono 400', 'mono'],
+] as const;
+const seDice = ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'contigo', 'Eric y Andoni', 'Donostia'];
+const noSeDice = ['prompt', 'vibe coding', '«lavado de cara»', 'años de experiencia', 'número de clientes', '«pioneros»', 'jerga de generador'];
+---
+
+<Base title="Brandbook — savvia" description="El sistema de marca de savvia: logotipo, color, las estaciones, tipografía, voz y componentes." carga={false}>
+  <Nav />
+  <Carriles />
+  <main id="contenido" class="libro surface-light">
+    <div class="wrap marco-libro">
+      <!-- el ÍNDICE: fijo a la izquierda (en móvil, una fila que se desliza arriba); la sección que se lee, a plena tinta -->
+      <nav class="indice" aria-label="Secciones del brandbook">
+        <p class="detail detail-caps text-fg2">Brandbook</p>
+        <ol>
+          {indice.map(([id, t], i) => (
+            <li><a href={`#${id}`} data-ir={id}><span class="detail n">{String(i + 1).padStart(2, '0')}</span>{t}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="hojas">
+        <header class="portada">
+          <h1 class="font-display titular" data-entra>La marca, en una página.</h1>
+          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Cómo se ve, cómo suena y cómo se mueve savvia. Todo lo que hay aquí sale del sistema real de la web.</p>
+          <div class="cubierta">
+            <span class="logo-masc" role="img" aria-label="savvia"></span>
+            <span class="detail pie-cub">savvia · Donostia · desde 2020</span>
+          </div>
+        </header>
+
+        <!-- 01 · LOGOTIPO -->
+        <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
+          <h2 id="h-logotipo" class="font-display text-h2">Logotipo</h2>
+          <p class="cuerpo">El isotipo es la v caligráfica: un trazo que baja grueso, sube fino y remata en una gota. Junto a «savvia», siempre en minúscula, también a principio de frase.</p>
+          <div class="fila f2">
+            <figure class="placa oscura"><span class="logo-masc" role="img" aria-label="savvia sobre Cacao"></span><figcaption class="detail">Sobre Cacao · Rosa niebla</figcaption></figure>
+            <figure class="placa clara"><span class="logo-masc" role="img" aria-label="savvia sobre Rosa niebla"></span><figcaption class="detail">Sobre Rosa niebla · Cacao</figcaption></figure>
+          </div>
+          <div class="fila f3">
+            <figure class="placa clara sm"><span class="iso-masc" role="img" aria-label="Isotipo"></span><figcaption class="detail">Isotipo</figcaption></figure>
+            <figure class="placa oscura sm"><img class="fav" src="/favicon.svg?v=144" alt="Favicon" width="64" height="64" /><figcaption class="detail">Favicon</figcaption></figure>
+            <figure class="placa clara sm respeto"><span class="logo-masc" role="img" aria-label="Área de respeto"></span><i class="aire" aria-hidden="true"></i><figcaption class="detail">Aire: el alto de la v alrededor</figcaption></figure>
+          </div>
+          <ul class="reglas">
+            <li><b>Sí</b> en Cacao o Rosa niebla, macizo, sobre fondo liso.</li>
+            <li><b>No</b> se estira, no se gira, no lleva sombra ni degradado, no cambia de color con la estación.</li>
+          </ul>
+        </section>
+
+        <!-- 02 · COLOR -->
+        <section id="color" class="seccion" aria-labelledby="h-color">
+          <h2 id="h-color" class="font-display text-h2">Color</h2>
+          <p class="cuerpo">Una web oscura con detalles en claro. Seis colores con un papel cada uno; ninguno se usa para rellenar.</p>
+          <ul class="muestras">
+            {base.map((c) => (
+              <li class={c.claro ? 'sobre-claro' : 'sobre-oscuro'} style={`--c:${c.hex}`}>
+                <span class="mu-n">{c.n}</span>
+                <span class="detail mu-h">{c.hex}</span>
+                <span class="mu-u">{c.uso}</span>
+              </li>
+            ))}
+          </ul>
+          <ul class="reglas">
+            <li><b>Contraste</b> Rosa niebla sobre Cacao 12,6:1 · Cacao sobre Rosa niebla 12,6:1.</li>
+            <li><b>Sin</b> degradados, brillos ni sombras por defecto. El acento nunca es texto pequeño sobre claro.</li>
+          </ul>
+        </section>
+
+        <!-- 03 · LAS ESTACIONES -->
+        <section id="estaciones" class="seccion" aria-labelledby="h-estaciones">
+          <h2 id="h-estaciones" class="font-display text-h2">Las estaciones</h2>
+          <p class="cuerpo">La web vive la estación del año en que la visitas: cambia la noche del fondo, el roble y el acento. Cada acento sale de la naturaleza de su estación.</p>
+          <ul class="estaciones">
+            {estaciones.map((e) => (
+              <li style={`--noche:${e.noche};--arbol:${e.arbol};--acento:${e.acento}`} class={e.n === 'Invierno' ? 'clara' : ''}>
+                <div class="est-cab"><span class="font-display est-n">{e.n}</span><span class="detail">{e.meses}</span></div>
+                <span class="est-punto" aria-hidden="true"></span>
+                <dl>
+                  <div><dt class="detail">Noche</dt><dd class="detail">{e.noche}</dd></div>
+                  <div><dt class="detail">Roble</dt><dd class="detail">{e.arbol}</dd></div>
+                  <div><dt class="detail">Acento · {e.de}</dt><dd class="detail">{e.acento}</dd></div>
+                </dl>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <!-- 04 · TIPOGRAFÍA -->
+        <section id="tipografia" class="seccion" aria-labelledby="h-tipografia">
+          <h2 id="h-tipografia" class="font-display text-h2">Tipografía</h2>
+          <p class="cuerpo">Tres voces: Family para lo que se dice, ABC Areal para lo que se lee y ABC Areal Mono para los detalles. Sin cursivas, nunca.</p>
+          <div class="fila f3 familias">
+            <figure class="placa clara fam"><span class="font-display aa">Aa</span><figcaption><b>Family</b><span class="detail">Titulares · 400</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa sans">Aa</span><figcaption><b>ABC Areal</b><span class="detail">Texto e interfaz · 400 · 500</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa mono">Aa</span><figcaption><b>ABC Areal Mono</b><span class="detail">Detalles · 400</span></figcaption></figure>
+          </div>
+          <ol class="escala">
+            {escala.map(([n, var_, px, f, cls]) => (
+              <li>
+                <span class="detail e-n">{n}</span>
+                <span class={`e-m ${cls}`} style={`font-size:${var_}`}>Elevamos tu web</span>
+                <span class="detail e-d">{px} px · {f}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <!-- 05 · VOZ -->
+        <section id="voz" class="seccion" aria-labelledby="h-voz">
+          <h2 id="h-voz" class="font-display text-h2">Voz</h2>
+          <p class="cuerpo">Se habla siempre a quien entra; la primera persona, solo cuando hablan Eric y Andoni. No se presume: el trabajo lo demuestra.</p>
+          <div class="fila f2">
+            <div class="placa clara lista-voz"><p class="detail detail-caps">Se dice</p><ul>{seDice.map((w) => <li>{w}</li>)}</ul></div>
+            <div class="placa clara lista-voz no"><p class="detail detail-caps">No se dice</p><ul>{noSeDice.map((w) => <li>{w}</li>)}</ul></div>
+          </div>
+          <blockquote class="font-display ejemplo">«Elevamos tu web con IA.»<span class="detail">El titular: corto, a quien entra, con el verbo delante.</span></blockquote>
+        </section>
+
+        <!-- 06 · COMPONENTES -->
+        <section id="componentes" class="seccion" aria-labelledby="h-componentes">
+          <h2 id="h-componentes" class="font-display text-h2">Componentes</h2>
+          <p class="cuerpo">Un solo idioma para todo lo que se pulsa: el cristal de la barra de la vista sentado. Píldoras, chevrones finos y, al pasar, la niebla lo llena como un líquido.</p>
+          <div class="placa oscura demos">
+            <Cta href="#componentes">Cuéntanos tu proyecto</Cta>
+            <Cta href="#componentes" tam="sm">Ver la web</Cta>
+            <Cta href="#componentes" variante="secundario">Ver caso de estudio</Cta>
+            <div class="barra-cristal" role="group" aria-label="Ejemplo de barra">
+              <button type="button" class="paso" aria-label="Anterior"><Fragment set:html={flecha('izq')} /></button>
+              <p class="cual"><span class="n">02/04</span><span>Arkdev</span></p>
+              <button type="button" class="paso" aria-label="Siguiente"><Fragment set:html={flecha()} /></button>
+            </div>
+          </div>
+          <ul class="reglas">
+            <li><b>Primario</b> cristal: velo de la noche al 58 %, desenfoque 22 px, filo claro al 16 %. Texto ABC Areal 500, sin mayúsculas.</li>
+            <li><b>Secundario</b> texto y chevrón, sin caja. <b>Barra</b> ‹ cuenta · nombre › para pasar de una cosa a otra (sliders, páginas, testimonios).</li>
+          </ul>
+        </section>
+
+        <!-- 07 · TEXTURA Y MOVIMIENTO -->
+        <section id="materia" class="seccion" aria-labelledby="h-materia">
+          <h2 id="h-materia" class="font-display text-h2">Textura y movimiento</h2>
+          <p class="cuerpo">Un grano finísimo en todas las superficies, como papel. Lo que se mueve llega con una curva expo y se posa sin rebote; con movimiento reducido, todo queda quieto y en su sitio.</p>
+          <div class="fila f3">
+            <figure class="placa grano"><figcaption class="detail">Grano · 240 px, ≤ 12 %</figcaption></figure>
+            <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /></svg><figcaption class="detail">ease-out expo · 0,16 1 0,3 1</figcaption></figure>
+            <figure class="placa clara gota-m"><span class="gota-d" aria-hidden="true"></span><figcaption class="detail">La gota: arranca la web</figcaption></figure>
+          </div>
+        </section>
+
+        <!-- 08 · APLICACIONES -->
+        <section id="aplicaciones" class="seccion" aria-labelledby="h-aplicaciones">
+          <h2 id="h-aplicaciones" class="font-display text-h2">Aplicaciones</h2>
+          <p class="cuerpo">La marca fuera de la web: lo que se comparte, la pestaña del navegador y la tarjeta de visita.</p>
+          <div class="fila f2">
+            <figure class="placa clara app"><img class="og" src="/og.jpg?v=140" alt="Imagen para compartir de savvia" width="1200" height="630" loading="lazy" decoding="async" /><figcaption class="detail">Imagen para compartir · 1200 × 630</figcaption></figure>
+            <figure class="placa clara app">
+              <div class="pestana" aria-hidden="true"><span class="pt"><img src="/favicon.svg?v=144" alt="" width="16" height="16" />savvia — Elevamos tu web con IA</span></div>
+              <figcaption class="detail">La pestaña · favicon sobre Cacao</figcaption>
+            </figure>
+          </div>
+          <div class="fila f2 tarjetas">
+            <figure class="placa clara app"><div class="tarjeta-v cara" aria-hidden="true"><span class="logo-masc"></span></div><figcaption class="detail">Tarjeta · anverso</figcaption></figure>
+            <figure class="placa clara app">
+              <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio · Donostia</span></div>
+              <figcaption class="detail">Tarjeta · reverso</figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <Pie />
+</Base>
+
+<script>
+  // el índice sigue la lectura: la sección que cruza el tercio superior de la pantalla, a plena tinta
+  const enlaces = [...document.querySelectorAll<HTMLAnchorElement>('[data-ir]')];
+  const secciones = enlaces.map((a) => document.getElementById(a.dataset.ir!)!).filter(Boolean);
+  const marcar = (id: string) => enlaces.forEach((a) => a.toggleAttribute('aria-current', a.dataset.ir === id));
+  const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) marcar(e.target.id); }, { rootMargin: '-30% 0px -65% 0px' });
+  secciones.forEach((s) => io.observe(s));
+</script>
+
+<style>
+  .libro {
+    padding-top: calc(var(--spacing) * 32);
+    padding-bottom: var(--space-section);
+  }
+  .marco-libro {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: calc(var(--spacing) * 6);
+  }
+  .indice { grid-column: 1 / span 3; }
+  .hojas { grid-column: 4 / span 9; min-width: 0; }
+  .indice {
+    position: sticky;
+    top: calc(var(--spacing) * 28);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+  }
+  .indice ol { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); }
+  .indice a {
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 3);
+    padding-block: calc(var(--spacing) * 1);
+    font-size: var(--text-ui);
+    color: var(--fg2);
+    transition: color 0.3s ease;
+  }
+  .indice a:hover,
+  .indice a[aria-current] { color: var(--fg); }
+  .indice .n { opacity: 0.6; font-variant-numeric: tabular-nums; }
+  .indice a[aria-current] .n { color: var(--color-coral); opacity: 1; }
+  @media (width < 64rem) {
+    .indice, .hojas { grid-column: 1 / -1; }
+    .indice {
+      position: sticky;
+      top: calc(var(--spacing) * 18);
+      z-index: 5;
+      margin-inline: calc(var(--gutter) * -1);
+      padding: calc(var(--spacing) * 2) var(--gutter);
+      background: color-mix(in oklab, var(--bg, #eadde7) 88%, transparent);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .indice > p { display: none; }
+    .indice ol { flex-direction: row; gap: calc(var(--spacing) * 5); white-space: nowrap; }
+    .indice .n { display: none; }
+  }
+
+  .titular {
+    font-size: clamp(2.5rem, 1rem + 4vw, 5rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .cubierta {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin-top: calc(var(--spacing) * 12);
+    border-radius: var(--radius-lg);
+    background: #302018 url('/media/grano.png') 0 0 / 240px;
+    color: #eadde7;
+  }
+  .cubierta .logo-masc { width: min(46%, 22rem); }
+  .pie-cub { position: absolute; left: calc(var(--spacing) * 5); bottom: calc(var(--spacing) * 4); opacity: 0.6; }
+  .logo-masc,
+  .iso-masc {
+    display: block;
+    background: currentColor;
+    -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
+    mask: url('/savvia-logo.svg') center / contain no-repeat;
+  }
+  .logo-masc { aspect-ratio: 1184 / 439; width: 62%; }
+  .iso-masc { aspect-ratio: 469.69 / 425.38; height: 56%; -webkit-mask-image: url('/savvia-isotipo.svg'); mask-image: url('/savvia-isotipo.svg'); }
+
+  .seccion {
+    padding-top: calc(var(--spacing) * 24);
+    margin-top: calc(var(--spacing) * 24);
+    border-top: 1px solid var(--rule);
+    scroll-margin-top: calc(var(--spacing) * 20);
+  }
+  .cuerpo {
+    margin-top: calc(var(--spacing) * 4);
+    max-width: 60ch;
+    font-size: var(--text-body);
+    line-height: 1.6;
+    color: var(--fg2);
+    text-wrap: pretty;
+  }
+  .fila { display: grid; gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); }
+  .fila.f2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fila.f3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fila:first-of-type { margin-top: calc(var(--spacing) * 10); }
+  @media (width < 48rem) {
+    .fila.f2, .fila.f3 { grid-template-columns: 1fr; }
+  }
+  .placa {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    margin: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .placa.sm { aspect-ratio: 1; }
+  .placa.oscura { background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
+  .placa.clara { background: color-mix(in oklab, #302018 5%, #eadde7); color: #302018; box-shadow: inset 0 0 0 1px var(--rule); }
+  .placa > figcaption {
+    position: absolute;
+    left: calc(var(--spacing) * 4);
+    bottom: calc(var(--spacing) * 3);
+    opacity: 0.65;
+  }
+  .fav { width: 30%; height: auto; border-radius: 22%; }
+  .respeto .logo-masc { width: 46%; }
+  .respeto .aire {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(46% + 22%);
+    aspect-ratio: 1184 / 439;
+    translate: -50% -50%;
+    outline: 1px dashed color-mix(in oklab, var(--color-coral) 80%, transparent);
+    outline-offset: 0;
+    border-radius: 4px;
+    scale: 1 1.6;
+  }
+  .reglas {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 6);
+    font-size: var(--text-aux);
+    line-height: 1.5;
+    color: var(--fg2);
+  }
+  .reglas b { font-weight: 500; color: var(--fg); margin-right: 0.4em; }
+
+  .muestras {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 10);
+  }
+  @media (width < 48rem) {
+    .muestras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  .muestras li {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    min-height: calc(var(--spacing) * 44);
+    padding: calc(var(--spacing) * 4);
+    border-radius: var(--radius-lg);
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, #302018 10%, transparent);
+  }
+  .sobre-claro { color: #302018; }
+  .sobre-oscuro { color: #eadde7; }
+  .mu-n { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.1; }
+  .mu-h { opacity: 0.75; }
+  .mu-u { margin-top: auto; font-size: var(--text-aux); line-height: 1.4; opacity: 0.85; }
+
+  .estaciones {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 10);
+  }
+  @media (width < 64rem) {
+    .estaciones { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  .estaciones li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+    min-height: calc(var(--spacing) * 72);
+    padding: calc(var(--spacing) * 4);
+    border-radius: var(--radius-lg);
+    background: var(--noche) url('/media/grano.png') 0 0 / 240px;
+    color: #eadde7;
+  }
+  .estaciones li.clara { color: #302018; box-shadow: inset 0 0 0 1px var(--rule); }
+  .est-cab { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--spacing) * 2); }
+  .est-n { font-size: 1.5rem; line-height: 1.1; }
+  .est-punto {
+    flex: 1;
+    border-radius: var(--radius-md, 6px);
+    background:
+      radial-gradient(circle at 30% 60%, var(--acento) 0 10%, transparent 10.5%),
+      linear-gradient(var(--arbol), var(--arbol)) 0 100% / 100% 28% no-repeat;
+    opacity: 0.95;
+  }
+  .estaciones dl { display: grid; gap: calc(var(--spacing) * 1); }
+  .estaciones dl div { display: flex; justify-content: space-between; gap: calc(var(--spacing) * 2); }
+  .estaciones dt { opacity: 0.7; }
+
+  .familias .fam { aspect-ratio: 1; }
+  .aa { font-size: clamp(4rem, 2rem + 6vw, 7rem); line-height: 1; }
+  .aa.sans { font-family: var(--font-sans); }
+  .aa.mono { font-family: var(--font-mono); }
+  .fam figcaption { display: flex; flex-direction: column; gap: 2px; opacity: 1 !important; }
+  .fam b { font-weight: 500; }
+  .fam .detail { opacity: 0.65; }
+  .escala { margin-top: calc(var(--spacing) * 10); }
+  .escala li {
+    display: grid;
+    grid-template-columns: calc(var(--spacing) * 20) minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 4);
+    border-bottom: 1px solid var(--rule);
+  }
+  .e-n, .e-d { color: var(--fg2); }
+  .e-m { line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .e-m.display { font-family: var(--font-display); }
+  .e-m.sans { font-family: var(--font-sans); }
+  .e-m.mono { font-family: var(--font-mono); }
+  @media (width < 48rem) {
+    .escala li { grid-template-columns: 1fr; gap: calc(var(--spacing) * 1); }
+  }
+
+  .lista-voz { place-items: start; align-content: start; padding: calc(var(--spacing) * 6); aspect-ratio: auto; min-height: calc(var(--spacing) * 64); }
+  .lista-voz ul { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 4); }
+  .lista-voz li { padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3); border-radius: var(--radius-full); box-shadow: inset 0 0 0 1px var(--rule-strong, var(--rule)); font-size: var(--text-aux); }
+  .lista-voz.no li { text-decoration: line-through; text-decoration-color: var(--color-coral); color: var(--fg2); }
+  .ejemplo {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 10);
+    font-size: var(--text-h2);
+    line-height: 1.1;
+  }
+  .ejemplo .detail { font-family: var(--font-mono); color: var(--fg2); }
+
+  .demos { aspect-ratio: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: calc(var(--spacing) * 6); padding: calc(var(--spacing) * 16) calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 10); }
+
+  .grano { background: #eadde7 url('/media/grano.png') 0 0 / 240px; box-shadow: inset 0 0 0 1px var(--rule); }
+  .curva svg { width: 60%; fill: none; stroke: var(--color-coral); stroke-width: 1.6; stroke-linecap: round; overflow: visible; }
+  .gota-d {
+    width: 28px;
+    height: 28px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(circle at 35% 30%, #fff 0 12%, transparent 13%), radial-gradient(circle, rgb(255 243 228 / 0.15), rgb(48 32 24 / 0.35));
+    box-shadow: inset 0 -3px 6px rgb(48 32 24 / 0.25), 0 6px 10px -6px rgb(48 32 24 / 0.5);
+    animation: gota-cae 2.4s cubic-bezier(0.55, 0, 0.85, 0.45) infinite;
+  }
+  @keyframes gota-cae {
+    0% { translate: 0 -60px; opacity: 0; }
+    15% { opacity: 1; }
+    80% { translate: 0 30px; opacity: 1; }
+    100% { translate: 0 30px; opacity: 0; scale: 1.6 0.3; }
+  }
+  @media (prefers-reduced-motion: reduce) { .gota-d { animation: none; } }
+
+  .app { place-items: center; }
+  .og { width: 84%; height: auto; border-radius: 8px; box-shadow: 0 18px 40px -22px rgb(48 32 24 / 0.6); }
+  .pestana {
+    width: 84%;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2) 0;
+    border-radius: 10px 10px 0 0;
+    background: #dcd2d9;
+    box-shadow: 0 18px 40px -26px rgb(48 32 24 / 0.6);
+  }
+  .pestana .pt {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    max-width: 100%;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border-radius: 8px 8px 0 0;
+    background: #f6f1f4;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .pestana img { width: 16px; height: 16px; border-radius: 4px; }
+  .tarjeta-v {
+    width: 72%;
+    aspect-ratio: 85 / 55;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 22px 40px -22px rgb(48 32 24 / 0.65);
+  }
+  .tarjeta-v.cara { background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
+  .tarjeta-v.cara .logo-masc { width: 50%; }
+  .tarjeta-v.dorso {
+    background: #eadde7 url('/media/grano.png') 0 0 / 240px;
+    color: #302018;
+    place-items: end start;
+    align-content: end;
+    gap: 4px;
+    padding: 9%;
+  }
+  .tv-n { font-size: 1.375rem; line-height: 1.1; margin-bottom: 6px; }
+</style>
