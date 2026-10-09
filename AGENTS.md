@@ -2984,3 +2984,14 @@ en mono en el pie.
   (cuadráticas: 170 anclas, 118 manejadores; base, altura de x 462 y ascendentes).
 - **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en /, /proyectos, /proyectos/kuanta, /brandbook (Chrome y WebKit, 1280 y 390): limpio · la carga (círculo → gota → hero) en Chrome y WebKit.
 - **Pendiente:** la imagen para compartir (`og.jpg`) aún lleva el logotipo con isotipo.
+
+### Ronda 146 · 2026-10-09 · fuera la parrilla de puntos del hero · PUBLICADA
+- **Andoni (textual):** «quita la parrilla de detrás del árbol del hero, me refiero a los puntos».
+- **Hecho:** `Hero.astro › .marco` sin la trama de puntos (rondas 16–145) en todas las estaciones; quedan los lados a trazos, las cruces de los carriles, la hora y «desde 2020».
+- **Medido:** `astro check` 0 · fondo del marco `none` · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio.
+
+### Ronda 147 · 2026-10-09 · «savvia» del menú más pequeño; el hero sin líneas horizontales ni cruces · PUBLICADA
+- **Andoni (textual):** «savvia del menú ponlo más pequeño, y luego del hero también quita las líneas horizontales y las cruces».
+- **Hecho:** logotipo de la barra 28/32 → 22/24 px de alto · el hero sin filas de carriles: `data-sin-fila` en la sección, fuera `data-carril-fila` del marco y de las raíces (la
+  línea con cruces bajo el árbol); quedan los carriles verticales.
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · captura del hero sin líneas ni cruces.
