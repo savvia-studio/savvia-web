@@ -2974,3 +2974,13 @@ en mono en el pie.
 - **Hecho:** fuera los nervios de la hoja (barra y abanico; vuelve la hoja lisa de la ronda 67) · fuera el rótulo al pasar en el icono de la barra y en los del abanico de Proyectos
   (estaciones y sonido); el nombre sigue en `aria-label`.
 - **Medido:** `astro check` 0 · al pasar: `::after` de la barra sin contenido y rótulos del abanico sin pintar (captura).
+
+### Ronda 145 · 2026-10-09 · fuera el isotipo: el logotipo es «savvia» en Family · PUBLICADA
+- **Andoni (textual):** «quita el isotipo y pon solo savvia con la tipo de titulares».
+- **Hecho:** `public/savvia-palabra.svg` = «savvia» en Family 400 (apretado −0,02 em) pasado a contornos con fontTools (viewBox 15 −689 2444 × 707); sustituye a `savvia-logo.svg` en la
+  barra (28/32 px de alto), la transición entre páginas, la marca de savvia agentic, la pantalla de carga de Proyectos y el ticket de la receta · favicon y apple-touch = la «s» de
+  Family en Rosa niebla sobre Cacao (`?v=145`; el anterior, en `tools/r144/apple-touch-icon.r144.png`) · la carga ya no dibuja la v: el círculo se recoge en la gota, que cae
+  (`Cargador.astro › SIN_ISOTIPO`) · brandbook: el logotipo es la palabra (sin isotipo; favicon, tamaño mínimo y dentro de una frase) y la construcción se dibuja sobre sus curvas
+  (cuadráticas: 170 anclas, 118 manejadores; base, altura de x 462 y ascendentes).
+- **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en /, /proyectos, /proyectos/kuanta, /brandbook (Chrome y WebKit, 1280 y 390): limpio · la carga (círculo → gota → hero) en Chrome y WebKit.
+- **Pendiente:** la imagen para compartir (`og.jpg`) aún lleva el logotipo con isotipo.

@@ -16,7 +16,7 @@ import Carriles from '../components/Carriles.astro';
 import Pie from '../components/Pie.astro';
 import Cta from '../components/Cta.astro';
 import { flecha } from '../lib/flecha';
-import logoRaw from '../../public/savvia-logo.svg?raw';
+import logoRaw from '../../public/savvia-palabra.svg?raw'; // ronda 145: el logotipo es la palabra en Family (sin isotipo)
 
 const indice = [
   ['logotipo', 'Logotipo'],
@@ -35,13 +35,13 @@ type Pt = [number, number];
 const anclas: Pt[] = [], manejos: [Pt, Pt][] = [], controles: Pt[] = [];
 const cajas: { x0: number; x1: number; y0: number; y1: number }[] = [];
 for (const d of trazos) {
-  const tk = d.match(/[MCLHVZ]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? [];
+  const tk = d.match(/[MCQLHVZ]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? [];
   let i = 0, cmd = '', cx = 0, cy = 0;
   const n = () => parseFloat(tk[i++]);
   const caja = { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 };
   const mete = (p: Pt) => { caja.x0 = Math.min(caja.x0, p[0]); caja.x1 = Math.max(caja.x1, p[0]); caja.y0 = Math.min(caja.y0, p[1]); caja.y1 = Math.max(caja.y1, p[1]); };
   while (i < tk.length) {
-    if (/[MCLHVZ]/i.test(tk[i])) cmd = tk[i++].toUpperCase();
+    if (/[MCQLHVZ]/i.test(tk[i])) cmd = tk[i++].toUpperCase();
     if (cmd === 'Z') continue;
     if (cmd === 'M' || cmd === 'L') { cx = n(); cy = n(); anclas.push([cx, cy]); mete([cx, cy]); if (cmd === 'M') cmd = 'L'; }
     else if (cmd === 'H') { cx = n(); anclas.push([cx, cy]); mete([cx, cy]); }
@@ -50,15 +50,17 @@ for (const d of trazos) {
       const a: Pt = [n(), n()], b: Pt = [n(), n()], e: Pt = [n(), n()];
       manejos.push([[cx, cy], a], [b, e]); controles.push(a, b); anclas.push(e); mete(e);
       cx = e[0]; cy = e[1];
+    } else if (cmd === 'Q') {
+      const a: Pt = [n(), n()], e: Pt = [n(), n()];
+      manejos.push([[cx, cy], a], [a, e]); controles.push(a); anclas.push(e); mete(e);
+      cx = e[0]; cy = e[1];
     } else i++;
   }
   cajas.push(caja);
 }
-// las líneas de la letra, de las cajas de «savvia» (trazos 1–6; el 0 es la v del isotipo)
-const letras = cajas.slice(1);
-const base = Math.round(Math.max(...letras.map((c) => c.y1)) - 3);
-const ascend = Math.round(Math.min(...letras.map((c) => c.y0)));
-const xAlto = Math.round([...letras].sort((a, b) => b.y0 - a.y0)[0].y0); // la letra más baja de arriba: la altura de x
+// las líneas de la letra (Family, 1000 por em): la base en 0, la altura de x en 462 (OS/2) y las ascendentes, lo más alto de la palabra (el punto de la i)
+const base = 0, xAlto = -462;
+const ascend = Math.round(Math.min(...cajas.map((c) => c.y0)));
 const f = (v: number) => v.toFixed(1);
 const dManejos = manejos.map(([a, b]) => `M${f(a[0])} ${f(a[1])}L${f(b[0])} ${f(b[1])}`).join('');
 
@@ -117,18 +119,18 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         <!-- 01 · LOGOTIPO -->
         <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
           <h2 id="h-logotipo" class="font-display text-h2">Logotipo</h2>
-          <p class="cuerpo">El isotipo es la v caligráfica del logotipo: un trazo que entra fino por un gancho, baja, sube largo y remata en una gota. Junto a «savvia», siempre en minúscula, también a principio de frase. El mismo isotipo en la carga, la barra, el favicon y aquí.</p>
+          <p class="cuerpo">El logotipo es la palabra: «savvia» en Family, la letra de los titulares, siempre en minúscula (también a principio de frase). Sin isotipo. El favicon es su «s».</p>
           <div class="fila f2">
             <figure class="placa oscura"><span class="logo-masc" role="img" aria-label="savvia sobre Cacao"></span><figcaption class="detail">Sobre Cacao · Rosa niebla</figcaption></figure>
             <figure class="placa clara"><span class="logo-masc" role="img" aria-label="savvia sobre Rosa niebla"></span><figcaption class="detail">Sobre Rosa niebla · Cacao</figcaption></figure>
           </div>
           <div class="fila f3">
-            <figure class="placa clara sm"><span class="iso-masc" role="img" aria-label="Isotipo"></span><figcaption class="detail">Isotipo</figcaption></figure>
-            <figure class="placa oscura sm"><span class="iso-masc" role="img" aria-label="Isotipo sobre Cacao"></span><figcaption class="detail">Isotipo · sobre Cacao</figcaption></figure>
-            <figure class="placa oscura sm"><img class="fav" src="/favicon.svg?v=144" alt="Favicon" width="64" height="64" /><figcaption class="detail">Favicon</figcaption></figure>
+            <figure class="placa oscura sm"><img class="fav" src="/favicon.svg?v=145" alt="Favicon" width="64" height="64" /><figcaption class="detail">Favicon · la «s»</figcaption></figure>
+            <figure class="placa clara sm"><span class="logo-masc peq" role="img" aria-label="savvia en pequeño"></span><figcaption class="detail">Tamaño mínimo · 16 px de alto</figcaption></figure>
+            <figure class="placa oscura sm"><span class="font-display en-texto">Hecho con <span class="logo-masc linea" role="img" aria-label="savvia"></span></span><figcaption class="detail">Dentro de una frase · a la altura de la letra</figcaption></figure>
           </div>
           <ul class="reglas">
-            <li><b>Aire</b> alrededor, como mínimo, el alto de la gota del isotipo. Tamaño mínimo: 24 px de alto en pantalla.</li>
+            <li><b>Aire</b> alrededor, como mínimo, la altura de x de la palabra. Tamaño mínimo: 16 px de alto en pantalla.</li>
             <li><b>Sí</b> en Cacao o Rosa niebla, macizo, sobre fondo liso. <b>No</b> se estira, no se gira, no lleva sombra ni degradado, no cambia con la estación.</li>
           </ul>
         </section>
@@ -136,14 +138,13 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         <!-- 02 · CONSTRUCCIÓN -->
         <section id="construccion" class="seccion" aria-labelledby="h-construccion">
           <h2 id="h-construccion" class="font-display text-h2">Construcción</h2>
-          <p class="cuerpo">Cómo está dibujado: {trazos.length} trazos, {anclas.length} anclas y {controles.length} manejadores. La v se apoya en la línea base y sube hasta las ascendentes; su gota cae a la altura del punto de la i.</p>
+          <p class="cuerpo">La palabra, en Family 400 con un apretado de −0,02 em: {anclas.length} anclas y {controles.length} manejadores. Las letras viven entre la línea base y la altura de x; solo el punto de la i sube hasta las ascendentes.</p>
           <figure class="construccion" data-construccion>
-            <svg viewBox="-20 -20 1224 479" aria-hidden="true">
+            <svg viewBox="-20 -720 2500 770" aria-hidden="true">
               <g class="guias">
-                <line x1="-20" x2="1204" y1={base} y2={base} /><text x="1204" y={base - 8}>línea base</text>
-                <line x1="-20" x2="1204" y1={xAlto} y2={xAlto} /><text x="1204" y={xAlto - 8}>altura de x</text>
-                <line x1="-20" x2="1204" y1={ascend} y2={ascend} /><text x="1204" y={ascend - 8}>ascendentes</text>
-                <rect x={cajas[0].x0} y={cajas[0].y0} width={cajas[0].x1 - cajas[0].x0} height={cajas[0].y1 - cajas[0].y0} class="caja-iso" />
+                <line x1="-20" x2="2480" y1={base} y2={base} /><text x="2480" y={base - 14}>línea base</text>
+                <line x1="-20" x2="2480" y1={xAlto} y2={xAlto} /><text x="2480" y={xAlto - 14}>altura de x</text>
+                <line x1="-20" x2="2480" y1={ascend} y2={ascend} /><text x="2480" y={ascend - 14}>ascendentes</text>
               </g>
               <g class="relleno">{trazos.map((d) => <path d={d} />)}</g>
               <g class="contorno">{trazos.map((d) => <path d={d} pathLength="1" />)}</g>
@@ -354,7 +355,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           <div class="fila f2">
             <figure class="placa clara app"><img class="og" src="/og.jpg?v=140" alt="Imagen para compartir de savvia" width="1200" height="630" loading="lazy" decoding="async" /><figcaption class="detail">Imagen para compartir · 1200 × 630</figcaption></figure>
             <figure class="placa clara app">
-              <div class="pestana" aria-hidden="true"><span class="pt-tab"><img src="/favicon.svg?v=144" alt="" width="16" height="16" />savvia — Elevamos tu web con IA</span></div>
+              <div class="pestana" aria-hidden="true"><span class="pt-tab"><img src="/favicon.svg?v=145" alt="" width="16" height="16" />savvia — Elevamos tu web con IA</span></div>
               <figcaption class="detail">La pestaña · favicon sobre Cacao</figcaption>
             </figure>
           </div>
@@ -451,9 +452,11 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .cubierta { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; margin-top: calc(var(--spacing) * 12); border-radius: var(--radius-lg); background: #302018 url('/media/grano.png') 0 0 / 240px; color: #eadde7; }
   .cubierta .logo-masc { width: min(46%, 22rem); }
   .pie-cub { position: absolute; left: calc(var(--spacing) * 5); bottom: calc(var(--spacing) * 4); opacity: 0.6; }
-  .logo-masc, .iso-masc { display: block; background: currentColor; -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat; mask: url('/savvia-logo.svg') center / contain no-repeat; }
-  .logo-masc { aspect-ratio: 1184 / 439; width: 62%; }
-  .iso-masc { aspect-ratio: 469.69 / 425.38; height: 52%; -webkit-mask-image: url('/savvia-isotipo.svg'); mask-image: url('/savvia-isotipo.svg'); }
+  .logo-masc { display: block; background: currentColor; -webkit-mask: url('/savvia-palabra.svg') center / contain no-repeat; mask: url('/savvia-palabra.svg') center / contain no-repeat; }
+  .logo-masc { aspect-ratio: 2444 / 707; width: 62%; }
+  .logo-masc.peq { width: auto; height: 16px; }
+  .en-texto { display: inline-flex; align-items: baseline; gap: 0.3em; font-size: 1.75rem; }
+  .logo-masc.linea { width: auto; height: 0.86em; translate: 0 0.12em; }
   .seccion { padding-top: calc(var(--spacing) * 24); margin-top: calc(var(--spacing) * 24); border-top: 1px solid var(--rule); scroll-margin-top: calc(var(--spacing) * 20); }
   .seccion.sin-borde { border-top: 0; margin-top: 0; padding-top: calc(var(--spacing) * 12); }
   .cuerpo { margin-top: calc(var(--spacing) * 4); max-width: 60ch; font-size: var(--text-body); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
@@ -475,7 +478,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .construccion { margin: calc(var(--spacing) * 10) 0 0; padding: clamp(1rem, 3vw, 2.5rem); border-radius: var(--radius-lg); background: color-mix(in oklab, #302018 5%, #eadde7); box-shadow: inset 0 0 0 1px var(--rule); }
   .construccion svg { display: block; width: 100%; height: auto; overflow: visible; }
   .guias line { stroke: color-mix(in oklab, #302018 22%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 4 4; }
-  .guias text { font-family: var(--font-mono); font-size: 13px; fill: color-mix(in oklab, #302018 55%, transparent); text-anchor: end; }
+  .guias text { font-family: var(--font-mono); font-size: 28px; fill: color-mix(in oklab, #302018 55%, transparent); text-anchor: end; }
   .caja-iso { fill: none; stroke: var(--color-coral); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 4; opacity: 0.8; }
   .relleno path { fill: color-mix(in oklab, #302018 9%, transparent); }
   .contorno path { fill: none; stroke: #302018; stroke-width: 1.25; vector-effect: non-scaling-stroke; stroke-dasharray: 1 1; stroke-dashoffset: 1; }

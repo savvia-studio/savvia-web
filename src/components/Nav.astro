@@ -500,16 +500,16 @@ import { nav, pie } from '../data/home';
   /* RONDA 68 · el LOGOTIPO DEFINITIVO de Andoni (isotipo + «savvia», `public/savvia-logo.svg`): una máscara en el color del texto */
   .logo-marca {
     display: block;
-    height: 2.125rem; /* 34 px: las letras quedan a la altura de la palabra de antes */
-    aspect-ratio: 1184 / 439; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
+    height: 1.75rem; /* ronda 145: solo «savvia» en Family (sin isotipo) */
+    aspect-ratio: 2444 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
     background: currentColor;
-    -webkit-mask: url('/savvia-logo.svg') center / contain no-repeat;
-    mask: url('/savvia-logo.svg') center / contain no-repeat;
+    -webkit-mask: url('/savvia-palabra.svg') center / contain no-repeat;
+    mask: url('/savvia-palabra.svg') center / contain no-repeat;
     transition: background-color 0.12s linear;
   }
   @media (width >= 64rem) {
     .logo-marca {
-      height: 2.625rem;
+      height: 2rem;
     }
   }
   .acciones-nav {

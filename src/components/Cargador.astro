@@ -105,7 +105,10 @@ import { flecha } from '../lib/flecha';
     const cubica = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const entre = (t: number, a: number, b: number) => Math.min(1, Math.max(0, (t - a) / (b - a)));
     // tiempos (ms) desde que la gota echa a rodar
-    const RODAR = 2400, COLGAR = 560, CAER = 1450, FIN = RODAR + COLGAR + CAER;
+    // RONDA 145 · Andoni: «quita el isotipo y pon solo savvia con la tipo de titulares»: la carga ya no dibuja ninguna v; el círculo se recoge en
+    // la gota, que tiembla un instante en el centro y cae (RODAR, corto)
+    const SIN_ISOTIPO = true;
+    const RODAR = SIN_ISOTIPO ? 420 : 2400, COLGAR = 560, CAER = 1450, FIN = RODAR + COLGAR + CAER;
     let t0 = 0, D = 0, meta = { x: 0, y: 0 }, largo: number[] = [], total = 0, pts: [number, number][] = [], largoVV = 1;
     let px = 0, py = 0, parado = false, estelaS = 0, camAnt = 0, ult = 0, rota = false, satT = -1, satY = 0, satX = 0, arrancando = false;
     // EL CAMINO (ronda 68): el eje del isotipo, medido sobre su dibujo (370 × 439; con un trazo de 50 cubre el 99,8 % de la forma), suavizado; y al
@@ -118,6 +121,7 @@ import { flecha } from '../lib/flecha';
     const liso = (q: [number, number][], n = 6): [number, number][] => { const o: [number, number][] = []; for (let k = 0; k < q.length - 1; k++) for (let j = 0; j < n; j++) { const t = j / n; o.push([q[k][0] + (q[k + 1][0] - q[k][0]) * t, q[k][1] + (q[k + 1][1] - q[k][1]) * t]); } o.push(q[q.length - 1]); return o.map((_, i) => { if (i === 0 || i === o.length - 1) return o[i]; let x = 0, y = 0, c = 0; for (let k = -3; k <= 3; k++) { const r = o[Math.min(o.length - 1, Math.max(0, i + k))]; x += r[0]; y += r[1]; c++; } return [x / c, y / c] as [number, number]; }); };
     const trazo = (q: [number, number][]) => 'M' + q.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L');
     const caminoIso = (): [number, number][] => {
+      if (SIN_ISOTIPO) { const cx = innerWidth / 2, cy = innerHeight * 0.42; nVV = 2; return [[cx, cy - 18], [cx, cy - 6], [cx, cy]]; }
       const eje = liso(EJE);
       nVV = eje.length;
       plumada.setAttribute('d', trazo(eje));
@@ -422,7 +426,8 @@ import { flecha } from '../lib/flecha';
   }
   /* RONDA 68 · el isotipo (SVG): apenas visible; su copia a plena tinta la destapa la plumada de la gota. Colocado por su esquina de arriba a la
      izquierda (el vuelo a la barra es un translate + scale desde ahí) */
-  .logo {
+  .logo { display: none; } /* ronda 145: sin isotipo */
+  .logo-r144 {
     --ih: clamp(10rem, 30lvh, 16rem);
     position: absolute;
     left: calc(50% - var(--ih) * 469.69 / 425.38 / 2);
