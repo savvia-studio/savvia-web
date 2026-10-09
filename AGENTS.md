@@ -2968,3 +2968,9 @@ en mono en el pie.
   sube por encima de sus vecinos · la hoja de otoño con nervio central y cuatro laterales (barra y abanico; `formas-estacion.ts › NERVIOS_HOJA`).
 - **Medido:** `astro check` 0 · build OK · `tools/verify.cjs` en /, /proyectos, /proyectos/kuanta, /proyectos/remerge, /brandbook, /manifiesto, /handbook, /lab (Chrome y WebKit, 1280 y 390):
   limpio, 0 ≥ 400, desborde 0 · brandbook: primavera → verano → otoño → invierno (#4f8ad6) al bajar.
+
+### Ronda 144 (4.ª) · 2026-10-09 · la hoja, sencilla, y sin rótulos al pasar · PUBLICADA
+- **Andoni (textual):** «el icono de otoño nuevo no me gusta, más simplificado; y cuando hagas hover en estos iconos no quiero que salga nada de info».
+- **Hecho:** fuera los nervios de la hoja (barra y abanico; vuelve la hoja lisa de la ronda 67) · fuera el rótulo al pasar en el icono de la barra y en los del abanico de Proyectos
+  (estaciones y sonido); el nombre sigue en `aria-label`.
+- **Medido:** `astro check` 0 · al pasar: `::after` de la barra sin contenido y rótulos del abanico sin pintar (captura).

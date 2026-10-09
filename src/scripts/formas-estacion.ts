@@ -8,9 +8,6 @@ type P = [number, number];
 export const HOJA_ROBLE =
   'M12 2.2C16.6 5.2 19.4 9.6 18.2 14.4C17.2 18 14.6 19.8 12.6 20.3L12.6 22.2L11.4 22.2L11.4 20.3C9 19.8 6.4 17.6 5.8 13.8C5.1 9.2 7.6 5 12 2.2Z';
 export const GIRO_HOJA = -35;
-// RONDA 144 (3.ª) · «al icono de otoño, un poco más de detalle para que se vea que es una hoja»: el NERVIO central y cuatro laterales (en las mismas
-// coordenadas de la hoja, antes de girarla)
-export const NERVIOS_HOJA = 'M12 20.3L12 4.6M12 16.4L8.3 13.2M12 13.6L15.7 10.6M12 10.8L8.9 8.3M12 8.2L14.5 6.4';
 
 // el copo: seis brazos (medio ancho h) con dos ramas en V que miran hacia la punta; el contorno se recorre brazo a brazo
 export function copo(): P[] {
