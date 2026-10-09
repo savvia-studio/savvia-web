@@ -3001,3 +3001,8 @@ en mono en el pie.
 - **Hecho:** `Carriles.astro` admite `data-carril-fila="sin-cruces"` (solo la línea); el marco del hero y las raíces la usan: vuelven sus dos líneas horizontales, sin cruces ·
   `savvia-palabra.svg` regenerado con apretado −0,045 em (antes −0,02; viewBox 15 −689 2319 × 707; proporción en barra, transición, Agentic, Proyectos, receta y brandbook).
 - **Medido:** `astro check` 0 · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · capturas del logotipo y del hero.
+
+### Ronda 149 · 2026-10-09 · la línea del hero, 40 px más arriba; verticales continuas · PUBLICADA
+- **Andoni (textual):** «pon la línea horizontal más arriba 40 px y que las líneas verticales sean continuas, que no haya ningún dashed».
+- **Hecho:** `Carriles.astro` admite `data-carril-desfase`; la línea del marco del hero, −40 px · fuera los lados a trazos del marco (`border-inline` dashed): solo quedan los carriles continuos.
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390) limpio · captura: la línea 40 px más arriba y las verticales continuas.

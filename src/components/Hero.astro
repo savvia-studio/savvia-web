@@ -29,7 +29,7 @@ import { rich } from '../lib/rich';
          que llegue hasta estar a 40 px del subtítulo» → ocupa toda la caja del pie (que empieza a 40 px del subtítulo) hasta el pie del hero.
          Puntos Rosa niebla al 10 % → 0 %. Arriba, su fila de carriles con cruces ([data-carril-fila]). -->
     <!-- RONDA 147–148 · el hero: sin cruces; vuelve solo la línea horizontal (la del marco y la de las raíces, data-carril-fila="sin-cruces") -->
-    <div class="marco" aria-hidden="true" data-carril-fila="sin-cruces"></div>
+    <div class="marco" aria-hidden="true" data-carril-fila="sin-cruces" data-carril-desfase="-40"></div>
     <!-- RONDA 25 · en las esquinas de abajo DEL RECUADRO (en su misma caja, pero fuera de su máscara, que se desvanece a 0 abajo y los borraba):
          «desde 2020» y la estación (la de HOY al cargar; el clic en el árbol la cambia) -->
     <!-- RONDA 65 · «sustituimos desde 2020 por la hora y la estación por desde 2020»: la hora de Donostia (el estudio), en vivo -->
@@ -271,7 +271,7 @@ import { rich } from '../lib/rich';
     /* RONDA 146 · Andoni: «quita la parrilla de detrás del árbol, los puntos»: sin la trama de puntos (rondas 16–145); quedan los lados a trazos */
     -webkit-mask-image: linear-gradient(to bottom, #000, transparent 96%);
     mask-image: linear-gradient(to bottom, #000, transparent 96%);
-    border-inline: 1px dashed color-mix(in srgb, var(--tinta-hero) 22%, transparent);
+    /* RONDA 149 · «las líneas verticales, continuas, que no haya ningún dashed»: fuera los lados a trazos (los carriles ya dibujan la línea continua) */
     pointer-events: none;
   }
   /* RONDA 83 · sin animación de carga, los puntos del marco entran A LA VEZ que la línea y las cruces de los carriles (Carriles.astro: 0,2 s de espera),
