@@ -75,8 +75,14 @@ export function crearSonido() {
     });
   }
 
+  // RONDA 156 · LA MESA MANDA sobre la RADIO (Radio.astro). Eric: «el sonido del mockup de naturaleza, cuando hagas scroll ahí, tiene que respetarse:
+  // se quita la música y empieza el sonido de naturaleza». Cuando el ambiente suena (a la vista y permitido) se avisa con `savvia:mesa` y la radio se
+  // funde a 0; al salir, la radio vuelve. (La 1.ª versión hacía lo contrario: callaba la mesa mientras sonaba la radio.)
+  let mesa = false;
+  const avisarMesa = (si: boolean) => { if (si !== mesa) { mesa = si; dispatchEvent(new CustomEvent('savvia:mesa', { detail: { on: si } })); } };
   function tick() {
     limpiar(); // siempre
+    avisarMesa(on && visible);
     if (!ctx) return;
     const sonando = on && visible;
     salida.gain.setTargetAtTime(sonando ? NIVEL : 0, ctx.currentTime, sonando ? 1.2 : 0.5); // el fundido a 0 corre SIEMPRE

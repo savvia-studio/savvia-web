@@ -56,6 +56,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <!-- RONDA 14 · sentado, el marco del monitor en CSS (nítido a cualquier zoom): pisa al de la foto, que al ampliarse queda blanda.
                RONDA 18 · «cuando te sientas dejamos toda la imagen nítida sin nada»: sentado NO se desenfoca nada (ni paisaje ni aire). -->
           <i class="marco-monitor" aria-hidden="true"></i>
+          <!-- RONDA 160: la luz de detrás del monitor al coger la web (la caja tiene la forma del monitor; su sombra solo se pinta por FUERA) -->
+          <i class="halo-monitor" aria-hidden="true"></i>
           <div class="pantalla" data-pantalla>
             <!-- La web, ABIERTA EN UN NAVEGADOR: barra con semáforo y dirección; debajo, la página, que se recorre. -->
             <!-- Safari: semáforo, barra lateral, atrás/adelante, campo de dirección con candado y recarga, compartir · nueva · pestañas,
@@ -91,7 +93,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <i class="capta" aria-hidden="true" data-capta></i>
             <!-- RONDA 50 · «el indicador de scroll como estaba antes, encima de la pantalla del ordenador»: vuelve la píldora de la ronda 39, al pie
                  de la web; se va con el primer gesto sobre ella (la capa `capta`, ronda 41) -->
-            <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span>desliza dentro del monitor · fuera, para levantarte</span></p>
+            <div class="sigue-cursor" aria-hidden="true" data-sigue><span class="txt"><svg class="clic" viewBox="0 0 12 16" fill="none"><rect x="0.75" y="0.75" width="10.5" height="14.5" rx="5.25" /><path class="boton" d="M6 0.75v5.5H0.75V6A5.25 5.25 0 0 1 6 0.75z" /><path d="M6 0.75v5.5" /></svg>clic para navegar</span></div>
+            <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span data-pista-texto>clic para navegar</span></p>
             <!-- RONDA 67 · la PANTALLA DE CARGA al sentarse o al cambiar de proyecto sentado: savvia, una línea de savia que corre y el dominio -->
             <div class="carga-web" aria-hidden="true"><i class="carga-logo"></i><i class="linea-carga"></i><span class="detail" data-carga-url></span></div>
             <div class="visor">
@@ -185,7 +188,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <!-- RONDA 14 · «en la vista sentado de proyectos que también puedas ver otros»: sin levantarte, anterior · proyecto · siguiente -->
           <div class="otros cristal" role="group" aria-label="Cambiar de proyecto">
             <button type="button" class="paso" data-otro="-1" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg></button>
-            <p class="cual" aria-live="polite"><span class="detail tabular-nums" data-otro-n>01/{pad(P.length)}</span><span data-otro-nombre>{P[0].n}</span></p>
+            <p class="cual" aria-live="polite"><span data-otro-nombre>{P[0].n}</span></p>
             <button type="button" class="paso" data-otro="1" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></button>
           </div>
         </div>
@@ -213,7 +216,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const $ = <T extends HTMLElement>(s: string) => raiz.querySelector<T>(s)!;
     const $$ = <T extends HTMLElement>(s: string) => [...raiz.querySelectorAll<T>(s)];
     const escenario = $('[data-escenario]'), escena = $('[data-escena]');
-    const otroN = $('[data-otro-n]'), otroNombre = $('[data-otro-nombre]'); // el selector de la vista sentado
+    const otroNombre = $('[data-otro-nombre]'); // el selector de la vista sentado (Eric: sin «01/04», solo el nombre)
     const capas = $$<HTMLImageElement>('[data-capa]'), webs = $$('[data-web]'), items = $$<HTMLButtonElement>('[data-item]'), hechos = $$('[data-hechos]');
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const sonido = crearSonido();
@@ -244,13 +247,23 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // se desmonta al momento. La que no se deja embeber (data-embed="no") enseña su captura. `listo` = el iframe ha cargado (o la imagen).
     type Montada = { el: HTMLIFrameElement | HTMLImageElement; listo: boolean; cbs: (() => void)[] };
     const montadas = new Map<HTMLElement, Montada>();
-    const BASE = () => (innerWidth < 700 ? 1024 : 1440);
+    // RONDA 160 · «que la pantalla sea como si tuviese más altura, como la veo en mi MacBook Air»: la web se pinta al ancho de un MacBook Air
+    // (1710 px, antes 1440) y se reduce: letra más pequeña y cabe más alto de cada sección (a 1440, Neety enseñaba sus pasos cortados).
+    const BASE = () => (innerWidth < 700 ? 1024 : 1710);
+    // RONDA 160 · «el lateral de la web no está bien ajustado»: el iframe iba siempre 20 px más ancho (ronda 159) y en Mac, donde la barra se
+    // superpone y no ocupa sitio, recortaba 20 px de la derecha de cada web. Ahora se ensancha solo lo que ocupa la barra en ESTE navegador (0 en Mac).
+    const BARRA = (() => {
+      const d = document.createElement('div');
+      d.style.cssText = 'position:absolute;top:-999px;width:100px;height:100px;overflow:scroll';
+      document.body.appendChild(d); const b = d.offsetWidth - d.clientWidth; d.remove(); return b;
+    })();
     function ajustar() {
       const B = BASE();
       montadas.forEach((m, w) => {
         if (!(m.el instanceof HTMLIFrameElement) || w.hidden || !w.clientWidth) return;
         const k = w.clientWidth / B;
-        m.el.style.width = `${B}px`; m.el.style.height = `${Math.ceil(w.clientHeight / k)}px`; m.el.style.transform = `scale(${k})`;
+        // el iframe va tan ancho como la web + su barra nativa (si ocupa sitio), que cae fuera del recorte
+        m.el.style.width = `${B + BARRA}px`; m.el.style.height = `${Math.ceil(w.clientHeight / k)}px`; m.el.style.transform = `scale(${k})`;
       });
     }
     function montar(w: HTMLElement): Montada {
@@ -277,6 +290,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     function desmontar(w: HTMLElement) { const m = montadas.get(w); if (m) { m.el.remove(); montadas.delete(w); } }
     const cuandoListo = (w: HTMLElement, f: () => void) => { const m = montar(w); m.listo ? f() : m.cbs.push(f); };
     new ResizeObserver(ajustar).observe($('.visor'));
+    // ── RONDA 159 · LA BARRA DE SCROLL DE SAVVIA: sale mientras la web del monitor se mueve y se apaga 0,9 s después. La captura larga (Neety) se
+    // mide en su contenedor; un iframe es de otro dominio y no deja leer su scroll: la barra solo sale si la web lo cuenta con postMessage
+    // ({ tipo: 'savvia-scroll', p: 0–1, vista: alto visible / alto total }); entonces su barra nativa se esconde. Las que no lo cuentan, la suya.
     const cargar = () => {
       if (cargado) return;
       cargado = true;
@@ -368,6 +384,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
     // ── LA SEÑAL DE SCROLL (ronda 39): sale al descubrirse cada web hasta que el puntero entra en la pantalla (o te sientas); entonces ya se sabe
     const pistaScroll = $('[data-pista-scroll]'), capta = $('[data-capta]');
+    // ronda 160: declarados aquí porque entrar() los usa desde el primer fotograma (ver «seguir», más abajo)
+    const TACTIL = matchMedia('(hover: none)').matches;
+    const sigue = $('[data-sigue]'); document.body.append(sigue);
+    // ronda 157: los textos de la píldora (B: se entra con el clic; D: con el movimiento) y «¿cae dentro del monitor?» (se declaran aquí: entrar() los usa desde el primer fotograma)
+    const TXT_B = matchMedia('(hover: none)').matches ? 'toca para navegar' : 'clic para navegar', TXT_D = 'desliza dentro';
+    const pistaTexto = $('[data-pista-texto]');
+    // ronda 160 (Eric: «que el clic también sirva en el recuadro exterior»): cuenta también el marco del monitor (≈ 4 % del ancho de la pantalla)
+    const enMonitor = (x: number, y: number) => { const r = $('[data-pantalla]').getBoundingClientRect(), m = r.width * 0.04; return x >= r.left - m && x <= r.right + m && y >= r.top - m && y <= r.bottom + m; };
     let scrollVisto = false;
     function avisarScroll() { if (!scrollVisto) pistaScroll.classList.add('on'); }
     const scrollDescubierto = () => { if (scrollVisto) return; scrollVisto = true; pistaScroll.classList.remove('on'); capta.remove(); };
@@ -400,11 +424,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!); // sentado y cambiando de estación: esa, a 5120
       ests.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.est === estActual())));
       webs.forEach((w, i) => { w.classList.toggle('on', i === activo); w.hidden = sentado && i !== activo; if (sentado && i !== activo) desmontar(w); });
-      if (cargado) { if (sentado) montar(webs[activo]); else webs.forEach((w) => montar(w)); ajustar(); }
+      if (cargado) { if (sentado) montar(webs[activo]); else { if (explorando) desmontar(webs[activo]); webs.forEach((w) => montar(w)); } ajustar(); }
       // de pie, el relevo es un FUNDIDO (sin carga); sentado, la animación de carga
       if (estrenado) { if (sentado) navegar(!primera); else { webs.forEach((x) => x.classList.remove('cargando')); urlEl.textContent = datos[activo].dom; } }
       hechos.forEach((h, i) => (h.hidden = i !== activo));
-      { otroN.textContent = `${String(activo + 1).padStart(2, '0')}/${String(datos.length).padStart(2, '0')}`; otroNombre.textContent = datos[activo].n; }
+      { otroNombre.textContent = datos[activo].n; }
       $('[data-guia-nombre]').textContent = datos[activo].n;
       girar();
       sonido.estacion(estActual());
@@ -417,7 +441,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     new IntersectionObserver((e) => (escenaVista = e[0].isIntersecting), { threshold: 0.5 }).observe(escenario);
     $('[data-pantalla]').addEventListener('pointerenter', () => (sobreMonitor = true));
     $('[data-pantalla]').addEventListener('pointerleave', () => (sobreMonitor = false));
-    if (!reducido) setInterval(() => { if (!sentado && estrenado && escenaVista && !sobreMonitor && document.visibilityState === 'visible') { activo = (activo + 1) % datos.length; pintar(true); } }, 7000);
+    if (!reducido) setInterval(() => { if (!sentado && fase !== 'B' && estrenado && escenaVista && !sobreMonitor && document.visibilityState === 'visible') { activo = (activo + 1) % datos.length; pintar(true); } }, 7000);
     function ir(i: number) {
       const n = (i + datos.length) % datos.length;
       if (n === activo) return;
@@ -479,7 +503,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       escena.style.setProperty('--k', String(k));
       ajustar(); // el iframe se reduce a la pantalla nueva (que ahora se maqueta k veces mayor)
     }
-    let finDolly = 0, finLevantar = 0;
+    let finDolly = 0, finLevantar = 0, fase = '';
+    const barra = $('[data-barra]');
     function sentar(si: boolean) {
       if (si === sentado) return;
       const antes = escenario.getBoundingClientRect();
@@ -491,7 +516,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       // hasta que la cámara se posa (1,5 s), y el menú ignora clics en ese lapso (Nav.astro mira window.__levantado)
       if (si) document.documentElement.classList.add('estudio-sentado');
       else { (window as any).__levantado = performance.now(); clearTimeout(finLevantar); finLevantar = window.setTimeout(() => document.documentElement.classList.remove('estudio-sentado'), reducido ? 0 : 1500); }
-      $('[data-barra]').hidden = !si;
+      barra.hidden = si ? false : fase !== 'B'; // ronda 157: en la fase B (sentado por scroll) el selector sigue a la vista
       const ahora = escenario.getBoundingClientRect();
       if (!reducido) {
         // RONDA 20: el escenario y la escena viajan JUNTOS con la misma curva de cámara: arranca despacio, planea y se posa (1,5 s)
@@ -539,7 +564,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     //   B 0,34 → 0,52   SENTADO: quieto y nítido; al mover el ratón sobre el monitor, la web se recorre (la rueda no mueve la página)
     //   C 0,52 → 0,82   TE LEVANTAS: la cámara se aleja hasta la mesa
     //   D 0,82 → 1      DE PIE: la silla invita a sentarse; el monitor también se puede recorrer
-    let kNitido = 1, fase = '';
+    let kNitido = 1;
     const kSentado = (E: DOMRect, sw: number, sh: number) => Math.min((E.width * (E.width < 700 ? 0.92 : 0.52)) / (PANT.w * sw), (E.height * 0.6) / (PANT.h * sh));
     const entrar = () => {
       pedidoE = false;
@@ -581,8 +606,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (nf !== fase) {
         fase = nf;
         if (nf === 'A' || nf === 'C') { explorar(false); escenario.classList.remove('viva'); }
-        if (nf === 'B' && !scrollVisto) { pistaScroll.classList.add('on'); }
-        else if (nf !== 'B') pistaScroll.classList.remove('on');
+        // RONDA 157 (Eric) · en B «ya tiene que ser el slider igual que cuando estás sentado»: el selector de proyecto (sin el esc) y la ficha
+        barra.hidden = nf !== 'B';
+        escenario.classList.remove('mira');
+        if (nf === 'B' && TACTIL) { pistaTexto.textContent = TXT_B; pistaScroll.classList.add('on'); }
+        else pistaScroll.classList.remove('on');
+        if (nf !== 'B') seguir(null);
       }
     };
     const pedirE = () => { if (!pedidoE) { pedidoE = true; requestAnimationFrame(entrar); } };
@@ -602,28 +631,60 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // La web del monitor se recorre SIEMPRE, pero solo se activa cuando el ratón se MUEVE por la escena: un scroll de página con
     // el cursor quieto en el centro no debe quedarse atrapado dentro del monitor. En táctil, siempre activa.
     escenario.addEventListener('pointermove', (ev) => { if (ev.pointerType !== 'mouse' || e > 0.93) escenario.classList.add('viva'); }, { passive: true });
-    escenario.addEventListener('pointerleave', () => { if (!sentado) { escenario.classList.remove('viva'); explorar(false); } });
+    // ronda 157: solo el ratón; con el dedo, el navegador dispara pointerleave al levantarlo y soltaba la web recién cogida
+    escenario.addEventListener('pointerleave', (ev) => { if (ev.pointerType === 'mouse' && !sentado) { escenario.classList.remove('viva'); explorar(false); } });
     // RONDA 152 (2.ª) · EXPLORAR DE PIE: solo con un movimiento REAL del ratón sobre la pantalla (si el cursor está quieto y la página pasa por debajo,
     // no se activa: el scroll de la página nunca se queda atrapado). La web activa pasa de captura a la real y la rotación se para mientras.
+    // RONDA 157 (Eric, Agentation) · «tú, cuando estás sentado, haces clic dentro del monitor y scrolleas la web dentro del monitor. Pues aquí igual.
+    // Solo que si haces clic fuera o scrolleas fuera sigues scrolleando a las siguientes secciones»: en B la web se coge con un CLIC dentro del
+    // monitor y se suelta con un clic fuera (la rueda fuera mueve la página, que sale de B y la suelta sola). De pie (D) sigue el movimiento del ratón.
     function explorar(si: boolean) {
       if (si === explorando || sentado) return;
       explorando = si;
       escenario.classList.toggle('explora', si);
+      if (si) escenario.classList.remove('mira');
       const w = webs[activo]; desmontar(w); montar(w); ajustar();
       clearTimeout(finAviso);
-      if (si) { pistaScroll.classList.add('on'); finAviso = window.setTimeout(() => pistaScroll.classList.remove('on'), 3200); }
+      if (si) seguir(null);
+      if (fase === 'B' && TACTIL) { pistaTexto.textContent = TXT_B; pistaScroll.classList.toggle('on', !si); }
       else pistaScroll.classList.remove('on');
     }
     let finAviso = 0, ultX = -1, ultY = -1;
+    // RONDA 160 (Eric, Agentation) · «ese clic para navegar, más presente, como al pasar sobre la pantalla; y si haces clic, que los bordes de la
+    // pantalla cojan color»: con ratón, «clic para navegar» va pegado al cursor mientras está sobre el monitor (fase B, sin coger la web); al
+    // cogerla, la pantalla se enciende con un filo de savia (.explora). Vive en el <body>: dentro del escenario escalado, `fixed` no vale.
+    // ronda 160 (4.ª, Eric: «el puntito y el círculo, AI slop; mejor algo que siga al ratón normal»): la flecha de siempre y, a su lado, el
+    // rótulo con un ratón dibujado (botón izquierdo en savia), que la sigue con un poco de retraso
+    let cx = 0, cy = 0, ax = 0, ay = 0, rafS = 0;
+    const pasoS = () => {
+      ax += (cx - ax) * 0.22; ay += (cy - ay) * 0.22;
+      sigue.style.setProperty('--x', `${cx}px`); sigue.style.setProperty('--y', `${cy}px`);
+      sigue.style.setProperty('--ax', `${ax}px`); sigue.style.setProperty('--ay', `${ay}px`);
+      rafS = Math.abs(cx - ax) + Math.abs(cy - ay) > 0.3 || sigue.classList.contains('on') ? requestAnimationFrame(pasoS) : 0;
+    };
+    function seguir(ev: PointerEvent | null) {
+      const on = !!ev, antes = sigue.classList.contains('on');
+      if (ev) { cx = ev.clientX; cy = ev.clientY; if (!antes) { ax = cx; ay = cy; } }
+      sigue.classList.toggle('on', on);
+      if (on && !rafS) rafS = requestAnimationFrame(pasoS);
+    }
+    escenario.addEventListener('pointerleave', () => seguir(null));
+    addEventListener('scroll', () => seguir(null), { passive: true });
     // la pantalla no coge el puntero de pie: el movimiento se mira en el escenario y se comprueba si cae dentro del rectángulo del monitor
     escenario.addEventListener('pointermove', (ev) => {
-      if (explorando || sentado || ev.pointerType !== 'mouse' || !(fase === 'B' || fase === 'D')) return;
+      if (sentado || ev.pointerType !== 'mouse') return;
+      if (fase === 'B') { const m = !explorando && enMonitor(ev.clientX, ev.clientY); escenario.classList.toggle('mira', m); seguir(m ? ev : null); return; } // en B solo la mano: se entra con el clic
+      if (explorando || fase !== 'D') return;
       const primero = ultX < 0, mov = Math.abs(ev.clientX - ultX) + Math.abs(ev.clientY - ultY); ultX = ev.clientX; ultY = ev.clientY;
       if (primero) return;
       if (mov < 1) return; // Safari no siempre da movementX: el movimiento se mide a mano
-      const r = $('[data-pantalla]').getBoundingClientRect();
-      if (ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom) explorar(true);
+      if (enMonitor(ev.clientX, ev.clientY)) explorar(true);
     }, { passive: true });
+    escenario.addEventListener('pointerdown', (ev) => {
+      if (sentado || fase !== 'B' || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
+      if ((ev.target as HTMLElement).closest('[data-barra], .ui-info')) return; // el selector y la ficha no sueltan la web
+      explorar(enMonitor(ev.clientX, ev.clientY));
+    });
 
     // ronda 153: el sonido lo manda el (+) flotante (Mando.astro → savvia:son); el ambiente lo sigue (sonido-estudio.ts)
     addEventListener('savvia:son-estudio', () => sonido.estacion(estActual()));
@@ -992,7 +1053,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .visor {
     position: absolute;
     inset: 0; /* ronda 66: sin navegador, la web ocupa la pantalla entera */
-    background: #fbfbfa; /* pestaña en blanco, mientras se teclea la dirección */
+    /* ronda 159: el filo del bisel (box-shadow de .pantalla) y el visor se tocaban en un borde fraccionario y dejaban una costura clara;
+       el visor lo pisa por dentro con su propio filo */
+    box-shadow: 0 0 0 2px #121213;
+    /* ronda 159: antes #fbfbfa (pestaña en blanco); con la web reducida a una posición fraccionaria, su primera fila y columna
+       dejaban ver ese blanco como una línea clara contra el marco. Ya no se teclea la dirección: el fondo es el del bisel. */
+    background: #121213;
   }
   /* RONDA 66 · «no puedes hacer scroll hasta que no te sientas»: la web del monitor solo coge el puntero sentado */
   [data-estudio].sentado .pantalla {
@@ -1012,8 +1078,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     scale: 1;
   }
   /* «encajar bien el proyecto, tiene una línea blanca por arriba»: era el blanco de la pantalla de la lámina asomando; un filo del color del bisel lo tapa */
+  /* RONDA 159 (Eric: «en Multiverse veo una línea blanca con respecto al marco»): con 1,5 px seguía asomando el canto claro de la lámina → 3 px */
   .pantalla {
-    box-shadow: 0 0 0 1.5px #121213;
+    box-shadow: 0 0 0 3px #121213;
   }
   /* LA PANTALLA DE CARGA (sentado): noche con grano, «savvia», una línea que se llena y el dominio */
   .carga-web {
@@ -1070,6 +1137,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
      monitor la pantalla coge el puntero (la web real o su página entera) y la píldora «desliza dentro» lo cuenta */
   [data-estudio]:not(.sentado) .escenario.explora .pantalla { pointer-events: auto; cursor: ns-resize; }
   [data-estudio]:not(.sentado) .escenario.explora .web { overscroll-behavior: contain; }
+  /* RONDA 158 (Eric, Agentation: «en el slider de primeras hago clic en la pantalla y la web no me desliza») · de pie las cuatro webs están
+     apiladas (las capturas que rotan) y las que no se ven, a opacidad 0, tapaban a la activa: la rueda caía en una transparente. Solo la activa
+     coge el puntero. */
+  [data-estudio]:not(.sentado) .web:not(.on) { pointer-events: none; }
+  /* RONDA 157 · en B (sentado por scroll) el monitor se coge con un clic: la mano avisa; el esc no sale (de ahí se sale con el scroll) */
+  .escenario.asiento .arriba { display: none; }
   .web {
     position: absolute;
     inset: 0;
@@ -1087,11 +1160,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     width: 100%;
     height: auto;
   }
-  /* RONDA 19: la web real. El iframe se maqueta a 1440 px (1024 en móvil) y el JS lo reduce a la pantalla con `transform: scale`. */
+  /* RONDA 19: la web real. El iframe se maqueta a 1710 px (ronda 160; 1024 en móvil) y el JS lo reduce a la pantalla con `transform: scale`. */
   .web :global(iframe) {
     display: block;
     border: 0;
-    background: #fff;
+    /* ronda 159: sin fondo blanco; al reducirse, su primera fila y columna se mezclaban con él y dibujaban una línea clara contra el marco */
+    background: transparent;
     transform-origin: 0 0;
   }
   .web:has(:global(iframe)) {
@@ -1523,9 +1597,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     font-size: var(--text-ui);
     font-weight: 500;
   }
-  .cual .detail {
-    opacity: 0.6;
-  }
   .salir {
     display: flex;
     align-items: center;
@@ -1706,19 +1777,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .pista-scroll {
     position: absolute;
     left: 50%;
-    bottom: 6cqh;
+    bottom: 4cqh;
     z-index: 3;
     display: flex;
     align-items: center;
-    gap: 2.4cqh;
-    padding: 2.2cqh 4cqh 2.2cqh 3cqh;
+    /* RONDA 159 (Eric: «este aviso, más minimalista y acorde con el diseño: está enorme») · píldora pequeña de cristal, como la del esc */
+    gap: 1.2cqh;
+    padding: 1.1cqh 2.2cqh 1.1cqh 1.6cqh;
     border-radius: 99px;
-    background: color-mix(in oklab, #000 62%, transparent);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    color: #fff;
+    background: color-mix(in oklab, var(--noche) 52%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 16%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: color-mix(in oklab, var(--color-niebla) 88%, transparent);
     font-family: var(--font-mono);
-    font-size: max(9px, 4.2cqh); /* ronda 152 (3.ª): la frase es más larga */
+    font-size: max(8px, 2.4cqh);
+    letter-spacing: 0.02em;
     line-height: 1;
     white-space: nowrap;
     pointer-events: none;
@@ -1734,18 +1808,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .raton {
     position: relative;
     display: block;
-    width: max(9px, 6cqh);
-    height: max(14px, 9.5cqh);
-    border: 1.5px solid currentColor;
+    width: max(6px, 2.4cqh);
+    height: max(9px, 3.8cqh);
+    border: 1px solid currentColor;
     border-radius: 99px;
   }
   .raton i {
     position: absolute;
     left: 50%;
     top: 22%;
-    width: 2px;
-    height: 22%;
-    margin-left: -1px;
+    width: 1px;
+    height: 24%;
+    margin-left: -0.5px;
     border-radius: 2px;
     background: currentColor;
     animation: rueda 1.6s var(--ease-out-expo) infinite;
@@ -1755,6 +1829,93 @@ const pad = (n: number) => String(n).padStart(2, '0');
     20% { opacity: 1; }
     70% { translate: 0 120%; opacity: 0; }
     100% { translate: 0 120%; opacity: 0; }
+  }
+  /* RONDA 160 · la etiqueta que sigue al cursor sobre el monitor y el filo de savia de la pantalla cogida */
+  .sigue-cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .sigue-cursor.on {
+    opacity: 1;
+  }
+  .sigue-cursor .txt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 11px 6px 8px;
+    border-radius: 99px;
+    background: color-mix(in oklab, var(--noche) 64%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 14%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--color-niebla);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    /* abajo a la derecha de la punta de la flecha, sin taparla */
+    transform: translate(calc(var(--ax) + 18px), calc(var(--ay) + 20px));
+    translate: 0 4px;
+    transition: translate 0.4s var(--ease-out-expo);
+  }
+  .sigue-cursor.on .txt {
+    translate: 0 0;
+  }
+  .sigue-cursor .clic {
+    width: 9px;
+    height: 12px;
+    stroke: currentColor;
+    stroke-width: 1.2;
+  }
+  .sigue-cursor .clic .boton {
+    fill: var(--color-coral);
+    stroke: none;
+  }
+  .escenario.asiento.mira { cursor: pointer; }
+  /* RONDA 160 (3.ª, Eric: «el recuadro de fuera tiene que casar con el del ordenador, con sus redondeados; mejor una luz difuminada, como si
+     estuviese detrás de la pantalla»): al coger la web, un resplandor de savia muy desenfocado que asoma POR DETRÁS del monitor. Es la sombra de
+     una caja con el rectángulo y el redondeo del monitor (los del marco de sentado, medidos en la lámina): una box-shadow exterior nunca se
+     pinta bajo su propia caja, así que el monitor queda limpio y la luz solo sale alrededor. */
+  .halo-monitor {
+    position: absolute;
+    left: calc(39.03% - 0.469%);
+    top: calc(36.96% - 0.741%);
+    width: calc(21.78% + 0.938%);
+    height: calc(21.04% + 1.482%);
+    border-radius: 1.16% / 2.07%;
+    pointer-events: none;
+    opacity: 0;
+    /* el color de la luz, por estación (Eric: «hay que ver el color para cada estación»): la savia de la estación, pero más viva
+       donde el paisaje se la come (primavera: rosa sobre cielo rosa; invierno: azul sobre nieve azulada) */
+    --halo: var(--color-coral);
+    --halo-a: 55%;
+    --halo-b: 22%;
+    box-shadow:
+      0 0 3vw 0.6vw color-mix(in oklab, var(--halo) var(--halo-a), transparent),
+      0 0 9vw 2vw color-mix(in oklab, var(--halo) var(--halo-b), transparent);
+    transition: opacity 0.9s var(--ease-out-expo);
+  }
+  :global(html[data-estacion='primavera']) .halo-monitor { --halo: #ff4f95; --halo-a: 75%; --halo-b: 30%; }
+  :global(html[data-estacion='verano']) .halo-monitor { --halo: #d4f56a; --halo-a: 80%; --halo-b: 34%; }
+  :global(html[data-estacion='invierno']) .halo-monitor { --halo: #7fb4ff; --halo-a: 85%; --halo-b: 38%; }
+  .escenario.explora .halo-monitor {
+    opacity: 1;
+  }
+  [data-estudio].sentado .halo-monitor {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sigue-cursor, .sigue-cursor * { transition: none; animation: none; }
+    .pantalla { transition: none; }
   }
   [data-estudio].sentado .pista-scroll {
     opacity: 0;
@@ -1879,7 +2040,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     pointer-events: none;
   }
   /* RONDA 65 · de pie, la escena solo invita a sentarse y a cambiar de estación: ni ficha, ni dial, ni flechas */
-  [data-estudio]:not(.sentado) .ui-info,
+  [data-estudio]:not(.sentado) .escenario:not(.asiento) .ui-info,
   [data-estudio] .ui-lista,
   [data-estudio] .ui-guia,
   [data-estudio]:not(.sentado) .velo-ui {
@@ -1892,6 +2053,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     opacity: 1;
     pointer-events: auto;
     transition: opacity 0.6s ease 1.1s; /* entra cuando la cámara se ha posado */
+  }
+  /* RONDA 157 · en B, la misma ficha que sentado (entra con el selector, sin esperar al dolly) */
+  [data-estudio]:not(.sentado) .escenario.asiento .ui-info {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.6s ease 0.2s;
   }
   .ficha {
     padding: calc(var(--spacing) * 6);
@@ -1908,10 +2075,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .ficha,
   .ficha * { text-shadow: none; }
   @media (width >= 64rem) {
-    [data-estudio].sentado .ui-info { right: calc(var(--spacing) * 6); width: min(19vw, 20rem); }
+    [data-estudio].sentado .ui-info,
+    .escenario.asiento .ui-info { right: calc(var(--spacing) * 6); width: min(19vw, 20rem); }
   }
   @media (width < 64rem) {
-    [data-estudio].sentado .ui-info { top: auto; bottom: calc(var(--spacing) * 24); }
+    [data-estudio].sentado .ui-info,
+    .escenario.asiento .ui-info { top: auto; bottom: calc(var(--spacing) * 24); }
     .ficha { padding: calc(var(--spacing) * 4); }
     .ficha-d { display: none; }
     .ficha-ver { margin-top: calc(var(--spacing) * 3); }

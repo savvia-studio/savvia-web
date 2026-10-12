@@ -629,7 +629,9 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     // ── EL SONIDO: de ordenador (r109). Las piezas que llegan se POSAN, las ediciones son clic y tecleo, la petición se teclea de verdad, cada
     // lectura y cada pieza puesta es un clic, enviar y publicar son la tecla grande, y al publicar suena un timbre suave. La música de la web sigue.
     type Son = [number, () => void];
-    const SON: Son[] = [
+    // RONDA 156 · Eric: «la música va a cambiar por completo menos la del mockup del ordenador»: esta pieza va MUDA (los sonidos quedan aquí, apagados)
+    const SONIDO_UI = false;
+    const SON: Son[] = !SONIDO_UI ? [] : [
       ...CASC.map((c) => [c.t, () => posar({ vol: 0.03 + (c.i % 3) * 0.006 })] as Son),
       ...EDIT.map((e) => [e.at, () => { clic({ vol: 0.04 }); teclear(3, { vol: 0.026, ritmo: 0.05 }); }] as Son),
       [ABRE, () => papel({ vol: 0.05, dur: 0.3 })],

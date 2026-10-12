@@ -1,7 +1,7 @@
 ---
 // RONDA 125 · «Salvapantallas» (el ENTREACTO de la rama musical, ronda 124, llevado a naturaleza). Tras un minuto sin tocar nada (o al volver a la pestaña
 // después de más de 30 s fuera), la pantalla se funde a la noche de la estación y en el centro el ROBLE de la estación de hoy se dibuja y se pinta con el
-// motor del hero (estela.ts: líneas, pintura con canto rasgado, semitono, hervor), desde la base del tronco. Debajo, la hora de Donostia y la estación.
+// motor del hero (estela.ts: líneas, pintura con canto rasgado, semitono, hervor), desde la base del tronco. Debajo, la hora y la estación (ronda 156: sin «Donostia»).
 // Cualquier gesto la retira. No sale durante la carga, sentado en Proyectos, con el menú o un diálogo abiertos.
 ---
 
@@ -21,8 +21,9 @@
   .reposo { position: fixed; inset: 0; z-index: 90; background-color: var(--noche, #3b231b); background-image: none; color: var(--color-niebla, #eadde7);
     opacity: 0; transition: opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 2.4s ease; overflow: hidden; cursor: none; }
   .reposo.on { opacity: 1; }
-  /* el roble, grande y centrado; su pie, a dos tercios de la pantalla */
-  .arbol { position: absolute; left: 50%; bottom: 0; height: min(78dvh, 96vw * 941 / 1672 * 1.6); aspect-ratio: 1672 / 941; transform: translate(-50%, 22%); max-width: 98vw;
+  /* RONDA 156 · Eric: «ese árbol tiene que tener el mismo tamaño que el árbol del hero; el reposo es casi lo del hero»: la misma caja que
+     .arbol-caja del hero (--roble-w, 1260 / 583), con el pie en el borde de abajo, como el hero al cargar */
+  .arbol { position: absolute; left: 50%; bottom: 0; width: var(--roble-w); aspect-ratio: 1260 / 583; transform: translate(-50%, 22%);
     transition: transform 3.2s cubic-bezier(0.16, 1, 0.3, 1); }
   .reposo.on .arbol { transform: translate(-50%, 0); }
   .tiempo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -63,7 +64,7 @@
       if (abierto || !puede()) return;
       caja.hidden = false; montarArbol();
       abierto = true; abiertoEn = performance.now(); clearTimeout(salida);
-      const tic = () => (hora.textContent = `${fmt.format(new Date())} · Donostia · ${NOMBRE[estacionActual()]}`); tic(); reloj = window.setInterval(tic, 10000);
+      const tic = () => (hora.textContent = `${fmt.format(new Date())} · ${NOMBRE[estacionActual()]}`); tic(); reloj = window.setInterval(tic, 10000);
       caja.setAttribute('aria-hidden', 'false'); est?.visible(true);
       requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.add('on')));
       setTimeout(() => abierto && empezarTiempo(), 1800); // el tiempo empieza cuando el roble ya ha brotado

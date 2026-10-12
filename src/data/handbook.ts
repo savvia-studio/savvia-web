@@ -61,7 +61,7 @@ export const handbook = {
   nombre: 'Handbook',
   titulo: 'Handbook',
   sub: 'El manual de savvia',
-  firma: `Eric y Andoni · ${pie.lugar}`,
+  firma: 'Eric y Andoni', // ronda 156 (Eric): sin «Donostia»
   // de: la idea de la referencia (designhandbook.com/en: un párrafo centrado que explica el manual), con nuestras palabras y nuestros hechos.
   // El origen («De dónde sale este manual», ronda 128) queda dentro del segundo párrafo.
   intro: [
@@ -101,9 +101,9 @@ export const capitulos: Capitulo[] = [
     slug: 'que-es-savvia',
     num: '01',
     titulo: 'Qué es savvia',
-    frase: 'Un estudio web de dos, en Donostia, que orquesta la IA con criterio.',
+    frase: 'Un estudio web de dos que orquesta la IA con criterio.',
     // de: home.ts › estudio.titulo + manifiesto 02 («la IA es la base, el criterio sigue siendo nuestro»)
-    entrada: 'savvia es el estudio web de Eric y Andoni, en Donostia. Diseñamos y desarrollamos webs a medida con desarrollo agéntico: la IA es la base y el criterio sigue siendo nuestro.',
+    entrada: 'savvia es el estudio web de Eric y Andoni. Diseñamos y desarrollamos webs a medida con desarrollo agéntico: la IA es la base y el criterio sigue siendo nuestro.',
     portada: { tipo: 'imagen', img: { src: '/media/handbook/eric-andoni.webp', alt: 'Andoni, con camiseta gris, y Eric, con camisa vaquera, de pie y sonriendo delante de una pared blanca.', pie: 'Andoni y Eric.', ancho: 1672, alto: 941, recorte: '50% 8%' } }, // ronda 136: la foto de Andoni
     secciones: [
       {
@@ -577,7 +577,7 @@ export const capitulos: Capitulo[] = [
   },
 ];
 
-export const contacto = { correo: pie.correo, nota: preguntas.nota, lugar: pie.lugar, paginas: nav.links };
+export const contacto = { correo: pie.correo, nota: preguntas.nota, paginas: nav.links };
 export const testimonios = proyectosHome.testimonios;
 export const juntos = IMG.juntos;
 

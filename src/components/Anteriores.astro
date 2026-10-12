@@ -118,7 +118,7 @@ import { icono } from '../lib/iconos';
               <img src={`/media/obra/${h.slug}/portada.jpg`} alt={`Portada de la web de ${h.nombre}`} width="1440" height="810" loading="lazy" decoding="async" />
             </div>
           ))}
-          <h3 class="nombre font-display" aria-live="off">{HEROES.map((h, i) => <span class={i === 0 ? 'on' : ''} data-heroe-n>{h.nombre.split(' ').map((p) => <span class="pal"><span>{p}</span></span>)}</span>)}</h3>
+          <h3 class="nombre font-display" aria-live="off">{HEROES.map((h, i) => <span class={`${i === 0 ? 'on' : ''} ${claro(h.colores[0]) ? 'oscura' : ''}`} data-heroe-n>{h.nombre.split(' ').map((p) => <span class="pal"><span>{p}</span></span>)}</span>)}</h3>
         </a>
         <p class="pie text-aux text-fg2 mt-4">{proyectos.intro2}</p>
       </div>
@@ -711,7 +711,8 @@ import { icono } from '../lib/iconos';
   .entrada .nombre .pal:nth-child(2) > span { --n: 1; }
   .entrada .nombre .pal:nth-child(3) > span { --n: 2; }
   /* sobre el fondo claro de su web (Playground, Neety…), el nombre en Cacao y sin sombra */
-  .rota.tinta-oscura .nombre { color: var(--color-cacao); text-shadow: none; }
+  /* RONDA 156 · cada nombre lleva SU tinta (la de su fondo), no el h3: así el que entra y el que sale no comparten color a medio relevo (Eric: «no se lee») */
+  .entrada .nombre > span.oscura { color: var(--color-cacao); text-shadow: none; }
   @media (prefers-reduced-motion: reduce) { .entrada .pal > span { translate: none !important; } }
   .rota { transition: --c1 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c2 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c3 1.4s cubic-bezier(0.65, 0, 0.35, 1); }
   @media (width >= 64rem) {
@@ -762,7 +763,7 @@ import { icono } from '../lib/iconos';
   }
   .claro,
   .tel {
-    --tinta: var(--color-cacao);
+    --nombre-tinta: var(--color-cacao);
   }
   /* RONDA 76 · el fondo de MARCA con imagen (la madera de Naterra, los aerogeneradores de Isotrol) en lugar de las manchas */
   .lamina.con-fondo::before {
@@ -855,7 +856,10 @@ import { icono } from '../lib/iconos';
     font-size: var(--text-h3);
     line-height: 1.1;
     letter-spacing: -0.01em;
-    color: var(--tinta, var(--color-niebla));
+    /* RONDA 156 · Eric: «la tipo debería ser blanca; en dark queda poco legible, y tiene que ir sincronizado con la estación»: el nombre va sobre el
+       FONDO DE LA PIEZA (la marca del cliente), no sobre la página: blanco siempre, y Cacao solo si la marca es clara. Antes leía --tinta, que en
+       invierno es oscura: Routal o Kuanta salían en oscuro sobre su fondo oscuro. */
+    color: var(--nombre-tinta, #f5f5f7);
     text-wrap: balance;
   }
   .escena .nombre,
@@ -961,21 +965,29 @@ import { icono } from '../lib/iconos';
     height: auto;
   }
   /* RONDA 19 · «las barras de los navegadores son muy gordas»: 16 px (antes 24) */
+  /* RONDA 156 · Eric: «no me gusta el marco retro de web; prefiero que sea translúcido, más moderno, con backdrop filtering y minimalista, que ocupe
+     poco»: la barra flota SOBRE la web (absoluta, 12 px), cristal claro con desenfoque de lo que pasa por debajo, tres puntos tenues y la dirección en
+     una pastilla apenas marcada */
   .cromo {
+    position: absolute;
+    z-index: 1;
+    inset: 0 0 auto 0;
     display: flex;
     align-items: center;
-    gap: 4px;
-    height: 14px; /* ronda 24: más fina; el campo, con aire arriba y abajo */
-    padding-inline: calc(var(--spacing) * 2);
-    background: linear-gradient(#f7f6f5, #ebe9e8);
-    box-shadow: inset 0 -1px 0 #d2d0ce;
+    gap: 3px;
+    height: 12px;
+    padding-inline: 6px;
+    background: color-mix(in srgb, #fff 52%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(1.4);
+    backdrop-filter: blur(10px) saturate(1.4);
+    box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.28);
   }
   .cromo i {
     flex: none;
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
-    background: #d5d2cf;
+    background: rgb(0 0 0 / 0.16);
   }
   .cromo b {
     margin-inline: auto;
@@ -984,14 +996,14 @@ import { icono } from '../lib/iconos';
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: 0 calc(var(--spacing) * 3);
-    height: 8px;
-    line-height: 8px;
-    border-radius: 2px;
-    background: #fff;
+    height: 7px;
+    line-height: 7px;
+    border-radius: 4px;
+    background: rgb(255 255 255 / 0.42);
     font-family: var(--font-sans);
     font-weight: 400;
-    font-size: 0.4rem;
-    color: #5c5a58;
+    font-size: 0.36rem;
+    color: rgb(0 0 0 / 0.5);
   }
 
   /* ── al pasar */

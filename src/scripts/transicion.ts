@@ -68,6 +68,7 @@ addEventListener('click', (e) => {
   if (esLibro(location.pathname) && esLibro(url.pathname) && 'CSSViewTransitionRule' in window) return;
   e.preventDefault();
   try { sessionStorage.setItem('savvia:vt', String(Date.now())); } catch {}
+  dispatchEvent(new CustomEvent('savvia:salir', { detail: { ms: SALE } })); // la radio se funde mientras la gota cubre (Radio.astro)
   inundar(() => location.assign(url.href));
 });
 

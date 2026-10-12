@@ -38,7 +38,7 @@ import { flecha } from '../lib/flecha';
       </div>
       <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
       <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
-        <ul class="enlaces text-ui flex flex-col gap-3 font-medium lg:items-end" data-enlaces>
+        <ul class="enlaces text-ui flex flex-col gap-3 font-light lg:items-end" data-enlaces>
           {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={l.href} class="enlace-pie">{l.label}</a> : <span class="enlace-pie pronto">{l.label} · pronto</span>}</li>)}
         </ul>
       </div>
@@ -72,7 +72,7 @@ import { flecha } from '../lib/flecha';
   <!-- RONDA 43 · «en verano poner el rayo de luz que tenemos en el hero, que se mueve con el ratón ligeramente; y ojo que se va al salir el formulario» -->
   <div class="luz-pie" aria-hidden="true"><i class="haz"></i></div>
   <p class="wrap linea detail flex justify-between" data-linea>
-    <span>savvia · {pie.lugar} · {pie.desde}</span>
+    <span>savvia · {pie.desde}</span>
     <span>© {year}</span>
   </p>
 </footer>

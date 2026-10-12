@@ -141,6 +141,15 @@ html[data-estacion='primavera'] { --noche: #3a2932; --noche-honda: #3a2932; --ar
 html[data-estacion='verano'] { --noche: #1b3125; --noche-honda: #1b3125; --arbol: #6f9a4e; --tinta: #f5f5f7; --tinta-inv: #1b3125; --color-coral: #b9e26c; --color-niebla: #f5f5f7; --color-cacao: #1b3125; --color-salvia: #cfe6a4; }
 html[data-estacion='otono'] { --noche: #3b231b; --noche-honda: #3b231b; --arbol: #c65c2d; --tinta: #f5f5f7; --tinta-inv: #3b231b; --color-coral: #ff616b; --color-niebla: #f5f5f7; --color-cacao: #3b231b; --color-salvia: #ecbf8f; }
 html[data-estacion='invierno'] { --noche: #f5f5f7; --noche-honda: #22303e; --arbol: #7d8ba3; --tinta: #22303e; --tinta-inv: #f5f5f7; --k2: 70%; --color-coral: #4f8ad6; --color-niebla: #f5f5f7; --color-cacao: #22303e; --color-salvia: #cadcee; }
+/* PRUEBA bloque-azul (Eric, 12/10) · Servicios en azul, por parámetro (Base.astro): ?bloque=hielo = el Hielo de invierno en las cuatro estaciones;
+   ?bloque=cielo = un cielo propio de cada estación (abril claro · mar de agosto · noviembre gris · enero hielo). El color vive solo en #servicios (la
+   superficie lee --color-salvia ahí; las caras de las FAQ y el brandbook no cambian). Medido (WCAG, tinta de la estación sobre el azul): hielo 9,6–10,4;
+   cielo 9,6–10,4. Por acordar con Andoni (ronda 152: «el azul de Servicios no me convence: una paleta temática por estación»). Para quitarla: buscar «PRUEBA bloque-azul». */
+html[data-bloque='hielo'] #servicios { --color-salvia: #cadcee; }
+html[data-bloque='cielo'][data-estacion='primavera'] #servicios { --color-salvia: #d4e3f2; }
+html[data-bloque='cielo'][data-estacion='verano'] #servicios { --color-salvia: #c2ddee; }
+html[data-bloque='cielo'][data-estacion='otono'] #servicios { --color-salvia: #ccd8e3; }
+html[data-bloque='cielo'][data-estacion='invierno'] #servicios { --color-salvia: #cadcee; }
 html[data-estacion] {
   --color-nogal: color-mix(in oklab, var(--color-cacao) 70%, var(--arbol));
   --color-cobalto: color-mix(in oklab, var(--color-coral) 62%, var(--color-cacao));
@@ -223,11 +232,11 @@ html[data-estacion] {
   }
 }
 
-/* Contenedor: 1200 px de contenido + márgenes 20 / 32 / 48. */
+/* Contenedor: 1200 px de contenido (ronda 159: hasta 1440 en pantallas grandes, --contenido) + márgenes 20 / 32 / 48. */
 @utility wrap {
   --gutter: calc(var(--spacing) * 5);
   width: 100%;
-  max-width: calc(75rem + var(--gutter) * 2);
+  max-width: calc(var(--contenido) + var(--gutter) * 2);
   margin-inline: auto;
   padding-inline: var(--gutter);
   @media (width >= 48rem) {
@@ -304,6 +313,19 @@ html.estudio-sentado .marcas {
   opacity: 0; /* sentado delante del ordenador no hay retícula encima de la escena */
 }
 
+/* RONDA 159 · Eric: «el max-width aumentarlo un poco más con un tope claro»: el ancho del contenido (sin márgenes) es 1200 px hasta una
+   ventana de 1920 (ronda 159, 2.ª: «cuidado», en un portátil de 1710 ya cambiaba) y crece con ella hasta un TOPE de 1440 px (90 rem), al que llega con 2400. Lo usan `wrap`, los carriles y el marco del hero. */
+:root {
+  --contenido: clamp(75rem, 75rem + (100vw - 120rem) * 0.5, 90rem);
+}
+
+/* RONDA 159 · PANTALLAS GIGANTES (a prueba): por encima de 2560 px de ancho la web entera crece en proporción, como un zoom: el rem
+   del documento sigue al ancho (0,625 vw = 16 px a 2560), con TOPE ×2 (200 %, 5120 px). Por debajo de 2560, nada cambia. El suelo es el
+   100 % del visitante: si tiene la letra más grande, manda la suya. Las media queries no se ven afectadas (miden con el rem inicial). */
+html {
+  font-size: clamp(100%, 0.625vw, 200%);
+}
+
 /* EL ROBLE (hero + raíces) · RONDA 13: la ACUARELA de Andoni (`tools/recorte-hero.py` → hero-arbol.webp 1260×583 + hero-raices.webp
    1260×361, partidas por la línea de suelo y centradas en el tronco). Un solo ANCHO para las dos mitades; el alto del árbol es lo que
    queda de pantalla tras el titular (así la línea de suelo cae siempre dentro del primer pantallazo). En móvil puede pasarse del ancho:
@@ -315,8 +337,11 @@ html.estudio-sentado .marcas {
 }
 @media (width >= 48rem) {
   :root {
-    --roble-h: clamp(12rem, 100lvh - 26.5rem, 30rem); /* ronda 16: «un poco más grande»; ronda 53 −5 rem (H1 de 3 líneas); ronda 65: H1 corto, vuelve */
-    --roble-w: min(calc(var(--roble-h) * 2.1612), 84vw);
+    /* ronda 16: «un poco más grande»; ronda 53 −5 rem (H1 de 3 líneas); ronda 65: H1 corto, vuelve.
+       RONDA 159 · Eric: «en pantallas más grandes el árbol tiene que ocupar más»: el tope (30 rem) crece por encima de 1920 px hasta 38 rem (608 px de
+       alto, 1314 de ancho); por debajo de 1920 no cambia (idéntico a la ronda 158). Las raíces comparten --roble-w: crecen con él. Nunca más ancho que el contenido. */
+    --roble-h: clamp(12rem, 100lvh - 26.5rem, clamp(30rem, 30rem + (100vw - 120rem) * 0.4, 38rem));
+    --roble-w: min(calc(var(--roble-h) * 2.1612), 84vw, var(--contenido));
   }
 }
 

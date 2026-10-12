@@ -9,8 +9,9 @@ interface Props {
 }
 const {
   carga = true,
-  title = 'savvia — Tu web, a la altura de lo que haces',
-  description = 'Tu web, a la altura de lo que haces. savvia es el estudio web de Eric y Andoni que orquesta la IA. Desde Donostia.',
+  // RONDA 156 · Eric: el título de la pestaña, «savvia: elevamos tu web con IA.»; y sin «Donostia» en ningún sitio
+  title = 'savvia: tu web con criterio', // r157 (Eric); antes «savvia: elevamos tu web con IA.»
+  description = 'Elevamos tu web con IA. savvia es el estudio web de Eric y Andoni, especialistas en orquestar el desarrollo agéntico.',
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -30,18 +31,20 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL('/og.jpg?v=155', Astro.site)} />
+    <meta property="og:image" content={new URL('/og.jpg?v=156', Astro.site)} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="savvia: el roble en acuarela bajo el titular «Tu web, a la altura de lo que haces»" />
+    <meta property="og:image:alt" content="savvia: el roble en acuarela bajo el titular «Elevamos tu web con IA»" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL('/og.jpg?v=155', Astro.site)} />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=163" />
+    <meta name="twitter:image" content={new URL('/og.jpg?v=156', Astro.site)} />
+    <!-- RONDA 156 · Eric: «sin isotipo, el favicon es el fondo principal, que cambia con la estación; el árbol en pequeño»: uno por estación
+         (tools/r156-favicon.cjs); el script de abajo pone el de la estación antes del primer pintado y lo cambia con ella -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon-otono.png?v=157" data-icono-apple />
     <!-- Borrador: no indexar hasta tener licencias de fuentes y visto bueno. -->
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=164" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-otono.png?v=157" data-icono />
     <meta name="theme-color" content="#3b231b" />
     <Font cssVariable="--font-family-display" preload />
     <Font cssVariable="--font-timeless-sans" preload />
@@ -60,12 +63,46 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         document.documentElement.dataset.estacion = e;
         var c = { otono: '#3b231b', invierno: '#f5f5f7', primavera: '#3a2932', verano: '#1b3125' }[e];
         document.querySelector('meta[name="theme-color"]').setAttribute('content', c);
+        // ronda 156: el favicon de la estación (y el de iPhone), ahora y cada vez que cambie. Eric: «¿el cambio puede ser smooth?»: al cambiar, los dos
+        // iconos se FUNDEN en un lienzo de 64 px (1,2 s, 12 pasos; el href va cambiando a un data: URL) y al acabar queda el PNG de la estación nueva.
+        // (Safari ignora los cambios de favicon en caliente: ahí se ve el de la carga.) ?v=157: Chrome guardaba un 404 de cuando aún no existían los PNG.
+        var V = '157', srcIcono = function (est) { return '/favicon-' + est + '.png?v=' + V; };
+        var icono = function (est) {
+          var a = document.querySelector('[data-icono]'), b = document.querySelector('[data-icono-apple]');
+          if (a) a.setAttribute('href', srcIcono(est));
+          if (b) b.setAttribute('href', '/apple-touch-icon-' + est + '.png?v=' + V);
+        };
+        icono(e);
+        var fundiendo = 0;
+        addEventListener('savvia:estacion', function () {
+          var de = e, a = document.documentElement.dataset.estacion; e = a;
+          var link = document.querySelector('[data-icono]');
+          if (!link || de === a || matchMedia('(prefers-reduced-motion: reduce)').matches) return icono(a);
+          var id = ++fundiendo, i1 = new Image(), i2 = new Image(), listos = 0;
+          var arranca = function () {
+            if (++listos < 2 || id !== fundiendo) return;
+            var c = document.createElement('canvas'); c.width = c.height = 64; var k = c.getContext('2d'), paso = 0, N = 12;
+            var tic = function () {
+              if (id !== fundiendo) return;
+              paso++; var t = paso / N; t = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+              k.clearRect(0, 0, 64, 64); k.globalAlpha = 1; k.drawImage(i1, 0, 0, 64, 64); k.globalAlpha = t; k.drawImage(i2, 0, 0, 64, 64);
+              if (paso < N) { link.setAttribute('href', c.toDataURL('image/png')); setTimeout(tic, 100); } else icono(a);
+            };
+            tic();
+          };
+          i1.onload = i2.onload = arranca; i1.onerror = i2.onerror = function () { icono(a); };
+          i1.src = srcIcono(de); i2.src = srcIcono(a);
+        });
       })();
       // RONDA 39 · la tipografía de texto está a prueba (ABC Areal): ?tipo=antes enseña la pareja anterior (Manrope + IBM Plex Mono)
       if (/[?&]tipo=antes/.test(location.search)) document.documentElement.classList.add('tipo-antes');
       // PRUEBA hero-claro (Eric, 03/10) · el hero sobre claro y lo que era claro, en oscuro: ?hero=blanco (blanco puro) o ?hero=claro (Rosa niebla).
       // Sin el parámetro no cambia nada. Para quitar la prueba: buscar «PRUEBA hero-claro» (Base, Hero, Nav, estela.ts)
       var hc = /[?&]hero=(claro|blanco)/.exec(location.search); if (hc) document.documentElement.classList.add('hero-claro', 'hero-' + hc[1], 'sobre-claro');
+      // PRUEBA bloque-azul (Eric, 12/10, Agentation sobre #servicios: «me gusta el azul que está en invierno, no sé si lo podemos aplicar aquí»):
+      // ?bloque=hielo pone en Servicios el Hielo de invierno (#CADCEE) en las cuatro estaciones; ?bloque=cielo, un azul de cielo PROPIO de cada estación.
+      // Sin el parámetro no cambia nada (hoy manda la ronda 152: pétalo · prado · hoja seca · hielo). Para quitarla: buscar «PRUEBA bloque-azul» (Base, global.css).
+      var bq = /[?&]bloque=(hielo|cielo)/.exec(location.search); if (bq) document.documentElement.dataset.bloque = bq[1];
       // RONDA 64/68 · la transición de savia: la página nueva nace CUBIERTA de savia (html.vt-llega) y transicion.ts la escurre; salvavidas a los 3 s
       try { var vt = +sessionStorage.getItem('savvia:vt') || 0; sessionStorage.removeItem('savvia:vt'); if (Date.now() - vt < 4000 && !matchMedia('(prefers-reduced-motion: reduce)').matches) { document.documentElement.classList.add('vt-llega'); setTimeout(function () { document.documentElement.classList.remove('vt-llega'); }, 3000); } } catch (e) {}
       // RONDA 16 · los carriles cargan SIEMPRE puestos (ya no se recuerda si se quitaron) y se trazan al posarse la carga.
@@ -95,8 +132,56 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       import '../scripts/transicion';
       // ronda 134: fuera '../scripts/cta' (la gota de los CTA de cristal: el CTA ya es Coral lleno)
       import '../scripts/cta-liquido'; // ronda 136: el color del CTA primario entra como un líquido desde donde entra el cursor
-      import '../scripts/clics'; // ronda 125: los sonidos de clic
+      // RONDA 156 · Eric: «la música va a cambiar por completo menos la del mockup del ordenador»: fuera los sonidos de clic (clics.ts, ronda 125); la música es la radio (Radio.astro)
     </script>
-    <!-- RONDA 152 · Andoni: «quitamos lo del agentation»: fuera el modo revisión (rondas 38 y 83) -->
+    <!-- RONDA 38 · Modo revisión · Agentation: clica un elemento, escribe la nota y devuelve un markdown con el selector CSS real. Sin import map a
+         propósito: los `?deps=` de esm.sh reescriben las importaciones internas a las MISMAS URL (una sola instancia de React). Solo escritorio. -->
+    <!-- RONDA 83 · Eric: «ponme agentation siempre»: en LOCAL (astro dev) va siempre puesto; publicada, ?feedback=1 se RECUERDA en ese navegador
+         (localStorage «savvia:feedback») hasta ?feedback=0. Quien no lo haya pedido nunca sigue sin cargar nada.
+         RONDA 153: Andoni lo quitó. RONDA 156 (12/10): Eric lo vuelve a pedir («ponme agentation») y que no se solape con el (+) flotante (Mando.astro,
+         abajo a la derecha; desde la ronda 156, la radio): la barra de Agentation se aparta a la izquierda (`#reviewRoot` desplaza su barra fija con --ag-x). -->
+    <script is:inline define:vars={{ dev: import.meta.env.DEV }}>
+      (() => {
+        const q = new URLSearchParams(location.search);
+        let on = dev;
+        try {
+          if (q.has('feedback')) localStorage.setItem('savvia:feedback', q.get('feedback') === '0' ? '0' : '1');
+          const g = localStorage.getItem('savvia:feedback');
+          if (g) on = g === '1';
+        } catch (e) { if (q.has('feedback')) on = q.get('feedback') !== '0'; }
+        if (!on) return;
+        const desktop = matchMedia('(hover:hover)').matches && innerWidth >= 900;
+        if (!desktop) {
+          if (!q.has('feedback')) return; // el aviso, solo si se ha pedido en esta visita
+          const n = document.createElement('div');
+          n.textContent = 'Modo feedback: solo escritorio.';
+          n.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:100001;font:11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:#EADDE7;background:#302018;border:1px solid #f65340;border-radius:6px;padding:9px 12px';
+          addEventListener('DOMContentLoaded', () => document.body.appendChild(n));
+          return;
+        }
+        const boot = async () => {
+          try {
+            const [React, dom, ag] = await Promise.all([
+              import('https://esm.sh/react@18.3.1'),
+              import('https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1'),
+              import('https://esm.sh/agentation@3.0.2?deps=react@18.3.1,react-dom@18.3.1'),
+            ]);
+            const host = document.createElement('div');
+            host.id = 'reviewRoot';
+            document.body.appendChild(host);
+            // Ronda 156 · Eric: «cuidado que no se solape con el +»: la barra de Agentation nace en la esquina inferior derecha (20 px), donde vive el
+            // (+) flotante (Mando.astro: 44 px a 32 px del borde). Se aparta a su izquierda (32 + 44 + 16) y a su misma altura.
+            const css = document.createElement('style');
+            css.textContent = '[class*="styles-module__toolbar"]{left:32px!important;right:auto!important;bottom:32px!important}'; // ronda 156: la radio (que crece hacia la izquierda con el nombre de la pieza) vive en la esquina derecha; Agentation pasa a la izquierda
+            document.head.appendChild(css);
+            dom.createRoot(host).render(React.createElement(ag.Agentation));
+          } catch (e) {
+            console.error('[feedback] no se pudo cargar Agentation:', e && e.message);
+          }
+        };
+        if (document.readyState === 'complete') boot();
+        else addEventListener('load', boot, { once: true });
+      })();
+    </script>
   </body>
 </html>

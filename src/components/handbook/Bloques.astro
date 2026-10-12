@@ -375,7 +375,7 @@ import { flecha } from '../../lib/flecha';
         return (
           <div class="contacto">
             <a class="correo" href={`mailto:${contacto.correo}`}>{contacto.correo}</a>
-            <p class="detail cn">{contacto.nota} · {contacto.lugar}</p>
+            <p class="detail cn">{contacto.nota}</p>
             <ul class="paginas">
               {contacto.paginas.map((p) => (
                 <li><a class="link" href={p.href}>{p.label}</a></li>

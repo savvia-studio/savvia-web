@@ -1,0 +1,166 @@
+---
+// RONDA 156 · Eric: «La música va a cambiar por completo menos la del mockup del ordenador. Esa se queda. Pero vamos a poner una estación de 2 radios
+// de música lo-fi e instrumental sin derechos que tengo en descargas». LA RADIO: dos EMISORAS (Lo-fi · Instrumental) con las piezas de HoliznaCC0
+// (dominio público, CC0; las carpetas de Eric «Lo-Fi And Chill» y «Relaxing Instrumentals», pasadas a MP3 de 96 kbps en public/media/radio/).
+// Una píldora de cristal fija abajo a la derecha (donde vivía el (+) flotante): encender/apagar, el nombre de la emisora (clic = la otra) y la pieza
+// que suena. Como una radio de verdad: al encenderla entra en una pieza al azar y a mitad de ella, y encadena las demás sin repetir la última.
+// Se recuerda la emisora (localStorage) y, dentro de la MISMA sesión, si estaba encendida (sessionStorage: al cambiar de página sigue sonando; en
+// una visita nueva nunca arranca sola). Mientras suena, el ambiente del mockup de Proyectos se calla (sonido-estudio.ts escucha `savvia:radio`).
+// Los sonidos de interfaz (clics, savvia agentic) se fueron con esta ronda: la única música es esta; el único sonido, la mesa.
+import { icono } from '../lib/iconos';
+const EMISORAS = [
+  { id: 'lofi', nombre: 'Lo-fi', pistas: [
+    { f: 'first-snow', t: 'First Snow' }, { f: 'laundry-on-the-wire', t: 'Laundry On The Wire' }, { f: 'everything-you-ever-dreamed', t: 'Everything You Ever Dreamed' },
+    { f: 'keeping-cool', t: 'Keeping Cool' }, { f: 'snow-drift', t: 'Snow Drift' }, { f: 'windows-down', t: 'Windows Down' }, { f: '2-hour-delay', t: '2 Hour Delay' },
+  ] },
+  { id: 'instrumental', nombre: 'Instrumental', pistas: [
+    { f: 'night-driving', t: 'Night Driving' }, { f: 'boredom', t: 'Boredom' }, { f: 'love', t: 'Love' }, { f: 'lost-in-your-eyes', t: 'Lost In Your Eyes' }, { f: 'you-loved-me-once', t: 'You Loved Me Once' },
+  ] },
+];
+---
+
+<div class="radio" data-radio data-emisoras={JSON.stringify(EMISORAS)} role="group" aria-label="Radio de savvia">
+  <button type="button" class="r-play" aria-label="Encender la radio" data-radio-play>
+    <span class="r-ic r-ic-play"><Fragment set:html={icono('play', 'fill')} /></span>
+    <span class="r-ic r-ic-pausa"><Fragment set:html={icono('pause', 'fill')} /></span>
+    <span class="r-ondas" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+  <button type="button" class="r-emisora" aria-label="Cambiar de emisora" data-radio-emisora>
+    <span class="r-nombre" data-radio-nombre>{EMISORAS[0].nombre}</span>
+    <span class="r-pista" data-radio-pista aria-live="off"></span>
+  </button>
+</div>
+
+<style>
+  .radio {
+    position: fixed;
+    right: max(calc(var(--spacing) * 5), env(safe-area-inset-right));
+    bottom: max(calc(var(--spacing) * 5), env(safe-area-inset-bottom));
+    z-index: 62; /* escala: 48 velo · 50 menú · 55 nav · 60 escenario sentado · 62 la radio (también sentado) */
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1);
+    height: calc(var(--spacing) * 9);
+    padding: 0 calc(var(--spacing) * 3) 0 calc(var(--spacing) * 1);
+    border-radius: var(--radius-full);
+    color: #f5f5f7;
+    background: color-mix(in oklab, var(--noche-honda) 50%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    backdrop-filter: blur(18px) saturate(1.3);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, #f5f5f7 16%, transparent), 0 10px 28px -14px rgb(0 0 0 / 0.45);
+    transition: opacity 0.4s ease, translate 0.6s var(--ease-out-expo);
+  }
+  @media (width >= 64rem) {
+    .radio { right: calc(var(--spacing) * 8); bottom: calc(var(--spacing) * 8); }
+  }
+  .r-play {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 7);
+    height: calc(var(--spacing) * 7);
+    border-radius: 50%;
+    color: color-mix(in oklab, #f5f5f7 85%, transparent);
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease;
+  }
+  .r-play:hover { color: #f5f5f7; background: color-mix(in oklab, #f5f5f7 12%, transparent); }
+  .r-play > * { grid-area: 1 / 1; }
+  .r-ic { display: grid; place-items: center; }
+  .r-ic :global(svg) { width: 0.9rem; height: 0.9rem; fill: currentColor; }
+  .r-ic-play { translate: 1px 0; }
+  .r-ic-pausa, .r-ondas { display: none; }
+  /* encendida: tres ondas que respiran; al pasar, la pausa */
+  .r-ondas { display: none; align-items: flex-end; gap: 2px; height: 0.8rem; }
+  .r-ondas i { width: 2px; height: 30%; border-radius: 1px; background: currentColor; animation: r-onda 1.1s ease-in-out infinite; }
+  .r-ondas i:nth-child(2) { height: 100%; animation-delay: 0.18s; }
+  .r-ondas i:nth-child(3) { height: 55%; animation-delay: 0.36s; }
+  @keyframes r-onda { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+  .radio.suena .r-ic-play { display: none; }
+  .radio.suena .r-ondas { display: flex; }
+  .radio.suena .r-play:hover .r-ondas { display: none; }
+  .radio.suena .r-play:hover .r-ic-pausa { display: grid; }
+  .r-emisora {
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 1.5);
+    padding: calc(var(--spacing) * 1) 0;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    line-height: 1;
+    color: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .r-nombre { font-weight: 500; letter-spacing: 0.01em; }
+  .r-emisora:hover .r-nombre { text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  .r-pista {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.75rem;
+    color: color-mix(in oklab, #f5f5f7 62%, transparent);
+    opacity: 0;
+    transition: max-width 0.6s var(--ease-out-expo), opacity 0.4s ease;
+  }
+  .r-pista:not(:empty)::before { content: '· '; }
+  .radio.suena .r-pista { max-width: 11rem; opacity: 1; }
+  @media (width < 40rem) { .r-pista { display: none; } }
+  :global(html.cargando) .radio,
+  :global(html.menu-abierto) .radio { opacity: 0; translate: 0 12px; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .r-ondas i { animation: none; transform: scaleY(0.6); }
+    .r-pista, .radio { transition: none; }
+  }
+</style>
+
+<script>
+  const caja = document.querySelector<HTMLElement>('[data-radio]');
+  if (caja) {
+    type Emisora = { id: string; nombre: string; pistas: { f: string; t: string }[] };
+    const EM = JSON.parse(caja.dataset.emisoras!) as Emisora[];
+    const bPlay = caja.querySelector<HTMLButtonElement>('[data-radio-play]')!, bEm = caja.querySelector<HTMLButtonElement>('[data-radio-emisora]')!;
+    const nombre = caja.querySelector<HTMLElement>('[data-radio-nombre]')!, pista = caja.querySelector<HTMLElement>('[data-radio-pista]')!;
+    const a = new Audio(); a.preload = 'none'; a.volume = 0.5;
+    let em = 0, idx = -1, on = false, token = 0;
+    try { const g = localStorage.getItem('savvia:radio'); const k = EM.findIndex((e) => e.id === g); if (k >= 0) em = k; } catch {}
+    const pintar = () => {
+      caja.classList.toggle('suena', on);
+      nombre.textContent = EM[em].nombre;
+      pista.textContent = on && idx >= 0 ? EM[em].pistas[idx].t : '';
+      bPlay.setAttribute('aria-label', on ? 'Apagar la radio' : 'Encender la radio');
+      bEm.setAttribute('aria-label', `Emisora: ${EM[em].nombre}. Cambiar a ${EM[(em + 1) % EM.length].nombre}`);
+    };
+    const avisar = () => dispatchEvent(new CustomEvent('savvia:radio', { detail: { on } }));
+    const otra = () => { const n = EM[em].pistas.length; let k = idx; while (n > 1 && k === idx) k = Math.floor(Math.random() * n); if (n === 1) k = 0; idx = k; };
+    // una pieza al azar; `aMedias` = entrar a mitad de ella (al encender o al cambiar de emisora, como una radio); al encadenar, desde el principio
+    const sonar = async (aMedias: boolean) => {
+      const t = ++token; otra();
+      a.src = `/media/radio/${EM[em].id}/${EM[em].pistas[idx].f}.mp3`;
+      a.load();
+      await new Promise<void>((r) => { if (a.readyState >= 1) r(); else a.addEventListener('loadedmetadata', () => r(), { once: true }); });
+      if (t !== token) return;
+      if (aMedias && Number.isFinite(a.duration) && a.duration > 60) a.currentTime = Math.random() * (a.duration - 45);
+      try { await a.play(); } catch { if (t === token) { on = false; pintar(); avisar(); } return; }
+      if (t === token) pintar();
+    };
+    a.addEventListener('ended', () => { if (on) sonar(false); });
+    a.addEventListener('error', () => { if (on) sonar(false); }); // una pieza que no carga: la siguiente
+    const encender = (si: boolean) => {
+      on = si;
+      try { sessionStorage.setItem('savvia:radio-on', si ? '1' : '0'); } catch {}
+      if (si) sonar(true); else { token++; a.pause(); pintar(); }
+      avisar();
+    };
+    bPlay.addEventListener('click', () => encender(!on));
+    bEm.addEventListener('click', () => {
+      em = (em + 1) % EM.length; idx = -1;
+      try { localStorage.setItem('savvia:radio', EM[em].id); } catch {}
+      if (on) sonar(true); else pintar();
+    });
+    pintar();
+    // sigue sonando al cambiar de página (misma sesión); si el navegador no deja arrancar sin un gesto, se queda apagada
+    try { if (sessionStorage.getItem('savvia:radio-on') === '1') encender(true); } catch {}
+    (window as any).__radio = () => ({ on, emisora: EM[em].id, pista: idx >= 0 ? EM[em].pistas[idx].f : null, t: a.currentTime, pausado: a.paused, vol: a.volume });
+  }
+</script>

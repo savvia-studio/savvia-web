@@ -2,7 +2,7 @@
 // RONDA 51 · las cuatro DEMOS de la sección 2 antigua (Recorrido.astro, rondas 10–14), sacadas a un componente para la dirección A con tarjetas
 // (Dolores.astro, `tarjetas`). Mismo marcado y mismo CSS; los filtros, con otro id (la sección antigua sigue en la página, oculta).
 // La tarjeta duerme (demo parada) hasta que el padre le pone `.viva`; `.fuera` la para cuando no se ve.
-import { laSavvia } from '../data/home';
+import { laSavvia, recorrido } from '../data/home';
 import { IAS } from '../data/ias';
 // RONDA 51 (2.ª) · `fondo`: la tarjeta al estilo del vídeo de Andoni (3136x2080.mp4): un ÓLEO de su estación a sangre (public/media/tarjetas/, las cuatro
 // láminas que pasó Andoni), ANILLOS DE CRISTAL concéntricos que lo refractan (una lente escalonada que respira) y la demo en un panel ESMERILADO abajo.
@@ -10,6 +10,9 @@ import { IAS } from '../data/ias';
 interface Props { i: number; fondo?: string; desnuda?: boolean }
 const { i, fondo, desnuda } = Astro.props;
 const doc = laSavvia.doc.lineas.slice(0, 6);
+// RONDA 156 · la batería del briefing (home.ts › recorrido.briefing): TANDAS de cuatro preguntas; cada vuelta de la demo enseña la siguiente
+const tandas = recorrido.briefing;
+const POR_TANDA = tandas[0].length;
 ---
 
 <div class={`tarjeta t${i} ${fondo ? 'pintada' : ''} ${desnuda ? 'desnuda' : ''}`} data-tarjeta={i} style="--ox:50%;--oy:0%">
@@ -27,21 +30,25 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
                   <span>Escuchando…</span>
                   <i class="nivel"><i /><i /><i /><i /></i>
                 </span>
-                <!-- RONDA 144 · Eric: «esta ilustración, un poco más enriquecida» (y le gustaba el medidor de la web «pulso»): la CONVERSACIÓN se ve como una
-                     onda de voz que se tiñe de savia cuando habla el cliente; cada respuesta se ESCRIBE debajo de su pregunta (ya no son barras grises),
-                     su idea clave se subraya y, al final, todo queda guardado en el brief -->
-                <div class="onda" aria-hidden="true">
-                  {Array.from({ length: 34 }, (_, b) => <i style={`--h:${(0.28 + 0.72 * Math.abs(Math.sin(b * 1.7) * Math.cos(b * 0.45))).toFixed(2)};--d:${(-(b * 0.137) % 1.1).toFixed(2)}s`} />)}
-                </div>
+                {/* RONDA 158 · Eric: «igual la onda quitamos»: fuera la onda de voz (rondas 144–158) */}
                 {/* RONDA 152 · Andoni: «que no salgan respuestas, solo el check de las preguntas: si ponemos respuestas, la gente puede pensar que son
                      nuestras y encasillarnos en lo que pone ahí» */}
-                {['¿Qué vendes?', '¿A quién?', '¿Qué ha dejado de contar tu web?', '¿Adónde quieres llegar?'].map((q, k) => (
-                  <p class="preg" style={`--k:${k}`}>
-                    <span class="q">{q}</span>
-                    <b class="ok detail" aria-hidden="true">✓</b>
-                  </p>
-                ))}
-                <p class="brief detail"><span class="pt" />brief.md · 4 respuestas guardadas</p>
+                {/* RONDA 156 · Eric: «una batería de preguntas más extensa, así en animación» · «como la de antes, solo que en la segunda o tercera
+                     tanda sean preguntas diferentes». La lista de cuatro de siempre; las tandas se superponen en las mismas cuatro filas y un solo
+                     RELOJ (`--t`, segundos, animado en .reloj y heredado) decide cuál se ve: cada tanda vive 9 s (como la vuelta de antes). */}
+                <div class="reloj" style={`--nt:${tandas.length}`}>
+                  {tandas.map((tanda, j) => (
+                    <>
+                      {tanda.map((q, k) => (
+                        <p class="preg" style={`--j:${j};--k:${k}`}>
+                          <span class="q">{q}</span>
+                          <b class="ok detail" aria-hidden="true">✓</b>
+                        </p>
+                      ))}
+                      <p class="brief detail" style={`--j:${j}`}><span class="pt" />brief.md · {(j + 1) * POR_TANDA} respuestas guardadas</p>
+                    </>
+                  ))}
+                </div>
               </>
             )}
             {i === 1 && (
@@ -103,7 +110,7 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
                   <span class="vbarra"><i /><i /><i /></span>
                   <!-- antes: la web de siempre -->
                   <span class="v-antes">
-                    <span class="vtit">Hecho en Donostia.</span>
+                    <span class="vtit">La web de siempre.</span>
                     <span class="vlin" /><span class="vlin corta" />
                   </span>
                   <!-- después: la landing de campaña, montada bloque a bloque -->
@@ -173,6 +180,17 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
     img.complete ? medir() : img.addEventListener('load', medir, { once: true });
     new MutationObserver(pedir).observe(tarjeta, { attributes: true, attributeFilter: ['class'] });
   });
+</script>
+
+<script>
+  // RONDA 156 · Eric: «las preguntas, que salgan de forma aleatoria»: en cada visita las 16 se BARAJAN entre las cuatro tandas (Fisher-Yates) antes
+  // de que la demo arranque (la demo se clona al despertar; esto corre al cargar). Los textos cambian de sitio; filas, tiempos y contador, igual.
+  for (const reloj of document.querySelectorAll('.demo-1 .reloj')) {
+    const qs = [...reloj.querySelectorAll('.preg .q')];
+    const textos = qs.map((q) => q.textContent);
+    for (let i = textos.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [textos[i], textos[j]] = [textos[j], textos[i]]; }
+    qs.forEach((q, i) => { q.textContent = textos[i]; });
+  }
 </script>
 
 <style>
@@ -354,34 +372,40 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
     from { scale: 1 0.25; }
     to { scale: 1 1; }
   }
-  /* RONDA 144 · la onda de la conversación: 34 barras que respiran; en los tramos en que contesta el cliente se tiñen de savia (ciclo de 9 s) */
-  .onda {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    height: calc(var(--spacing) * 9);
-    padding-inline: calc(var(--spacing) * 1);
+  /* RONDA 156 · EL RELOJ: `--t` corre de 0 a (tandas × 9) s en bucle y todo se deriva de él con calc(): cada tanda ocupa 9 s (la vuelta de
+     antes) y dentro de ella cada pregunta llega, se marca y, al final, se apaga con las demás. Las tandas comparten las mismas cuatro filas. */
+  @property --t { syntax: '<number>'; inherits: true; initial-value: 0; }
+  /* RONDA 158 · Eric: «que siempre haya preguntas entrando y saliendo»: ya no van por tandas que llegan y se apagan juntas, sino en CINTA.
+     La pregunta g (= tanda × 4 + fila) llega a los g·P s y se queda 4·P s: se va justo cuando entra la siguiente de su fila. Las 16 dan la
+     vuelta en 16·P s y en todo momento hay cuatro a la vista, una entrando y otra saliendo. */
+  .reloj {
+    --P: 1.3; /* cada cuánto entra una pregunta */
+    --t: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--spacing) * 3);
+    animation: reloj calc(var(--nt) * 4 * var(--P) * 1s) linear infinite;
   }
-  .onda i {
-    flex: 1;
-    height: calc(var(--h) * 100%);
-    border-radius: 2px;
-    background: color-mix(in oklab, var(--color-niebla) 38%, transparent);
-    transform-origin: 50% 50%;
-    animation:
-      ola 1.1s ease-in-out var(--d) infinite alternate,
-      turno 9s ease infinite;
+  @keyframes reloj {
+    from { --t: 0; }
+    to { --t: calc(var(--nt) * 4 * var(--P)); }
   }
-  @keyframes ola {
-    from { scale: 1 0.3; }
-    to { scale: 1 1; }
-  }
-  @keyframes turno {
-    0%, 16%, 34%, 37%, 52%, 55%, 70%, 100% { background: color-mix(in oklab, var(--color-niebla) 38%, transparent); }
-    19%, 31%, 40%, 49%, 58%, 67% { background: var(--color-naranja); }
+  .preg,
+  .brief {
+    --vuelta: calc(var(--nt) * 4 * var(--P));
+    --tl: mod(var(--t) - var(--s), var(--vuelta)); /* el tiempo desde que llegó (da la vuelta) */
+    --vive: calc(4 * var(--P));
+    --a: calc(1 - pow(1 - clamp(0, var(--tl) / 0.45, 1), 4)); /* llegada en 0,45 s, con salida suave */
+    --fin: clamp(0, (var(--vive) - var(--tl)) / 0.4, 1); /* se apaga en los 0,4 s antes de que llegue la siguiente */
+    grid-column: 1;
+    opacity: calc(var(--a) * var(--fin));
+    translate: 0 calc((1 - var(--a)) * 10px - (1 - var(--fin)) * 6px);
+    filter: blur(calc((1 - var(--a)) * 6px + (1 - var(--fin)) * 4px));
   }
   .preg {
+    --s: calc((var(--j) * 4 + var(--k)) * var(--P)); /* cuándo llega */
+    --c: clamp(0, (var(--tl) - 0.75) / 0.3, 1); /* el check, 0,75 s después */
+    grid-row: calc(var(--k) + 1);
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
@@ -389,73 +413,28 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
     padding: calc(var(--spacing) * 3);
     border-radius: calc(var(--spacing) * 3);
     background: color-mix(in oklab, var(--color-niebla) 6%, transparent);
-    animation: llegar 9s var(--ease-out-expo) infinite both;
-    animation-delay: calc(0.6s + var(--k) * 1.2s);
   }
   .preg .q {
     font-size: var(--text-aux);
     line-height: 1.35;
     color: var(--color-niebla);
-  }
-  .preg .r {
-    grid-column: 1;
-    font-size: var(--text-aux);
-    line-height: 1.35;
-    color: var(--color-niebla);
-    white-space: nowrap;
-    overflow: hidden;
-  }
-  /* la respuesta se escribe (de izquierda a derecha, a saltos de letra) mientras contesta */
-  .preg .txt {
-    display: inline-block;
-    clip-path: inset(0 100% 0 0);
-    animation: resp-escribe 9s steps(28, end) infinite both;
-    animation-delay: calc(1s + var(--k) * 1.6s);
-  }
-  .preg mark {
-    background: none;
-    color: inherit;
-    background-image: linear-gradient(var(--color-naranja), var(--color-naranja));
-    background-size: 0% 1.5px;
-    background-position: 0 100%;
-    background-repeat: no-repeat;
-    animation: subrayar 9s var(--ease-out-expo) infinite both;
-    animation-delay: calc(1s + var(--k) * 1.6s);
+    text-wrap: balance; /* Eric: «alguna pregunta parece que se corta»: se parten en dos líneas, nunca se recortan */
   }
   .preg .ok {
-    grid-row: 1;
-    grid-column: 2;
     color: var(--color-naranja);
-    animation: marcar 9s ease infinite both;
-    animation-delay: calc(1.5s + var(--k) * 1.2s);
+    opacity: var(--c);
+    scale: calc(0.4 + 0.6 * var(--c));
   }
   .brief {
+    --s: calc((var(--j) * 4 + 3) * var(--P) + 1.05); /* cuando se marca la última de su tanda; se queda hasta la siguiente */
+    grid-row: 5;
     display: inline-flex;
     align-items: center;
     gap: calc(var(--spacing) * 2);
     margin-top: calc(var(--spacing) * 1);
     color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
-    animation: llegar 9s var(--ease-out-expo) infinite both;
-    animation-delay: 6.2s;
   }
   .brief .pt { width: 6px; height: 6px; border-radius: 50%; background: var(--color-naranja); }
-  @keyframes llegar {
-    0%, 3% { opacity: 0; translate: 0 10px; filter: blur(6px); }
-    9%, 84% { opacity: 1; translate: 0 0; filter: none; }
-    93%, 100% { opacity: 0; translate: 0 -6px; filter: blur(4px); }
-  }
-  @keyframes resp-escribe {
-    0% { clip-path: inset(0 100% 0 0); }
-    12%, 100% { clip-path: inset(0 0 0 0); }
-  }
-  @keyframes subrayar {
-    0%, 10% { background-size: 0% 1.5px; }
-    16%, 100% { background-size: 100% 1.5px; }
-  }
-  @keyframes marcar {
-    0%, 2% { opacity: 0; scale: 0.4; }
-    7%, 100% { opacity: 1; scale: 1; }
-  }
   @keyframes girar {
     to { rotate: 1turn; }
   }

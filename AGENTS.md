@@ -3110,3 +3110,189 @@ en mono en el pie.
 - **A media ronda (Andoni, con captura):** «sigues sin ponerme espacio por debajo» · «la T mayúscula, siempre en oscuro» → la «línea horizontal» era la fila de carriles con la que empieza el cierre, pegada al último párrafo: el texto lleva ahora 240 px debajo (medido: 240 en Chrome y WebKit, 1280 y 390; el cierre vuelve a su relleno de siempre). La capitular, en la tinta del texto desde el principio: fuera el 12 % de espera y el destello de savia.
 - **A media ronda (Andoni):** «en otoño tenemos que darle más tonalidades otoñales, en primavera lo mismo, y en invierno igual; la de verano está bien» → `tools/r155/tonos.cjs` recolorea las HOJAS del brote (no la bellota ni las raíces) con siete tonos por estación repartidos en manchas suaves, conservando el sombreado de la acuarela y con algo más de viveza (el motor apaga el color al pintarlo): otoño granate · cobre · naranja · oro · oliva; primavera verdes tiernos y lima con rosas de cerezo; invierno marrones secos, ocre, azul escarcha y blanco. Bases sin tocar en `tools/r155/base/`. Verano, como estaba.
 - **PUBLICADA (09/10) en https://savvia.studio** (Andoni: «sube a GitHub y publica»): rondas 152–155 en un commit, `1ea0bfd` → Vercel. Las capturas de revisión de las rondas (`tools/r1*/shots/`) quedan fuera del repositorio. Medido EN VIVO: `verify.cjs` en /, /manifiesto, /brandbook, /lab, /proyectos y /proyectos/neety (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0; `og.jpg?v=155` 200. Sigue `noindex, nofollow`.
+
+### Ronda 156 · 2026-10-12 · vuelve Agentation, apartado del (+) (en local, Eric)
+- **Eric (textual):** «ponme agentation» · «y cuidado que no se solape con el + que hay ahora».
+- **Hecho (`Base.astro`):** restaurado el bloque de las rondas 38 y 83 (Andoni lo había quitado en la 153): en LOCAL va siempre; publicada, `?feedback=1` se recuerda en ese navegador hasta `?feedback=0`; solo escritorio. Su barra nacía en la esquina inferior derecha (337×44 a 20 px) encima del (+) flotante de `Mando.astro` (44×44 a 32 px): una regla inyectada la aparta a la izquierda (`right: 92px; bottom: 32px`, selector `[class*="styles-module__toolbar"]`, versión fija 3.0.2).
+- **Medido** (Chrome real, 1280×720, `?carga=0`): antes, barra y (+) solapados; después, barra en x 851–1188 y el (+) en 1204–1248, sin solape, también tras pulsar sus botones; consola limpia · `astro check` 0 errores. No publicado ni subido.
+- **A media ronda (Eric, Agentation sobre `#servicios`): «me gusta el azul que está en invierno. no sé si lo podemos aplicar aquí. ahí tendremos que ver el
+  sistema de diseño».** Hoy Servicios (`surface-warm`) lee `--color-salvia`, el «bloque claro» de cada estación desde la ronda 152 (2.ª), por decisión de
+  Andoni («el azul de Servicios no me convence: una paleta temática por estación»): pétalo · prado · hoja seca · Hielo #CADCEE. El azul que gusta es el Hielo
+  de invierno. **Hecho, PRUEBA bloque-azul por parámetro, sin tocar el sistema:** `?bloque=hielo` = el Hielo de invierno en Servicios en las cuatro
+  estaciones; `?bloque=cielo` = un azul de cielo PROPIO de cada estación (abril #D4E3F2 · mar de agosto #C2DDEE · noviembre #CCD8E3 · enero #CADCEE), que
+  mantiene la regla de Andoni y da a Eric el azul. El color vive solo en `#servicios` (Base.astro pone `html[data-bloque]`; global.css); las caras de las FAQ
+  y el brandbook no cambian. Contraste tinta de la estación / azul: 9,6–10,4 en los ocho casos. Para quitarla: buscar «PRUEBA bloque-azul».
+  **Medido** (Chrome real, 1440×900, `?carga=0`): sin parámetro Servicios 236·191·143 (hoja seca); con `?bloque=hielo` 202·220·238 y texto 59·35·27; consola
+  limpia · `astro check` 0 errores. **SIN medir en vivo** `?bloque=cielo` y las otras estaciones: a mitad de la comprobación el servidor pasó a 500 porque OTRA
+  SESIÓN estaba sustituyendo `Mando.astro` por `Radio.astro` en `Nav.astro` (no es de esta prueba). **Por acordar entre los dos:** va contra la ronda 152 de
+  Andoni; si se queda alguna variante, pasa al sistema (brandbook › «bloque» de cada estación) y se quita el parámetro.
+- **A media ronda (Eric, Agentation sobre «¿Adónde quieres llegar?»): «el a dónde tiene que estar separado y tenemos que adjuntar una batería de
+  preguntas más extensa, así en animación, no solo 4» · «puedes meterte en mi Drive y leer lo que hay en Savvia - Andoni x Eric x José Luis» · (al
+  verlo) «la animación tiene que ser como la de antes, me gustaba más; solo que cuando sale la segunda o tercera tanda, que sean preguntas
+  diferentes. Ojo, alguna pregunta parece que se corta».** Leídos los seis documentos de la carpeta (los dos Keynote no se leen por Drive): las dos
+  fases de investigación, la Narrativa del 2 de septiembre, los Mensajes clave de José Luis, la sesión del 21 y el feedback del 23. **Hecho:**
+  `home.ts › recorrido.briefing` = 16 preguntas REALES del briefing en cuatro tandas de cuatro (quién eres · qué ha pasado · cómo trabajáis · qué
+  viene después), cada una con su origen en el comentario; «¿A dónde quieres llegar?» separado. `TarjetaPaso.astro` (demo 01): la lista apilada de
+  cuatro de siempre, pero cada vuelta de 9 s enseña la tanda siguiente (brief.md · 4 → 8 → 12 → 16 respuestas guardadas) y vuelve a empezar. Un solo
+  RELOJ en CSS: `@property --t` (segundos) animado en `.reloj` y heredado; cada pregunta deriva con `calc()` y `clamp()` su llegada (`--j` tanda, `--k`
+  fila; salida suave con `pow()`), su check y su apagado; las cuatro tandas comparten las mismas filas de una rejilla. Sin `animation-delay` (con
+  retraso e `infinite` cada pieza iba a su ciclo y con 16 no cuadraban). Las preguntas se PARTEN en dos líneas (`text-wrap: balance`), nunca se
+  recortan. Probada antes y descartada por Eric: una cinta de 15 preguntas que se desplazaba hacia arriba. **Medido** (Chrome real desde el
+  scratchpad con playwright-core, 1280×800 y 390×844, DPR 2; `verify.cjs` no corre en este Mac): tanda 1 → 2 → 4 con sus cuatro preguntas y checks,
+  el brief a 1 a los 7,2 s de cada tanda, 0 preguntas recortadas en los dos anchos (en móvil, cuatro a dos líneas), consola limpia · `astro check`
+  0 errores. **SIN medir:** WebKit. No publicado ni subido (sigue el lote de la ronda 156 sin commit).
+  **Después (Eric): «un pelín más rápida, como estaba al comienzo» · «las preguntas, que salgan de forma aleatoria».** Tanda de 8,2 s (antes 9): llegada
+  a 0,5 + k × 1,05 s en 0,45 s (curva pow 4, como la expo de antes), check 0,75 s después, brief a 5,4 s. Un `<script>` en `TarjetaPaso.astro`
+  BARAJA las 16 preguntas entre las cuatro tandas al cargar (Fisher-Yates), antes de que la demo despierte; las tandas de `home.ts` quedan como
+  orden de referencia. Medido (Chrome real, 1280): dos visitas con órdenes distintos y las 16 únicas; 4 checks y brief a 1 a los 6 s; consola limpia.
+
+- **A media ronda (Eric): «quiero que el sonido sea guay con música» · «el botón de música tiene que ir arriba a la derecha cerca de la hoja y menú, no sticky» ·
+  «que el tercer icono parezca de música».** Eric pegó el resumen del reproductor de su otro proyecto (SoundControl: fundidos, emisoras como filtro, volumen
+  igualado, siempre apagada al llegar) como listón. **Hecho (`Radio.astro`, reescrita; la píldora flotante de la 1.ª versión, en `tools/retirados/Radio.r156a-pildora.astro.txt`):**
+  la radio vive en la BARRA, entre el logotipo y la hoja de estación, con la misma caja que la hoja (nota doble de Iconoir apagada; encendida, TRES barras de
+  ecualizador en fila que bailan con la música REAL —AnalyserNode sobre los dos `<audio>`, solo tras un gesto; sin él, respiran por CSS— y la pausa al pasar).
+  Al pasar el ratón o enfocar cuelga un PANEL de cristal oscuro: emisoras Todas · Lo-fi · Instrumental (se recuerda), la lista de piezas con la que suena
+  marcada (con sus barritas en Coral), «siguiente» y «Suena …»; Esc lo cierra; en táctil el toque enciende y apaga. MOTOR: dos `<audio>` que se relevan con
+  FUNDIDOS por rAF (entra en 700 ms, se apaga en 700; al cambiar de pieza o emisora la que se va baja en 260 ms mientras la nueva entra: cruce sin silencio),
+  contador de turno (un play() tardío no pisa al siguiente), entra a mitad de una pieza al azar y encadena sin repetir la última; en una visita nueva arranca
+  callada; en la misma sesión sigue al cambiar de página (si el navegador no deja sin gesto, se apaga sola a 1,5 s y al primer gesto lo intenta otra vez).
+  VOLUMEN IGUALADO: las doce piezas recodificadas desde los originales de 320 kbps con `loudnorm` en dos pasadas a −18 LUFS / −1,5 dBTP (antes iban de −8,8 a
+  −17,7 LUFS: nueve decibelios entre una y otra), MP3 96 kbps 44,1 kHz (`norm.sh` en el scratchpad; 1,5–2,8 MB por pieza). Iconos nuevos en `lib/iconos.ts`:
+  `music-note` (la doble) y `skip-next`. `Nav.astro`: `<Radio />` dentro de `.acciones-nav`; con el menú abierto el botón va en Cacao como la hoja.
+  **Medido** (Chrome 1280 y 390 táctil, WebKit 1280; dev en :3935; `tools/verify.cjs` no corre en este Mac, pruebas en el scratchpad): botón a 44 px de la hoja;
+  panel al pasar y cerrado con Esc; encender → suena a mitad de pieza, vol 0,5, analizador conectado; Lo-fi → 7 piezas; pieza elegida suena y queda marcada;
+  siguiente; apagar → vol 0,18/0,13 a 350 ms y en pausa a 1 s; tras cambiar de página sigue sonando en Chrome y en WebKit se apaga sola (sin gesto); 0 errores
+  de consola (WebKit: solo el aviso de precarga de la fuente, que ya estaba); `astro check` 0 errores. Resuelve el «Ojo» de la ronda 157: ya no hay botón
+  flotante abajo que choque con la barra ‹ 01/04 ›.
+  **Después (Eric, con captura): «igual que el sonido, el icono sea más onda que una corchea» · «la canción activa abajo no está bien alineada» · «el scroll de
+  canciones delimitado por una nubecita» · «el sonido del mockup de naturaleza, cuando hagas scroll ahí, tiene que respetarse: se quita la música y empieza el
+  sonido de naturaleza».** Hecho: el icono es LA ONDA, cinco barras en fila (apagada, una onda quieta 0,4 · 0,7 · 1 · 0,7 · 0,4 que se abre un poco al pasar;
+  encendida, bailan con la música: graves en el centro, agudos fuera; fuera la nota de Iconoir, `music-note` queda importado sin uso); «Suena …» alineado con
+  los nombres de la lista; la lista con máscara que desvanece arriba y abajo (12 → 24 px) y sin barra de scroll; LA MESA MANDA: `sonido-estudio.ts` ya no se
+  calla con la radio, avisa con `savvia:mesa` cuando su ambiente suena (sección a la vista y sonido permitido) y la radio se funde a 0 en 700 ms y se pausa en
+  la pieza (texto «X sigue al salir de la mesa», barras calmadas); al salir, sigue por donde iba con su fundido. Medido (Chrome, WebKit y 390 táctil): al
+  bajar a #proyectos cede → vol 0, en pausa; de vuelta arriba vol 0,5 sonando; 0 errores. **Ojo:** `public/sonido.md` (la guía del otro proyecto) está en `public/` sin seguimiento: se serviría en
+  /sonido.md; no es de la web. **Pendiente de Andoni:** si la radio en la barra le vale (él puso el mando abajo a la derecha en la 153); no publicado ni subido.
+
+### Ronda 157 · 2026-10-12 · Proyectos destacados: la fase «sentado por scroll» con el selector y la web que se coge con un clic (en local, Eric)
+- **Eric (Agentation, sobre `.marco-monitor`, 1710×985):** «está perfecto que del titular pase a esto. Pero esto ya tiene que ser el slider igual que cuando estás sentado.
+  Tú, cuando estás sentado, haces clic dentro del monitor y scrolleas la web dentro del monitor. Pues aquí igual. Solo que si haces clic fuera o scrolleas fuera sigues
+  scrolleando a las siguientes secciones. Veo bien que luego se haga zoom out y que haya opción de volver a sentarte con el clic ese, y ahí ya sí es un sentado con esc».
+- **Hecho (`Proyectos.astro`, solo la fase B de la ronda 152; C, D y el sentado de verdad no cambian):** en B salen el SELECTOR de proyecto de la vista sentado
+  (‹ 01/04 Nombre ›, sin el cristal del esc: `.escenario.asiento .arriba` oculto) y la FICHA de cristal con «Ver caso de estudio» (entra a los 0,2 s); la rotación
+  automática de capturas se para en B. La web se coge con un CLIC dentro del monitor (`pointerdown` en el escenario que cae en el rectángulo de la pantalla →
+  `explorar(true)`: web real o página entera, la rueda la recorre sin mover la página) y se suelta con un clic fuera; la rueda fuera mueve la página, sale de B y
+  la suelta sola. Mover el ratón sobre el monitor ya no la coge en B (sigue haciéndolo de pie, en D): solo cambia el cursor a mano (`.asiento.mira`). El selector y
+  la ficha no sueltan la web; al cambiar de proyecto con la web cogida, el nuevo se monta vivo. La píldora dice «clic en el monitor para navegar · fuera, para
+  levantarte» (táctil: «toca el monitor…») y se va al coger la web. `pointerleave` del escenario solo cuenta con ratón: con el dedo el navegador lo dispara al
+  levantarlo y soltaba la web recién tocada. Al levantarse con esc, el selector se queda si la fase es B.
+- **Medido** (Chrome real sin ventana, GL por software; `tools/verify.cjs` no corre en este Mac y la vista previa de Ship Studio se apagó a mitad; pruebas en el
+  scratchpad): 1280×720 y 1710×985, dos pasadas limpias cada una: en B selector visible y esc oculto, ficha a 1, píldora encendida; mover sin clic → solo la mano;
+  clic dentro → `explora`, iframe montado, píldora fuera; 5 golpes de rueda dentro → 0 px de página; flecha → Playground con la web cogida; clic fuera → suelta;
+  rueda fuera → sale de B (selector oculto, fase D); silla → sentado con esc; de vuelta a B tras el esc, selector otra vez; consola limpia. 390×844 táctil: toque
+  dentro → cogida, toque fuera → suelta, desborde 0. Una primera pasada a 1710 dio una vez el selector oculto tras la flecha: no se ha vuelto a reproducir en
+  tres pasadas más. `astro check` 0 errores en este archivo (los errores de `Nav.astro › Radio.astro` y `handbook.ts › pie.lugar` son de OTRA SESIÓN abierta a la
+  vez sobre el repositorio; el servidor estuvo en 500 un rato por eso).
+- **Ojo (visto en la captura de 390):** la barra ‹ 01/04 › centrada abajo choca con el botón flotante «Lo-fi» de la otra sesión (y antes con el (+)); pasa igual en
+  el sentado de verdad. Por decidir dónde va el mando en móvil.
+- **Pendiente:** `astro build` no se ha pasado (el repositorio tiene a medias los cambios de la otra sesión); no publicado ni subido.
+
+### Ronda 158 · 2026-10-12 · el copo más fino y la flor de cerezo en el icono de estación (en local, Eric)
+- **Eric (Agentation, sobre `.estacion-ic`):** «el icono de copo de nieve que sea un poco más finito. El de primavera tenemos que cambiarlo, que sea una flor más
+  bonita y fina».
+- **Hecho (`src/lib/iconos.ts`):** el copo de Iconoir baja de trazo 2,1 a 1,7. La FLOR deja de ser la de Iconoir (ocho pétalos que a 20 px eran una mancha): un
+  dibujo propio en la rejilla de 24, cinco pétalos de CEREZO (la primavera de savvia) estrechos en la base, anchos hacia la punta y con su muesca, el centro calado
+  (evenodd), rellena como todas las estaciones. Generada con un script (pétalo paramétrico girado cinco veces; candidatas comparadas a 20/32/96 px sobre oscuro y
+  claro). Afecta a la barra, al (+) flotante y a las fichas de estación del brandbook; el catálogo de Iconoir del brandbook sigue enseñando su `flower` a trazo.
+- **Medido:** `astro check` 0 errores · vista previa (Ship Studio, 1280): copo e invierno y flor en primavera en la barra, consola limpia. **SIN medir:** WebKit, móvil
+  y el abanico del (+). No publicado ni subido.
+- **A media ronda (Eric, Agentation sobre la web de Arkdev en el monitor, 1710×985): «cuando estoy en este estado de slider de primeras y hago click en la
+  pantalla la web no me desliza».** Causa medida: de pie las cuatro `.web` están apiladas (son las capturas que rotan) y las que no se ven, a opacidad 0
+  con `.cargando`, quedaban ENCIMA de la activa: el clic sí cogía la web (`explora`, iframe montado), pero la rueda caía en una transparente
+  (`elementFromPoint` = `DIV.web.cargando`). **Hecho (`Proyectos.astro`):** de pie, `.web:not(.on)` sin `pointer-events`. Vale también para la fase D.
+  **Medido** (Chrome sin ventana, 1710×985, fase B, clic en el monitor y 5 golpes de rueda): Kuanta 0 → 1000 · Playground 0 → 600 · Neety 0 → 1000 ·
+  Arkdev 0 → 1620 px dentro, y 0 px de página en los cuatro; antes 0 → 0. El clic fuera la suelta; sin errores · `astro check` 0 errores. **SIN medir:**
+  WebKit (el Playwright de Ship Studio no arranca su WebKit). No publicado ni subido.
+- **A media ronda (Eric): «en las preguntas de la segunda sección, "¿Dónde vive hoy tu web?" no me gusta».** Sustituida en la tanda 3 (`home.ts › recorrido.briefing`)
+  por «¿Cómo llegan hoy tus clientes a ti?» (del lado del negocio, sin repetir «¿Qué os cuesta cambiar hoy?» ni «¿Quién mantendrá la web?»). No publicado ni subido.
+- **A media ronda (Eric, Agentation sobre `.demo > .onda`): «esta onda puede ser algo más minimalista».** `TarjetaPaso.astro`: de 34 barras de 2 px pegadas a 15
+  trazos de 1,5 px con 6 px de aire, centrados, 24 px de alto (antes 36) y al 28 % de tinta (antes 38 %); el teñido de savia cuando contesta el cliente, igual.
+  No medido a ojo en la vista previa (comprobado el marcado servido). No publicado ni subido.
+  **Después (Eric): «igual la onda quitamos».** Fuera la onda (marcado y estilos `.onda`, `ola`, `turno`); la demo 01 queda con la píldora «Escuchando…» y las preguntas.
+  **Después (Eric): «ajusta la animación para que siempre haya preguntas entrando y saliendo».** Las preguntas ya no van por tandas que se apagan juntas:
+  van en CINTA (`TarjetaPaso.astro › .reloj`). La pregunta g = tanda × 4 + fila llega a los g · 1,3 s y se va 4 × 1,3 s después, justo cuando entra la
+  siguiente de su fila (`mod()` sobre el reloj; vuelta de 20,8 s). Siempre hay cuatro a la vista y cada 1,3 s una sale (sube y se desenfoca) mientras otra
+  entra. El rótulo «brief.md · N respuestas» se releva igual: cambia cuando se marca la última de cada tanda. Las preguntas se siguen barajando en cada visita.
+  **Medido** (Chrome sin ventana, 1280×800, 14 muestras en 10 s): siempre 4 preguntas + brief visibles y una transición cada ~1,3 s; sin errores. **SIN medir:** WebKit.
+- **A media ronda (Eric, Agentation sobre `.estacion-ic`): «esta flor parece un molino de viento, hazla un poco más real 🌸».** `iconos.ts › flower:fill`
+  redibujada: cinco pétalos de cerezo ANCHOS y redondeados (casi se tocan) con la muesca en corazón y la base corta (los de antes, estrechos en la base y
+  anchos en la punta, giraban como aspas), y en el centro un botón con cinco estambres entre pétalos. Revisada a 20, 32 y 128 px y en la barra (vista previa,
+  primavera) · `astro check` 0 errores. No publicado ni subido.
+
+### Ronda 159 · 2026-10-12 · árbol más grande y contenido más ancho en pantallas grandes (en local, Eric)
+- **Eric (textual, con captura a 2000 px):** «en pantallas más grandes el árbol tiene que ocupar más y el max-width aumentarlo un poco más con un tope claro.
+  El árbol y sus raíces crecen, cuidado».
+- **Hecho (`global.css`):** token `--contenido` = `clamp(75rem, 75rem + (100vw − 90rem) × 0,5, 90rem)`: 1200 px hasta una ventana de 1440, crece con ella y
+  topa en **1440 px** (a partir de 1920). Lo usan `wrap`, los carriles (`Carriles.astro`), el marco y las esquinas del hero, el borde de /proyectos y el índice
+  del brandbook. `--roble-h` en escritorio: el tope pasa de 30 rem fijo a `clamp(30rem, 30rem + (100vw − 90rem) × 0,4, 38rem)` (sigue limitado por el alto
+  de la pantalla); `--roble-w` nunca más ancho que `--contenido`. Las raíces comparten `--roble-w`: crecen a la par.
+- **Medido** (Chrome sin ventana, árbol · raíces · marco): 1280×720 640 · 640 · 1184 (igual que antes) · 1440×900 1029 · 1029 · 1200 (igual) · 1710×985
+  1212 · 1212 · 1335 · 2000×1150 1314 · 1314 · 1440 · 2560×1440 1314 · 1314 · 1440 (tope) · 390×844 sin cambios; desborde 0, consola limpia; captura a 2000:
+  raíces alineadas con el tronco y pintadas · `astro check` 0 · `spacing-lint` en escala. **SIN medir:** WebKit (el Playwright de Ship Studio no trae su
+  WebKit). No publicado ni subido.
+
+### Ronda 159 · 2026-10-12 · la barra de scroll de savvia en el monitor (en local, Eric)
+- **Eric (textual, con captura de la barra nativa del iframe):** «que la barra de scroll cuando estás deslizando la web sea algo nuestro por encima, una más grande y larga, para que se note que estás haciendo scroll sobre la pantalla».
+- **Hecho (`Proyectos.astro › [data-desliza]`):** un pulgar de savia (Coral, filo claro y sombra) largo (24–55 % del alto) sobre un carril oscuro translúcido en el borde derecho de la pantalla, en cqh (crece al sentarse); sale mientras la web se mueve y se apaga a 0,9 s. La captura larga (Neety) se mide en su contenedor. Un IFRAME de otro dominio no deja leer su scroll: la barra sale solo si la web lo cuenta con `postMessage({ tipo: 'savvia-scroll', p, vista }, '*')`; entonces el iframe va 20 px más ancho y su barra nativa cae fuera del recorte. Kuanta, Playground y Arkdev siguen con la nativa hasta que se les añada ese aviso.
+- **Medido** (Chrome sin ventana, 1280×720, sentado en Neety, rueda dentro): barra encendida (p 0,11, alto 0,24) y apagada a 1,3 s; sin errores · `astro check` 0 errores. **SIN medir:** WebKit, móvil. No publicado ni subido.
+- **A media ronda (Eric, con captura a ~4600 px): «¿este sería el resultado esperado?»** No: todo topado y el hero de una pantalla de alto dejaba el titular en
+  un vacío. Descartado el alto máximo del hero («el hero funciona mientras no se vean las raíces»). **Hecho, A PRUEBA («vamos a hacer la 2 a ver qué tal
+  queda»):** ESCALADO PROPORCIONAL por encima de 2560 px: `html { font-size: clamp(100%, 0.625vw, 200%) }` (`global.css`): 16 px a 2560, tope 32 px a
+  5120; por debajo no cambia; el suelo es el 100 % del visitante. Todo lo que va en rem (titulares, aires, `--contenido`, roble, raíces) crece a la par.
+  Pasados a rem los px fijos que se quedaban pequeños: la rejilla del menú (`Nav.astro`: puntos, hueco y desplazamientos del hover) y las barras de la
+  radio (`Radio.astro`). Para quitarlo: borrar esa regla de `html`. **Medido** (Chrome sin ventana): 1440 y 2560 iguales que antes (rem 16, h1 72); 3840×2160
+  rem 24, h1 108, árbol 1971; 4600×2650 rem 28,75, árbol 2361 × 1092, marco 2588; 5120×2880 rem 32, h1 144, árbol 2628; desborde 0 y consola limpia en
+  todos; capturas de hero, raíces, Proyectos, Más proyectos y preguntas a 4600: escalan bien. **Pendiente:** la lámina del roble (1260 px) se amplía ×2 a
+  5120 y se ve más blanda; los filtros SVG (gooey) y los trazos de 1 px no escalan; WebKit sin medir.
+- **Después (Eric): «algo más pequeña, que salga cuando hagas clic directamente; de altura más pequeña también; para todos los ejemplos».** Barra más estrecha (1,5 cqh, mín. 4 px) y pulgar más corto (12–26 % del alto); ya no sale solo al deslizar: está a la vista mientras la web se puede recorrer (cogida con el clic de pie, o sentado) y sigue al scroll; se va al soltarla o al levantarte. Medido (Chrome, sentado en Neety): encendida sin deslizar (p 0), p 0,171 tras deslizar, apagada al levantarse; sin errores · `astro check` 0. Las tres webs en iframe siguen necesitando el aviso `savvia-scroll` en su propio código.
+- **A media ronda (Eric, con su hero en producción y en local: «cuidado cuidado»):** en su portátil (~1710×985) el árbol ya había crecido (480 → 561 px de
+  alto, comiéndose el aire bajo el titular, que subía) y los carriles se abrían (1200 → 1335): el crecimiento arrancaba en 1440 px. **Hecho:** `--contenido` y
+  el tope del roble crecen solo por encima de **1920 px** (contenido al tope de 1440 con 2400; roble a 38 rem con 2240); el escalado proporcional, por encima
+  de 2560. **Medido contra producción** (Chrome, posición y tamaño de h1, árbol y marco): IDÉNTICO a savvia.studio a 1280×720, 1440×900, 1512×860, 1710×985 y
+  1920×1080; solo cambia a 2560×1440 (árbol 1314 × 608, marco 1440).
+- **Después (Eric: «barra fija mientras tanto»):** las tres webs en iframe (Kuanta, Playground, Arkdev) enseñan también nuestra barra y su nativa queda siempre fuera del recorte (iframe 20 px más ancho); como no se puede leer su scroll, el pulgar se queda QUIETO arriba (avisa de que se puede deslizar, no de por dónde vas) hasta que cada web mande el aviso `savvia-scroll`. Medido (Chrome, sentado en Kuanta): barra encendida, sin la nativa, sin errores · `astro check` 0.
+- **Después (Eric: «meteremos el aviso»):** añadido el aviso `savvia-scroll` (solo actúa dentro de un iframe; un mensaje por fotograma como mucho, también al cargar) en el código LOCAL de Kuanta (`~/ShipStudio/andonimart-multiverse-home/site/src.html`, compilado con `site/build.py`) y de Arkdev (`~/ShipStudio/zernio/app/layout.tsx`). Medido en Kuanta (servida en local dentro de un iframe de otro origen, Chrome): 153 avisos al deslizar, p de 0 a 0,18 (Lenis mueve la ventana: vale). Arkdev: `typecheck` limpio, sin probar en navegador. NINGUNA de las dos está publicada: hasta que se publiquen, savvia sigue con la barra quieta en ellas. Playground, sin cambios (su código no está en este Mac).
+- **A media ronda (Eric):** «el icono de ondas, un poco más pequeño, de altura sobre todo» → barras de `.m-ondas` al 62 % de la caja (antes 82 %), hueco 2,25 px.
+  «a veces clico en una canción y a la primera no suena; me hace scroll a la que está sonando sin cambiar» → dos causas en `Radio.astro`: (1) al pulsar,
+  el foco del botón volvía a disparar `abrir(true)`, que centraba la lista en la pieza que sonaba entre el pulsar y el soltar, y el clic caía fuera; ahora
+  solo se centra al abrirse el panel. (2) `play()` esperaba a los metadatos: con la pieza lenta, el navegador ya no lo contaba como gesto; ahora se pide
+  dentro del clic. Medido (Chrome, 1710×985, bajar la lista y pulsar tres piezas): antes 0 de 3 cambiaban, ahora 3 de 3; con el mp3 tardando 2,5 s suena al
+  primer clic. **SIN medir:** WebKit (no está instalado aquí). No publicado ni subido.
+- **Después (Eric, con captura): «el aviso, más minimalista y acorde con el diseño: está enorme».** La píldora de «clic para navegar» pasa a ser pequeña y de cristal como la del esc (velo de la noche al 52 %, filo claro, desenfoque, letra 2,4 cqh ≈ 10 px, ratón de 1 px de trazo) y el texto se acorta: «clic para navegar» / «toca para navegar» (B) y «desliza dentro» (D). Medido a 1280: 96 × 22 px (antes ~1100 × 130 en la captura).
+- **Después (Eric): «en la pantalla de Multiverse veo una línea blanca con respecto al marco».** Medido a DPR 2: la primera fila de la pantalla salía a 144 de brillo (la web, a 40). Eran tres cosas en el borde fraccionario de la pantalla: el fondo #fbfbfa del visor (la «pestaña en blanco» de cuando se tecleaba la dirección), el fondo blanco del iframe y la costura entre el filo del bisel y el visor. Ahora el visor va en el negro del bisel (#121213) con su propio filo de 2 px, el iframe sin fondo y el filo de `.pantalla` a 3 px. Primera fila: 144 → 51; columna izquierda: 54 → 24.
+- **A media ronda (Eric): «de una página a otra la radio se tiene que mantener en la misma canción y minuto».** `Radio.astro` guarda en la sesión
+  (`savvia:radio-pos`: pieza, segundo y hora) cada segundo y al salir de la página; la siguiente la retoma ahí sumando lo que duró el viaje (tope 30 s).
+  Antes cada página arrancaba otra pieza al azar a mitad. Si el navegador no deja sonar sin gesto, el primer clic la retoma en el mismo punto. Apagar borra
+  la posición. Medido (Chrome, / → /proyectos → /manifiesto): misma pieza y el tiempo sigue (6,1 → 8,9 → 11,6 s), también con la reproducción automática
+  bloqueada (tras el primer clic). **SIN medir:** WebKit. No publicado ni subido.
+
+### Ronda 160 · 2026-10-12 · «clic para navegar» pegado al cursor y la pantalla que se enciende al cogerla; fuera la barra de scroll propia (en local, Eric)
+- **Eric (Agentation sobre el iframe del monitor, 1710×985):** «ese clic para navegar puede estar más presente, como al pasar sobre la pantalla; y que si haces clic, a la pantalla, los bordes, se le aplique algo de color. Así no hace falta el tema del scroll sobre el scroll».
+- **Hecho (`Proyectos.astro`):** con ratón, en la fase B, «clic para navegar» (píldora de cristal con un punto de savia, 12 px) va PEGADO AL CURSOR mientras está sobre el monitor y la web no está cogida; vive en el `<body>` (dentro del escenario escalado `fixed` no vale) y se va al salir, al hacer scroll de página o al coger la web. Al coger la web (clic de pie, o de pie en D al moverse sobre ella), la pantalla se enciende con un filo de savia por dentro (`.visor::after`, inset, `max(2px, 0.8cqh)`); se apaga al soltarla. La píldora fija de abajo queda solo para táctil. FUERA la barra de scroll propia de la ronda 159 (marcado, script, estilos y el `postMessage`); el iframe sigue 20 px más ancho para que no se vea su barra nativa. Deshecho el aviso `savvia-scroll` que se había añadido en local a Kuanta (`andonimart-multiverse-home`, `git checkout`) y a Arkdev (`zernio/app/layout.tsx`): ya no hace falta.
+- **Medido** (Chrome sin ventana, 1440×900, fase B en Kuanta): al pasar, la etiqueta sale junto al cursor (en el body, opacidad 1) y la píldora fija no; al hacer clic, `.explora` y filo Coral visible (captura), etiqueta fuera; clic fuera, suelta; sin errores · `astro check` 0. **SIN medir:** WebKit, móvil.
+- **A media ronda (Eric): «se para un segundo al cambiar de pantalla, ¿se puede solucionar?»** Sin ClientRouter el hueco de la recarga no se evita
+  (opción descartada por ahora: obliga a adaptar todos los scripts; por acordar con Andoni). Se disimula: `transicion.ts` avisa con `savvia:salir` y la
+  música baja a 0 mientras la gota cubre la pantalla (0,5 s); la página nueva la retoma en su punto con un fundido de 0,45 s (`SIGUE`); al volver con
+  «atrás» (bfcache), también. Medido (Chrome, /proyectos → /): vol 0,5 → 0 en 570 ms al salir; al llegar 0,04 → 0,5 en ~400 ms, misma pieza.
+- **Después (Eric): «diseñar un poco el ratón que te acompaña» · «el borde al hacer clic, muy grande: algo sutil sobre el recuadro exterior, no el interior» · «que el clic también sirva en el recuadro exterior».** El acompañante: el cursor se oculta sobre el monitor y lo sustituye un PUNTO de savia (8 px) clavado a él; un ARO de cristal (40 px, filo Rosa niebla, desenfoque leve) le sigue con retraso (lerp 0,22) y a su lado el rótulo «clic para navegar» (11 px); al pulsar, el aro se cierra sobre el punto, se llena de savia y se abre al irse. El filo interior se va: al coger la web, un filo de savia de 1,5 px FUERA de la pantalla, sobre el marco (`outline` de `.pantalla`, que su `overflow` no recorta, con un desplazamiento de 4 px). El clic en el marco cuenta como en la pantalla (`enMonitor` con un 4 % del ancho de margen). Medido (Chrome, fase B en Kuanta): acompañante en el body al pasar; clic 6 px fuera de la pantalla → la coge; filo visible; sin errores · `astro check` 0.
+- **Después (Eric): «el recuadro de fuera tiene que casar con el del ordenador, con sus redondeados: mejor una luz difuminada, como si estuviese detrás de la pantalla» · «el puntito que te acompaña es AI slop de manual; el círculo no convence: algo que siga al ratón normal» · «me gusta cómo se tiñe, pero hay que ver el color para cada estación».** Fuera el filo de `outline`. La luz es la sombra exterior de `.halo-monitor`, una caja con el rectángulo y el redondeo del monitor (los del marco de sentado): una box-shadow exterior no se pinta bajo su caja, así que el monitor queda limpio y la luz solo asoma alrededor, como desde detrás. Color por estación (`--halo`): otoño la savia (#FF616B, 55/22 %); primavera #FF4F95 (75/30 %: el rosa de la savia se perdía en el cielo rosa); verano #D4F56A (80/34 %); invierno #7FB4FF (85/38 %: el glaciar se perdía en la nieve azulada). El acompañante: fuera el punto y el aro; la flecha normal (mano sobre el monitor) y, abajo a su derecha, una píldora de cristal con un ratón dibujado de botón izquierdo en savia y «clic para navegar», que la sigue con retraso. Capturas de las cuatro estaciones en el scratchpad de la sesión · `astro check` 0.
+- **A media ronda (Eric): «ya estoy haciendo el cambio en staging de neety.treseiscero.app/home para que se pueda mostrar con animaciones».** Staging manda ya
+  `content-security-policy: frame-ancestors 'self' https://savvia.studio https://*.savvia.studio http://localhost:*` (neety.com, sin cambios) → fuera `embed: false`
+  de Neety en `home.ts`: sentado y al cogerla de pie va la web real en el iframe (Eric lo vio funcionando). **«El lateral no está bien ajustado»:** el iframe
+  iba siempre 20 px más ancho (ronda 159) y en Mac, con la barra superpuesta, recortaba 20 px por la derecha de TODAS las webs. Ahora se ensancha lo que mide
+  la barra en ese navegador (`BARRA`, medida con un div con `overflow: scroll`): 0 en Mac, ~15 en Windows. Medido (Chrome sin ventana): iframe a 1440 px, sin
+  errores · `astro check` 0. No publicado ni subido.
+- **A media ronda (Eric): «que la pantalla del ordenador sea como si tuviese más altura, como la veo en mi MacBook Air»** → la web del monitor se pinta a
+  1710 px (antes 1440; móvil 1024) y se reduce (`Proyectos.astro › BASE`): cabe la sección de Neety entera. Medido: iframe de Neety a 1710 × 930. **«Y las
+  capturas de thumbnail a esa proporción»** → `tools/r160/capturar.cjs`: las cuatro miniaturas de los destacados a 1710 × 930 (antes 1440 × 900; las viejas en
+  `tools/retirados/proyectos-r159/`), sin la barra de pruebas «HERO · A·Código / B·Esquema» de Zernio. Kuanta y Arkdev siguen con su web real (como en la 136).

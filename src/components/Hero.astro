@@ -265,7 +265,7 @@ import { rich } from '../lib/rich';
     top: 0;
     bottom: 0;
     translate: -50% 0;
-    width: min(100% - var(--gutter) * 2, 75rem);
+    width: min(100% - var(--gutter) * 2, var(--contenido));
     /* «el fondo detrás del árbol va de color sólido a nada […] replicarlo pero con puntos que son casi del color del fondo. Nuestro color
        claro al 10 % y que vaya a 0 %»: retícula de puntos a 45° (la misma del semitono del árbol) que se desvanece hacia abajo */
     /* RONDA 146 · Andoni: «quita la parrilla de detrás del árbol, los puntos»: sin la trama de puntos (rondas 16–145); quedan los lados a trazos */
@@ -317,7 +317,7 @@ import { rich } from '../lib/rich';
   }
   .esquina {
     --gutter: calc(var(--spacing) * 5);
-    --marco-w: min(100% - var(--gutter) * 2, 75rem);
+    --marco-w: min(100% - var(--gutter) * 2, var(--contenido));
     position: absolute;
     bottom: calc(var(--spacing) * 3);
     color: var(--fg2);

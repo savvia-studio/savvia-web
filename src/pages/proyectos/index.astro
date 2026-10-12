@@ -329,7 +329,7 @@ const texto = (p: (typeof proyectos)[number]) =>
      Todas a la misma altura (--h); el ancho sale de --k. Snap nativo, sin barra de scroll. */
   .destacados {
     --g: calc(var(--spacing) * 5);
-    --borde: max(var(--g), (100% - 75rem) / 2);
+    --borde: max(var(--g), (100% - var(--contenido)) / 2);
     --h: clamp(20rem, 58lvh, 38rem);
     margin-top: calc(var(--spacing) * 16);
   }

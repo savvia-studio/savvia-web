@@ -29,7 +29,7 @@ export const hero = {
   h1: 'Elevamos tu web con IA.', // ronda 125 (Andoni)
   h2: 'Especialistas en orquestar el desarrollo agéntico.', // ronda 128 (Andoni); antes (r125) «…orquestar con desarrollo agéntico.»
   // Las palabras con las que está hecho el ROBLE del hero (copa) y sus RAÍCES. Salen del diccionario de la marca (AGENTS.md › Se dice).
-  vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'Donostia', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
+  vocabulario: ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'versatilidad', 'contigo', 'Eric y Andoni', 'savvia', 'la savia', 'tu web', 'diseño', 'con criterio'],
   vocabularioRaiz: ['raíz', 'briefing', 'entender', 'qué vendes', 'a quién', 'decisiones', 'savvia', 'fuente de verdad', 'documentado', 'criterio', 'la savia', 'desde la raíz'],
 };
 
@@ -45,6 +45,19 @@ export const recorrido = {
   // con el scroll, de manera que el usuario pasa por todos los pains». Cada parada: el DOLOR (lo que siente quien entra) y la RESPUESTA,
   // con la demo que ya gustaba de cada paso. Siempre en segunda persona (ronda 39, punto 8: «el yo solo lo proyectamos en equipo»).
   pregunta: '¿Te suena alguno?',
+  // RONDA 156 · Eric (Agentation, sobre «¿A dónde quieres llegar?»): «tenemos que adjuntar una batería de preguntas más extensa, así en animación, no solo 4»
+  // · «la animación tiene que ser como la de antes; solo que cuando sale la segunda o tercera tanda, que sean preguntas diferentes».
+  // Las preguntas del BRIEFING que hacemos de verdad, sacadas de la carpeta de Drive «Savvia - Andoni x Eric x José Luis»: la Narrativa del 2 de
+  // septiembre (el cliente como director creativo, «una persona clara que tome decisiones», «que el mensaje para su usuario quede muy claro», a quién
+  // admiramos, la competencia), los Mensajes clave de José Luis (tu producto, tu equipo y tu forma de contarlo han avanzado y la web sigue contando la
+  // versión de hace tres años; webs ancladas en tecnologías del pasado, difíciles de mantener; CMS, idiomas) y la sesión del 21 («desde la raíz»).
+  // Cuatro TANDAS de cuatro (la demo las enseña de cuatro en cuatro, en orden): quién eres · qué ha pasado · cómo trabajáis · qué viene después.
+  briefing: [
+    ['¿Qué vendes?', '¿A quién?', '¿Qué hace especial lo que haces?', '¿Quién más hace lo que haces?'],
+    ['¿Qué ha cambiado desde tu última web?', '¿Qué ya no cuenta de ti?', '¿Qué debe entenderse al entrar?', '¿Qué webs admiras? ¿Cuáles no?'],
+    ['¿Quién decide en tu equipo?', '¿Cómo llegan hoy tus clientes a ti?', '¿Qué os cuesta cambiar hoy?', '¿Cada cuánto publicáis? ¿En qué idiomas?'],
+    ['¿Quién mantendrá la web? ¿Qué equipos?', '¿Qué querréis cambiar a menudo?', '¿Qué fechas estimáis?', '¿A dónde quieres llegar con la nueva web?'],
+  ],
   // RONDA 53 · más cerca del Keynote: los cuatro problemas de su diapositiva «Web anclada en paradigma anterior» (ya no te representa · genérica e
   // impersonal · difícil de gestionar y mal documentada · infraestructura vieja y cara + equipo que no domina la IA) y, en el tercero, el ARNÉS.
   // RONDA 65 · copy de Andoni: tres dolores (el 3 y el 4 de antes se funden: la demo de la receta y la de la landing van juntas)
@@ -216,8 +229,8 @@ export const proyectos = {
       cat: 'Ventas B2B',
       d: 'Detecta a quién vender y cuándo. La web enseña el feed de señales antes de explicarlo.',
       url: 'https://neety.treseiscero.app/home',
-      embed: false, // RONDA 19: la web real va en un iframe, pero neety.treseiscero.app manda `x-frame-options: SAMEORIGIN` → se enseña la captura hasta que se quite esa cabecera
-      // RONDA 135 · vuelto a medir: /home, / (→ /en), neety.com y www.neety.com siguen con `x-frame-options: SAMEORIGIN`. En cuanto Eric la quite, fuera `embed: false`.
+      // RONDA 160 · Eric quitó `x-frame-options` en staging: neety.treseiscero.app manda `frame-ancestors 'self' https://savvia.studio https://*.savvia.studio
+      // http://localhost:*` → la web real va en el iframe (neety.com sigue sin dejarse embeber: no cambiar la url).
       estacion: 'otono',
       hechos: [
         ['Trabajo', 'Home · diseño y desarrollo agéntico'],
@@ -438,8 +451,7 @@ export const pie = {
   correo: 'hola@savvia.studio',
   cal: '', // ronda 65: «Contáctanos» llevará a un cal.com (falta el enlace); mientras, al correo
   faltaCorreo: '¿hola@savvia.com o @savvia.studio?',
-  lugar: 'Donostia',
-  desde: 'desde 2020',
+  desde: 'desde 2020', // ronda 156 (Eric): sin «Donostia» en la web
 };
 
 // RONDA 53 · LA RECETA DE PAPEL. Andoni: «la sección de savvia la receta de tu web quiero hacer una receta de papel estilo poetry.camera, pero que tenga

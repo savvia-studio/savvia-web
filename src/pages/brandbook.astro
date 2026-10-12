@@ -101,7 +101,7 @@ const escala = [
   ['Interfaz', 'var(--text-ui)', '16', 'Timeless Sans 500', 'sans'],
   ['Detalle', 'var(--text-detail)', '13', 'Timeless Grotesk 300', 'grot'],
 ] as const;
-const seDice = ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'contigo', 'Eric y Andoni', 'Donostia'];
+const seDice = ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'contigo', 'Eric y Andoni']; // ronda 156 (Eric): «Donostia» ya no se dice
 const noSeDice = ['prompt', 'vibe coding', '«lavado de cara»', 'años de experiencia', 'número de clientes', '«pioneros»', 'jerga de generador'];
 const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25" /><path d="M6 10.4 8.7 13 14 7.2" pathLength="1" /></svg>`;
 ---
@@ -126,7 +126,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Cómo se ve, cómo suena y cómo se mueve savvia. Todo lo que hay aquí sale del sistema real de la web.</p>
           <div class="cubierta">
             <span class="logo-masc" role="img" aria-label="savvia"></span>
-            <span class="detail pie-cub">savvia · Donostia · desde 2020</span>
+            <span class="detail pie-cub">savvia · desde 2020</span>
           </div>
         </header>
 
@@ -134,7 +134,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
           <h2 id="h-logotipo" class="font-display text-h2">Logotipo</h2>
           <!-- RONDA 153 · «en el brandbook hay que poner el logo nuevo con todos los colores, su construcción, la construcción del isotipo» -->
-          <p class="cuerpo">El logotipo son dos piezas: el isotipo —una gota que da la vuelta— y la palabra «savvia» en Family, la letra de los titulares, siempre en minúscula. Juntos, en una sola línea; el isotipo, solo, donde no cabe la palabra (favicon, avatares, la carga).</p>
+          <p class="cuerpo">El logotipo son dos piezas: el isotipo —una gota que da la vuelta— y la palabra «savvia» en Family, la letra de los titulares, siempre en minúscula. Juntos, en una sola línea; el isotipo, solo, donde no cabe la palabra (avatares, la carga). El favicon no lleva isotipo: es el fondo de la estación con el roble en pequeño (abajo).</p>
           <div class="fila f2">
             <figure class="placa oscura grande"><span class="lockup" role="img" aria-label="savvia sobre Cacao"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Sobre Cacao · Blanco</figcaption></figure>
             <figure class="placa clara grande"><span class="lockup" role="img" aria-label="savvia sobre blanco"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Sobre blanco · Cacao</figcaption></figure>
@@ -150,14 +150,28 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           </div>
           <div class="fila f3">
             <figure class="placa oscura sm"><span class="iso-masc solo" role="img" aria-label="El isotipo solo"></span><figcaption class="detail">El isotipo solo</figcaption></figure>
-            <figure class="placa clara sm fav-par"><span class="fav-m cla" role="img" aria-label="Favicon en modo claro"><span class="iso-masc"></span></span><span class="fav-m osc" role="img" aria-label="Favicon en modo oscuro"><span class="iso-masc"></span></span><figcaption class="detail">Favicon · modo claro y oscuro</figcaption></figure>
+            <figure class="placa clara sm fav-par"><img class="fav-png" src="/favicon-otono.png?v=157" alt="Favicon de otoño" width="64" height="64" /><figcaption class="detail">Favicon · el de la estación</figcaption></figure>
             <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label="savvia en pequeño"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Tamaño mínimo · 24 px de alto</figcaption></figure>
           </div>
           <ul class="reglas">
-            <li><b>Un solo dibujo</b> el isotipo es el mismo en todos los tamaños (el de 24 px): barra, favicon, carga y aplicaciones.</li>
+            <li><b>Un solo dibujo</b> el isotipo es el mismo en todos los tamaños (el de 24 px): barra, carga y aplicaciones.</li>
             <li><b>Proporción áurea</b> el anillo del isotipo mide la altura de x de la palabra × φ (1,618); entre isotipo y palabra, el anillo ÷ φ² (0,382); el centro del anillo, en el centro de la altura de x.</li>
             <li><b>Aire</b> alrededor, como mínimo, la altura de x de la palabra.</li>
             <li><b>Sí</b> macizo, en el blanco o en la tinta de la estación, sobre fondo liso. <b>No</b> se estira, no se gira, no lleva sombra ni degradado.</li>
+          </ul>
+          <!-- RONDA 156 · Eric: «si no hacemos isotipo en el favicon, tiene que estar solo el background principal, y ese background se cambia con la
+               estación; igual sí que podemos poner el árbol en pequeño» · «¿el cambio puede ser smooth?» -->
+          <h3 class="font-display text-h3 mt-24">El favicon</h3>
+          <p class="cuerpo">Sin isotipo. Es el fondo principal de la web en la estación que toca, con su roble en pequeño: el mismo árbol del hero, con el pie abajo. Cambia con la estación: si la cambias en la web, la pestaña se funde al icono nuevo en poco más de un segundo.</p>
+          <div class="fila f4 fav-est">
+            {['otono', 'invierno', 'primavera', 'verano'].map((e) => (
+              <figure class="placa clara sm"><img class="fav-png" src={`/favicon-${e}.png?v=157`} alt={`Favicon de ${e === 'otono' ? 'otoño' : e}`} width="64" height="64" loading="lazy" /><figcaption class="detail">{e === 'otono' ? 'Otoño' : e[0].toUpperCase() + e.slice(1)}</figcaption></figure>
+            ))}
+          </div>
+          <ul class="reglas">
+            <li><b>Uno por estación</b> el fondo es la noche de la estación (en invierno, la nieve) y el árbol, su lámina del hero; 64 px con las esquinas al 22 %, y 180 px a sangre para el icono de iPhone.</li>
+            <li><b>Cambia con la web</b> al cambiar de estación los dos iconos se funden (1,2 s); con movimiento reducido, cambio directo. Safari no repinta el favicon en caliente: enseña el de la carga.</li>
+            <li><b>Se genera, no se dibuja</b> con <code>tools/r156-favicon.cjs</code> desde las láminas del hero: si cambia un roble, se vuelve a lanzar.</li>
           </ul>
         </section>
 
@@ -230,12 +244,12 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
               <figcaption class="detail pz-pie">La gota · a punto de caer</figcaption>
             </figure>
             <figure class="pz pz-cla pz-app">
-              <div class="mk-pestana"><span class="mk-fav iso-masc"></span><span class="mk-tit">savvia — Elevamos tu web con IA</span><span class="mk-x">×</span></div>
-              <div class="mk-icono"><span class="iso-masc"></span></div>
+              <div class="mk-pestana"><img class="mk-fav" src="/favicon-otono.png?v=157" alt="" width="16" height="16" /><span class="mk-tit">savvia — Elevamos tu web con IA</span><span class="mk-x">×</span></div>
+              <div class="mk-icono"><img src="/apple-touch-icon-otono.png?v=157" alt="" width="180" height="180" /></div>
               <figcaption class="detail pz-pie">Aplicaciones · pestaña e icono</figcaption>
             </figure>
             <figure class="pz pz-osc pz-tarjeta">
-              <div class="mk-tarjeta"><span class="lockup"><span class="iso-masc"></span><span class="logo-masc"></span></span><span class="detail mk-dato">hola@savvia.studio · Donostia</span></div>
+              <div class="mk-tarjeta"><span class="lockup"><span class="iso-masc"></span><span class="logo-masc"></span></span><span class="detail mk-dato">hola@savvia.studio</span></div>
               <figcaption class="detail pz-pie">Aplicaciones · tarjeta</figcaption>
             </figure>
             <p class="pz pz-frase pz-frase-2 font-display">Como las estaciones, nuestra manera de trabajar tiene distintos ritmos. Observamos, desarrollamos, damos forma y aprendemos de lo que hacemos. El ciclo se repite, pero nunca regresamos exactamente al mismo lugar.</p>
@@ -472,7 +486,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           <div class="apl">
             <figure class="apl-p apl-tarjetas">
               <div class="tv-sombra" aria-hidden="true"></div>
-              <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio · Donostia</span></div>
+              <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio</span></div>
               <div class="tarjeta-v cara" aria-hidden="true"><span class="lockup tv-lock"><span class="iso-masc"></span><span class="logo-masc"></span></span></div>
               <figcaption class="detail apl-pie">Tarjeta de visita · 85 × 55 mm, anverso y reverso</figcaption>
             </figure>
@@ -492,8 +506,8 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
               <div class="ventana" aria-hidden="true">
                 <div class="v-barra">
                   <span class="v-sem"><i /><i /><i /></span>
-                  <span class="v-tab on"><span class="iso-masc v-fav"></span><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
-                  <span class="v-tab"><span class="iso-masc v-fav"></span><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab on"><img class="v-fav" src="/favicon-otono.png?v=157" alt="" width="16" height="16" /><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab"><img class="v-fav" src="/favicon-otono.png?v=157" alt="" width="16" height="16" /><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
                   <span class="v-mas"><Fragment set:html={icono('plus')} /></span>
                 </div>
                 <div class="v-dir"><span>savvia.studio</span></div>
@@ -644,7 +658,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .indice {
     position: fixed;
     top: calc(var(--spacing) * 28);
-    left: max(var(--gutter, 3rem), (100vw - 75rem) / 2);
+    left: max(var(--gutter, 3rem), (100vw - var(--contenido)) / 2);
     width: 14rem;
     transition: opacity 0.4s ease;
     display: flex;
@@ -1115,7 +1129,13 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .lockups-est .placa { box-shadow: inset 0 0 0 1px color-mix(in oklab, #3B231B 10%, transparent); }
   .fav-par { grid-auto-flow: column; gap: calc(var(--spacing) * 4); place-content: center; }
   .fav-m { display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 0.9rem; }
-  .fav-m .iso-masc { width: 62%; }
+  .fav-png { display: block; width: 4rem; height: 4rem; image-rendering: auto; }
+  .fila.f4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (width < 48rem) { .fila.f4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .fav-est .placa { aspect-ratio: 1; align-content: center; gap: calc(var(--spacing) * 3); }
+  .fav-est .placa figcaption { position: static; }
+  .fav-png { border-radius: 22%; box-shadow: 0 0 0 1px color-mix(in oklab, #3B231B 12%, transparent); } /* el de invierno es nieve sobre claro: el filo lo despega */
+  .mk-icono img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .fav-m.cla { background: #fff; color: #3B231B; box-shadow: 0 0 0 1px var(--rule); }
   .fav-m.osc { background: #202124; color: #F5F5F7; }
   /* ronda 153 · la galería del isotipo (casabien · Taqta): piezas a sangre, pegadas, oscuras y claras */

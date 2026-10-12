@@ -270,6 +270,7 @@ El resultado debe sentirse **acogedor, cuidado y contemporáneo**, con una estru
   eyebrows»). Hoy no hay ninguna. Si vuelven, que sea decisión explícita.
 - **Logotipo y símbolo:** la guía habla de un símbolo naranja y de formas orgánicas que no tengo. El «savvia» del menú es texto en Family
   y el favicon son las dos v antiguas recoloreadas: **provisionales** hasta recibir los archivos.
+  **Resuelto el favicon (ronda 156, 12/10/2026):** ver «El favicon» abajo.
 - **Family** sigue siendo la versión de prueba (sin acentos ni ñ ¿ ¡): esos glifos caen a Georgia. Avisado, no sustituido en silencio.
 - «Enérgica y juguetona» convive con una regla dura de la web anterior: tres veces cayó algo «por restar seriedad». El juego va en
   pequeños momentos y en el verbo, no en el tono general.
@@ -350,3 +351,15 @@ oscuro). **Nogal `#63402F`**: texto secundario sobre claro. **Coral `#F65340`**:
 - **Aplicación (ronda 50):** Servicios = el bloque COBALTO (`surface-warm`); la pieza del plato y `savvia.md` en La savvia = CORAL (el papel del antiguo
   Naranja); indicadores sobre oscuro (`--mark`) en Coral; el píxel de la IA, en Cobalto. Cereza, sin uso por ahora («ya veremos dónde»). Los degradados de
   cada cliente en «Más proyectos» NO se tocan. Tipografías: las de hoy (Family + ABC Areal + ABC Areal Mono), no las que nombra la guía.
+
+
+### El favicon (ronda 156, 12/10/2026 · Eric)
+- **Sin isotipo.** «Si no hacemos isotipo en el favicon, tiene que estar solo el background principal, y ese background se cambia con la estación;
+  igual sí que podemos poner el árbol en pequeño.»
+- **Uno por estación:** el fondo es la noche de la estación (otoño `#3b231b` · invierno `#f5f5f7` · primavera `#3a2932` · verano `#1b3125`) con el roble
+  de esa estación (la lámina del hero, `public/media/hero/arbol-<estación>.webp`) en pequeño, el pie abajo. `public/favicon-<estación>.png` (64 px,
+  esquinas al 22 %) y `public/apple-touch-icon-<estación>.png` (180 px, a sangre). Se generan con `tools/r156-favicon.cjs`: si cambia un roble, se relanza.
+- **Cambia con la web:** el `<head>` (Base.astro) pone el de la estación antes del primer pintado y, con `savvia:estacion`, funde el viejo con el nuevo
+  en un lienzo de 64 px (1,2 s, 12 pasos) y deja el PNG nuevo. Movimiento reducido: cambio directo. Safari no repinta favicons en caliente.
+- **Caché:** los PNG van con `?v=157`; al regenerarlos, subir la versión en Base.astro y en el brandbook.
+- Documentado también en el brandbook › Logotipo › «El favicon».

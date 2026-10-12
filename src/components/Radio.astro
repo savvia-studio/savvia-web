@@ -1,0 +1,394 @@
+---
+// RONDA 156 · Eric: «La música va a cambiar por completo menos la del mockup del ordenador. Esa se queda. Pero vamos a poner una estación de 2 radios
+// de música lo-fi e instrumental sin derechos que tengo en descargas» → (2.ª) «quiero que el sonido sea guay con música» · «el botón de música tiene que
+// ir arriba a la derecha cerca de la hoja y menú, no sticky». LA RADIO vive en la BARRA, entre el logotipo y la hoja de estación (antes, una píldora
+// flotante abajo a la derecha: tools/retirados/Radio.r156a-pildora.astro.txt). Lo que se trae del reproductor del otro proyecto de Eric (SoundControl):
+//   · las piezas IGUALADAS en volumen (loudnorm a −18 LUFS / −1,5 dBTP desde los originales de 320 kbps; antes iban de −8,8 a −17,7: nueve decibelios de salto)
+//   · FUNDIDOS con requestAnimationFrame: entra en 700 ms, se apaga en 700; al cambiar de pieza o de emisora, la que se va baja en 260 ms mientras entra la
+//     nueva (dos <audio> que se relevan: cruce de verdad, sin silencio); contador de turno para que un play() que llega tarde no pise al siguiente
+//   · se elige EMISORA antes que canción: Todas · Lo-fi · Instrumental; y la lista de piezas con la que suena marcada (al pasar el ratón o con el foco)
+//   · siempre arranca callada en una visita nueva; se recuerda la emisora (localStorage) y, dentro de la misma sesión, si estaba encendida (sessionStorage)
+// Y lo nuestro: la nota se vuelve cuatro BARRAS que bailan con la música REAL (AnalyserNode sobre los <audio>; sin él, respiran solas); al encender entra
+// en una pieza al azar y a mitad de ella, como una radio; encadena sin repetir la última. Mientras suena, el ambiente de la mesa de Proyectos se calla
+// (sonido-estudio.ts escucha `savvia:radio`). Piezas de HoliznaCC0 (dominio público, CC0): «Lo-Fi And Chill» y «Relaxing Instrumentals».
+import { icono } from '../lib/iconos';
+const EMISORAS = [
+  { id: 'lofi', nombre: 'Lo-fi', pistas: [
+    { f: 'first-snow', t: 'First Snow' }, { f: 'laundry-on-the-wire', t: 'Laundry On The Wire' }, { f: 'everything-you-ever-dreamed', t: 'Everything You Ever Dreamed' },
+    { f: 'keeping-cool', t: 'Keeping Cool' }, { f: 'snow-drift', t: 'Snow Drift' }, { f: 'windows-down', t: 'Windows Down' }, { f: '2-hour-delay', t: '2 Hour Delay' },
+  ] },
+  { id: 'instrumental', nombre: 'Instrumental', pistas: [
+    { f: 'night-driving', t: 'Night Driving' }, { f: 'boredom', t: 'Boredom' }, { f: 'love', t: 'Love' }, { f: 'lost-in-your-eyes', t: 'Lost In Your Eyes' }, { f: 'you-loved-me-once', t: 'You Loved Me Once' },
+  ] },
+];
+const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p) => ({ id: `${e.id}/${p.f}`, em: e.id, emNombre: e.nombre, t: p.t })));
+---
+
+<div class="radio" data-radio data-filtro="todas">
+  <button type="button" class="musica-ic" aria-label="Encender la música" aria-pressed="false" aria-expanded="false" aria-controls="radio-panel" data-radio-play>
+    <span class="m-ondas" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="m-pausa" aria-hidden="true"><Fragment set:html={icono('pause', 'fill')} /></span>
+  </button>
+  <div class="panel" id="radio-panel" data-radio-panel>
+    <div class="cabeza">
+      <div class="emisoras" role="tablist" aria-label="Emisora">
+        <button type="button" role="tab" aria-selected="true" data-em="todas">Todas</button>
+        {EMISORAS.map((e) => <button type="button" role="tab" aria-selected="false" data-em={e.id}>{e.nombre}</button>)}
+      </div>
+      <button type="button" class="sig" aria-label="Siguiente pieza" data-radio-sig><Fragment set:html={icono('skip-next', 'fill')} /></button>
+    </div>
+    <ol class="pistas" aria-label="Piezas">
+      {PISTAS.map((p) => (
+        <li data-em={p.em}>
+          <button type="button" data-pista={p.id} data-t={p.t}>
+            <span class="p-t">{p.t}</span>
+            <span class="p-em">{p.emNombre}</span>
+            <span class="p-ondas" aria-hidden="true"><i></i><i></i><i></i></span>
+          </button>
+        </li>
+      ))}
+    </ol>
+    <p class="ahora" data-radio-ahora aria-live="polite">Apagada</p>
+  </div>
+</div>
+
+<style>
+  .radio {
+    position: relative;
+    display: grid;
+    place-items: center;
+    pointer-events: auto;
+  }
+  /* el botón, la misma caja que la hoja de estación (20 px + 8 de aire a cada lado, sin mover la fila) */
+  .musica-ic {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    padding: 0;
+    margin: calc(var(--spacing) * -2);
+    box-sizing: content-box;
+    border: calc(var(--spacing) * 2) solid transparent;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .musica-ic > * { grid-area: 1 / 1; display: grid; place-items: center; width: 100%; height: 100%; transition: opacity 0.35s ease, scale 0.6s var(--ease-out-expo), filter 0.35s ease; }
+  .musica-ic :global(svg) { width: 100%; height: 100%; }
+  .m-pausa :global(svg) { width: 70%; height: 70%; fill: currentColor; }
+  .m-pausa { opacity: 0; scale: 0.6; filter: blur(3px); pointer-events: none; }
+  /* (RONDA 158 · Eric: «un poco más pequeño, de altura sobre todo»: barras al 62 % de la caja, antes 82 %.) LA ONDA (Eric: «más onda que una corchea»): cinco barras en fila. Apagada, una onda quieta (--n0: 0,4 · 0,7 · 1 · 0,7 · 0,4); encendida,
+     bailan con la música (--n las pone el analizador; sin él, respiran solas); cedida a la mesa, se calman. */
+  .musica-ic .m-ondas { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.140625rem; pointer-events: none; }
+  .m-ondas i { display: block; flex: none; width: 0.125rem; height: 62%; border-radius: 1px; background: currentColor; transform: scaleY(var(--n, var(--n0))); transform-origin: center; transition: transform 0.08s linear; }
+  .m-ondas i:nth-child(1), .m-ondas i:nth-child(5) { --n0: 0.4; }
+  .m-ondas i:nth-child(2), .m-ondas i:nth-child(4) { --n0: 0.7; }
+  .m-ondas i:nth-child(3) { --n0: 1; }
+  .radio:not(.suena) .m-ondas i { transition: transform 0.45s var(--ease-out-expo); }
+  .radio:not(.suena) .musica-ic:hover .m-ondas i:nth-child(1), .radio:not(.suena) .musica-ic:hover .m-ondas i:nth-child(5) { --n0: 0.55; }
+  .radio:not(.suena) .musica-ic:hover .m-ondas i:nth-child(2), .radio:not(.suena) .musica-ic:hover .m-ondas i:nth-child(4) { --n0: 0.9; }
+  .radio.suena:not(.medida):not(.cede) .m-ondas i { animation: m-onda 1.15s ease-in-out infinite; }
+  .radio.suena:not(.medida):not(.cede) .m-ondas i:nth-child(2), .radio.suena:not(.medida):not(.cede) .m-ondas i:nth-child(4) { animation-delay: 0.16s; }
+  .radio.suena:not(.medida):not(.cede) .m-ondas i:nth-child(3) { animation-delay: 0.32s; }
+  @keyframes m-onda { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+  .radio.cede .m-ondas i { transform: scaleY(0.3) !important; transition: transform 0.7s ease; }
+  .radio.suena .musica-ic:hover .m-ondas { opacity: 0; scale: 0.7; transition: opacity 0.25s ease, scale 0.4s var(--ease-out-expo); }
+  .radio.suena .musica-ic:hover .m-pausa { opacity: 1; scale: 1; filter: none; }
+
+  /* EL PANEL: cuelga del botón, cristal oscuro como las barras de cristal de la casa (siempre oscuro, también en invierno) */
+  .panel {
+    position: absolute;
+    top: calc(100% + var(--spacing) * 4);
+    right: calc(var(--spacing) * -2);
+    width: 16rem;
+    padding: calc(var(--spacing) * 3);
+    border-radius: calc(var(--spacing) * 3);
+    color: #f5f5f7;
+    background: color-mix(in oklab, var(--noche-honda, #302018) 72%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, #f5f5f7 14%, transparent), 0 16px 40px -16px rgb(0 0 0 / 0.5);
+    font-family: var(--font-sans);
+    opacity: 0;
+    translate: 0 -6px;
+    filter: blur(4px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, translate 0.5s var(--ease-out-expo), filter 0.3s ease;
+  }
+  .radio.abierto .panel { opacity: 1; translate: 0 0; filter: none; pointer-events: auto; }
+  .cabeza { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--spacing) * 2); padding: 0 calc(var(--spacing) * 1) calc(var(--spacing) * 2); }
+  .emisoras { display: flex; gap: calc(var(--spacing) * 1); }
+  .emisoras [role='tab'] {
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: color-mix(in oklab, #f5f5f7 58%, transparent);
+    cursor: pointer;
+    transition: color 0.25s ease, background-color 0.25s ease;
+  }
+  .emisoras [role='tab']:hover { color: #f5f5f7; }
+  .emisoras [role='tab'][aria-selected='true'] { color: #f5f5f7; background: color-mix(in oklab, #f5f5f7 12%, transparent); }
+  .sig { display: grid; place-items: center; width: calc(var(--spacing) * 7); height: calc(var(--spacing) * 7); border-radius: 50%; color: color-mix(in oklab, #f5f5f7 62%, transparent); cursor: pointer; transition: color 0.25s ease, background-color 0.25s ease; }
+  .sig :global(svg) { width: 0.9rem; height: 0.9rem; fill: currentColor; }
+  .sig:hover { color: #f5f5f7; background: color-mix(in oklab, #f5f5f7 12%, transparent); }
+  .radio:not(.suena) .sig { opacity: 0.35; pointer-events: none; }
+  /* la lista se recorre; una NUBECITA (máscara) desvanece lo que sigue arriba y abajo */
+  .pistas { max-height: 13rem; overflow-y: auto; margin: 0; padding: calc(var(--spacing) * 2) 0 calc(var(--spacing) * 4); list-style: none; scrollbar-width: none; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 3), #000 calc(100% - var(--spacing) * 6), transparent); mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 3), #000 calc(100% - var(--spacing) * 6), transparent); }
+  .pistas::-webkit-scrollbar { display: none; }
+  .pistas li[data-em] { display: block; }
+  .radio[data-filtro='lofi'] .pistas li:not([data-em='lofi']),
+  .radio[data-filtro='instrumental'] .pistas li:not([data-em='instrumental']) { display: none; }
+  .pistas button {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    width: 100%;
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
+    border-radius: calc(var(--spacing) * 1.5);
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    text-align: left;
+    color: color-mix(in oklab, #f5f5f7 72%, transparent);
+    cursor: pointer;
+    transition: color 0.25s ease, background-color 0.25s ease;
+  }
+  .pistas button:hover { color: #f5f5f7; background: color-mix(in oklab, #f5f5f7 8%, transparent); }
+  .pistas button.on { color: #f5f5f7; }
+  .p-t { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p-em { font-size: 0.6875rem; color: color-mix(in oklab, #f5f5f7 40%, transparent); }
+  .radio:not([data-filtro='todas']) .p-em { display: none; }
+  /* la pieza que suena: tres barritas al final de la fila (a la derecha), con la misma música; el título empieza en el borde, sin hueco */
+  .p-ondas { display: flex; align-items: center; gap: 1.5px; width: 0.6rem; height: 0.7rem; flex: none; opacity: 0; transition: opacity 0.3s ease; }
+  .p-ondas i { width: 1.5px; height: 100%; border-radius: 1px; background: var(--color-coral); transform: scaleY(var(--n, 0.5)); transform-origin: center; transition: transform 0.08s linear; }
+  .radio:not(.medida) .p-ondas i { animation: m-onda 1.15s ease-in-out infinite; }
+  .radio:not(.medida) .p-ondas i:nth-child(2) { animation-delay: 0.2s; }
+  .radio:not(.medida) .p-ondas i:nth-child(3) { animation-delay: 0.4s; }
+  .pistas button.on .p-ondas { opacity: 1; }
+  .ahora { margin: 0 calc(var(--spacing) * 2); font-size: 0.6875rem; color: color-mix(in oklab, #f5f5f7 46%, transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (prefers-reduced-motion: reduce) {
+    .m-ondas i, .p-ondas i { animation: none !important; transition: none; }
+    .panel, .musica-ic > * { transition: none; }
+  }
+</style>
+
+<script>
+  const caja = document.querySelector<HTMLElement>('[data-radio]');
+  if (caja) {
+    type Pista = { id: string; em: string; t: string };
+    const bPlay = caja.querySelector<HTMLButtonElement>('[data-radio-play]')!;
+    const bSig = caja.querySelector<HTMLButtonElement>('[data-radio-sig]')!;
+    const ahora = caja.querySelector<HTMLElement>('[data-radio-ahora]')!;
+    // el ORDEN de la lista, al azar en cada visita (Eric): se barajan los <li> antes de leerlos (Fisher-Yates)
+    const ol = caja.querySelector<HTMLElement>('.pistas')!;
+    const lis = [...ol.children];
+    for (let i = lis.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [lis[i], lis[j]] = [lis[j], lis[i]]; }
+    ol.append(...lis);
+    const tabs = [...caja.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const items = [...caja.querySelectorAll<HTMLButtonElement>('[data-pista]')];
+    const PISTAS: Pista[] = items.map((b) => ({ id: b.dataset.pista!, em: b.closest('li')!.dataset.em!, t: b.dataset.t! }));
+    const barras = [...caja.querySelectorAll<HTMLElement>('.m-ondas i')];
+    const VOL = 0.5, ENTRA = 700, SALE = 700, CAMBIO = 260, SIGUE = 450; // SIGUE: al retomar en la página nueva, entra más rápido
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // dos <audio> que se relevan: el que entra sube mientras el que sale baja (cruce sin silencio)
+    const els = [new Audio(), new Audio()];
+    els.forEach((a) => { a.preload = 'none'; a.volume = 0; });
+    let act = 0, on = false, turno = 0, em = 'todas', actual: Pista | null = null, ultimo = '', cede = false;
+    const nivel = () => (cede ? 0 : VOL); // cedida a la mesa de Proyectos, la música baja a 0
+    const vivo = () => els[act], libre = () => els[1 - act];
+    try { const g = localStorage.getItem('savvia:radio'); if (g && (g === 'todas' || PISTAS.some((p) => p.em === g))) em = g; } catch {}
+
+    // FUNDIDO por rAF (curva suave de salida); cada <audio> lleva su reloj: un fundido nuevo cancela el anterior
+    const relojes = new Map<HTMLAudioElement, number>();
+    const fundir = (a: HTMLAudioElement, hasta: number, ms: number, fin?: () => void) => {
+      const k = (relojes.get(a) ?? 0) + 1; relojes.set(a, k);
+      const v0 = a.volume, t0 = performance.now();
+      const paso = (t: number) => {
+        if (relojes.get(a) !== k) return;
+        const p = Math.min(1, (t - t0) / ms), e = 1 - (1 - p) * (1 - p);
+        a.volume = Math.max(0, Math.min(1, v0 + (hasta - v0) * e));
+        if (p < 1) requestAnimationFrame(paso); else fin?.();
+      };
+      requestAnimationFrame(paso);
+    };
+
+    // la pieza que suena, SIEMPRE a la vista en la lista: se centra moviendo solo la lista (nunca la página)
+    const lista = caja.querySelector<HTMLElement>('.pistas')!;
+    let vista: string | null = null;
+    const centrar = (suave: boolean) => {
+      const b = items.find((x) => x.dataset.pista === actual?.id);
+      if (!b || !b.offsetParent) return;
+      const y = b.getBoundingClientRect().top - lista.getBoundingClientRect().top + lista.scrollTop;
+      lista.scrollTo({ top: Math.max(0, y - (lista.clientHeight - b.offsetHeight) / 2), behavior: suave && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto' });
+    };
+    const pintar = () => {
+      caja.classList.toggle('suena', on);
+      caja.classList.toggle('cede', on && cede);
+      caja.dataset.filtro = em;
+      bPlay.setAttribute('aria-pressed', String(on));
+      bPlay.setAttribute('aria-label', on ? `Apagar la música${actual ? ` · ${actual.t}` : ''}` : 'Encender la música');
+      tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.em === em)));
+      items.forEach((b) => b.classList.toggle('on', on && !!actual && b.dataset.pista === actual.id));
+      if (actual && actual.id !== vista) { vista = actual.id; centrar(caja.classList.contains('abierto')); }
+      ahora.textContent = on && actual ? (cede ? `${actual.t} sigue al salir de la mesa` : `Suena ${actual.t}`) : 'Apagada';
+    };
+    const avisar = () => dispatchEvent(new CustomEvent('savvia:radio', { detail: { on } }));
+    const cola = () => PISTAS.filter((p) => em === 'todas' || p.em === em);
+    const alAzar = () => { const l = cola(); const c = l.filter((p) => p.id !== ultimo); return (c.length ? c : l)[Math.floor(Math.random() * (c.length ? c : l).length)]; };
+    const meta = (a: HTMLAudioElement) => new Promise<void>((r) => { if (a.readyState >= 1) r(); else a.addEventListener('loadedmetadata', () => r(), { once: true }); });
+
+    // una pieza (la pedida o una al azar de la emisora); `aMedias` = entrar a mitad de ella (al encender o al cambiar de emisora, como una radio)
+    const sonar = async (aMedias: boolean, pedida?: Pista, desde?: number) => {
+      const t = ++turno, p = pedida ?? alAzar(), nuevo = libre(), viejo = vivo();
+      // play() se pide YA, dentro del gesto (RONDA 158 · Eric: «a veces clico una canción y a la primera no suena»): antes se esperaba a los metadatos
+      // y, si la pieza tardaba en llegar (primera vez, sin caché), el navegador ya no lo contaba como respuesta al clic y lo bloqueaba. Suena a volumen 0
+      // y, si entra a medias, salta a su punto en cuanto se conoce la duración.
+      nuevo.src = `/media/radio/${p.id}.mp3`; nuevo.volume = 0;
+      if (ctx?.state === 'suspended') ctx.resume().catch(() => {});
+      const pl = nuevo.play();
+      try {
+        await meta(nuevo);
+        if (t === turno && desde != null && Number.isFinite(nuevo.duration)) nuevo.currentTime = desde < nuevo.duration - 2 ? desde : 0;
+        else if (t === turno && aMedias && Number.isFinite(nuevo.duration) && nuevo.duration > 60) nuevo.currentTime = Math.random() * (nuevo.duration - 45);
+        await pl;
+      } catch { if (t === turno) { on = false; pintar(); avisar(); } return; }
+      if (t !== turno) { nuevo.pause(); return; }
+      actual = p; ultimo = p.id; act = 1 - act;
+      if (!viejo.paused) fundir(viejo, 0, CAMBIO, () => viejo.pause()); else viejo.pause();
+      fundir(nuevo, nivel(), desde != null ? SIGUE : ENTRA, () => { if (cede) nuevo.pause(); });
+      pintar(); medir();
+    };
+    els.forEach((a) => {
+      a.addEventListener('ended', () => { if (on && a === vivo()) sonar(false); });
+      a.addEventListener('error', () => { if (on && a === vivo()) sonar(false); }); // una pieza que no carga: la siguiente
+    });
+    // DE PÁGINA EN PÁGINA, la misma pieza y el mismo minuto (Eric): se guarda en la sesión qué suena y por dónde va (cada segundo y al salir de la
+    // página); la página siguiente la retoma ahí, sumando lo que ha durado el viaje.
+    const POS = 'savvia:radio-pos';
+    let tGuardado = 0;
+    const guardar = () => {
+      if (!on || !actual) return;
+      try { sessionStorage.setItem(POS, JSON.stringify({ id: actual.id, t: vivo().currentTime, at: Date.now() })); } catch {}
+    };
+    els.forEach((a) => a.addEventListener('timeupdate', () => { if (a === vivo() && performance.now() - tGuardado > 1000) { tGuardado = performance.now(); guardar(); } }));
+    addEventListener('pagehide', guardar);
+    // AL CAMBIAR DE PÁGINA (Eric: «se para un segundo»): el hueco de la recarga no se puede evitar sin ClientRouter; se disimula. Mientras la gota de
+    // la transición cubre la pantalla, la música baja a 0 (transicion.ts avisa con `savvia:salir`), y la página nueva la retoma con un fundido corto.
+    // volver con «atrás» a una página guardada entera (bfcache): su <audio> quedó a 0 y en pausa; se retoma donde va la música
+    addEventListener('pageshow', (e) => { if ((e as PageTransitionEvent).persisted && on) { const s = retomar(); if (s) sonar(false, s[0], s[1]); } });
+    addEventListener('savvia:salir', (e) => {
+      if (!on || cede) return;
+      guardar();
+      const a = vivo(); fundir(a, 0, Math.max(200, (e as CustomEvent).detail?.ms ?? 500));
+    });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) guardar(); });
+    const retomar = (): [Pista, number] | null => {
+      try {
+        const g = JSON.parse(sessionStorage.getItem(POS) || 'null');
+        const p = g && PISTAS.find((x) => x.id === g.id);
+        if (!p) return null;
+        return [p, Math.max(0, g.t + (cede ? 0 : Math.min(30, (Date.now() - g.at) / 1000)))];
+      } catch { return null; }
+    };
+    const encender = (si: boolean, gesto = true, sigue?: [Pista, number] | null) => {
+      on = si;
+      try { sessionStorage.setItem('savvia:radio-on', si ? '1' : '0'); } catch {}
+      if (si) { if (gesto) conectar(); if (sigue) sonar(false, sigue[0], sigue[1]); else sonar(true); }
+      else { turno++; els.forEach((a) => { if (!a.paused) fundir(a, 0, SALE, () => a.pause()); }); actual = null; pintar(); try { sessionStorage.removeItem(POS); } catch {} }
+      avisar();
+    };
+
+    // LAS BARRAS bailan con la música: un AnalyserNode sobre los dos <audio>. Solo se conecta tras un GESTO (un AudioContext creado sin él
+    // nace suspendido y, una vez enchufado el <audio>, sonaría por el contexto: en silencio). Sin analizador, las barras respiran por CSS.
+    let ctx: AudioContext | null = null, an: AnalyserNode | null = null, datos: Uint8Array<ArrayBuffer> | null = null, raf = 0;
+    const RANGOS = [[14, 40], [5, 14], [1, 5], [5, 14], [14, 40]]; // agudos · medios · GRAVES en el centro · medios · agudos
+    const conectar = () => {
+      if (ctx || quieto) return;
+      try {
+        ctx = new AudioContext(); an = ctx.createAnalyser(); an.fftSize = 256; an.smoothingTimeConstant = 0.8;
+        datos = new Uint8Array(an.frequencyBinCount);
+        els.forEach((a) => ctx!.createMediaElementSource(a).connect(an!));
+        an.connect(ctx.destination);
+        caja.classList.add('medida');
+      } catch { ctx = null; an = null; }
+      medir();
+    };
+    const medir = () => {
+      if (raf || !an || !on) return;
+      const paso = () => {
+        raf = 0;
+        if (!on || !an || !datos) { barras.forEach((b) => b.style.removeProperty('--n')); return; }
+        if (!document.hidden) {
+          an.getByteFrequencyData(datos);
+          barras.forEach((b, i) => {
+            const [a, z] = RANGOS[i]; let s = 0; for (let j = a; j < z; j++) s += datos![j];
+            const n = 0.25 + 0.75 * Math.min(1, (s / (z - a) / 255) * 1.7);
+            b.style.setProperty('--n', n.toFixed(3));
+          });
+          // las barritas de la pieza marcada en la lista siguen a las del botón
+          caja.querySelectorAll<HTMLElement>(".pistas button.on .p-ondas i").forEach((b, i) => b.style.setProperty("--n", barras[i + 1].style.getPropertyValue("--n")));
+        }
+        raf = requestAnimationFrame(paso);
+      };
+      raf = requestAnimationFrame(paso);
+    };
+    // LA MESA MANDA (Eric: «el sonido del mockup de naturaleza, cuando hagas scroll ahí, tiene que respetarse: se quita la música y empieza el sonido de
+    // naturaleza»): sonido-estudio.ts avisa con `savvia:mesa` cuando el ambiente de la mesa suena (a la vista y con el sonido permitido). La música se
+    // funde a 0 y se pausa en la pieza; al salir de la mesa, sigue por donde iba.
+    addEventListener('savvia:mesa', (e) => {
+      const si = !!(e as CustomEvent).detail?.on;
+      if (si === cede) return;
+      cede = si;
+      if (on) {
+        const a = vivo();
+        if (cede) fundir(a, 0, SALE, () => { if (cede) a.pause(); });
+        else if (actual) a.play().then(() => fundir(a, VOL, ENTRA)).catch(() => {});
+      }
+      pintar();
+    });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && ctx?.state === 'suspended') ctx.resume(); });
+
+    // EL PANEL: se abre al pasar el ratón o al enfocar; Esc lo cierra. En táctil no hay panel: el toque enciende y apaga.
+    let tAbrir = 0;
+    // solo se centra al ABRIRSE (de cerrado a abierto): al pulsar una pieza, su foco disparaba esto otra vez y la lista saltaba a la que sonaba entre el
+    // pulsar y el soltar, así que el clic caía fuera y no cambiaba (RONDA 158 · Eric)
+    const abrir = (si: boolean) => { const ya = caja.classList.contains('abierto'); caja.classList.toggle('abierto', si); bPlay.setAttribute('aria-expanded', String(si)); if (si && !ya) centrar(false); };
+    if (matchMedia('(hover: hover)').matches) {
+      caja.addEventListener('pointerenter', () => { clearTimeout(tAbrir); tAbrir = window.setTimeout(() => abrir(true), 140); });
+      caja.addEventListener('pointerleave', () => { clearTimeout(tAbrir); tAbrir = window.setTimeout(() => abrir(false), 260); });
+    }
+    caja.addEventListener('focusin', () => abrir(true));
+    caja.addEventListener('focusout', (e) => { if (!caja.contains(e.relatedTarget as Node | null)) abrir(false); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && caja.classList.contains('abierto')) { abrir(false); (document.activeElement as HTMLElement | null)?.blur(); } });
+
+    bPlay.addEventListener('click', () => encender(!on));
+    bSig.addEventListener('click', () => { if (on) sonar(false); });
+    tabs.forEach((b) => b.addEventListener('click', () => {
+      em = b.dataset.em!;
+      try { localStorage.setItem('savvia:radio', em); } catch {}
+      if (on && actual && em !== 'todas' && actual.em !== em) sonar(true); else { pintar(); centrar(false); }
+    }));
+    items.forEach((b) => b.addEventListener('click', () => {
+      const p = PISTAS.find((x) => x.id === b.dataset.pista)!;
+      if (on && actual?.id === p.id) return;
+      on = true; conectar();
+      try { sessionStorage.setItem('savvia:radio-on', '1'); } catch {}
+      sonar(false, p); avisar();
+    }));
+    pintar();
+    // sigue sonando al cambiar de página (misma sesión); el navegador puede negarse sin un gesto: entonces se queda apagada.
+    // El analizador espera al primer gesto de la visita (ver arriba).
+    try {
+      if (sessionStorage.getItem('savvia:radio-on') === '1') {
+        encender(true, false, retomar());
+        // WebKit a veces resuelve el play() sin gesto y deja el <audio> en pausa: si a 1,5 s no suena, se da por apagada; al primer gesto se intenta otra vez
+        setTimeout(() => { if (on && vivo().paused) { on = false; pintar(); avisar(); } }, 1500);
+        addEventListener("pointerdown", () => { if (on) { conectar(); if (vivo().paused) vivo().play().catch(() => {}); } else if (sessionStorage.getItem("savvia:radio-on") === "1" && !actual) encender(true, true, retomar()); }, { once: true, capture: true });
+      }
+    } catch {}
+    (window as any).__radio = () => ({ on, cede, emisora: em, pista: actual?.id ?? null, t: vivo().currentTime, vol: vivo().volume, pausado: vivo().paused, analizador: !!an, abierto: caja.classList.contains('abierto') });
+  }
+</script>

@@ -109,7 +109,8 @@ import { flecha } from '../lib/flecha';
     // RONDA 145 · Andoni: «quita el isotipo y pon solo savvia con la tipo de titulares»: la carga ya no dibuja ninguna v; el círculo se recoge en
     // la gota, que tiembla un instante en el centro y cae (RODAR, corto)
     // RONDA 153 · vuelve: la gota dibuja el isotipo nuevo (el anillo) y se descuelga de su bolita
-    const SIN_ISOTIPO = false;
+    // RONDA 156 · Eric: «quitemos el isotipo»: la carga vuelve a la ronda 145 (el círculo se recoge en la gota y cae), sin dibujar nada
+    const SIN_ISOTIPO = true;
     const RODAR = SIN_ISOTIPO ? 420 : 2400, COLGAR = 560, CAER = 1450, FIN = RODAR + COLGAR + CAER;
     let t0 = 0, D = 0, meta = { x: 0, y: 0 }, largo: number[] = [], total = 0, pts: [number, number][] = [], largoVV = 1;
     let px = 0, py = 0, parado = false, estelaS = 0, camAnt = 0, ult = 0, rota = false, satT = -1, satY = 0, satX = 0, arrancando = false;
@@ -519,12 +520,14 @@ import { flecha } from '../lib/flecha';
     color: var(--fg);
     white-space: nowrap;
   }
-  /* la segunda línea, para quien a los 4,5 s aún no ha hecho la V (ronda 137): cuelga bajo la consigna (no la mueve) con la voz de los subtítulos */
+  /* la segunda línea (ronda 137; desde la 160, a la vez que la consigna): cuelga bajo la consigna (no la mueve) con la voz de los subtítulos */
   .como {
     position: absolute;
     top: 100%;
     margin-top: calc(var(--spacing) * 3);
-    font-size: var(--text-sub);
+    font-size: var(--text-lead);
+    font-weight: var(--text-lead--font-weight); /* Eric: como el subtítulo del hero (Timeless Sans Light) */
+    line-height: var(--text-lead--line-height);
     color: var(--fg2);
     white-space: nowrap;
     opacity: 0;
@@ -536,9 +539,12 @@ import { flecha } from '../lib/flecha';
     .como .con-raton { display: none; }
     .como .con-dedo { display: inline; }
   }
+  /* Eric: el subtítulo sale casi a la vez que la consigna, suave (antes esperaba 4,5 s) */
+  .pista.ver .como,
   .pista.ayuda .como {
     opacity: 1;
     translate: 0 0;
+    transition: opacity 0.9s ease 0.3s, translate 0.9s var(--ease-out-expo) 0.3s;
   }
   /* RONDA 134 · «Saltar» es el CTA SECUNDARIO de la casa (texto en mayúsculas + flecha fina; RONDA 136: sin subrayado), en pequeño y en el gris de la pista */
   .saltar {

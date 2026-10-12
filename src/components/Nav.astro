@@ -1,7 +1,8 @@
 ---
 import { nav, pie } from '../data/home';
-import Mando from './Mando.astro';
-import { icono } from '../lib/iconos';
+import Radio from "./Radio.astro"; // RONDA 156 · Eric: fuera el (+) flotante (Mando.astro, en tools/retirados); la radio, en la barra
+import { icono, ICONO_ESTACION } from '../lib/iconos';
+const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden de estacion.ts
 ---
 
 <!--
@@ -21,16 +22,22 @@ import { icono } from '../lib/iconos';
   <!-- Logotipo (ronda 139): `public/savvia-logo.svg` como máscara en el color de la barra (ronda 141: sólido, según el fondo que pisa). -->
   <!-- RONDA 24: el logotipo es una máscara con el color de la barra: blanco por diferencia sobre lo oscuro, Cacao sobre lo claro (sin mezcla:
        la diferencia daba un azul sucio sobre Rosa arcilla y Rosa niebla) -->
-  <a href="/" class="marca" aria-label="savvia, inicio"><span class="logo-iso" aria-hidden="true"></span><span class="logo-marca" aria-hidden="true"></span></a>
+  <!-- RONDA 156 · Eric: «quitemos el isotipo, no me gusta»: solo la palabra (el isotipo de la ronda 153 queda en public/, lo usa el brandbook) -->
+  <a href="/" class="marca" aria-label="savvia, inicio"><span class="logo-marca" aria-hidden="true"></span></a>
   <div class="acciones-nav">
+    <!-- RONDA 156 · Eric: «una estación de 2 radios de música lo-fi e instrumental sin derechos» → «el botón de música tiene que ir arriba a la derecha
+         cerca de la hoja y menú, no sticky»: la radio (Radio.astro), junto a la estación y la rejilla -->
+    <Radio />
+    <!-- RONDA 156 · Eric: «este botón [el (+) flotante] lo quitamos; vamos a ponerlo como teníamos antes, arriba al lado del menú: la hoja
+         correspondiente a la estación en la que estamos». El icono de la estación (Iconoir, relleno: ronda 152); clic = la siguiente; el relevo gira y enfoca. -->
+    <button type="button" class="estacion-ic" aria-label="Cambiar de estación" data-estacion-ic>
+      {EST.map((e) => <span data-ic={e}><Fragment set:html={icono(ICONO_ESTACION[e], 'fill')} /></span>)}
+    </button>
     <button type="button" class="rejilla" aria-expanded="false" aria-controls="menu" aria-label="Abrir el menú" data-rejilla>
       {Array.from({ length: 9 }).map((_, i) => <span style={`--i:${i}`} />)}
     </button>
   </div>
 </header>
-
-<!-- RONDA 153 · el sonido y la estación viven en el (+) flotante de abajo a la derecha (Mando.astro) -->
-<Mando />
 
 <div class="velo" data-velo hidden></div>
 
@@ -84,6 +91,7 @@ import { icono } from '../lib/iconos';
 <script>
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
+  import { EST, NOMBRE, estacionActual, fijarEstacion } from '../scripts/estacion';
   const btn = document.querySelector<HTMLButtonElement>('[data-rejilla]')!;
   const menu = document.querySelector<HTMLElement>('[data-menu]')!;
   const velo = document.querySelector<HTMLElement>('[data-velo]')!;
@@ -177,6 +185,23 @@ import { icono } from '../lib/iconos';
   dlg.addEventListener('cancel', (e) => { e.preventDefault(); cerrarReel(); });
   dlg.addEventListener('click', (e) => { if (!panel.contains(e.target as Node)) cerrarReel(); });
   (window as any).__reel = () => ({ abierto: dlg.open, suena: !vid.paused, t: vid.currentTime, mudo: vid.muted, mini: !((menu.querySelector('[data-reel-mini]') as HTMLVideoElement | null)?.paused ?? true) });
+  // ── EL ICONO DE ESTACIÓN (ronda 156, de vuelta a la barra): los cuatro iconos rellenos superpuestos; se ve el de la estación de la web y, al cambiar,
+  // el que se va gira y se desenfoca mientras entra el nuevo. Clic = la siguiente (fijarEstacion, que avisa a toda la web con savvia:estacion).
+  {
+    const ic = document.querySelector<HTMLButtonElement>('[data-estacion-ic]');
+    if (ic) {
+      const caras = [...ic.querySelectorAll<HTMLElement>('[data-ic]')];
+      let est = estacionActual();
+      const pintar = (n: number, anim: boolean) => {
+        caras.forEach((c) => { const k = EST.indexOf(c.dataset.ic as (typeof EST)[number]); c.classList.toggle('sale', anim && k === est && k !== n); c.classList.toggle('on', k === n); });
+        est = n;
+        ic.setAttribute('aria-label', `Estación: ${NOMBRE[n]}. Cambiar a ${NOMBRE[(n + 1) % 4]}`);
+      };
+      pintar(est, false);
+      ic.addEventListener('click', () => fijarEstacion((est + 1) % 4, 'nav'));
+      addEventListener('savvia:estacion', (e) => { const n = (e as CustomEvent).detail.n as number; if (n !== est) pintar(n, true); });
+    }
+  }
   // RONDA 141 · «que se vea con el color claro en el marrón y en el resto de fondos oscuros; ese efecto [la diferencia], solo en lab»: vuelve la
   // detección de las rondas 24/65 (html.sobre-claro → Cacao; si no, Rosa niebla), pero mirando el COLOR REAL del fondo bajo el logotipo en vez de
   // una lista de clases: así sirven solas las estaciones (en invierno la noche es nieve), las páginas claras, Salvia, el 404 y lo que venga.
@@ -459,25 +484,7 @@ import { icono } from '../lib/iconos';
   /* RONDA 16 · «el logo de savvia del menú lo veo muy grande»: 24/32 px de alto → 16/24 */
   /* RONDA 66 · «el logo: savvia con la tipografía (luego añadiremos otro)»: la palabra en Family, en el color del texto */
   /* RONDA 68 · el LOGOTIPO DEFINITIVO de Andoni (isotipo + «savvia», `public/savvia-logo.svg`): una máscara en el color del texto */
-  /* RONDA 153 · el isotipo delante de la palabra, con la PROPORCIÓN ÁUREA (Andoni: «para el tamaño del isotipo, la regla del golden ratio en todos lados»):
-       · diámetro del anillo = altura de x de «savvia» × φ          (la x es 462/707 del alto de la palabra: 0,6535 h → D = 1,0574 h)
-       · separación anillo–palabra = D ÷ φ²  (0,382 D = 0,404 h)
-       · el centro del anillo, en el centro de la altura de x
-     La caja del isotipo (viewBox 3 3 58 58) mide 58/52 del anillo (52) → 1,1794 h; su margen derecho ya es 3/58 de la caja. --h = el alto de la palabra */
-  .marca:has(.logo-iso) { --h: 1.375rem; display: inline-flex; align-items: flex-end; }
-  .logo-iso {
-    display: block;
-    flex: none;
-    width: calc(var(--h) * 1.1794);
-    height: calc(var(--h) * 1.1794);
-    margin-right: calc(var(--h) * 0.343);
-    translate: 0 calc(var(--h) * 0.2374);
-    background: currentColor;
-    -webkit-mask: url('/savvia-isotipo-gota.svg') center / contain no-repeat;
-    mask: url('/savvia-isotipo-gota.svg') center / contain no-repeat;
-    transition: background-color 0.12s linear;
-  }
-  @media (width >= 64rem) { .marca:has(.logo-iso) { --h: 1.5rem; } }
+  /* RONDA 153 · el isotipo delante de la palabra (proporción áurea) · RONDA 156 · Eric: «quitemos el isotipo»: fuera; queda la palabra */
   .logo-marca {
     display: block;
     height: 1.375rem; /* ronda 147: «savvia del menú, más pequeño» (antes 1,75 rem) */
@@ -497,19 +504,66 @@ import { icono } from '../lib/iconos';
     align-items: center;
     gap: calc(var(--spacing) * 6);
   }
-  /* ronda 153: el sonido y la estación, en el (+) flotante (Mando.astro) */
+  /* RONDA 156 · el icono de la estación, junto al menú (vuelve de la ronda 153, cuando se fue al (+) flotante): cuatro caras superpuestas */
+  .estacion-ic {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    padding: 0;
+    margin: calc(var(--spacing) * -2);
+    box-sizing: content-box;
+    border: calc(var(--spacing) * 2) solid transparent;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .estacion-ic [data-ic] {
+    grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    rotate: -50deg;
+    scale: 0.55;
+    filter: blur(3px);
+    pointer-events: none;
+    transition: opacity 0.4s ease, rotate 0.75s var(--ease-out-expo), scale 0.75s var(--ease-out-expo), filter 0.4s ease;
+  }
+  .estacion-ic [data-ic].on {
+    opacity: 1;
+    rotate: 0deg;
+    scale: 1;
+    filter: none;
+  }
+  .estacion-ic [data-ic].sale {
+    rotate: 50deg;
+  }
+  .estacion-ic:hover [data-ic].on {
+    rotate: 12deg;
+  }
+  .estacion-ic :global(svg) {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .estacion-ic [data-ic] { transition: opacity 0.2s ease; rotate: 0deg; scale: 1; filter: none; }
+  }
   /* RONDA 144 (4.ª) · Andoni: «al pasar por estos iconos no quiero que salga nada de info»: sin rótulo al pasar (el nombre sigue en aria-label) */
   .rejilla {
     display: grid;
-    grid-template-columns: repeat(3, 4px);
-    gap: 5px;
+    grid-template-columns: repeat(3, 0.25rem); /* ronda 159: en rem, para que crezca en pantallas gigantes (4 · 5 px) */
+    gap: 0.3125rem;
     padding: calc(var(--spacing) * 3);
     margin: calc(var(--spacing) * -3);
     cursor: pointer;
   }
   .rejilla span {
-    width: 4px;
-    height: 4px;
+    width: 0.25rem;
+    height: 0.25rem;
     border-radius: var(--radius-full);
     background: currentColor;
     transition:
@@ -530,7 +584,7 @@ import { icono } from '../lib/iconos';
   .rejilla span:nth-child(7) { --dx: 1; --dy: -1; }
   .rejilla span:nth-child(9) { --dx: -1; --dy: -1; }
   .rejilla:hover span:nth-child(odd):not(:nth-child(5)) {
-    transform: translate(calc(var(--dx) * 7px), calc(var(--dy) * 7px)) scale(1.5);
+    transform: translate(calc(var(--dx) * 0.4375rem), calc(var(--dy) * 0.4375rem)) scale(1.5);
   }
   .rejilla:hover span:nth-child(5) {
     transform: scale(2.1);
@@ -547,7 +601,7 @@ import { icono } from '../lib/iconos';
     transform: scale(1.6);
   }
   .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)) {
-    transform: translate(calc(var(--dx) * 3.2px), calc(var(--dy) * 3.2px)) scale(2.1);
+    transform: translate(calc(var(--dx) * 0.2rem), calc(var(--dy) * 0.2rem)) scale(2.1);
   }
   .rejilla[aria-expanded='true']:hover span:nth-child(5) {
     transform: scale(2.2);
@@ -821,7 +875,9 @@ import { icono } from '../lib/iconos';
   html.menu-abierto [data-nav] {
     color: var(--color-niebla);
   }
-  html.menu-abierto [data-rejilla] {
+  html.menu-abierto [data-rejilla],
+  html.menu-abierto [data-radio-play],
+  html.menu-abierto [data-estacion-ic] {
     color: var(--color-cacao);
   }
   html.estudio-sentado [data-nav] {
