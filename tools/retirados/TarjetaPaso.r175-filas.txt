@@ -1,0 +1,141 @@
+RONDA 175 (1.ª) · la demo 02 en filas (descartada: «no tan parecido al paso 1»)
+
+── marcado ──
+            {i === 1 && (
+              <>
+                {/* RONDA 175 · la demo 02 con el lenguaje de la 01 y la 03 (píldora, filas, pie): tu dirección y nuestro criterio se funden en skills */}
+                <span class="pildora-orbe">
+                  <span class="chispa-orbe"><svg viewBox="0 0 24 24"><path d="M12 2.5c.6 4.6 2.9 6.9 7.5 7.5-4.6.6-6.9 2.9-7.5 7.5-.6-4.6-2.9-6.9-7.5-7.5 4.6-.6 6.9-2.9 7.5-7.5z" /></svg></span>
+                  <span>Generando skills…</span>
+                  <i class="nivel"><i /><i /><i /><i /></i>
+                </span>
+                <div class="forja">
+                  {recorrido.skills.map((sk, k) => (
+                    <p class="skill" style={`--k:${k}`}>
+                      <span class="voces">
+                        <span class="voz v-tu"><b class="etq">Tú</b>{sk.tu}</span>
+                        <span class="voz v-sv"><b class="etq">savvia</b>{sk.savvia}</span>
+                      </span>
+                      <span class="arch detail">skills/<b>{sk.n}</b>/SKILL.md</span>
+                      <b class="ok detail">✓</b>
+                    </p>
+                  ))}
+                  <p class="forjadas detail"><span class="pt" />skills/ · {recorrido.skills.length} skills únicas de tu marca</p>
+                </div>
+              </>
+            )}
+
+── estilos ──
+  /* 02 · Decidir — RONDA 175 · Andoni: «cambiar el paso 2 de los problemas, algo que tenga más el estilo de los otros pasos». La fusión abstracta
+     (dos manchas con dos ratones, rondas 10–174; en tools/retirados/TarjetaPaso.r174-fusion.txt) pasa al lenguaje de la 01 y la 03: píldora,
+     filas y pie. En cada fila, TU DIRECCIÓN («Tú») y NUESTRO CRITERIO («savvia») se funden en una skill (su SKILL.md) con su check.
+     Un solo reloj (`--t`, segundos): la fila k empieza a los 0,4 + k·2 s; a los 8,3 sale el pie; a los 12 todo se apaga y vuelve a empezar (3 s largos con las cuatro hechas). */
+  .chispa-orbe {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, var(--color-niebla) 12%, transparent);
+  }
+  .chispa-orbe svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+    fill: var(--color-naranja);
+    animation: girar 9s linear infinite;
+  }
+  .forja {
+    --V: 12.5;
+    --t: 0;
+    --F: clamp(0, (var(--V) - 0.5 - var(--t)) / 0.4, 1); /* el apagado común, al final de la vuelta */
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--spacing) * 3);
+    animation: forja calc(var(--V) * 1s) linear infinite;
+  }
+  @keyframes forja {
+    from { --t: 0; }
+    to { --t: 12.5; }
+  }
+  .skill {
+    --tl: calc(var(--t) - 0.4 - var(--k) * 2); /* el tiempo desde que llegó */
+    --a: calc(1 - pow(1 - clamp(0, var(--tl) / 0.45, 1), 4)); /* la fila y «Tú» */
+    --b: calc(1 - pow(1 - clamp(0, (var(--tl) - 0.4) / 0.45, 1), 4)); /* «savvia» */
+    --f: clamp(0, (var(--tl) - 1.25) / 0.45, 1); /* la fusión */
+    --c: clamp(0, (var(--tl) - 1.7) / 0.3, 1); /* el check */
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 3);
+    border-radius: calc(var(--spacing) * 3);
+    background: color-mix(in oklab, var(--color-niebla) 6%, transparent);
+    opacity: calc(var(--a) * var(--F));
+    translate: 0 calc((1 - var(--a)) * 10px - (1 - var(--F)) * 6px);
+    filter: blur(calc((1 - var(--a)) * 6px + (1 - var(--F)) * 4px));
+  }
+  .voces,
+  .arch {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+  .voces {
+    display: grid;
+    gap: calc(var(--spacing) * 1);
+    opacity: calc(1 - var(--f));
+    filter: blur(calc(var(--f) * 5px));
+  }
+  .voz {
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--spacing) * 2);
+    font-size: var(--text-detail);
+    line-height: 1.35;
+    color: var(--color-niebla);
+    white-space: nowrap;
+  }
+  /* las dos se acercan una a la otra al fundirse */
+  .v-tu { translate: 0 calc(var(--f) * 9px); }
+  .v-sv { opacity: var(--b); translate: calc((1 - var(--b)) * -8px) calc(var(--f) * -9px); }
+  .etq {
+    flex: none;
+    min-width: calc(var(--spacing) * 12);
+    padding: 1px calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.6875rem;
+    line-height: 1.45;
+    text-align: center;
+    color: var(--color-cacao);
+    background: var(--color-niebla);
+  }
+  .v-sv .etq { background: var(--color-naranja); }
+  .arch {
+    align-self: center;
+    color: color-mix(in oklab, var(--color-niebla) 62%, transparent);
+    white-space: nowrap;
+    opacity: var(--f);
+    scale: calc(0.96 + 0.04 * var(--f));
+    transform-origin: 0 50%;
+    filter: blur(calc((1 - var(--f)) * 5px));
+  }
+  .arch b { font-weight: 400; color: var(--color-niebla); }
+  .skill .ok {
+    color: var(--color-naranja);
+    opacity: var(--c);
+    scale: calc(0.4 + 0.6 * var(--c));
+  }
+  .forjadas {
+    --a: calc(1 - pow(1 - clamp(0, (var(--t) - 8.3) / 0.45, 1), 4));
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    margin-top: calc(var(--spacing) * 1);
+    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+    opacity: calc(var(--a) * var(--F));
+    translate: 0 calc((1 - var(--a)) * 10px);
+  }
+  .forjadas .pt { width: 6px; height: 6px; border-radius: 50%; background: var(--color-naranja); }
+

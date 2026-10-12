@@ -1,0 +1,133 @@
+RONDA 175 · la demo 02 anterior (la fusión gooey con dos ratones, rondas 10–174)
+
+── marcado ──
+            {i === 1 && (
+              <div class="goo-caja">
+                <!-- RONDA 13 · vuelve la fusión de la ronda 10 («me gustaba más») + NUESTRO ratón y el del cliente, llevando cada uno una
+                   dirección hacia la otra: se elige a cuatro manos -->
+                <div class="goo"><i class="dir dir-a" /><i class="dir dir-b" /></div>
+                <span class="mano mano-a"><span class="puntero"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" /></svg><b class="etiqueta">savvia</b></span></span>
+                <span class="mano mano-b"><span class="puntero"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" /></svg><b class="etiqueta">Tú</b></span></span>
+                <p class="elegida detail">decidido juntos <b>✓</b></p>
+              </div>
+            )}
+
+── estilos ──
+  /* 02 · Decidir — dos direcciones que se funden en una (gooey, ronda 10) y, ronda 13, los DOS RATONES: el nuestro (Savvia) y el
+     del cliente (Tú) cogen cada uno una y las juntan. Los punteros van fuera del filtro; su envoltorio se mueve igual que su forma. */
+  .goo-caja {
+    position: relative;
+    width: 72%;
+    aspect-ratio: 1;
+  }
+  .goo {
+    position: absolute;
+    inset: 0;
+    filter: url(#goo-pasos-a2);
+  }
+  .dir,
+  .mano {
+    position: absolute;
+    width: 42%;
+    aspect-ratio: 1;
+  }
+  .dir {
+    border-radius: 22%;
+  }
+  .dir-a,
+  .mano-a {
+    left: 6%;
+    top: 12%;
+    animation: fundir-a 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
+  }
+  .dir-b,
+  .mano-b {
+    right: 6%;
+    bottom: 12%;
+    animation: fundir-b 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
+  }
+  .dir-a { background: var(--color-naranja); }
+  .dir-b { background: var(--color-cobalto); animation-name: fundir-b, virar; }
+  .mano { pointer-events: none; }
+  @keyframes fundir-a {
+    0% { translate: 0 0; opacity: 0; scale: 0.9; }
+    6% { opacity: 1; scale: 1; }
+    18% { translate: 0 0; scale: 1; }
+    50%, 86% { translate: 52% 40%; scale: 1.08; opacity: 1; }
+    94%, 100% { translate: 52% 40%; scale: 1.08; opacity: 0; }
+  }
+  @keyframes fundir-b {
+    0% { translate: 0 0; opacity: 0; scale: 0.9; }
+    6% { opacity: 1; scale: 1; }
+    18% { translate: 0 0; scale: 1; }
+    50%, 86% { translate: -52% -40%; scale: 1.08; opacity: 1; }
+    94%, 100% { translate: -52% -40%; scale: 1.08; opacity: 0; }
+  }
+  @keyframes virar {
+    0%, 50% { background: var(--color-cobalto); }
+    60%, 100% { background: var(--color-naranja); }
+  }
+  /* el puntero: llega, «coge» (un clic pequeño), arrastra con su forma y la suelta al fundirse */
+  .puntero {
+    position: absolute;
+    left: 30%;
+    top: 24%;
+    display: flex;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .puntero svg {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    fill: var(--color-niebla);
+    stroke: var(--color-cacao);
+    stroke-width: 1.3;
+  }
+  .etiqueta {
+    margin-top: calc(var(--spacing) * 4);
+    padding: 2px calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--color-cacao);
+  }
+  .mano-b .puntero { left: 56%; top: 60%; } /* al fundirse, los dos punteros quedan separados, no uno encima del otro */
+  .mano-a .etiqueta { background: var(--color-naranja); }
+  .mano-b .etiqueta { background: var(--color-niebla); }
+  .mano-a .puntero { animation: coger-a 6s cubic-bezier(0.3, 0, 0.2, 1) infinite both; }
+  .mano-b .puntero { animation: coger-b 6s cubic-bezier(0.3, 0, 0.2, 1) infinite both; }
+  @keyframes coger-a {
+    0%, 4% { translate: -150% -120%; opacity: 0; }
+    14% { translate: 0 0; opacity: 1; scale: 1; }
+    16%, 52% { scale: 0.88; }
+    58% { translate: 0 0; scale: 1; opacity: 1; }
+    72% { translate: -110% -150%; opacity: 0; }
+    100% { translate: -110% -150%; opacity: 0; }
+  }
+  @keyframes coger-b {
+    0%, 6% { translate: 150% 120%; opacity: 0; }
+    16% { translate: 0 0; opacity: 1; scale: 1; }
+    18%, 52% { scale: 0.88; }
+    58% { translate: 0 0; scale: 1; opacity: 1; }
+    72% { translate: 130% 140%; opacity: 0; }
+    100% { translate: 130% 140%; opacity: 0; }
+  }
+  .elegida {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + var(--spacing) * 2);
+    translate: -50% 0;
+    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
+    white-space: nowrap;
+    animation: hecho-2 6s ease infinite both;
+  }
+  .elegida b { font-weight: 400; color: var(--color-naranja); }
+  @keyframes hecho-2 {
+    0%, 56% { opacity: 0; }
+    64%, 88% { opacity: 1; }
+    96%, 100% { opacity: 0; }
+  }
+

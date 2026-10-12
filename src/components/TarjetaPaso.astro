@@ -13,6 +13,8 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
 // RONDA 156 · la batería del briefing (home.ts › recorrido.briefing): TANDAS de cuatro preguntas; cada vuelta de la demo enseña la siguiente
 const tandas = recorrido.briefing;
 const POR_TANDA = tandas[0].length;
+// RONDA 176 · la curva de «Movimiento» (una salida suave, la de la casa): los mismos puntos que recorre su bola (x = 2 + 56·p, y = 26 − 24·s(p))
+const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t * (3 - 2 * t); return `${k ? 'L' : 'M'}${(2 + 56 * t).toFixed(1)} ${(26 - 24 * e).toFixed(1)}`; }).join('');
 ---
 
 <div class={`tarjeta t${i} ${fondo ? 'pintada' : ''} ${desnuda ? 'desnuda' : ''}`} data-tarjeta={i} style="--ox:50%;--oy:0%">
@@ -52,13 +54,37 @@ const POR_TANDA = tandas[0].length;
               </>
             )}
             {i === 1 && (
+              <div class="taller" style={`--n:${recorrido.skills.length}`}>
+              {/* RONDA 175 (3.ª) · Andoni: «en los otros pasos siempre hay algo en pantalla, y al ser más rectangulares las raíces llegan mejor»: la fusión
+                  ocurre dentro de una MESA (un panel como los de los otros pasos, con su cabecera) y debajo quedan siempre las skills, apagadas hasta hacerse */}
+              <div class="mesa">
+              <p class="cab-mesa detail"><span>skills/</span><span>tú + savvia</span></p>
               <div class="goo-caja">
-                <!-- RONDA 13 · vuelve la fusión de la ronda 10 («me gustaba más») + NUESTRO ratón y el del cliente, llevando cada uno una
-                   dirección hacia la otra: se elige a cuatro manos -->
+                {/* RONDA 13 · la fusión de la ronda 10 + NUESTRO ratón y el del cliente, llevando cada uno una forma hacia la otra.
+                    RONDA 175 (2.ª) · Andoni: «algo más como lo que teníamos antes pero enriquecido; transmitíamos muy bien esa idea de tú + nosotros»:
+                    cada forma lleva lo suyo (tu dirección · nuestro criterio), al fundirse queda una SKILL con nombre y las hechas se van guardando debajo */}
                 <div class="goo"><i class="dir dir-a" /><i class="dir dir-b" /></div>
+                <span class="cont cont-a"><span class="dentro"><b class="rot">Nuestro criterio</b><i class="reglas"><i /><i /><i /></i></span></span>
+                <span class="cont cont-b"><span class="dentro"><b class="rot">Tu dirección</b><i class="muestras"><i /><i /><i /></i></span></span>
+                <span class="cont cont-skill">
+                  {recorrido.skills.map((sk, k) => (
+                    <span class={`hecha h-${sk.i}`} style={`--k:${k}`}>
+                      <span class="detail">SKILL.md</span>
+                      {/* RONDA 176 · Andoni: «que cada skill que se genera represente algo diferente al unirse»: cada una, su dibujo */}
+                      {sk.i === 'diseno' && <i class="il il-diseno"><b>Aa</b><i class="mu"><i /><i /><i /></i></i>}
+                      {sk.i === 'movimiento' && <svg class="il il-mov" viewBox="0 0 60 28" fill="none"><path class="eje" d="M2 26H58" /><path class="curva" d={CURVA} pathLength="1" /><circle class="bola" cx="2" cy="26" r="2.6" /></svg>}
+                      {sk.i === 'desarrollo' && <i class="il il-cod"><i style="--q:0;--w:62%" /><i style="--q:1;--w:84%;--s:14%" /><i style="--q:2;--w:48%;--s:14%" /><i style="--q:3;--w:30%" /></i>}
+                      <b>{sk.t}</b><i class="vb">✓</i>
+                    </span>
+                  ))}
+                </span>
                 <span class="mano mano-a"><span class="puntero"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" /></svg><b class="etiqueta">savvia</b></span></span>
                 <span class="mano mano-b"><span class="puntero"><svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" /></svg><b class="etiqueta">Tú</b></span></span>
-                <p class="elegida detail">decidido juntos <b>✓</b></p>
+              </div>
+              </div>
+                <p class="guardadas detail">
+                  {recorrido.skills.map((sk, k) => <span class="ficha" style={`--k:${k}`}>{sk.t}</span>)}
+                </p>
               </div>
             )}
             {i === 2 && (
@@ -441,10 +467,43 @@ const POR_TANDA = tandas[0].length;
 
   /* 02 · Decidir — dos direcciones que se funden en una (gooey, ronda 10) y, ronda 13, los DOS RATONES: el nuestro (Savvia) y el
      del cliente (Tú) cogen cada uno una y las juntan. Los punteros van fuera del filtro; su envoltorio se mueve igual que su forma. */
+  .demo-2 {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    padding: calc(var(--spacing) * 6);
+  }
+  .taller {
+    --t: 0;
+    /* qué vuelta toca (0 · 1 · 2…): v0 = la primera, v2 = de la tercera en adelante, v1 = la de en medio */
+    --v0: clamp(0, (6 - var(--t)) * 1000, 1);
+    --v2: clamp(0, (var(--t) - 12) * 1000, 1);
+    --v1: calc(1 - var(--v0) - var(--v2));
+    --sx: calc(var(--v0) * -56% + var(--v1) * -80% + var(--v2) * 56%);
+    --sy: calc(var(--v0) * -32% + var(--v2) * -32%);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+    animation: skills calc(var(--n) * 6s) linear infinite;
+  }
+  .mesa {
+    border-radius: calc(var(--spacing) * 3);
+    background: color-mix(in oklab, var(--color-niebla) 6%, transparent);
+    padding: calc(var(--spacing) * 3);
+  }
+  .cab-mesa {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: calc(var(--spacing) * 2);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-niebla) 12%, transparent);
+    color: color-mix(in oklab, var(--color-niebla) 62%, transparent);
+  }
   .goo-caja {
     position: relative;
-    width: 72%;
-    aspect-ratio: 1;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    container-type: inline-size; /* los textos de la skill, a la medida de la forma (en móvil es más pequeña) */
   }
   .goo {
     position: absolute;
@@ -454,7 +513,7 @@ const POR_TANDA = tandas[0].length;
   .dir,
   .mano {
     position: absolute;
-    width: 42%;
+    width: 34%;
     aspect-ratio: 1;
   }
   .dir {
@@ -462,35 +521,38 @@ const POR_TANDA = tandas[0].length;
   }
   .dir-a,
   .mano-a {
-    left: 6%;
-    top: 12%;
+    left: 33%;
+    top: 24.5%;
     animation: fundir-a 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
   }
   .dir-b,
   .mano-b {
-    right: 6%;
-    bottom: 12%;
+    left: 33%;
+    top: 24.5%;
     animation: fundir-b 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
   }
   .dir-a { background: var(--color-naranja); }
-  .dir-b { background: var(--color-cobalto); animation-name: fundir-b, virar; }
+  .dir-b { background: var(--color-niebla); animation-name: fundir-b, virar; } /* ronda 175: la del cliente, en claro (antes Cobalto) */
   .mano { pointer-events: none; }
+  /* RONDA 177 · Andoni: «que en cada paso la animación de juntarse cambie, para que no se haga repetitivo»: las dos formas viven en el centro
+     y cada vuelta salen de un sitio distinto (`--sx`, `--sy`, en % de su tamaño, los pone .taller según la vuelta): en diagonal, de lado a lado
+     y en la otra diagonal. La tuya, siempre desde el lado contrario a la nuestra. */
   @keyframes fundir-a {
-    0% { translate: 0 0; opacity: 0; scale: 0.9; }
+    0% { translate: var(--sx) var(--sy); opacity: 0; scale: 0.9; }
     6% { opacity: 1; scale: 1; }
-    18% { translate: 0 0; scale: 1; }
-    50%, 86% { translate: 52% 40%; scale: 1.08; opacity: 1; }
-    94%, 100% { translate: 52% 40%; scale: 1.08; opacity: 0; }
+    18% { translate: var(--sx) var(--sy); scale: 1; }
+    50%, 86% { translate: 0 0; scale: 1.08; opacity: 1; }
+    94%, 100% { translate: 0 0; scale: 1.08; opacity: 0; }
   }
   @keyframes fundir-b {
-    0% { translate: 0 0; opacity: 0; scale: 0.9; }
+    0% { translate: calc(var(--sx) * -1) calc(var(--sy) * -1); opacity: 0; scale: 0.9; }
     6% { opacity: 1; scale: 1; }
-    18% { translate: 0 0; scale: 1; }
-    50%, 86% { translate: -52% -40%; scale: 1.08; opacity: 1; }
-    94%, 100% { translate: -52% -40%; scale: 1.08; opacity: 0; }
+    18% { translate: calc(var(--sx) * -1) calc(var(--sy) * -1); scale: 1; }
+    50%, 86% { translate: 0 0; scale: 1.08; opacity: 1; }
+    94%, 100% { translate: 0 0; scale: 1.08; opacity: 0; }
   }
   @keyframes virar {
-    0%, 50% { background: var(--color-cobalto); }
+    0%, 46% { background: var(--color-niebla); }
     60%, 100% { background: var(--color-naranja); }
   }
   /* el puntero: llega, «coge» (un clic pequeño), arrastra con su forma y la suelta al fundirse */
@@ -520,9 +582,10 @@ const POR_TANDA = tandas[0].length;
     white-space: nowrap;
     color: var(--color-cacao);
   }
+  .mano-a .puntero { left: 62%; top: 46%; } /* ronda 175: bajo su rótulo, sin taparlo */
   .mano-b .puntero { left: 56%; top: 60%; } /* al fundirse, los dos punteros quedan separados, no uno encima del otro */
-  .mano-a .etiqueta { background: var(--color-naranja); }
-  .mano-b .etiqueta { background: var(--color-niebla); }
+  /* ronda 175: las dos etiquetas en oscuro (una forma es Coral y la otra clara: así se leen sobre las dos) */
+  .etiqueta { background: var(--color-cacao); color: var(--color-niebla) !important; }
   .mano-a .puntero { animation: coger-a 6s cubic-bezier(0.3, 0, 0.2, 1) infinite both; }
   .mano-b .puntero { animation: coger-b 6s cubic-bezier(0.3, 0, 0.2, 1) infinite both; }
   @keyframes coger-a {
@@ -541,20 +604,126 @@ const POR_TANDA = tandas[0].length;
     72% { translate: 130% 140%; opacity: 0; }
     100% { translate: 130% 140%; opacity: 0; }
   }
-  .elegida {
+  /* RONDA 175 (2.ª) · LO QUE LLEVA CADA FORMA (fuera del filtro, se mueve con ella): su rótulo y un detalle; se va al fundirse */
+  .cont {
     position: absolute;
-    left: 50%;
-    top: calc(100% + var(--spacing) * 2);
-    translate: -50% 0;
-    color: color-mix(in oklab, var(--color-niebla) 70%, transparent);
-    white-space: nowrap;
-    animation: hecho-2 6s ease infinite both;
+    width: 34%;
+    aspect-ratio: 1;
+    pointer-events: none;
+    color: var(--color-cacao);
   }
-  .elegida b { font-weight: 400; color: var(--color-naranja); }
-  @keyframes hecho-2 {
-    0%, 56% { opacity: 0; }
-    64%, 88% { opacity: 1; }
-    96%, 100% { opacity: 0; }
+  .cont-a { left: 33%; top: 24.5%; animation: fundir-a 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
+  .cont-b { left: 33%; top: 24.5%; animation: fundir-b 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
+  .dentro {
+    position: absolute;
+    inset: 14%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: soltar 6s ease infinite both;
+  }
+  @keyframes soltar {
+    0%, 36% { opacity: 1; filter: none; }
+    46%, 100% { opacity: 0; filter: blur(5px); }
+  }
+  .rot {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.6875rem;
+    line-height: 1.25;
+  }
+  /* nuestro criterio: tres reglas (la retícula) · tu dirección: tres muestras (lo que traes) */
+  .reglas,
+  .muestras { display: flex; gap: 4px; }
+  .reglas { flex-direction: column; }
+  .reglas i { height: 2px; border-radius: 2px; background: color-mix(in oklab, var(--color-cacao) 55%, transparent); }
+  .reglas i:nth-child(2) { width: 70%; }
+  .reglas i:nth-child(3) { width: 45%; }
+  .muestras i { width: 12px; height: 12px; border-radius: 50%; background: var(--color-cacao); }
+  .muestras i:nth-child(2) { background: var(--color-naranja); }
+  .muestras i:nth-child(3) { background: color-mix(in oklab, var(--color-cacao) 35%, transparent); }
+  /* LA SKILL que queda al fundirse: en el centro, sobre la forma única. Un reloj (`--t`, segundos; 6 s por skill) decide cuál toca */
+  @keyframes skills {
+    from { --t: 0; }
+    to { --t: calc(var(--n) * 6); }
+  }
+  .cont-skill {
+    left: 33%;
+    top: 24.5%;
+    scale: 1.08;
+  }
+  .hecha {
+    --u: calc(var(--t) - var(--k) * 6); /* el tiempo dentro de SU vuelta */
+    --a: calc(clamp(0, (var(--u) - 3.05) / 0.4, 1) * clamp(0, (5.6 - var(--u)) / 0.3, 1));
+    position: absolute;
+    inset: 11%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    opacity: var(--a);
+    filter: blur(calc((1 - var(--a)) * 5px));
+  }
+  .hecha .detail { font-size: min(0.6875rem, 4.2cqw); line-height: 1.25; color: color-mix(in oklab, var(--color-cacao) 70%, transparent); }
+  .hecha b {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: min(0.9375rem, 5cqw);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+  /* RONDA 176 · EL DIBUJO DE CADA SKILL (`--p`: 0 → 1 en 1,1 s, nada más fundirse). Tamaños en unidades de la mesa (cqw) */
+  .hecha { --p: clamp(0, (var(--u) - 3.3) / 1.1, 1); --e: calc(var(--p) * var(--p) * (3 - 2 * var(--p))); }
+  .il { display: block; height: 11cqw; }
+  /* Diseño: la letra y sus tres colores, que llegan uno tras otro */
+  .il-diseno { display: flex; align-items: flex-end; justify-content: space-between; }
+  .il-diseno > b { font-size: 11cqw; line-height: 0.8; letter-spacing: -0.02em; }
+  .mu { display: flex; gap: 1.2cqw; }
+  .mu i {
+    --m: clamp(0, var(--p) * 3 - var(--q, 0), 1);
+    width: 3.4cqw; height: 3.4cqw; border-radius: 50%;
+    background: var(--color-cacao);
+    scale: var(--m); opacity: var(--m);
+  }
+  .mu i:nth-child(2) { --q: 0.8; background: var(--color-niebla); }
+  .mu i:nth-child(3) { --q: 1.6; background: color-mix(in oklab, var(--color-cacao) 40%, transparent); }
+  /* Movimiento: la curva se traza y la bola la recorre (los mismos puntos: CURVA) */
+  .il-mov { width: 100%; overflow: visible; }
+  .il-mov path { stroke: var(--color-cacao); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .il-mov .eje { opacity: 0.25; stroke-dasharray: 1 3; }
+  .il-mov .curva { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--p)); }
+  .il-mov .bola { fill: var(--color-cacao); transform: translate(calc(var(--p) * 56px), calc(var(--e) * -24px)); }
+  /* Desarrollo: cuatro líneas de código que se escriben, con su sangría */
+  .il-cod { display: flex; flex-direction: column; justify-content: space-between; }
+  .il-cod i {
+    --m: clamp(0, var(--p) * 4 - var(--q), 1);
+    height: 1.5cqw; min-height: 2px; border-radius: 2px;
+    width: var(--w); margin-left: var(--s, 0);
+    background: color-mix(in oklab, var(--color-cacao) 70%, transparent);
+    transform-origin: 0 50%; scale: var(--m) 1;
+  }
+  .il-cod i:nth-child(2) { background: var(--color-niebla); }
+  .hecha .vb { position: absolute; right: 0; top: 0; font-style: normal; font-size: 0.75rem; line-height: 1; }
+  /* LAS GUARDADAS: cada skill hecha cae debajo y se queda; al final de la vuelta entera se apagan juntas */
+  .guardadas {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+  }
+  .ficha {
+    --a: calc(1 - pow(1 - clamp(0, (var(--t) - var(--k) * 6 - 4.9) / 0.5, 1), 4));
+    --F: clamp(0, (var(--n) * 6 - 0.45 - var(--t)) / 0.35, 1);
+    --on: calc(var(--a) * var(--F));
+    flex: 1;
+    min-width: 0;
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, var(--color-niebla) 8%, transparent);
+    /* hecha: se enciende y coge un filo de savia */
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-naranja) calc(var(--on) * 70%), transparent);
+    color: var(--color-niebla);
+    font-size: 0.75rem;
+    text-align: center;
+    white-space: nowrap;
+    opacity: calc(0.38 + 0.62 * var(--on)); /* siempre a la vista: apagada hasta que se hace */
   }
 
   /* 03 · Documentar — el documento escribiéndose dentro de un marco de SAVIA LÍQUIDA (ronda 13): el marco es un aro Naranja con filtro
@@ -908,5 +1077,7 @@ const POR_TANDA = tandas[0].length;
       animation: none !important;
     }
     .orden span { max-width: none; }
+    .taller { --t: 5; } /* quieta: la primera skill, hecha */
+    .dir-a { left: 33%; top: 24.5%; } .dir-b, .cont-a, .cont-b, .mano { display: none; }
   }
 </style>

@@ -52,6 +52,8 @@ export const recorrido = {
   // admiramos, la competencia), los Mensajes clave de José Luis (tu producto, tu equipo y tu forma de contarlo han avanzado y la web sigue contando la
   // versión de hace tres años; webs ancladas en tecnologías del pasado, difíciles de mantener; CMS, idiomas) y la sesión del 21 («desde la raíz»).
   // Cuatro TANDAS de cuatro (la demo las enseña de cuatro en cuatro, en orden): quién eres · qué ha pasado · cómo trabajáis · qué viene después.
+  // RONDA 175 (2.ª) · la demo del paso 2: tu dirección + nuestro criterio se funden en una skill; estas son las que van saliendo (nombres de Nilo)
+  skills: [{ t: 'Diseño', i: 'diseno' }, { t: 'Movimiento', i: 'movimiento' }, { t: 'Desarrollo', i: 'desarrollo' }], // «skills únicas de diseño y desarrollo web»
   briefing: [
     ['¿Qué vendes?', '¿A quién?', '¿Qué hace especial lo que haces?', '¿Quién más hace lo que haces?'],
     ['¿Qué ha cambiado desde tu última web?', '¿Qué ya no cuenta de ti?', '¿Qué debe entenderse al entrar?', '¿Qué webs admiras? ¿Cuáles no?'],
