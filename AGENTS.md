@@ -3458,3 +3458,6 @@ en mono en el pie.
   la página va al final de la pista (la mesa entera, de pie) antes del viaje de cámara, te hayas sentado desde el titular o desde donde sea. Medido
   (Chrome): sentado desde el titular → Esc → pista con su borde al pie de la ventana (899,97 / 900) y la mesa entera. Al volver, el foco cae en el botón
   «Siéntate a ver los proyectos» y se ve su anillo de foco (ya pasaba antes).
+- **PUBLICADA (12/10) en https://savvia.studio** (Eric: «subimos todo a producción»): commit `1ed1a64` (rondas 156–174 + `.github/workflows`). Primer push de Eric
+  que se publica solo: la Action «Publicar en Vercel» llama al Deploy Hook (el secreto `VERCEL_DEPLOY_HOOK` ya estaba puesto) y Vercel lo sirvió a los ~3 min.
+  Medido EN VIVO (Chrome, 1280): /, /proyectos y /manifiesto sin errores, 0 respuestas ≥ 400, desborde 0. Sigue `noindex`.
