@@ -223,11 +223,13 @@ import { icono } from '../lib/iconos';
                     <Fragment set:html={video} />
                   </div>
                 )}
-                <h3 class="nombre font-display">{c.n}</h3>
                 <!-- RONDA 41 · «añadir un icono de que los mockups tienen vídeo al hacer hover»: se ve en reposo y se retira mientras el vídeo suena -->
                 <span class="vid-ic" aria-hidden="true"><Fragment set:html={icono('video-camera', 'fill')} /></span>
               </div>
-              <p class="pie detail text-fg2 mt-4"><span class="text-fg">{c.dominio}</span>{c.sector && <> · {c.sector}</>}</p>
+              <div class="pie pie-pieza mt-4">
+                <h3 class="nombre-pie font-display">{c.n}</h3>
+                <p class="detail text-fg2">{c.dominio}{c.sector && <> · {c.sector}</>}</p>
+              </div>
             </a>
             </>
           );
@@ -846,6 +848,23 @@ import { icono } from '../lib/iconos';
     opacity: 0;
     filter: blur(4px);
   }
+  /* RONDA 162 · Eric: «el título del cliente arriba a la izquierda no me convence; puede estar en el pie de la card». En las piezas de proyecto el
+     nombre baja al PIE, fuera de la imagen: nombre en Family a tamaño medio y, a la derecha, dominio · sector. La imagen queda limpia.
+     (La pieza de entrada, la que rota, conserva su nombre encima: su relevo vive ahí.) */
+  .pie-pieza {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 4);
+    flex-wrap: wrap;
+  }
+  .nombre-pie {
+    font-size: clamp(1.25rem, 1rem + 0.6vw, 1.625rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  .pie-pieza .detail { text-align: right; }
   /* ── el nombre, grande, encima (arriba a la izquierda) */
   .nombre {
     position: absolute;
@@ -924,7 +943,8 @@ import { icono } from '../lib/iconos';
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(to bottom, color-mix(in oklab, var(--color-cacao) 55%, transparent), transparent 34%);
+    /* RONDA 162 · sin velo: el nombre ya no va sobre la foto */
+    background: none;
   }
   /* sobre la foto, un velo arriba para que el nombre se lea siempre (regla junto a la de las pantallas en perspectiva) */
 
@@ -964,6 +984,9 @@ import { icono } from '../lib/iconos';
     width: 100%;
     height: auto;
   }
+  /* RONDA 162 · Eric (captura de BOP): la barra flotaba ENCIMA de la cabecera de la web y la dirección se pisaba con su menú. La web empieza bajo la
+     barra (sus 12 px); la barra sigue siendo de cristal claro */
+  .mockup:has(.cromo) :global(.vid) { margin-top: 12px; }
   /* RONDA 19 · «las barras de los navegadores son muy gordas»: 16 px (antes 24) */
   /* RONDA 156 · Eric: «no me gusta el marco retro de web; prefiero que sea translúcido, más moderno, con backdrop filtering y minimalista, que ocupe
      poco»: la barra flota SOBRE la web (absoluta, 12 px), cristal claro con desenfoque de lo que pasa por debajo, tres puntos tenues y la dirección en

@@ -1,0 +1,17 @@
+# Publica en savvia.studio los push a main que Vercel bloquea (commits de quien no está en el equipo de Vercel de Andoni).
+# Llama al Deploy Hook de savvia-home (secreto VERCEL_DEPLOY_HOOK). Los push de Andoni ya los publica Vercel solo: se saltan.
+name: Publicar en Vercel
+on:
+  push:
+    branches: [main]
+jobs:
+  publicar:
+    if: github.actor != 'AndoniMart'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar al Deploy Hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "Falta el secreto VERCEL_DEPLOY_HOOK"; exit 1; fi
+          curl -fsS -X POST "$HOOK"

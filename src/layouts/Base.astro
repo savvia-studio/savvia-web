@@ -112,9 +112,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       // ?carga=1 la fuerza (para revisarla)
       // RONDA 83 · ?carga=1 la fuerza SIEMPRE: aunque ya se haya visto y aunque el sistema pida movimiento reducido (es para revisarla)
       var cargaPedida = /[?&]carga=1/.test(location.search);
-      // RONDA 135 · «recupera la animación de carga siempre»: sale en cada visita; solo la saltan ?carga=0 y los navegadores automatizados con la clave puesta (pruebas)
+      // RONDA 161 · vuelve la regla de la ronda 69: solo la primera vez (se recuerda al terminarla o saltarla). ?carga=0 la salta; ?carga=1 la fuerza
       var cargaVista = /[?&]carga=0/.test(location.search);
-      try { if (navigator.webdriver && localStorage.getItem('savvia:carga') === '1' && !cargaPedida) cargaVista = true; } catch (e) {}
+      try { if (localStorage.getItem('savvia:carga') === '1' && !cargaPedida) cargaVista = true; } catch (e) {}
       if (document.documentElement.dataset.carga === '1' && !cargaVista && (cargaPedida || !matchMedia('(prefers-reduced-motion: reduce)').matches)) {
         document.documentElement.classList.add('cargando');
         // RONDA 19: la carga la ARRANCA el visitante (mantener pulsado), así que el salvavidas ya no mira si la gota cayó: solo si el script de la carga no llegó a correr

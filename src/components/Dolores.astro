@@ -78,6 +78,9 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
   document.querySelectorAll<HTMLElement>('[data-dolores]').forEach((sec) => {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const conTarjetas = sec.classList.contains('con-tarjetas');
+    // PRUEBA sin-oleo (ronda 173, Eric: «solo las animaciones ilustradas, sin la foto de atrás»): sin el óleo de Donostia bajo cada demo; `?oleo=1` lo devuelve
+    const sinOleo = conTarjetas && new URLSearchParams(location.search).get('oleo') !== '1';
+    if (sinOleo) sec.classList.add('sin-oleo');
     // MARCHITA = una estación más de la tabla del motor: ceniza parda y rala (raleo 0,55: pierde las hojas claras). Las cuatro de siempre, sin raleo.
     const MARCHITA = 4;
     const tabla = [...ESTACIONES_SIN_RALEO, [0x5e / 255, 0x53 / 255, 0x4c / 255, 0.55]];
@@ -88,7 +91,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     });
     type Rama = (typeof ramas)[number];
     const crear = (r: Rama) => {
-      if (r.t) return;
+      if (r.t || sinOleo) return;
       if (!r.img.complete) r.img.loading = 'eager';
       // RONDA 55 · con tarjetas, el ÓLEO de la estación (las láminas de Andoni) con el motor del árbol: se hunde en la noche, se deshace en puntos hacia fuera
       // y HIERVE (soplo, sin luz), con sus colores y un toque del color de la estación. No existe hasta que llega la savia: entonces se dibuja desde el centro.
@@ -121,7 +124,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     };
     // el óleo de la estación de hoy (y, al cambiarla, el nuevo: lienzo nuevo sobre la lámina nueva; el viejo suelta su contexto)
     const EST_N = ['otono', 'invierno', 'primavera', 'verano'];
-    if (conTarjetas) ramas.forEach((r) => (r.img.src = `/media/tarjetas/${EST_N[est]}-${r.el.dataset.k}-v.webp`));
+    if (conTarjetas && !sinOleo) ramas.forEach((r) => (r.img.src = `/media/tarjetas/${EST_N[est]}-${r.el.dataset.k}-v.webp`));
     // RONDA 56 · «que los fondos se cambien al cambiar de estación como cambia el árbol del hero»: el óleo nuevo SE PINTA ENCIMA del viejo con el
     // frente del árbol (líneas y pintura rasgada desde el centro, 2,4 s) y, al acabar, el viejo se retira y suelta su contexto WebGL
     const cambiarOleo = (r: Rama) => {
@@ -152,6 +155,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       const n = (ev as CustomEvent).detail.n as number;
       if (n === est) return;
       est = n;
+      if (sinOleo) return;
       if (conTarjetas) return ramas.forEach((r) => (r.cerca ? cambiarOleo(r) : (r.pendiente = true)));
       ramas.forEach((r) => { if (!r.t) return; r.t.fondo(...NOCHE[n]); if (r.sana) r.t.renacer(n); });
     });
@@ -398,6 +402,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     height: 100%;
     display: block;
   }
+  .sin-oleo .rama { display: none; } /* PRUEBA sin-oleo (ronda 173) */
   .rama img { opacity: 0; } /* es la textura del motor; sin WebGL, la lámina tenue */
   .rama.sin-gl img { opacity: 0.35; filter: grayscale(1); }
   .sana .rama.sin-gl img { filter: none; opacity: 0.6; }

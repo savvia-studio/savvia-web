@@ -3296,3 +3296,165 @@ en mono en el pie.
   1710 px (antes 1440; móvil 1024) y se reduce (`Proyectos.astro › BASE`): cabe la sección de Neety entera. Medido: iframe de Neety a 1710 × 930. **«Y las
   capturas de thumbnail a esa proporción»** → `tools/r160/capturar.cjs`: las cuatro miniaturas de los destacados a 1710 × 930 (antes 1440 × 900; las viejas en
   `tools/retirados/proyectos-r159/`), sin la barra de pruebas «HERO · A·Código / B·Esquema» de Zernio. Kuanta y Arkdev siguen con su web real (como en la 136).
+
+### Ronda 161 · 2026-10-12 · la carga, solo la primera vez (en local, Eric)
+- **Eric (textual):** «haz que el loading solo aparezca una vez. la primera vez».
+- **Hecho (`Base.astro`):** vuelve la regla de la ronda 69 (la 135 la había puesto en cada visita): si este navegador ya la terminó o la saltó (`localStorage` «savvia:carga», lo guarda `Cargador.astro › acabar`), no sale. `?carga=1` la sigue forzando para revisarla; `?carga=0` la salta.
+- **Medido:** `astro check` 0 errores. No publicado ni subido.
+
+### Ronda 161 · 2026-10-12 · Proyectos destacados: el clic en la fase de sentado por scroll te sienta, y esa fase dura el doble (en local, Eric)
+- **Andoni (Telegram, 15:45):** «al final si no pasas el ratón por la pantalla y haces clic es como que te lo pierdes» · «guiar de alguna manera que te incite a
+  clicar: como para ver los proyectos clicas y te lleva a estar sentado». **Eric:** «la pantalla de carga, una vez has clicado, que no aparezca la URL de staging ni nada».
+- **Hecho (`Proyectos.astro`):** en la fase B TODA la escena invita (mano y la píldora «clic para sentarte» pegada al cursor en cualquier punto, menos sobre el
+  selector y la ficha; táctil: «toca para sentarte»). El clic (o el toque: `click`, que no salta al arrastrar) te SIENTA con el viaje de cámara: web real, esc y ×
+  (antes la barra del esc no salía si te sentabas desde B: `[data-estudio]:not(.sentado)` en la regla que la oculta). Al levantarte vuelve el encuadre del scroll.
+  Fuera el «coger la web» en B (la ronda 157); de pie (D) sigue igual. B dura el doble: pista 350 → 395 lvh (85 entrar · 90 sentado · 75 levantarse · 45 de pie;
+  `FA/FB/FC`). La pantalla de carga al sentarse ya no enseña la dirección: solo «savvia» y la línea.
+- **Medido** (Chrome sin ventana, 1440×900 y 390×844 táctil): B a 0,30 y 0,58 del recorrido; píldora junto al cursor en la esquina de la escena; clic → sentado
+  con esc y ×; Esc → B con su encuadre; toque en móvil → sentado; desborde 0, sin errores · `astro check` 0 errores. **SIN medir:** WebKit. No publicado ni subido.
+
+### Ronda 162 · 2026-10-12 · «Más proyectos»: el nombre del cliente baja al pie de la tarjeta (en local, Eric)
+- **Eric (Agentation sobre `.pieza > .lamina`, 1710×985):** «lo que no me convence es el título del cliente arriba a la izquierda… no sé si por tamaño o porque puede estar en el footer de la card».
+- **Hecho (`Anteriores.astro`):** en las nueve piezas de proyecto el nombre sale de la imagen y va al PIE: nombre en Family a 20–26 px (antes `text-h3` sobre la imagen) y, a la derecha, dominio · sector en `--fg2` (si no cabe, baja debajo). Fuera el velo oscuro de arriba de las escenas (solo estaba para leer el nombre). La pieza de entrada que rota (Kuanta, Arkdev…) conserva su nombre encima: su relevo vive ahí.
+- **Medido** (Chrome real, 1710×985 y 390×844): sin errores, desborde 0 · `astro check` 0 errores. **SIN medir:** WebKit. No publicado ni subido.
+
+### Ronda 162 · 2026-10-12 · la construcción del reel antes de cada miniatura de Proyectos destacados (en local, Eric)
+- **Eric (textual):** «por cada uno de ellos, antes del thumbnail, mostrar la animación del reel que tenemos de cada uno: "el agente" y "nosotros" vamos
+  pintando el thumbnail» → elegido: rehacerla en la web (el reel tiene las webs ladeadas en 3D y el proyecto de HyperFrames está en el Mac de Andoni) y
+  cada vez que entra un proyecto.
+- **Hecho:** `src/scripts/construir.ts` (nuevo): en la pantalla del monitor, el fondo de la web y la retícula de 12; dos cursores, «el agente» (savia) y
+  «nosotros» (oscuro), se reparten las cajas de la maqueta (medidas a ojo sobre cada miniatura, `PLANOS`: cabecera, líneas de titular, botones en savia,
+  visual) y cada caja se traza desde su esquina; al final la miniatura se PINTA encima con `rasgo-circulo.png` desde la última caja (~4,8 s en total).
+  `Proyectos.astro`: capa `[data-construye]` (z 3, bajo la pantalla de carga), `construirActiva()` al estrenar y en cada cambio de pie (rotación y flechas
+  en B); se corta al sentarse y al coger la web. Rotación de pie 7 → 10 s.
+- **Medido** (Chrome sin ventana, 1440×900): fase D (Kuanta) y fase B tras la flecha (Playground) capturadas a 0,6–6,2 s; al sentarse la capa se apaga; sin
+  errores · `astro check` 0. **SIN medir:** WebKit, móvil. Las miniaturas de Kuanta y Arkdev siguen enseñando Multiverse y Zernio. No publicado ni subido.
+- **Después (Eric): «que dure un poco menos y que solo aparezca una vez, en el primer proyecto que aparezca».** Solo al estrenar la escena (el primer
+  proyecto); los cambios siguientes ya no la repiten; rotación de pie de vuelta a 7 s. Más corta: ~3,7 s con la miniatura pintada (antes ~5,6 con Kuanta).
+  Medido (Chrome, 1440×900): arranca al llegar, se apaga a los 3,7 s, tras la flecha no vuelve; sin errores · `astro check` 0.
+
+### Ronda 163 · 2026-10-12 · sentado, la luz de detrás del monitor (en local, Eric)
+- **Eric (textual):** «cuando estamos sentado, recuperemos el fade blur que teníamos detrás de la pantalla para indicar que el ordenador está "encendido"».
+- **Hecho (`Proyectos.astro › .halo-monitor`):** el resplandor de la ronda 160 (color de la estación) se enciende sentado (antes `display: none`), 1,2 s
+  después, cuando la cámara se posa. La escena va ×k sentado: el desenfoque y la extensión de la sombra se dividen por `--k` para medir lo mismo en pantalla.
+- **Medido** (Chrome, 1440×900): sentado desde la fase B y desde la silla, la luz asoma alrededor del monitor; sin errores · `astro check` 0. No publicado ni subido.
+- **A media ronda (Eric): «el haz clic para sentarte tiene que tener diseño, como de una silla; el ratón ese lo quitamos».** La píldora que sigue al cursor
+  lleva una SILLA de escritorio (dibujo propio en la rejilla de 24: respaldo, asiento, columna y base) dentro de un círculo de savia, que se endereza
+  (−8° → 0) al aparecer; el texto en Timeless Sans 500 a 12,5 px (antes Grotesk 11). Fuera el ratón dibujado. Captura a DPR 2.
+- **A media ronda (Eric): «en la construcción, en vez de nosotros, Andoni y Eric; y más smooth».** Tres cursores (el agente en savia, Andoni en claro,
+  Eric en gris); cada uno recorre SUS cajas en cola (llegar 340 ms · trazar 300 · respiro 30), movidos con `transform` en px y una curva de ida y vuelta
+  (antes `left/top` con animaciones que se pisaban). ~4,6 s hasta apagarse.
+- **A media ronda (Eric): «que el ratón se convierta en eso que acabamos de diseñar, para que el usuario se dé cuenta; que se transforme tipo liquid».**
+  En la fase B la flecha del sistema se oculta (`cursor: none`) y la píldora de la silla ES el cursor (el centro del círculo en la punta, sin retraso):
+  nace como una gota de savia con la silla a 0,35 y ladeada, se hincha con rebote y se estira hasta la píldora (`clip-path` con curva elástica); al salir
+  se recoge en la gota. Capturas a 40 · 160 · 320 · 800 ms.
+
+### Ronda 164 · 2026-10-12 · el marco del monitor no cambia al sentarse (en local, Eric)
+- **Eric (textual):** «al sentarme parece que el marco del ordenador cambia un poco; ¿puede ser por el background negro?».
+- **Causa (medida, capturas a DPR 2 en el mismo encuadre de pie y sentado):** sentado se encendía `.marco-monitor`, el marco en CSS de la ronda 14
+  (#060606 con filo gris de 1 px) por encima del bisel de la foto: se perdía el filo metálico cálido y quedaba un borde doble. Se puso cuando la lámina
+  era de 1920 px; sentado ya se carga la de 5120 (ronda 39). **Hecho:** sentado no se enciende (la regla, comentada en `Proyectos.astro`). Comparadas otra
+  vez: el bisel es el mismo en las dos. `astro check` 0. No publicado ni subido.
+- **Después (Eric): «que el fade de atrás salga 1 segundo antes, al hacer clic en sentarte».** La luz arranca a los 0,2 s del clic (antes 1,2 s).
+
+### Ronda 165 · 2026-10-12 · sin pausa extra en el scroll; «clic para sentarte» desde que empieza la construcción (en local, Eric)
+- **Eric (textual):** «igual no hace falta que haya sticky en el scroll (si no estás sentado); que el botón de clic para sentarte empiece desde que la
+  animación de desarrollo agéntico empiece».
+- **Hecho (`Proyectos.astro`):** vuelve la pista de la ronda 152 (350 lvh, B de 45 lvh; fuera los 90 de la ronda 161). `invita()` = de pie, ya estrenada y
+  no en D: el cursor-silla y el clic que te sienta valen desde el estreno (cuando arranca la construcción) y durante B y C; en D, la silla y el
+  monitor como siempre. Sentarse en plena construcción la corta.
+- **Medido** (Chrome, 1440×900): pista 3150 px; en el estreno, construcción en marcha y cursor-silla → clic → sentado; en C, cursor-silla; en D, no;
+  sin errores · `astro check` 0. No publicado ni subido.
+- **A media ronda (Eric, captura: «si me siento en mitad de la animación pasa esto»: sentado con el titular-pantalla encima del monitor y la ficha cortada).**
+  Causa: al volver a subir, `estrenado` ya era true y el clic valía también en plena entrada (A), con el titular a pantalla completa. Ahora en A solo
+  vale con el titular ya ido (a ≥ 0,97; `aE`), el cursor-silla se apaga si deja de valer aunque no cambie la fase, y sentado el titular-pantalla nunca se
+  ve. Medido (Chrome): bajar hasta D, volver a A (0,15) y clic → no se sienta; en C → sentado limpio, con la ficha entera.
+- **A media ronda (Eric, captura de BOP): «aquí hay que arreglar eso».** La barra del navegador (cristal de 12 px, ronda 156) flotaba ENCIMA de la cabecera de la web y la dirección se pisaba con su menú. Ahora la web empieza bajo la barra (`.mockup:has(.cromo) .vid { margin-top: 12px }`), en todas las piezas con navegador. Medido (Chrome, 1710 y 390): barra limpia sobre la cabecera, sin errores, desborde 0.
+
+### Ronda 166 · 2026-10-12 · el salvapantallas: logotipo y hora (en local, Eric)
+- **Eric (textual):** «en la pantalla de reposo, arriba que aparezca el logo savvia y debajo la hora y ya».
+- **Hecho (`Entreacto.astro`):** arriba, el logotipo (la palabra «savvia», la misma máscara que la barra, 28 px de alto) y debajo solo la hora; fuera la estación
+  y «Mueve el ratón / Toca para volver».
+- **Medido:** `astro check` 0 errores · vista previa con `?reposo=3`: el bloque lleva el logotipo y «16:27». **SIN medir a ojo:** la captura sin ventana se queda a
+  mitad del fundido. No publicado ni subido.
+- **Ronda 166 (probada y descartada el mismo día):** la entrada por TIEMPO, sin fijar la sección (al estar al 60 % a la vista, el zoom se reproducía solo en
+  2,2 s). Eric: «no, así no; quiero que se haga zoom in y out como antes, eso seguro». Vuelve el zoom atado al scroll de la ronda 165 (pista de 350 lvh).
+  NO VOLVER: el zoom de Proyectos destacados desatado del scroll.
+
+### Ronda 167 · 2026-10-12 · sin pausa en el monitor; la silla invita durante todo el zoom, también sin mover el ratón (en local, Eric)
+- **Eric (textual):** «el tema es el sticky de la pantalla: que no haya; pero que a la vez incitemos a hacer clic para sentarte en toda esa transición y que eso
+  te lleve al zoom a la pantalla, sticky total» · «cuando haces scroll sin mover el ratón no aparece el clic para sentarte; que aparezca aunque no muevas el ratón».
+- **Hecho (`Proyectos.astro`):** sin la fase B: pista de 305 lvh (100 pegados + 85 entrar + 75 levantarse + 45 de pie); el zoom de entrada enlaza con el de
+  salida y el cursor-silla invita desde el estreno hasta quedar de pie (A tras el titular · C); el clic te sienta. En táctil, «toca para sentarte» mientras se
+  aleja. `invitarQuieto()`: en cada fotograma de la entrada se mira dónde estaba el puntero (o el centro del monitor si nunca se ha movido) y la silla sale ahí;
+  fuera el `scroll → seguir(null)` que la apagaba. Selector y ficha (solo de la fase B) ya no salen de pie.
+- **Medido** (Chrome, 1440×900, rueda sin mover el ratón): silla del 0,46 al 0,72 del recorrido, con el puntero quieto y sin haberlo movido nunca; de pie
+  (D) se apaga; clic → sentado; sin errores · `astro check` 0. **SIN medir:** WebKit, táctil. No publicado ni subido.
+
+### Ronda 168 · 2026-10-12 · sentarse desde cualquier punto del zoom, con el mismo viaje de cámara (en local, Eric)
+- **Eric (textual):** «que estés donde estés se haga ese zoom in smooth que tenemos ya cuando haces clic sobre el botón de la silla».
+- **Causa:** en pleno zoom del scroll la escena lleva `.entrando` (`transition: none`, para seguir al scroll): al sentarse saltaba al encuadre de golpe.
+  **Hecho:** al sentarse se quita `.entrando` y `.escena.dolly.entrando` conserva la transición de 1,5 s (también al levantarse y volver al zoom del scroll).
+- **Medido** (Chrome, sentado desde el 0,66 del recorrido): escala 1,21 → 1,27 → 1,42 → 1,88 → 2,05 → 2,15 en 1,6 s; al levantarse, igual al revés; sin
+  errores · `astro check` 0. No publicado ni subido.
+
+### Ronda 169 · 2026-10-12 · de pie, solo el primer proyecto (en local, Eric)
+- **Eric (textual):** «es mejor que se quede solo el proyecto Multiverse hasta que te sientes, en vez de que vayan pasando: la animación de agente, Andoni y Eric
+  termina, pasa al siguiente y no termina de verse el hero».
+- **Hecho:** fuera la rotación de pie cada 7 s (ronda 67). De pie se queda el primero (Kuanta); los demás, sentado, con las flechas. Medido: 20 s de pie, siempre
+  el mismo; sin errores · `astro check` 0. No publicado ni subido.
+
+### Ronda 170 · 2026-10-12 · sin tramo fijado al final, de pie (en local, Eric)
+- **Eric (textual):** «al final del scroll, cuando está la silla, también hay sticky del scroll: eso lo quitamos».
+- **Hecho:** pista de 260 lvh (100 pegados + 85 entrar + 75 levantarse); la cámara acaba de alejarse justo cuando la pista se suelta y la sección sigue con
+  el scroll normal (la llamada de la silla, a la vista mientras sale). Medido (Chrome, rueda): silla-cursor del 0,53 al 0,95 y de pie a partir de 1;
+  sentarse en pleno zoom sigue siendo suave (1,87 → 2,15); sin errores · `astro check` 0. No publicado ni subido.
+
+### Ronda 171 · 2026-10-12 · el cursor-silla en toda la sección; fuera el botón fijo de la silla; nada encima al sentarse (en local, Eric)
+- **Eric (textual):** «el botón estático de siéntate igual ya no tiene sentido; que toda esa sección tenga el ratón personalizado y que siempre se muestre aunque
+  no hagas hovering» · (capturas) «si haces clic en sentarte en ese estado, la ola de la siguiente sección se ve incluso sentado» · «se ve una banda blanca».
+- **Hecho (`Proyectos.astro`, `global.css`):** `invita()` también en D (de pie): el cursor-silla en toda la sección, del estreno a que se va. Sin hover (puntero
+  fuera de la escena o nunca movido), la píldora se ANCLA en el centro del monitor mientras se vea; con el puntero encima, va en él (`invitarQuieto`, también al
+  hacer scroll en D). La llamada fija «Siéntate a ver los proyectos» ya no se ve: queda para el teclado (se ve al enfocarla). En táctil, «toca para sentarte»
+  en C y D. Sentado (y durante el viaje de vuelta, `html.estudio-sentado`), la sección sube a z 58 por encima de las siguientes y la gota `.sube` se oculta:
+  el escenario fijo vivía en el contexto de apilamiento de su sección y la sección siguiente (su ola y su fondo claro) le pasaban por encima.
+- **Medido** (Chrome, 1440×900): de pie con la sección saliendo, cursor-silla y clic → sentado a pantalla completa, sin ola ni banda (captura); silla anclada al
+  monitor con el puntero fuera; sentarse en pleno zoom sigue suave; sin errores · `astro check` 0. **SIN medir:** WebKit, táctil. No publicado ni subido.
+- **Arreglo (Eric, captura: «sigo viendo» la sección siguiente al sentarse con la sección casi fuera):** la regla que sube la sección (`z-index: 58`) estaba en el
+  bloque `<style is:global>` con `:global(...)`, que ahí no es válido: el navegador la descartaba entera. Sin `:global`, aplica (medido: `proyectos` con
+  `position: relative; z-index: 58`; captura a pantalla completa).
+
+### Ronda 172 · 2026-10-12 · sentado, el aviso de deslizar dentro de la pantalla (en local, Eric)
+- **Eric (Agentation sobre el monitor, 1710×985):** «aquí un pequeño aviso en algún lado de que puedes hacer scroll sobre la pantalla; solo la primera vez hasta que
+  hagas scroll».
+- **Hecho (`Proyectos.astro`):** `.aviso-desliza`, píldora de cristal al pie de la pantalla (unidades de la pantalla) con una rueda cuya gota de savia baja, y
+  «desliza para recorrer la web» (táctil: «desliza con el dedo…»). Sale al sentarse, cuando la cámara se posa (1,6 s). La capa `.capta-desliza` recoge el primer
+  gesto (rueda, dedo o clic; el iframe es de otro dominio y no se puede saber si se ha deslizado dentro): el aviso se va y se recuerda en el navegador
+  (`savvia:deslizado`). Ese primer gesto no mueve la web: a partir del segundo, normal.
+- **Medido** (Chrome): sentado → aviso; rueda sobre la pantalla → fuera y `savvia:deslizado = 1`; levantarse y volver a sentarse → no sale; sin errores ·
+  `astro check` 0. No publicado ni subido.
+
+### Ronda 173 · 2026-10-12 · los dolores sin el óleo de Donostia (PRUEBA, en local, Eric)
+- **Eric (Agentation sobre `.parada > .lado > .rama > .listo`, 1710×985):** «vamos a probar que ahí esté solo las animaciones ilustradas sin la foto de atrás».
+- **Hecho (`Dolores.astro`, PRUEBA sin-oleo):** por defecto, sin el óleo de la estación bajo cada demo (`.sin-oleo .rama { display: none }`; ni lámina ni lienzo WebGL:
+  tres contextos menos). `?oleo=1` lo devuelve. Para quitar la prueba: buscar «PRUEBA sin-oleo».
+- **Medido:** vista previa (1280): la sección con `sin-oleo`, la demo sola sobre la noche; consola limpia. No publicado ni subido.
+
+### Ronda 172 · 2026-10-12 · sentarse con la sección siguiente ya asomando (en local, Eric)
+- **Eric (captura):** «sigo con problemas: si doy clic a sentarme cuando ya ha aparecido parte de la sección siguiente…».
+- **Hecho (`Proyectos.astro › invita`):** probado primero recolocar la página al sentarse; Eric prefirió otra cosa: «si ya aparece la siguiente sección,
+  que el ratón no te deje sentarte». Con la pista soltándose (su borde de abajo dentro de la ventana) no hay cursor-silla ni clic que siente.
+- **Medido** (Chrome sin ventana, 1440×900): con la ola de la sección siguiente al 30 % de la pantalla, sin silla y el clic no sienta; dentro de la pista
+  (alejándose), el clic sienta; sin errores · `astro check` 0. **SIN medir:** WebKit, móvil. No publicado ni subido.
+
+### Ronda 173 · 2026-10-12 · sentarse también desde el titular de Proyectos (en local, Eric)
+- **Eric (captura del titular-pantalla):** «aquí también deberíamos poder sentarnos, haciendo zoom out hasta el sentado».
+- **Hecho (`Proyectos.astro`):** el cursor-silla y el clic valen en toda la pista pegada (`invita` = pegada y sin soltarse), también en A con el titular a
+  pantalla completa y antes del estreno (fuera la condición `aE ≥ 0,97` de la ronda 165, que existía porque el titular quedaba encima: ahora sentado se FUNDE
+  en 0,45 s mientras la cámara se aleja con el dolly de siempre hasta el encuadre de sentado).
+- **Medido** (Chrome sin ventana, 1440×900, pista a 150 px): silla sobre el titular → clic → el titular se funde, la cámara se aleja al monitor (capturas a
+  0,3 y 1,8 s), sentado con la web montada; Esc vuelve al titular; sin errores · `astro check` 0. **SIN medir:** WebKit, móvil. No publicado ni subido.
+- **A media ronda (Eric):** «el Escape, cuando has entrado en sentado, que siempre sea el zoom out del escritorio a todo el ancho» → al levantarte (Esc o ×),
+  la página va al final de la pista (la mesa entera, de pie) antes del viaje de cámara, te hayas sentado desde el titular o desde donde sea. Medido
+  (Chrome): sentado desde el titular → Esc → pista con su borde al pie de la ventana (899,97 / 900) y la mesa entera. Al volver, el foco cae en el botón
+  «Siéntate a ver los proyectos» y se ve su anillo de foco (ya pasaba antes).

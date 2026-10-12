@@ -12,8 +12,9 @@
   <div class="arbol"><canvas data-reposo-lienzo></canvas></div>
   <canvas class="tiempo" data-reposo-tiempo></canvas>
   <div class="texto">
+    <!-- RONDA 166 · Eric: «arriba, el logo savvia; debajo, la hora y ya» -->
+    <span class="logo" role="img" aria-label="savvia"></span>
     <p class="hora" data-reposo-hora></p>
-    <p class="volver"><span class="raton">Mueve el ratón para volver</span><span class="dedo">Toca para volver</span></p>
   </div>
 </div>
 
@@ -30,16 +31,15 @@
   .arbol canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .texto { position: absolute; left: 50%; top: calc(var(--spacing) * 16); transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity 1.2s ease 1.6s; }
   .reposo.on .texto { opacity: 1; }
-  .hora { font-size: 0.875rem; letter-spacing: 0.12em; opacity: 0.72; font-variant-numeric: tabular-nums; }
-  .volver { margin-top: calc(var(--spacing) * 6); font-size: 0.75rem; letter-spacing: 0.06em; opacity: 0.42; }
-  .dedo { display: none; }
-  @media (hover: none) { .raton { display: none; } .dedo { display: inline; } }
+  .logo { display: block; margin-inline: auto; height: 1.75rem; aspect-ratio: 2373 / 707; background: currentColor;
+    -webkit-mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat; mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat; }
+  .hora { margin-top: calc(var(--spacing) * 3); font-size: 0.875rem; letter-spacing: 0.12em; opacity: 0.72; font-variant-numeric: tabular-nums; }
   @media (prefers-reduced-motion: reduce) { .reposo, .texto, .arbol { transition: none; } .tiempo { display: none; } }
 </style>
 
 <script>
   import { crearEstela, type Estela } from '../scripts/estela';
-  import { EST, NOMBRE, NOCHE, estacionActual } from '../scripts/estacion';
+  import { EST, NOCHE, estacionActual } from '../scripts/estacion';
   const caja = document.querySelector<HTMLElement>('[data-reposo]');
   if (caja) {
     const ESPERA = +(new URLSearchParams(location.search).get('reposo') ?? 60) * 1000, FUERA = 30000; // ?reposo=5 para probarlo
@@ -64,7 +64,7 @@
       if (abierto || !puede()) return;
       caja.hidden = false; montarArbol();
       abierto = true; abiertoEn = performance.now(); clearTimeout(salida);
-      const tic = () => (hora.textContent = `${fmt.format(new Date())} · ${NOMBRE[estacionActual()]}`); tic(); reloj = window.setInterval(tic, 10000);
+      const tic = () => (hora.textContent = fmt.format(new Date())); tic(); reloj = window.setInterval(tic, 10000);
       caja.setAttribute('aria-hidden', 'false'); est?.visible(true);
       requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.add('on')));
       setTimeout(() => abierto && empezarTiempo(), 1800); // el tiempo empieza cuando el roble ya ha brotado
