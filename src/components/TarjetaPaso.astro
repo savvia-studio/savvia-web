@@ -39,6 +39,8 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
                      tanda sean preguntas diferentes». La lista de cuatro de siempre; las tandas se superponen en las mismas cuatro filas y un solo
                      RELOJ (`--t`, segundos, animado en .reloj y heredado) decide cuál se ve: cada tanda vive 9 s (como la vuelta de antes). */}
                 <div class="reloj" style={`--nt:${tandas.length}`}>
+                  {/* RONDA 181 · Eric: «los rectángulos que salen hay que quitarlos»: las cajas de las filas son FIJAS; solo se releva lo de dentro */}
+                  {Array.from({ length: POR_TANDA }, (_, k) => <span class="caja-fila" aria-hidden="true" style={`grid-row:${k + 1}`} />)}
                   {tandas.map((tanda, j) => (
                     <>
                       {tanda.map((q, k) => (
@@ -437,6 +439,10 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
     align-items: center;
     gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
     padding: calc(var(--spacing) * 3);
+    border-radius: calc(var(--spacing) * 3);
+  }
+  .caja-fila {
+    grid-column: 1;
     border-radius: calc(var(--spacing) * 3);
     background: color-mix(in oklab, var(--color-niebla) 6%, transparent);
   }

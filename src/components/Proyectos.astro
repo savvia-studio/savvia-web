@@ -185,10 +185,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="barra" data-barra hidden>
           <!-- RONDA 68 · «cuando le das a la (X) abres el menú»: la × estaba justo donde el botón del menú. Ahora va ARRIBA EN EL CENTRO, pegada al aviso
                de esc, en un solo cristal recto con cruces (el idioma del CTA); en la esquina ya no hay nada que clicar dos veces. -->
+          <!-- RONDA 175 · JL, sentado, «no sabía levantarse»: la × sola no se leía como salida. Ahora es un BOTÓN CON TEXTO, «Levantarse», con la
+               tecla esc al lado; y además se levanta uno haciendo clic o scroll fuera del monitor (cursor de alejar). -->
           <div class="arriba cristal">
-            <p class="salir detail"><kbd>esc</kbd> para levantarte</p>
-            <button type="button" class="cerrar" data-levantarse aria-label="Levantarse y volver">
+            <button type="button" class="cerrar" data-levantarse>
               <Fragment set:html={icono('x')} />
+              <span>Levantarse</span>
+              <kbd class="salir">esc</kbd>
             </button>
           </div>
           <!-- RONDA 14 · «en la vista sentado de proyectos que también puedas ver otros»: sin levantarte, anterior · proyecto · siguiente -->
@@ -537,7 +540,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       escena.style.setProperty('--k', String(k));
       ajustar(); // el iframe se reduce a la pantalla nueva (que ahora se maqueta k veces mayor)
     }
-    let finDolly = 0, finLevantar = 0, fase = '';
+    let finDolly = 0, finLevantar = 0, fase = '', posado = 0;
     const barra = $('[data-barra]');
     function sentar(si: boolean) {
       if (si === sentado) return;
@@ -546,6 +549,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (!si && !reducido) { const r = pista.getBoundingClientRect(); window.scrollTo({ top: scrollY + r.bottom - innerHeight, behavior: 'instant' as ScrollBehavior }); }
       const antes = escenario.getBoundingClientRect();
       sentado = si;
+      if (si) posado = performance.now();
       if (si) { explorando = false; escenario.classList.remove('explora'); pistaScroll.classList.remove('on'); pararC(); escena.classList.remove('entrando'); }
       raiz.classList.toggle('sentado', si);
       if (si) escenario.classList.add('viva');
@@ -578,11 +582,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
       sonido.fx(si ? 'sentarse' : 'levantarse');
       sonido.foco(si); // ronda 46: sentado, el ambiente se oye como con cascos puestos
       if (si) webs[activo].focus({ preventScroll: true });
-      else $<HTMLButtonElement>('[data-sentarse]').focus({ preventScroll: true });
+      // ronda 175 (Eric, captura): al levantarte, el foco iba a la llamada «Siéntate…» (oculta salvo con foco de teclado) y, tras el Esc, salía su anillo
+      // encima de la mesa. Vuelve a la sección, que no se pinta.
+      else { raiz.tabIndex = -1; raiz.style.outline = 'none'; raiz.focus({ preventScroll: true }); }
     }
     $$<HTMLButtonElement>('[data-otro]').forEach((b) => b.addEventListener('click', () => rodar(+b.dataset.otro!)));
     $('[data-sentarse]').addEventListener('click', () => (cargar(), sentar(true)));
     $('[data-levantarse]').addEventListener('click', () => sentar(false));
+    // RONDA 175 · sentado, todo lo que queda fuera del monitor (la mesa, el paisaje) te LEVANTA: con un clic o con la rueda, y el cursor lo avisa (alejar).
+    // Se espera a que la cámara se pose (1,6 s) para que el clic que te sentó o la inercia de la rueda no te levanten sin querer.
+    const fueraMonitor = (ev: MouseEvent) => sentado && performance.now() - posado > 1600 && !(ev.target as HTMLElement).closest('[data-barra], .ui-info, button, a, [data-pantalla]') && !enMonitor(ev.clientX, ev.clientY);
+    escenario.addEventListener('pointermove', (ev) => escenario.classList.toggle('aleja', fueraMonitor(ev)), { passive: true });
+    escenario.addEventListener('click', (ev) => { if (fueraMonitor(ev)) { ev.stopImmediatePropagation(); escenario.classList.remove('aleja'); sentar(false); } }); // (sin el stop, el clic de «sentarse» de más abajo te volvía a sentar)
+    escenario.addEventListener('wheel', (ev) => { if (fueraMonitor(ev) && Math.abs(ev.deltaY) > 12) { escenario.classList.remove('aleja'); sentar(false); } }, { passive: true });
     addEventListener('resize', encuadrar);
     addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && sentado) return sentar(false);
@@ -658,7 +670,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
       titulo.style.setProperty('--gr', `${(240 * K) / s2}px`);
       inicio.style.setProperty('--ft', `${(parseFloat(getComputedStyle(tituloH2).fontSize) / (pw * K * 1.014)) * 100}cqw`);
       titulo.classList.remove('vacio');
-      titulo.style.opacity = String(1 - Math.min(1, Math.max(0, (a - 0.84) / 0.12)));
+      // ronda 177 (Eric, captura: el titular a medio fundir flotando sobre la web): primero se va el texto (0,80–0,87) y DESPUÉS el fondo (0,87–0,96):
+      // nunca hay titular encima de la web a medias
+      const fx = (x0: number, x1: number) => 1 - Math.min(1, Math.max(0, (a - x0) / (x1 - x0)));
+      titulo.style.opacity = '1';
+      titulo.style.setProperty('--tt', String(fx(0.8, 0.87)));
+      titulo.style.setProperty('--tf', String(fx(0.87, 0.96)));
       titulo.style.visibility = a >= 0.97 ? 'hidden' : 'visible';
       if (a > 0.965 && !estrenado) estrenar();
       escenario.classList.toggle('dentro', nf === 'D');
@@ -807,6 +824,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
      para que pise SIEMPRE la pantalla de la lámina. Regla dura 3: sin JS no tapa nada (ver html:not(.js)). */
   /* ronda 165: sentado, el titular de la entrada nunca encima · ronda 173: se funde mientras la cámara se aleja (sentarse desde el titular) */
   [data-estudio].sentado .titulo-pantalla { visibility: hidden !important; opacity: 0 !important; transition: opacity 0.45s ease, visibility 0s linear 0.45s; }
+  [data-estudio].sentado .titulo-pantalla h2 { opacity: 0 !important; transition: opacity 0.18s ease; }
   .titulo-pantalla {
     position: absolute;
     left: 50%;
@@ -817,7 +835,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: grid;
     place-items: center;
     padding: 8%;
-    background: var(--noche);
+    background: color-mix(in srgb, var(--noche) calc(var(--tf, 1) * 100%), transparent);
     color: var(--color-niebla);
     text-align: center;
     pointer-events: none;
@@ -827,6 +845,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     visibility: hidden;
   }
   .titulo-pantalla h2 {
+    opacity: var(--tt, 1);
     font-size: clamp(2.75rem, 1.2rem + 4.6vw, 5.5rem);
     line-height: 1.05;
     letter-spacing: -0.02em;
@@ -1050,7 +1069,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: grid;
     place-items: center; /* el titular, SOLO en el centro: pisa exactamente al del titular-pantalla (padding 8 % igual) */
     padding: 8%;
-    background: var(--noche);
+    background: color-mix(in srgb, var(--noche) calc(var(--tf, 1) * 100%), transparent);
     color: var(--color-niebla);
     text-align: center;
     pointer-events: none; /* la rueda pasa a la web de debajo */
@@ -1748,25 +1767,30 @@ const pad = (n: number) => String(n).padStart(2, '0');
     color: var(--color-niebla);
     white-space: nowrap;
   }
+  .escenario.aleja { cursor: zoom-out; }
   .cerrar {
-    border-radius: 50%;
-    width: calc(var(--spacing) * 10);
+    border-radius: var(--radius-full);
     height: calc(var(--spacing) * 10);
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-inline: calc(var(--spacing) * 3) calc(var(--spacing) * 2);
     color: var(--color-niebla);
+    font-size: var(--text-ui);
+    font-weight: 500;
     transition: scale 0.3s var(--ease-out-expo), background-color 0.3s ease, color 0.3s ease;
   }
   .cerrar:hover {
     background: var(--color-niebla);
     color: var(--color-cacao);
   }
+  .cerrar:hover kbd { background: color-mix(in oklab, var(--color-cacao) 12%, transparent); }
   .cerrar:active {
-    scale: 0.94;
+    scale: 0.96;
   }
   .cerrar :global(svg) {
-    width: calc(var(--spacing) * 5);
-    height: calc(var(--spacing) * 5);
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
   }
   .otros {
     border-radius: var(--radius-full);
@@ -1814,22 +1838,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
     font-size: var(--text-ui);
     font-weight: 500;
   }
-  .salir {
-    display: flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 2);
-    padding-inline: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
-    margin-right: calc(var(--spacing) * 1);
-    border-right: 1px solid color-mix(in oklab, var(--color-niebla) 18%, transparent);
-  }
   kbd {
     border-radius: 6px;
     font: inherit;
-    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    font-size: 0.85em;
+    padding: 0 calc(var(--spacing) * 2);
+    line-height: 1.6;
     background: color-mix(in oklab, var(--color-niebla) 16%, transparent);
   }
   @media (hover: none) {
-    .salir { display: none; } /* en táctil no hay tecla Esc: queda la (x) */
+    .salir { display: none; } /* en táctil no hay tecla Esc: queda «Levantarse» */
   }
 
   /* ── LA LLAMADA «SENTARSE»: punto en el respaldo de la silla, línea a 45° y la palabra. Vive en coordenadas de la lámina. */
@@ -2069,7 +2087,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     gap: 8px;
     padding: 4px 13px 4px 4px;
     border-radius: 99px;
-    background: color-mix(in oklab, var(--noche) 64%, transparent);
+    background: color-mix(in oklab, var(--noche-honda) 64%, transparent); /* ronda 177: --noche-honda (en invierno --noche es nieve y el texto claro no se leía) */
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 14%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);

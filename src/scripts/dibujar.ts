@@ -9,7 +9,7 @@ const MASCARA = "url('/media/rasgo-circulo.png')";
 const RADIO = 0.44; // el radio del círculo dentro de la imagen (fracción del lado)
 const NS = 'http://www.w3.org/2000/svg';
 
-type Op = { abrir: boolean; origen: [number, number]; color: string; piezas?: string; alTerminar?: () => void; arbol?: boolean; estacion?: boolean };
+type Op = { abrir: boolean; origen: [number, number]; color: string; piezas?: string; alTerminar?: () => void; arbol?: boolean; estacion?: boolean; sinMarco?: boolean };
 
 // RONDA 45 · «el menú superior, cuando se abre, que se abra como los cambios de color del árbol»: el cambio de estación del árbol es un frente de PAPEL
 // RASGADO que avanza desde un origen con el filo teñido de SAVIA (Naranja) y se asienta. Aquí: la pieza se pinta con la máscara rasgada creciendo desde
@@ -68,7 +68,7 @@ function dibujarComoArbol(el: HTMLElement, op: Op) {
   const copia = el.cloneNode(true) as HTMLElement;
   copia.removeAttribute('id'); copia.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
   copia.setAttribute('aria-hidden', 'true'); copia.inert = true; copia.hidden = false;
-  copia.style.cssText += `;filter:${filtroBoceto(op.color)};pointer-events:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:inset 0 0 0 1px ${op.color}`;
+  copia.style.cssText += `;filter:${filtroBoceto(op.color)};pointer-events:none;-webkit-backdrop-filter:none;backdrop-filter:none${op.sinMarco ? '' : `;box-shadow:inset 0 0 0 1px ${op.color}`}`; // ronda 181: `sinMarco` para piezas sin caja (las demos de los dolores)
   el.after(copia);
   const poner = (e: HTMLElement, v: string) => { e.style.setProperty('-webkit-mask', v); e.style.setProperty('mask', v); };
   const lineas = (r: number) => poner(copia, `radial-gradient(circle at ${ox}px ${oy}px, #000 ${Math.max(0, r - 40)}px, transparent ${r + 0.1}px)`);

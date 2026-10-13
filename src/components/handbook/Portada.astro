@@ -8,7 +8,7 @@
 import { handbook, capitulos, minutos } from '../../data/handbook';
 import Cta from '../Cta.astro';
 
-const href = (slug: string) => `/handbook/${slug}`;
+const href = (slug: string) => `/metodo/${slug}`;
 const estela = handbook.estela.map(([f, n]) => ({ src: `/media/handbook/estela/${f}.webp`, n, movil: f.startsWith('remerge') }));
 // el párrafo, partido en palabras (se entintan con el scroll)
 let k = 0;

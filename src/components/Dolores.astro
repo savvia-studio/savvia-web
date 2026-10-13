@@ -30,17 +30,26 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
   <svg class="hilo" aria-hidden="true" data-hilo>
     <defs>
       <!-- el trazo pasa POR DETRÁS de cada bloque de texto (no tacha lo que se lee) -->
-      <mask id={`hilo-texto-${id}`} maskUnits="userSpaceOnUse" data-mascara><rect x="-10" y="-10" width="99999" height="99999" fill="#fff" /></mask>
+      <filter id={`hilo-blando-${id}`} x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8" /></filter>
+      <mask id={`hilo-texto-${id}`} maskUnits="userSpaceOnUse" data-mascara><rect x="-10" y="-2000" width="99999" height="99999" fill="#fff" /></mask>
       <!-- y se descubre detrás de la gota: la línea central, gruesa, que avanza (como la plumada de las v en la carga) -->
       <mask id={`hilo-avance-${id}`} maskUnits="userSpaceOnUse"><path class="guia" d="" data-guia /></mask>
+      <!-- RONDA 181 · «en esa zona que no se vea la línea: que se vea una vez terminen las raíces del árbol»: oculta dentro de la masa pintada, aparece en su punta -->
+      <linearGradient id={`raiz-asoma-${id}`} gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0" y2="1" data-asoma><stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset="1" stop-color="#fff" stop-opacity="1" /></linearGradient>
+      <mask id={`raiz-fuera-${id}`} maskUnits="userSpaceOnUse" x="-100" y="-3000" width="99999" height="99999"><rect x="-100" y="-3000" width="99999" height="99999" fill={`url(#raiz-asoma-${id})`} /></mask>
+
     </defs>
     <g mask={`url(#hilo-texto-${id})`}>
       <!-- RONDA 51 (3.ª) · «que el recorrido sea como raíces que se extienden desde las del árbol»: la raíz (color del árbol de la estación, hundido)
            crece tras la gota; sus raicillas brotan al pasar; por dentro, el hilo de savia -->
       <g class="raicillas" data-raicillas></g>
       <g mask={`url(#hilo-avance-${id})`}>
-        <path class="raiz" d="" data-raiz />
-        <path class="savia" d="" data-savia />
+        <g mask={`url(#raiz-fuera-${id})`}>
+          <path class="raiz" d="" data-raiz />
+          <!-- RONDA 181 · Eric: «que parezca salida del árbol; vectorizado bien»: FIBRAS que se trenzan sobre la raíz, con los tonos de la acuarela -->
+          <g class="fibras" data-fibras></g>
+          <path class="savia" d="" data-savia />
+        </g>
       </g>
       <ellipse class="gota" rx="5" ry="4.2" data-gota />
     </g>
@@ -50,7 +59,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       pasos.map((p, k) => (
         <li class={`parada ${k % 2 ? 'derecha' : ''}`} data-parada={k}>
           <div class="texto">
-            <h2 class="dolor detail">{p.dolor}</h2>
+            <h2 class="dolor text-body">{p.dolor}</h2>
             <div class="respuesta">
               <p class="t text-h1 font-display">{p.t}</p>
               <p class="d text-sub mt-3">{p.d}</p>
@@ -72,7 +81,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
 <script>
   import { crearEstela, ESTACIONES_SIN_RALEO, type Estela } from '../scripts/estela';
   import { tinta } from '../scripts/tinta';
-  import { NOCHE, estacionActual } from '../scripts/estacion';
+  import { EST, NOCHE, estacionActual } from '../scripts/estacion';
   import { dibujar } from '../scripts/dibujar';
   import { salpicar } from '../scripts/gota';
   document.querySelectorAll<HTMLElement>('[data-dolores]').forEach((sec) => {
@@ -120,7 +129,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       if (!t) return;
       const d = t.querySelector('.demo'); d?.replaceWith(d.cloneNode(true));
       t.classList.add('viva');
-      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, origen: impacto, color: tinta('niebla', 0.6, sec) }); // ronda 132: en la sección (en invierno, Cacao)
+      if (!reducido && impacto) dibujar(t, { arbol: true, abrir: true, sinMarco: true, origen: impacto, color: tinta('niebla', 0.6, sec) }); // ronda 132: en la sección (en invierno, Cacao)
     };
     // el óleo de la estación de hoy (y, al cambiarla, el nuevo: lienzo nuevo sobre la lámina nueva; el viejo suelta su contexto)
     const EST_N = ['otono', 'invierno', 'primavera', 'verano'];
@@ -168,12 +177,14 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     let brotes: { el: SVGPathElement; desde: number; largo: number }[] = [];
     const PLUMA = -0.62; // el ángulo de la plumilla (rad): los trazos que bajan salen gruesos, los que suben en diagonal, finos
     // un tramo de A a B: sale y llega en vertical (una raíz que baja) y a mitad hace un RIZO, hacia el lado al que va
-    const tramo = (A: P, B: P, rizo: boolean, lado: number) => {
-      const out: P[] = [], dy = B.y - A.y, m = dy * 0.5, n = Math.max(12, Math.ceil(Math.hypot(B.x - A.x, dy) / 5));
+    const tramo = (A: P, B: P, rizo: boolean, lado: number, km = 0.38, inclina = 0, inclinaA = 0) => {
+      const out: P[] = [], dy = B.y - A.y, m = dy * km, n = Math.max(12, Math.ceil(Math.hypot(B.x - A.x, dy) / 5));
       const r = Math.min(64, Math.max(22, dy * 0.1));
       for (let i = 1; i <= n; i++) {
         const t = i / n, u = 1 - t;
-        let x = u * u * u * A.x + 3 * u * u * t * A.x + 3 * u * t * t * B.x + t * t * t * B.x;
+        const c2x = B.x + Math.sign(A.x - B.x) * inclina * m; // `inclina`: la llegada no del todo vertical (tan del ángulo)
+        const c1x = A.x + Math.sign(B.x - A.x) * inclinaA * m; // `inclinaA`: la salida no del todo vertical
+        let x = u * u * u * A.x + 3 * u * u * t * c1x + 3 * u * t * t * c2x + t * t * t * B.x;
         let y = u * u * u * A.y + 3 * u * u * t * (A.y + m) + 3 * u * t * t * (B.y - m) + t * t * t * B.y;
         if (rizo && t > 0.46 && t < 0.54) {
           // una vuelta entera (empieza y acaba en el tramo: sin 0 = 0 y 1 − cos 0 = 0), como el lazo de la primera v
@@ -188,17 +199,42 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       const sr = sec.getBoundingClientRect(), W = sr.width, H = sec.offsetHeight;
       if (!H) return; // la dirección oculta (`?s2=`)
       svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', String(W)); svg.setAttribute('height', String(H));
-      wMax = innerWidth < 768 ? 6 : 9;
+      wMax = innerWidth < 768 ? 4.5 : 6.5; // ronda 181: «el tronco central, más fino» (antes 6 · 9)
       const wr = sec.querySelector<HTMLElement>('.paradas')!.getBoundingClientRect();
       const rel = (x: number, y: number): P => ({ x: x - sr.left, y: y - sr.top });
-      pts = [{ x: wr.left - sr.left + wr.width / 2, y: 0 }]; llegadas = [];
+      // RONDA 181 · Eric: «la raíz tiene que salir desde la raíz de arriba»: nace en la PUNTA de la raíz principal pintada (Raices.astro › data-eje)
+      const caja = document.querySelector<HTMLElement>('[data-raices-caja]'), eje = caja && JSON.parse(caja.closest<HTMLElement>('[data-raices]')!.dataset.eje || '[]');
+      const cr = caja?.getBoundingClientRect(), punta = cr && eje?.length ? eje[Math.min(3, eje.length - 1)] : null; // «más arriba todavía»: desde dentro de la masa de raíces (a media altura del eje)
+      pts = [punta && cr ? rel(cr.left + cr.width * eje[eje.length - 1][0], cr.top + cr.height * punta[1]) /* «que la vertical case con la raíz central»: la x de su punta */ : { x: wr.left - sr.left + wr.width / 2, y: 0 }]; llegadas = []; const anclas: P[] = [];
+      // «que empiece de manera totalmente vertical y luego gire»: un tramo recto hacia abajo antes de la primera curva
+      { const fin = eje?.length && cr ? rel(0, cr.top + cr.height * eje[eje.length - 1][1]).y : pts[0].y, g = sec.querySelector('[data-asoma]')!; g.setAttribute('y1', String(fin - 18)); g.setAttribute('y2', String(fin + 22)); }
+      if (punta) { const p0 = pts[0], RECTO = 110; /* «gire antes»: 150 → 110 (sale recto justo bajo la punta pintada) */ for (let d = 6; d <= RECTO; d += 6) pts.push({ x: p0.x, y: p0.y + d }); }
+      let salidaTg = 0;
       ramas.forEach((r, k) => {
         const b = (r.tarjeta ?? r.el).getBoundingClientRect(), cx = b.left + b.width / 2;
-        const llega = r.tarjeta ? rel(cx, b.top + 4) : rel(cx, b.top + b.height * 0.94), sale = r.tarjeta ? rel(cx, b.bottom - 4) : llega;
+        // RONDA 181 · Eric: «esa curva, más bonita y que no se pegue tanto al rectángulo»: la raíz entra por el CENTRO de la pieza de arriba de la demo
+        // (la píldora) y sale por el de la de abajo, no por el centro de la caja (que caía en el canto de la píldora y la raíz bajaba pegada a ella)
+        const piezas = r.tarjeta ? [...r.tarjeta.querySelectorAll<HTMLElement>('.demo > *')].map((n) => n.getBoundingClientRect()).filter((q) => q.width && q.height) : [];
+        const arriba = piezas.length ? piezas.reduce((a, q) => (q.top < a.top ? q : a)) : null, abajo = piezas.length ? piezas.reduce((a, q) => (q.bottom > a.bottom ? q : a)) : null;
+        const llega = r.tarjeta ? (arriba ? rel(arriba.left + arriba.width / 2, arriba.top + 6) : rel(cx, b.top + 4)) : rel(cx, b.top + b.height * 0.94);
+        const sale = r.tarjeta ? (abajo ? { x: llega.x, y: rel(0, abajo.bottom - 6).y } : rel(cx, b.bottom - 4)) : llega; // ronda 181: sale a la misma x por la que entra
+        // RONDA 181 · Eric: «al entrar en la ilustración, la línea más vertical: que gire más arriba y antes, más curva; y al salir igual»: entra y sale
+        // por un tramo RECTO vertical (LEAD) y la curva de enlace tiene los tiradores algo más largos (m 0,5)
+        // (solo la LLEGADA a la segunda demo: las demás curvas, como estaban)
         const prev = pts[pts.length - 1];
-        pts.push(...tramo(prev, llega, false, 1));
+        if (k === 1) {
+          // «incluso un poco menos de 90º, unos 80º»: llega con ~10º de inclinación
+          // (Eric eligió la versión SIN tramo recto: la curva llega sola, a unos 60–70º en pantalla)
+          pts.push(...tramo(prev, llega, false, 1, 0.5, Math.tan((10 * Math.PI) / 180)));
+          anclas.push(llega);
+        } else if (k === 0 && punta) pts.push(...tramo(prev, llega, false, 1, 0.5, 0, Math.tan((14 * Math.PI) / 180))); // «la primera curva, más ligera»: tiradores largos y arranque ya algo inclinado
+        else pts.push(...tramo(prev, llega, false, 1, salidaTg ? 0.66 : 0.38, 0, salidaTg)); // salida de la 2: «más larga, que se lea como la entrada» (m 0,5 → 0,66)
+        salidaTg = 0;
         llegadas.push(pts.length - 1);
         if (sale !== llega) pts.push(...tramo(llega, sale, false, 1)); // por detrás de la tarjeta
+        // «y la salida de la ilustración 2 igual, quizás 70º»: sale recta con ~20º hacia donde está la siguiente, y la curva siguiente arranca con esa inclinación
+        // (después: «la salida tiene que replicar una curva similar» a la llegada: sin tramo recto, m 0,5 e inclinación de 10º al arrancar)
+        if (k === 1 && sale !== llega) salidaTg = Math.tan((10 * Math.PI) / 180);
       });
       const ult = pts[pts.length - 1];
       pts.push(...tramo(ult, { x: wr.left - sr.left + wr.width / 2, y: H }, false, 1));
@@ -208,15 +244,30 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       total = acum[acum.length - 1];
       // LA RAÍZ: la línea central ONDEA (dos senos lentos con fase propia, hacia los lados), gruesa arriba (donde nace de las raíces del árbol) y cada vez
       // más fina, con un pulso irregular; por dentro, el hilo de savia (Coral, fino)
+      // el ondeo se calma cerca de donde entra y sale de cada demo (para que esos tramos queden verticales)
+      const calma = (p: P) => anclas.reduce((m, a) => Math.min(m, Math.min(1, Math.max(0, (Math.abs(p.y - a.y) - 60) / 220))), 1);
       const ang0 = pts.map((_, i) => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; return Math.atan2(b.y - a.y, b.x - a.x); });
-      pts = pts.map((p, i) => { const s = acum[i], o = (Math.sin(s / 97 + 1.3) * 9 + Math.sin(s / 41 + 4.1) * 3.5) * Math.min(1, s / 120); return { x: p.x - Math.sin(ang0[i]) * o, y: p.y + Math.cos(ang0[i]) * o }; });
+      pts = pts.map((p, i) => { const s = acum[i], o = (Math.sin(s / 97 + 1.3) * 9 + Math.sin(s / 41 + 4.1) * 3.5) * Math.min(1, Math.max(0, (s - 110) / 260)) * calma(p); return { x: p.x - Math.sin(ang0[i]) * o, y: p.y + Math.cos(ang0[i]) * o }; });
       acum = [0]; for (let i = 1; i < pts.length; i++) acum.push(acum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
       total = acum[acum.length - 1];
       const ang = pts.map((_, i) => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; return Math.atan2(b.y - a.y, b.x - a.x); });
-      const ws = acum.map((s) => (wMax - (wMax - 2.2) * (s / total)) * (1 + 0.16 * Math.sin(s / 33 + 0.7) + 0.08 * Math.sin(s / 11)) * Math.min(1, (total - s) / 50 + 0.2));
+      // RONDA 181 · Eric: «las dos primeras curvas son preciosas; las de luego, parecidas»: apenas se afina (antes llegaba a 2,2 px al final)
+      const ws = acum.map((s) => Math.min(1, 0.22 + s / 560) * (wMax - wMax * 0.22 * (s / total)) * (1 + 0.16 * Math.sin(s / 33 + 0.7) + 0.08 * Math.sin(s / 11)) * Math.min(1, (total - s) / 50 + 0.2));
       const izq: string[] = [], der: string[] = [];
       pts.forEach((p, i) => { const nx = -Math.sin(ang[i]), ny = Math.cos(ang[i]), h = ws[i] / 2; izq.push(`${(p.x + nx * h).toFixed(1)} ${(p.y + ny * h).toFixed(1)}`); der.push(`${(p.x - nx * h).toFixed(1)} ${(p.y - ny * h).toFixed(1)}`); });
       raiz.setAttribute('d', `M${izq.join('L')}L${der.reverse().join('L')}Z`);
+      // las fibras: tres hebras dentro de la raíz que se cruzan despacio (senos con fase propia) y adelgazan en los cruces; vetas cortas de luz
+      const fibras = sec.querySelector<SVGGElement>('[data-fibras]')!; fibras.replaceChildren();
+      [{ c: 'f-medio', a: 0.34, l: 58, f: 0.2, g: 0.5 }, { c: 'f-medio', a: 0.34, l: 58, f: 3.3, g: 0.46 }, { c: 'f-claro', a: 0.28, l: 41, f: 1.7, g: 0.26 }].forEach((F) => {
+        const L: string[] = [], R: string[] = [];
+        pts.forEach((p, i) => {
+          const s0 = acum[i], o = Math.sin(s0 / F.l + F.f) * ws[i] * F.a, nx = -Math.sin(ang[i]), ny = Math.cos(ang[i]);
+          const h = (ws[i] * F.g * (0.55 + 0.45 * Math.abs(Math.cos(s0 / F.l + F.f)))) / 2;
+          L.push(`${(p.x + nx * (o + h)).toFixed(1)} ${(p.y + ny * (o + h)).toFixed(1)}`); R.push(`${(p.x + nx * (o - h)).toFixed(1)} ${(p.y + ny * (o - h)).toFixed(1)}`);
+        });
+        const e = document.createElementNS('http://www.w3.org/2000/svg', 'path'); e.setAttribute('class', F.c);
+        e.setAttribute('d', `M${L.join('L')}L${R.reverse().join('L')}Z`); fibras.append(e);
+      });
       maxY = [pts[0].y]; for (let i = 1; i < pts.length; i++) maxY.push(Math.max(maxY[i - 1], pts[i].y));
       const linea = 'M' + pts.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join('L');
       savia.setAttribute('d', linea); guia.setAttribute('d', linea);
@@ -244,16 +295,27 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       // los huecos de la máscara de texto: cada bloque (dolor + respuesta), con 20 px de aire; ronda 54: y cada demo sin tarjeta (la raíz pasa por detrás)
       const mascara = sec.querySelector<SVGMaskElement>('[data-mascara]')!;
       mascara.querySelectorAll('.hueco').forEach((n) => n.remove());
+      // RONDA 181 · Eric: «que la rama se integre con la ilustración; queda un gap»: en las demos el hueco es lo que se VE (la unión de las piezas de
+      // `.demo`, no la caja de la tarjeta, que lleva aire arriba y abajo), con poco margen y canto blando (desenfoque en la máscara)
       sec.querySelectorAll<HTMLElement>('.texto, .lado .desnuda').forEach((t) => {
-        const r = t.getBoundingClientRect(), h = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        let r: { left: number; top: number; width: number; height: number } = t.getBoundingClientRect(), aire = 20;
+        const piezas = t.matches('.desnuda') ? [...t.querySelectorAll<HTMLElement>('.demo > *')].map((n) => n.getBoundingClientRect()).filter((q) => q.width && q.height) : [];
+        if (piezas.length) {
+          const l = Math.min(...piezas.map((q) => q.left)), tp = Math.min(...piezas.map((q) => q.top));
+          r = { left: l, top: tp, width: Math.max(...piezas.map((q) => q.right)) - l, height: Math.max(...piezas.map((q) => q.bottom)) - tp };
+          aire = 6;
+        }
+        const h = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         h.setAttribute('class', 'hueco'); h.setAttribute('fill', '#000'); h.setAttribute('rx', '24');
-        h.setAttribute('x', String(r.left - sr.left - 20)); h.setAttribute('y', String(r.top - sr.top - 20));
-        h.setAttribute('width', String(r.width + 40)); h.setAttribute('height', String(r.height + 40));
+        if (piezas.length) h.setAttribute('filter', `url(#hilo-blando-${sec.id})`);
+        h.setAttribute('x', String(r.left - sr.left - aire)); h.setAttribute('y', String(r.top - sr.top - aire));
+        h.setAttribute('width', String(r.width + aire * 2)); h.setAttribute('height', String(r.height + aire * 2));
         mascara.append(h);
       });
       pintar();
     };
-    let ultL = 0, hecho = false;
+    let ultL = 0, hecho = false, tope = 0, desde = 0;
+    addEventListener('savvia:raices-listas', () => pedir());
     const pintar = () => {
       raf = 0;
       if (!pts.length) return;
@@ -261,6 +323,10 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
       if (reducido) { guia.style.strokeDashoffset = '0'; brotes.forEach((b) => (b.el.style.strokeDashoffset = '0')); gota.style.opacity = '0'; ramas.forEach((r) => sanar(r)); hecho = true; return titular(); }
       const y = innerHeight * 0.62 - sr.top;
       let i = maxY.findIndex((v) => v > y); if (i < 0) i = pts.length - 1;
+      // RONDA 181 · la raíz no sale hasta que las raíces del árbol están pintadas; si ya has bajado, crece entonces hasta donde toca (3000 px/s)
+      if (!(window as any).__raicesListas) tope = 0;
+      else if (tope < total) { if (!desde) desde = performance.now(); tope = (performance.now() - desde) * 3; if (tope < total) pedir(); }
+      while (i > 0 && acum[i] > tope) i--;
       const l = acum[i];
       guia.style.strokeDashoffset = String(total + 20 - l);
       brotes.forEach((b) => { const k = Math.min(1, Math.max(0, (l - b.desde) / 140)); b.el.style.strokeDashoffset = String(b.largo * (1 - k)); });
@@ -295,6 +361,8 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
 <style>
   .dolores {
     position: relative;
+    /* RONDA 181 · la mancha de tierra de las raíces sigue aquí, con el centro en la línea de suelo (una altura de raíces más arriba) */
+    background-image: radial-gradient(var(--tierra-mancha) at 50% calc(-1 * var(--raices-h)), var(--tierra-paradas));
     padding-block: calc(var(--spacing) * 24) calc(var(--spacing) * 32);
     overflow-x: clip;
   }
@@ -302,25 +370,37 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
   .hilo {
     position: absolute;
     inset: 0;
+    z-index: 2; /* ronda 181: por encima de la tierra y por debajo de la lámina de raíces del hero (Raices.astro › .caja, z 3) */
     pointer-events: none;
     overflow: visible;
   }
   /* la raíz, del color del árbol de la estación hundido en la noche (como las raíces del hero); la savia, un hilo Coral por dentro */
+  /* RONDA 181 · Eric: «que la tonalidad sea igual que la de las raíces de debajo del hero»: el tono MEDIDO en las raíces pintadas de cada estación
+     (el tercio más saturado de la pintura pura, sin el semitono: oscuro · medio · claro) */
+  .dolores { --raiz-osc: #8c5342; --raiz: #9b6452; --raiz-claro: #a97a67; --raicilla: #7d4d3e; }
+  :global(html[data-estacion='invierno']) .dolores { --raiz-osc: #4c3c34; --raiz: #705f58; --raiz-claro: #9c8d85; --raicilla: #5d4d45; }
+  :global(html[data-estacion='primavera']) .dolores { --raiz-osc: #7a3f4e; --raiz: #8a4c5c; --raiz-claro: #a0626f; --raicilla: #6a3a47; } /* «el toque rosa, algo más oscuro» */
+  :global(html[data-estacion='verano']) .dolores { --raiz-osc: #6e5235; --raiz: #7d6044; --raiz-claro: #94785a; --raicilla: #5e4630; } /* «un poco más marrón, no tan verde» (antes oliva #81774a) */
   .raiz {
-    fill: color-mix(in oklab, var(--arbol) 46%, var(--noche));
+    fill: var(--raiz-osc); /* la sombra de la raíz; encima, las fibras */
+    transition: fill 2.4s ease;
   }
+  .fibras :global(path) { transition: fill 2.4s ease; }
+  .fibras :global(.f-medio) { fill: var(--raiz); }
+  .fibras :global(.f-claro) { fill: var(--raiz-claro); opacity: 0.85; }
   .raicillas :global(path) {
     fill: none;
-    stroke: color-mix(in oklab, var(--arbol) 38%, var(--noche));
+    stroke: var(--raicilla);
+    transition: stroke 2.4s ease;
     stroke-linecap: round;
   }
   .savia {
     fill: none;
     stroke: var(--color-coral);
-    stroke-width: 1.6;
+    stroke-width: 0.7; /* ronda 181: «el centro de la raíz, más finito, más minimalista» */
     stroke-linecap: round;
     stroke-linejoin: round;
-    opacity: 0.9;
+    opacity: 0.55;
   }
   .guia {
     fill: none;
@@ -329,6 +409,7 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     stroke-linejoin: round;
   }
   .gota {
+    display: none; /* RONDA 181 · Eric: «quitaría el punto de la punta de la rama, no me dice nada» */
     fill: var(--color-coral);
     transition: opacity 0.3s ease;
   }
@@ -412,11 +493,13 @@ const PROP: Record<string, number> = { 'rama-roble-bellotas': 427 / 640, helecho
     display: flex;
     align-items: baseline;
     gap: calc(var(--spacing) * 2);
-    font-family: var(--font-mono);
     color: var(--fg2);
-    /* RONDA 158 · Eric: «la tipo de esto tiene que ser un poquito más grande»: de detail (13) al paso siguiente de la escala, aux (14) */
-    font-size: var(--text-aux);
-    line-height: var(--text-aux--line-height);
+    /* RONDA 175 · Eric: «un poco más grande» y «sincronizada con el subtítulo»: el problema va en la MISMA letra que el texto de debajo
+       (text-sub: Timeless Sans Light 18, interlineado 1,55, --fg2). Antes, mono a 14 (ronda 158). */
+    /* RONDA 181 · Eric: «esto tiene que ser tipo de body»: es un h2 y heredaba Family; ahora la letra del cuerpo (Timeless Sans 420, text-body) */
+    font-family: var(--font-sans);
+    font-weight: 420;
+    letter-spacing: normal;
   }
   /* RONDA 76 · Eric: «la respuesta tiene que ser más grande que el problema»: el dolor, pequeño (h3); la respuesta, el titular (h1) */
   .respuesta .t { max-width: 13ch; text-wrap: balance; }

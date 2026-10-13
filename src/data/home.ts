@@ -14,7 +14,7 @@ export const nav = {
   ] as { label: string; href: string }[],
   reel: { label: 'Reel', duracion: '0:30' }, // ronda 130: el reel vuelve, montado con Kuanta y Arkdev (marca blanca)
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete): el correo (de `pie.correo`) y el handbook (sin `href` saldría como «pronto»)
-  mas: { titulo: 'Más', links: [{ label: 'Handbook', href: '/handbook' }, { label: 'Brandbook', href: '/brandbook' }] as { label: string; href: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
+  mas: { titulo: 'Más', links: [{ label: 'Sistema', href: '/sistema' }, { label: 'Método', href: '/metodo' }] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
 };
 
 export const hero = {

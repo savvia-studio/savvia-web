@@ -120,6 +120,14 @@
   --tinta: #f5f5f7;
   --tinta-inv: #302018;
   --k2: 60%;
+  /* RONDA 181 · Eric: «bajo el hero, el fondo algo más oscuro, como si fuese tierra que rodea a las raíces»: la noche de la estación hundida
+     (en srgb, para que el motor de las raíces la pueda calcular igual: NOCHE × (1 − k)). En invierno, tierra helada: apenas más honda que la nieve. */
+  --tierra-k: 30%;
+  --tierra: color-mix(in srgb, var(--noche), #000 var(--tierra-k));
+  /* la mancha de tierra: una elipse centrada en la línea de suelo (Raices.astro), que sigue en los Dolores con el mismo centro */
+  --raices-h: calc(var(--roble-w) * 361 / 1260);
+  --tierra-mancha: calc(var(--roble-w) * 0.62) calc(var(--raices-h) * 1.75);
+  --tierra-paradas: var(--tierra), color-mix(in srgb, var(--tierra), var(--noche) 55%) 55%, transparent;
   /* la tinta cambia en un golpe corto cuando el fondo va por la mitad de su fundido (curva muy en S, a 0,72 s): así nunca hay un tramo con texto y fondo del mismo gris */
   transition: --noche 2.4s ease, --noche-honda 2.4s ease, --arbol 2.4s ease, --tinta 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --tinta-inv 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --k2 2.4s ease;
 }
@@ -140,7 +148,7 @@
 html[data-estacion='primavera'] { --noche: #3a2932; --noche-honda: #3a2932; --arbol: #d98aa5; --tinta: #f5f5f7; --tinta-inv: #3a2932; --color-coral: #ff8fb8; --color-niebla: #f5f5f7; --color-cacao: #3a2932; --color-salvia: #f4c7d5; }
 html[data-estacion='verano'] { --noche: #1b3125; --noche-honda: #1b3125; --arbol: #6f9a4e; --tinta: #f5f5f7; --tinta-inv: #1b3125; --color-coral: #b9e26c; --color-niebla: #f5f5f7; --color-cacao: #1b3125; --color-salvia: #cfe6a4; }
 html[data-estacion='otono'] { --noche: #3b231b; --noche-honda: #3b231b; --arbol: #c65c2d; --tinta: #f5f5f7; --tinta-inv: #3b231b; --color-coral: #ff616b; --color-niebla: #f5f5f7; --color-cacao: #3b231b; --color-salvia: #ecbf8f; }
-html[data-estacion='invierno'] { --noche: #f5f5f7; --noche-honda: #22303e; --arbol: #7d8ba3; --tinta: #22303e; --tinta-inv: #f5f5f7; --k2: 70%; --color-coral: #4f8ad6; --color-niebla: #f5f5f7; --color-cacao: #22303e; --color-salvia: #cadcee; }
+html[data-estacion='invierno'] { --tierra-k: 7%; --noche: #f5f5f7; --noche-honda: #22303e; --arbol: #7d8ba3; --tinta: #22303e; --tinta-inv: #f5f5f7; --k2: 70%; --color-coral: #4f8ad6; --color-niebla: #f5f5f7; --color-cacao: #22303e; --color-salvia: #cadcee; }
 /* PRUEBA bloque-azul (Eric, 12/10) · Servicios en azul, por parámetro (Base.astro): ?bloque=hielo = el Hielo de invierno en las cuatro estaciones;
    ?bloque=cielo = un cielo propio de cada estación (abril claro · mar de agosto · noviembre gris · enero hielo). El color vive solo en #servicios (la
    superficie lee --color-salvia ahí; las caras de las FAQ y el brandbook no cambian). Medido (WCAG, tinta de la estación sobre el azul): hielo 9,6–10,4;
@@ -160,7 +168,6 @@ html[data-estacion] {
    su interfaz va sobre la foto de la mesa y sigue en claro sobre --noche-honda. */
 .hero,
 .cargador,
-.reposo,
 .surface-dark:not(#proyectos) {
   --color-niebla: var(--tinta);
   --color-cacao: var(--tinta-inv);

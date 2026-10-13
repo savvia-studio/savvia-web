@@ -26,7 +26,7 @@ const total = String(capitulos.length).padStart(2, '0');
 import { flecha } from '../../lib/flecha';
 ---
 
-<Base title={`${c.titulo} — Handbook de savvia`} description={`${c.frase} Capítulo ${c.num} del handbook de savvia, el estudio web de Eric y Andoni.`} carga={false}>
+<Base title={`${c.titulo} — Método de savvia`} description={`${c.frase} Capítulo ${c.num} del método de savvia, el estudio web de Eric y Andoni.`} carga={false}>
   <PasarPagina />
   <Nav />
   <Carriles />
@@ -39,7 +39,7 @@ import { flecha } from '../../lib/flecha';
         <div class="cab-texto">
           <nav class="migas detail" aria-label="Migas" data-cromo>
             <ol>
-              <li><a href="/handbook">{handbook.nombre}</a></li>
+              <li><a href="/metodo">{handbook.nombre}</a></li>
               <li aria-current="page">{c.titulo}</li>
             </ol>
           </nav>
@@ -80,12 +80,12 @@ import { flecha } from '../../lib/flecha';
           <nav class="pares" aria-label="Capítulo anterior y siguiente">
             {
               antes ? (
-                <a data-liquido class="par antes" href={`/handbook/${antes.slug}`}>
+                <a data-liquido class="par antes" href={`/metodo/${antes.slug}`}>
                   <span class="pd detail detail-caps"><Fragment set:html={flecha('izq')} />Anterior</span>
                   <span class="pt">{antes.titulo}</span>
                 </a>
               ) : (
-                <a data-liquido class="par antes" href="/handbook">
+                <a data-liquido class="par antes" href="/metodo">
                   <span class="pd detail detail-caps"><Fragment set:html={flecha('izq')} />Portada</span>
                   <span class="pt">{handbook.nombre}</span>
                 </a>
@@ -93,13 +93,13 @@ import { flecha } from '../../lib/flecha';
             }
             {
               despues ? (
-                <a data-liquido class="par despues" href={`/handbook/${despues.slug}`}>
+                <a data-liquido class="par despues" href={`/metodo/${despues.slug}`}>
                   <span class="pd detail detail-caps">Siguiente<Fragment set:html={flecha()} /></span>
                   <span class="pt">{despues.titulo}</span>
                 </a>
               ) : (
-                <a data-liquido class="par despues" href="/handbook">
-                  <span class="pd detail detail-caps">Fin del handbook<Fragment set:html={flecha()} /></span>
+                <a data-liquido class="par despues" href="/metodo">
+                  <span class="pd detail detail-caps">Fin del método<Fragment set:html={flecha()} /></span>
                   <span class="pt">Volver al índice</span>
                 </a>
               )

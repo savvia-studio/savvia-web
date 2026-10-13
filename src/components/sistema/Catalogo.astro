@@ -1,0 +1,130 @@
+---
+// RONDA 180 · Eric: «nuestro sistema tiene que ser tan completo como el de Neety». El CATÁLOGO de secciones (como la librería de Neety:
+// catalog.tsx + capture-library-thumbs.js): cada pieza de la web con su miniatura capturada de la web real, su nombre, su archivo y para qué sirve,
+// agrupadas por página. Las miniaturas las saca `node tools/r180/miniaturas.cjs` (Chrome a 1440 × 900, otoño, movimiento reducido, ?carga=0) →
+// public/media/sistema/catalogo/<id>.webp (1200 × 750, 16:10). Si se añade una pieza: una línea en PIEZAS del script y otra aquí.
+// Lo que dice cada tarjeta sale de leer el componente (sus imports de src/data y sus medios en public/media), no de memoria.
+
+type Pieza = { id: string; nombre: string; archivo: string; que: string; de: string };
+type Grupo = { pagina: string; ruta: string; piezas: Pieza[] };
+
+const GRUPOS: Grupo[] = [
+  {
+    pagina: 'Inicio',
+    ruta: '/',
+    piezas: [
+      { id: 'inicio-hero', nombre: 'Hero', archivo: 'src/components/Hero.astro', que: 'Titular y subtítulo sobre el roble de la estación, que el motor del árbol dibuja y pinta; en el marco, la hora de Donostia y «desde 2020».', de: 'Textos en src/data/home.ts › hero · lámina en public/media/hero/ · motor en src/scripts/estela.ts.' },
+      { id: 'inicio-raices', nombre: 'Raíces', archivo: 'src/components/Raices.astro', que: 'Las raíces del roble bajo la línea de suelo: crecen hacia abajo desde el cuello y llevan a los dolores.', de: 'Lámina de la estación en public/media/hero/ · pintadas con src/scripts/estela.ts.' },
+      { id: 'inicio-dolores', nombre: 'Dolores', archivo: 'src/components/Dolores.astro + TarjetaPaso.astro', que: 'Tres paradas: el dolor en eyebrow, la respuesta como titular y una demo animada que despierta cuando le cae la gota de savia.', de: 'Textos y preguntas del briefing en src/data/home.ts › recorrido.' },
+      { id: 'inicio-proyectos', nombre: 'Proyectos destacados', archivo: 'src/components/Proyectos.astro', que: 'La mesa del estudio con la web de cada proyecto en el monitor: el zoom va atado al scroll y con un clic te sientas a recorrerla.', de: 'Proyectos en src/data/home.ts › proyectos.nuevos · láminas en public/media/estudio/ · miniaturas en public/media/proyectos/.' },
+      { id: 'inicio-mas-proyectos', nombre: 'Más proyectos', archivo: 'src/components/Anteriores.astro', que: 'Mosaico de piezas con el degradado de cada marca y la web que se reproduce al pasar; cuadrícula de citas y cifras, y el testimonio con retrato.', de: 'src/data/home.ts › proyectos.anteriores, celdas y testimonios · src/data/proyectos.ts · vídeos en public/media/anteriores/.' },
+      { id: 'inicio-servicios', nombre: 'Servicios', archivo: 'src/components/Servicios.astro', que: 'Las tres formas de trabajar contigo; al elegir una, un cursor marca en la tarjeta los puntos que incluye.', de: 'src/data/home.ts › servicios (lista y grupos).' },
+      { id: 'inicio-agentic', nombre: 'savvia agentic', archivo: 'src/components/LaPartitura.astro', que: 'La librería de Neety usada en tiempo real: los agentes cogen sus piezas y montan la página delante de ti.', de: 'src/data/home.ts › receta y partitura (con su libreria).' },
+      { id: 'inicio-estudio', nombre: 'Estudio', archivo: 'src/components/Estudio.astro', que: 'Eric y Andoni llegan andando y se juntan; al pasar por cada nombre salen sus aficiones.', de: 'src/data/home.ts › estudio · poses en public/media/equipo/.' },
+      { id: 'inicio-preguntas', nombre: 'Preguntas', archivo: 'src/components/Preguntas.astro', que: 'Las preguntas frecuentes como una conversación: sugerencias y pregunta libre, que contestan Eric y Andoni.', de: 'src/data/home.ts › preguntas.' },
+      { id: 'inicio-pie', nombre: 'Pie', archivo: 'src/components/Pie.astro', que: 'El paisaje de la estación se dibuja tras la gota del logotipo; «Contáctanos» queda entre las montañas y se abre al pasar.', de: 'src/data/home.ts › pie y nav · capas en public/media/pie/. Es el mismo en todas las páginas.' },
+    ],
+  },
+  {
+    pagina: 'En todas las páginas',
+    ruta: '',
+    piezas: [
+      { id: 'comun-menu', nombre: 'Barra y menú', archivo: 'src/components/Nav.astro + Radio.astro', que: 'Logotipo, radio, icono de estación y la rejilla que abre el menú en una tarjeta, con el reel en miniatura.', de: 'src/data/home.ts › nav · reel en public/media/reel/.' },
+      { id: 'comun-carga', nombre: 'Carga', archivo: 'src/components/Cargador.astro', que: 'Solo la primera visita: el visitante dibuja un círculo, la gota dibuja el isotipo y cae al roble.', de: 'Isotipo en public/savvia-isotipo-gota.svg · `?carga=1` la fuerza para revisarla.' },
+    ],
+  },
+  {
+    pagina: 'Portfolio',
+    ruta: '/proyectos',
+    piezas: [
+      { id: 'portfolio-cabecera', nombre: 'Cabecera y destacados', archivo: 'src/pages/proyectos/index.astro + obra/Pieza.astro', que: 'El titular y un slider de los proyectos destacados, cada uno dentro de su degradado.', de: 'src/data/proyectos.ts (los que llevan destacado).' },
+      { id: 'portfolio-todos', nombre: 'Todos los proyectos', archivo: 'src/pages/proyectos/index.astro + obra/Pieza.astro', que: 'Buscador y filtros en una barra, rejilla de tres con la web que sube desde abajo y paginación.', de: 'src/data/proyectos.ts › proyectos y SERVICIOS · el estado va en la dirección (?q, ?p…).' },
+    ],
+  },
+  {
+    pagina: 'Caso de estudio',
+    ruta: '/proyectos/neety',
+    piezas: [
+      { id: 'caso-cabecera', nombre: 'Cabecera del caso', archivo: 'src/pages/proyectos/[slug].astro', que: 'Nombre, la idea en gris debajo, la entradilla y una línea con servicios y sector.', de: 'src/data/proyectos.ts (una ficha por proyecto).' },
+      { id: 'caso-portada', nombre: 'Portada', archivo: 'obra/Pieza.astro (grande)', que: 'La web del proyecto sube desde abajo dentro de su degradado, a todo el ancho del contenido.', de: 'Portada de cada ficha en src/data/proyectos.ts · medios en public/media/obra/<slug>/.' },
+      { id: 'caso-detalles', nombre: 'Los detalles', archivo: 'src/pages/proyectos/[slug].astro + obra/Medio.astro', que: 'Mosaico de imágenes y vídeos de cerca de cada pieza de la web, con su pie.', de: 'src/data/proyectos.ts › mosaico (los hechos, en detalles) · public/media/obra/<slug>/.' },
+      { id: 'caso-sistema', nombre: 'El sistema', archivo: 'src/pages/proyectos/[slug].astro', que: 'La paleta del proyecto con cuánto se usa cada color y su contraste, y sus tipografías con escala real.', de: 'src/data/proyectos.ts › paleta y tipos (medidos en la web de cada cliente).' },
+      { id: 'caso-siguiente', nombre: 'Conclusión y anterior / siguiente', archivo: 'src/pages/proyectos/[slug].astro', que: 'Dos frases de cierre y la franja que lleva al proyecto anterior y al siguiente.', de: 'src/data/proyectos.ts (el orden de la lista manda).' },
+    ],
+  },
+  {
+    pagina: 'Lab',
+    ruta: '/lab',
+    piezas: [
+      { id: 'lab', nombre: 'La mesa del lab', archivo: 'src/components/lab/Mesa.astro', que: 'Un lienzo sin fin que se arrastra: la tarjeta de cristal de savvia lab, raíces hacia cada experimento y el fondo a elegir.', de: 'src/data/lab.ts (experimentos y mundo) · vídeos en public/media/lab/.' },
+    ],
+  },
+  {
+    pagina: 'Manifiesto',
+    ruta: '/manifiesto',
+    piezas: [
+      { id: 'manifiesto-portada', nombre: 'Portada', archivo: 'src/pages/manifiesto.astro', que: '«Manifiesto» y el brote de la bellota de la estación, que se dibuja con el motor del árbol.', de: 'Láminas en public/media/manifiesto/.' },
+      { id: 'manifiesto-texto', nombre: 'El texto', archivo: 'src/pages/manifiesto.astro', que: 'Las raíces crecen con el scroll hasta la capitular caligráfica y el texto, con sus frases clave subrayadas.', de: 'src/data/manifiesto.ts.' },
+    ],
+  },
+  {
+    pagina: '404',
+    ruta: '',
+    piezas: [
+      { id: '404', nombre: 'El tiempo encima', archivo: 'src/pages/404.astro + 404/Cuatro.astro', que: 'El 404 en grande y, encima, el tiempo de la estación: hojas, nieve, flores o hierba que se posan.', de: 'Textos en la propia página.' },
+    ],
+  },
+];
+---
+
+<section id="catalogo" class="seccion" aria-labelledby="h-catalogo">
+  <h2 id="h-catalogo" class="font-display text-h2">Catálogo de secciones</h2>
+  <p class="cat-intro">
+    Cada pieza de la web, capturada de la web real: cómo se ve, en qué archivo vive y de dónde sale su contenido. Las miniaturas se rehacen con
+    {" "}<span class="detail">node tools/r180/miniaturas.cjs</span>.
+  </p>
+
+  {
+    GRUPOS.map((g) => (
+      <div class="cat-grupo">
+        <h3 class="cat-pag">
+          {g.pagina}
+          {g.ruta && <a class="detail cat-ruta" href={g.ruta}>{g.ruta}</a>}
+        </h3>
+        <ul class="cat-rej">
+          {g.piezas.map((p) => (
+            <li class="cat-tarjeta">
+              <img class="cat-mini" src={`/media/sistema/catalogo/${p.id}.webp`} alt={`Captura de ${p.nombre}`} width="1200" height="750" loading="lazy" decoding="async" />
+              <div class="cat-texto">
+                <p class="cat-nombre">{p.nombre}</p>
+                <p class="detail cat-archivo">{p.archivo}</p>
+                <p class="cat-que">{p.que}</p>
+                <p class="cat-de">{p.de}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  /* Los valores, los de Libro.astro (sus estilos son de ámbito y no llegan aquí) */
+  .seccion { padding-top: calc(var(--spacing) * 24); margin-top: calc(var(--spacing) * 24); border-top: 1px solid var(--rule); scroll-margin-top: calc(var(--spacing) * 20); }
+  .cat-intro { margin-top: calc(var(--spacing) * 4); max-width: 60ch; font-size: var(--text-body); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
+  .cat-grupo { margin-top: calc(var(--spacing) * 16); }
+  .cat-grupo:first-of-type { margin-top: calc(var(--spacing) * 12); }
+  .cat-pag { display: flex; align-items: baseline; gap: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); font-family: var(--font-display); font-size: var(--text-h3); line-height: var(--text-h3--line-height); font-weight: 400; }
+  .cat-ruta { color: var(--fg2); text-decoration: none; }
+  .cat-ruta:hover { color: var(--fg); }
+  .cat-rej { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 12) calc(var(--spacing) * 6); margin: calc(var(--spacing) * 8) 0 0; padding: 0; list-style: none; }
+  @media (width < 48rem) { .cat-rej { grid-template-columns: 1fr; gap: calc(var(--spacing) * 8); } }
+  .cat-tarjeta { display: flex; flex-direction: column; gap: calc(var(--spacing) * 4); min-width: 0; }
+  .cat-mini { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-lg); box-shadow: 0 0 0 1px var(--rule); background: var(--rule); }
+  .cat-texto { display: grid; gap: calc(var(--spacing) * 1); }
+  .cat-nombre { font-size: var(--text-ui); line-height: var(--text-ui--line-height); font-weight: 500; color: var(--fg); }
+  .cat-archivo { color: var(--fg2); overflow-wrap: anywhere; }
+  .cat-que { margin-top: calc(var(--spacing) * 2); font-size: var(--text-aux); line-height: 1.5; color: var(--fg); text-wrap: pretty; }
+  .cat-de { font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); text-wrap: pretty; }
+</style>

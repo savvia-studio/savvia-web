@@ -1,0 +1,303 @@
+---
+// RONDA 180 · Eric: «nuestro sistema tiene que ser tan completo como el de Neety». La guía para trabajar con la web, calcada en TIPO de contenido
+// de la librería de Neety (components/pages/LibraryPage.tsx: «Cómo usar», «Recibir el proyecto», «Conectar con Claude», «Cambiar contenido»,
+// «Añadir secciones», «Añadir una página», «Buenas prácticas», «Mantenimiento técnico»), aplicada a savvia. Todo comprobado en el repositorio:
+// package.json, .github/workflows/publicar.yml, .claude/hooks/al-empezar.sh, src/layouts/Base.astro, src/scripts/entradas.ts, Carriles.astro,
+// estela.ts (LIMITE de contextos), astro.config.mjs, tools/fuentes-sonido.md, tools/fuentes-timeless y el registro de AGENTS.md.
+// Se inserta dentro de `.hojas` de Libro.astro: `bloque="empezar"` (siete secciones) o `bloque="mantenimiento"` (una).
+interface Props {
+  bloque?: 'empezar' | 'mantenimiento';
+}
+const { bloque = 'empezar' } = Astro.props;
+
+type Fila = [string, string];
+
+const TEXTOS: Fila[] = [
+  ['src/data/home.ts', 'Toda la home: menú (nav), hero, los dolores (recorrido), Proyectos destacados y Más proyectos, Servicios, savvia agentic, Eric y Andoni (estudio), preguntas y pie (correo, enlace de cal.com cuando exista).'],
+  ['src/data/proyectos.ts', 'El portfolio: una ficha por proyecto. De aquí salen /proyectos, cada caso /proyectos/<slug> y los filtros por servicio.'],
+  ['src/data/handbook.ts', 'El Método: los capítulos, sus apartados y de dónde sale cada dato.'],
+  ['src/data/manifiesto.ts', 'El texto del Manifiesto.'],
+  ['src/data/lab.ts', 'Los experimentos del Lab: nombre, qué es, dirección, vídeo y sitio en el lienzo.'],
+  ['src/data/ias.ts', 'Los logotipos de las IA que salen en las demos.'],
+];
+
+const MEDIOS: Fila[] = [
+  ['public/media/obra/<slug>/', 'Portada, cubierta y detalles de cada caso (mp4 con su póster jpg, webp).'],
+  ['public/media/proyectos/', 'La miniatura de cada destacado en el monitor (1710 px de ancho).'],
+  ['public/media/hero/', 'El roble y las raíces de cada estación.'],
+  ['public/media/estudio/', 'Las láminas de la mesa, una por estación, a 1600, 2560 y 5120 px.'],
+  ['public/media/equipo/', 'Eric y Andoni: tiras de poses, caras y la foto de los dos.'],
+  ['public/media/lab/', 'El vídeo y el póster de cada experimento.'],
+  ['public/media/sonido/ · radio/', 'La impresora, los ambientes y las piezas de la radio.'],
+  ['public/', 'Logotipo (savvia-palabra.svg), isotipo, favicons por estación, og.jpg (la imagen para compartir).'],
+];
+
+const CAMPOS: Fila[] = [
+  ['slug', 'La dirección: /proyectos/<slug>. No se cambia una vez publicado.'],
+  ['nombre · dominio · url', 'Cómo se llama, qué dominio se enseña y a dónde lleva «Ver la web».'],
+  ['sector · ubicacion · servicios', 'La ficha. Los servicios filtran el listado y tienen que estar en SERVICIOS (Diseño web, Desarrollo agéntico, Webflow, CMS, Multidioma, Migración, Animación).'],
+  ['destacado', 'true lo pone arriba, en el slider de destacados.'],
+  ['resumen · entradilla · contexto · reto', 'La tarjeta del listado y la cabecera del caso.'],
+  ['apartados · tecnica · descartado', 'Diseño, movimiento, contenido; «Por dentro»; lo que se probó y cayó.'],
+  ['paleta · tipos · escala · boton', 'El sistema de SU web, medido en su web.'],
+  ['mosaico · detalles · proceso', '«Los detalles» en imágenes y cómo se construyó, paso a paso.'],
+  ['cifras · cita · conclusion', 'Cifras del proyecto (nunca del proceso), el testimonio y el cierre.'],
+  ['color · colores', 'El fondo de su tarjeta y los tres colores de su degradado.'],
+  ['portada · escritorio · cubierta', 'Los medios: la toma de la rejilla, la de escritorio si la portada es móvil, y la grande de la carátula.'],
+];
+
+const GUARDARRAILES: Fila[] = [
+  ['npx astro check', 'Cero errores antes de dar nada por hecho.'],
+  ['npx astro build', 'Que compila. No lo lances con el servidor de desarrollo de otra herramienta escribiendo en dist/ a la vez.'],
+  ['node tools/spacing-lint.cjs', 'Que todo espaciado esté en la escala de la guía: 1 2 3 4 6 8 12 16 24 32 (+ 14 en móvil).'],
+  ['node tools/verify.cjs <url>', 'Chrome real y WebKit, a 1280×720 y 390×844: consola limpia, cero respuestas ≥ 400 y sin desborde.'],
+  ['lvh y dvh, nunca vh', 'Las alturas de pantalla, en lvh o dvh: vh salta en móvil al moverse la barra del navegador.'],
+  ['<script is:inline> en el head', 'Lo que tenga que estar en el primer fotograma (la estación, la clase de la página). Si no, parpadea.'],
+  ['grep antes de una clase global', 'Antes de estrenar una clase o un selector global, búscalo. En la ronda 155 una .ia nueva pintó el píxel de la IA en el pie.'],
+  ['// en su propia línea', 'Un comentario // nunca con código detrás en la misma línea: se traga el resto y rompe el script (pasó tres veces).'],
+  ['Comentarios HTML fuera de expresiones', 'Un <!-- --> dentro de un {…} o de un .map() rompe la página. Los comentarios, en el frontmatter.'],
+  ['Especificidad de Astro', 'Sus atributos de ámbito cuentan: una regla de estado con menos selectores que la base pierde. Repite la cadena.'],
+];
+---
+
+{bloque === 'empezar' && (
+  <Fragment>
+    <section id="usar" class="seccion" aria-labelledby="h-usar">
+      <h2 id="h-usar" class="font-display text-h2">Cómo usar este sistema</h2>
+      <p class="cuerpo">Esta página es el manual de la web de savvia, y sale de su propio código: cada color, letra o componente que ves aquí es el que se ve en la web. Tiene tres partes: cómo se ve (la marca), cómo está hecha (el desarrollo) y esta guía, que es la que usarás en el día a día para cambiar la web con Claude.</p>
+      <dl class="dev-filas">
+        <div><dt>Trabajar con la web</dt><dd>Recibir el proyecto, trabajar con Claude, cambiar contenido, añadir secciones y páginas, y cómo pedir los cambios. Empieza aquí.</dd></div>
+        <div><dt>La marca</dt><dd>Logotipo, color por estación, tipografía, iconos y movimiento. Consúltala para nombrar un color o un estilo al pedir un cambio.</dd></div>
+        <div><dt>El desarrollo</dt><dd>Stack, componentes, cómo se hace cada pieza y el mapa de la web. Sirve para señalar sin dudas qué quieres tocar.</dd></div>
+        <div><dt>Mantenimiento</dt><dd>Verificar, publicar, licencias y qué hacer si algo se rompe. Para perfiles técnicos o para el propio Claude.</dd></div>
+      </dl>
+      <ul class="reglas">
+        <li><b>Dos documentos mandan</b> AGENTS.md (cómo trabajamos, el diccionario, lo rechazado y el registro de cada ronda) y DESIGN.md (la guía de diseño de Andoni). Si algo aquí no cuadra con ellos, mandan ellos.</li>
+        <li><b>Cómo trabajamos</b> el Método vive aparte, en <a class="link" href="/metodo">/metodo</a>.</li>
+      </ul>
+    </section>
+
+    <section id="recibir" class="seccion" aria-labelledby="h-recibir">
+      <h2 id="h-recibir" class="font-display text-h2">Recibir el proyecto</h2>
+      <p class="cuerpo">La web entera vive en un repositorio privado de GitHub: código, imágenes, vídeos, fuentes y documentación. Esto se hace una sola vez por ordenador.</p>
+      <ol class="pasos">
+        <li>
+          <h3 class="font-display text-h3">Pide acceso al repositorio</h3>
+          <p>Está en <code>github.com/AndoniMart/savvia-web</code> y es privado: lleva fuentes con licencia y capturas de webs de clientes. Necesitas una cuenta de GitHub y que Andoni te invite como colaborador.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Tráelo a tu ordenador</h3>
+          <p>Con Ship Studio, «Importar proyecto» y eliges el repositorio. Con terminal:</p>
+          <pre><code>git clone https://github.com/AndoniMart/savvia-web.git</code></pre>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Instala lo necesario</h3>
+          <p>Hace falta Node 22.12 o superior (lo pide <code>package.json</code>). Dentro de la carpeta:</p>
+          <pre><code>npm install</code></pre>
+          <p>Las dependencias no viajan en el repositorio: se regeneran aquí.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Arranca la web en local</h3>
+          <p>El servidor de desarrollo va en segundo plano, para que no ocupe el terminal:</p>
+          <pre><code>astro dev --background
+astro dev status
+astro dev logs
+astro dev stop</code></pre>
+          <p>Abre la dirección que te da y verás cada cambio en vivo antes de publicarlo. En local, Agentation está siempre puesto para dejar notas pegadas a cada elemento.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Configura tu identidad de Git</h3>
+          <p>Con el correo de tu cuenta de GitHub. Sin ella, tus commits salen con el nombre del ordenador y Vercel no sabe de quién son (ronda 83).</p>
+          <pre><code>git config user.name "Tu nombre"
+git config user.email "tu-correo-de-github"</code></pre>
+        </li>
+      </ol>
+    </section>
+
+    <section id="conectar" class="seccion" aria-labelledby="h-conectar">
+      <h2 id="h-conectar" class="font-display text-h2">Trabajar con Claude</h2>
+      <p class="cuerpo">La web se mantiene hablando con Claude: le pides el cambio en español y él toca el código. Eric y Andoni trabajan sobre el mismo repositorio, cada uno en su ordenador, y Git no se sincroniza solo: hay una rutina.</p>
+      <ol class="pasos">
+        <li>
+          <h3 class="font-display text-h3">Abre el proyecto</h3>
+          <p>En Ship Studio (Claude y la vista previa ya vienen conectados) o con Claude Code en el terminal, sobre la carpeta. Al abrir, Claude lee CLAUDE.md y AGENTS.md: ya conoce el stack, los colores, el diccionario y lo que se rechazó. No hace falta explicárselo.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Al empezar: git pull</h3>
+          <p>Lo hace solo el aviso <code>.claude/hooks/al-empezar.sh</code> al abrir cada sesión: baja lo último de GitHub y te dice si hay commits o cambios pendientes de subir. Si avisa de que no pudo (cambios que chocan), se resuelve antes de tocar nada.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Pide el cambio y míralo</h3>
+          <p>Qué quieres, dónde y cómo debe quedar. Revísalo en la vista previa, en escritorio y en móvil.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Que quede escrito</h3>
+          <p>Cada ronda se anota en el registro de AGENTS.md: lo que se pidió (textual), lo que se hizo, lo que se midió y lo pendiente. Lo que se descarta pasa a «Rechazado» y no vuelve.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Al terminar: commit y push</h3>
+          <p>Para que el otro lo tenga. Ojo: un push a <code>main</code> PUBLICA en savvia.studio. Si el push es de Andoni, Vercel lo publica solo; si es de otra persona, la Action «Publicar en Vercel» (<code>.github/workflows/publicar.yml</code>) llama al Deploy Hook. En unos minutos está en vivo. Se sube cuando quien trabaja lo pide.</p>
+          <pre><code>git add -A
+git commit -m "Ronda NN: lo que cambia"
+git push</code></pre>
+        </li>
+      </ol>
+    </section>
+
+    <section id="contenido" class="seccion" aria-labelledby="h-contenido">
+      <h2 id="h-contenido" class="font-display text-h2">Cambiar contenido</h2>
+      <p class="cuerpo">Los textos no están repartidos por los componentes: viven en unos pocos archivos de datos. Cambiar una frase es cambiar una línea.</p>
+      <h3 class="font-display text-h3 sub">Textos</h3>
+      <dl class="dev-filas">{TEXTOS.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+      <ul class="reglas">
+        <li><b>Diccionario</b> «savvia» siempre en minúscula, también a principio de frase. Se habla a quien entra (tú); la primera persona, solo en el Estudio. Sin cursivas.</li>
+        <li><b>La IA</b> en el texto se marca <code>[[IA]]</code>: <code>src/lib/rich.ts</code> le pone su píxel.</li>
+        <li><b>Lo que falta</b> los datos de Eric y Andoni no se inventan: se dejan marcados como FALTA hasta tenerlos.</li>
+      </ul>
+      <h3 class="font-display text-h3 sub">Imágenes y vídeos</h3>
+      <dl class="dev-filas">{MEDIOS.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+      <ul class="reglas">
+        <li><b>Formato</b> imágenes en webp; vídeo en mp4 (h264, sin sonido) con su póster en jpg, para que algo se vea antes de cargar.</li>
+        <li><b>Caché</b> si sustituyes un archivo con el mismo nombre (favicon, og.jpg), súbele la versión en la dirección (<code>?v=NN</code>): las redes y los navegadores guardan el anterior.</li>
+      </ul>
+      <h3 class="font-display text-h3 sub">Un proyecto nuevo en el portfolio</h3>
+      <p class="cuerpo">Se añade una ficha a <code>src/data/proyectos.ts</code> y sus medios a <code>public/media/obra/&lt;slug&gt;/</code>. La página del caso y su sitio en /proyectos salen solos. Los campos:</p>
+      <dl class="dev-filas">{CAMPOS.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+      <ul class="reglas">
+        <li><b>Solo hechos</b> los textos del caso salen de lo que consta (el proyecto, su web, sus documentos). Nada inventado.</li>
+        <li><b>Permiso</b> antes de enseñar la web, el logotipo o la cita de un cliente.</li>
+      </ul>
+    </section>
+
+    <section id="secciones" class="seccion" aria-labelledby="h-secciones">
+      <h2 id="h-secciones" class="font-display text-h2">Añadir una sección</h2>
+      <p class="cuerpo">Cada sección de la home es un componente en <code>src/components/</code> que se coloca, en su orden, en <code>src/pages/index.astro</code>. Hoy: Hero · Raices · Dolores · Proyectos · Anteriores · Servicios · LaPartitura · Estudio · Preguntas, y el Pie fuera de main.</p>
+      <ol class="pasos">
+        <li>
+          <h3 class="font-display text-h3">El componente</h3>
+          <p>Un <code>&lt;section&gt;</code> con su id (es el ancla: <code>/#servicios</code>), el contenedor <code>wrap</code> y el aire de sección <code>section-y</code>. Los textos, en <code>home.ts</code>; los estilos, acotados dentro del componente.</p>
+          <pre><code>&lt;section id="nueva" class="surface-light"&gt;
+  &lt;div class="wrap section-y"&gt;
+    &lt;h2 class="font-display text-h2" data-entra&gt;…&lt;/h2&gt;
+    &lt;p class="text-sub text-fg2" data-enfoca&gt;…&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Los tokens, nunca valores sueltos</h3>
+          <p>Superficie <code>surface-dark</code>, <code>surface-light</code> o <code>surface-warm</code> (Servicios); texto <code>text-fg</code> y <code>text-fg2</code>, filetes <code>border-rule</code>; tamaños <code>text-h1 · h2 · h3 · lead · sub · body · ui · detail</code>; espaciado solo en los pasos de la guía. Los colores cambian solos con la estación.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">La entrada</h3>
+          <p><code>src/scripts/entradas.ts</code> da tres movimientos por atributo: <code>data-entra</code> en titulares (las palabras suben desde una máscara), <code>data-enfoca</code> en bloques (de desenfocado a nítido) y <code>data-sube</code> en toda sección que CAMBIA DE COLOR respecto a la anterior (la gota líquida que llega por el centro).</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Los carriles</h3>
+          <p><code>Carriles.astro</code> dibuja una línea con dos cruces al empezar cada sección de main. <code>data-sin-fila</code> en la sección la quita; <code>data-carril-fila</code> en un elemento añade otra (con <code>="sin-cruces"</code>, solo la línea).</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Que no repita</h3>
+          <p>Una sección no copia el esqueleto de otra, y no es un efecto por el efecto: AGENTS.md › «Rechazado» lo dice con ejemplos.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="paginas" class="seccion" aria-labelledby="h-paginas">
+      <h2 id="h-paginas" class="font-display text-h2">Añadir una página</h2>
+      <p class="cuerpo">Una página es un archivo en <code>src/pages/</code>: su ruta es su nombre (<code>lab.astro</code> → /lab; <code>proyectos/[slug].astro</code> → un caso por proyecto). Todas comparten el mismo esqueleto.</p>
+      <pre><code>---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Carriles from '../components/Carriles.astro';
+import Pie from '../components/Pie.astro';
+---
+&lt;Base title="savvia · Nueva" description="Una frase." carga=&#123;false&#125;&gt;
+  &lt;Nav /&gt;
+  &lt;Carriles /&gt;
+  &lt;main id="contenido" class="surface-light"&gt;…&lt;/main&gt;
+  &lt;Pie /&gt;
+&lt;/Base&gt;</code></pre>
+      <dl class="dev-filas">
+        <div><dt><code>Base.astro</code></dt><dd>Tres opciones: <code>title</code>, <code>description</code> y <code>carga</code> (la animación de carga; pon <code>false</code>: solo la lleva la home). Pone la estación, las fuentes, el favicon, la imagen para compartir y el noindex.</dd></div>
+        <div><dt>Nav, Carriles, Pie</dt><dd>La barra con el menú, las guías de los bordes y el pie con el paisaje. El Lab no lleva Carriles: su lienzo es infinito.</dd></div>
+        <div><dt>Claro u oscuro</dt><dd>Las páginas secundarias van en claro (<code>surface-light</code>), decisión de la ronda 128.</dd></div>
+        <div><dt>El menú</dt><dd>Para que salga en él, se añade a <code>nav.links</code> o a <code>nav.mas</code> en <code>home.ts</code>.</dd></div>
+        <div><dt>El mapa</dt><dd>No hay sitemap.xml automático. El mapa de la web de este sistema se escribe a mano en <code>Libro.astro</code> (<code>mapa</code>), salvo los casos y los capítulos del Método, que entran solos.</dd></div>
+        <div><dt>Una ruta que cambia</dt><dd>La vieja se redirige en <code>astro.config.mjs</code> › <code>redirects</code>, como /brandbook → /sistema y /handbook → /metodo.</dd></div>
+      </dl>
+      <h3 class="font-display text-h3 sub">Guardarraíles: lo que no se acepta</h3>
+      <dl class="dev-filas">{GUARDARRAILES.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+    </section>
+
+    <section id="pedir" class="seccion" aria-labelledby="h-pedir">
+      <h2 id="h-pedir" class="font-display text-h2">Pedir cambios</h2>
+      <p class="cuerpo">Unas pocas reglas hacen que Claude acierte a la primera y que la web no se desordene.</p>
+      <dl class="dev-filas">
+        <div><dt>Qué, dónde y cómo queda</dt><dd>«Cambia X por Y en el hero» funciona mejor que «mejora el hero».</dd></div>
+        <div><dt>Una cosa, o una lista numerada</dt><dd>Si son varias, numéralas: cada una se hace, se mide y se anota por separado.</dd></div>
+        <div><dt>Con tus palabras</dt><dd>Lo que pides se copia tal cual en el registro. No hace falta pulirlo.</dd></div>
+        <div><dt>Señala</dt><dd>Una captura, o una nota de Agentation pegada al elemento en local: así no hay dudas de qué pieza es.</dd></div>
+        <div><dt>Nombra con este sistema</dt><dd>«El acento de la estación», «el CTA de cristal», «la barra ‹ 01/04 ›», «la gota entre secciones».</dd></div>
+        <div><dt>Di qué no tocar</dt><dd>«Sin mover el árbol», «solo en móvil», «el resto se queda como está».</dd></div>
+        <div><dt>Lo rechazado no vuelve</dt><dd>Si pides algo que está en «Rechazado» de AGENTS.md, Claude te lo dirá. Si de verdad se quiere recuperar, se decide entre los dos y se anota.</dd></div>
+        <div><dt>Pruebas que se deshacen</dt><dd>Para probar algo dudoso, pide que vaya detrás de un parámetro (<code>?bloque=hielo</code>, <code>?carga=1</code>) y sin tocar el resto.</dd></div>
+      </dl>
+      <h3 class="font-display text-h3 sub">Peticiones bien hechas</h3>
+      <ul class="peticiones">
+        <li>«En el hero, el subtítulo pasa a: “Especialistas en orquestar el desarrollo agéntico.”. El titular no se toca.»</li>
+        <li>«En Más proyectos: 1. el nombre del cliente baja al pie de la tarjeta; 2. más aire entre filas; 3. la última fila, solo dos proyectos.»</li>
+        <li>«Las raíces del hero en invierno tienen un semitono que la copa no tiene. Quítaselo solo a las raíces.» (con captura)</li>
+        <li>«Añade al portfolio el proyecto de [cliente]: te paso la web y el texto del caso. Que no salga en destacados.»</li>
+        <li>«Quiero probar el azul de invierno en Servicios, pero que sea una prueba fácil de quitar.»</li>
+        <li>«La × de la vista sentado a veces abre el menú: que no pase nunca. Pruébalo también en móvil.»</li>
+      </ul>
+    </section>
+  </Fragment>
+)}
+
+{bloque === 'mantenimiento' && (
+  <section id="mantenimiento" class="seccion" aria-labelledby="h-mantenimiento">
+    <h2 id="h-mantenimiento" class="font-display text-h2">Mantenimiento técnico</h2>
+    <p class="cuerpo">Para los cambios que tocan la base de la web, para perfiles técnicos o para el propio Claude.</p>
+    <dl class="dev-filas">
+      <div><dt>Verificar</dt><dd><code>npx astro check</code>, <code>npx astro build</code>, <code>node tools/spacing-lint.cjs</code> y <code>node tools/verify.cjs &lt;url&gt;</code> en verde antes de dar algo por hecho, y otra vez en vivo después de publicar. Hoy <code>verify.cjs</code> carga Playwright desde una ruta del Mac de Andoni: en otro ordenador no arranca y hay que probar con un Playwright propio.</dd></div>
+      <div><dt>Tokens</dt><dd>Color por estación, escala tipográfica y espaciado viven en <code>src/styles/global.css</code>. La estación de la web la lleva <code>src/scripts/estacion.ts</code> y se fija en el head (<code>Base.astro</code>) antes del primer fotograma.</dd></div>
+      <div><dt>Contextos WebGL</dt><dd>El roble, las raíces, el paisaje del pie y el Manifiesto los pinta el motor <code>src/scripts/estela.ts</code>, un lienzo WebGL cada uno. Chrome y Safari mantienen unos 16 a la vez y tiran los más viejos (la ronda 63 dejaba el hero en blanco). Por eso estela.ts DUERME los lienzos lejanos cuando hay más de <code>LIMITE</code> vivos (12 en Chrome; en Safari, siempre) y los recupera al acercarse. Antes de añadir otro lienzo, cuéntalos.</dd></div>
+      <div><dt>Fuentes</dt><dd>Autoalojadas con la API de fuentes de Astro (<code>astro.config.mjs</code>, archivos en <code>src/assets/fonts/</code>). Family es el archivo de PRUEBA de Klim: sin tildes ni ñ (caen a Georgia) y no se puede servir en abierto sin licencia: hay que comprarla. Timeless (Sans, Grotesk) va con la Timeless Free Font License 1.2 (<code>tools/fuentes-timeless/</code>): uso web y comercial libre, pero prohibido redistribuirla o subirla a un repositorio público. El nuestro es privado y así debe seguir.</dd></div>
+      <div><dt>noindex</dt><dd><code>Base.astro</code> lleva <code>robots: noindex, nofollow</code>. Se quita cuando estén las licencias y el visto bueno.</dd></div>
+      <div><dt>Sonidos</dt><dd>La impresora, los ambientes y la música del reel son de Pixabay (uso libre sin atribución); origen, autor y tramo de cada uno en <code>tools/fuentes-sonido.md</code>. La radio, de HoliznaCC0 (dominio público), igualada a −18 LUFS. Nada que tenga «todos los derechos reservados».</dd></div>
+      <div><dt>Copias de seguridad</dt><dd>Lo que se quita no se borra: va a <code>tools/retirados/</code> con la ronda en el nombre. Andoni guarda además una copia de la carpeta antes de cada ronda grande (<code>../savvia-web.bak-rNN-fecha/</code>, en su Mac). Y Git guarda cada commit.</dd></div>
+      <div><dt>Si Vercel bloquea un despliegue</dt><dd>Pasa cuando el commit es de alguien que no está en el equipo de Vercel de Andoni: queda en «Deployment was blocked» (ronda 83). Desde la ronda 174 la Action <code>publicar.yml</code> llama al Deploy Hook (secreto <code>VERCEL_DEPLOY_HOOK</code> del repositorio) y lo publica igual. Si aun así no sale: Andoni le da a Redeploy en Vercel o sube un commit suyo (vale uno vacío). Para que no vuelva a pasar, cada persona configura su identidad de Git con el correo de su GitHub.</dd></div>
+      <div><dt>De emergencia</dt><dd>La receta antigua sigue valiendo: <code>astro build</code> y <code>vercel deploy --prod</code> desde <code>dist/</code>, con el proyecto <code>savvia-home</code>.</dd></div>
+    </dl>
+  </section>
+)}
+
+<style>
+  .seccion { padding-top: calc(var(--spacing) * 24); margin-top: calc(var(--spacing) * 24); border-top: 1px solid var(--rule); scroll-margin-top: calc(var(--spacing) * 20); }
+  .cuerpo { margin-top: calc(var(--spacing) * 4); max-width: 60ch; font-size: var(--text-body); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
+  .sub { margin-top: calc(var(--spacing) * 16); }
+  .sub + .cuerpo { margin-top: calc(var(--spacing) * 3); }
+  .reglas { display: grid; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 6); font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); }
+  .reglas b { font-weight: 500; color: var(--fg); margin-right: 0.4em; }
+  .dev-filas { margin-top: calc(var(--spacing) * 8); border-top: 1px solid var(--rule); }
+  .dev-filas > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr); gap: calc(var(--spacing) * 6); padding-block: calc(var(--spacing) * 4); border-bottom: 1px solid var(--rule); }
+  .dev-filas dt { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.3; overflow-wrap: anywhere; }
+  .dev-filas dt code { font-family: var(--font-mono); font-size: var(--text-aux); line-height: 1.5; }
+  .dev-filas dd { color: var(--fg2); line-height: 1.55; }
+  code { font-family: var(--font-mono); font-size: 0.92em; color: var(--fg); }
+  pre { margin-top: calc(var(--spacing) * 3); padding: calc(var(--spacing) * 4); background: color-mix(in oklab, #3B231B 6%, transparent); border-radius: var(--radius-lg, 8px); overflow-x: auto; font-size: var(--text-aux); line-height: 1.6; }
+  pre code { font-size: inherit; white-space: pre; }
+  .pasos { counter-reset: paso; display: grid; grid-template-columns: minmax(0, 1fr); gap: calc(var(--spacing) * 8); margin-top: calc(var(--spacing) * 8); max-width: 64ch; }
+  .pasos > li { counter-increment: paso; position: relative; min-width: 0; padding-left: calc(var(--spacing) * 12); }
+  .pasos > li::before { content: counter(paso, decimal-leading-zero); position: absolute; left: 0; top: 0.35em; font-family: var(--font-mono); font-size: var(--text-detail); color: var(--fg2); }
+  .pasos h3 { margin-bottom: calc(var(--spacing) * 2); }
+  .pasos p { color: var(--fg2); line-height: 1.6; }
+  .pasos p + p, .pasos pre + p { margin-top: calc(var(--spacing) * 3); }
+  .peticiones { display: grid; gap: calc(var(--spacing) * 3); margin-top: calc(var(--spacing) * 6); max-width: 64ch; }
+  .peticiones li { padding: calc(var(--spacing) * 4); border-radius: var(--radius-lg, 8px); background: color-mix(in oklab, #3B231B 6%, transparent); line-height: 1.55; }
+  @media (width < 48rem) {
+    .dev-filas > div { grid-template-columns: 1fr; gap: calc(var(--spacing) * 2); }
+    .pasos > li { padding-left: calc(var(--spacing) * 8); }
+  }
+</style>

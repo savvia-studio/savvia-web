@@ -80,8 +80,13 @@ export function crearSonido() {
   // funde a 0; al salir, la radio vuelve. (La 1.ª versión hacía lo contrario: callaba la mesa mientras sonaba la radio.)
   let mesa = false;
   const avisarMesa = (si: boolean) => { if (si !== mesa) { mesa = si; dispatchEvent(new CustomEvent('savvia:mesa', { detail: { on: si } })); } };
+  // RONDA 175 (Eric: «quitaría los sonidos de naturaleza y dejaría en esa parte la música, y cuando te sientas se baja»): el ambiente grabado ya no
+  // suena; la mesa deja sonar la radio y, sentado, se lo dice con `savvia:foco` para que la música baje (Radio.astro). El código del ambiente queda
+  // dormido por si vuelve.
+  const AMBIENTE = false;
   function tick() {
     limpiar(); // siempre
+    if (!AMBIENTE) return;
     avisarMesa(on && visible);
     if (!ctx) return;
     const sonando = on && visible;
@@ -133,6 +138,7 @@ export function crearSonido() {
     // sentado = con los cascos puestos (curva exponencial: el filtro cierra deprisa al principio, como al ajustarse los cascos)
     foco(si: boolean) {
       enfocado = si;
+      dispatchEvent(new CustomEvent('savvia:foco', { detail: { on: si } })); // ronda 175: sentado, la radio baja
       if (!ctx) return;
       const t = ctx.currentTime;
       cascosLp.frequency.cancelScheduledValues(t); cascosLp.frequency.setTargetAtTime(si ? CASCOS.cerrado : CASCOS.abierto, t, si ? CASCOS.t : CASCOS.t * 0.8);

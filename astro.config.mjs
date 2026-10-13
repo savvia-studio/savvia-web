@@ -5,6 +5,17 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+  // RONDA 177 · brandbook y handbook se unifican en /sistema: las direcciones antiguas siguen funcionando
+  redirects: {
+    // ronda 180 · Sistema = diseño + desarrollo en una página; el Método (antes handbook), aparte
+    '/brandbook': '/sistema',
+    '/sistema/marca': '/sistema',
+    '/sistema/dev': '/sistema#stack',
+    '/handbook': '/metodo',
+    '/handbook/[slug]': '/metodo/[slug]',
+    '/sistema/metodo': '/metodo',
+    '/sistema/metodo/[slug]': '/metodo/[slug]',
+  },
   site: 'https://savvia.studio',
   devToolbar: { enabled: false },
   fonts: [

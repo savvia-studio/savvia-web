@@ -20,8 +20,8 @@ const orden = capitulos.map((c) => c.slug);
     // el lugar en el libro: la portada es -1, cada capítulo su número de orden; fuera del handbook, null
     var lugar = function (p) {
       p = (p || '').replace(/\/+$/, '');
-      if (p === '/handbook') return -1;
-      var m = /^\/handbook\/([^/]+)$/.exec(p);
+      if (p === '/metodo') return -1;
+      var m = /^\/metodo\/([^/]+)$/.exec(p);
       return m ? orden.indexOf(m[1]) : null;
     };
     var ruta = function (u) { try { return new URL(u, location.href).pathname; } catch (e) { return ''; } };
@@ -150,7 +150,7 @@ const orden = capitulos.map((c) => c.slug);
 <script>
   // el sonido del papel al pasar la hoja (en la página que se va: la nueva aún no puede sonar sin un gesto)
   import { papel, sonidoEncendido } from '../../scripts/sonidos';
-  const esLibro = (p: string) => /^\/handbook(\/[^/]+)?\/?$/.test(p);
+  const esLibro = (p: string) => /^\/metodo(\/[^/]+)?\/?$/.test(p);
   addEventListener('click', (e) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const a = (e.target as HTMLElement).closest?.('a[href]') as HTMLAnchorElement | null;

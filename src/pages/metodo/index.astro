@@ -2,17 +2,17 @@
 // RONDA 127–128 · /handbook — LA PORTADA PARA NAVEGAR el manual de savvia. Andoni: «algo así https://www.designhandbook.com/en» y, en la 128,
 // «tenemos por un lado para navegarlo (designhandbook.com/en) y luego cada capítulo en detalle» · «las páginas secundarias, todas en light».
 // Cada capítulo vive en /handbook/<slug> (src/pages/handbook/[slug].astro). Contenido: src/data/handbook.ts, solo con hechos.
-import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Carriles from '../components/Carriles.astro';
-import Pie from '../components/Pie.astro';
-import PasarPagina from '../components/handbook/PasarPagina.astro';
-import Portada from '../components/handbook/Portada.astro';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Carriles from '../../components/Carriles.astro';
+import Pie from '../../components/Pie.astro';
+import PasarPagina from '../../components/handbook/PasarPagina.astro';
+import Portada from '../../components/handbook/Portada.astro';
 ---
 
 <Base
-  title="Handbook — el manual de savvia"
-  description="El handbook de savvia: qué creemos, cómo trabajamos y qué te llevas al terminar. El manual del estudio web de Eric y Andoni."
+  title="Método — Sistema de savvia"
+  description="El método de savvia: qué creemos, cómo trabajamos y qué te llevas al terminar. El manual del estudio web de Eric y Andoni."
   carga={false}
 >
   <PasarPagina />

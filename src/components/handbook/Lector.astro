@@ -13,7 +13,7 @@ import { flecha } from '../../lib/flecha';
 
 <aside class="lateral" aria-label={`Índice del ${handbook.nombre}`}>
   <nav class="nav-lat" data-indice data-lenis-prevent>
-    <a class="volver" href="/handbook">
+    <a class="volver" href="/metodo">
       <Fragment set:html={flecha('izq')} />
       <span>{handbook.nombre}</span>
     </a>
@@ -24,7 +24,7 @@ import { flecha } from '../../lib/flecha';
           return (
             <li class={`cap ${actual ? 'actual' : ''}`}>
               <div class="cap-fila">
-                <a class="cap-a" href={`/handbook/${x.slug}`} aria-current={actual ? 'page' : undefined}>
+                <a class="cap-a" href={`/metodo/${x.slug}`} aria-current={actual ? 'page' : undefined}>
                   <span class="cn detail">{x.num}</span>
                   <span>{x.titulo}</span>
                 </a>
@@ -37,7 +37,7 @@ import { flecha } from '../../lib/flecha';
               <ol id={`lat-${x.slug}`} class="secs" hidden={!actual}>
                 {x.secciones.map((s) => (
                   <li class="sec" data-sec={actual ? s.id : undefined}>
-                    <a href={actual ? `#${s.id}` : `/handbook/${x.slug}#${s.id}`} data-ancla={actual ? '' : undefined}>
+                    <a href={actual ? `#${s.id}` : `/metodo/${x.slug}#${s.id}`} data-ancla={actual ? '' : undefined}>
                       {s.titulo}
                     </a>
                   </li>
@@ -58,12 +58,12 @@ import { flecha } from '../../lib/flecha';
     <svg class="im-f" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
   </summary>
   <div class="im-p">
-    <a class="im-h detail detail-caps" href="/handbook"><Fragment set:html={flecha('izq')} />{handbook.nombre}</a>
+    <a class="im-h detail detail-caps" href="/metodo"><Fragment set:html={flecha('izq')} />{handbook.nombre}</a>
     <ol>
       {
         capitulos.map((x) => (
           <li class={x.slug === c.slug ? 'actual' : ''}>
-            <a class="im-c" href={`/handbook/${x.slug}`} aria-current={x.slug === c.slug ? 'page' : undefined}>
+            <a class="im-c" href={`/metodo/${x.slug}`} aria-current={x.slug === c.slug ? 'page' : undefined}>
               <span class="detail">{x.num}</span> {x.titulo}
             </a>
             {x.slug === c.slug && (

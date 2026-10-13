@@ -58,14 +58,15 @@ const respuesta = (q: RegExp) => preguntas.lista.find((p) => q.test(p.q))!.a;
 
 export const handbook = {
   // RONDA 132 · vuelve a llamarse HANDBOOK (Andoni: «El handbook lo llamaría handbook»). En la 129 se llamó «Duramen».
-  nombre: 'Handbook',
-  titulo: 'Handbook',
-  sub: 'El manual de savvia',
+  // RONDA 177 · el handbook pasa a ser el MÉTODO dentro de «Sistema» (/metodo): «handbook tenemos que trasladar cómo hacemos los proyectos»
+  nombre: 'Método',
+  titulo: 'Método',
+  sub: 'Cómo hacemos los proyectos',
   firma: 'Eric y Andoni', // ronda 156 (Eric): sin «Donostia»
   // de: la idea de la referencia (designhandbook.com/en: un párrafo centrado que explica el manual), con nuestras palabras y nuestros hechos.
   // El origen («De dónde sale este manual», ronda 128) queda dentro del segundo párrafo.
   intro: [
-    'Este es el handbook de savvia: el manual donde contamos qué creemos, cómo trabajamos y qué te llevas al terminar.',
+    'Este es el método de savvia: el manual donde contamos qué creemos, cómo trabajamos y qué te llevas al terminar.',
     'Sale de lo que hacemos cada día: la guía de diseño, el registro de cada ronda, lo que descartamos y la receta que entregamos. Por eso crece con cada proyecto.',
     'Ocho capítulos, en el orden en que los vivirías con nosotros.',
   ],
@@ -136,10 +137,10 @@ export const capitulos: Capitulo[] = [
           {
             tipo: 'tarjetas',
             items: [
-              { k: '02', t: 'Principios', d: 'Voz propia, tu ritmo y una receta que te quedas.', href: '/handbook/principios' },
-              { k: '03', t: 'Cómo trabajamos', d: 'Entender, decidir, documentar y entregar. Contigo dentro.', href: '/handbook/como-trabajamos' },
-              { k: '04', t: 'La receta', d: 'Tu marca escrita para que la lean tu equipo y cualquier agente.', href: '/handbook/la-receta' },
-              { k: '05', t: 'Formas de trabajar', d: 'Tres formas de trabajar contigo, según lo que necesites.', href: '/handbook/formas-de-trabajar' },
+              { k: '02', t: 'Principios', d: 'Voz propia, tu ritmo y una receta que te quedas.', href: '/metodo/principios' },
+              { k: '03', t: 'Cómo trabajamos', d: 'Entender, decidir, documentar y entregar. Contigo dentro.', href: '/metodo/como-trabajamos' },
+              { k: '04', t: 'La receta', d: 'Tu marca escrita para que la lean tu equipo y cualquier agente.', href: '/metodo/la-receta' },
+              { k: '05', t: 'Formas de trabajar', d: 'Tres formas de trabajar contigo, según lo que necesites.', href: '/metodo/formas-de-trabajar' },
             ],
           },
         ],
@@ -432,7 +433,7 @@ export const capitulos: Capitulo[] = [
         titulo: 'Si ya tienes web',
         bloques: [
           { tipo: 'cita', texto: respuesta(/Webflow/), de: 'Preguntas frecuentes · «¿Y si mi web está en Webflow o WordPress?»' }, // de: home.ts › preguntas
-          { tipo: 'enlace', label: 'Cuéntanos qué necesitas', href: '/handbook/contacto' },
+          { tipo: 'enlace', label: 'Cuéntanos qué necesitas', href: '/metodo/contacto' },
         ],
       },
     ],

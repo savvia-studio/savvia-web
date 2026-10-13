@@ -3481,3 +3481,211 @@ en mono en el pie.
 - **Andoni (textual):** «y cada paso la animación de juntarse cambia, para que no se haga repetitivo».
 - **Hecho (`TarjetaPaso.astro`, demo 02):** las dos formas (y sus rótulos y ratones) viven ya en el centro de la mesa y cada vuelta parten de un sitio distinto (`--sx`/`--sy` en `.taller`, según la vuelta del reloj `--t`): **Diseño**, en diagonal (savvia arriba a la izquierda, tú abajo a la derecha, como siempre) · **Movimiento**, de lado a lado, en horizontal · **Desarrollo**, en la otra diagonal (savvia arriba a la derecha, tú abajo a la izquierda). La tuya, siempre desde el lado opuesto a la nuestra.
 - **Medido:** `astro check` 0 errores · capturas de las tres salidas y sus fusiones (Chrome 1280, WebKit 390) · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390): limpio, desborde 0. No publicado ni subido.
+
+### Ronda 175 · 2026-10-12 · fuera el ambiente de naturaleza (la música se queda y baja al sentarte) y levantarse más claro (en local, Eric)
+- **Eric (textual):** «quitaría los sonidos de naturaleza y dejaría en esa parte la música, y cuando te sientas se baja» · «JL dijo que una vez sentado no sabía levantarse».
+- **Hecho:** `sonido-estudio.ts`: el ambiente grabado ya no suena (`AMBIENTE = false`; ya no se avisa `savvia:mesa`, la radio no cede); `foco()` avisa con
+  `savvia:foco` y la radio (`Radio.astro`) baja de 0,5 a 0,14 en 0,9 s al sentarte y vuelve al levantarte. Quedan los efectos de sentarse/levantarse.
+  `Proyectos.astro`: la × sola pasa a ser un botón con texto «× Levantarse [esc]» (en táctil, sin la tecla); y sentado, un clic o la rueda FUERA del
+  monitor (mesa, paisaje) te levanta, con cursor de alejar (`zoom-out`); espera 1,6 s tras sentarte para que la inercia no te levante sin querer.
+- **Medido** (Chrome sin ventana, 1440×900): radio 0,50 en la mesa → 0,14 sentado → 0,50 levantado; rueda fuera, clic fuera y el botón levantan; cursor
+  `zoom-out` fuera del monitor; sin errores · `astro check` 0 errores. **SIN medir:** WebKit, táctil. No publicado ni subido.
+
+### Ronda 176 · 2026-10-12 · el mapa del sitio en el brandbook (en local, Eric)
+- **Eric (textual):** «vamos a poner un sitemap en brandbook».
+- **Hecho (`brandbook.astro`, sección 10 «Sitemap», `#mapa`, también en el índice):** una raíz (savvia.studio) y siete ramas: Inicio (sus secciones con
+  su ancla), Portfolio (los casos), Handbook (los capítulos), Lab, Manifiesto, Brandbook (sus secciones) y la 404. Cada página es una tarjeta enlazada (ruta,
+  nombre, nota) y lo que cuelga, una lista con su línea. Casos y capítulos salen de `proyectos.ts` y `handbook.ts` (crecen solos); las secciones de la home, a
+  mano en el orden de `index.astro`. Por debajo de 1280 px, cuatro columnas sin las líneas de la raíz; en móvil, una.
+- **Medido:** `astro check` 0 errores · vista previa a 1440 y 375: sin errores de consola, sin desborde visible. No publicado ni subido.
+
+### Ronda 177 · 2026-10-12 · fuera el salvapantallas (en local, Eric)
+- **Eric (textual):** «la pantalla de reposo no sé si tiene sentido, quitémosla».
+- **Hecho:** `Entreacto.astro` (rondas 125–166) fuera de `index.astro` y movido a `tools/retirados/Entreacto.r176.astro.txt`; fuera `.reposo` de la regla de
+  invierno de `global.css`. `?reposo=` ya no hace nada.
+- **Medido:** `astro check` 0 errores · vista previa de la home sin errores de consola. No publicado ni subido.
+
+## Rechazado — añadidos de la ronda 177 (NO VOLVER)
+- El SALVAPANTALLAS (pantalla de reposo tras 60 s sin tocar nada).
+
+### Ronda 177 · 2026-10-12 · brandbook y handbook se unifican en «Sistema» (en local, Eric)
+- **Eric y Andoni (Telegram, 17:14):** Eric: «¿cuál es la diferencia entre brandbook y handbook? Igual podemos unificarlo todo como "Sistema", porque en
+  brandbook estoy incluyendo, como en Neety, cosas de dev» · Andoni: «brandbook es nuestra marca y handbook tenemos que trasladar cómo hacemos los
+  proyectos; se pueden unificar». Eric: «sí, móntalo así» (Marca · Método · Desarrollo).
+- **Hecho:** `/sistema` (puerta con tres tarjetas, `src/pages/sistema/index.astro`) · `/sistema/marca` (el brandbook sin componentes ni sitemap) ·
+  `/sistema/metodo` y `/sistema/metodo/<capítulo>` (el handbook, renombrado «Método»: `handbook.ts › nombre/titulo/sub`, títulos y «Fin del método»;
+  el paso de página sigue, con las rutas nuevas en `PasarPagina.astro` y `transicion.ts`) · `/sistema/dev` (componentes y sitemap). Marca y Desarrollo
+  son el MISMO componente (`src/components/sistema/Libro.astro`, el antiguo `brandbook.astro`) con `parte="marca" | "dev"`: cada página pinta su parte
+  y su índice. El sitemap, con Sistema y Método. Menú y pie: «Más» → «Sistema». Redirecciones 301 en `astro.config.mjs › redirects`: `/brandbook`,
+  `/handbook` y `/handbook/<capítulo>` (en build, páginas con meta refresh). Los componentes del método siguen en `src/components/handbook/`.
+- **Medido:** `astro check` 0 errores · `astro build` OK · `spacing-lint` en escala · en local las ocho rutas responden (200 las nuevas, 301 las viejas) ·
+  vista previa de /sistema, /sistema/dev y /sistema/metodo/principios a 1440: consola limpia. **SIN medir:** `tools/verify.cjs`, WebKit, móvil. No publicado ni subido.
+
+### Ronda 178 · 2026-10-12 · la 404 de verano se llena de hierba (en local, Eric)
+- **Eric (textual):** «de la página 404 en verano, tiene que crecer hierba de 404, como en verano que crece mucha».
+- **Hecho (`404/Cuatro.astro`):** además del sol, HIERBA alta: brota por todos los cantos de las cifras que miran arriba (también dentro del 0) y, más alta y
+  espesa (hasta el 36 % del alto de la cifra), a ras del suelo por todo el ancho, en matas y perdiéndose hacia los lados; ~2.000 briznas de nueve verdes con
+  alguna espiga. Crece en ola de izquierda a derecha (~7 s), se mece con la brisa y un poco con el ratón, y el haz la dora (va en la misma capa que las cifras).
+  Movimiento reducido: crecida y quieta.
+- **Medido:** `astro check` 0 errores · Chrome sin ventana, 1440×800 y 390×844: 1.980 briznas, crecida a los 12 s por todo el ancho; en consola solo el estado
+  404 de la propia página. **SIN medir:** WebKit. No publicado ni subido.
+
+### Ronda 178 · 2026-10-12 · el monitor de la home, en Componentes (en local, Eric)
+- **Eric (textual):** «en componente puedes incluir cómo está hecho el mockup de pantalla en la home».
+- **Hecho (`sistema/Libro.astro`, Componentes de /sistema/dev):** «El monitor de Proyectos destacados»: MONTADO (la lámina de otoño con la pantalla, la luz y la caja
+  medida a trazos con sus porcentajes, ampliado ×2,2 alrededor del monitor; las mismas medidas que `Proyectos.astro`) y DESPIECE en 3D (lámina · luz · pantalla · web,
+  se separan más al pasar el ratón) + las cuatro capas explicadas (tamaños de la lámina, la sombra exterior que asoma, la caja medida con su filo y `cqh`, la web a
+  1710 px reducida con `scale`, captura de pie e iframe sentado) y la escala neta 1 al sentarse.
+- **Medido:** `astro check` 0 errores · Chrome sin ventana a 1440 y 390 (DPR 2): sin errores de consola, desborde 0, la web cae justo en la pantalla de la lámina.
+  **SIN medir:** WebKit. No publicado ni subido.
+
+### Ronda 178 · 2026-10-12 · las raíces de invierno sin semitono (en local, Eric)
+- **Eric (textual, con captura):** «en invierno las raíces tienen ahí dithering o algo que no tiene la parte de arriba; quítaselo a las raíces».
+- **Causa:** el árbol de invierno ralea (raleo 1) y eso apaga el semitono de los cantos y el deshacerse hacia fuera (ronda 133); las raíces usan
+  `ESTACIONES_SIN_RALEO`, así que seguían con la trama de puntos a 45° y además con el hervor.
+- **Hecho:** `estela.ts` gana la opción `nitido` (uniform `ni`): sin semitono en los cantos y sin deshacerse hacia fuera. `Raices.astro`: en invierno,
+  `nitido` y sin `soplo` (como el árbol desde la ronda 144). Las otras estaciones, igual. Lo que queda de motas en los bordes es de la propia lámina.
+- **Medido** (Chrome con WebGL por software, 1440×900 DPR 2, `?estacion=invierno`): antes la retícula de puntos bajo la línea de suelo; después, fuera; sin
+  errores · `astro check` 0. **SIN medir:** WebKit, móvil. No publicado ni subido.
+- **A media ronda (Eric):** «también cómo hemos hecho los 3D, y skills usadas · tecnología usada, stack» → tres secciones nuevas en /sistema/dev (y en su índice):
+  **Stack** (Astro, Tailwind, TypeScript, fuentes, WebGL/Canvas/SVG, movimiento sin librerías, Web Audio, Iconoir, publicación y verificación) · **Cómo se hacen las
+  piezas** (roble del hero, mesa, Eric y Andoni en 3D, webs grabadas, reel, flora, isotipo, sonidos: origen y script de cada una) · **Herramientas y skills** (Claude
+  Code con subagentes, HyperFrames, web-perf-forensics, Artifacts, Agentation, Ship Studio, Playwright, sharp/ffmpeg/Python, Blender). Todo sacado del registro y del
+  código. Medido: `astro check` 0 · `spacing-lint` en escala · Chrome 1440 y 390 sin errores ni desborde.
+
+### Ronda 179 · 2026-10-12 · el recorrido de los dolores: dos pruebas descartadas (en local, Eric)
+- **Eric (textual):** «no me convence la raíz, la veo un poco juguete comparado con lo demás».
+- **Probado y descartado el mismo día:** (1) el trazo SVG con semitono (filtro de trama): «siguen siendo líneas bastante juguete»; (2) RAÍCES PINTADAS con
+  el motor del árbol (la lámina de raíces del Manifiesto, un tramo por dolor bajando por el centro): «abruma mucho y no invita a leer». Vuelve la raíz vectorial
+  de la ronda 51 mientras se decide.
+- **Hecho (Eric: «dale» a la gota sola):** fuera la raíz, las raicillas y el hilo (`.raiz/.savia/.raicillas` ocultos; el código del trazo sigue para
+  medir). Solo la GOTA de savia: cae RECTA sobre el centro de cada demo desde `min(520 px, 60 % de la pantalla)` por encima, con gravedad (p²) y estirada
+  con la velocidad, llevada por el scroll (frente al 62 %); al tocarla salpica y la demo despierta. Fuera de una caída no se ve. La gota sale de la
+  máscara del texto (si no, se borraba en los últimos 20 px). Después (Eric: «mejor transparente, como la del loading»): la gota de AGUA de la carga
+  (cuerpo translúcido, canto, luz transmitida y brillo, los mismos degradados que `gota.ts › caerRealista agua`), casi redonda, y salpicadura clara; en
+  invierno, sobre la nieve, un canto fino de pizarra.
+- **Después (Eric: «la gota, ¿de dónde cae? del vacío no tiene sentido narrativo» → elegida la A):** UNA sola gota, la del árbol. Se forma bajo una
+  raicilla de las raíces del hero (la punta más baja sobre la mitad izquierda de la primera demo, leída en el alfa de `/media/hero/raices-<estación>.webp`
+  y exigiendo 12 px de tinta seguida hacia arriba: las rayas horizontales del semitono no valen), cuelga y engorda (90 px de scroll), se suelta y cae a
+  la primera demo, que despierta. Solo cuando las raíces ya están pintadas (`Raices.astro` marca `.crecidas`). Las demos 2 y 3 despiertan solas al
+  llegar su borde al frente. La primera demo va al lado de dentro de su celda (`justify-items: start`) para quedar bajo las raíces. Medido (Chrome
+  1280, 1440, 1710, 390 e invierno): cae y despierta en todos; consola limpia.
+- **Después (Eric: «que sean 3» → sin zigzag):** las tres demos en la MISMA columna (fuera la alternancia `derecha` de la ronda 51), al lado de dentro
+  de su celda. CADENA de cuatro gotas a la misma x: raíz → demo 1 → demo 2 → demo 3 → Proyectos; cada una cuelga del borde de abajo de la demo
+  anterior cuando esta ya está viva, se suelta y cae; la última se apaga al salir de la sección. Medido (Chrome 1280, 1440, 390): las cuatro caen y las
+  tres demos despiertan en orden.
+- **Probado y descartado (Eric: «step 1 → step 2 con sticky»):** el texto fijo a la izquierda con las demos pasando («está raro»: van
+  desacompasados) y una ESCENA FIJA que capturaba el scroll («no hagamos captura de scroll, mucha gente lo odia»). Queda el scroll libre: cada texto
+  al lado de su demo y aparece cuando la gota la riega. **NO VOLVER:** fijar los dolores (sticky o escena) para hacer pasos.
+- **Si bajas deprisa:** la gota de la raíz no puede colgar de raíces a medio pintar. Al llegar a ella, los dolores piden a las raíces que acaben ya
+  (`savvia:raices-ya`: 0,7 s desde donde iban) y, si ya has pasado la demo cuando terminan (`savvia:raices-crecidas`), la gota cae sola por tiempo
+  (`caerRealista`, agua) y la despierta. Medido (Chrome 1440, scroll rápido): la demo 1 despierta tras la gota; consola limpia. No publicado ni subido. Medido (Chrome 1440): cae en las tres en orden y las tres despiertan; consola limpia ·
+  `astro check` 0. **SIN medir:** WebKit, móvil. No publicado ni subido.
+- **NO VOLVER:** raíces de lámina grandes detrás de los textos de los dolores.
+
+### Ronda 180 · 2026-10-12 · Sistema completo como la librería de Neety; el Método, aparte (en local, Eric)
+- **Eric (textual):** «en casa del herrero, cuchillo de palo. Nuestro sistema tiene que ser como el de Neety de completo. Por otro lado irá el handbook. Así que veo
+  bien tener Sistema, donde detallamos todo de diseño y desarrollo, y luego por otro lado el handbook o método».
+- **Hecho:** · `/sistema` es UNA página (`src/pages/sistema/index.astro` → `sistema/Libro.astro`, sin la prop `parte`) en tres grupos con índice lateral agrupado
+  (se desplaza solo hasta el apartado que se lee): EMPEZAR (`sistema/Guia.astro`, bloque «empezar»: cómo usar el sistema, sitemap, recibir el proyecto, trabajar
+  con Claude, cambiar contenido, añadir una sección, añadir una página, pedir cambios) · DISEÑO (logotipo, construcción, color y estaciones, tipografía, NUEVOS
+  «Espaciado y retícula» y «Radios y sombras», voz, iconografía, movimiento, aplicaciones) · DESARROLLO (stack, componentes, NUEVO «Catálogo de secciones»
+  —`sistema/Catalogo.astro`, 23 miniaturas reales en `public/media/sistema/catalogo/`, `tools/r180/miniaturas.cjs`—, piezas, herramientas y NUEVO «Mantenimiento
+  técnico», bloque «mantenimiento» de Guia). Fuera la puerta de tres tarjetas (ronda 177). · El MÉTODO (antes handbook) sale del Sistema: `/metodo` y
+  `/metodo/<capítulo>` (páginas en `src/pages/metodo/`; enlaces, paso de página y transición al día); en el menú, «Sistema» y «Método». Redirecciones:
+  /brandbook y /sistema/marca → /sistema · /sistema/dev → /sistema#stack · /handbook(/x) y /sistema/metodo(/x) → /metodo(/x). · Datos viejos del libro
+  corregidos (CTA en Timeless Sans, apretado −0,045 em, subtítulos en Light 300 + fila de `text-sub`, la radio es HoliznaCC0, verify.cjs con ruta del Mac de Andoni).
+- **Medido:** `astro check` 0 errores · `spacing-lint` en escala · /sistema, /metodo y /metodo/principios 200; redirecciones 301 · Chrome 1440 y 390: consola limpia,
+  desborde 0. **SIN medir:** WebKit, `astro build`. No publicado ni subido.
+- **Pendiente:** «Método» o «Handbook» como nombre; `tools/verify.cjs` solo corre en el Mac de Andoni (ruta fija); en la miniatura de «Más proyectos» el nombre de la
+  pieza que rota sale pisado con el anterior (con movimiento reducido): por mirar.
+- **Después (Eric: «ahora está muy básico; me gusta el zigzag, pero en vez de raíz un CAMINO, el que sigues cuando estás savviando (en contacto con la
+  naturaleza); otoño lleno de hojas · invierno de nieve · primavera de flores · verano de hierba»; referencias: senderos de bosque):** fuera la gota y
+  su cadena; vuelve el zigzag de la ronda 51. EL CAMINO (`canvas.camino`, 2D, se pinta una vez por medida y estación; DPR ≤ 1,5 y ≤ 14 Mpx): sobre el
+  mismo trazado ondulado de antes (de arriba al centro, donde acaban las raíces del hero, por cada demo), un sendero de 68 px (36 en móvil) que
+  respira de ancho: TIERRA en manchas blandas y encima lo de la estación (otoño hojas anchas con su nervio; invierno nieve plana con sombra azulada;
+  primavera florecillas de cinco pétalos y hierba tierna en los bordes; verano briznas hacia fuera, el centro pisado). Pasa por DEBAJO del texto y de
+  las demos con un fundido blando (destination-out con sombra desplazada; la sombra va en píxeles del lienzo). Se descubre con el scroll (`--frente`,
+  máscara con canto de 140 px) y al llegar a una demo, despierta. Medido (Chrome 1440 en las cuatro estaciones y 390): consola limpia, demos en orden.
+  **SIN medir:** WebKit. No publicado ni subido.
+- **Después (Eric: «queda muy tosco, serpenteante; quizá unas hojas cayendo y posándose, nada más»):** fuera el camino. LO QUE CAE (`canvas.caen`, fijo a
+  la pantalla y recortado a la sección; solo corre a la vista): 14 piezas (8 en móvil) que caen despacio con vaivén, las del pie (`Pie.astro`: hoja con
+  nervio): otoño hojas · invierno copos · primavera pétalos de cerezo · verano hojas verdes. Las que cruzan el borde de arriba de una demo se TUMBAN en
+  él (10 por demo como mucho, se apagan en unos 45 s) y viajan con ella; las demás se pierden por abajo. Las demos despiertan al llegar el frente
+  (trazado invisible de siempre). Sin movimiento reducido. Medido (Chrome 1440, cuatro estaciones, 25 s): caen y se posan, consola limpia.
+- **NO VOLVER (ronda 179):** recorridos dibujados entre los dolores (raíz vectorial, raíz tramada, raíces de lámina, camino pintado): «juguete»,
+  «abruma», «tosco». Tampoco la gota de origen inventado.
+- **Final (Eric: «quita las hojas, no me convence; vuelve con la raíz que tenemos en prod»):** `Dolores.astro` vuelve a la versión publicada (`1ed1a64`:
+  raíz vectorial, gota de savia y zigzag) conservando la letra del problema de las rondas 175 y 181; `Raices.astro`, sin lo añadido para la gota (se
+  quedan las rondas 178 y 180). La última prueba (hojas que caen), guardada en el scratchpad de la sesión. Nada de la ronda 179 queda en la web.
+
+### Ronda 181 · 2026-10-13 · la tierra bajo el hero (en local, Eric)
+- **Eric (textual):** «simular de aquí abajo el background algo más oscuro, como si fuese tierra que rodea a las raíces».
+- **Hecho:** token `--tierra` (global.css) = la noche de la estación con un 30 % de negro (`color-mix` en srgb; invierno 7 %: tierra helada). Empieza en seco en la
+  línea de suelo (fondo de `Raices.astro`) y baja por los Dolores fundiéndose en la noche (degradado en `.dolores`, 0 → 60 lvh). Las raíces se hunden en la tierra
+  (`t.fondo(tierra(n))`), no en la noche. Probado y descartado el mismo día: un grano/patrón de semitono encima («no es bonito, queda demasiado»).
+  Después («que ocupe menos ancho y menos alto» · «un poco más alto»): una MANCHA en elipse centrada en la línea de suelo (`--tierra-mancha`: 0,62 ×
+  `--roble-w` de radio por 1,75 × el alto de las raíces), que sigue en `.dolores` con el mismo centro (sin costura); fuera la franja a todo el ancho.
+- **Medido:** `astro check` 0 errores · Chrome sin ventana 1440×900 DPR 2 en otoño, invierno y verano: sin errores, sin escalón en la costura. **SIN medir:** WebKit, móvil.
+  No publicado ni subido.
+- **Además:** resuelto el conflicto de `AGENTS.md` del `stash pop` (rondas 175–177 de Andoni + las de Eric, conservadas las dos); el `stash@{0}` (autostash) sigue guardado.
+- **A media ronda (Eric, captura): «que la rama se integre bien con la ilustración animada; queda un gap».** El hueco de la máscara de la raíz en cada demo
+  era la caja de la tarjeta + 20 px (la demo de «Escuchando» deja ~40 px vacíos arriba y abajo). Ahora es la unión de lo que se VE (`.demo > *`) + 6 px, con
+  canto blando (`#hilo-blando-<id>`, desenfoque 8): la raíz llega hasta la píldora y sale bajo el pie. Medido: captura en invierno, 1440, sin errores.
+- **A media ronda (Eric):** «esa curva, más bonita y que no se pegue al rectángulo» → la raíz entra por el centro de la pieza de arriba de cada demo y sale por el
+  de la de abajo (antes, por el centro de la caja: caía en el canto de la píldora); S más abierta (`m` 0,5 → 0,38 del alto del tramo). «Las dos primeras curvas son
+  preciosas; las de luego, parecidas» → la raíz apenas se afina (pierde un 22 % en todo el recorrido; antes acababa en 2,2 px). «Quitaría el punto de la rama»
+  → fuera la gota de la punta (`.gota { display: none }`; la salpicadura al llegar a cada demo sigue). «Los rectángulos que salen hay que quitarlos» → en
+  «Escuchando…» las cajas de las cuatro filas son fijas (`.caja-fila`) y solo se releva el texto con su check (antes la caja entera se desenfocaba al salir).
+  Medido: captura de toda la sección (Chrome 1440, invierno), `astro check` 0 errores.
+- **A media ronda (Eric):** «que la tonalidad sea igual que la de las raíces de debajo del hero» → la raíz y las raicillas llevan el tono MEDIDO en las raíces
+  pintadas de cada estación (mediana de sus píxeles en Chrome: otoño #82584b · invierno #9d918d · primavera #874b59 · verano #6d5a50; raicillas, el 20 % más
+  oscuro), con fundido de 2,4 s al cambiar de estación; el hilo de savia Coral sigue por dentro. «El rectángulo de fuera de la ilustración hay que quitarlo» →
+  era el filo `box-shadow` que `dibujar.ts` (modo árbol) pone a la copia a líneas; nueva opción `sinMarco`, usada en las demos de los dolores.
+- **A media ronda (Eric):** «no solo el tono: que tenga el mismo aspecto, que parezca salida del árbol» → probada y descartada la textura de la lámina con canto
+  rasgado y halo de semitono («parece un pegote, hay que vectorizarlo bien»). Queda VECTOR: la raíz en su tono oscuro (sombra) y encima tres FIBRAS que se
+  trenzan despacio (senos con fase propia, más finas en los cruces): dos en el tono medio y una veta clara, los tres tonos medidos en las raíces del hero por
+  estación (`--raiz-osc · --raiz · --raiz-claro`). El hilo de savia, más discreto (1,2 px al 55 %). Medido: captura en otoño (Chrome 1440), `astro check` 0 errores.
+- **A media ronda (Eric):** «la raíz tiene que salir desde la raíz de arriba y casar con sus colores» → nace en la PUNTA de la raíz principal pintada
+  (último punto de `Raices.astro › data-eje`, medido en pantalla), fina como ella y engordando en los primeros 160 px; `.hilo` sube a z 2 (por encima de las
+  raíces del hero, z 1) y la máscara de texto empieza 2000 px más arriba. Colores medidos otra vez solo en la pintura pura (sin el semitono, que los apagaba),
+  el tercio más saturado: otoño #8c5342 · #9b6452 · #a97a67; invierno #4c3c34 · #705f58 · #9c8d85; primavera #904d5d · #a25d6d · #b97483; verano #74673d ·
+  #81774a · #928a5e. Medido: captura de la unión en otoño (Chrome 1440), `astro check` 0 errores.
+- **A media ronda (Eric):** «que salga de más arriba todavía, la primera curva más fina; que donde entre sea donde sale» → arranca a media altura del eje de
+  la raíz pintada (punto 3 de `data-eje`, dentro de la masa de raíces) y engorda despacio (llega al grosor entero a ~440 px); en cada demo sale por la misma x
+  por la que entra. «El centro de la raíz, más finito, más minimalista» → el hilo de savia a 0,7 px.
+- **A media ronda (Eric):** «que salga de ahí, pero que las raíces del propio árbol estén por encima» → `.raices` sin z-index (no crea contexto), la tierra en su
+  `::before` (z −1) y la lámina (`.caja`) a z 3: la raíz de los Dolores (z 2) pasa por debajo de la acuarela y por encima de la tierra.
+- **A media ronda (Eric):** «la primera parte que se solapa, con blur, más orgánica» → el arranque tiene una copia desenfocada (blur 3,5) que manda al nacer y se
+  apaga en ~280 px mientras entra la raíz nítida (dos máscaras con degradado vertical, `raiz-nitida/borrosa`). «En esa curva el tronco central, más fino» →
+  grosor máximo de la raíz 9 → 6,5 px (móvil 6 → 4,5).
+- **A media ronda (Eric):** «el blur del comienzo, mejor rollo backdrop filter, que salga del fondo marrón» → sin brillo: la copia desenfocada (blur 5) va
+  tenue (pico 45 %) y la raíz nítida entra más tarde (de +140 a +320 px del arranque): nace fundida en la tierra y se va definiendo.
+- **A media ronda (Eric):** «con scroll muy rápido aparece la raíz antes de que se generen las raíces del árbol» → `Raices.astro` avisa al terminar de pintarse
+  (`savvia:raices-listas`, `window.__raicesListas`; también sin WebGL, con movimiento reducido o si ya quedaron arriba) y la raíz de los Dolores no pasa de 0
+  hasta entonces; luego crece hasta donde toca a 1600 px/s (las demos despiertan al llegar ella, no antes). Medido: con 8 golpes de rueda nada más cargar,
+  raíz a 0 a los 0,3 s y crecida a los 5 s, sin errores. «Que empiece totalmente vertical y luego gire» → 150 px rectos hacia abajo antes de la primera
+  curva y el ondeo no entra hasta pasados; el hilo de savia va dentro del fundido del arranque (antes se veía nítido desde el principio).
+- **A media ronda (Eric):** «lo del backdrop/blur queda raro: quitamos» → fuera el desenfoque del arranque (copia borrosa, máscaras y degradados). «Que la raíz
+  vertical case con la raíz central del árbol» → el tramo recto nace en la x de la PUNTA de la raíz central (último punto de `data-eje`), a media altura de
+  la masa de raíces, y baja recto hasta asomar bajo ella. Medido: captura en otoño (Chrome 1440), `astro check` 0 errores.
+- **A media ronda (Eric):** «en esa zona que no se vea la línea, que se vea cuando terminen las raíces del árbol» → máscara `raiz-fuera`: invisible dentro de la
+  masa pintada y fundido de 40 px en su punta. «La segunda sección a veces no carga hasta muy tarde» (la raíz esperaba los 3,6 s de las raíces del árbol) →
+  si las raíces quedan en la mitad de arriba de la pantalla, terminan ×5 más deprisa; la raíz de los Dolores recupera a 3000 px/s. Medido: bajando hasta los
+  Dolores nada más cargar, raíces listas a los 0,95 s (antes ~4 s).
+- **A media ronda (Eric):** «al entrar en la ilustración, la línea más vertical: que gire más arriba y antes, más curva; y al salir igual» → cada demo se entra y
+  se sale por 50 px rectos en vertical; la curva de enlace con tiradores más largos (m 0,38 → 0,5; a 0,62 hacía codos) y el ondeo se calma cerca de las entradas
+  y salidas (`calma`). Medido: captura de toda la sección en otoño (Chrome 1440), `astro check` 0 errores.
+  · **Corrección (Eric: «me has cambiado todos los giros; solo quería cambiar cómo llegaba a la segunda ilustración»):** vuelven todas las curvas de antes
+    (m 0,38, sin tramos rectos) y SOLO la llegada a la segunda demo lleva el tramo recto de 50 px, m 0,5 y el ondeo calmado (`tramo(…, km)`, `k === 1`).
+- **A media ronda (Eric):** «la llegada a la 2, incluso menos de 90º, unos 80º» → llega por un tramo recto de 60 px inclinado 10º y la curva de enlace termina
+  con esa inclinación (`tramo(…, km 0,5, inclina)`); «perfecto». «Y la salida de la ilustración 2 igual, quizás 70º» → sale recta 60 px con 20º hacia la
+  tercera y la curva siguiente arranca con esa inclinación (`inclinaA`). Las demás curvas, sin tocar.
+  · **Corrección (Eric):** la llegada buena era la intermedia, SIN el tramo recto (la curva llega sola con m 0,5 e `inclina` de 10º: unos 60–70º en pantalla).
+  · **Salida de la 2 (Eric: «que replique una curva similar»):** sin tramo recto; la curva hacia la tercera arranca con m 0,5 e inclinación de 10º (espejo de la llegada).
+- **A media ronda (Eric):** «la primera curva más ligera, no tan pronunciada; me gusta que salga recta pero tiene que girar antes» → tramo recto 150 → 110 px
+  (acaba justo bajo la punta pintada), la curva hacia la primera demo con m 0,5 e inclinación de 14º al arrancar, y el ondeo entra más suave (de 110 a 370 px).
+- **A media ronda (Eric):** «la salida de la ilustración 2, un poco más larga, que la visión total sea una curva parecida a la entrada» → ese tramo con m 0,66
+  (antes 0,5). Ojo: es el mismo tramo que llega a la tercera, así que esa llegada también entra algo más vertical.
+- **A media ronda (Eric):** «en verano la rama, un poco más marrón y no tan verde» → verano #6e5235 · #7d6044 · #94785a (raicillas #5e4630); antes oliva.
+- **A media ronda (Eric):** «en primavera el toque rosa, algo más oscuro» → #7a3f4e · #8a4c5c · #a0626f (raicillas #6a3a47).

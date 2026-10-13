@@ -10,13 +10,15 @@
 //     puntos) y las líneas de la letra (base, altura de x, ascendentes); se dibuja al llegar.
 //   · COLOR: cuatro paneles a sangre, uno por estación, con su noche de fondo y su paleta; al pasar por cada uno, la página ENTERA cambia a esa estación
 //     (fijarEstacion: el acento, la barra, el pie) y al salir del tramo vuelve a la de hoy.
-import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Carriles from '../components/Carriles.astro';
-import Pie from '../components/Pie.astro';
-import Cta from '../components/Cta.astro';
-import { flecha } from '../lib/flecha';
-import { icono, ICONO_ESTACION } from '../lib/iconos';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Carriles from '../../components/Carriles.astro';
+import Pie from '../../components/Pie.astro';
+import Cta from '../../components/Cta.astro';
+import { flecha } from '../../lib/flecha';
+import { icono, ICONO_ESTACION } from '../../lib/iconos';
+import { proyectos } from '../../data/proyectos';
+import { capitulos } from '../../data/handbook';
 // RONDA 153 · «en iconografía, más iconos de la librería para mostrar todos los que podemos tener»: una muestra de Iconoir por grupos (en build)
 const ICONOIR = import.meta.glob('/node_modules/iconoir/icons/regular/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const ico = (n: string) => (ICONOIR[`/node_modules/iconoir/icons/regular/${n}.svg`] ?? '').replace(/\s(width|height)="24"/g, '').replace('<svg ', '<svg aria-hidden="true" focusable="false" ');
@@ -28,20 +30,72 @@ const GRUPOS_ICONOS: [string, [string, string][]][] = [
   ['Medios', [['play', 'reproducir'], ['pause', 'pausa'], ['sound-high', 'sonido'], ['sound-off', 'silencio'], ['video-camera', 'vídeo'], ['camera', 'foto'], ['media-image', 'imagen'], ['home-simple', 'inicio']]],
   ['Naturaleza', [['leaf', 'hoja'], ['flower', 'flor'], ['snow-flake', 'copo'], ['sun-light', 'sol'], ['rain', 'lluvia'], ['cloud', 'nube'], ['droplet', 'gota'], ['tree', 'árbol']]],
 ];
-import isoBezier from '../data/isotipo-bezier.json';
-import logoRaw from '../../public/savvia-palabra.svg?raw'; // ronda 145: el logotipo es la palabra en Family (sin isotipo)
+import isoBezier from '../../data/isotipo-bezier.json';
+import logoRaw from '../../../public/savvia-palabra.svg?raw'; // ronda 145: el logotipo es la palabra en Family (sin isotipo)
 
-const indice = [
-  ['logotipo', 'Logotipo'],
-  ['construccion', 'Construcción'],
-  ['color', 'Color y estaciones'],
-  ['tipografia', 'Tipografía'],
-  ['voz', 'Voz'],
-  ['iconografia', 'Iconografía'],
-  ['componentes', 'Componentes'],
-  ['materia', 'Movimiento'],
-  ['aplicaciones', 'Aplicaciones'],
+// RONDA 177 · Eric y Andoni: brandbook y handbook se unifican en «Sistema»: Marca (este libro) · Método (el handbook) · Desarrollo (componentes y
+// sitemap). Marca y Desarrollo comparten este componente (estilos y scripts) y cada página pinta su parte.
+// RONDA 180 · Eric: «en casa del herrero, cuchillo de palo: nuestro sistema tiene que ser como el de Neety de completo; Sistema, donde detallamos todo
+// de diseño y desarrollo, y por otro lado el método». UNA sola página (/sistema) en tres grupos, como la librería de Neety; el Método vive en /metodo.
+import Guia from './Guia.astro';
+import Catalogo from './Catalogo.astro';
+const GRUPOS = [
+  ['Empezar', [['usar', 'Cómo usar este sistema'], ['mapa', 'Sitemap'], ['recibir', 'Recibir el proyecto'], ['conectar', 'Trabajar con Claude'], ['contenido', 'Cambiar contenido'], ['secciones', 'Añadir una sección'], ['paginas', 'Añadir una página'], ['pedir', 'Pedir cambios']]],
+  ['Diseño', [['logotipo', 'Logotipo'], ['construccion', 'Construcción'], ['color', 'Color y estaciones'], ['tipografia', 'Tipografía'], ['espaciado', 'Espaciado y retícula'], ['radios', 'Radios y sombras'], ['voz', 'Voz'], ['iconografia', 'Iconografía'], ['materia', 'Movimiento'], ['aplicaciones', 'Aplicaciones']]],
+  ['Desarrollo', [['stack', 'Stack'], ['componentes', 'Componentes'], ['catalogo', 'Catálogo de secciones'], ['piezas', 'Cómo se hacen las piezas'], ['herramientas', 'Herramientas y skills'], ['mantenimiento', 'Mantenimiento técnico']]],
 ] as const;
+
+// RONDA 176 · Eric: «vamos a poner un sitemap en brandbook». El mapa sale de los datos reales (proyectos.ts, handbook.ts): si se añade un caso o un
+// capítulo, aparece solo. Las secciones de la home, en el orden de index.astro (con su ancla cuando la tienen).
+type Nodo = { t: string; href?: string };
+type Rama = { t: string; ruta: string; nota: string; hijos: Nodo[] };
+// RONDA 178 · Eric: «también cómo hemos hecho los 3D, y skills usadas · tecnología usada, stack». Todo sale del registro (AGENTS.md) y del código.
+type Fila = [string, string];
+const STACK: Fila[] = [
+  ['Astro 7', 'Web estática, una página por ruta, sin framework de componentes en el navegador: cada componente lleva su script en TypeScript y sus estilos acotados. Sin ClientRouter.'],
+  ['Tailwind CSS 4', 'Por su integración de Vite. Los tokens (color por estación, escala tipográfica, espaciado de la guía) viven en src/styles/global.css; spacing-lint vigila que no haya pasos fuera de escala.'],
+  ['TypeScript 6', 'Scripts de componente y librerías propias (src/scripts, src/lib). astro check en verde antes de dar algo por hecho.'],
+  ['Fuentes', 'API de fuentes de Astro, autoalojadas: Family (titulares), Timeless Sans (lectura) y Timeless Grotesk (detalles). Pinyon Script solo en el manifiesto; Bricolage y Switzer, las de Neety en su demo.'],
+  ['Gráficos', 'WebGL para el motor que pinta el roble, las raíces, el paisaje del pie y el manifiesto (src/scripts/estela.ts); Canvas 2D para el tiempo del pie, los retratos y la construcción; SVG para la carga, el logotipo y los iconos.'],
+  ['Movimiento', 'CSS (animaciones atadas al scroll, @property, View Transitions dentro de /proyectos), Web Animations y requestAnimationFrame. Ninguna librería de animación.'],
+  ['Sonido', 'Web Audio y <audio>: la radio de la barra (piezas igualadas a −18 LUFS, fundidos cruzados), los clics y los efectos de la mesa.'],
+  ['Iconos', 'Iconoir (MIT) para la interfaz; las cuatro estaciones, dibujadas por nosotros en su misma rejilla.'],
+  ['Publicación', 'Repositorio privado en GitHub → una Action llama al Deploy Hook de Vercel → savvia.studio. Sigue con noindex.'],
+  ['Verificación', 'tools/verify.cjs con Playwright: Chrome real y WebKit, a 1280×720 y 390×844 (consola limpia, cero respuestas ≥ 400, sin desborde). Hoy lleva una ruta fija del Mac de Andoni: en otro ordenador hay que cambiarla.'],
+];
+const PIEZAS: [string, string, string][] = [
+  ['El roble del hero', 'Cuatro acuarelas de Andoni, una por estación.', 'Se recortan con Python (tools/r66-robles.py: alfa, partidas por la línea de suelo en árbol y raíces, alineadas por el tronco) y las pinta en vivo el motor estela.ts: dibujo a líneas, pintura con canto rasgado, semitono y hervor. Antes hubo un roble 3D modelado por script en Blender 5.2 con Cycles (tools/blender/roble.py): quedó de molde y se retiró.'],
+  ['La mesa de Proyectos', 'Cuatro láminas de Andoni a 7680 × 4320, una por estación.', 'Se sacan a 1600, 2560 y 5120 px; la pantalla del monitor se midió por inundación en las cuatro. Encima, el mockup de arriba.'],
+  ['Eric y Andoni', 'Las poses de los dos en 3D: 12 por serie más la foto de los dos juntos.', 'tools/r141-equipo/montar.cjs ajusta escala y sitio de cada pose por solape con la foto y las monta en tiras webp; Estudio.astro las reproduce: la llegada y, al pasar, el gesto de cada uno a 11 fps con fundidos hacia la foto.'],
+  ['Las webs de los proyectos', 'La web real de cada cliente.', 'Grabadas en Chrome real con Playwright (tools/grabar-paso.cjs: scroll exacto por fotograma, 30 fps, mp4 h264) y capturas a 1710 px. Kuanta y Arkdev, en marca blanca: se cambian textos y logotipos interceptando la web al grabar.'],
+  ['El reel', 'Las grabaciones de las webs.', 'Compuesto en HyperFrames (HTML que se renderiza a vídeo): cinco webs que se construyen en su pantalla, firmas de cada una y el cierre; música de Pixabay con los cortes al pulso.'],
+  ['Flora, óleos y fotos', 'Láminas de Andoni y fotos con licencia.', 'Recortadas con tools/recorte.py y sharp (alfa por distancia al blanco, sin halo) y, las que se mueven, pintadas con el mismo motor del roble.'],
+  ['Isotipo y logotipo', 'El dibujo de Andoni y «savvia» en Family.', 'El isotipo se ajustó a curvas de Bézier (tools/r154/isotipo-bezier.cjs) para animar su construcción; la palabra se pasó a contornos con fontTools.'],
+  ['Sonidos', 'Grabaciones de Pixabay (efectos) y la radio (HoliznaCC0).', 'Recortadas en bucles y normalizadas con ffmpeg (loudnorm a dos pasadas). Licencias en tools/fuentes-sonido.md.'],
+];
+const HERRAMIENTAS: Fila[] = [
+  ['Claude Code', 'El estudio trabaja con agentes: uno principal que lleva el registro de rondas (AGENTS.md) y subagentes en paralelo para piezas grandes (manifiesto, lab, handbook, casos de estudio).'],
+  ['HyperFrames', 'Para el reel: composiciones en HTML renderizadas a vídeo, con sus comprobaciones de contraste y de fotogramas negros.'],
+  ['web-perf-forensics', 'La skill con la que se midió y arregló el rendimiento de la ronda 76 (contextos WebGL, tareas largas al volver a subir).'],
+  ['Artifacts de Claude', 'Lienzos para comparar variantes antes de decidir (las siete del isotipo, por ejemplo).'],
+  ['Agentation', 'Notas sobre la propia web, pegadas a cada elemento, para pasarle feedback al agente. En local va siempre.'],
+  ['Ship Studio', 'La vista previa en vivo mientras se trabaja.'],
+  ['Playwright', 'Las pruebas en Chrome y WebKit y las grabaciones de las webs.'],
+  ['sharp, ffmpeg, Python', 'Imágenes (recortes, tiras, capturas), vídeo y audio; Pillow, numpy, scikit-image y fontTools para medir y recortar; librosa para el pulso de la música; Blender para el roble 3D de molde.'],
+];
+const mapa: Rama[] = [
+  { t: 'Inicio', ruta: '/', nota: 'La home', hijos: [
+    { t: 'Hero', href: '/' }, { t: 'Los dolores', href: '/#recorrido-a2' }, { t: 'Proyectos destacados', href: '/#proyectos' }, { t: 'Más proyectos', href: '/#anteriores' },
+    { t: 'Servicios', href: '/#servicios' }, { t: 'savvia agentic', href: '/#la-savvia' }, { t: 'Eric y Andoni', href: '/#estudio' }, { t: 'Preguntas', href: '/#preguntas' }, { t: 'Pie · Contáctanos' },
+  ] },
+  { t: 'Portfolio', ruta: '/proyectos', nota: `${proyectos.length} casos`, hijos: proyectos.map((p) => ({ t: p.nombre, href: `/proyectos/${p.slug}` })) },
+  { t: 'Lab', ruta: '/lab', nota: 'Experimentos', hijos: [] },
+  { t: 'Manifiesto', ruta: '/manifiesto', nota: 'Tres principios', hijos: [] },
+  { t: 'Sistema', ruta: '/sistema', nota: 'Diseño y desarrollo', hijos: GRUPOS.map(([g, xs]) => ({ t: g, href: `#${xs[0][0]}` })) },
+  { t: 'Método', ruta: '/metodo', nota: `${capitulos.length} capítulos`, hijos: capitulos.map((c) => ({ t: `${c.num} · ${c.titulo}`, href: `/metodo/${c.slug}` })) },
+  { t: 'Bajo tierra', ruta: '/404', nota: 'Página no encontrada', hijos: [] },
+];
+const nPaginas = 1 + 1 + proyectos.length + 2 + 2 + capitulos.length + 1; // inicio · portfolio + casos · lab, manifiesto · sistema, método + capítulos · 404
 
 // ── LA CONSTRUCCIÓN: anclas y manejadores de cada trazo del logotipo (comandos absolutos)
 const trazos = [...logoRaw.matchAll(/ d="([^"]+)"/g)].map((m) => m[1]);
@@ -96,7 +150,8 @@ const escala = [
   ['H1', 'var(--text-h1)', '44 → 72', 'Family 400', 'display'],
   ['H2', 'var(--text-h2)', '34 → 48', 'Family 400', 'display'],
   ['H3', 'var(--text-h3)', '26 → 32', 'Family 400', 'display'],
-  ['Lead', 'var(--text-lead)', '20', 'Timeless Sans 420', 'sans'],
+  ['Lead', 'var(--text-lead)', '20', 'Timeless Sans 300', 'sans'],
+  ['Subtítulo', 'var(--text-sub)', '18', 'Timeless Sans 300', 'sans'],
   ['Cuerpo', 'var(--text-body)', '17 → 18', 'Timeless Sans 420', 'sans'],
   ['Interfaz', 'var(--text-ui)', '16', 'Timeless Sans 500', 'sans'],
   ['Detalle', 'var(--text-detail)', '13', 'Timeless Grotesk 300', 'grot'],
@@ -106,34 +161,66 @@ const noSeDice = ['prompt', 'vibe coding', '«lavado de cara»', 'años de exper
 const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25" /><path d="M6 10.4 8.7 13 14 7.2" pathLength="1" /></svg>`;
 ---
 
-<Base title="Brandbook — savvia" description="El sistema de marca de savvia: logotipo y su construcción, color por estaciones, tipografía, voz, componentes y movimiento." carga={false}>
+<Base title="Sistema — savvia" description="El sistema de savvia: cómo usarlo, la marca y su diseño, y cómo está construida la web, de los tokens a cada componente." carga={false}>
   <Nav />
   <Carriles />
   <main id="contenido" class="libro surface-light">
     <div class="wrap marco-libro">
-      <nav class="indice" aria-label="Secciones del brandbook">
-        <p class="detail detail-caps text-fg2">Brandbook</p>
-        <ol>
-          {indice.map(([id, t], i) => (
-            <li><a href={`#${id}`} data-ir={id}><span class="detail n">{String(i + 1).padStart(2, '0')}</span>{t}</a></li>
-          ))}
-        </ol>
+      <nav class="indice" aria-label="Secciones del sistema">
+        <p class="detail detail-caps text-fg2"><a href="/sistema">Sistema</a></p>
+        {GRUPOS.map(([g, xs]) => (<>
+          <p class="detail detail-caps text-fg2 indice-g">{g}</p>
+          <ol>
+            {xs.map(([id, t]) => (
+              <li><a href={`#${id}`} data-ir={id}>{t}</a></li>
+            ))}
+          </ol>
+        </>))}
       </nav>
 
       <div class="hojas">
         <header class="portada">
-          <h1 class="font-display titular" data-entra>La marca, en una página.</h1>
-          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Cómo se ve, cómo suena y cómo se mueve savvia. Todo lo que hay aquí sale del sistema real de la web.</p>
+          <h1 class="font-display titular" data-entra>Sistema.</h1>
+          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Todo lo que hace que esta web sea de savvia, de la marca al código: cómo se ve, cómo suena, cómo se mueve y cómo está construida. Escrito para que lo lea tu equipo y cualquier agente. Cómo hacemos los proyectos está en el <a class="link" href="/metodo">Método</a>.</p>
           <div class="cubierta">
             <span class="logo-masc" role="img" aria-label="savvia"></span>
             <span class="detail pie-cub">savvia · desde 2020</span>
           </div>
         </header>
 
-        <!-- 01 · LOGOTIPO -->
+
+        <p class="detail detail-caps grupo-rotulo" id="g-empezar">Empezar</p>
+        <Guia bloque="empezar" />
+        {/* RONDA 176 · MAPA DEL SITIO */}
+        <section id="mapa" class="seccion" aria-labelledby="h-mapa">
+          <h2 id="h-mapa" class="font-display text-h2">Sitemap</h2>
+          <p class="cuerpo">Cómo está hecha la web: {nPaginas} páginas que cuelgan de una sola raíz. El menú lleva a Servicios, Portfolio, Lab y Manifiesto; el Sistema, en pequeño, debajo.</p>
+          <div class="mapa">
+            <p class="m-raiz"><span class="font-display">savvia.studio</span></p>
+            <ol class="m-ramas">
+              {mapa.map((r) => (
+                <li class="m-rama">
+                  <a class="m-pag" href={r.ruta === '/404' ? '/404' : r.ruta}>
+                    <span class="detail m-ruta">{r.ruta}</span>
+                    <span class="font-display m-t">{r.t}</span>
+                    <span class="detail m-nota">{r.nota}</span>
+                  </a>
+                  {r.hijos.length > 0 && (
+                    <ul class="m-hijos">
+                      {r.hijos.map((h) => <li>{h.href ? <a href={h.href}>{h.t}</a> : <span>{h.t}</span>}</li>)}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <p class="detail detail-caps grupo-rotulo" id="g-diseno">Diseño</p>
+        {/* 01 · LOGOTIPO */}
         <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
           <h2 id="h-logotipo" class="font-display text-h2">Logotipo</h2>
-          <!-- RONDA 153 · «en el brandbook hay que poner el logo nuevo con todos los colores, su construcción, la construcción del isotipo» -->
+          {/* RONDA 153 · «en el brandbook hay que poner el logo nuevo con todos los colores, su construcción, la construcción del isotipo» */}
           <p class="cuerpo">El logotipo son dos piezas: el isotipo —una gota que da la vuelta— y la palabra «savvia» en Family, la letra de los titulares, siempre en minúscula. Juntos, en una sola línea; el isotipo, solo, donde no cabe la palabra (avatares, la carga). El favicon no lleva isotipo: es el fondo de la estación con el roble en pequeño (abajo).</p>
           <div class="fila f2">
             <figure class="placa oscura grande"><span class="lockup" role="img" aria-label="savvia sobre Cacao"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Sobre Cacao · Blanco</figcaption></figure>
@@ -159,8 +246,8 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             <li><b>Aire</b> alrededor, como mínimo, la altura de x de la palabra.</li>
             <li><b>Sí</b> macizo, en el blanco o en la tinta de la estación, sobre fondo liso. <b>No</b> se estira, no se gira, no lleva sombra ni degradado.</li>
           </ul>
-          <!-- RONDA 156 · Eric: «si no hacemos isotipo en el favicon, tiene que estar solo el background principal, y ese background se cambia con la
-               estación; igual sí que podemos poner el árbol en pequeño» · «¿el cambio puede ser smooth?» -->
+          {/* RONDA 156 · Eric: «si no hacemos isotipo en el favicon, tiene que estar solo el background principal, y ese background se cambia con la
+               estación; igual sí que podemos poner el árbol en pequeño» · «¿el cambio puede ser smooth?» */}
           <h3 class="font-display text-h3 mt-24">El favicon</h3>
           <p class="cuerpo">Sin isotipo. Es el fondo principal de la web en la estación que toca, con su roble en pequeño: el mismo árbol del hero, con el pie abajo. Cambia con la estación: si la cambias en la web, la pestaña se funde al icono nuevo en poco más de un segundo.</p>
           <div class="fila f4 fav-est">
@@ -175,10 +262,10 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           </ul>
         </section>
 
-        <!-- 02 · CONSTRUCCIÓN -->
+        {/* 02 · CONSTRUCCIÓN */}
         <section id="construccion" class="seccion" aria-labelledby="h-construccion">
           <h2 id="h-construccion" class="font-display text-h2">Construcción</h2>
-          <p class="cuerpo">La palabra, en Family 400 con un apretado de −0,02 em: {anclas.length} anclas y {controles.length} manejadores. Las letras viven entre la línea base y la altura de x; solo el punto de la i sube hasta las ascendentes.</p>
+          <p class="cuerpo">La palabra, en Family 400 con un apretado de −0,045 em (y las v algo más separadas: «sa» −26, la v −52, «ia» +28 en unidades de la fuente): {anclas.length} anclas y {controles.length} manejadores. Las letras viven entre la línea base y la altura de x; solo el punto de la i sube hasta las ascendentes.</p>
           <figure class="construccion" data-construccion>
             <svg viewBox="-20 -720 2500 770" aria-hidden="true">
               <g class="guias">
@@ -195,9 +282,9 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             <figcaption class="detail leyenda"><span><i class="lg-a"></i>ancla</span><span><i class="lg-c"></i>manejador</span><span><i class="lg-g"></i>líneas de la letra</span></figcaption>
           </figure>
 
-          <!-- RONDA 153 · «la construcción del isotipo más de este estilo (casabien.com/proyectos/identidad-visual-taqta), acompañándolo de imágenes»: una
+          {/* RONDA 153 · «la construcción del isotipo más de este estilo (casabien.com/proyectos/identidad-visual-taqta), acompañándolo de imágenes»: una
                retícula editorial de piezas a sangre, oscuras y claras, pegadas: el diagrama de construcción, la secuencia REAL de la carga (la gota lo dibuja;
-               fotogramas de la propia web), el trazo, el remate, el roble, las aplicaciones y las frases del significado entre medias -->
+               fotogramas de la propia web), el trazo, el remate, el roble, las aplicaciones y las frases del significado entre medias */}
           <h3 class="font-display text-h3 sub-bb">El isotipo</h3>
           <div class="iso-galeria">
             <figure class="pz pz-osc pz-ancha construccion iso-cons" data-construccion>
@@ -225,9 +312,9 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
               <svg viewBox="22 0 22 22" aria-hidden="true"><path class="rm-iso" d="M19.79 9.04 L19.50 9.20 L19.21 9.36 L18.93 9.53 L18.64 9.69 L18.36 9.87 L18.08 10.04 L17.80 10.22 L17.53 10.40 L17.25 10.59 L16.98 10.78 L16.71 10.97 L16.45 11.17 L16.18 11.36 L15.92 11.57 L15.66 11.77 L15.41 11.98 L15.15 12.20 L14.90 12.41 L14.66 12.63 L14.41 12.85 L14.17 13.08 L13.93 13.31 L13.69 13.54 L13.46 13.77 L13.23 14.01 L13.00 14.25 L12.78 14.49 L12.56 14.74 L12.34 14.99 L12.12 15.24 L11.91 15.49 L11.70 15.75 L11.50 16.01 L11.30 16.27 L11.10 16.53 L10.90 16.80 L10.71 17.07 L10.53 17.34 L10.34 17.62 L10.16 17.89 L9.98 18.17 L9.81 18.45 L9.64 18.74 L9.47 19.02 L9.31 19.31 L9.15 19.60 L8.99 19.89 L8.84 20.18 L8.69 20.48 L8.55 20.78 L8.41 21.08 L8.27 21.38 L8.14 21.68 L8.01 21.98 L7.88 22.29 L7.76 22.60 L7.64 22.91 L7.53 23.22 L7.42 23.53 L7.31 23.84 L7.21 24.16 L7.11 24.47 L7.02 24.79 L6.93 25.11 L6.84 25.43 L6.76 25.75 L6.69 26.07 L6.61 26.39 L6.54 26.71 L6.48 27.04 L6.42 27.36 L6.36 27.69 L6.31 28.02 L6.26 28.34 L6.21 28.67 L6.17 29.00 L6.14 29.33 L6.11 29.66 L6.08 29.99 L6.05 30.32 L6.04 30.65 L6.02 30.98 L6.01 31.31 L6.00 31.64 L6.00 31.97 L6.00 32.30 L6.01 32.63 L6.02 32.96 L6.03 33.29 L6.05 33.62 L6.07 33.95 L6.10 34.28 L6.13 34.61 L6.17 34.94 L6.21 35.27 L6.25 35.59 L6.30 35.92 L6.35 36.25 L6.41 36.57 L6.47 36.90 L6.53 37.22 L6.60 37.55 L6.67 37.87 L6.75 38.19 L6.83 38.51 L6.91 38.83 L7.00 39.15 L7.09 39.47 L7.19 39.78 L7.29 40.10 L7.40 40.41 L7.51 40.72 L7.62 41.03 L7.74 41.34 L7.86 41.65 L7.98 41.96 L8.11 42.26 L8.24 42.56 L8.38 42.86 L8.52 43.16 L8.66 43.46 L8.81 43.76 L8.96 44.05 L9.12 44.34 L9.28 44.63 L9.44 44.92 L9.60 45.21 L9.77 45.49 L9.95 45.77 L10.12 46.05 L10.30 46.33 L10.49 46.60 L10.68 46.88 L10.87 47.15 L11.06 47.41 L11.26 47.68 L11.46 47.94 L11.66 48.20 L11.87 48.46 L12.08 48.71 L12.30 48.96 L12.51 49.21 L12.73 49.46 L12.96 49.70 L13.18 49.94 L13.41 50.18 L13.65 50.42 L13.88 50.65 L14.12 50.88 L14.36 51.10 L14.61 51.33 L14.85 51.55 L15.10 51.76 L15.36 51.98 L15.61 52.19 L15.87 52.39 L16.13 52.60 L16.39 52.80 L16.66 52.99 L16.93 53.19 L17.20 53.38 L17.47 53.56 L17.75 53.75 L18.02 53.92 L18.30 54.10 L18.59 54.27 L18.87 54.44 L19.16 54.61 L19.45 54.77 L19.74 54.93 L20.03 55.08 L20.32 55.23 L20.62 55.38 L20.92 55.52 L21.22 55.66 L21.52 55.79 L21.82 55.93 L22.13 56.05 L22.43 56.18 L22.74 56.30 L23.05 56.41 L23.36 56.52 L23.68 56.63 L23.99 56.74 L24.31 56.84 L24.62 56.93 L24.94 57.02 L25.26 57.11 L25.58 57.19 L25.90 57.27 L26.22 57.35 L26.54 57.42 L26.87 57.49 L27.19 57.55 L27.52 57.61 L27.84 57.67 L28.17 57.72 L28.50 57.76 L28.82 57.81 L29.15 57.84 L29.48 57.88 L29.81 57.91 L30.14 57.93 L30.47 57.96 L30.80 57.97 L31.13 57.99 L31.46 57.99 L31.79 58.00 L32.12 58.00 L32.45 58.00 L32.78 57.99 L33.11 57.98 L33.44 57.96 L33.77 57.94 L34.10 57.91 L34.43 57.89 L34.76 57.85 L35.09 57.82 L35.42 57.77 L35.75 57.73 L36.07 57.68 L36.40 57.63 L36.73 57.57 L37.05 57.50 L37.37 57.44 L37.70 57.37 L38.02 57.29 L38.34 57.22 L38.66 57.13 L38.98 57.05 L39.30 56.95 L39.61 56.86 L39.93 56.76 L40.24 56.66 L40.56 56.55 L40.87 56.44 L41.18 56.33 L41.49 56.21 L41.79 56.08 L42.10 55.96 L42.40 55.83 L42.71 55.69 L43.01 55.56 L43.30 55.41 L43.60 55.27 L43.90 55.12 L44.19 54.97 L44.48 54.81 L44.77 54.65 L45.06 54.48 L45.34 54.32 L45.62 54.14 L45.90 53.97 L46.18 53.79 L46.46 53.61 L46.73 53.42 L47.00 53.23 L47.27 53.04 L47.54 52.85 L47.80 52.65 L48.06 52.44 L48.32 52.24 L48.58 52.03 L48.83 51.82 L49.08 51.60 L49.33 51.38 L49.57 51.16 L49.82 50.94 L50.06 50.71 L50.29 50.48 L50.53 50.24 L50.76 50.01 L50.98 49.77 L51.21 49.52 L51.43 49.28 L51.65 49.03 L51.86 48.78 L52.07 48.52 L52.28 48.27 L52.49 48.01 L52.69 47.75 L52.89 47.48 L53.08 47.21 L53.28 46.94 L53.46 46.67 L53.65 46.40 L53.83 46.12 L54.01 45.84 L54.18 45.56 L54.35 45.28 L54.52 44.99 L54.68 44.71 L54.84 44.42 L55.00 44.13 L55.15 43.83 L55.30 43.54 L55.44 43.24 L55.59 42.94 L55.72 42.64 L55.86 42.34 L55.99 42.03 L56.11 41.73 L56.23 41.42 L56.35 41.11 L56.47 40.80 L56.58 40.49 L56.68 40.18 L56.78 39.86 L56.88 39.55 L56.97 39.23 L57.06 38.91 L57.15 38.59 L57.23 38.27 L57.31 37.95 L57.38 37.63 L57.45 37.30 L57.52 36.98 L57.58 36.66 L57.64 36.33 L57.69 36.00 L57.74 35.68 L57.78 35.35 L57.82 35.02 L57.86 34.69 L57.89 34.36 L57.92 34.03 L57.94 33.70 L57.96 33.37 L57.98 33.04 L57.99 32.71 L58.00 32.38 L58.00 32.05 L58.00 31.72 L57.99 31.39 L57.98 31.06 L57.97 30.73 L57.95 30.40 L57.93 30.07 L57.90 29.74 L57.87 29.41 L57.84 29.08 L57.80 28.75 L57.75 28.43 L57.71 28.10 L57.65 27.77 L57.60 27.45 L57.54 27.12 L57.47 26.80 L57.41 26.47 L57.33 26.15 L57.26 25.83 L57.18 25.51 L57.09 25.19 L57.00 24.87 L56.91 24.55 L56.81 24.24 L56.71 23.92 L56.61 23.61 L56.50 23.30 L56.39 22.99 L56.27 22.68 L56.15 22.37 L56.03 22.06 L55.90 21.76 L55.77 21.45 L55.63 21.15 L55.49 20.85 L55.35 20.56 L55.20 20.26 L55.05 19.97 L54.89 19.67 L54.73 19.38 L54.57 19.10 L54.41 18.81 L54.24 18.53 L54.06 18.24 L53.89 17.96 L53.71 17.69 L53.52 17.41 L53.34 17.14 L53.14 16.87 L52.95 16.60 L52.75 16.34 L52.55 16.07 L52.35 15.81 L52.14 15.56 L51.93 15.30 L51.72 15.05 L51.50 14.80 L51.28 14.55 L51.05 14.31 L50.83 14.07 L50.60 13.83 L50.37 13.60 L50.13 13.36 L49.89 13.14 L49.65 12.91 L49.41 12.69 L49.16 12.47 L48.91 12.25 L48.66 12.04 L48.40 11.83 L48.14 11.62 L47.88 11.42 L47.62 11.22 L47.36 11.02 L47.09 10.83 L46.82 10.64 L46.54 10.45 L46.27 10.27 L45.99 10.09 L45.71 9.91 L45.43 9.74 L45.15 9.57 L44.86 9.40 L44.57 9.24 L44.28 9.08 L43.99 8.93 L43.69 8.78 L43.40 8.63 L43.21 8.54 L43.01 8.44 L42.82 8.34 L42.63 8.24 L42.44 8.14 L42.25 8.03 L42.06 7.91 L41.88 7.80 L41.69 7.68 L41.50 7.56 L41.31 7.44 L41.12 7.31 L40.93 7.19 L40.74 7.06 L40.55 6.93 L40.35 6.80 L40.16 6.67 L39.96 6.54 L39.76 6.41 L39.55 6.28 L39.35 6.15 L39.13 6.02 L38.92 5.89 L38.70 5.76 L38.48 5.64 L38.26 5.52 L38.03 5.40 L37.79 5.28 L37.55 5.17 L37.31 5.06 L37.06 4.95 L36.81 4.85 L36.55 4.76 L36.28 4.67 L36.01 4.59 L35.73 4.52 L35.45 4.45 L35.17 4.40 L34.87 4.35 L34.58 4.31 L34.27 4.29 L33.97 4.27 L33.66 4.27 L33.34 4.28 L33.02 4.30 L32.70 4.34 L32.38 4.39 L32.05 4.45 L31.73 4.54 L31.47 4.61 L30.92 4.83 L30.41 5.13 L29.94 5.48 L29.53 5.89 L29.16 6.36 L28.87 6.87 L28.64 7.41 L28.48 7.98 L28.40 8.56 L28.40 9.15 L28.47 9.73 L28.62 10.30 L28.85 10.84 L29.14 11.36 L29.49 11.82 L29.91 12.24 L30.37 12.60 L30.88 12.90 L31.42 13.13 L31.99 13.28 L32.57 13.36 L33.16 13.37 L33.74 13.29 L34.31 13.14 L34.43 13.09 L34.49 13.06 L34.55 13.03 L34.62 12.99 L34.69 12.94 L34.76 12.89 L34.84 12.84 L34.93 12.79 L35.02 12.73 L35.12 12.68 L35.22 12.62 L35.33 12.56 L35.44 12.50 L35.56 12.44 L35.68 12.38 L35.81 12.32 L35.94 12.26 L36.08 12.20 L36.23 12.14 L36.37 12.09 L36.53 12.04 L36.68 11.99 L36.84 11.94 L37.00 11.89 L37.17 11.85 L37.34 11.81 L37.51 11.77 L37.69 11.74 L37.86 11.71 L38.04 11.69 L38.22 11.67 L38.41 11.65 L38.59 11.64 L38.77 11.63 L38.96 11.63 L39.14 11.63 L39.33 11.63 L39.51 11.64 L39.70 11.66 L39.88 11.68 L40.07 11.71 L40.25 11.74 L40.43 11.78 L40.61 11.83 L40.79 11.88 L40.96 11.93 L41.14 12.00 L41.31 12.07 L41.47 12.14 L41.64 12.23 L41.89 12.35 L42.14 12.48 L42.39 12.61 L42.64 12.74 L42.88 12.88 L43.12 13.02 L43.36 13.16 L43.60 13.31 L43.84 13.46 L44.07 13.61 L44.31 13.76 L44.54 13.92 L44.77 14.08 L44.99 14.25 L45.22 14.41 L45.44 14.58 L45.66 14.76 L45.88 14.93 L46.10 15.11 L46.31 15.29 L46.52 15.47 L46.73 15.66 L46.94 15.85 L47.14 16.04 L47.34 16.23 L47.54 16.43 L47.74 16.63 L47.93 16.83 L48.12 17.03 L48.31 17.24 L48.50 17.45 L48.68 17.66 L48.86 17.87 L49.04 18.09 L49.22 18.30 L49.39 18.52 L49.56 18.75 L49.73 18.97 L49.89 19.20 L50.05 19.43 L50.21 19.66 L50.37 19.89 L50.52 20.12 L50.67 20.36 L50.82 20.60 L50.96 20.84 L51.10 21.08 L51.24 21.32 L51.37 21.57 L51.50 21.82 L51.63 22.07 L51.75 22.32 L51.88 22.57 L51.99 22.82 L52.11 23.08 L52.22 23.33 L52.33 23.59 L52.43 23.85 L52.54 24.11 L52.64 24.37 L52.73 24.64 L52.82 24.90 L52.91 25.17 L53.00 25.43 L53.08 25.70 L53.16 25.97 L53.23 26.24 L53.30 26.51 L53.37 26.78 L53.44 27.05 L53.50 27.32 L53.56 27.60 L53.61 27.87 L53.66 28.15 L53.71 28.42 L53.75 28.70 L53.79 28.98 L53.83 29.25 L53.86 29.53 L53.89 29.81 L53.92 30.09 L53.94 30.37 L53.96 30.65 L53.97 30.93 L53.99 31.20 L53.99 31.48 L54.00 31.76 L54.00 32.04 L54.00 32.32 L53.99 32.60 L53.98 32.88 L53.97 33.16 L53.95 33.44 L53.93 33.72 L53.91 34.00 L53.88 34.28 L53.85 34.56 L53.82 34.83 L53.78 35.11 L53.74 35.39 L53.69 35.66 L53.64 35.94 L53.59 36.21 L53.54 36.49 L53.48 36.76 L53.42 37.03 L53.35 37.31 L53.28 37.58 L53.21 37.85 L53.13 38.12 L53.05 38.38 L52.97 38.65 L52.88 38.92 L52.79 39.18 L52.70 39.45 L52.60 39.71 L52.51 39.97 L52.40 40.23 L52.30 40.49 L52.19 40.75 L52.07 41.00 L51.96 41.26 L51.84 41.51 L51.72 41.76 L51.59 42.01 L51.46 42.26 L51.33 42.51 L51.19 42.75 L51.06 43.00 L50.91 43.24 L50.77 43.48 L50.62 43.71 L50.47 43.95 L50.32 44.18 L50.16 44.42 L50.00 44.65 L49.84 44.87 L49.68 45.10 L49.51 45.32 L49.34 45.54 L49.16 45.76 L48.99 45.98 L48.81 46.20 L48.63 46.41 L48.44 46.62 L48.25 46.83 L48.06 47.03 L47.87 47.24 L47.68 47.44 L47.48 47.63 L47.28 47.83 L47.08 48.02 L46.87 48.21 L46.66 48.40 L46.45 48.59 L46.24 48.77 L46.03 48.95 L45.81 49.12 L45.59 49.30 L45.37 49.47 L45.15 49.64 L44.92 49.80 L44.69 49.97 L44.47 50.13 L44.23 50.28 L44.00 50.44 L43.77 50.59 L43.53 50.74 L43.29 50.88 L43.05 51.03 L42.80 51.16 L42.56 51.30 L42.31 51.43 L42.07 51.56 L41.82 51.69 L41.57 51.81 L41.31 51.93 L41.06 52.05 L40.80 52.16 L40.55 52.27 L40.29 52.38 L40.03 52.48 L39.77 52.58 L39.50 52.68 L39.24 52.77 L38.98 52.86 L38.71 52.95 L38.44 53.04 L38.17 53.12 L37.91 53.19 L37.64 53.27 L37.36 53.34 L37.09 53.40 L36.82 53.47 L36.55 53.52 L36.27 53.58 L36.00 53.63 L35.72 53.68 L35.45 53.73 L35.17 53.77 L34.89 53.81 L34.62 53.84 L34.34 53.88 L34.06 53.90 L33.78 53.93 L33.50 53.95 L33.22 53.97 L32.94 53.98 L32.66 53.99 L32.38 54.00 L32.10 54.00 L31.82 54.00 L31.54 54.00 L31.27 53.99 L30.99 53.98 L30.71 53.96 L30.43 53.94 L30.15 53.92 L29.87 53.89 L29.59 53.86 L29.31 53.83 L29.04 53.79 L28.76 53.75 L28.49 53.70 L28.21 53.65 L27.94 53.59 L27.67 53.52 L27.40 53.45 L27.13 53.38 L26.86 53.29 L26.60 53.19 L26.34 53.09 L26.08 52.98 L25.83 52.85 L25.58 52.71 L25.34 52.56 L25.11 52.39 L24.88 52.21 L24.67 52.01 L24.46 51.79 L24.26 51.56 L24.08 51.31 L23.90 51.04 L23.74 50.75 L23.59 50.45 L23.46 50.13 L23.33 49.80 L23.23 49.46 L23.13 49.10 L23.05 48.74 L22.97 48.37 L22.91 48.00 L22.86 47.62 L22.81 47.25 L22.77 46.89 L22.74 46.53 L22.71 46.18 L22.68 45.84 L22.64 45.51 L22.61 45.20 L22.57 44.91 L22.52 44.63 L22.47 44.37 L22.41 44.12 L22.34 43.89 L22.27 43.68 L22.18 43.48 L22.09 43.30 L21.99 43.13 L21.88 42.96 L21.77 42.81 L21.65 42.66 L21.53 42.51 L21.41 42.36 L21.29 42.22 L21.16 42.07 L21.03 41.94 L20.90 41.81 L20.75 41.69 L20.59 41.57 L20.42 41.47 L20.24 41.37 L20.04 41.28 L19.83 41.20 L19.61 41.12 L19.37 41.05 L19.12 40.99 L18.85 40.92 L18.58 40.86 L18.30 40.80 L18.01 40.73 L17.72 40.67 L17.43 40.59 L17.14 40.51 L16.85 40.42 L16.57 40.32 L16.30 40.21 L16.04 40.09 L15.79 39.96 L15.56 39.82 L15.35 39.66 L15.15 39.49 L14.97 39.31 L14.81 39.12 L14.67 38.92 L14.56 38.72 L14.46 38.50 L14.38 38.28 L14.31 38.05 L14.26 37.81 L14.23 37.57 L14.21 37.33 L14.21 37.09 L14.21 36.84 L14.22 36.60 L14.25 36.35 L14.27 36.11 L14.31 35.86 L14.34 35.62 L14.38 35.38 L14.43 35.14 L14.47 34.90 L14.51 34.67 L14.56 34.43 L14.60 34.20 L14.64 33.97 L14.68 33.75 L14.72 33.52 L14.76 33.30 L14.79 33.07 L14.83 32.85 L14.86 32.63 L14.88 32.41 L14.91 32.20 L14.94 31.98 L14.96 31.76 L14.98 31.55 L15.00 31.33 L15.02 31.11 L15.03 30.90 L15.05 30.68 L15.07 30.47 L15.09 30.25 L15.11 30.04 L15.13 29.82 L15.15 29.61 L15.17 29.39 L15.18 29.17 L15.20 28.96 L15.21 28.74 L15.22 28.52 L15.23 28.30 L15.24 28.07 L15.24 27.85 L15.24 27.62 L15.25 27.39 L15.24 27.16 L15.24 26.93 L15.24 26.70 L15.23 26.46 L15.22 26.22 L15.22 25.98 L15.21 25.73 L15.20 25.48 L15.19 25.23 L15.18 24.98 L15.18 24.73 L15.17 24.47 L15.17 24.21 L15.17 23.94 L15.17 23.68 L15.17 23.41 L15.17 23.15 L15.18 22.88 L15.20 22.60 L15.22 22.33 L15.24 22.06 L15.27 21.79 L15.30 21.51 L15.33 21.24 L15.37 20.95 L15.40 20.67 L15.43 20.38 L15.47 20.09 L15.51 19.80 L15.55 19.50 L15.59 19.20 L15.64 18.90 L15.69 18.60 L15.75 18.30 L15.81 17.99 L15.88 17.69 L15.95 17.38 L16.03 17.08 L16.11 16.77 L16.20 16.46 L16.29 16.16 L16.39 15.85 L16.50 15.55 L16.61 15.25 L16.73 14.94 L16.85 14.64 L16.98 14.34 L17.11 14.04 L17.25 13.74 L17.40 13.44 L17.55 13.14 L17.70 12.85 L17.86 12.55 L18.03 12.26 L18.20 11.97 L18.38 11.67 L18.56 11.38 L18.75 11.10 L18.94 10.81 L19.14 10.52 L19.34 10.24 L19.55 9.96 L19.76 9.68 L19.98 9.40Z" /><circle class="rm-guia" cx="32.9" cy="8.8" r="4.6" /></svg>
               <figcaption class="detail pz-pie">El remate · la savia que alimenta lo que está por crecer</figcaption>
             </figure>
-            <!-- RONDA 154 · «la captura la quiero cambiar por imágenes reales de naturaleza que tengan relación con el isotipo» · «en todas, el isotipo encima»:
+            {/* RONDA 154 · «la captura la quiero cambiar por imágenes reales de naturaleza que tengan relación con el isotipo» · «en todas, el isotipo encima»:
                  el brote de helecho que se enrosca (el círculo que remata en bola), los anillos del tronco (lo que crece) y la gota que cuelga (la savia).
-                 Ronda 155: los créditos no se ven (fotos: Soc Nang Dương y Wal_, licencia Pexels; la gota, de Andoni), las tres a la misma altura y el isotipo centrado -->
+                 Ronda 155: los créditos no se ven (fotos: Soc Nang Dương y Wal_, licencia Pexels; la gota, de Andoni), las tres a la misma altura y el isotipo centrado */}
             <figure class="pz pz-foto pz-helecho">
               <img src="/media/brandbook/foto-helecho.webp" alt="Brote de helecho enroscado sobre fondo oscuro" width="2400" height="1600" loading="lazy" decoding="async" />
               <span class="iso-sobre iso-masc" aria-hidden="true"></span>
@@ -256,7 +343,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           </div>
         </section>
 
-        <!-- 03 · COLOR Y ESTACIONES -->
+        {/* 03 · COLOR Y ESTACIONES */}
         <section id="color" class="seccion" aria-labelledby="h-color">
           <h2 id="h-color" class="font-display text-h2">Color y estaciones</h2>
           <p class="cuerpo">Cada estación tiene cinco colores propios, sacados de lo que se ve fuera ese trimestre: el fondo, el roble, la savia (el acento), el bloque claro (y, en invierno, la tinta de pizarra: el fondo es nieve). El texto sobre lo claro va en el propio fondo; el blanco de lo claro es el mismo todo el año. Al bajar, esta página pasa por las cuatro.</p>
@@ -264,9 +351,9 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
       </div>
     </div>
 
-    <!-- RONDA 144 (3.ª) · «en color y estaciones, que los colores que están cambien con la estación»: UNA escena fija (sticky) durante cuatro pantallas;
+    {/* RONDA 144 (3.ª) · «en color y estaciones, que los colores que están cambien con la estación»: UNA escena fija (sticky) durante cuatro pantallas;
          al bajar, la estación avanza y todo cambia con ella: la noche del fondo, el roble, la paleta (sus muestras leen los colores de la página) y sus
-         valores. La página entera la sigue (fijarEstacion); al salir del tramo vuelve la de hoy. -->
+         valores. La página entera la sigue (fijarEstacion); al salir del tramo vuelve la de hoy. */}
     <div class="estaciones" data-estaciones style={`--n:${estaciones.length}`}>
       <div class="escena-est" data-escena-est data-actual="0">
         <div class="wrap est-dentro">
@@ -305,7 +392,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     <div class="wrap marco-libro">
       <div class="indice-hueco" aria-hidden="true"></div>
       <div class="hojas">
-        <!-- RONDA 153 · «después de pasar las estaciones repetimos los colores en versión resumida: eso fuera» -->
+        {/* RONDA 153 · «después de pasar las estaciones repetimos los colores en versión resumida: eso fuera» */}
         <section class="seccion sin-borde" aria-label="Reglas del color">
           <ul class="reglas">
             <li><b>Contraste</b> la tinta sobre la noche de cada estación pasa de 9:1 (en invierno, Cacao sobre la nieve 15:1).</li>
@@ -313,7 +400,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           </ul>
         </section>
 
-        <!-- 04 · TIPOGRAFÍA -->
+        {/* 04 · TIPOGRAFÍA */}
         <section id="tipografia" class="seccion" aria-labelledby="h-tipografia">
           <h2 id="h-tipografia" class="font-display text-h2">Tipografía</h2>
           <p class="cuerpo">Tres voces: Family para lo que se dice, Timeless Sans para lo que se lee y Timeless Grotesk para los detalles. Sin mono y sin cursivas, nunca.</p>
@@ -333,7 +420,40 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           </ol>
         </section>
 
-        <!-- 05 · VOZ -->
+        {/* 05 · VOZ */}
+        {/* RONDA 180 · ESPACIADO Y RETÍCULA (Eric: «nuestro sistema tiene que ser tan completo como el de Neety») */}
+        <section id="espaciado" class="seccion" aria-labelledby="h-espaciado">
+          <h2 id="h-espaciado" class="font-display text-h2">Espaciado y retícula</h2>
+          <p class="cuerpo">Nada a ojo: el espacio sale de la escala de Tailwind (4 px por paso) y solo de estos pasos. <code class="cod">node tools/spacing-lint.cjs</code> avisa de cualquier otro.</p>
+          <ol class="pasos-esp">
+            {[1, 2, 3, 4, 6, 8, 12, 16, 24, 32].map((p) => (
+              <li><span class="detail pe-n">{p}</span><i class="pe-b" style={`--p:${p}`} /><span class="detail pe-px">{p * 4} px</span></li>
+            ))}
+          </ol>
+          <dl class="dev-filas">
+            <div><dt>section-y</dt><dd>El aire de cada sección: de 80 px en móvil a 192 en escritorio (<code class="cod">--space-section</code>). Más que la guía (128) por decisión de Andoni: «hay que dar más aire a cada sección».</dd></div>
+            <div><dt>wrap</dt><dd>El contenedor: 1200 px de contenido con márgenes de 20 · 32 · 48 px; en pantallas de más de 1920 px crece hasta 1440 (<code class="cod">--contenido</code>). Sus bordes son los carriles que se ven en la web.</dd></div>
+            <div><dt>grid-12</dt><dd>Doce columnas en escritorio con 24 px de medianil; cuatro en móvil con 16.</dd></div>
+            <div><dt>measure</dt><dd>La medida de lectura: 64 caracteres por línea como mucho.</dd></div>
+            <div><dt>Alturas</dt><dd>Siempre en <code class="cod">lvh</code> o <code class="cod">dvh</code>, nunca en <code class="cod">vh</code> (en el móvil la barra del navegador las descuadra).</dd></div>
+            <div><dt>Pantallas grandes</dt><dd>Por encima de 2560 px todo escala a la vez (la raíz pasa de 16 a 32 px a 5120): titulares, aires, roble y contenedor.</dd></div>
+          </dl>
+        </section>
+
+        {/* RONDA 180 · RADIOS Y SOMBRAS */}
+        <section id="radios" class="seccion" aria-labelledby="h-radios">
+          <h2 id="h-radios" class="font-display text-h2">Radios y sombras</h2>
+          <p class="cuerpo">Un radio de partida, 8 px, y la píldora para lo que se pulsa. Sin sombras por defecto: solo donde algo flota (el cristal, el monitor encendido).</p>
+          <div class="fila f3">
+            <figure class="placa clara sm rd"><i class="rd-m" style="border-radius:var(--radius-lg)" /><figcaption class="detail">8 px · --radius-lg · tarjetas, placas, imágenes</figcaption></figure>
+            <figure class="placa clara sm rd"><i class="rd-m rd-p" style="border-radius:var(--radius-full)" /><figcaption class="detail">Píldora · --radius-full · botones, barras, etiquetas</figcaption></figure>
+            <figure class="placa clara sm rd"><i class="rd-m rd-c" /><figcaption class="detail">Círculo · caras, iconos de estación, el (+)</figcaption></figure>
+          </div>
+          <div class="fila f2">
+            <figure class="placa oscura rd"><i class="rd-cristal" /><figcaption class="detail">El cristal · filo claro de 1 px por dentro y una sombra blanda debajo (0 12 32 −12, negro al 40 %)</figcaption></figure>
+            <figure class="placa oscura rd"><i class="rd-halo" /><figcaption class="detail">La luz · el monitor encendido: una sombra exterior en el color de la estación, como desde detrás</figcaption></figure>
+          </div>
+        </section>
         <section id="voz" class="seccion" aria-labelledby="h-voz">
           <h2 id="h-voz" class="font-display text-h2">Voz</h2>
           <p class="cuerpo">Se habla siempre a quien entra; la primera persona, solo cuando hablan Eric y Andoni. No se presume: el trabajo lo demuestra.</p>
@@ -344,11 +464,11 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           <blockquote class="font-display ejemplo">«Elevamos tu web con IA.»<span class="detail">El titular: corto, a quien entra, con el verbo delante.</span></blockquote>
         </section>
 
-        <!-- RONDA 152 · ICONOGRAFÍA: «buscar una iconografía para usar siempre la misma en toda la web; las estaciones, siempre en fill» -->
+        {/* RONDA 152 · ICONOGRAFÍA: «buscar una iconografía para usar siempre la misma en toda la web; las estaciones, siempre en fill» */}
         <section id="iconografia" class="seccion" aria-labelledby="h-iconografia">
           <h2 id="h-iconografia" class="font-display text-h2">Iconografía</h2>
           <p class="cuerpo">Una sola familia, Iconoir: rejilla de 24 y trazo de 1,5 con puntas redondas. Las estaciones, siempre rellenas (su propio dibujo, relleno); lo que está encendido, en su versión sólida; la interfaz, en trazo. La flecha de la casa es su flecha de navegación, dibujada a trazo para poder animarla.</p>
-          <!-- RONDA 155 · «iconografía tenemos que ponerlo más bonito»: las estaciones, cada una en su color; la construcción en la rejilla; la interfaz -->
+          {/* RONDA 155 · «iconografía tenemos que ponerlo más bonito»: las estaciones, cada una en su color; la construcción en la rejilla; la interfaz */}
           <div class="ic-est">
             {estaciones.map((e) => (
               <figure class={`ic-e${e.id === 'invierno' ? ' clara' : ''}`} style={`--f:${e.noche};--t:${e.tinta};--s:${e.colores[2][2]}`}>
@@ -383,7 +503,77 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           </div>
         </section>
 
-        <!-- 06 · COMPONENTES -->
+        {/* 07 · TEXTURA Y MOVIMIENTO */}
+        <section id="materia" class="seccion" aria-labelledby="h-materia">
+          <h2 id="h-materia" class="font-display text-h2">Movimiento</h2>
+          <p class="cuerpo">Todo lo que se mueve en savvia se mueve como algo vivo: una gota que cae, la savia que corre, algo que brota, crece o cambia con la estación. Llega con curva expo, se posa sin rebote y nunca impide leer. Con movimiento reducido, todo queda quieto y en su sitio.</p>
+          {/* RONDA 155 · «en movimiento quitamos textura y solo ponemos movimientos que tengan que ver con naturaleza; los de sonido fuera; hay que ser consistentes» */}
+          <div class="fila f3 materia">
+            <figure class="placa clara gota-m"><span class="gota-d" aria-hidden="true"></span><figcaption class="detail">La gota · arranca la web y se descuelga del isotipo</figcaption></figure>
+            <figure class="placa campana"><i class="cp" /><figcaption class="detail">Entre secciones · la sección llega como una gota que se ensancha</figcaption></figure>
+            <figure class="placa clara rasgado"><i class="rg" /><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado</figcaption></figure>
+            <figure class="placa clara raices-d"><svg viewBox="0 0 100 75" aria-hidden="true"><path d="M50 6 C 48 20, 54 30, 49 42 S 46 60, 52 72" /><path d="M50 22 C 40 28, 30 30, 20 40" /><path d="M51 30 C 62 36, 72 40, 84 52" /><path d="M49 46 C 40 52, 34 58, 28 70" /><path d="M50 52 C 58 58, 64 64, 70 72" /><circle cx="50" cy="6" r="2.2" /></svg><figcaption class="detail">Las raíces · crecen con el scroll y llevan al texto</figcaption></figure>
+            <figure class="placa clara liquido-d"><span class="liq">Pasa por aquí</span><figcaption class="detail">La savia · llena desde donde entra el cursor</figcaption></figure>
+            <figure class="placa clara hoja-d"><span class="hj" aria-hidden="true"><Fragment set:html={icono('leaf', 'fill')} /></span><figcaption class="detail">El tiempo · cae lo de cada estación y se posa</figcaption></figure>
+            <figure class="placa clara estacion-d"><span class="est-cic" aria-hidden="true">{([['primavera', '#FF8FB8'], ['verano', '#8DB84A'], ['otono', '#FF616B'], ['invierno', '#4F8AD6']] as const).map(([e, c]) => <i style={`--c:${c}`}><Fragment set:html={icono(ICONO_ESTACION[e], 'fill')} /></i>)}</span><figcaption class="detail">Las estaciones · el acento cambia con el año</figcaption></figure>
+            <figure class="placa clara brota-d"><svg class="br" viewBox="0 0 60 60" aria-hidden="true"><path class="tallo" d="M30 56 C 30 46, 31 38, 30 28" /><path class="h1" d="M30 34 C 22 34, 15 28, 14 20 C 22 20, 29 25, 30 34 Z" /><path class="h2" d="M30 29 C 37 28, 44 22, 46 14 C 37 14, 31 20, 30 29 Z" /><path class="suelo" d="M14 56 H 46" /></svg><figcaption class="detail">Brotar · lo nuevo aparece desde su origen, como un brote</figcaption></figure>
+            <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">La caída · ease-out expo (0,16 1 0,3 1), sin rebote</figcaption></figure>
+          </div>
+          <ul class="reglas">
+            <li><b>Curvas</b> ease-out expo (0,16 1 0,3 1) para lo que llega; ease-out quart para la interfaz. Sin rebotes.</li>
+            <li><b>Todo crece</b> desde un origen (una gota, una raíz, el punto donde entra el cursor): nada aparece de golpe ni con el mismo fundido en todas partes.</li>
+          </ul>
+        </section>
+
+        {/* 08 · APLICACIONES */}
+        <section id="aplicaciones" class="seccion" aria-labelledby="h-aplicaciones">
+          <h2 id="h-aplicaciones" class="font-display text-h2">Aplicaciones</h2>
+          <p class="cuerpo">La marca fuera de la web: la tarjeta de visita, lo que se comparte y la pestaña del navegador.</p>
+          {/* RONDA 155 · «aplicaciones también, más bonito»: escenas en lugar de muestras sueltas */}
+          <div class="apl">
+            <figure class="apl-p apl-tarjetas">
+              <div class="tv-sombra" aria-hidden="true"></div>
+              <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio</span></div>
+              <div class="tarjeta-v cara" aria-hidden="true"><span class="lockup tv-lock"><span class="iso-masc"></span><span class="logo-masc"></span></span></div>
+              <figcaption class="detail apl-pie">Tarjeta de visita · 85 × 55 mm, anverso y reverso</figcaption>
+            </figure>
+            <figure class="apl-p apl-chat">
+              <div class="chat" aria-hidden="true">
+                <p class="burbuja yo">¿Te paso la web de los que nos van a hacer la nueva?</p>
+                <div class="burbuja yo enlace">
+                  <img src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
+                  <span class="en-t">savvia — Elevamos tu web con IA</span>
+                  <span class="en-d">savvia.studio</span>
+                </div>
+                <p class="burbuja otro">Qué bonita 🌱</p>
+              </div>
+              <figcaption class="detail apl-pie">Al compartir · imagen 1200 × 630</figcaption>
+            </figure>
+            <figure class="apl-p apl-nav">
+              <div class="ventana" aria-hidden="true">
+                <div class="v-barra">
+                  <span class="v-sem"><i /><i /><i /></span>
+                  <span class="v-tab on"><img class="v-fav" src="/favicon-otono.png?v=157" alt="" width="16" height="16" /><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab"><img class="v-fav" src="/favicon-otono.png?v=157" alt="" width="16" height="16" /><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-mas"><Fragment set:html={icono('plus')} /></span>
+                </div>
+                <div class="v-dir"><span>savvia.studio</span></div>
+                <img class="v-pag" src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
+              </div>
+              <figcaption class="detail apl-pie">El navegador · el favicon en la pestaña</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <p class="detail detail-caps grupo-rotulo" id="g-desarrollo">Desarrollo</p>
+        {/* RONDA 178 · STACK */}
+        <section id="stack" class="seccion" aria-labelledby="h-stack">
+          <h2 id="h-stack" class="font-display text-h2">Stack</h2>
+          <p class="cuerpo">Pocas piezas y casi todo hecho a mano: lo que se ve en la web es código propio, no una plantilla ni un generador.</p>
+          <dl class="dev-filas">{STACK.map(([t, d]) => (<div><dt>{t}</dt><dd>{d}</dd></div>))}</dl>
+        </section>
+
+        {/* 06 · COMPONENTES */}
         <section id="componentes" class="seccion" aria-labelledby="h-componentes">
           <h2 id="h-componentes" class="font-display text-h2">Componentes</h2>
           <p class="cuerpo">Un solo idioma para todo lo que se pulsa: el cristal de la barra de la vista sentado, chevrones finos y, al pasar, la niebla lo llena como un líquido desde donde entra el cursor.</p>
@@ -396,7 +586,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
               <Cta href="#componentes" variante="secundario">Ver caso de estudio</Cta>
               <Cta href="#componentes" variante="secundario" flecha="izq">Proyectos</Cta>
             </div>
-            <p class="comp-d detail">Primario: cristal (noche al 58 %, desenfoque 22 px, filo claro 16 %), ABC Areal 500, sin mayúsculas · Pequeño: 40 px · Secundario: texto y chevrón, sin caja.</p>
+            <p class="comp-d detail">Primario: cristal (noche al 58 %, desenfoque 22 px, filo claro 16 %), Timeless Sans 500, sin mayúsculas · Pequeño: 40 px · Secundario: texto y chevrón, sin caja.</p>
           </div>
 
           <div class="comp">
@@ -437,6 +627,38 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             <p class="comp-d detail">Al final de cada capítulo del handbook y de cada caso de estudio. Al pasar se llenan de tinta desde donde entra el cursor.</p>
           </div>
 
+          {/* RONDA 178 · Eric: «en componentes, incluir cómo está hecho el mockup de pantalla de la home» (Proyectos.astro: lámina + pantalla + web) */}
+          <div class="comp">
+            <h3 class="comp-t">El monitor de Proyectos destacados</h3>
+            <div class="fila f2 monitor-demo">
+              <figure class="placa oscura md-montado">
+                <div class="md-escena">
+                  <img src="/media/estudio/otono-m.webp" alt="La mesa del estudio en otoño" width="1600" height="900" loading="lazy" />
+                  <i class="md-halo" aria-hidden="true"></i>
+                  <div class="md-pantalla"><img src="/media/proyectos/kuanta.webp" alt="La web de Kuanta dentro del monitor" loading="lazy" /></div>
+                  <i class="md-caja" aria-hidden="true"><span class="detail">39,03 · 36,96 · 21,78 × 21,04 %</span></i>
+                </div>
+                <figcaption class="detail pie-p">Montado</figcaption>
+              </figure>
+              <figure class="placa oscura md-despiece" aria-label="Las capas del monitor, separadas">
+                <div class="md-pila" aria-hidden="true">
+                  <span class="md-capa c1"><img src="/media/estudio/otono-m.webp" alt="" loading="lazy" /><b class="detail">1 · lámina</b></span>
+                  <span class="md-capa c2"><i></i><b class="detail">2 · luz</b></span>
+                  <span class="md-capa c3"><i></i><b class="detail">3 · pantalla</b></span>
+                  <span class="md-capa c4"><img src="/media/proyectos/kuanta.webp" alt="" loading="lazy" /><b class="detail">4 · web</b></span>
+                </div>
+                <figcaption class="detail pie-p">Despiece</figcaption>
+              </figure>
+            </div>
+            <ol class="md-capas">
+              <li><b>Lámina.</b> La mesa de Andoni en la estación de la web, en tres tamaños: 1600 px en móvil, 2560 en escritorio y 5120 al sentarse (solo la visible, cuando la cámara se posa). Todo lo demás se coloca en porcentajes de ella.</li>
+              <li><b>Luz.</b> Una caja con el rectángulo y el redondeo del monitor (1,16 % / 2,07 %) cuya <code>box-shadow</code> exterior, en la savia de la estación, asoma por detrás: nunca se pinta bajo su propia caja. Se enciende sentado o al coger la web.</li>
+              <li><b>Pantalla.</b> La caja blanca de la lámina, medida por inundación: <code>left 39,03 % · top 36,96 % · 21,78 × 21,04 %</code>, con un filo de 3 px del negro del bisel (#121213) que tapa el canto claro. Es un contenedor (<code>container-type: size</code>): lo de dentro va en <code>cqh</code> y crece con ella.</li>
+              <li><b>Web.</b> Se pinta al ancho de un MacBook Air (1710 px; 1024 en móvil) y se reduce con <code>scale(ancho de la pantalla / 1710)</code>. De pie, su captura; sentado, la web real en un <code>&lt;iframe&gt;</code> (solo la del proyecto activo). La que no se deja embeber enseña su página entera en imagen.</li>
+            </ol>
+            <p class="comp-d detail">Sentado, la cámara amplía la escena ×k, pero la pantalla se maqueta k veces mayor y se contra-escala 1/k: escala neta 1, la web siempre nítida. Encima de la web, según el momento: la construcción del agente, Andoni y Eric (<code>construir.ts</code>), la pantalla de carga y el aviso de deslizar. Código: <code>src/components/Proyectos.astro</code>.</p>
+          </div>
+
           <div class="comp">
             <h3 class="comp-t">Pequeñas piezas</h3>
             <div class="fila f3">
@@ -456,67 +678,23 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           </div>
         </section>
 
-        <!-- 07 · TEXTURA Y MOVIMIENTO -->
-        <section id="materia" class="seccion" aria-labelledby="h-materia">
-          <h2 id="h-materia" class="font-display text-h2">Movimiento</h2>
-          <p class="cuerpo">Todo lo que se mueve en savvia se mueve como algo vivo: una gota que cae, la savia que corre, algo que brota, crece o cambia con la estación. Llega con curva expo, se posa sin rebote y nunca impide leer. Con movimiento reducido, todo queda quieto y en su sitio.</p>
-          <!-- RONDA 155 · «en movimiento quitamos textura y solo ponemos movimientos que tengan que ver con naturaleza; los de sonido fuera; hay que ser consistentes» -->
-          <div class="fila f3 materia">
-            <figure class="placa clara gota-m"><span class="gota-d" aria-hidden="true"></span><figcaption class="detail">La gota · arranca la web y se descuelga del isotipo</figcaption></figure>
-            <figure class="placa campana"><i class="cp" /><figcaption class="detail">Entre secciones · la sección llega como una gota que se ensancha</figcaption></figure>
-            <figure class="placa clara rasgado"><i class="rg" /><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado</figcaption></figure>
-            <figure class="placa clara raices-d"><svg viewBox="0 0 100 75" aria-hidden="true"><path d="M50 6 C 48 20, 54 30, 49 42 S 46 60, 52 72" /><path d="M50 22 C 40 28, 30 30, 20 40" /><path d="M51 30 C 62 36, 72 40, 84 52" /><path d="M49 46 C 40 52, 34 58, 28 70" /><path d="M50 52 C 58 58, 64 64, 70 72" /><circle cx="50" cy="6" r="2.2" /></svg><figcaption class="detail">Las raíces · crecen con el scroll y llevan al texto</figcaption></figure>
-            <figure class="placa clara liquido-d"><span class="liq">Pasa por aquí</span><figcaption class="detail">La savia · llena desde donde entra el cursor</figcaption></figure>
-            <figure class="placa clara hoja-d"><span class="hj" aria-hidden="true"><Fragment set:html={icono('leaf', 'fill')} /></span><figcaption class="detail">El tiempo · cae lo de cada estación y se posa</figcaption></figure>
-            <figure class="placa clara estacion-d"><span class="est-cic" aria-hidden="true">{([['primavera', '#FF8FB8'], ['verano', '#8DB84A'], ['otono', '#FF616B'], ['invierno', '#4F8AD6']] as const).map(([e, c]) => <i style={`--c:${c}`}><Fragment set:html={icono(ICONO_ESTACION[e], 'fill')} /></i>)}</span><figcaption class="detail">Las estaciones · el acento cambia con el año</figcaption></figure>
-            <figure class="placa clara brota-d"><svg class="br" viewBox="0 0 60 60" aria-hidden="true"><path class="tallo" d="M30 56 C 30 46, 31 38, 30 28" /><path class="h1" d="M30 34 C 22 34, 15 28, 14 20 C 22 20, 29 25, 30 34 Z" /><path class="h2" d="M30 29 C 37 28, 44 22, 46 14 C 37 14, 31 20, 30 29 Z" /><path class="suelo" d="M14 56 H 46" /></svg><figcaption class="detail">Brotar · lo nuevo aparece desde su origen, como un brote</figcaption></figure>
-            <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">La caída · ease-out expo (0,16 1 0,3 1), sin rebote</figcaption></figure>
-          </div>
-          <ul class="reglas">
-            <li><b>Curvas</b> ease-out expo (0,16 1 0,3 1) para lo que llega; ease-out quart para la interfaz. Sin rebotes.</li>
-            <li><b>Todo crece</b> desde un origen (una gota, una raíz, el punto donde entra el cursor): nada aparece de golpe ni con el mismo fundido en todas partes.</li>
-          </ul>
+        <Catalogo />
+
+        {/* RONDA 178 · CÓMO SE HACEN LAS PIEZAS */}
+        <section id="piezas" class="seccion" aria-labelledby="h-piezas">
+          <h2 id="h-piezas" class="font-display text-h2">Cómo se hacen las piezas</h2>
+          <p class="cuerpo">Lo ilustrado nace a mano (las láminas y las poses de Andoni) y lo lleva a la web un proceso escrito: cada paso es un script en tools/ que se puede repetir.</p>
+          <ol class="dev-piezas">{PIEZAS.map(([t, de, como]) => (<li><h3 class="dp-t">{t}</h3><p class="dp-de detail">{de}</p><p class="dp-como">{como}</p></li>))}</ol>
         </section>
 
-        <!-- 08 · APLICACIONES -->
-        <section id="aplicaciones" class="seccion" aria-labelledby="h-aplicaciones">
-          <h2 id="h-aplicaciones" class="font-display text-h2">Aplicaciones</h2>
-          <p class="cuerpo">La marca fuera de la web: la tarjeta de visita, lo que se comparte y la pestaña del navegador.</p>
-          <!-- RONDA 155 · «aplicaciones también, más bonito»: escenas en lugar de muestras sueltas -->
-          <div class="apl">
-            <figure class="apl-p apl-tarjetas">
-              <div class="tv-sombra" aria-hidden="true"></div>
-              <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio</span></div>
-              <div class="tarjeta-v cara" aria-hidden="true"><span class="lockup tv-lock"><span class="iso-masc"></span><span class="logo-masc"></span></span></div>
-              <figcaption class="detail apl-pie">Tarjeta de visita · 85 × 55 mm, anverso y reverso</figcaption>
-            </figure>
-            <figure class="apl-p apl-chat">
-              <div class="chat" aria-hidden="true">
-                <p class="burbuja yo">¿Te paso la web de los que nos van a hacer la nueva?</p>
-                <div class="burbuja yo enlace">
-                  <img src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
-                  <span class="en-t">savvia — Elevamos tu web con IA</span>
-                  <span class="en-d">savvia.studio</span>
-                </div>
-                <p class="burbuja otro">Qué bonita 🌱</p>
-              </div>
-              <figcaption class="detail apl-pie">Al compartir · imagen 1200 × 630</figcaption>
-            </figure>
-            <figure class="apl-p apl-nav">
-              <div class="ventana" aria-hidden="true">
-                <div class="v-barra">
-                  <span class="v-sem"><i /><i /><i /></span>
-                  <span class="v-tab on"><img class="v-fav" src="/favicon-otono.png?v=157" alt="" width="16" height="16" /><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
-                  <span class="v-tab"><img class="v-fav" src="/favicon-otono.png?v=157" alt="" width="16" height="16" /><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
-                  <span class="v-mas"><Fragment set:html={icono('plus')} /></span>
-                </div>
-                <div class="v-dir"><span>savvia.studio</span></div>
-                <img class="v-pag" src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
-              </div>
-              <figcaption class="detail apl-pie">El navegador · el favicon en la pestaña</figcaption>
-            </figure>
-          </div>
+        {/* RONDA 178 · HERRAMIENTAS Y SKILLS */}
+        <section id="herramientas" class="seccion" aria-labelledby="h-herramientas">
+          <h2 id="h-herramientas" class="font-display text-h2">Herramientas y skills</h2>
+          <p class="cuerpo">Con lo que se ha construido, además del código.</p>
+          <dl class="dev-filas">{HERRAMIENTAS.map(([t, d]) => (<div><dt>{t}</dt><dd>{d}</dd></div>))}</dl>
         </section>
+
+        <Guia bloque="mantenimiento" />
       </div>
     </div>
   </main>
@@ -524,8 +702,8 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
 </Base>
 
 <script>
-  import { fijarEstacion, estacionActual, EST, NOCHE } from '../scripts/estacion';
-  import { crearEstela } from '../scripts/estela';
+  import { fijarEstacion, estacionActual, EST, NOCHE } from '../../scripts/estacion';
+  import { crearEstela } from '../../scripts/estela';
   // RONDA 154 · el roble de cada estación, pintado por el motor del hero (mismas opciones: la primavera teñida de cerezo, el invierno sin hojas y sin hervor)
   document.querySelectorAll<HTMLElement>('.est-robles .rb').forEach((rb) => {
     const img = rb.querySelector('img')!, cv = rb.querySelector('canvas')!;
@@ -545,7 +723,16 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   // el índice sigue la lectura
   const enlaces = [...document.querySelectorAll<HTMLAnchorElement>('[data-ir]')];
   const secciones = enlaces.map((a) => document.getElementById(a.dataset.ir!)!).filter(Boolean);
-  const marcar = (id: string) => enlaces.forEach((a) => a.toggleAttribute('aria-current', a.dataset.ir === id));
+  const indiceNav = document.querySelector<HTMLElement>('.indice');
+  const marcar = (id: string) => enlaces.forEach((a) => {
+    const on = a.dataset.ir === id;
+    a.toggleAttribute('aria-current', on);
+    // ronda 180: el índice es largo; el apartado que se lee se queda a la vista dentro de él (sin mover la página)
+    if (on && indiceNav && indiceNav.scrollHeight > indiceNav.clientHeight) {
+      const t = a.offsetTop - indiceNav.clientHeight / 2;
+      indiceNav.scrollTo({ top: Math.max(0, t), behavior: 'smooth' });
+    }
+  });
   const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) marcar(e.target.id); }, { rootMargin: '-30% 0px -65% 0px' });
   secciones.forEach((s) => io.observe(s));
   // la construcción se dibuja al llegar
@@ -663,13 +850,17 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     transition: opacity 0.4s ease;
     display: flex;
     flex-direction: column;
-    gap: calc(var(--spacing) * 4);
+    gap: 0;
+    max-height: calc(100lvh - var(--spacing) * 36);
+    overflow-y: auto;
+    scrollbar-width: none;
     z-index: 2;
   }
   .indice ol { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); }
   .indice a { display: flex; align-items: baseline; gap: calc(var(--spacing) * 3); padding-block: calc(var(--spacing) * 1); font-size: var(--text-ui); color: var(--fg2); transition: color 0.3s ease; }
   .indice a:hover, .indice a[aria-current] { color: var(--fg); }
   .indice .n { opacity: 0.6; font-variant-numeric: tabular-nums; }
+  .indice > p a { display: inline; padding: 0; font-size: inherit; }
   .indice a[aria-current] .n { color: var(--color-coral); opacity: 1; }
   :global(html.bb-sin-indice) .indice { opacity: 0; pointer-events: none; }
   @media (width >= 64rem) { .marco-libro > .indice + .hojas { grid-column: 4 / span 9; } }
@@ -691,6 +882,8 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
       scrollbar-width: none;
     }
     .indice > p { display: none; }
+    .indice { flex-direction: row; align-items: center; gap: calc(var(--spacing) * 5); max-height: none; overflow-y: visible; }
+    .indice-g, .indice > p + .indice-g { margin: 0; white-space: nowrap; }
     .indice ol { flex-direction: row; gap: calc(var(--spacing) * 5); white-space: nowrap; }
     .indice .n { display: none; }
   }
@@ -881,6 +1074,53 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .comp-t { font-family: var(--font-display); font-size: var(--text-h3); line-height: 1.2; font-weight: 400; }
   .comp-d { margin-top: calc(var(--spacing) * 3); color: var(--fg2); max-width: 70ch; line-height: 1.5; }
   .comp .placa, .comp .fila { margin-top: calc(var(--spacing) * 5); }
+  /* RONDA 178 · stack, piezas y herramientas */
+  .dev-filas { margin-top: calc(var(--spacing) * 10); border-top: 1px solid var(--rule); }
+  .dev-filas > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr); gap: calc(var(--spacing) * 6); padding-block: calc(var(--spacing) * 4); border-bottom: 1px solid var(--rule); }
+  .dev-filas dt { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.3; }
+  .dev-filas dd { color: var(--fg2); line-height: 1.55; }
+  @media (width < 48rem) { .dev-filas > div { grid-template-columns: 1fr; gap: calc(var(--spacing) * 2); } }
+  .dev-piezas { margin-top: calc(var(--spacing) * 10); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 12) calc(var(--spacing) * 8); }
+  @media (width < 48rem) { .dev-piezas { grid-template-columns: 1fr; gap: calc(var(--spacing) * 8); } }
+  .dev-piezas li { border-top: 1px solid var(--rule); padding-top: calc(var(--spacing) * 4); }
+  .dp-t { font-family: var(--font-display); font-size: var(--text-h3); line-height: 1.2; font-weight: 400; }
+  .dp-de { margin-top: calc(var(--spacing) * 2); color: var(--fg2); }
+  .dp-como { margin-top: calc(var(--spacing) * 3); line-height: 1.55; color: var(--fg2); }
+  /* RONDA 178 · el monitor de Proyectos destacados: montado (las mismas medidas que Proyectos.astro) y su despiece */
+  .monitor-demo .placa { aspect-ratio: 16 / 10; }
+  /* la escena a su proporción (16:9, la de la lámina) y ampliada ×2,2 alrededor del centro de la pantalla */
+  .md-escena { position: absolute; left: 0; top: 50%; width: 100%; aspect-ratio: 16 / 9; translate: 0 -50%; transform: scale(2.2); transform-origin: 49.92% 47.48%; }
+  .md-escena > img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .md-halo, .md-pantalla, .md-caja { position: absolute; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; }
+  .md-halo { left: calc(39.03% - 0.469%); top: calc(36.96% - 0.741%); width: calc(21.78% + 0.938%); height: calc(21.04% + 1.482%); border-radius: 1.16% / 2.07%;
+    box-shadow: 0 0 1.4rem 0.3rem color-mix(in oklab, var(--color-coral) 55%, transparent), 0 0 4rem 1rem color-mix(in oklab, var(--color-coral) 22%, transparent); }
+  .md-pantalla { overflow: hidden; background: #121213; box-shadow: 0 0 0 1.5px #121213; }
+  .md-pantalla img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .md-caja { outline: 0.5px dashed color-mix(in oklab, #F5F5F7 80%, transparent); outline-offset: 2px; }
+  .md-caja span { position: absolute; left: 0; top: 100%; margin-top: 3px; font-size: 3.5px; white-space: nowrap; color: #F5F5F7; }
+  .md-despiece { perspective: 60rem; }
+  .md-pila { position: relative; width: 52%; margin-top: 12%; aspect-ratio: 16 / 9; transform-style: preserve-3d; transform: rotateX(56deg) rotateZ(-34deg); }
+  .md-capa { position: absolute; inset: 0; transform-style: preserve-3d; border-radius: 4px; transition: transform 0.9s var(--ease-out-expo); }
+  .md-capa img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+  .md-capa b { position: absolute; left: 100%; top: 50%; margin-left: 0.75rem; white-space: nowrap; color: #F5F5F7; transform: rotateZ(34deg) rotateX(-56deg); transform-origin: 0 0; }
+  .md-capa.c1 { transform: translateZ(0); }
+  .md-capa.c1 img { opacity: 0.85; }
+  .md-capa.c2 { transform: translateZ(1.75rem); }
+  .md-capa.c2 i { position: absolute; left: 38.56%; top: 36.22%; width: 22.72%; height: 22.52%; border-radius: 1.16% / 2.07%; box-shadow: 0 0 1.2rem 0.3rem color-mix(in oklab, var(--color-coral) 60%, transparent); }
+  .md-capa.c3 { transform: translateZ(3.5rem); }
+  .md-capa.c3 i { position: absolute; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; border-radius: 1px; background: #121213; box-shadow: 0 0 0 1px color-mix(in oklab, #F5F5F7 40%, transparent); }
+  .md-capa.c4 { inset: auto; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; transform: translateZ(5.25rem); }
+  .md-capa.c4 img { object-position: top; border-radius: 1px; }
+  .md-capa.c4 b { left: 280%; top: 62%; } /* el borde derecho y la mitad de la pila, medidos desde la caja de la web */
+  .md-despiece:hover .c2 { transform: translateZ(2.5rem); }
+  .md-despiece:hover .c3 { transform: translateZ(5rem); }
+  .md-despiece:hover .c4 { transform: translateZ(7.5rem); }
+  .md-capas { margin-top: calc(var(--spacing) * 6); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 4) calc(var(--spacing) * 8); counter-reset: md; max-width: 64rem; }
+  @media (width < 48rem) { .md-capas { grid-template-columns: 1fr; } .md-capa b { display: none; } }
+  .md-capas li { line-height: 1.5; color: var(--fg2); }
+  .md-capas b { color: var(--fg); font-weight: 500; }
+  .md-capas code, .comp-d code { font-family: var(--font-mono); font-size: 0.92em; color: var(--fg); }
+  @media (prefers-reduced-motion: reduce) { .md-capa { transition: none; } }
   .demos { aspect-ratio: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: calc(var(--spacing) * 6); padding: calc(var(--spacing) * 14) calc(var(--spacing) * 6); }
   .placa.clara.demos { flex-direction: column; }
   .buscar-demo { display: flex; align-items: center; width: min(100%, 30rem); height: 44px; padding: 4px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--rule); font-size: var(--text-ui); }
@@ -1203,4 +1443,42 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     .pz-trazo, .pz-remate, .pz-app, .pz-tarjeta { grid-column: span 1; }
     .pz-texto { grid-column: 1 / -1; }
   }
+  /* RONDA 176 · mapa del sitio: una raíz, ramas en columnas y lo que cuelga de cada página con su línea */
+  .mapa { margin-top: calc(var(--spacing) * 12); }
+  .m-raiz { display: flex; justify-content: center; position: relative; padding-bottom: calc(var(--spacing) * 8); }
+  .m-raiz span { padding: calc(var(--spacing) * 2) calc(var(--spacing) * 6); border-radius: 999px; background: var(--fg); color: var(--bg, #F5F5F7); font-size: var(--text-lead); }
+  .m-raiz::after { content: ''; position: absolute; left: 50%; bottom: 0; height: calc(var(--spacing) * 8); border-left: 1px solid var(--rule-strong); }
+  .m-ramas { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: calc(var(--spacing) * 4); position: relative; padding-top: calc(var(--spacing) * 6); }
+  .m-ramas::before { content: ''; position: absolute; top: 0; left: calc(100% / 14); right: calc(100% / 14); border-top: 1px solid var(--rule-strong); }
+  .m-rama { position: relative; min-width: 0; }
+  .m-rama::before { content: ''; position: absolute; left: 50%; top: calc(var(--spacing) * -6); height: calc(var(--spacing) * 6); border-left: 1px solid var(--rule-strong); }
+  .m-pag { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); padding: calc(var(--spacing) * 4); border-radius: var(--radius-lg); background: #F5F5F7; color: #3B231B; box-shadow: inset 0 0 0 1px var(--rule); transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(.16,1,.3,1); }
+  .m-pag:hover { box-shadow: inset 0 0 0 1px var(--color-coral); transform: translateY(-2px); }
+  .m-ruta, .m-nota { opacity: 0.6; overflow-wrap: anywhere; }
+  .m-t { font-size: var(--text-lead); line-height: 1.15; }
+  .m-hijos { margin: calc(var(--spacing) * 3) 0 0 calc(var(--spacing) * 2); padding-left: calc(var(--spacing) * 3); border-left: 1px solid var(--rule); display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); }
+  .m-hijos li { position: relative; font-size: var(--text-aux); line-height: 1.35; color: var(--fg2); }
+  .m-hijos li::before { content: ''; position: absolute; left: calc(var(--spacing) * -3); top: 0.7em; width: calc(var(--spacing) * 2); border-top: 1px solid var(--rule); }
+  .m-hijos a { color: inherit; transition: color 0.3s ease; }
+  .m-hijos a:hover { color: var(--fg); }
+  @media (width < 80rem) { .m-ramas { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: calc(var(--spacing) * 8); } .m-ramas::before, .m-rama::before { display: none; } }
+  @media (width < 48rem) { .m-ramas { grid-template-columns: 1fr; } .m-raiz { justify-content: flex-start; } .m-raiz::after { display: none; } }
+
+  /* RONDA 180 · grupos del índice y del libro; espaciado; radios */
+  .indice-g { margin-top: calc(var(--spacing) * 6); margin-bottom: calc(var(--spacing) * 1); opacity: 0.7; }
+  .indice > p + .indice-g { margin-top: calc(var(--spacing) * 4); }
+  .grupo-rotulo { margin-top: calc(var(--spacing) * 32); padding-top: calc(var(--spacing) * 4); border-top: 2px solid var(--fg); color: var(--fg); scroll-margin-top: calc(var(--spacing) * 20); }
+  .grupo-rotulo + :global(.seccion), .grupo-rotulo + .seccion { border-top: 0; margin-top: 0; }
+  .cod { font-family: var(--font-mono); font-size: 0.9em; padding: 0.1em 0.35em; border-radius: 4px; background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); }
+  .pasos-esp { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 8); }
+  .pasos-esp li { display: grid; grid-template-columns: 3rem 1fr 4rem; align-items: center; gap: calc(var(--spacing) * 4); }
+  .pe-b { display: block; height: calc(var(--spacing) * 3); width: calc(var(--spacing) * var(--p)); background: var(--color-coral); border-radius: 2px; }
+  .pe-n, .pe-px { color: var(--fg2); font-variant-numeric: tabular-nums; }
+  .pe-px { text-align: right; }
+  .rd { gap: calc(var(--spacing) * 4); align-content: center; padding: calc(var(--spacing) * 6); text-align: center; }
+  .rd-m { display: block; width: 7rem; height: 5rem; background: #3B231B; }
+  .rd-p { height: 3rem; }
+  .rd-c { width: 5rem; height: 5rem; border-radius: 50%; }
+  .rd-cristal { display: block; width: 12rem; height: 3rem; border-radius: var(--radius-full); background: color-mix(in oklab, #302018 58%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, #eadde7 16%, transparent), 0 12px 32px -12px rgb(0 0 0 / 0.4); }
+  .rd-halo { display: block; width: 10rem; height: 6rem; border-radius: var(--radius-lg); background: #121213; box-shadow: 0 0 48px 6px color-mix(in oklab, var(--color-coral) 55%, transparent), 0 0 120px 24px color-mix(in oklab, var(--color-coral) 22%, transparent); }
 </style>

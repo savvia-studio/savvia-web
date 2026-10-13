@@ -28,11 +28,17 @@
     // ya viene pintado); al cambiar, las raíces nuevas se pintan desde el cuello encima de las viejas, 0,7 s después que la copa.
     // RONDA 81 · Andoni: «las raíces del hero ahora no se ajustan con la estación» (medido: las cuatro salían del mismo marrón rojizo mientras la copa se
     // nieva, florece o reverdece). Ahora el motor tiñe la raíz en el color de la estación, más suave que la copa (en otoño, la lámina tal cual)
+    // RONDA 181 · las raíces se hunden en la TIERRA (global.css › --tierra), no en la noche
+    const tierra = (n: number) => NOCHE[n].map((c) => Math.round(c * (n === 1 ? 0.93 : 0.7))) as [number, number, number];
     const TINTE = [0, 0.8, 0.65, 0.5]; // otoño · invierno · primavera · verano
-    const OPC = (n: number) => ({ origen: [0.5, 0] as [number, number], dir: 1 as const, soplo: true, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: TINTE[n] });
+    // RONDA 178 · Eric: «en invierno las raíces tienen dithering que no tiene la parte de arriba»: como el árbol, sin hervor ni semitono en invierno
+    // RONDA 180 · Eric: sin la franja de puntos bajo la línea de suelo (80 px limpios, fundidos)
+    const OPC = (n: number) => ({ origen: [0.5, 0] as [number, number], dir: 1 as const, soplo: n !== 1, nitido: n === 1, limpioArriba: 80, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: TINTE[n] });
+    // RONDA 181 · Eric: «con scroll rápido aparece la raíz de los Dolores antes de que se generen las raíces del árbol»: avisamos cuando están pintadas
+    const listas = () => { if ((window as any).__raicesListas) return; (window as any).__raicesListas = true; dispatchEvent(new Event('savvia:raices-listas')); };
     let t = crearEstela(cv, img, OPC(estacionActual()));
     t?.estacion(estacionActual());
-    if (!t) raiz.classList.add('sin-gl');
+    if (!t) { raiz.classList.add('sin-gl'); listas(); }
     else {
       let est = estacionActual(), visible = false, pedida = -1;
       // RONDA 83 · Eric: «la parte de abajo del árbol también debería crecer para abajo, al igual que el árbol crece para arriba»: las raíces ya no están
@@ -41,30 +47,33 @@
       // Por tiempo, una sola vez; no van atadas al scroll (ronda 39). Si la página se abre ya más abajo, pintadas sin más.
       const CRECE = 3600;
       let g = reducido ? 1 : 0, suelta = false, asomada = false, creciendo = false;
+      if (reducido) listas();
       t.crecer(g);
       const arrancar = () => {
         if (creciendo || g >= 1 || !suelta || !asomada) return;
         creciendo = true;
-        let a = 0;
+        let k = 0, antes = 0;
+        // RONDA 181 · Eric: «la segunda sección no carga hasta muy tarde»: si ya has bajado (las raíces quedan en la mitad de arriba), terminan ×5 más deprisa
         const paso = (ahora: number) => {
-          if (!a) a = ahora;
-          const k = Math.min(1, (ahora - a) / CRECE);
+          const dt = antes ? ahora - antes : 0; antes = ahora;
+          const prisa = raiz.getBoundingClientRect().bottom < innerHeight * 0.5 ? 5 : 1;
+          k = Math.min(1, k + (dt * prisa) / CRECE);
           g = 1 - Math.pow(1 - k, 1.6); t?.crecer(g);
-          if (k < 1) requestAnimationFrame(paso); else { g = 1; t?.crecer(1); }
+          if (k < 1) requestAnimationFrame(paso); else { g = 1; t?.crecer(1); listas(); }
         };
         requestAnimationFrame(paso);
       };
       if (!reducido) {
         const ESPERA = document.documentElement.classList.contains('sin-carga') ? 900 : 0; // la misma espera del árbol (Hero.astro)
         const soltar = () => setTimeout(() => {
-          if (raiz.getBoundingClientRect().bottom < 0) { g = 1; t?.crecer(1); return; } // ya quedaron arriba: pintadas
+          if (raiz.getBoundingClientRect().bottom < 0) { g = 1; t?.crecer(1); listas(); return; } // ya quedaron arriba: pintadas
           suelta = true; arrancar();
         }, ESPERA + 100);
         if ((window as any).__gotaSuelta) soltar(); else addEventListener('savvia:gota', soltar, { once: true });
         const asoma = new IntersectionObserver((e) => { if (e[0].isIntersecting) { asomada = true; asoma.disconnect(); arrancar(); } }, { rootMargin: '0px 0px -6% 0px' });
         asoma.observe(raiz);
       }
-      t.fondo(...NOCHE[est]);
+      t.fondo(...tierra(est));
       new IntersectionObserver((e) => { visible = e[0].isIntersecting; t?.visible(visible); }, { rootMargin: '10% 0px' }).observe(raiz);
       const soltarLienzo = (c: HTMLCanvasElement) => { { const g = (c.getContext('webgl') || c.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } c.remove(); };
       addEventListener('savvia:estacion', (ev) => {
@@ -79,7 +88,7 @@
           if (!t2) { cv2.remove(); return; }
           t2.estacion(n);
           const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
-          t2.fondo(...NOCHE[n]); t2.visible(visible);
+          t2.fondo(...tierra(n)); t2.visible(visible);
           t2.crecer(g); // a medio crecer (o sin crecer aún), el lienzo nuevo sigue desde donde iba
           if (!visible || reducido || g < 1) return soltarLienzo(viejo);
           // ronda 67: se descubre con el canto rasgado desde el cuello (sin el destello de líneas), como la copa
@@ -102,16 +111,24 @@
 
 <style>
   .raices {
-    position: relative;
-    z-index: 1;
+    position: relative; /* ronda 181: sin z-index (no crea contexto): la tierra va detrás de todo y la lámina, por encima de la raíz de los Dolores (z 2) */
     margin-top: 0; /* RONDA 16: el pie del árbol es el pie del hero; las raíces nacen justo debajo */
     display: flex;
     justify-content: center;
     overflow: hidden;
     pointer-events: none;
   }
+  /* ronda 181 · la tierra: empieza en seco en la línea de suelo y se apaga en elipse alrededor de las raíces (sigue en los Dolores, mismo centro) */
+  .raices::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(var(--tierra-mancha) at 50% 0, var(--tierra-paradas));
+  }
   .caja {
     position: relative;
+    z-index: 3; /* «que las raíces del propio árbol estén por encima» de la raíz que sale de ellas */
     flex: none;
     width: var(--roble-w);
     aspect-ratio: 1260 / 361;
