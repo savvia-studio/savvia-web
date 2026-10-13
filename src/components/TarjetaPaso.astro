@@ -66,6 +66,7 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
                     RONDA 175 (2.ª) · Andoni: «algo más como lo que teníamos antes pero enriquecido; transmitíamos muy bien esa idea de tú + nosotros»:
                     cada forma lleva lo suyo (tu dirección · nuestro criterio), al fundirse queda una SKILL con nombre y las hechas se van guardando debajo */}
                 <div class="goo"><i class="dir dir-a" /><i class="dir dir-b" /></div>
+                <div class="piezas">{Array.from({ length: 6 }, (_, k) => <><i class="pz pz-a" style={`--k:${k}`} /><i class="pz pz-b" style={`--k:${k}`} /></>)}</div>
                 <span class="cont cont-a"><span class="dentro"><b class="rot">Nuestro criterio</b><i class="reglas"><i /><i /><i /></i></span></span>
                 <span class="cont cont-b"><span class="dentro"><b class="rot">Tu dirección</b><i class="muestras"><i /><i /><i /></i></span></span>
                 <span class="cont cont-skill">
@@ -85,7 +86,7 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
               </div>
               </div>
                 <p class="guardadas detail">
-                  {recorrido.skills.map((sk, k) => <span class="ficha" style={`--k:${k}`}>{sk.t}</span>)}
+                  {recorrido.skills.map((sk, k) => <span class="ficha" style={`--k:${k}`}>{sk.t}<b>✓</b></span>)}
                 </p>
               </div>
             )}
@@ -486,8 +487,25 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
     --v0: clamp(0, (6 - var(--t)) * 1000, 1);
     --v2: clamp(0, (var(--t) - 12) * 1000, 1);
     --v1: calc(1 - var(--v0) - var(--v2));
-    --sx: calc(var(--v0) * -56% + var(--v1) * -80% + var(--v2) * 56%);
-    --sy: calc(var(--v0) * -32% + var(--v2) * -32%);
+    /* RONDA 182 · Andoni: «que cada paso tenga su propia animación, que no se repita siempre lo de fusionarse: cada una, su identidad».
+       Todo sale del reloj (ya no hay keyframes de fusión): `--u` = el segundo dentro de la vuelta (0–6), `--q` = cuánto se han acercado.
+         · Diseño (v0)      SE MEZCLAN: llegan en diagonal y se funden como dos tintas (gooey).
+         · Movimiento (v1)  ORBITAN: giran una alrededor de la otra en espiral, cada vez más cerca, hasta ser una.
+         · Desarrollo (v2)  SE HACE MERGE (ronda 184; antes dos mitades a pasos y luego dos piezas apiladas: «algo más relacionado con
+           desarrollo»): cada pieza es un archivo de seis LÍNEAS; línea a línea, de arriba abajo, las dos cruzan al centro y se intercalan
+           (una nuestra, una tuya, como al fusionar dos ramas) hasta formar un solo archivo; luego las tuyas viran a savia. Sin tinta. */
+    --u: mod(var(--t), 6);
+    --en: clamp(0, var(--u) / 0.36, 1);
+    --ap: calc(var(--en) * clamp(0, (5.64 - var(--u)) / 0.48, 1));
+    --q0: clamp(0, (var(--u) - 1.08) / 1.92, 1);
+    --q: calc(var(--q0) * var(--q0) * (3 - 2 * var(--q0)));
+    --r: calc(1 - var(--q));
+    --p1: clamp(0, (var(--u) - 1.58) / 0.9, 1); /* Desarrollo: rótulos y ratones cruzan con las líneas de en medio */
+    --e1: calc(1 - pow(1 - var(--p1), 3));
+    --ax: calc(var(--v0) * var(--r) * -56% + var(--v1) * var(--r) * -82% * cos(var(--q) * 360deg) + var(--v2) * (1 - var(--e1)) * -84%);
+    --ay: calc(var(--v0) * var(--r) * -32% + var(--v1) * var(--r) * -46% * sin(var(--q) * 360deg));
+    --sc: calc(0.9 + 0.1 * var(--en) + 0.08 * var(--q));
+    --m: clamp(0, (var(--u) - 2.76) / 0.84, 1); /* la tuya vira a savia al unirse */
     display: flex;
     flex-direction: column;
     gap: calc(var(--spacing) * 3);
@@ -525,42 +543,34 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
   .dir {
     border-radius: 22%;
   }
-  .dir-a,
-  .mano-a {
+  .dir-a, .dir-b, .mano-a, .mano-b, .pz {
     left: 33%;
     top: 24.5%;
-    animation: fundir-a 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
+    opacity: var(--ap);
+    scale: var(--sc);
   }
-  .dir-b,
-  .mano-b {
-    left: 33%;
-    top: 24.5%;
-    animation: fundir-b 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both;
-  }
-  .dir-a { background: var(--color-naranja); }
-  .dir-b { background: var(--color-niebla); animation-name: fundir-b, virar; } /* ronda 175: la del cliente, en claro (antes Cobalto) */
+  /* la nuestra y la tuya: siempre desde lados opuestos */
+  .dir-a, .mano-a, .cont-a, .pz-a { translate: var(--ax) var(--ay); }
+  .dir-b, .mano-b, .cont-b, .pz-b { translate: calc(var(--ax) * -1) calc(var(--ay) * -1); }
+  .dir-a, .pz-a { background: var(--color-naranja); }
+  .dir-b, .pz-b { background: color-mix(in oklab, var(--color-naranja) calc(var(--m) * 100%), var(--color-niebla)); } /* ronda 175: la del cliente, en claro */
   .mano { pointer-events: none; }
-  /* RONDA 177 · Andoni: «que en cada paso la animación de juntarse cambie, para que no se haga repetitivo»: las dos formas viven en el centro
-     y cada vuelta salen de un sitio distinto (`--sx`, `--sy`, en % de su tamaño, los pone .taller según la vuelta): en diagonal, de lado a lado
-     y en la otra diagonal. La tuya, siempre desde el lado contrario a la nuestra. */
-  @keyframes fundir-a {
-    0% { translate: var(--sx) var(--sy); opacity: 0; scale: 0.9; }
-    6% { opacity: 1; scale: 1; }
-    18% { translate: var(--sx) var(--sy); scale: 1; }
-    50%, 86% { translate: 0 0; scale: 1.08; opacity: 1; }
-    94%, 100% { translate: 0 0; scale: 1.08; opacity: 0; }
+  /* en Desarrollo no hay tinta: la capa gooey se apaga y cada pieza son seis LÍNEAS de canto limpio (franjas de su cuadrado). La línea k sale
+     0,2 s después de la anterior; en el centro quedan intercaladas: las pares, nuestras; las impares, tuyas */
+  .goo { opacity: calc(1 - var(--v2)); }
+  .piezas { position: absolute; inset: 0; opacity: var(--v2); isolation: isolate; } /* su orden de capas se queda dentro */
+  .pz {
+    --pk: clamp(0, (var(--u) - 1.08 - var(--k) * 0.2) / 0.9, 1);
+    --ek: calc(1 - pow(1 - var(--pk), 3));
+    position: absolute;
+    width: 34%;
+    aspect-ratio: 1;
+    border-radius: 22%;
+    clip-path: inset(calc(var(--k) * 16.667% - 0.2%) 0 calc((5 - var(--k)) * 16.667% - 0.2%) 0);
   }
-  @keyframes fundir-b {
-    0% { translate: calc(var(--sx) * -1) calc(var(--sy) * -1); opacity: 0; scale: 0.9; }
-    6% { opacity: 1; scale: 1; }
-    18% { translate: calc(var(--sx) * -1) calc(var(--sy) * -1); scale: 1; }
-    50%, 86% { translate: 0 0; scale: 1.08; opacity: 1; }
-    94%, 100% { translate: 0 0; scale: 1.08; opacity: 0; }
-  }
-  @keyframes virar {
-    0%, 46% { background: var(--color-niebla); }
-    60%, 100% { background: var(--color-naranja); }
-  }
+  .pz-a { translate: calc((1 - var(--ek)) * -84%) 0; }
+  .pz-b { translate: calc((1 - var(--ek)) * 84%) 0; }
+  .pz-a:nth-child(4n + 1) { z-index: 1; } /* líneas 0, 2 y 4: la nuestra por encima */
   /* el puntero: llega, «coge» (un clic pequeño), arrastra con su forma y la suelta al fundirse */
   .puntero {
     position: absolute;
@@ -618,19 +628,16 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
     pointer-events: none;
     color: var(--color-cacao);
   }
-  .cont-a { left: 33%; top: 24.5%; animation: fundir-a 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
-  .cont-b { left: 33%; top: 24.5%; animation: fundir-b 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
+  .cont-a, .cont-b { left: 33%; top: 24.5%; opacity: var(--ap); scale: var(--sc); }
   .dentro {
     position: absolute;
     inset: 14%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    animation: soltar 6s ease infinite both;
-  }
-  @keyframes soltar {
-    0%, 36% { opacity: 1; filter: none; }
-    46%, 100% { opacity: 0; filter: blur(5px); }
+    --so: clamp(0, (var(--u) - 2.16 + var(--v2) * 1.1) / 0.5, 1); /* lo que lleva cada una se suelta al unirse (en Desarrollo, antes: en cuanto salen las primeras líneas) */
+    opacity: calc(1 - var(--so));
+    filter: blur(calc(var(--so) * 5px));
   }
   .rot {
     font-family: var(--font-mono);
@@ -710,6 +717,7 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
   .il-cod i:nth-child(2) { background: var(--color-niebla); }
   .hecha .vb { position: absolute; right: 0; top: 0; font-style: normal; font-size: 0.75rem; line-height: 1; }
   /* LAS GUARDADAS: cada skill hecha cae debajo y se queda; al final de la vuelta entera se apagan juntas */
+  .taller { container-type: inline-size; }
   .guardadas {
     display: flex;
     gap: calc(var(--spacing) * 2);
@@ -718,18 +726,27 @@ const CURVA = Array.from({ length: 29 }, (_, k) => { const t = k / 28, e = t * t
     --a: calc(1 - pow(1 - clamp(0, (var(--t) - var(--k) * 6 - 4.9) / 0.5, 1), 4));
     --F: clamp(0, (var(--n) * 6 - 0.45 - var(--t)) / 0.35, 1);
     --on: calc(var(--a) * var(--F));
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 1);
     padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
     border-radius: var(--radius-full);
     background: color-mix(in oklab, var(--color-niebla) 8%, transparent);
-    /* hecha: se enciende y coge un filo de savia */
+    /* hecha: se enciende, coge un filo de savia y su check (ronda 183) */
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-naranja) calc(var(--on) * 70%), transparent);
     color: var(--color-niebla);
-    font-size: 0.75rem;
-    text-align: center;
+    font-size: min(0.75rem, 4.2cqw);
     white-space: nowrap;
     opacity: calc(0.38 + 0.62 * var(--on)); /* siempre a la vista: apagada hasta que se hace */
+  }
+  .ficha b {
+    font-weight: 400;
+    color: var(--color-naranja);
+    opacity: var(--on);
+    scale: calc(0.3 + 0.7 * var(--on));
   }
 
   /* 03 · Documentar — el documento escribiéndose dentro de un marco de SAVIA LÍQUIDA (ronda 13): el marco es un aro Naranja con filtro
