@@ -97,7 +97,7 @@ export const problemas = {
   parrafos: [
     'La IA es la base; el criterio sigue siendo nuestro.',
     'Hacemos tu web como un traje a medida, mano a mano contigo.',
-    'Y te entregamos la receta.',
+    'Y te entregamos la receta…',
     '[[savvia agentic]]: tu web conectada con la IA.',
   ],
 };
@@ -147,7 +147,7 @@ export const laSavvia = {
 // Cada tira es un trozo REAL de la receta que se entregó a Neety (su library): fundamentos, guardarraíles, una petición de su equipo, decisiones.
 export const receta = {
   titulo: 'savvia agentic.', // ronda 125: la sección de la rama musical (LaPartitura); antes «La savvia es la receta de tu web.»
-  arnes: 'Tu marca, tus decisiones y tus componentes, en una librería que cualquier agente sabe leer. Así cada cambio sale como lo harías tú.',
+  arnes: 'Tu marca, tus decisiones y tus componentes, en una librería que cualquier agente sabe leer. Así cualquiera de tu equipo puede cambiar lo que sea, y sale como lo haríamos nosotros.', // ronda 186 (Eric: «apelar a que cualquiera de tu equipo podrá modificar cualquier cosa»)
   nota: 'La receta real de Neety: la que usa su equipo cada día para cambiar su web con IA.',
   enlace: { label: 'Ver la receta entera', href: 'https://neety.treseiscero.app/library' },
   // RONDA 54 · «que caiga en un color claro, los tickets con más personalidad y más humanos; en cada ticket superponer algo digital que enfatice lo que
