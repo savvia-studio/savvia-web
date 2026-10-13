@@ -3724,7 +3724,7 @@ en mono en el pie.
   proyectos destacados» · «el texto, de los archivos de Drive compartidos con JL» · «sin subrayar» · «la animación, letra por letra».
 - **Hecho:** `Problemas.astro` (nuevo) sustituye a `Dolores.astro` en la home (guardado, sin borrar; `import` comentado). Orden: hero › raíces › manifiesto ›
   savvia agentic (`LaPartitura`, sube antes de Proyectos) › Proyectos destacados (ahora con `data-sube`: viene de lo claro) › Más proyectos › Servicios › …
-  Texto: el manifiesto de «Sesión Narrativa Home Page | Savvia 21 Sept» (Drive con José Luis), reescrito con Eric en cuatro frases cortas («La IA es la base; el criterio sigue siendo nuestro.» · «Hacemos tu web como un traje a medida, mano a mano contigo.» · «Y te entregamos la receta.» · «savvia agentic: tu web conectada con la IA, con todo su sistema de diseño montado.»)
+  Texto: el manifiesto de «Sesión Narrativa Home Page | Savvia 21 Sept» (Drive con José Luis), reescrito con Eric en cuatro frases cortas («La IA es la base; el criterio sigue siendo nuestro.» · «Hacemos tu web como un traje a medida, mano a mano contigo.» · «Y te entregamos la receta.» · «savvia agentic: tu web conectada con la IA.»)
   y «Savvia Agentic» en minúscula. Family a `text-h2`, columna de 14 em centrada; cada letra arranca al 20 % y se entinta en orden de lectura atada al scroll
   (franja blanda de 14 letras; de que el texto asoma al 80 % a que su final llega a media pantalla). Sin subrayado. Lleva la mancha de tierra de las raíces.
   Sitemap del Sistema al día. **Para revertir:** volver a `<Dolores id="recorrido-a2" tarjetas />` delante de `<Proyectos />` y `LaPartitura` tras Servicios.

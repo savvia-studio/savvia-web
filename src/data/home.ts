@@ -98,7 +98,7 @@ export const problemas = {
     'La IA es la base; el criterio sigue siendo nuestro.',
     'Hacemos tu web como un traje a medida, mano a mano contigo.',
     'Y te entregamos la receta.',
-    '[[savvia agentic]]: tu web conectada con la IA, con todo su sistema de diseño montado.',
+    '[[savvia agentic]]: tu web conectada con la IA.',
   ],
 };
 
