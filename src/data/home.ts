@@ -97,7 +97,7 @@ export const problemas = {
   parrafos: [
     'La IA es la base; el criterio sigue siendo nuestro.',
     'Hacemos tu web como un traje a medida, mano a mano contigo.',
-    'Y te entregamos la receta…',
+    'Cocinamos a fuego lento, píxel a píxel, y te entregamos la receta…',
     '[[savvia agentic]]: tu web conectada con la IA.',
   ],
 };
