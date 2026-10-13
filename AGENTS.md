@@ -3708,3 +3708,24 @@ en mono en el pie.
 - **Hecho (`TarjetaPaso.astro`, demo 02):** fuera las dos piezas que se apilaban (ronda 183). Cada pieza es ahora un archivo de seis LÍNEAS (seis franjas de su cuadrado, de canto limpio; 12 elementos `.pz` con `--k`): llegan enteras, con su rótulo, y línea a línea, de arriba abajo (0,2 s entre una y otra), las dos cruzan al centro y se INTERCALAN: una nuestra (Coral), una tuya (clara), como al fusionar dos ramas. Queda un archivo a rayas que vira entero a savia y se abre en la skill (cuyo dibujo ya eran líneas de código). Rótulos y ratones cruzan con las líneas de en medio; los rótulos se sueltan en cuanto salen las primeras.
 - **Medido:** `astro check` 0 errores · capturas del merge en seis instantes (Chrome 1280) y en WebKit 390 · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390): limpio, desborde 0. No publicado ni subido.
 - **PUBLICADA (13/10) en https://savvia.studio** (Andoni: «dale a publicar»): rondas 182–184, commit `7517cd0`; esta vez Vercel recogió el push solo (ayer no lo hizo). Medido EN VIVO: `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0; las líneas del merge servidas y la demo sin errores.
+
+### Ronda 185 · 2026-10-13 · la radio, sin silencio entre piezas (en local, Eric)
+- **Eric (textual):** «ha terminado una canción y ha habido un silencio de 3 segundos».
+- **Causa (medida con `silencedetect` a −40 dB):** diez de las doce piezas acaban con 0,4–8 s de silencio en el propio archivo (Everything You Ever Dreamed, 7,9 s;
+  Keeping Cool, 4,6; First Snow, 4,6) y cinco empiezan con 0,4–1,4 s; además la siguiente solo se pedía al `ended` (con `preload = 'none'`: descarga + fundido de 0,7 s).
+- **Hecho (`Radio.astro`):** cada pieza lleva `ini`/`fin` (dónde empieza y acaba su música). 2,5 s antes de `fin` arranca la siguiente (desde su `ini`) y las dos se
+  CRUZAN 2,5 s (`CRUCE`); `ended` queda de respaldo.
+- **Medido** (Chrome, Night Driving saltada al final): a los 125,3 s entra 2 Hour Delay (vol 0,26 → 0,5) mientras la otra baja (0,24 → 0) y se pausa en 128,1, antes
+  de su silencio; sin errores · `astro check` 0 errores. **SIN medir:** WebKit. No publicado ni subido.
+
+### Ronda 186 · 2026-10-13 · la sección 2 como MANIFIESTO que se entinta letra a letra (PRUEBA, en local, Eric)
+- **Eric (textual, con dos referencias: un texto en serif que se entinta con el scroll y la librería de Neety de savvia agentic):** «replantear la segunda
+  sección; y si no, revertimos: un manifiesto en el que leas bien los tres problemas y así presentamos savvia agentic; luego la ilustración animada, y luego
+  proyectos destacados» · «el texto, de los archivos de Drive compartidos con JL» · «sin subrayar» · «la animación, letra por letra».
+- **Hecho:** `Problemas.astro` (nuevo) sustituye a `Dolores.astro` en la home (guardado, sin borrar; `import` comentado). Orden: hero › raíces › manifiesto ›
+  savvia agentic (`LaPartitura`, sube antes de Proyectos) › Proyectos destacados (ahora con `data-sube`: viene de lo claro) › Más proyectos › Servicios › …
+  Texto: el manifiesto de «Sesión Narrativa Home Page | Savvia 21 Sept» (Drive con José Luis), reescrito con Eric en cuatro frases cortas («La IA es la base; el criterio sigue siendo nuestro.» · «Hacemos tu web como un traje a medida, mano a mano contigo.» · «Y te entregamos la receta.» · «savvia agentic: tu web conectada con la IA, sin perder su voz.»)
+  y «Savvia Agentic» en minúscula. Family a `text-h2`, columna de 14 em centrada; cada letra arranca al 20 % y se entinta en orden de lectura atada al scroll
+  (franja blanda de 14 letras; de que el texto asoma al 80 % a que su final llega a media pantalla). Sin subrayado. Lleva la mancha de tierra de las raíces.
+  Sitemap del Sistema al día. **Para revertir:** volver a `<Dolores id="recorrido-a2" tarjetas />` delante de `<Proyectos />` y `LaPartitura` tras Servicios.
+- **Medido:** `astro check` 0 errores · Chrome 1280 y 390: entintado a mitad capturado, consola limpia, desborde 0. **SIN medir:** WebKit. No publicado ni subido.

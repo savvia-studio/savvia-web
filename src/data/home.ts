@@ -86,6 +86,22 @@ export const recorrido = {
   ],
 };
 
+// RONDA 186 · Eric: «replantear la segunda sección: un manifiesto que se lea bien con los tres problemas y así presentamos savvia agentic; luego la
+// ilustración animada (la librería) y luego proyectos destacados». Referencia: un texto en serif que se entinta palabra a palabra con el scroll. Copy de
+// Drive «Savvia - Andoni x Eric x José Luis» › «Sesión Narrativa Home Page | Savvia 21 Sept»: el manifiesto tal cual, salvo «partitura propia» →
+// «receta propia» (la metáfora musical cayó en la ronda 117; el /manifiesto ya dice «receta propia») y «Savvia Agentic» en minúscula (ronda 16).
+// `[[…]]` = la marca (no se parte entre líneas).
+export const problemas = {
+  aria: 'Por qué savvia agentic',
+  // ronda 186 (Eric: «menos texto, tres párrafos cortos»): el mismo manifiesto, condensado por Nilo con sus propias frases
+  parrafos: [
+    'La IA es la base; el criterio sigue siendo nuestro.',
+    'Hacemos tu web como un traje a medida, mano a mano contigo.',
+    'Y te entregamos la receta.',
+    '[[savvia agentic]]: tu web conectada con la IA, sin perder su voz.',
+  ],
+};
+
 export const laSavvia = {
   pregunta: '¿Qué es la savvia?',
   // RONDA 12 (Andoni): «ponemos savvia es la receta de tu web. Y en vez de un documento, ponemos un sistema.»

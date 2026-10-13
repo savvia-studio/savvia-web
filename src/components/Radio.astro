@@ -14,14 +14,15 @@
 import { icono } from '../lib/iconos';
 const EMISORAS = [
   { id: 'lofi', nombre: 'Lo-fi', pistas: [
-    { f: 'first-snow', t: 'First Snow' }, { f: 'laundry-on-the-wire', t: 'Laundry On The Wire' }, { f: 'everything-you-ever-dreamed', t: 'Everything You Ever Dreamed' },
-    { f: 'keeping-cool', t: 'Keeping Cool' }, { f: 'snow-drift', t: 'Snow Drift' }, { f: 'windows-down', t: 'Windows Down' }, { f: '2-hour-delay', t: '2 Hour Delay' },
+    { f: 'first-snow', t: 'First Snow', fin: 169.5 }, { f: 'laundry-on-the-wire', t: 'Laundry On The Wire' }, { f: 'everything-you-ever-dreamed', t: 'Everything You Ever Dreamed', fin: 212.1 },
+    { f: 'keeping-cool', t: 'Keeping Cool', ini: 0.7, fin: 148.5 }, { f: 'snow-drift', t: 'Snow Drift', ini: 1.3, fin: 170.4 }, { f: 'windows-down', t: 'Windows Down', fin: 165.4 }, { f: '2-hour-delay', t: '2 Hour Delay', fin: 131.2 },
   ] },
   { id: 'instrumental', nombre: 'Instrumental', pistas: [
-    { f: 'night-driving', t: 'Night Driving' }, { f: 'boredom', t: 'Boredom' }, { f: 'love', t: 'Love' }, { f: 'lost-in-your-eyes', t: 'Lost In Your Eyes' }, { f: 'you-loved-me-once', t: 'You Loved Me Once' },
+    { f: 'night-driving', t: 'Night Driving', ini: 0.6, fin: 128.4 }, { f: 'boredom', t: 'Boredom', fin: 169.7 }, { f: 'love', t: 'Love', ini: 0.4, fin: 186 }, { f: 'lost-in-your-eyes', t: 'Lost In Your Eyes', ini: 0.7, fin: 233 }, { f: 'you-loved-me-once', t: 'You Loved Me Once', fin: 181.8 },
   ] },
 ];
-const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p) => ({ id: `${e.id}/${p.f}`, em: e.id, emNombre: e.nombre, t: p.t })));
+// ini/fin: dónde empieza y acaba la música en cada archivo (silencedetect a −40 dB; varias colas traen 1–9 s de silencio). Ronda 182.
+const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; ini?: number; fin?: number }) => ({ id: `${e.id}/${p.f}`, em: e.id, emNombre: e.nombre, t: p.t, ini: p.ini ?? 0, fin: p.fin ?? 0 })));
 ---
 
 <div class="radio" data-radio data-filtro="todas">
@@ -40,7 +41,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p) => ({ id: `${e.id}/${p.f
     <ol class="pistas" aria-label="Piezas">
       {PISTAS.map((p) => (
         <li data-em={p.em}>
-          <button type="button" data-pista={p.id} data-t={p.t}>
+          <button type="button" data-pista={p.id} data-t={p.t} data-ini={p.ini} data-fin={p.fin}>
             <span class="p-t">{p.t}</span>
             <span class="p-em">{p.emNombre}</span>
             <span class="p-ondas" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -177,7 +178,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p) => ({ id: `${e.id}/${p.f
 <script>
   const caja = document.querySelector<HTMLElement>('[data-radio]');
   if (caja) {
-    type Pista = { id: string; em: string; t: string };
+    type Pista = { id: string; em: string; t: string; ini: number; fin: number };
     const bPlay = caja.querySelector<HTMLButtonElement>('[data-radio-play]')!;
     const bSig = caja.querySelector<HTMLButtonElement>('[data-radio-sig]')!;
     const ahora = caja.querySelector<HTMLElement>('[data-radio-ahora]')!;
@@ -188,9 +189,9 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p) => ({ id: `${e.id}/${p.f
     ol.append(...lis);
     const tabs = [...caja.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
     const items = [...caja.querySelectorAll<HTMLButtonElement>('[data-pista]')];
-    const PISTAS: Pista[] = items.map((b) => ({ id: b.dataset.pista!, em: b.closest('li')!.dataset.em!, t: b.dataset.t! }));
+    const PISTAS: Pista[] = items.map((b) => ({ id: b.dataset.pista!, em: b.closest('li')!.dataset.em!, t: b.dataset.t!, ini: +(b.dataset.ini || 0), fin: +(b.dataset.fin || 0) }));
     const barras = [...caja.querySelectorAll<HTMLElement>('.m-ondas i')];
-    const VOL = 0.5, BAJA = 0.14, ENTRA = 700, SALE = 700, CAMBIO = 260, SIGUE = 450; // SIGUE: al retomar en la página nueva, entra más rápido
+    const VOL = 0.5, BAJA = 0.14, ENTRA = 700, SALE = 700, CAMBIO = 260, SIGUE = 450, CRUCE = 2500; // SIGUE: al retomar en la página nueva, entra más rápido
     const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // dos <audio> que se relevan: el que entra sube mientras el que sale baja (cruce sin silencio)
@@ -241,7 +242,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p) => ({ id: `${e.id}/${p.f
     const meta = (a: HTMLAudioElement) => new Promise<void>((r) => { if (a.readyState >= 1) r(); else a.addEventListener('loadedmetadata', () => r(), { once: true }); });
 
     // una pieza (la pedida o una al azar de la emisora); `aMedias` = entrar a mitad de ella (al encender o al cambiar de emisora, como una radio)
-    const sonar = async (aMedias: boolean, pedida?: Pista, desde?: number) => {
+    const sonar = async (aMedias: boolean, pedida?: Pista, desde?: number, relevo = false) => {
       const t = ++turno, p = pedida ?? alAzar(), nuevo = libre(), viejo = vivo();
       // play() se pide YA, dentro del gesto (RONDA 158 · Eric: «a veces clico una canción y a la primera no suena»): antes se esperaba a los metadatos
       // y, si la pieza tardaba en llegar (primera vez, sin caché), el navegador ya no lo contaba como respuesta al clic y lo bloqueaba. Suena a volumen 0
@@ -253,16 +254,25 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p) => ({ id: `${e.id}/${p.f
         await meta(nuevo);
         if (t === turno && desde != null && Number.isFinite(nuevo.duration)) nuevo.currentTime = desde < nuevo.duration - 2 ? desde : 0;
         else if (t === turno && aMedias && Number.isFinite(nuevo.duration) && nuevo.duration > 60) nuevo.currentTime = Math.random() * (nuevo.duration - 45);
+        else if (t === turno && p.ini) nuevo.currentTime = p.ini;
         await pl;
       } catch { if (t === turno) { on = false; pintar(); avisar(); } return; }
       if (t !== turno) { nuevo.pause(); return; }
       actual = p; ultimo = p.id; act = 1 - act;
-      if (!viejo.paused) fundir(viejo, 0, CAMBIO, () => viejo.pause()); else viejo.pause();
-      fundir(nuevo, nivel(), desde != null ? SIGUE : ENTRA, () => { if (cede) nuevo.pause(); });
+      if (!viejo.paused) fundir(viejo, 0, relevo ? CRUCE : CAMBIO, () => viejo.pause()); else viejo.pause();
+      fundir(nuevo, nivel(), desde != null ? SIGUE : relevo ? CRUCE : ENTRA, () => { if (cede) nuevo.pause(); });
       pintar(); medir();
     };
     els.forEach((a) => {
       a.addEventListener('ended', () => { if (on && a === vivo()) sonar(false); });
+      // RELEVO antes de que se acabe la música (no al `ended`: la cola del archivo puede traer segundos de silencio y la siguiente aún tiene que
+      // descargarse): a CRUCE ms del final de la música arranca la siguiente y las dos se cruzan.
+      a.addEventListener('timeupdate', () => {
+        if (!on || a !== vivo() || !actual || a.dataset.relevo === actual.id) return;
+        const fin = actual.fin || a.duration;
+        if (Number.isFinite(fin) && a.currentTime >= fin - CRUCE / 1000 - 0.5) { a.dataset.relevo = actual.id; sonar(false, undefined, undefined, true); }
+      });
+      a.addEventListener('play', () => { delete a.dataset.relevo; });
       a.addEventListener('error', () => { if (on && a === vivo()) sonar(false); }); // una pieza que no carga: la siguiente
     });
     // DE PÁGINA EN PÁGINA, la misma pieza y el mismo minuto (Eric): se guarda en la sesión qué suena y por dónde va (cada segundo y al salir de la

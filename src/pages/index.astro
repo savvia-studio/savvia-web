@@ -5,10 +5,11 @@ import Carriles from '../components/Carriles.astro';
 import Cargador from '../components/Cargador.astro';
 import Hero from '../components/Hero.astro';
 import Raices from '../components/Raices.astro';
-import Dolores from '../components/Dolores.astro'; // ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
+// import Dolores from '../components/Dolores.astro'; // ronda 51 · la A2 (raíz + demos); ronda 65: fuera las pruebas A y B (DoloresB.astro queda guardada)
 import LaSavvia from '../components/LaSavvia.astro'; // ronda 53: guardada (la sustituye LaReceta)
 import LaReceta from '../components/LaReceta.astro'; // ronda 125: guardada (la sustituye LaPartitura, savvia agentic)
 import LaPartitura from '../components/LaPartitura.astro';
+import Problemas from '../components/Problemas.astro'; // ronda 186: la sección 2 como manifiesto (Dolores queda guardado)
 import Proyectos from '../components/Proyectos.astro';
 import Anteriores from '../components/Anteriores.astro';
 import Servicios from '../components/Servicios.astro';
@@ -28,11 +29,12 @@ import Pie from '../components/Pie.astro';
     <Raices />
     <!-- RONDA 65 · la sección 2 elegida es la A2; `data-s2` se queda porque el CSS del titular generado cuelga de él -->
     <script is:inline>document.documentElement.dataset.s2 = 'a2';</script>
-    <Dolores id="recorrido-a2" tarjetas />
+    <!-- RONDA 186 · Eric: «un manifiesto con los tres problemas que presenta savvia agentic, luego la ilustración animada y luego proyectos destacados» -->
+    <Problemas />
+    <LaPartitura />
     <Proyectos />
     <Anteriores />
     <Servicios />
-    <LaPartitura />
     <Estudio />
     <Preguntas />
   </main>
