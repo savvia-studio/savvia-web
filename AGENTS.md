@@ -3689,3 +3689,6 @@ en mono en el pie.
   (antes 0,5). Ojo: es el mismo tramo que llega a la tercera, así que esa llegada también entra algo más vertical.
 - **A media ronda (Eric):** «en verano la rama, un poco más marrón y no tan verde» → verano #6e5235 · #7d6044 · #94785a (raicillas #5e4630); antes oliva.
 - **A media ronda (Eric):** «en primavera el toque rosa, algo más oscuro» → #7a3f4e · #8a4c5c · #a0626f (raicillas #6a3a47).
+- **PUBLICADA (13/10) en https://savvia.studio** (Eric: «publicamos todo»): commit `a5624f3` (rondas 175–181) → la Action «Publicar en Vercel» (éxito). Antes:
+  `astro check` 0 · build OK (24 páginas) · `spacing-lint` en escala. Medido EN VIVO (Chrome, 1440 y 390): /, /sistema, /metodo y /proyectos sin errores de
+  consola, 0 respuestas ≥ 400, desborde 0. **SIN medir en vivo:** WebKit (`tools/verify.cjs` lleva la ruta del Mac de Andoni). Sigue `noindex`.
