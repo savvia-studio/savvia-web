@@ -24,7 +24,6 @@ import { proyectos } from '../data/home';
 import { proyectos as OBRA } from '../data/proyectos';
 // RONDA 77 · Andoni: «donde estaban los logos pusimos el reel, pero prefiero HEROES que van rotando con el estilo del resto, rotando entre varios»: la
 // pieza de entrada es una pieza de marca más (degradado de su web + navegador que asoma), que rota entre los heroes de los destacados
-const HEROES = ['kuanta', 'arkdev', 'playground', 'neety'].map((slug) => OBRA.find((o) => o.slug === slug)!).filter(Boolean);
 // RONDA 78 · «que todos los títulos se lean sobre el fondo»: si el fondo de su web es claro (luminancia relativa del primer color > 0,5), el nombre va en Cacao
 const claro = (hex: string) => { const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5; };
 const A = proyectos.anteriores;
@@ -60,16 +59,19 @@ type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro
 // mejor»: TRES voces en un solo sitio del mosaico, junto a Isotrol. Cada cita entra palabra a palabra (el gesto de los titulares), un hilo de savia
 // mide su tiempo bajo el nombre de quien la dice, y si habla de un proyecto del mosaico, ese proyecto se SEÑALA (un punto de savia en su pie).
 const SITIO: Sitio[] = [
-  // RONDA 189 · Eric: «el fondo, un barrido: fondos de naturaleza difuminados con efecto de arrastre» (Harbor) y «las demás cards, como la de Kymatio»:
-  // todas sobre el paisaje de la ventana de la mesa barrido (tools/r189/barrido.cjs), el de la estación de la web, cada una con su encuadre y su
-  // dirección del arrastre (`v`), y su navegador ladeado encima. Filas: entrada + 0 + 1 · 2 + 3 · (testimonio) · 4 + 5 + 6.
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 0 },
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 1 },
-  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6, barrido: 2 },
-  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 3 },
-  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 4 },
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 5 },
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4, barrido: 6 },
+  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5 }, // Home of Ambrose (ronda 191), en el sitio de la antigua pieza de entrada
+  // RONDA 190 · Eric: «me convence más lo anterior [el paisaje barrido], lo veo más dinámico; no quiero que todo siga el mismo patrón: mostrar los
+  // proyectos con diferentes vistas». Se mezclan las vistas: paisaje barrido con navegador ladeado (Kymatio, Remerge, THX y la entrada) · la MESA con la
+  // web en el monitor (Wisable, en la estación de la web) · DEGRADADO de su marca con navegador ladeado (Monad, Cubbo) · navegador RECTO sobre su color
+  // (Transcend) · el MÓVIL sobre la mesa con su web en móvil (Remerge). Filas: entrada + 0 + 1 · 2 + 3 · (testimonio) · 4 + 5 + 6.
+  // Eric: «poner de forma central la del ordenador y la de la derecha con gradiente» (y «ahí no tiene que ir con blur»: Kymatio, su degradado)
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'escena', est: 'otono', zoom: 3.3, cy: 0.6 },
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5 },
+  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6, izq: true },
+  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'claro', g: 'g-marca' },
+  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5 },
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'movil', zoom: 2.5, cy: 0.5 }, // zoom 2,5: la lámina 16:9 cubre la pieza 3:4 · Eric: «una vista de mobile, como teníamos antes, con la web renderizada en mobile» (remerge-movil.mp4, a 390 px)
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4 }, // THX · ronda 191, Eric: «hay que quitarle el barrido» → su degradado
 ];
 // RONDA 42 · «los testimonios no van antes de nuestros proyectos, van entre medias, y que puedas cambiar de testimonio con unas flechas muy sutiles»:
 // una fila entera en medio del mosaico (tras la primera fila de proyectos), centrada; el nombre de quien habla entre dos flechas finas.
@@ -160,26 +162,8 @@ import { icono } from '../lib/iconos';
       <h2 id="ant-h" class="text-h1 max-w-[12ch] mt-24 lg:mt-32 invisible">{proyectos.titulo2}</h2>
     </div>
     <div class="mosaico mt-24 lg:mt-32">
-      <!-- la pieza de entrada: solo degradado, con el símbolo (la gota) y el texto debajo -->
-      <!-- RONDA 18 · «el logo que está encima del gradiente, ser los de los proyectos rotando con un efecto líquido de transición»: los cinco
-           logotipos se relevan fundiéndose como gotas (filtro gooey solo durante el relevo: en reposo el logotipo se ve limpio) y el degradado
-           de detrás vira a los colores de cada proyecto (@property: los colores se interpolan). -->
-      <div class="pieza entrada mancha" data-pieza style={`--i:0;--giro:5deg`}>
-        <a class={`lamina g-marca rota con-fondo barrido ${claro(HEROES[0].colores[0]) ? 'tinta-oscura' : ''}`} href="/proyectos" aria-label="Ver todos los proyectos" data-rota data-claros={JSON.stringify(HEROES.map((h) => claro(h.colores[0])))} data-colores={JSON.stringify(HEROES.map((h) => h.colores))} style={`--c1:${HEROES[0].colores[0]};--c2:${HEROES[0].colores[1]};--c3:${HEROES[0].colores[2]};${BARRIDO(7)}`}>
-          {HEROES.map((h, i) => (
-            <div class={`mockup heroe ${i === 0 ? 'on' : ''}`} data-heroe>
-              <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{h.dominio ?? h.slug}</b></span>
-              <img src={`/media/obra/${h.slug}/portada.jpg`} alt={`Portada de la web de ${h.nombre}`} width="1440" height="810" loading="lazy" decoding="async" />
-            </div>
-          ))}
-        </a>
-        <!-- RONDA 189 · Eric: «el de aquí lo sustituimos por uno como los que estás haciendo»: la pieza de entrada va como las demás (paisaje barrido,
-             navegador de cristal ladeado) y el nombre que rota baja al pie, con la categoría a la derecha -->
-        <div class="pie pie-pieza mt-4">
-          <h3 class="nombre-pie font-display rota-n" aria-live="off">{HEROES.map((h, i) => <span class={i === 0 ? 'on' : ''} data-heroe-n>{h.nombre.split(' ').map((p) => <span class="pal"><span>{p}</span></span>)}</span>)}</h3>
-          <p class="detail text-fg2">Destacado</p>
-        </div>
-      </div>
+      <!-- RONDA 191 · Eric: «aquí a la izquierda quitamos lo de destacados y ponemos Home of Ambrose con otro gradiente y el vídeo»: fuera la pieza de
+           entrada que rotaba (rondas 77–191); su sitio (columnas 1–3, cuadrada) lo ocupa Home of Ambrose como una pieza más (SITIO[0]) -->
       {
         A.map((c, i) => {
           const s = SITIO[i];
@@ -189,10 +173,10 @@ import { icono } from '../lib/iconos';
           const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
           const esMovil = s.tipo === 'movil' || s.tipo === 'tel';
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
-          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}.mp4" type="video/mp4" /></video>`;
+          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
           return (
             <>
-            {i === 4 && (
+            {i === 5 && (
               <figure class="banda voz" data-banda data-voz>
                 <!-- RONDA 67 · «a los retratos, el estilo dithering, que se mimeticen más con el fondo; el cambio, animado con el estilo de savvia»: cada retrato
                      se pinta como TRAMA DE PUNTOS en el color del texto (lienzo 2D; la imagen es solo la fuente) y el relevo es el pintado rasgado de savvia -->
@@ -220,7 +204,7 @@ import { icono } from '../lib/iconos';
                 </div>
               </figure>
             )}
-            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo === 'mancha' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
+            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo === 'mancha' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};${s.ratio === '3 / 4' ? '--top:20%;' : ''}--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
               <div class={`lamina ${s.g ?? ''} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
                 {s.tipo === 'escena' ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
@@ -236,7 +220,7 @@ import { icono } from '../lib/iconos';
                   <div class="tel-m"><span class="tel-pant"><Fragment set:html={video} /></span></div>
                 ) : (
                   <div class="mockup">
-                    <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{c.dominio}</b></span>
+                    <span class="cromo" aria-hidden="true"><b>{c.dominio}</b></span>
                     <Fragment set:html={video} />
                   </div>
                 )}
@@ -477,12 +461,13 @@ import { icono } from '../lib/iconos';
     // sitio (como entran las piezas); el nombre sale palabra a palabra por arriba y el nuevo sube desde su máscara (el gesto de los titulares)
     const sig = () => {
       const va = k; hs[va].classList.remove('on'); hs[va].classList.add('sale'); ns[va].classList.remove('on'); ns[va].classList.add('sale');
-      setTimeout(() => { hs[va].classList.remove('sale'); ns[va].classList.remove('sale'); }, 1500);
+      setTimeout(() => { hs[va].classList.remove('sale'); ns[va].classList.remove('sale'); }, 1700);
       k = (k + 1) % hs.length; hs[k].classList.add('on'); ns[k].classList.add('on');
       colores[k].forEach((c, i) => rota.style.setProperty(`--c${i + 1}`, c));
       rota.classList.toggle('tinta-oscura', claros[k]);
     };
-    new IntersectionObserver((e) => { clearInterval(reloj); if (e[0].isIntersecting) reloj = window.setInterval(sig, 4600); }, { threshold: 0.3 }).observe(rota);
+    // ronda 190: las capturas, ya descodificadas antes del primer relevo (el que llegaba entraba en blanco y se pintaba a media pasada)
+    new IntersectionObserver((e) => { clearInterval(reloj); if (e[0].isIntersecting) { rota.querySelectorAll('img').forEach((im) => im.decode().catch(() => {})); reloj = window.setInterval(sig, 4600); } }, { threshold: 0.3 }).observe(rota);
   }
 </script>
 
@@ -738,10 +723,15 @@ import { icono } from '../lib/iconos';
      RONDA 78 · el relevo: el nuevo sube desde abajo (18 %) y enfoca; el que se va baja un poco y se desenfoca */
   /* RONDA 81 · Andoni: «no me gusta cómo rotan; una animación más fluida»: sin desenfoque ni saltos. Los navegadores van en FILA, como una tira que avanza:
      el que está se desliza hacia la izquierda y el siguiente entra por la derecha a la vez, con la misma curva lenta (1,4 s, entrada y salida suaves) */
-  .heroe { transition: translate 1.4s cubic-bezier(0.65, 0, 0.35, 1), opacity 1.4s ease, rotate 0.9s var(--ease-out-expo); }
-  .heroe:not(.on) { translate: 115% 0 !important; opacity: 0 !important; transition: none; }
-  .heroe.sale { translate: -115% 0 !important; opacity: 0.4 !important; transition: translate 1.4s cubic-bezier(0.65, 0, 0.35, 1), opacity 1.4s ease; }
-  .heroe.on { opacity: 1 !important; translate: 0 0 !important; }
+  /* RONDA 190 · Eric: «como pasan las slides tiene que ser más smooth» (el que llega ya trae su captura cargada y descodificada) y después «el
+     slider me sigue sin gustar: tiene que ser fade»: FUNDIDO cruzado en su sitio: el que llega aparece encima mientras el que se
+     va se apaga debajo (1,2 s), sin desplazamiento. */
+  /* (con !important: la regla de entrada html.anima .pieza.visto .mockup pisaba la transición y el relevo saltaba de golpe) */
+  .heroe { transition: opacity 1.2s ease !important; }
+  .heroe:not(.on) { opacity: 0 !important; transition: none !important; }
+  .heroe.on { z-index: 1; }
+  .heroe.sale { opacity: 0 !important; transition: opacity 1.2s ease 0.3s !important; }
+  .heroe.on { opacity: 1 !important; }
   .heroe img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 0; }
   .entrada .rota-n { display: grid; transition: color 0.8s ease; }
   .entrada .rota-n > span { grid-area: 1 / 1; }
@@ -823,19 +813,11 @@ import { icono } from '../lib/iconos';
   :global(html[data-estacion='primavera']) .lamina.barrido::before { background-image: var(--b-primavera); }
   :global(html[data-estacion='verano']) .lamina.barrido::before { background-image: var(--b-verano); }
   :global(html[data-estacion='invierno']) .lamina.barrido::before { background-image: var(--b-invierno); }
-  /* RONDA 189 · Eric: «ese blur, efecto nube, en el borde» (la tarjeta de referencia sobre la playa): sin esquinas duras, la pieza se funde con la página
-     por un canto de NUBE (un rectángulo redondeado deformado con ruido y desenfocado: nube.svg, como máscara). La ventana, ladeada y grande como en
-     las demás (Eric: «me gustaba ladeado y más grande»). */
-  .lamina.barrido {
-    border-radius: 0;
-    -webkit-mask: url('/media/anteriores/fondos/nube.svg') 0 0 / 100% 100% no-repeat;
-    mask: url('/media/anteriores/fondos/nube.svg') 0 0 / 100% 100% no-repeat;
-  }
+  /* RONDA 190 · fuera el canto de NUBE de la ronda 189 (Eric: «se han quedado legacy»; Andoni: «no me convence que los bordes de la card se
+     difuminen»): las piezas de paisaje, con las esquinas nítidas de todas. */
   .lamina.barrido::before { inset: -2%; }
   /* Eric: «bajamos un poco el aire de arriba»: la ventana sube del 34 % al 24 % */
   .lamina.barrido .mockup { top: 24%; }
-  :global(html.anima) .pieza .lamina.barrido { clip-path: none; opacity: 0; scale: 0.96; }
-  :global(html.anima) .pieza.visto .lamina.barrido { clip-path: none; opacity: 1; scale: 1; transition: opacity 1.2s var(--ease-out-expo) calc(var(--i) * 110ms), scale 1.4s var(--ease-out-expo) calc(var(--i) * 110ms); }
 
   /* el TELÉFONO de Remerge: de pie en el centro, algo ladeado, con su web móvil */
   .tel-m {
@@ -979,7 +961,10 @@ import { icono } from '../lib/iconos';
     width: 21.78%;
     height: 21.04%;
     overflow: hidden;
-    background: #fbfbfa;
+    /* ronda 190 · Eric: «se ve un mini marco blanco entre el marco del ordenador y el vídeo»: era el blanco de la pantalla de la lámina asomando en el
+       borde fraccionario (y el fondo claro de la caja). Fondo en el negro del bisel y un filo de 2 px de ese negro por fuera (como en Proyectos, ronda 159). */
+    background: #121213;
+    box-shadow: 0 0 0 2px #121213;
   }
   /* RONDA 43 · «Remerge e Isotrol no encajan bien en el mockup»: el <video> lo inserta set:html y NO lleva el ámbito de Astro: estas reglas no se
      aplicaban nunca (el vídeo quedaba a su tamaño y con object-fit: contain: bandas en la pantalla y, en el móvil, la web recortada) → :global */
@@ -1019,8 +1004,11 @@ import { icono } from '../lib/iconos';
     position: absolute;
     display: flex;
     flex-direction: column;
-    padding: 0 4px 4px;
-    border-radius: 12px;
+    /* Eric: radios concéntricos, interior = exterior − relleno (12 − 4 = 8) */
+    --r-fuera: 9px; /* Eric: «demasiado redondeado»: 12 → 9 (dentro, 9 − 4 = 5) */
+    --marco: 4px;
+    padding: 0 var(--marco) var(--marco);
+    border-radius: var(--r-fuera);
     overflow: hidden;
     background: color-mix(in srgb, #fff 20%, transparent);
     -webkit-backdrop-filter: blur(20px) saturate(1.6);
@@ -1037,7 +1025,7 @@ import { icono } from '../lib/iconos';
   .mancha .mockup,
   .claro .mockup {
     left: 14%;
-    top: 34%;
+    top: var(--top, 34%); /* ronda 190 · Eric: «el aire de arriba hay que reducir» en las piezas altas (3:4): 20 % */
     width: 118%;
     rotate: var(--giro, -6deg);
     transform-origin: 0 0;
@@ -1056,26 +1044,30 @@ import { icono } from '../lib/iconos';
       0 0 0 1px rgb(48 32 24 / 0.1),
       0 24px 48px -20px rgb(48 32 24 / 0.35);
   }
-  .mockup :global(.vid) {
+  /* la web dentro del cristal, con sus esquinas y su filo; también la imagen de los heroes que rotan en la pieza de entrada (Eric: «la parte interior, bordeada») */
+  .mockup :global(.vid),
+  .mockup.heroe > img {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 7px;
+    border-radius: calc(var(--r-fuera) - var(--marco));
     box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
   }
+  /* Eric: «los puntitos no están bien puestos»: iban a 2 px del canto, montados en la curva de la esquina (radio 12). Ahora empiezan donde acaba la
+     curva de la web de dentro (radio interior = 8 px desde el marco) y van centrados en una barra de 12 px */
   .cromo {
     position: relative;
     flex: none;
     display: flex;
     align-items: center;
-    gap: 3px;
-    height: 10px;
-    padding-inline: 2px;
+    gap: 4px;
+    height: 12px;
+    padding-inline: calc(var(--r-fuera) - var(--marco));
   }
   .cromo i {
     flex: none;
-    width: 3.5px;
-    height: 3.5px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background: rgb(255 255 255 / 0.55);
     box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.12);

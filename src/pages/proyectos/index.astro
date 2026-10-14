@@ -14,15 +14,22 @@ import { flecha } from '../../lib/flecha';
 // RONDA 138 · Andoni: «el de Playground cambiarlo por alguno que se vea el móvil, ya que es más vertical. Y los destacados que sean un slider para
 // que tengas todos los proyectos más arriba y a mano». Los destacados, en UNA fila que se desliza (scroll-snap nativo): todas las piezas a la misma
 // altura y anchos distintos (`k` = ancho / alto); la del teléfono (Remerge), estrecha y vertical. Orden: ancho · estrecho · medio · ancho.
-type Sitio = { tipo: 'mancha' | 'claro' | 'escena' | 'telefono'; k: number; est?: string; zoom?: number; cy?: number; giro?: number };
-const SITIO: Record<string, Sitio> = {
-  kuanta: { tipo: 'mancha', k: 1.6, giro: -5 },
-  remerge: { tipo: 'telefono', k: 0.74 },
-  arkdev: { tipo: 'escena', k: 0.9, est: 'verano', zoom: 3.2, cy: 0.6 },
-  neety: { tipo: 'claro', k: 1.6 },
-};
-const ORDEN = ['kuanta', 'remerge', 'arkdev', 'neety'];
-const destacados = proyectos.filter((p) => p.destacado).sort((a, b) => ORDEN.indexOf(a.slug) - ORDEN.indexOf(b.slug));
+// RONDA 191 · Eric: «en el slider tienen que estar neety.com, surepayroll.com, claudiabe.studio, homeofambrose.com y elevenlab.org; aunque no les
+// llamemos proyectos destacados, solo que sea una slide que vaya pasando» (sustituyen a los cuatro de antes). Grabadas con tools/r189/grabar.cjs
+// (public/media/anteriores/video/<clave>.mp4). Las que no tienen caso enlazan a su web; Neety, a su caso. Colores, de su propia web.
+type Slide = { p: (typeof proyectos)[number]; href: string };
+const web = (slug: string, nombre: string, dominio: string, url: string, sector: string, colores: string[], vid = slug): Slide => ({
+  href: url,
+  p: { slug, nombre, dominio, url, sector, colores, servicios: [], portada: { tipo: 'video', src: `/media/anteriores/video/${vid}.mp4`, poster: `/media/anteriores/video/${vid}.jpg` } } as unknown as (typeof proyectos)[number],
+});
+const neety = proyectos.find((p) => p.slug === 'neety')!;
+const SLIDES: Slide[] = [
+  { href: '/proyectos/neety', p: { ...neety, dominio: 'neety.com', portada: { tipo: 'video', src: '/media/anteriores/video/neety-com.mp4', poster: '/media/anteriores/video/neety-com.jpg' } } },
+  web('surepayroll', 'SurePayroll', 'surepayroll.com', 'https://www.surepayroll.com/', 'Nóminas', ['#0f2421', '#1fc58e', '#8f7cf0']),
+  web('claudia-be', 'Claudia BE', 'claudiabe.studio', 'https://claudiabe.studio/', 'Estudio de branding', ['#f6e9e1', '#ee4f4f', '#f4a3a3']),
+  web('home-of-ambrose', 'Home of Ambrose', 'homeofambrose.com', 'https://www.homeofambrose.com/', 'Vivienda', ['#f6e5d5', '#c25631', '#4d4d1c']),
+  web('eleven-lab', 'Eleven Lab', 'elevenlab.org', 'https://www.elevenlab.org/', 'Consultoría de diseño', ['#0d6b7a', '#1c3fa8', '#0a8f86']),
+];
 const servicios = SERVICIOS.map((s) => [s, proyectos.filter((p) => p.servicios.includes(s)).length] as const).filter(([, n]) => n);
 const sectores = [...new Set(proyectos.map((p) => p.sector).filter(Boolean))].sort((a, b) => a!.localeCompare(b!, 'es')) as string[];
 const POR_PAGINA = 9; // RONDA 144 · Eric: «de tres en vez de dos: van a ir todas, las 40» → filas de 3
@@ -50,14 +57,14 @@ const texto = (p: (typeof proyectos)[number]) =>
       <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Para equipos que viven de su web. Estos son algunos de ellos.</p>
     </header>
 
-    <section class="destacados" aria-roledescription="carrusel" aria-label="Proyectos destacados" data-slider>
+    <section class="destacados" aria-roledescription="carrusel" aria-label="Algunas webs" data-slider>
       <ul class="pista" data-pista>
         {
-          destacados.map((p, i) => {
-            const s = SITIO[p.slug] ?? { tipo: 'mancha', k: 1.5 };
+          SLIDES.map(({ p, href }, i) => {
+            const tipo = luz(p.colores[0]) ? 'claro' : 'mancha';
             return (
-              <li class={`slide ${s.tipo}`} style={`--k:${s.k}`} aria-roledescription="diapositiva" aria-label={`${i + 1} de ${destacados.length}: ${p.nombre}`} data-slide>
-                <Pieza p={p} tipo={s.tipo} est={s.est} zoom={s.zoom} cy={s.cy} giro={s.giro} transicion />
+              <li class={`slide ${tipo}`} style="--k:1.6" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${SLIDES.length}: ${p.nombre}`} data-slide>
+                <Pieza p={p} tipo={tipo} giro={i % 2 ? 5 : -5} href={href} transicion={href.startsWith('/')} />
               </li>
             );
           })
@@ -68,10 +75,10 @@ const texto = (p: (typeof proyectos)[number]) =>
              dos flechas solas (sin cuenta, sin nombre, sin la caja de cristal), pegadas a la guía derecha bajo el slider. El número y el nombre
              del que se ve siguen para lectores de pantalla. -->
         <div class="barra-cristal barra-voz" role="group" aria-label="Navegación de destacados">
-          <button type="button" class="paso" aria-label="Proyecto destacado anterior" data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
-          <button type="button" class="paso" aria-label="Proyecto destacado siguiente" data-paso="1"><Fragment set:html={flecha()} /></button>
+          <button type="button" class="paso" aria-label="Anterior" data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
+          <button type="button" class="paso" aria-label="Siguiente" data-paso="1"><Fragment set:html={flecha()} /></button>
         </div>
-        <p class="sr-only" aria-live="polite"><span data-n>01/{String(destacados.length).padStart(2, '0')}</span> <span data-n-nombre>{destacados[0]?.nombre}</span></p>
+        <p class="sr-only" aria-live="polite"><span data-n>01/{String(SLIDES.length).padStart(2, '0')}</span> <span data-n-nombre>{SLIDES[0].p.nombre}</span></p>
       </div>
     </section>
 
@@ -192,6 +199,23 @@ const texto = (p: (typeof proyectos)[number]) =>
       pista.addEventListener('dragstart', (e) => e.preventDefault());
       medir();
       pintarS();
+      // RONDA 191 · Eric: «una slide que vaya pasando»: avanza sola cada 5 s (y al final vuelve a la primera); se para con el puntero o el foco dentro,
+      // fuera de la vista o con la pestaña oculta, y espera 10 s tras cualquier gesto del visitante. Sin paso solo con movimiento reducido.
+      if (!reducido) {
+        let dentro = false, visible = false, quieto = 0;
+        const gesto = () => (quieto = performance.now() + 10000);
+        sl.addEventListener('pointerenter', () => (dentro = true));
+        sl.addEventListener('pointerleave', () => (dentro = false));
+        sl.addEventListener('focusin', () => (dentro = true));
+        sl.addEventListener('focusout', () => (dentro = false));
+        ['pointerdown', 'wheel', 'touchstart', 'keydown'].forEach((t) => sl.addEventListener(t, gesto, { passive: true }));
+        new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.4 }).observe(sl);
+        setInterval(() => {
+          if (dentro || !visible || document.hidden || performance.now() < quieto || arrastra) return;
+          const i = actual();
+          ir(i >= slides.length - 1 || pista.scrollLeft >= max() - 2 ? 0 : i + 1);
+        }, 5000);
+      }
       (window as any).__slider = () => ({ i: actual(), scroll: Math.round(pista.scrollLeft), max: max(), n: nEl.textContent });
     }
   }

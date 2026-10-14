@@ -47,39 +47,8 @@ const partir = (p: string): Trozo[] =>
 </style>
 
 <script>
+  import { entintar } from '../scripts/entintar';
   const sec = document.querySelector<HTMLElement>('[data-problemas]');
   const texto = sec?.querySelector<HTMLElement>('.texto');
-  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (sec && texto && !reducido) {
-    const cs = [...texto.querySelectorAll<HTMLElement>('.c')];
-    const N = cs.length, BLANDO = 14; // letras en la franja que se va entintando
-    const ops = new Float32Array(N).fill(0.2);
-    let ini = 0, fin = 1;
-    const medir = () => {
-      const r = texto.getBoundingClientRect(), y = r.top + scrollY;
-      ini = y - innerHeight * 0.8;            // empieza cuando el texto asoma al 80 % de la pantalla
-      fin = y + r.height - innerHeight * 0.62; // acaba cuando su final llega al 62 % (antes de que asome la sección siguiente)
-    };
-    let pedido = false;
-    const pintar = () => {
-      pedido = false;
-      const p = Math.min(1, Math.max(0, (scrollY - ini) / Math.max(1, fin - ini)));
-      const n = p * (N + BLANDO);
-      for (let i = 0; i < N; i++) {
-        const k = Math.min(1, Math.max(0, (n - i) / BLANDO));
-        const o = Math.round((0.2 + 0.8 * k) * 50) / 50;
-        if (o !== ops[i]) { ops[i] = o; cs[i].style.opacity = String(o); }
-      }
-    };
-    const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(pintar); } };
-    const io = new IntersectionObserver((es) => {
-      if (es[0].isIntersecting) { addEventListener('scroll', pedir, { passive: true }); pedir(); }
-      else { removeEventListener('scroll', pedir); pedir(); }
-    }, { rootMargin: '20% 0px' });
-    const remedir = () => { medir(); pedir(); };
-    medir(); io.observe(sec);
-    addEventListener('resize', remedir);
-    document.fonts?.ready.then(remedir);
-    new ResizeObserver(remedir).observe(document.body);
-  }
+  if (sec && texto) entintar(sec, texto);
 </script>

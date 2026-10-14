@@ -16,7 +16,14 @@ const SITIOS = {
   'business-online-payroll': { url: 'https://businessonlinepayroll.com', w: 1440, h: 900 },
   cubbo: { url: 'https://cubbo.com', w: 1440, h: 900 },
   remerge: { url: 'https://remerge.io', w: 390, h: 844, movil: true },
+  'remerge-movil': { url: 'https://remerge.io', w: 390, h: 844, movil: true }, // ronda 190: la vista del móvil sobre la mesa
   isotrol: { url: 'https://isotrol.com', w: 1440, h: 900 },
+  // ronda 191 · el slider de /proyectos: neety.com, SurePayroll, Claudia BE, Home of Ambrose y Eleven Lab
+  'neety-com': { url: 'https://neety.com', w: 1440, h: 900 },
+  surepayroll: { url: 'https://www.surepayroll.com/', w: 1440, h: 900 },
+  'claudia-be': { url: 'https://claudiabe.studio/', w: 1440, h: 900, espera: 5000 },
+  'home-of-ambrose': { url: 'https://www.homeofambrose.com/', w: 1440, h: 900, espera: 5000 },
+  'eleven-lab': { url: 'https://www.elevenlab.org/', w: 1440, h: 900, espera: 5000 },
 };
 const clave = process.argv[2], s = SITIOS[clave], slug = clave === 'remerge-escritorio' ? 'remerge' : clave;
 (async () => {

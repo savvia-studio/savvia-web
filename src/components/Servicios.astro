@@ -84,7 +84,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
 </section>
 
 <script>
-  import { clic } from '../scripts/sonidos';
   const raiz = document.querySelector<HTMLElement>('[data-serv]');
   const quieto = matchMedia('(prefers-reduced-motion: reduce)');
   if (raiz) {
@@ -155,7 +154,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
         pulsar(!pone);
         if (!(await esperar(pone ? 70 : 40, t))) return;
         marcar(p, pone);
-        if (sonar) clic({ vol: pone ? 0.032 : 0.016 });
+        // ronda 190 · Eric: «los sonidos de tap de la ilustración animada quitamos»: el cursor marca en silencio
         if (!(await esperar(pone ? 70 : 30, t))) return;
       }
       if (!(await esperar(420, t))) return;
@@ -206,7 +205,10 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
 
 <style>
   /* ronda 152 · «a servicios dejarles más aire por abajo, 80 px más» */
-  [data-servicios] > .wrap { padding-bottom: calc(var(--space-section) + 80px); }
+  /* ronda 192 · «falta un poco de espacio aquí abajo» (Eric): +80 más (la gota de la sección siguiente se come parte del hueco) */
+  /* ronda 191 · Eric: «cada sección, arriba y abajo, el mismo espacio hasta su línea»: los 160 px extra (para la gota de la sección siguiente, que
+     sube ~240 px) se reparten por igual: línea de arriba → titular = línea de abajo del bloque → fin de la sección */
+  [data-servicios] > .wrap { padding-block: calc(var(--space-section) + 80px); }
   /* ── EL BLOQUE ENTRE GUÍAS (ronda 134): las líneas de arriba y abajo son filas de los carriles; el bloque se apoya en ellas */
   .cuerpo { --hueco: calc(var(--spacing) * 16); position: relative; display: grid; gap: calc(var(--spacing) * 8); align-items: stretch; padding-block: calc(var(--spacing) * 6); }
   @media (width >= 64rem) {
@@ -308,7 +310,10 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
   /* ── LA TARJETA (ronda 134: sin caja propia; es la celda entre las guías, a la derecha del divisor) */
   .tarjeta {
     position: relative;
-    padding-block: calc(var(--spacing) * 8);
+    padding-block: calc(var(--spacing) * 12); /* ronda 191: el mismo aire que el selector hasta las dos líneas (48 px) */
+  }
+  @media (width >= 64rem) {
+    .selector { padding-block: calc(var(--spacing) * 6); } /* + los 24 de cada opción = 48 px hasta cada línea */
   }
   .cab { color: var(--fg2); }
   .cab span { color: var(--fg); }

@@ -283,8 +283,10 @@ export const proyectos = {
     // RONDA 189 · Eric: «las demás cards, como la de Kymatio; te digo las webs»: Kymatio · Wisable · Monad · Transcend · Cubbo · Remerge · THX, todas
     // sobre el paisaje barrido de la estación con su navegador. Vídeos: tools/r189/grabar.cjs <slug> (Remerge, ya en escritorio). Fuera BOP, Isotrol,
     // Naterra y Routal (siguen en /proyectos y en su caso). Sector, de lo que dice cada web.
-    { n: 'Kymatio', slug: 'kymatio', dominio: 'kymatio.com', sector: 'Ciberseguridad', logo: '', color: ['#0b1f17', '#123a2c', '#2fbf8a'] },
+    // ronda 191 · Eric: Home of Ambrose, primera pieza; «el gradiente no cumple con su paleta» → la de su CSS: melocotón, terracota y oliva
+    { n: 'Home of Ambrose', slug: 'home-of-ambrose', dominio: 'homeofambrose.com', sector: 'Vivienda', logo: '', color: ['#f6e5d5', '#c25631', '#4d4d1c'] },
     { n: 'Wisable', slug: 'wisable', dominio: 'wisable.com', sector: 'Venta de empresas', logo: '', color: ['#0b0f2e', '#1b2150', '#e6f24a'] },
+    { n: 'Kymatio', slug: 'kymatio', dominio: 'kymatio.com', sector: 'Ciberseguridad', logo: '', color: ['#0b1f17', '#123a2c', '#2fbf8a'] },
     { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#e4efe0', '#b8d8b1', '#86b98a'] },
     { n: 'Transcend', slug: 'transcend-network', dominio: 'transcend-network.com', sector: 'Comunidad de fundadores', logo: '', color: ['#fff6ee', '#ff6b1a', '#3f7bff'] },
     { n: 'Cubbo', slug: 'cubbo', dominio: 'cubbo.com', sector: 'Logística para ecommerce', logo: 'cubbo', color: ['#1b40d6', '#4963e2', '#788ae8'] },
@@ -320,6 +322,7 @@ export const proyectos = {
       { tipo: 'cita', q: 'Llevamos un año colaborando en SurePayroll y los resultados han sido muy buenos: nos han ayudado a hacer crecer la relación con el cliente.', n: 'Brian Farrell', r: 'Fundador y director, Farco Studio' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/profounders-capital.png', n: 'PROFounders Capital', escala: 1.4 },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/junipero.png', n: 'Junipero', escala: 1.15 },
+      { tipo: 'cita', q: 'Cercanos, humanos y capaces de entender de verdad tu proyecto. Más que un proveedor, son parte de tu equipo.', n: 'Unai Arambarri', r: 'Fundador y CEO, Neety' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/neety.png', n: 'Neety', escala: 1.3 },
     ],
     [
@@ -342,7 +345,7 @@ export const proyectos = {
     [
       { tipo: 'cita', q: 'Captaron exactamente lo que queríamos transmitir, y lo hicieron rápido y con profesionalidad.', n: 'Carlos Hernández', r: 'Fundador y CEO, Kalma' },
       { tipo: 'marca', rotulo: 'Hemos colaborado con', logo: '/media/logos/cuadricula/minimum.png', n: 'Minimum', escala: 1.05 },
-      { tipo: 'cita', q: 'Captaron nuestra esencia a la perfección y superaron todas las expectativas en tiempo récord.', n: 'Santos J. Díaz Pastor', r: 'Analista, Impact Bridge' },
+      { tipo: 'cita', q: 'Captaron nuestra esencia a la perfección y superaron todas las expectativas en tiempo récord.', n: 'Santos J. Díaz Pastor', r: 'Asociado de inversión, Impact Bridge Asset Management SGIIC' },
       { tipo: 'cita', q: 'Muy satisfechos con su trabajo y su compromiso de principio a fin. Seguiremos colaborando en futuros proyectos.', n: 'Emilio Rodríguez', r: 'Socio director, Lyra' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/lyra.png', n: 'Lyra', escala: 1.1 },
     ],
@@ -361,6 +364,9 @@ export const proyectos = {
   testimonios: [
     { n: 'José Luis Antúnez', r: 'Strategy Partner, Routal', retrato: '/media/testimonios/jl-antunez.webp', q: 'Habla con Eric y Andoni cuando necesites rediseñar tu web. Un gran trabajo y un gran proceso de documentación, diseño, desarrollo y entrega. Calidad, cercanía y rapidez.' },
     { n: 'Alberto Arenaza', r: 'Cofundador, Transcend Network', retrato: '/media/testimonios/alberto.webp', q: 'Ha sido un placer trabajar con ellos. Su dedicación, su rapidez y su proactividad lo ponen muy fácil. Los recomiendo sin dudarlo.' },
+    // RONDA 191 · Juanjo (JJ) Velaz: su cita de la home en inglés de treseiscero.app (2022, en web.archive.org), traducida y sin «treseiscero».
+    //   Retrato: su foto pasada a carboncillo con tools/r191/retrato.py (no es de la mano de Andoni).
+    { n: 'JJ Velaz', r: 'Emprendedor', retrato: '/media/testimonios/juanjo-velaz.webp', q: 'Trabajar con Eric y Andoni fue fácil, rápido y de mucha calidad. Les cuento lo que necesito y sé que lo resolverán sin idas y venidas. Comunicación excelente y precios claros.' },
     { n: 'Danny Saltaren', r: 'Diseñador y fundador, MITO', retrato: '/media/testimonios/danny.webp', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.' },
   ],
 
@@ -422,9 +428,21 @@ export const voces = [
 export const estudio = {
   pregunta: '¿Quiénes están detrás?',
   // RONDA 39 · el claim que salía del hero vive aquí: es la única sección donde se habla en primera persona («el yo, en equipo»)
+  // RONDA 190 · Eric: «volver a poner narrativa, antes que los 3D nuestros: hablar de nuestro background» y conectarla con el titular. Las dos
+  // primeras frases son suyas; la tercera (el puente al titular) es de Nilo. OJO: el Diccionario dice «no se presume ni años ni número de clientes»
+  // (Andoni, ronda 5): por acordar entre los dos.
+  // Después: «todo un copy entero; más discreto, más elegante». Un solo texto que desemboca en el titular (que pasa a ser una frase de él).
+  // RONDA 191 · Eric: «en vez de copy podrían ser 3 KPIs: +84 clientes · 8 países (al pasar, el nombre de los países, siguiendo al ratón) ·
+  // 6 años trabajando juntos (realmente 8, pero bueno)». Los países salen del CMS de treseiscero (Countries, 8). OJO: el Diccionario dice
+  // «no se presume ni años ni número de clientes» (Andoni, ronda 5): por acordar entre los dos.
+  kpis: [
+    { n: '+75', t: 'Clientes' }, // Holded: 76 clientes únicos facturados (12-06-2020 → 30-09-2026), 74–75 sin los posibles dobles
+    { n: '8', t: 'Países' }, // Alemania, Andorra, Austria, España, Estados Unidos, Italia, México y Reino Unido (CMS de treseiscero › Countries)
+    { n: '6', t: 'Años juntos' },
+  ] as { n: string; t: string }[],
   titulo: 'El estudio web que orquesta la IA.',
-  texto:
-    'Somos Eric y Andoni, y estamos los dos en cada web, de la primera conversación a la última línea. Elegimos la herramienta adecuada para cada problema, no al revés.',
+  // ronda 191 · Eric, su versión: «Somos Andoni y Eric. Los dos en cada decisión…»
+  texto: 'Somos Andoni y Eric. Los dos en cada decisión.\nLos dos de la primera conversación a la última.', // el salto de línea, a petición de Eric
   // RONDA 129 · el nombre de cada uno es una llamada (la de «Sentarse») y al pasar caen sus AFICIONES. Son datos de Andoni y Eric: FALTA, no se inventan.
   // `gesto`: fotogramas del gesto característico de cada uno, en el mismo lienzo que la pose final (ronda 140: /media/equipo/juntos-r140.webp, 1200 × 1000, con alfa). Vacío = sin gesto.
   // RONDA 137 · Andoni: «Yo, Andoni, tiro a canasta. Eric hace un revés de tenis.» (storyboard → tools/r137-equipo/montar.py)

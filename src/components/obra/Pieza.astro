@@ -15,9 +15,11 @@ interface Props {
   giro?: number;
   transicion?: boolean; // lleva el nombre de la transición compartida con la portada del caso
   sube?: boolean; // ronda 130: solo la rejilla de «Todos los proyectos»: navegador recto, cortado por abajo, que sube al entrar
+  href?: string; // ronda 191: el slider de /proyectos enlaza también webs sin caso (se abren en su web)
   grande?: boolean; // ronda 154: la CARÁTULA del caso de estudio: la misma pieza a todo el ancho y alta, sin nombre ni pie, con el vídeo a la vista
 }
-const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false, grande = false } = Astro.props;
+const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false, grande = false, href } = Astro.props;
+const destino = href ?? `/proyectos/${p.slug}`, fuera = /^https?:/.test(destino);
 const [c1, c2, c3] = p.colores;
 const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // la pantalla del monitor en la lámina (ronda 26)
 const left = 50 - (PANT.x + PANT.w / 2) * zoom * 100, py = PANT.y + PANT.h / 2;
@@ -30,7 +32,7 @@ const Tag = grande ? 'div' : 'a';
 const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150; })();
 ---
 
-<Tag href={grande ? undefined : `/proyectos/${p.slug}`} class={`pieza ${tipo}${tipo !== 'escena' && claroFondo ? ' fondo-claro' : ''}${sube ? ' pz-sube' : ''}${grande ? ' pz-grande' : ''}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra data-a-la-vista={grande ? '' : undefined}>
+<Tag href={grande ? undefined : destino} target={!grande && fuera ? '_blank' : undefined} rel={!grande && fuera ? 'noopener' : undefined} class={`pieza ${tipo}${tipo !== 'escena' && claroFondo ? ' fondo-claro' : ''}${sube ? ' pz-sube' : ''}${grande ? ' pz-grande' : ''}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra data-a-la-vista={grande ? '' : undefined}>
   <div class={`lamina ${tipo === 'escena' ? '' : 'g-marca'}`} style={transicion ? `view-transition-name: obra-${p.slug}` : undefined}>
     {
       tipo === 'escena' ? (
@@ -50,7 +52,7 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     {!grande && <h3 class="nombre font-display">{p.nombre}</h3>}
     {!grande && <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>}
   </div>
-  {!grande && <p class="pie detail text-fg2">{p.sector && <span class="text-fg">{p.sector}</span>}{p.sector && ' · '}{p.servicios.slice(0, 3).join(', ')}</p>}
+  {!grande && <p class="pie detail text-fg2">{p.sector && <span class="text-fg">{p.sector}</span>}{p.sector && p.servicios.length > 0 && ' · '}{p.servicios.slice(0, 3).join(', ')}</p>}
 </Tag>
 
 <script>
