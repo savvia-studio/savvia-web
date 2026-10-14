@@ -13,9 +13,10 @@ const V = [
   { x: 3420, y: 650, h: 1170, ang: 22 },
   { x: 0, y: 100, h: 1500, ang: -14 },
   { x: 3420, y: 500, h: 1320, ang: 28 },
+  { x: 0, y: 250, h: 1400, ang: -36 }, // la pieza de entrada (los destacados que rotan)
 ];
 (async () => {
-  for (const [v, p] of V.entries()) for (const est of ['primavera', 'verano', 'otono', 'invierno']) {
+  for (const [v, p] of V.entries()) if (!process.argv[2] || +process.argv[2] === v) for (const est of ['primavera', 'verano', 'otono', 'invierno']) {
     const pad = L, A = (p.ang * Math.PI) / 180;
     const { data, info } = await sharp(`public/media/estudio/${est}-xl.webp`)
       .extract({ left: p.x, top: p.y, width: 1690, height: p.h })

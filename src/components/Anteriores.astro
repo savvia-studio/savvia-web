@@ -101,6 +101,8 @@ function escenaQuad(k: string) {
   const matriz = `matrix3d(${r(m.a)}, ${r((m.d * H) / W)}, 0, calc(${r(m.g / W)} / var(--s)), ${r((m.b * W) / H)}, ${r(m.e)}, 0, calc(${r(m.h / H)} / var(--s)), 0, 0, 1, 0, calc(${r(m.c * W)} * var(--s)), calc(${r(m.f * H)} * var(--s)), 0, 1)`;
   return { x0, y0, W, H, cx: (x0 + x1) / 2 / LAM.w, cy: (y0 + y1) / 2 / LAM.h, matriz };
 }
+// el paisaje barrido de la variante v en las cuatro estaciones (el CSS elige el de la estación de la web)
+const BARRIDO = (v: number) => ['primavera', 'verano', 'otono', 'invierno'].map((e) => `--b-${e}:url('/media/anteriores/fondos/barrido-${v}-${e}.webp')`).join(';');
 import { flecha } from '../lib/flecha';
 import { icono } from '../lib/iconos';
 ---
@@ -163,16 +165,20 @@ import { icono } from '../lib/iconos';
            logotipos se relevan fundiéndose como gotas (filtro gooey solo durante el relevo: en reposo el logotipo se ve limpio) y el degradado
            de detrás vira a los colores de cada proyecto (@property: los colores se interpolan). -->
       <div class="pieza entrada mancha" data-pieza style={`--i:0;--giro:5deg`}>
-        <a class={`lamina g-marca rota ${claro(HEROES[0].colores[0]) ? 'tinta-oscura' : ''}`} href="/proyectos" aria-label="Ver todos los proyectos" data-rota data-claros={JSON.stringify(HEROES.map((h) => claro(h.colores[0])))} data-colores={JSON.stringify(HEROES.map((h) => h.colores))} style={`--c1:${HEROES[0].colores[0]};--c2:${HEROES[0].colores[1]};--c3:${HEROES[0].colores[2]}`}>
+        <a class={`lamina g-marca rota con-fondo barrido ${claro(HEROES[0].colores[0]) ? 'tinta-oscura' : ''}`} href="/proyectos" aria-label="Ver todos los proyectos" data-rota data-claros={JSON.stringify(HEROES.map((h) => claro(h.colores[0])))} data-colores={JSON.stringify(HEROES.map((h) => h.colores))} style={`--c1:${HEROES[0].colores[0]};--c2:${HEROES[0].colores[1]};--c3:${HEROES[0].colores[2]};${BARRIDO(7)}`}>
           {HEROES.map((h, i) => (
             <div class={`mockup heroe ${i === 0 ? 'on' : ''}`} data-heroe>
               <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{h.dominio ?? h.slug}</b></span>
               <img src={`/media/obra/${h.slug}/portada.jpg`} alt={`Portada de la web de ${h.nombre}`} width="1440" height="810" loading="lazy" decoding="async" />
             </div>
           ))}
-          <h3 class="nombre font-display" aria-live="off">{HEROES.map((h, i) => <span class={`${i === 0 ? 'on' : ''} ${claro(h.colores[0]) ? 'oscura' : ''}`} data-heroe-n>{h.nombre.split(' ').map((p) => <span class="pal"><span>{p}</span></span>)}</span>)}</h3>
         </a>
-        <p class="pie text-aux text-fg2 mt-4">{proyectos.intro2}</p>
+        <!-- RONDA 189 · Eric: «el de aquí lo sustituimos por uno como los que estás haciendo»: la pieza de entrada va como las demás (paisaje barrido,
+             navegador de cristal ladeado) y el nombre que rota baja al pie, con la categoría a la derecha -->
+        <div class="pie pie-pieza mt-4">
+          <h3 class="nombre-pie font-display rota-n" aria-live="off">{HEROES.map((h, i) => <span class={i === 0 ? 'on' : ''} data-heroe-n>{h.nombre.split(' ').map((p) => <span class="pal"><span>{p}</span></span>)}</span>)}</h3>
+          <p class="detail text-fg2">Destacado</p>
+        </div>
       </div>
       {
         A.map((c, i) => {
@@ -215,7 +221,7 @@ import { icono } from '../lib/iconos';
               </figure>
             )}
             <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo === 'mancha' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
-              <div class={`lamina ${s.g ?? ''} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? ['primavera', 'verano', 'otono', 'invierno'].map((e) => `--b-${e}:url('/media/anteriores/fondos/barrido-${s.barrido}-${e}.webp')`).join(';') : undefined}>
+              <div class={`lamina ${s.g ?? ''} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
                 {s.tipo === 'escena' ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
                     <img class="foto" src={`/media/estudio/${s.est}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
@@ -465,7 +471,7 @@ import { icono } from '../lib/iconos';
   // la casa) y el degradado vira a los colores de su web (@property --c1…3)
   const rota = document.querySelector<HTMLElement>('[data-rota]');
   if (rota && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const hs = [...rota.querySelectorAll<HTMLElement>('[data-heroe]')], ns = [...rota.querySelectorAll<HTMLElement>('[data-heroe-n]')], colores: string[][] = JSON.parse(rota.dataset.colores!), claros: boolean[] = JSON.parse(rota.dataset.claros!);
+    const hs = [...rota.querySelectorAll<HTMLElement>('[data-heroe]')], ns = [...rota.closest('.pieza')!.querySelectorAll<HTMLElement>('[data-heroe-n]')], colores: string[][] = JSON.parse(rota.dataset.colores!), claros: boolean[] = JSON.parse(rota.dataset.claros!);
     let k = 0, reloj = 0;
     // RONDA 78 · «al cambiar entre proyectos, que tenga alguna animación»: el navegador que se va se hunde y se desenfoca; el nuevo SUBE desde abajo a su
     // sitio (como entran las piezas); el nombre sale palabra a palabra por arriba y el nuevo sube desde su máscara (el gesto de los titulares)
@@ -737,16 +743,16 @@ import { icono } from '../lib/iconos';
   .heroe.sale { translate: -115% 0 !important; opacity: 0.4 !important; transition: translate 1.4s cubic-bezier(0.65, 0, 0.35, 1), opacity 1.4s ease; }
   .heroe.on { opacity: 1 !important; translate: 0 0 !important; }
   .heroe img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 0; }
-  .entrada .nombre { display: grid; transition: color 0.8s ease; }
-  .entrada .nombre > span { grid-area: 1 / 1; }
+  .entrada .rota-n { display: grid; transition: color 0.8s ease; }
+  .entrada .rota-n > span { grid-area: 1 / 1; }
   .entrada .pal { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-right: 0.25em; }
   /* RONDA 82 · «el titular anterior se vuelve a ver»: al quitarle `.sale`, la palabra volvía a su sitio de espera (abajo) ANIMADA y cruzaba la vista. El
      regreso es instantáneo; solo se animan la entrada (.on) y la salida (.sale) */
   .entrada .pal > span { display: inline-block; translate: 0 110%; transition: none; }
-  .entrada .nombre > span.on .pal > span { translate: 0 0; transition: translate 1.1s cubic-bezier(0.65, 0, 0.35, 1) calc(0.25s + var(--n, 0) * 0.06s); }
-  .entrada .nombre > span.sale .pal > span { translate: 0 -110%; transition: translate 0.9s cubic-bezier(0.65, 0, 0.35, 1); }
-  .entrada .nombre .pal:nth-child(2) > span { --n: 1; }
-  .entrada .nombre .pal:nth-child(3) > span { --n: 2; }
+  .entrada .rota-n > span.on .pal > span { translate: 0 0; transition: translate 1.1s cubic-bezier(0.65, 0, 0.35, 1) calc(0.25s + var(--n, 0) * 0.06s); }
+  .entrada .rota-n > span.sale .pal > span { translate: 0 -110%; transition: translate 0.9s cubic-bezier(0.65, 0, 0.35, 1); }
+  .entrada .rota-n .pal:nth-child(2) > span { --n: 1; }
+  .entrada .rota-n .pal:nth-child(3) > span { --n: 2; }
   /* sobre el fondo claro de su web (Playground, Neety…), el nombre en Cacao y sin sombra */
   /* RONDA 156 · cada nombre lleva SU tinta (la de su fondo), no el h3: así el que entra y el que sale no comparten color a medio relevo (Eric: «no se lee») */
   .entrada .nombre > span.oscura { color: var(--color-cacao); text-shadow: none; }
