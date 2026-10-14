@@ -1,0 +1,35 @@
+---
+// RONDA 188 · página de PRUEBA de la réplica del hero de Neety (src/components/neety/NeetyHero.astro), suelta, sin la barra ni la carga de savvia:
+// es la /home de Neety tal cual, para compararla con tools/r188/neety-hero/capturas/. `?t=4.2` congela la cinta en el instante de las capturas (y `?svh=830.3` reproduce el alto con que se midieron a 1440 × 900).
+import { Font } from 'astro:assets';
+import NeetyHero from '../../components/neety/NeetyHero.astro';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Neety · réplica del hero</title>
+    <link rel="icon" href="data:," />
+    <link rel="preload" as="image" href="/media/neety-hero/hero-bg-mobile-v5.avif" media="(max-width: 63.9375rem)" />
+    <link rel="preload" as="image" href="/media/neety-hero/hero-bg-v4.avif" media="(min-width: 64rem)" />
+    <Font cssVariable="--font-bricolage" preload />
+    <Font cssVariable="--font-switzer" preload />
+    <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-roboto-mono" preload />
+    <script is:inline>
+      // prueba: ?svh=830 → 100svh = 830 px (el valor de la extracción)
+      var v = new URLSearchParams(location.search).get('svh');
+      if (v) document.documentElement.style.setProperty('--nh-svh', +v / 100 + 'px');
+    </script>
+    <style is:global>
+      html { overflow-y: scroll; scrollbar-gutter: stable; }
+      body { margin: 0; background: #f5f7f9; }
+    </style>
+  </head>
+  <body>
+    <NeetyHero />
+  </body>
+</html>

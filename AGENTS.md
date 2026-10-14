@@ -3729,3 +3729,84 @@ en mono en el pie.
   (franja blanda de 14 letras; de que el texto asoma al 80 % a que su final llega a media pantalla). Sin subrayado. Lleva la mancha de tierra de las raíces.
   Sitemap del Sistema al día. **Para revertir:** volver a `<Dolores id="recorrido-a2" tarjetas />` delante de `<Proyectos />` y `LaPartitura` tras Servicios.
 - **Medido:** `astro check` 0 errores · Chrome 1280 y 390: entintado a mitad capturado, consola limpia, desborde 0. **SIN medir:** WebKit. No publicado ni subido.
+
+### Ronda 187 · 2026-10-14 · la construcción del monitor con los punteros de savvia agentic (en local, Eric)
+- **Eric (textual):** «los punteros, iguales a los de savvia agentic; que se muevan con su misma rapidez y suavidad; cada uno de los 3 hace cosas distintas, en
+  lugares y orden diferentes: más natural».
+- **Hecho (`src/scripts/construir.ts`, reescrito con un solo reloj rAF; estilos en `Proyectos.astro › .c-cursor`):** el dibujo de LaPartitura (flecha de 16,
+  etiqueta en píldora del color con texto blanco, clic que encoge y onda), su curva de mano (0,42 0 0,24 1) con el ARCO y su ritmo (guion ÷ 0,62). Colores:
+  el agente Coral, Andoni Cobalto, Eric Cereza (los de la estación, como en savvia agentic). Oficios: el agente traza titulares y baja; Andoni empieza por el
+  visual (lo ronda antes de trazarlo, más despacio) y luego los botones, que pulsa; Eric la navegación y los textos de abajo arriba y, si le sobra tiempo,
+  revisa con un clic una caja del agente. Los textos de cuerpo van al más libre. Entran por lados distintos y en momentos distintos, y salen al pintarse la miniatura.
+- **Medido** (Chrome sin ventana, 1440×900, Kuanta): ~7,5 s hasta pintar la miniatura y ~9 s en total (antes ~4,6: los viajes van al ritmo de savvia agentic);
+  sin errores · `astro check` 0. **SIN medir:** WebKit, móvil. No publicado ni subido.
+
+### Ronda 187 · 2026-10-14 · el logotipo, más allá de la tipografía: primera lámina de variantes (en local, Eric)
+- **Eric (textual):** «del logo, me gustaría que no solo sea tipográfico con la tipografía escogida sino que podamos cambiar algo de su vectorización para hacerlo único» · «ahora compramos la typo».
+- **Licencias:** Family (titulares y logotipo) hay que COMPRARLA (la de ahora es la de prueba de Klim): solo Regular 400, formatos Web y Desktop (el Desktop cubre el logotipo; confirmar en el texto de Klim). Timeless (body) NO se compra: licencia libre 1.2, uso comercial y en logotipos; no subir a repositorio público ni modificar los archivos.
+- **Hecho:** `tools/r187/variantes.cjs` → `tools/r187/shots/lamina-v1.png` (y los SVG en `tools/r187/svg/`): actual · A punto de la i en gota · B vv unidas · C brazo fino de la v rematado en gota · A+C · A+B, en grande y a 24 px sobre oscuro. La web no se ha tocado.
+- **Ojo:** el titular del pie es texto vivo en Family (`Pie.astro:35`): si cambia el dibujo, tiene que pasar a SVG. «Ramas en letras» está en lo rechazado.
+- **Pendiente:** elegir; con la Family comprada, regenerar el contorno desde el `.otf` bueno y aplicar ahí la variante.
+- **A media ronda: Family COMPRADA** (Klim, pedido 26100706, 14/10/2026: Family Regular, licencia WEB, 5.000 usuarios/mes, savvia.studio; factura en ~/Downloads/Klim-Order-26100706.zip). `src/assets/fonts/family-regular.woff2` (estática, 400, 580 glifos con tildes, ñ y ¿ ¡) sustituye a la de prueba en `astro.config.mjs`; la de prueba queda en su sitio sin uso. Los titulares con tilde ya no caen a Georgia (medido en /metodo: «Método» entero en Family; consola limpia). **Solo se compró Web, no Desktop:** para redibujar y usar el logotipo como marca (contornos fuera de la web) falta la licencia Desktop de Klim.
+
+### Ronda 188 · 2026-10-14 · réplica exacta del hero de Neety (en local, Eric)
+- **Eric (textual):** «Tienes el hero de Neety (/home) extraído en tools/r188/neety-hero/ […] Referencia principal: 1440×900. Replica con esas medidas exactas y compara contra capturas/hero-*@2x.png».
+- **Hecho:** `src/components/neety/NeetyHero.astro` (barra, card con el degradado horneado y su muesca, eyebrow con el punto que late, h1, píldora «Solicitar demo» con su hover,
+  cinta de 7 tarjetas con esqueletos, tecleo y «Enviado ✓», subtítulo en la muesca / bajo la card en móvil, hamburguesa) traducido 1:1 del Tailwind de Hero, SignalFeed,
+  PillCta, Navbar y HomePage, con sus breakpoints (md · lg · 1200 · xl · 1360 · alto < 840) y sus clamp en svh. La cinta, sin GSAP: función pura del tiempo con las mismas
+  curvas y el mismo guion (ciclo de 26,6 s). Recursos en `public/media/neety-hero/` (1,6 MB). Página suelta de PRUEBA `/prueba/neety-hero` (sin la barra ni la carga de
+  savvia): `?t=4.2` congela la cinta en el instante de las capturas; `?svh=830.3` reproduce el alto con que se midieron a 1440 × 900 (aquel Chrome resolvía 100svh = 830 px
+  en una ventana de 900). Fuentes nuevas por la API de Astro: Inter 400 y Roboto Mono 500. `tsconfig` excluye `tools/r188/neety-hero/fuente` (código Next copiado).
+- **Medido** (Chrome real sin ventana, DPR 2, contra `capturas/hero-*@2x.png`): error medio por canal 0,12 (1440×900), 0,08 (1280×720), 0,12 (390×844) y 0 píxeles con
+  diferencia > 24 en los tres; paradas de la cinta 568 → 188 → −68 → −297,5 → −450 → −593 → −733 → −840 y vuelta a los 26,6 s, como `movimiento.md`; consola limpia ·
+  `astro check` 0 errores · build OK. **SIN medir:** WebKit.
+- **A media ronda (Eric, con una captura de Neety en tablet): «¿no sería interesante que lo que reflejásemos sea exactamente lo de esas dimensiones, en modo tablet?» · «sí, dale».**
+  El hueco de savvia agentic (576 × 648) es justo ×0,75 de 768 × 864. La réplica pasa a responder a SU caja (container queries `nh`; `vw`/`svh` → `cqw`/`cqh`) y gana
+  el modo `caja`: tablet de 768 × 864 escalada al ancho del hueco, sin reloj propio (la película llama a `__nh.pintar(t)` y `__nh.latir(l)`), con sus piezas marcadas
+  `data-pz`/`data-slot` (fondo, logo, nav = la hamburguesa, eyebrow, punto, h1, ctas, esp, card, sub). `LaPartitura.astro`: fuera la home dibujada (marcado, CSS `.n-*`
+  y `.sf-*`, FEED y su cinta); `rectLocal` escala las medidas al salir de la réplica; la cinta arranca al asentarse su tarjeta (en segundos reales: `/ VEL`); el espaciado
+  «large · 48» abre el hueco titular → píldora de 24 a 48 px con su cota. En la película móvil (hueco 556 × 412) va la misma vista tablet, recortada por abajo.
+  Inter y Roboto Mono, también en `Base.astro`. **Medido:** a 768 × 864 la réplica contra la `/home` real (dev server de Neety, :3159): mismas cajas, error medio 0,56 y
+  0,26 % de píxeles (la franja de abajo: el desenfoque fijo de su página); la página de prueba sigue igual que las capturas (0,08–0,12); la película a 1440 y 390
+  capturada en 6 instantes, sin errores · `astro check` 0 · build OK. **SIN medir:** WebKit. No publicado ni subido.
+- **A media ronda (Eric):** «al final, un poco de scroll down sobre la web antes de que termine la animación; cubic-bezier smooth» → «que el scroll sea mayor, que se
+  muestren 3-4 secciones» · «el degradado, "degradado granular", y que sea el que ponemos luego» · «ese puntito [de la píldora de estado] quitamos, es AI slop» ·
+  «los outputs pueden ser más»: Cambios de copy · Editar ilustraciones · Crear landings para Ads · Subir blog al CMS · Añadir idiomas · Publicar un caso de cliente ·
+  Actualizar precios · Ajustar SEO y metadatos · Hacer tests A/B · Revisar accesibilidad.
+  **Hecho:** tras publicar, la home de Neety BAJA 2.850 px (px de la tablet; `cubic-bezier(0.65, 0, 0.35, 1)`): la réplica es el contenedor que se desplaza, la barra se
+  queda pegada con su desenfoque y tinte (NavBlur.tsx) y la hamburguesa fija; debajo, «Nuestros clientes» replicado (Clients + LogoMarquee, la cinta a 55 px/s, logotipos
+  `client-*.avif`) y «Por qué Neety», «De ruido a señal» y el arranque de «Neety por dentro» como CAPTURA de la web real a 768 px (`secciones-768.webp`, 187 KB, con sus
+  entradas ya hechas). El guion gana `D = 2,6` (la cámara se queda dentro mientras baja) y `E = 1,2` (cola para las diez salidas): bucle de 16 → 19,8 s de guion (~32 s
+  reales). La muestra de la librería se llama «Degradado granular» y es la imagen horneada del hero (la de tablet). Fuera el punto de la píldora de estado. Diez salidas
+  (`home.ts › partitura.sale`), cada una con su entrada y su agente (`CONS`), cada 0,24 s; en escritorio a 44 px, simétricas con las entradas.
+  **Medido:** `astro check` 0 · película capturada a 1440 (scroll en cinco instantes; las diez salidas) y a 390, sin errores de consola. **Ojo:** el servidor de desarrollo
+  sirvió el script viejo de LaPartitura hasta tocar el archivo (`touch`). **SIN medir:** WebKit. No publicado ni subido.
+- **A media ronda (Eric):** «el puntero de Tu equipo es el que tiene que pulsar en cada una de las 10 salidas». **Hecho:** Tu equipo (el que pide el hero al
+  principio) va de salida en salida y pulsa cada una justo cuando aparece (`pulsa`, clic en A + 0,15, con su sonido); Claude, Codex y Diseño siguen trayéndolas desde
+  su entrada (las dos que eran de Tu equipo pasan a Diseño). Salidas cada 0,4 s (antes 0,24) y cola `E = 2,7`: bucle de 21,3 s de guion (~34 s reales).
+  Medido a 1440 y 390, sin errores.
+- **A media ronda (Eric):** «mejora el diseño de esta pill» (la de estado, «Tu equipo toma «Logotipo»») · «esa línea horizontal quitamos» (la que cruzaba el pie
+  «Ilus. 1»). **Hecho:** la píldora es un aviso de actividad de la app, en claro (blanco al 90 %, desenfoque, filo ciruela al 10 %): avatar del agente en su color con
+  sus iniciales, nombre, «toma» y la pieza en etiqueta mono; leyendo y listo, los tres avatares; publicado, check en savia y «neety.com» (`data-m` = lee · toma · listo ·
+  pub; `home.ts › estado[1]` = «Publicado en»). La línea era MÍA: la réplica llevaba su propio `<main>` y Carriles dibuja una fila por cada `main > section` (salía la de
+  «Nuestros clientes»); en caja la réplica es un `div`. Medido: sin fila junto al pie, los cuatro estados capturados a 1440 y 390.
+- **A media ronda (Eric):** «il.» (no «Ilus.») · «al acabar la construcción y salir Multiverse, el velo se corta a mitad un segundo» · «el botón, al ponerse, se
+  pinta un poco más a la izquierda y más pequeño» · «lo de "publicado · neety.com" es un poco AI slop; la card central se ha quedado pequeña» · «el agente de diseño
+  tiene que ser "savvia"». **Hecho:** pie «Il. 1» (abreviatura de la RAE). CONSTRUCCIÓN (`construir.ts`): las cajas y la retícula seguían encima de la miniatura
+  pintada (el círculo tapaba media esfera) y el círculo rasgado, en %, no llegaba a la esquina opuesta (y al crecer más se alejaba de su origen): ahora la pintura va
+  en z 1, cajas y retícula se apagan mientras se pinta, la máscara va en px centrada en la última caja con radio hasta la esquina más lejana y, pintada, se quita;
+  el último fotograma es la captura entera, igual que la web de debajo (grabado fotograma a fotograma). BOTÓN: el destino del pick es la píldora (no la fila) y la copia
+  llega a su tamaño exacto; el chip va debajo. TARJETA de la librería un 20 % mayor (se dibuja en 236 × 176 y se escala `KH`), sin la píldora de publicado: al publicar,
+  un pie con filete, check fino en savia, «Publicado en neety.com» y «ahora». El tercer agente se llama «savvia» (antes «Diseño»).
+
+### Ronda 189 · 2026-10-14 · Invopop sobre un paisaje BARRIDO (en local, Eric)
+- **Eric (textual, con referencias de Harbor y dos tarjetas sobre naturaleza desenfocada):** «el fondo de los proyectos, con un barrido: backgrounds de naturaleza difuminados y con efecto de arrastre; ¿lo intentamos para la captura que te he mandado?» (la pieza de Invopop en «Más proyectos»).
+- **Hecho:** `tools/r189/barrido.cjs`: el panel izquierdo de la ventana de la mesa (cielo, monte y bosque, sin monitor ni parteluces) de cada estación, con desenfoque de MOVIMIENTO en diagonal (−24°, 120 px, pesos en triángulo) + desenfoque leve → `public/media/anteriores/fondos/barrido-<estación>.webp` (900 × 1200, 12–16 KB). `Anteriores.astro`: Invopop deja la mesa (`escena`) y pasa a `mancha` con `barrido: true`: su navegador ladeado sobre el paisaje barrido de la estación de la web (vira al cambiarla).
+- **Medido** (Chrome, 1440 × 900 DPR 2, otoño e invierno): fondo barrido bajo el navegador, sin errores · `astro check` 0 errores. **SIN medir:** WebKit, móvil. No publicado ni subido.
+- **A media ronda (Eric):** «ahí, en Invopop, debería ir Kymatio» → la pieza es Kymatio (`home.ts › anteriores[0]`: kymatio.com · Ciberseguridad; colores de su web), con su vídeo grabado paso a paso (`tools/r189/grabar.cjs kymatio`: copia de `grabar-paso.cjs` que corre en el Mac de Eric) → `public/media/anteriores/video/kymatio.{mp4,jpg}` (495 KB). Invopop sale de «Más proyectos» (sigue en /proyectos y en su caso). · «el mockup de la web, mucho más moderno y translúcido; que el rectángulo de arriba no tenga tanto aire» → la ventana entera es CRISTAL (velo claro al 20 % + desenfoque 20 px del fondo + filo de luz), marco de 4 px alrededor de la web y barra de 10 px dentro del mismo cristal (sin franja propia), tres puntos y la dirección centrada; la web con esquinas de 7 px. Sobre degradados claros (Monad), el cristal se oscurece un poco. Medido (Chrome 1440 DPR 2): Kymatio, Monad y Cubbo capturados, sin errores · `astro check` 0.
+- **A media ronda (Eric, captura):** «al pasar, el redondeado no va bien» (esquinas rectas mientras el fondo escala bajo la ventana de cristal) → `.lamina` lleva una máscara lisa (`mask-image: linear-gradient(#000,#000)`), que obliga al navegador a recortar con las esquinas también las capas compuestas; en todas las piezas. · «ese blur, efecto nube, en el borde» (la tarjeta de referencia sobre la playa) → la pieza de Kymatio no tiene esquinas: se funde con la página por un canto de NUBE (`public/media/anteriores/fondos/nube.svg`: rectángulo redondeado deformado con ruido y desenfocado, como máscara); la ventana va dentro, recta, centrada y entera; entra fundiéndose (sin el recorte de abajo arriba). Medido (Chrome 1440 DPR 2, otoño, invierno, al pasar; Cubbo al pasar con sus esquinas bien): sin errores · `astro check` 0.
+- **A media ronda (Eric):** «no mola tanto; tiene que ser muy sutil» → el canto de nube pasa a un filo apenas difuminado: `nube.svg` = rectángulo redondeado casi del tamaño de la pieza (5 px de margen sobre 300 × 400, radio 12) con un desenfoque de 2,4 y sin la deformación con ruido (probada a escala 6: se leía como un borde mordido). El icono de vídeo vuelve a su esquina. Medido (Chrome 1440 DPR 2): sin errores.
+- **A media ronda (Eric):** «me gustaba que antes el mockup estaba ladeado y más grande» → vuelve el navegador de las demás piezas (ladeado 5°, 118 % de ancho, asomando por la derecha y por abajo), ahora fundido por el filo suave; el icono de vídeo, en su esquina. Medido (Chrome 1440): sin errores.
+- **A media ronda (Eric):** «bajamos un poco el aire de arriba» → en Kymatio la ventana sube del 34 % al 24 % de la pieza (ahora asoma el bosque barrido por debajo). Medido (Chrome 1440): sin errores.
+- **A media ronda (Eric):** el pie de cada pieza de «Más proyectos»: el nombre a la izquierda y a la derecha SOLO la categoría (fuera el dominio); las que no tienen sector (Cubbo, Remerge) quedan solo con el nombre.
+- **A media ronda (Eric):** «quita el titular "Más proyectos"» → el `h2` sigue en su sitio pero `invisible` («deja el espacio que ocupaba en blanco»): el hueco se conserva y la sección lo sigue usando de nombre.

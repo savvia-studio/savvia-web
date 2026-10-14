@@ -1,0 +1,258 @@
+/* Pill CTA con hover "color-tunes": el label rueda hacia arriba mientras una copia idéntica
+   entra desde abajo, y el puntito de la derecha sale mientras entra una flecha en su lugar.
+   Dos variantes por token de color:
+     · primary — relleno plum, texto/flecha crema (botón "Solicitar demo").
+     · outline — sin relleno, borde plum, texto/flecha plum (CTA "Saber más" de las cards).
+   Los colores salen de variables CSS para que ambas variantes compartan la MISMA animación. */
+
+.btn {
+  --elastic: linear(
+    0, 0.007 0.9%, 0.026 1.8%, 0.113 4%, 0.605 12.3%, 0.807 16.5%, 0.947 20.9%,
+    0.992 23.2%, 1.024 25.6%, 1.045 28.7%, 1.051 32.3%, 1.011 47.8%, 1 55.7%, 1
+  );
+  --smooth: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* tokens de color (los sobreescribe cada variante) */
+  --cta-bg: var(--color-plum);
+  --cta-fg: #fff;
+  --cta-accent: var(--color-cream);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  isolation: isolate;
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.875rem; /* text-sm */
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.45s var(--elastic);
+}
+.btn:active {
+  transform: scale(0.955, 0.954);
+}
+@media (min-width: 1024px) {
+  .btn {
+    font-size: 1rem; /* lg:text-base */
+  }
+}
+
+/* Variante outline (CTA "Saber más"): sin relleno, borde plum que se oscurece al hover, texto y
+   flecha en plum. text-base fijo; en móvil py-2 (pastilla de ~37px, Figma "CTA / Small") y en
+   lg py-3 px-6 (tamaño de las cards de desktop). */
+.outline {
+  --cta-bg: transparent;
+  --cta-fg: var(--color-plum);
+  --cta-accent: var(--color-plum);
+  font-size: 1rem;
+}
+.outline .bg {
+  border: 1px solid rgba(67, 27, 68, 0.1); /* plum/10 */
+  transition:
+    border-color 0.45s var(--smooth),
+    scale 0.45s var(--smooth);
+}
+.outline:is(:hover, :focus-visible) .bg {
+  border-color: rgba(67, 27, 68, 0.3); /* plum/30 */
+}
+.outline .inner {
+  gap: 2rem;
+  padding: 0.5rem 1.5rem; /* py-2 px-6 */
+}
+@media (min-width: 1024px) {
+  .outline .inner {
+    gap: 2rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* Tamaño grande a TODOS los anchos (CTA del footer, Figma "CTA / Small" 206×45): text-base y
+   gap 2.5rem también en móvil (donde .inner normalmente encoge a py-2 px-4). El padding
+   vertical NO es py-3: con 12/12 la pastilla salía a 48px y la tinta del label 1px baja
+   (medido en preview: 18px de aire arriba vs 16 abajo contando el descendente de la «p»).
+   10 arriba + 11 abajo centra la tinta y deja la pastilla en los 45px del frame
+   (feedback 31-ago: «el aire arriba y abajo tiene que ser simétrico y un poco menor»). */
+.big {
+  font-size: 1rem;
+}
+.big .inner {
+  gap: 2.5rem;
+  padding: 0.625rem 1.5rem 0.6875rem;
+}
+
+/* Variante compacta (cards del grid a 2 columnas de /plataforma en móvil): por debajo
+   de md la pastilla encoge (text-sm, px-3.5, gap-3) para caber en cards de ~130px de
+   contenido — la outline normal mide ~163px y sobresalía (feedback 2026-08-18).
+   En md+ no cambia nada. Debe ir DESPUÉS de .outline: misma especificidad, gana orden. */
+@media (width < 48rem) {
+  .compact {
+    font-size: 0.875rem;
+  }
+  .compact .inner {
+    gap: 0.75rem;
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+/* Full-width (CTA del menú móvil): la pastilla llena su contenedor y el grupo label+punto se
+   centra. El padding-bottom es un pelín menor que el top para que la fuente display no lea alta. */
+.block {
+  width: 100%;
+  justify-content: center;
+}
+.block .inner {
+  padding: 0.75rem 1rem 0.625rem;
+}
+
+/* Variante spread (pareja de CTAs apiladas del coming soon, feedback del cliente: «todo
+   simétrico» y labels centrados respecto al texto de debajo). Solo actúa por debajo de sm
+   (40rem), donde los botones van en columna al ancho del más ancho:
+     · ambas variantes igualan su padding horizontal (px-6 — en móvil primary trae px-4 y
+       outline px-6, y eso descuadraba los puntos);
+     · el punto se ancla a la columna derecha → alineado entre pastillas;
+     · el label se centra EXACTAMENTE en la pastilla gracias a una columna fantasma a la
+       izquierda del mismo ancho que el punto (0.5rem): con el gap simétrico a ambos lados,
+       el centro de la columna 1fr coincide con el centro de la pill, y por tanto con el
+       párrafo centrado de debajo.
+   En sm+ (fila a ancho natural) no cambia nada. */
+@media (width < 40rem) {
+  .spread .inner {
+    width: 100%;
+    grid-template-columns: 0.5rem 1fr 0.5rem;
+    padding-inline: 1.5rem;
+  }
+  .spread .text,
+  .spread .inner::after {
+    grid-area: 1 / 2;
+    justify-self: center;
+  }
+  .spread .dotWrap {
+    grid-area: 1 / 3;
+  }
+}
+
+/* Capa de fondo separada para que su escala nunca altere el layout del label/punto. */
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-color: var(--cta-bg);
+  transition: scale 0.45s var(--smooth);
+}
+
+.inner {
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 1.75rem; /* gap-7 */
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  overflow: hidden; /* recorta el label que rueda */
+}
+@media (min-width: 1024px) {
+  .inner {
+    gap: 2rem; /* lg:gap-8 */
+    padding: 0.75rem 1.5rem; /* lg:py-3 lg:px-6 */
+  }
+}
+
+.text,
+.inner::after {
+  grid-area: 1 / 1;
+  color: var(--cta-fg);
+  white-space: nowrap;
+  transition:
+    translate 0.55s var(--smooth),
+    opacity 0.4s var(--smooth);
+}
+/* Copia entrante — empieza abajo, oculta; rueda limpia hacia su sitio al hover. */
+.inner::after {
+  content: attr(data-text);
+  translate: 0 1.05em 0;
+  opacity: 0;
+}
+
+.dotWrap {
+  grid-area: 1 / 2;
+  display: grid;
+  place-items: center;
+  place-content: center;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+.dot {
+  grid-area: 1 / 1;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--cta-accent);
+  transition:
+    translate 0.5s var(--smooth),
+    opacity 0.3s var(--smooth);
+}
+/* Flecha que entra desde la izquierda cuando el punto sale a la derecha. */
+.arrow {
+  grid-area: 1 / 1;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--cta-accent);
+  opacity: 0;
+  translate: -0.45rem 0;
+  transition:
+    translate 0.5s var(--smooth),
+    opacity 0.3s var(--smooth);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:is(:hover, :focus-visible) .text {
+    translate: 0 -1.05em 0;
+    opacity: 0;
+  }
+  .btn:is(:hover, :focus-visible) .inner::after {
+    translate: 0 0 0;
+    opacity: 1;
+    transition-delay: 0.06s;
+  }
+  .btn:is(:hover, :focus-visible) .dot {
+    translate: 0.5rem 0;
+    opacity: 0;
+  }
+  .btn:is(:hover, :focus-visible) .arrow {
+    translate: 0 0;
+    opacity: 1;
+    transition-delay: 0.06s;
+  }
+}
+
+/* Táctil: sin flip; feedback simple al pulsar (solo primary, que tiene relleno). */
+@media (hover: none) or (pointer: coarse) {
+  .btn:not(.outline):active .bg {
+    background-color: var(--color-ink);
+    transition-duration: 0s;
+  }
+}
+
+/* Reduced motion: sin flip/pop. */
+@media (prefers-reduced-motion: reduce) {
+  .btn:is(:hover, :focus-visible) .text {
+    rotate: 0deg;
+    translate: 0 0 0;
+    opacity: 1;
+  }
+  .btn:is(:hover, :focus-visible) .inner::after {
+    opacity: 0;
+  }
+  .btn:is(:hover, :focus-visible) .dot {
+    translate: 0 0;
+    opacity: 1;
+  }
+  .btn:is(:hover, :focus-visible) .arrow {
+    opacity: 0;
+  }
+  .btn,
+  .bg,
+  .text,
+  .dot {
+    transition-duration: 0.15s;
+  }
+}

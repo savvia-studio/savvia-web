@@ -147,7 +147,7 @@ export const laSavvia = {
 // Cada tira es un trozo REAL de la receta que se entregó a Neety (su library): fundamentos, guardarraíles, una petición de su equipo, decisiones.
 export const receta = {
   titulo: 'savvia agentic.', // ronda 125: la sección de la rama musical (LaPartitura); antes «La savvia es la receta de tu web.»
-  arnes: 'Tu marca, tus decisiones y tus componentes, en una librería que cualquier agente sabe leer. Así cualquiera de tu equipo puede cambiar lo que sea, y sale como lo haríamos nosotros.', // ronda 186 (Eric: «apelar a que cualquiera de tu equipo podrá modificar cualquier cosa»)
+  arnes: 'Los fundamentos de diseño y desarrollo de tu web, en una librería que cualquier IA sabe leer.\n\nAsí tú y tu equipo podréis cambiar lo que queráis respetando las decisiones que tomamos juntos.', // ronda 186 (Eric, frase suya)
   nota: 'La receta real de Neety: la que usa su equipo cada día para cambiar su web con IA.',
   enlace: { label: 'Ver la receta entera', href: 'https://neety.treseiscero.app/library' },
   // RONDA 54 · «que caiga en un color claro, los tickets con más personalidad y más humanos; en cada ticket superponer algo digital que enfatice lo que
@@ -280,16 +280,16 @@ export const proyectos = {
   // `color`: tres colores de la PROPIA web del cliente, medidos en su captura (fondo · secundario · acento): el degradado de su pieza sale de ahí
   // (ronda 18: «los gradientes de detrás pueden ser relacionados con cada proyecto»). `logo`: su logotipo (de la web anterior de savvia).
   anteriores: [
-    { n: 'Invopop', slug: 'invopop', dominio: 'invopop.com', sector: 'Facturación electrónica', logo: 'invopop', color: ['#1a4534', '#2f6a52', '#9dbfae'] },
-    { n: 'Business Online Payroll', slug: 'business-online-payroll', dominio: 'businessonlinepayroll.com', sector: 'Nóminas y banca', logo: 'surepayroll', color: ['#101e3b', '#1c3364', '#a4a2a3'] },
-    { n: 'Cubbo', slug: 'cubbo', dominio: 'cubbo.com', sector: '', logo: 'cubbo', color: ['#1b40d6', '#4963e2', '#788ae8'] },
-    { n: 'Remerge', slug: 'remerge', dominio: 'remerge.io', sector: '', logo: 'remerge', color: ['#eceed9', '#f2ff71', '#ffffff'] },
-    { n: 'Isotrol', slug: 'isotrol', dominio: 'isotrol.com', sector: 'Renovables', logo: 'isotrol', color: ['#19171d', '#635850', '#8d8478'] },
-    // RONDA 65 · «añadir más proyectos»: cuatro del portfolio de Eric y Andoni (sector y lugar, de sus casos; colores medidos en su web; vídeo, de la grabación real)
-    { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#e4efe0', '#b8d8b1', '#86b98a'] }, // ronda 152 · Andoni: «el gradiente de Monad, una versión light» (su verde, aclarado; nombre en tinta oscura)
-    { n: 'Naterra', slug: 'naterra', dominio: 'naterra.pro', sector: 'Vivienda ecológica', logo: '', color: ['#593c28', '#9e6f47', '#caae8d'] },
-    { n: 'Routal', slug: 'routal', dominio: 'routal.com', sector: 'Logística', logo: '', color: ['#3d6360', '#557a76', '#9dc7b5'] },
-    { n: 'THX', slug: 'thx', dominio: 'thx.vision', sector: 'Consultoría', logo: '', color: ['#3f86bd', '#7fb3dc', '#c9dff0'] }, // ronda 76: Eric, «con este azulito»
+    // RONDA 189 · Eric: «las demás cards, como la de Kymatio; te digo las webs»: Kymatio · Wisable · Monad · Transcend · Cubbo · Remerge · THX, todas
+    // sobre el paisaje barrido de la estación con su navegador. Vídeos: tools/r189/grabar.cjs <slug> (Remerge, ya en escritorio). Fuera BOP, Isotrol,
+    // Naterra y Routal (siguen en /proyectos y en su caso). Sector, de lo que dice cada web.
+    { n: 'Kymatio', slug: 'kymatio', dominio: 'kymatio.com', sector: 'Ciberseguridad', logo: '', color: ['#0b1f17', '#123a2c', '#2fbf8a'] },
+    { n: 'Wisable', slug: 'wisable', dominio: 'wisable.com', sector: 'Venta de empresas', logo: '', color: ['#0b0f2e', '#1b2150', '#e6f24a'] },
+    { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#e4efe0', '#b8d8b1', '#86b98a'] },
+    { n: 'Transcend', slug: 'transcend-network', dominio: 'transcend-network.com', sector: 'Comunidad de fundadores', logo: '', color: ['#fff6ee', '#ff6b1a', '#3f7bff'] },
+    { n: 'Cubbo', slug: 'cubbo', dominio: 'cubbo.com', sector: 'Logística para ecommerce', logo: 'cubbo', color: ['#1b40d6', '#4963e2', '#788ae8'] },
+    { n: 'Remerge', slug: 'remerge', dominio: 'remerge.io', sector: 'Publicidad móvil', logo: 'remerge', color: ['#eceed9', '#f2ff71', '#ffffff'] },
+    { n: 'THX', slug: 'thx', dominio: 'thx.vision', sector: 'Consultoría', logo: '', color: ['#3f86bd', '#7fb3dc', '#c9dff0'] },
   ],
   // RONDA 66 · «las métricas de más proyectos, como la captura que te paso; todas van rotando de manera animada» (la captura: una cuadrícula 3 × 2 de
   // trazo discontinuo con citas cortas, «Collaborated with Minimum» y «Honorable mention · awwwards»). Cada celda releva su contenido. Todo real: citas
@@ -297,44 +297,71 @@ export const proyectos = {
   // del portfolio y logotipos de clientes (sacados de su web). `tipo`: cita · marca (rótulo + logotipo) · cifra.
   // RONDA 76 · Eric: «logos más grandes y proporcionales; dos o tres líneas por cita; "Han confiado su web" suena raro; falta Farco; son más de 80; y
   // Awwwards» → Andoni: «Awwwards con su logo (de su web); tenemos 80, el CMS no los tiene todos». Citas más largas (extractos fieles de sus casos).
+  // RONDA 189 · Eric revisó en una página todas las reviews del CMS de Webflow (artefacto «Reviews y logos»): la cuadrícula queda SOLO con citas
+  // (18, versiones cortas en castellano y sin el nombre del estudio anterior); fuera las cifras; los logotipos pasan al muro (`muro`). Persona, cargo con coma.
+  // RONDA 189 (2.ª) · Eric: «hay que intercalar reseñas con logos de "hemos trabajado con" o "hemos colaborado con"»: cada celda alterna cita y
+  // logotipo (las impares empiezan por logotipo, así siempre hay de los dos a la vista); fuera el muro aparte.
   celdas: [
     [
-      { tipo: 'cita', q: 'Lo que de verdad destaca es su conocimiento y su capacidad de mejorar nuestra idea inicial.', n: 'Inés López-Pita', r: 'Directora de marketing · Isotrol' },
-      { tipo: 'cita', q: 'Eric y Andoni responden en minutos y despliegan en horas. Superaron nuestras expectativas.', n: 'Juan Moliner', r: 'Cofundador de Invopop' },
-      { tipo: 'cita', q: 'Se comunicaron constantemente conmigo durante todo el proceso y juntos construimos algo precioso.', n: 'Sean Klamm', r: 'CEO de Playground IEP' },
+      { tipo: 'cita', q: 'Nunca tuve que ir detrás de ellos: venían a mí con soluciones. Entendieron desde el primer día quiénes somos.', n: 'Ignasi Vegas', r: 'Cofundador y CEO, Cubbo' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/remerge.png', n: 'Remerge', escala: 1.25 },
+      { tipo: 'cita', q: 'Un equipo fiable y comprometido, con talento, profesionalidad y un flujo de trabajo impecable.', n: 'Félix Gonzalo', r: 'Sr. Webflow Developer / Tech Lead, Edgar Allan' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/thx.png', n: 'THX' },
+      { tipo: 'cita', q: 'Un proyecto complejo, con varios idiomas y una migración de contenido extensa, llevado con una precisión sólida.', n: 'Guilherme Escobar', r: 'Global Marketing Director, Remerge' },
+      { tipo: 'marca', rotulo: 'Hemos colaborado con', logo: '/media/logos/cuadricula/universidad-de-mondragon.png', n: 'Universidad de Mondragón', escala: 1.55 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/naterra.png', n: 'Naterra', escala: 1.2 },
     ],
     [
-      { tipo: 'marca', rotulo: 'Colaboramos con', logo: '/media/logos/minimum.svg', n: 'Minimum' },
-      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/kuanta.svg', n: 'Kuanta' }, // ronda 126: antes Multiverse Computing
-      { tipo: 'marca', rotulo: 'Colaboramos con', logo: '/media/logos/farco.svg', n: 'Farco Studio' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/cubbo.png', n: 'Cubbo', escala: 1.25 },
+      { tipo: 'cita', q: 'Eric y Andoni responden en minutos y despliegan en horas. Superaron nuestras expectativas.', n: 'Juan Moliner', r: 'Cofundador, Invopop' },
+      { tipo: 'marca', rotulo: 'Colaboramos activamente con', logo: '/media/logos/cuadricula/farco-studio.png', n: 'Farco Studio' },
+      { tipo: 'cita', q: 'Se comunicaron constantemente conmigo durante todo el proceso y juntos construimos algo precioso.', n: 'Sean Klamm', r: 'CEO, Playground IEP' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/kalma.png', n: 'Kalma', escala: 1.1 },
+      { tipo: 'cita', q: 'Llevamos un año colaborando en SurePayroll y los resultados han sido muy buenos: nos han ayudado a hacer crecer la relación con el cliente.', n: 'Brian Farrell', r: 'Fundador y director, Farco Studio' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/profounders-capital.png', n: 'PROFounders Capital', escala: 1.4 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/junipero.png', n: 'Junipero', escala: 1.15 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/neety.png', n: 'Neety', escala: 1.3 },
     ],
     [
-      { tipo: 'cita', q: 'Un equipo fiable y comprometido, con talento, profesionalidad y un flujo de trabajo impecable.', n: 'Félix Gonzalo', r: 'Webflow Developer · Monad' },
-      { tipo: 'cita', q: 'Nunca tuve que ir detrás de ellos: venían a mí con soluciones. Entendieron desde el primer día quiénes somos.', n: 'Ignasi Vegas', r: 'Cofundador y CEO de Cubbo' },
-      { tipo: 'cita', q: 'Un proyecto complejo, con varios idiomas y una migración de contenido extensa, llevado con una precisión sólida.', n: 'Guilherme Escobar', r: 'Marketing global · Remerge' },
+      { tipo: 'cita', q: 'Supieron transmitir lo que hace nuestra tecnología. El mejor equipo que he visto en diseño y en trato con el cliente.', n: 'Nuria Pastor', r: 'CEO, Vitalera' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/codely.png', n: 'Codely', escala: 1.2 },
+      { tipo: 'cita', q: 'Pensaron en todo, siempre estuvieron disponibles y me lo pusieron facilísimo con vídeos cortos en Loom. Seis estrellas de cinco.', n: 'Thomas Hauer', r: 'Fundador, THX' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/transcend-network.png', n: 'Transcend Network', escala: 1.15 },
+      { tipo: 'cita', q: 'Un colaborador clave en la digitalización de nuestra herramienta: la terminamos a tiempo y con la calidad que buscábamos.', n: 'Ainara Martínez Rivera', r: 'Coordinadora de investigación, Universidad de Mondragón' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/impact-bridge.png', n: 'Impact Bridge', escala: 1.2 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/valuat.png', n: 'Valuat' },
     ],
     [
-      { tipo: 'cifra', v: '+80', l: 'webs publicadas' },
-      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/monad.svg', n: 'Monad' },
-      { tipo: 'marca', rotulo: 'Mención de honor', logo: '/media/logos/awwwards.svg', n: 'Awwwards', texto: 'Awwwards' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/invopop.png', n: 'Invopop', escala: 1.2 },
+      { tipo: 'cita', q: 'Una gozada trabajar con ellos: profesionalidad del máximo nivel, un equipo que aporta y multiplica el resultado.', n: 'Fernando Mateus', r: 'CEO y fundador, Kymatio' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/monad.png', n: 'Monad', escala: 1.25 },
+      { tipo: 'cita', q: 'Compartimos un boceto y en la siguiente iteración ya estaba diseñado y listo para desarrollar. Muy productivo y con muy pocas reuniones.', n: 'Javi Ferrer', r: 'Cofundador, Codely' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/bluence.png', n: 'Bluence', escala: 1.15 },
+      { tipo: 'cita', q: 'Trabajar con ellos lo hace todo más fácil: muchos recursos, mucho detalle y siempre dispuestos a mejorar el resultado.', n: 'Alejandro Sánchez', r: 'Head of Design, mendesaltaren' },
     ],
     [
-      { tipo: 'cifra', v: '6', l: 'países con clientes' },
-      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/anteriores/logos/invopop.svg', n: 'Invopop' },
-      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/codely.svg', n: 'Codely' },
+      { tipo: 'cita', q: 'Captaron exactamente lo que queríamos transmitir, y lo hicieron rápido y con profesionalidad.', n: 'Carlos Hernández', r: 'Fundador y CEO, Kalma' },
+      { tipo: 'marca', rotulo: 'Hemos colaborado con', logo: '/media/logos/cuadricula/minimum.png', n: 'Minimum', escala: 1.05 },
+      { tipo: 'cita', q: 'Captaron nuestra esencia a la perfección y superaron todas las expectativas en tiempo récord.', n: 'Santos J. Díaz Pastor', r: 'Analista, Impact Bridge' },
+      { tipo: 'cita', q: 'Muy satisfechos con su trabajo y su compromiso de principio a fin. Seguiremos colaborando en futuros proyectos.', n: 'Emilio Rodríguez', r: 'Socio director, Lyra' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/lyra.png', n: 'Lyra', escala: 1.1 },
     ],
     [
-      { tipo: 'cifra', v: '2020', l: 'desde' },
-      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/logos/routal.png', n: 'Routal' },
-      { tipo: 'marca', rotulo: 'Hemos hecho la web de', logo: '/media/anteriores/logos/cubbo.svg', n: 'Cubbo' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/isotrol.png', n: 'Isotrol', escala: 1.05 },
+      { tipo: 'cita', q: 'Comunicación fluida durante todo el desarrollo, mucho oficio y un acompañamiento como socios del más alto nivel.', n: 'Olalla Castro', r: 'Fundadora y CEO, Eleven Lab' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/routal.png', n: 'Routal', escala: 1.05 },
+      { tipo: 'cita', q: 'Su forma de trabajar, profesional y cercana, hizo que todo el proceso fuera fluido y agradable. Un trabajo de diez.', n: 'Manu Cabrera', r: 'Fundador, Kabila' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/kymatio.png', n: 'Kymatio', escala: 1.15 },
+      { tipo: 'cita', q: 'Destacaría lo rápido que entendieron la misión del proyecto, la ejecución precisa de nuestras ideas y su agilidad para añadir matices.', n: 'Edu Riera', r: 'Fundador, Zrive' },
     ],
-  ] as { tipo: 'cita' | 'marca' | 'cifra'; q?: string; n?: string; r?: string; rotulo?: string; logo?: string; texto?: string; v?: string; l?: string }[][],
+  ] as { tipo: 'cita' | 'marca' | 'cifra'; q?: string; n?: string; r?: string; rotulo?: string; logo?: string; texto?: string; v?: string; l?: string; escala?: number }[][],
+
   // RONDA 66 · «los testimonios destacados, que sean uno como teníamos antes y que vayan rotando; te paso las imágenes (José Luis, Alberto de Transcend
   // y Danny Saltaren); y no hagas cambio de color». Citas reales de sus casos, traducidas del inglés y sin el nombre del estudio anterior.
   testimonios: [
-    { n: 'José Luis Antúnez', r: 'Strategy Partner · Routal', retrato: '/media/testimonios/jl-antunez.webp', q: 'Habla con Eric y Andoni cuando necesites rediseñar tu web. Un gran trabajo y un gran proceso de documentación, diseño, desarrollo y entrega. Calidad, cercanía y rapidez.' },
-    { n: 'Alberto Arenaza', r: 'Cofundador de Transcend Network', retrato: '/media/testimonios/alberto.webp', q: 'Ha sido un placer trabajar con ellos. Su dedicación, su rapidez y su proactividad lo ponen muy fácil. Los recomiendo sin dudarlo.' },
-    { n: 'Danny Saltaren', r: 'Fundador de Minimum', retrato: '/media/testimonios/danny.webp', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.' },
+    { n: 'José Luis Antúnez', r: 'Strategy Partner, Routal', retrato: '/media/testimonios/jl-antunez.webp', q: 'Habla con Eric y Andoni cuando necesites rediseñar tu web. Un gran trabajo y un gran proceso de documentación, diseño, desarrollo y entrega. Calidad, cercanía y rapidez.' },
+    { n: 'Alberto Arenaza', r: 'Cofundador, Transcend Network', retrato: '/media/testimonios/alberto.webp', q: 'Ha sido un placer trabajar con ellos. Su dedicación, su rapidez y su proactividad lo ponen muy fácil. Los recomiendo sin dudarlo.' },
+    { n: 'Danny Saltaren', r: 'Diseñador y fundador, MITO', retrato: '/media/testimonios/danny.webp', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.' },
   ],
 
   enlace: { label: 'Todos los proyectos', href: '/proyectos' },
@@ -489,18 +516,19 @@ export const pie = {
 export const partitura = {
   carpeta: ['La librería', 'de Neety'],
   entra: ['Estrategia', 'Posicionamiento', 'Voz', 'Identidad', 'Dirección de arte', 'Componentes', 'Guías', 'Tokens', 'Recursos', 'Ejemplos'],
-  sale: ['Cambios de copy', 'Editar ilustraciones', 'Crear landings de Ads', 'Trabajar el CMS'], // ronda 126 (Andoni: «cosas que nos representen más»); antes Webs · Landings · Productos · Campañas · Emails · Redes sociales
-  agentes: [['Claude', 'coral'], ['Codex', 'cobalto'], ['Diseño', 'cereza'], ['Tu equipo', 'nogal']] as [string, string][],
+  // ronda 188 (Eric): diez salidas, de lo más diario a lo más técnico. Antes (ronda 126): Cambios de copy · Editar ilustraciones · Crear landings de Ads · Trabajar el CMS
+  sale: ['Cambios de copy', 'Editar ilustraciones', 'Crear landings para Ads', 'Subir blog al CMS', 'Añadir idiomas', 'Publicar un caso de cliente', 'Actualizar precios', 'Ajustar SEO y metadatos', 'Hacer tests A/B', 'Revisar accesibilidad'],
+  agentes: [['Claude', 'coral'], ['Codex', 'cobalto'], ['savvia', 'cereza'], ['Tu equipo', 'nogal']] as [string, string][], // ronda 188 (Eric): el tercer agente es savvia (antes «Diseño»)
   // la tarjeta de fuera: lo que hay en la librería (filas de su árbol y lo que contienen)
   resumen: [['marca/color.md', '8 colores'], ['marca/tipografia.md', '2 familias'], ['marca/voz.md', '3 reglas'], ['sistema/espaciado.md', '12 pasos'], ['sistema/tokens.css', '@theme'], ['componentes/', '5 piezas']] as [string, string][],
-  nota: 'La librería real de Neety: la que lee su equipo, y su IA, cada día para cambiar su web.',
+  nota: 'Representación de la librería real de Neety: la que lee su equipo, y su IA, cada día para cambiar su web.',
   enlace: { label: 'Ver la librería', href: 'https://neety.treseiscero.app/library' },
   libreria: {
     ruta: 'neety / library',
     titulo: 'La librería de Neety',
     peticion: 'Monta el hero de la home con el feed de señales. Con nuestro estilo.',
     quien: 'Tu equipo',
-    estado: ['Leyendo la librería…', 'Publicado · neety.com', 'Listo para publicar'],
+    estado: ['Leyendo la librería…', 'Publicado en', 'Listo para publicar'],
     publicar: 'Publicar',
     // RONDA 118 · «savvia agentic tiene que mostrar más fielmente cómo es la librería de Neety: como si cogieran elementos de ahí y los pusieran». Dentro, la
     // película enseña la librería REAL (neety.treseiscero.app/library, leída el 05-oct-2026: índice a la izquierda, secciones a la derecha) y los agentes COGEN
@@ -524,14 +552,14 @@ export const partitura = {
     tabsComponentes: ['Comunes', 'Home', 'Plataforma', 'Casos de uso', 'Blog', 'Artículo', 'Eventos', 'Academia'],
     fichas: [{ id: 'logo', titulo: 'Logotipo', chips: ['Logotipo', 'Logo', 'components/Logo.tsx'], texto: 'Wordmark de Neety en SVG inline. Props: className (tamaño) y fill (color).' }, { id: 'punto', titulo: 'Punto pulsante', chips: ['Punto pulsante', 'PulsingDot', 'components/PulsingDot.tsx'], texto: 'Punto de marca cuyo halo respira con GSAP. Encabeza el eyebrow de casi todas las secciones.' }],
     picks: [
-      { ag: 2, sec: 'color', src: 'base', slot: 'fondo', label: 'Degradado del hero', chip: 'Degradado del hero · con grano' }, // ronda 152: lo que se coge es lo que cae (antes, un color liso que caía como degradado)
+      { ag: 2, sec: 'color', src: 'base', slot: 'fondo', label: 'Degradado granular', chip: 'Degradado granular' }, // ronda 152: lo que se coge es lo que cae (antes, un color liso que caía como degradado)
       { ag: 0, sec: 'tipo', src: 'h1xl', slot: 'h1', label: 'H1 · XL', chip: 'Bricolage · H1 XL' },
       { ag: 1, sec: 'botones', src: 'cta', slot: 'ctas', label: 'Solicitar demo', chip: '<PillCta variant="primary" />' },
       { ag: 2, sec: 'esp', src: 'large', slot: 'esp', label: 'large · 48', chip: 'espaciado · large 48' },
       { ag: 3, sec: 'comp', src: 'logo', slot: 'logo', label: 'Logotipo', chip: '<Logo />' },
       { ag: 1, sec: 'comp', src: 'punto', slot: 'punto', label: 'Punto pulsante', chip: '<PulsingDot />' },
     ] as { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[],
-    color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Degradado del hero', 'grad']] as [string, string][],
+    color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Degradado granular', 'grad']] as [string, string][],
     tipografia: [['Bricolage Grotesque', 'titulares · H1 XL 112 / 64 · 120 %'], ['Switzer', 'cuerpo · regular 16 · 150 %']] as [string, string][],
     espaciado: [['xtiny', 4], ['tiny', 8], ['xxsmall', 16], ['xsmall', 20], ['small', 24], ['medium', 32], ['large', 48], ['xlarge', 64], ['xxlarge', 80], ['huge', 96], ['xhuge', 112], ['xxhuge', 160]] as [string, number][],
     gradiente: { clase: '.rail-gradient-x', paradas: ['#F8F7EC', '#FE8238', '#431B44', '#A7C5F9', '#FFFFFF'], nota: 'crema → naranja → berenjena → azul → blanco' },

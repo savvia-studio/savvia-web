@@ -57,8 +57,8 @@ export default defineConfig({
       options: { variants: [{ src: ['./src/assets/fonts/timeless/TimelessGrotesk-Light.woff2'], weight: 300, style: 'normal' }] },
     },
     {
-      // Titulares. OJO: es la versión de PRUEBA de Klim (sin acentos, ñ, ¿ ¡).
-      // Al comprar la licencia: sustituir el archivo y quitar "TRIAL" del nombre.
+      // Titulares. Family Regular con licencia WEB de Klim (pedido 26100706, 14/10/2026: 5.000 usuarios/mes, savvia.studio).
+      // Solo el peso 400 (estática): no hay otros pesos. La de prueba, en src/assets/fonts/family-TRIAL-vf-roman.woff2 (sin uso).
       name: 'Family',
       cssVariable: '--font-family-display',
       provider: fontProviders.local(),
@@ -66,8 +66,8 @@ export default defineConfig({
       options: {
         variants: [
           {
-            src: ['./src/assets/fonts/family-TRIAL-vf-roman.woff2'],
-            weight: '300 900',
+            src: ['./src/assets/fonts/family-regular.woff2'],
+            weight: 400,
             style: 'normal',
           },
         ],
@@ -148,6 +148,26 @@ export default defineConfig({
       weights: [400, 500],
       styles: ['normal'],
       fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      // RONDA 188 · réplica del hero de Neety (tools/r188/neety-hero): su subtítulo va en Inter 400 y el eyebrow en Roboto Mono 500 (RootShell.tsx).
+      // OFL (Google Fonts). Solo se cargan donde se usa la réplica.
+      name: 'Inter',
+      cssVariable: '--font-inter',
+      provider: fontProviders.google(),
+      weights: [400],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      name: 'Roboto Mono',
+      cssVariable: '--font-roboto-mono',
+      provider: fontProviders.google(),
+      weights: [500],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['ui-monospace', 'monospace'],
     },
   ],
   vite: {

@@ -1,0 +1,1562 @@
+/* Switzer is self-hosted via next/font/local (see app/layout.tsx) — exposed as
+   --font-switzer. Bricolage, Inter and Roboto Mono also come via next/font. */
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette (Figma "Library" frame is the source of truth).
+     #431b44 == rgb(67 27 68), so plum/60 etc. reproduce the rgba() tokens. */
+  --color-plum: #431b44; /* Berenjena */
+  --color-ink: #2a0e2c; /* Ciruela */
+  --color-naranja: #fe8238; /* Naranja Core — brand accent */
+  --color-azul: #a7c5f9; /* Azúl bebe — brand accent */
+  --color-cream: #f8f7ec; /* Base Cálida */
+  --color-mint-claro: #ebfff6; /* Mint claro */
+  --color-surface: #f5f7f9; /* Gris Tecnológico */
+
+  /* Doc/UI greys (used by the /library design-system page) */
+  --color-grey-500: #262626;
+  --color-grey-400: #6d6d6d;
+  --color-grey-100: #f9f9f9;
+
+  /* Component-specific (SignalFeed signal states — not part of the brand palette) */
+  --color-mint: #0bb783;
+  --color-signal-hot: #b25959;
+  --color-signal-warm: #988c62;
+
+  /* Typography */
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans: var(--font-switzer), var(--font-inter), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-roboto-mono), "Roboto Mono", ui-monospace, monospace;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+/* Always show the scrollbar so its space (and thus the viewport width used by media queries)
+   never changes. Combined with the position:fixed body scroll-lock used when the mobile menu
+   opens, this keeps the layout width identical open vs closed — so a responsive breakpoint at
+   exactly 768px never flips and the logo/hamburger don't shift down when the menu opens. */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+  /* Anclas (índice de la ficha del blog, índice de las legales) con desplazamiento
+     suave. Next ya fuerza `auto` durante sus navegaciones y MobileMenu restaura el
+     scroll con behavior:"instant", así que solo afecta a los saltos por #ancla. */
+  scroll-behavior: smooth;
+  /* OJO: aquí `clip` NO funciona como red de seguridad. Al convivir con
+     `overflow-y: scroll`, la spec degrada el valor usado a `hidden` (comprobado:
+     getComputedStyle → "hidden"), que SÍ convierte al html en scroll container
+     horizontal → en móvil la página se podía arrastrar en X hacia los bleeds
+     decorativos (932px de Features, 863px de Integraciones). Se deja por inercia
+     histórica pero la red de seguridad REAL vive en el body (abajo). */
+  overflow-x: clip;
+}
+
+body {
+  /* Red de seguridad contra scroll horizontal: recorta cualquier bleed lateral
+     (patrones/glows decorativos más anchos que el viewport) SIN crear scroll
+     container. En el body `clip` sí sobrevive (overflow-y queda `visible`; la
+     pareja visible+clip no se degrada) → el html nunca ve contenido más ancho
+     que el viewport y no hay nada que arrastrar. No afecta a sticky (no crea
+     scroll container) ni a los pins de ScrollTrigger (position:fixed escapa del
+     clip, y un fixed no genera overflow scrolleable). */
+  overflow-x: clip;
+  font-family: var(--font-sans);
+  color: var(--color-plum);
+  background-color: var(--color-surface); /* Gris Tecnológico #F5F7F9 — fondo global */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Hero granular-gradient background. Served as a 39 KB AVIF (from a 3.2 MB PNG) with a
+   JPEG fallback for browsers without AVIF. Set as a class (not inline) so `image-set()`
+   can pick the format; the mask that carves the notch stays inline in page.tsx. */
+.hero-bg {
+  background-image: url("/assets/hero-bg.jpg");
+  background-image: image-set(
+    url("/assets/hero-bg.avif") type("image/avif"),
+    url("/assets/hero-bg.jpg") type("image/jpeg")
+  );
+}
+
+/* Home (la completa, /home): gradiente granulado DEFINITIVO del cliente (30-ago-2026),
+   dos piezas — desktop 1472×905 y móvil 361×924 — horneadas por
+   scripts/build-home-grad.mjs: export PNG de Figma CON el efecto de ruido (el grano
+   «tal cual») compuesto sobre el relleno del SVG (que tapa las muescas en alfa).
+   Exports a 3×; desktop servido a 1× (decisión 2026-08-27 · grano), móvil a 2×;
+   AVIF q80 4:4:4 (el grano no comprime). `.hero-bg` (arriba) sigue
+   siendo el poster ligero de la coming soon y del 404, NO se toca. no-repeat por la
+   lección de .plataforma-hero-bg. Másters en assets-src/home/ (+ Drive).
+   ⚠ Estos dos assets se PRECARGAN desde components/pages/HomePage.tsx (<link rel=preload>,
+   son el LCP): si versionas el archivo aquí, actualiza también el preload. */
+.home-hero-bg {
+  background-image: url("/assets/hero-bg-v4.avif");
+  background-repeat: no-repeat;
+}
+.home-hero-bg-mobile {
+  background-image: url("/assets/hero-bg-mobile-v5.avif");
+  background-repeat: no-repeat;
+}
+
+/* Manifesto: gradiente granulado propio del hero (Figma 14742:2284, export 1× CON el
+   efecto de ruido horneado — el fill de localhost:3845 viene liso, el grano es un
+   efecto del nodo y solo sale en el export del nodo). AVIF q80 4:4:4, como el resto
+   de fondos granulares de marca. Se queda a 1× A PROPÓSITO: el 27-08-2026 se probaron
+   el 2× a pelo (grano demasiado nítido) y el 2× con blur sigma 1 (tampoco) y el
+   cliente prefirió el 1× original. no-repeat por la lección de .plataforma-hero-bg
+   (la repetición asoma como línea de 1px en los bordes con bg-cover).
+   SIN USO desde el 30-ago: /manifesto pinta .precios-hero-bg (petición del cliente);
+   se conserva por si vuelve. El 31-ago se probó una v2 más potente («Rectangle
+   7087.png», máster en assets-src/manifesto/) y se revirtió en la misma sesión. */
+.manifesto-hero-bg {
+  background-image: url("/assets/manifesto-hero-bg-v1.avif");
+  background-repeat: no-repeat;
+}
+
+/* Coming soon: silueta troquelada de la tarjeta usada como mask sobre el vídeo de gradiente
+   en loop. Desktop (lg+) usa el path EXACTO de "Rectangle 7027-2.svg" extraído a
+   coming-soon-mask.svg (1,6 KB). Tablet deriva de ese path sin estirarlo (las muescas se
+   deformarían): scripts/generate-coming-soon-masks.py regenera la variante con la MISMA
+   secuencia de comandos/esquinas, remapeando coordenadas por zonas — las muescas conservan
+   su proporción (75%) y solo se estiran los tramos largos. Móvil usa una silueta propia
+   trazada de la referencia del cliente (assets-src/tectangulo-mobile.png), con el mismo
+   remapeo para que las muescas no se deformen. mask-size 100% 100% dentro de cada rango (estirado leve). Clase plana con
+   media queries (no @utility): el responsive va dentro. */
+.coming-mask {
+  -webkit-mask-image: url("/assets/coming-soon-mask-sm-v2.svg");
+  mask-image: url("/assets/coming-soon-mask-sm-v2.svg");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+@media (min-width: 48rem) {
+  .coming-mask {
+    -webkit-mask-image: url("/assets/coming-soon-mask-md.svg");
+    mask-image: url("/assets/coming-soon-mask-md.svg");
+  }
+}
+@media (min-width: 64rem) {
+  .coming-mask {
+    -webkit-mask-image: url("/assets/coming-soon-mask.svg");
+    mask-image: url("/assets/coming-soon-mask.svg");
+  }
+}
+
+/* --- Card "DESPUÉS con Neety" (sección Diferencial) ----------------------- */
+/* Réplica en CSS del vector de Figma (public/vector-{desktop,mobile}.svg): el gradiente es
+   un webp extraído del propio SVG, estirado 100%×100% igual que hace su <pattern>, y el
+   "notch" superior donde asienta la pill se recorta vía mask (la pill es un elemento DOM
+   en Diferencial.tsx). El mask se compone por SUMA de capas: cuerpo bajo el notch, dos
+   columnas + dos paredes laterales, y 4 radiales (2 hombros convexos donde el borde
+   superior baja al notch, 2 fillets cóncavos donde la pared llega al suelo del notch).
+
+   Geometría (del SVG): móvil 358×264 → notch 196.5×26.4 centrado (50%), radios 9;
+   desktop 600×346 → notch 329.5×34.6 con centro en 46.4%, radios 12.
+
+   OJO con los offsets de mask-position: `calc(P% + Opx)` posiciona X = P·(ancho−capa) + O,
+   así que a O se le suma P·(ancho de capa) para compensar. Ej. móvil hombro izq.:
+   −102.75 = −(196.5/2 + 9) + 50%·9. Desktop: ±171.18/170.32 = ∓(164.75+12) + 46.4%·12,
+   y fillets ±159.18/158.32 = ∓164.75 (izq) / +152.75 (der) + 5.568. */
+.diferencial-after-bg {
+  --notch-mask:
+    linear-gradient(#000 0 0) 0 100% / 100% calc(100% - 26.4px) no-repeat,
+    linear-gradient(#000 0 0) 0 0 / calc(50% - 107.25px) 100% no-repeat,
+    linear-gradient(#000 0 0) 0 9px / calc(50% - 98.25px) calc(100% - 9px) no-repeat,
+    linear-gradient(#000 0 0) 100% 0 / calc(50% - 107.25px) 100% no-repeat,
+    linear-gradient(#000 0 0) 100% 9px / calc(50% - 98.25px) calc(100% - 9px) no-repeat,
+    radial-gradient(circle at 0 100%, #000 8.5px, transparent 9px) calc(50% - 102.75px) 0 / 9px 9px no-repeat,
+    radial-gradient(circle at 100% 100%, #000 8.5px, transparent 9px) calc(50% + 102.75px) 0 / 9px 9px no-repeat,
+    radial-gradient(circle at 100% 0, transparent 8.5px, #000 9px) calc(50% - 93.75px) 17.4px / 9px 9px no-repeat,
+    radial-gradient(circle at 0 0, transparent 8.5px, #000 9px) calc(50% + 93.75px) 17.4px / 9px 9px no-repeat;
+  background: url("/assets/diferencial-after-grad-mobile.webp") 0 0 / 100% 100% no-repeat;
+  opacity: 0.7;
+  -webkit-mask: var(--notch-mask);
+  mask: var(--notch-mask);
+}
+
+@media (min-width: 64rem) {
+  .diferencial-after-bg {
+    --notch-mask:
+      linear-gradient(#000 0 0) 0 100% / 100% calc(100% - 34.6px) no-repeat,
+      linear-gradient(#000 0 0) 0 0 / calc(46.4% - 176.75px) 100% no-repeat,
+      linear-gradient(#000 0 0) 0 12px / calc(46.4% - 164.75px) calc(100% - 12px) no-repeat,
+      linear-gradient(#000 0 0) 100% 0 / calc(53.6% - 176.75px) 100% no-repeat,
+      linear-gradient(#000 0 0) 100% 12px / calc(53.6% - 164.75px) calc(100% - 12px) no-repeat,
+      radial-gradient(circle at 0 100%, #000 11.5px, transparent 12px) calc(46.4% - 171.18px) 0 / 12px 12px no-repeat,
+      radial-gradient(circle at 100% 100%, #000 11.5px, transparent 12px) calc(46.4% + 170.32px) 0 / 12px 12px no-repeat,
+      radial-gradient(circle at 100% 0, transparent 11.5px, #000 12px) calc(46.4% - 159.18px) 22.6px / 12px 12px no-repeat,
+      radial-gradient(circle at 0 0, transparent 11.5px, #000 12px) calc(46.4% + 158.32px) 22.6px / 12px 12px no-repeat;
+    background-image: url("/assets/diferencial-after-grad-desktop.webp");
+  }
+}
+
+/* Panel "ejemplo de producto" de Casos de uso: la misma construcción del vector de la
+   card "Después con Neety" (ver .diferencial-after-bg): gradiente webp estirado + notch
+   superior recortado con un mask por suma de capas. Geometría medida del preview del
+   frame: profundidad 34.6 y radios 12 (idénticos a Diferencial), flaps laterales de 97px.
+
+   A diferencia de Diferencial, aquí --nw (ancho del notch) se define como calc(100% − Xpx)
+   con el notch SIEMPRE centrado: al expandir las capas, los porcentajes se cancelan y todos
+   los mask-position resuelven a px puros → no hacen falta los offsets de compensación
+   P·(ancho de capa) y la geometría es correcta a CUALQUIER ancho del panel (los flaps
+   quedan fijos y el notch flexa). Móvil: flaps de 28, profundidad 26.4, radios 9. */
+.usecase-vector {
+  --nw: calc(100% - 56px); /* notch pared a pared, centrado (flaps de 28px) */
+  --nd: 26.4px; /* profundidad del notch */
+  --r: 9px; /* radio de hombros convexos y fillets cóncavos */
+  --vmask:
+    linear-gradient(#000 0 0) 0 100% / 100% calc(100% - var(--nd)) no-repeat,
+    linear-gradient(#000 0 0) 0 0 / calc(50% - var(--nw) / 2 - var(--r)) 100% no-repeat,
+    linear-gradient(#000 0 0) 0 var(--r) / calc(50% - var(--nw) / 2) calc(100% - var(--r)) no-repeat,
+    linear-gradient(#000 0 0) 100% 0 / calc(50% - var(--nw) / 2 - var(--r)) 100% no-repeat,
+    linear-gradient(#000 0 0) 100% var(--r) / calc(50% - var(--nw) / 2) calc(100% - var(--r)) no-repeat,
+    radial-gradient(circle at 0 100%, #000 calc(var(--r) - 0.5px), transparent var(--r))
+      calc(50% - var(--nw) / 2 - var(--r)) 0 / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 100% 100%, #000 calc(var(--r) - 0.5px), transparent var(--r))
+      right calc((100% - var(--nw)) / 2 - var(--r)) top 0 / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 100% 0, transparent calc(var(--r) - 0.5px), #000 var(--r))
+      calc(50% - var(--nw) / 2) calc(var(--nd) - var(--r)) / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 0 0, transparent calc(var(--r) - 0.5px), #000 var(--r))
+      right calc((100% - var(--nw)) / 2) top calc(var(--nd) - var(--r)) / var(--r) var(--r) no-repeat;
+  background: url("/assets/diferencial-after-grad-desktop.webp") 0 0 / 100% 100% no-repeat;
+  opacity: 0.85; /* medido del preview (≈0.87 sobre blanco; Diferencial usa 0.7) */
+  -webkit-mask: var(--vmask);
+  mask: var(--vmask);
+}
+
+@media (min-width: 64rem) {
+  .usecase-vector {
+    --nw: calc(100% - 194px); /* flaps de 97px (a 640px de panel → notch de 446, el del diseño) */
+    --nd: 34.6px;
+    --r: 12px;
+  }
+}
+
+/* --- Intro loader (splash de primera visita por sesión) ------------------- */
+/* En visitas repetidas, un script inline en layout.tsx añade `.intro-seen` al <html>
+   ANTES del paint → el overlay (renderizado en SSR) se oculta sin flash. */
+.intro-seen .loader {
+  display: none;
+}
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Gradiente de marca animado por código: base cálida + blobs de color desenfocados
+   (mesh/aurora) + una capa de grano. El JS lo encoge hacia el rect del hero en el morph. */
+.loader-gradient {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-cream);
+  will-change: transform, width, height;
+}
+/* Blobs en % (relativos al gradiente) → escalan con él cuando el morph lo encoge hacia la card.
+   aspect-ratio:1 los mantiene circulares independientemente del ratio del contenedor. */
+.loader-blob {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  filter: blur(64px);
+  will-change: transform;
+}
+.loader-blob-1 {
+  width: 62%;
+  left: -12%;
+  top: -22%;
+  background: radial-gradient(circle, var(--color-azul) 0%, transparent 68%);
+  opacity: 0.95;
+}
+.loader-blob-2 {
+  width: 58%;
+  right: -14%;
+  top: 6%;
+  background: radial-gradient(circle, var(--color-naranja) 0%, transparent 66%);
+  opacity: 0.85;
+}
+.loader-blob-3 {
+  width: 54%;
+  left: 22%;
+  bottom: -24%;
+  background: radial-gradient(circle, var(--color-plum) 0%, transparent 72%);
+  opacity: 0.5;
+}
+.loader-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-repeat: repeat;
+  background-size: 140px 140px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Grano de marca del isotipo animado de /manifesto (IsotipoMotion): la MISMA
+   receta de dos tiles que .mision-card (sobre-grain-light en plus-lighter +
+   sobre-grain-dark en multiply, tiles 2× pintados a 140px) — el feTurbulence
+   del loader no se leía a 112px. Va dentro de la máscara del glifo, sobre el
+   vídeo; el wrapper del componente aísla los blends. Sin plus-lighter no se
+   pinta nada (el tile aditivo casi negro taparía el vídeo). */
+@supports (mix-blend-mode: plus-lighter) {
+  .iso-grain::before,
+  .iso-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-repeat: repeat;
+    background-size: 140px 140px;
+  }
+  /* Tiles = los de sobre-* con el contraste horneado a 1.35× vía sharp (motas más
+     vivas, fondos negro/blanco intactos): un `filter: contrast()` en el pseudo
+     ANULABA el mix-blend-mode en Chrome y el grano desaparecía (31-ago). */
+  .iso-grain::before {
+    background-image: url("/assets/iso-grain-light-v1.png");
+    mix-blend-mode: plus-lighter;
+  }
+  .iso-grain::after {
+    background-image: url("/assets/iso-grain-dark-v1.png");
+    mix-blend-mode: multiply;
+  }
+}
+
+.loader-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+}
+/* Ocultar el wordmark hasta que GSAP lo construya (evita el flash del logo visible en SSR,
+   antes de que hidrate/arranque GSAP, y entre montajes de React StrictMode). */
+.loader-stage svg path {
+  opacity: 0;
+}
+
+/* --- Transición de página (PageTransition.tsx) ----------------------------- */
+/* Velo entre páginas con el gradiente de marca del loader: misma base cream y
+   reutiliza .loader-blob-* y .loader-grain (absolutos → escalan con la lámina).
+   Sin bordes ni desplazamiento: el componente solo anima su opacidad (fundido) y
+   una escala sutil; se descartaron una cortina que barría (rectangular y ondulada)
+   por toscas — ver decisión 2026-08-04. */
+.page-curtain-sheet {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-cream);
+}
+/* Deriva ambiental de los blobs mientras dura el velo (eco del intro del Loader).
+   CSS puro: solo se pinta mientras el velo es visible (ancestro invisible). */
+.page-curtain-sheet .loader-blob {
+  animation: curtain-drift 5s ease-in-out infinite alternate;
+}
+.page-curtain-sheet .loader-blob-2 {
+  animation-duration: 6.5s;
+  animation-direction: alternate-reverse;
+}
+.page-curtain-sheet .loader-blob-3 {
+  animation-duration: 7.5s;
+}
+@keyframes curtain-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(6%, -8%) scale(1.18);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-curtain-sheet .loader-blob {
+    animation: none;
+  }
+}
+
+/* ── SignalConnector (sección "De ruido a señal") ─────────────────────────────
+   Movimiento de píxeles y del isotipo replicado del prototipo del cliente
+   (CSS puro). Disparo POR SCROLL, una sola pasada que TERMINA EN SU ESTADO
+   COMPLETO (sin bucle ni recogida): el componente pone data-signal="on" al
+   entrar en viewport (IntersectionObserver) y estas reglas lanzan los
+   keyframes *Once con fill both (backwards oculta cada píxel hasta que vence
+   su retardo inline = mapa retardo-por-X del barrido). Al salir del todo del
+   viewport vuelve a "off" → los píxeles se ocultan y el barrido se re-anima
+   al re-entrar.
+
+   neetyPixOnce: cada cuadradito emerge como partícula con pop elástico
+   (overshoot → asentamiento) y SE QUEDA. neetyTileOnce: pulso del recuadro
+   con rebote. neetyMarkOnce: "wiggle" del isotipo (el favicon). neetyTwinkle:
+   destellos "galaxia" en bucle propio ambiental — el único movimiento que
+   sigue en bucle. La opacidad objetivo de cada píxel va en el color rgba; el
+   keyframe anima 0→1 encima. Las curvas van por tramo
+   (animation-timing-function dentro del keyframe). */
+@media (prefers-reduced-motion: no-preference) {
+  /* ocultos hasta el disparo (y de nuevo al rearmar); con reduced-motion la
+     composición se ve completa y estática desde el principio */
+  [data-signal] .neety-pix,
+  [data-signal] .neety-chip { opacity: 0; }
+}
+[data-signal="on"] .neety-pix { animation: neetyPixOnce 1.1s both; }
+[data-signal="on"] .neety-chip { animation: neetyChipOnce 0.7s both; }
+[data-signal="on"] .neety-tile { animation: neetyTileOnce 1.3s 0.35s both; }
+[data-signal="on"] .neety-mark { animation: neetyMarkOnce 1.4s 0.4s both; }
+@keyframes neetyPixOnce {
+  0% { opacity: 0; transform: scale(0); animation-timing-function: cubic-bezier(0.22, 1.4, 0.36, 1); }
+  40% { opacity: 1; transform: scale(1.22); animation-timing-function: cubic-bezier(0.33, 0, 0.67, 1); }
+  70% { transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* los chips laterales llevan translateY(-50%) inline: el keyframe lo replica
+   para no descolocarlos mientras anima la opacidad. */
+@keyframes neetyChipOnce {
+  0% { opacity: 0; transform: translateY(-50%); }
+  100% { opacity: 1; transform: translateY(-50%); }
+}
+/* el tile está centrado con translate(-50%,-50%); el keyframe lo conserva y solo pulsa la escala. */
+@keyframes neetyTileOnce {
+  0% { transform: translate(-50%, -50%) scale(1); animation-timing-function: cubic-bezier(0.22, 1.6, 0.36, 1); }
+  37% { transform: translate(-50%, -50%) scale(1.07); animation-timing-function: cubic-bezier(0.33, 0, 0.67, 1); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes neetyMarkOnce {
+  0% { transform: scale(1) rotate(0deg); animation-timing-function: cubic-bezier(0.22, 1.6, 0.36, 1); }
+  34% { transform: scale(1.16) rotate(-5deg); animation-timing-function: cubic-bezier(0.34, 1.35, 0.64, 1); }
+  67% { transform: scale(0.98) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+/* meseta encendida (35–65%) en vez de pico instantáneo → los destellos se ven más rato */
+@keyframes neetyTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  35%, 65% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neety-pix, .neety-chip, .neety-tile, .neety-mark, .neety-twinkle { animation: none !important; }
+}
+
+/* ── Bento de /plataforma: entrada de las ilustraciones al hacer scroll ────────
+   Mismo patrón que SignalConnector: BentoMockFrame pone data-bento="on" con el
+   mock medio visible (IntersectionObserver) y estas reglas lanzan UNA pasada que
+   termina en el estado completo (fill both, sin bucle); al salir del todo del
+   viewport se rearma. El retardo de cada pieza va inline en la var --d.
+   Movimiento sutil (preferencia del cliente): fundidos y derivas cortas de 12px;
+   los pops solo en piezas pequeñas (badges de intención, icono social). */
+@media (prefers-reduced-motion: no-preference) {
+  /* ocultos hasta el disparo (y al rearmar); con reduced-motion no se tocan:
+     la ilustración se ve completa y estática desde el principio */
+  [data-bento] :is(.bento-rise, .bento-fade, .bento-ring, .bento-pop) { opacity: 0; }
+  [data-bento] .bento-line { transform: scaleX(0); }
+}
+[data-bento="on"] .bento-rise { animation: bentoRise 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both; }
+[data-bento="on"] .bento-fade { animation: bentoFade 0.55s ease-out var(--d, 0s) both; }
+[data-bento="on"] .bento-ring { animation: bentoRing 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both; }
+[data-bento="on"] .bento-pop { animation: bentoPop 0.5s var(--d, 0s) both; }
+[data-bento="on"] .bento-line { animation: bentoLine 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both; }
+/* Los elementos con utilidades translate de Tailwind v4 (propiedad `translate`)
+   no chocan con estos keyframes de `transform` — componen. */
+@keyframes bentoRise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes bentoFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes bentoRing {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes bentoPop {
+  0% { opacity: 0; transform: scale(0.6); animation-timing-function: cubic-bezier(0.22, 1.4, 0.36, 1); }
+  55% { opacity: 1; transform: scale(1.08); animation-timing-function: cubic-bezier(0.33, 0, 0.67, 1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* la línea se dibuja de izquierda a derecha (origin-left en el JSX) */
+@keyframes bentoLine {
+  from { transform: scaleX(0); }
+  to { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bento-rise, .bento-fade, .bento-ring, .bento-pop, .bento-line { animation: none !important; }
+}
+
+/* ── Integraciones: pulso de señal sobre los conectores ───────────────────────
+   Banda elástica que viaja del tag al vídeo (recorrido normalizado con
+   pathLength=100): se anima a la vez el offset (posición) y el dasharray
+   (longitud). Nace como un punto bajo el tag, se ESTIRA porque la cabeza corre
+   por delante de la cola (0→25%), viaja estirada y SALE deslizándose por el
+   extremo, recortada por el final del path (feedback 2026-08-18: la versión que
+   encogía el dasharray a 0 en el último tramo empezaba a morir con la cola aún
+   a mitad del conector y "las líneas se perdían a la mitad"); el resto del
+   ciclo es pausa con la banda entera más allá del final → no se pinta.
+   Estructura de timing (aleatorio garantizado, ver Integraciones.tsx):
+   · Las 2 exteriores comparten variante Outer (periodo 6.6s, viaje 52.6%) y van
+     desfasadas media vuelta → se RELEVAN con 0.17s de solape: cobertura continua
+     garantizada (nunca un instante sin banda en movimiento).
+   · Las 3 interiores llevan periodos inconmensurables (4.3 / 3.7 / 5.1s) → el
+     patrón global prácticamente nunca se repite (sensación aleatoria real).
+   La fracción de viaje de cada variante mantiene la velocidad ≈95px/s, y dentro
+   de cada una la estructura es la misma a escala: estira el primer ~42% del
+   viaje, crucero, y salida decelerada entrando en el vídeo. */
+@keyframes integracionesPulseOuter {
+  0% {
+    stroke-dasharray: 0 224;
+    stroke-dashoffset: 2;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.7, 0.4);
+  }
+  21.9% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -20;
+    animation-timing-function: linear;
+  }
+  35.1% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -55;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.6, 1);
+  }
+  52.6%, 100% {
+    /* dash constante (antes 0): la banda ya no se encoge en marcha — sale
+       entera por el final del path; con -102 la cola (102) acaba de rebasar
+       los 100 justo al cerrar la ventana de viaje → misma velocidad de crucero
+       y el solape del relevo Outer intacto. */
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -102;
+  }
+}
+@keyframes integracionesPulseIn1 {
+  0% {
+    stroke-dasharray: 0 224;
+    stroke-dashoffset: 2;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.7, 0.4);
+  }
+  20.7% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -20;
+    animation-timing-function: linear;
+  }
+  33.2% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -55;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.6, 1);
+  }
+  49.8%, 100% {
+    /* dash constante (antes 0): la banda ya no se encoge en marcha — sale
+       entera por el final del path; con -102 la cola (102) acaba de rebasar
+       los 100 justo al cerrar la ventana de viaje → misma velocidad de crucero
+       y el solape del relevo Outer intacto. */
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -102;
+  }
+}
+@keyframes integracionesPulseCenter {
+  0% {
+    stroke-dasharray: 0 224;
+    stroke-dashoffset: 2;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.7, 0.4);
+  }
+  11.4% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -20;
+    animation-timing-function: linear;
+  }
+  18.2% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -55;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.6, 1);
+  }
+  27.3%, 100% {
+    /* dash constante (antes 0): la banda ya no se encoge en marcha — sale
+       entera por el final del path; con -102 la cola (102) acaba de rebasar
+       los 100 justo al cerrar la ventana de viaje → misma velocidad de crucero
+       y el solape del relevo Outer intacto. */
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -102;
+  }
+}
+@keyframes integracionesPulseIn2 {
+  0% {
+    stroke-dasharray: 0 224;
+    stroke-dashoffset: 2;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.7, 0.4);
+  }
+  17.5% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -20;
+    animation-timing-function: linear;
+  }
+  28% {
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -55;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.6, 1);
+  }
+  42%, 100% {
+    /* dash constante (antes 0): la banda ya no se encoge en marcha — sale
+       entera por el final del path; con -102 la cola (102) acaba de rebasar
+       los 100 justo al cerrar la ventana de viaje → misma velocidad de crucero
+       y el solape del relevo Outer intacto. */
+    stroke-dasharray: 30 224;
+    stroke-dashoffset: -102;
+  }
+}
+.integraciones-pulse {
+  stroke-dasharray: 0 224;
+  stroke-dashoffset: 2; /* banda oculta antes del primer ciclo (durante el delay) */
+  animation-name: var(--pulse-anim, integracionesPulseIn1);
+  animation-duration: var(--pulse-duration, 4.3s);
+  animation-delay: var(--pulse-delay, 0s);
+  animation-iteration-count: infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .integraciones-pulse { display: none; }
+}
+
+/* ── Integraciones: barrido de gradiente en el borde de las pills ─────────────
+   El anillo de 2px lo pinta un conic-gradient (base plum/10 con un arco
+   naranja→azul, los mismos colores de los pulsos de los conectores) que gira
+   alrededor de la pill; el relleno blanco va en padding-box y el border queda
+   transparente para que el conic asome solo en el anillo.
+   TÉCNICA (31-ago): misma que .coming-forward-ring — un <span
+   .integraciones-tag-ring> recortado a la corona con la máscara content-box XOR
+   y dentro su ::before (cuadrado sobredimensionado con el conic) girando con
+   transform:rotate. Antes el giro animaba la custom property --tag-angle
+   (@property) y el navegador repintaba el fondo de cada pill en cada frame
+   (Lighthouse «animaciones no compuestas»); rotar con transform va por el
+   compositor. De regalo, en Safari 16.0–16.3 (sin @property) ahora también gira.
+   El desfase entre pills se pasa por --tag-delay (negativo) desde el TSX. */
+@keyframes tagRingSpin {
+  to { transform: translate(-50%, -50%) rotate(1turn); }
+}
+.integraciones-tag {
+  background: linear-gradient(#fff, #fff) padding-box;
+}
+.integraciones-tag-ring,
+.plataforma-usecase-ring {
+  pointer-events: none;
+  position: absolute;
+  border-radius: inherit;
+  /* La máscara lo hace todo: recorta al border-box CON el radio (las geometry
+     boxes de mask-clip siguen el border-radius, y la capa content-box encoge el
+     radio interior como lo haría un border de verdad), talla la corona (XOR) y
+     descarta lo que el cuadrado del ::before desborda (no-repeat: sin él las
+     dos capas teselarían fuera con periodos distintos y el XOR pintaría
+     franjas). Sin overflow:hidden a propósito — recortaría el ::before al
+     padding-box y se comería la corona. */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box no-repeat,
+    linear-gradient(#fff 0 0) no-repeat;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box no-repeat,
+    linear-gradient(#fff 0 0) no-repeat;
+  mask-composite: exclude;
+}
+/* inset negativo = grosor del border transparente de la pill/card: el span (hijo,
+   que nace en el padding-box) se expande hasta cubrir exactamente el border-box,
+   que es donde vivía el conic original; el padding igual al grosor deja la corona
+   en esa misma zona. */
+.integraciones-tag-ring { inset: -2px; padding: 2px; }
+/* cuadrado ≥ diagonal del elemento (250% cubre cards hasta ~2:1 de aspecto en
+   cualquier orientación); el conic va por ángulos, así que el sobretamaño no
+   cambia el degradado visible en la corona */
+.integraciones-tag-ring::before,
+.plataforma-usecase-ring::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 250%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  animation: tagRingSpin 6.5s linear infinite;
+  animation-delay: var(--tag-delay, 0s);
+}
+.integraciones-tag-ring::before {
+  background: conic-gradient(
+    rgb(67 27 68 / 0.1) 0deg,
+    rgb(67 27 68 / 0.1) 250deg,
+    rgb(254 130 56 / 0.6) 300deg,
+    rgb(167 197 249 / 0.85) 330deg,
+    rgb(67 27 68 / 0.1) 360deg
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  .integraciones-tag-ring::before {
+    animation: none;
+    background: rgb(67 27 68 / 0.1);
+  }
+}
+
+/* ── Coming soon: pill del banner «Neety Forward 2026» ───────────────────────
+   Mismo look que el barrido de .integraciones-tag pero afinado con el cliente:
+   giro más rápido (4.5s vs 6.5s), arco de color más largo (~180° de cola
+   naranja→azul vs ~110°), base del anillo más tenue (plum/5 vs plum/10) y relleno
+   de cristal (blanco al 45% + backdrop blur) en vez de blanco sólido.
+   TÉCNICA (3ª iteración — ¡no volver a las anteriores!):
+   · El doble-fondo de la home no sirve: con relleno semitransparente el conic de
+     border-box se vería a través del centro de la pill.
+   · @property --tag-angle animada tampoco: Chrome NO re-resuelve los var() de una
+     custom property animada dentro de pseudo-elementos (verificado con Chrome 151
+     headless, 2026-08-11: --tag-angle avanzaba pero el conic quedaba congelado en
+     0deg — tanto animando en el ::before como en el elemento con inherits:true).
+   · Solución: un <span .coming-forward-ring> (elemento real en ComingSoon.tsx)
+     recortado a la corona de 2px con la máscara content-box XOR, y dentro su
+     ::before — un cuadrado sobredimensionado (103%, ≥ diagonal de la pill) con el
+     conic — girando con transform:rotate, que anima bien en todos los navegadores.
+     De regalo, el fallback de Safari 16.0–16.3 (sin @property) ahora también gira. */
+.coming-forward-tag {
+  position: relative;
+  background: rgb(255 255 255 / 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: background-color 0.3s ease;
+}
+/* La pill es un enlace (evento en Luma): al hover el cristal se vuelve más opaco. */
+.coming-forward-tag:is(:hover, :focus-visible) {
+  background: rgb(255 255 255 / 0.65);
+}
+.coming-forward-ring {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+.coming-forward-ring::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 103%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    rgb(67 27 68 / 0.05) 0deg,
+    rgb(67 27 68 / 0.05) 180deg,
+    rgb(254 130 56 / 0.6) 260deg,
+    rgb(167 197 249 / 0.85) 330deg,
+    rgb(67 27 68 / 0.05) 360deg
+  );
+  animation: comingForwardSpin 4.5s linear infinite;
+}
+@keyframes comingForwardSpin {
+  to {
+    transform: translate(-50%, -50%) rotate(1turn);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coming-forward-ring::before {
+    animation: none;
+    background: rgb(67 27 68 / 0.05);
+  }
+}
+
+/* ── Plataforma: fondo del hero ──────────────────────────────────────────────
+   Gradiente de marca CON el grano de Figma horneado (Rectangle 7087): AVIF q60 +
+   croma 4:4:4 (226 KB — a q60 el grano aguanta; por debajo se aplana). Se intentó
+   servirlo liso + grano recreado con feTurbulence por CSS y el cliente lo rechazó:
+   no reproduce el NOISE multitone de Figma.
+   OJO: el AVIF se genera RECORTANDO 2px de cada borde del export
+   (assets-src/plataforma-hero-bg.png): el efecto de grano de Figma deja la primera
+   y última fila "lavadas", y con bg-cover esos bordes caen justo en los bordes de
+   la card → se veían como una línea clara/amarillenta de 1px arriba y abajo. */
+.plataforma-hero-bg {
+  background-image: url("/assets/plataforma-hero-bg-v3.avif");
+  /* Sin esto, background-repeat:repeat (el default) pinta la repetición de la imagen
+     en el píxel que el cover deja corto por redondeo → línea de 1px arriba/abajo. */
+  background-repeat: no-repeat;
+}
+
+/* ── Solicitar demo: fondo en dos piezas (Group 19 arriba / Group 18 abajo de Figma).
+   Los PNG traen el fundido a transparente horneado; másters en assets-src/demo-bg-*.png.
+   v2 = recortados los márgenes casi transparentes laterales del export (34/25 px arriba,
+   17/23 abajo) que dejaban la card visiblemente más estrecha que el marco (28-ago). */
+.demo-bg-top {
+  background-image: url("/assets/demo-bg-top-v2.avif");
+  /* El alfa del export cae en seco (255→0 en ~20px hacia el 80% de la altura) y se veía
+     una línea horizontal bajo la nube blanca; la máscara alarga ese fundido (28-ago). */
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 76%);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent 76%);
+}
+.demo-bg-bottom {
+  background-image: url("/assets/demo-bg-bottom-v2.avif");
+  /* Ídem por arriba: el export arranca en seco hacia el 17% de su altura. */
+  -webkit-mask-image: linear-gradient(to top, #000 45%, transparent 82%);
+  mask-image: linear-gradient(to top, #000 45%, transparent 82%);
+}
+
+/* ── Plataforma: progreso del tab activo del showcase del hero ───────────────
+   Línea que se llena durante los 6s que el tab está activo (sincronizada con el
+   auto-avance de HeroShowcase vía animationDuration inline). scaleX en vez de
+   width para no relayoutear. */
+@keyframes plataformaTabProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.plataforma-tab-progress {
+  transform-origin: left;
+  animation: plataformaTabProgress linear both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plataforma-tab-progress { animation: none; transform: none; }
+}
+
+/* ── Plataforma: arco punteado de "Integraciones" ────────────────────────────
+   Deriva continua del punteado vía stroke-dashoffset. El dasharray del círculo
+   es "14 10" (rayas finas y largas — feedback del cliente; periodo 24 unidades),
+   así que -48 es múltiplo exacto del periodo y el loop no salta; 4s ⇒ deriva
+   lenta (~12 unidades/s). Si cambias el dasharray, ajusta el offset a un
+   múltiplo del nuevo periodo. */
+/* ── Plataforma: borde gradiente animado de las cards de "Casos de uso" ──────
+   Colores del trazo de Figma (nodo 14634:20894): #ffe5d6 (= naranja al 20%
+   sobre blanco) → #d2a398 (punto medio exacto naranja↔azul) → #a7c5f9 (azul
+   bebé). Técnica de doble fondo: blanco en padding-box + gradiente en
+   border-box sobre borde transparente — un solo elemento y respeta el
+   border-radius (border-image no lo hace).
+   Animación: MISMO barrido cónico que .integraciones-tag de la home (petición
+   del cliente) y MISMA técnica (31-ago): un <span .plataforma-usecase-ring>
+   recortado a la corona de 4px con la máscara XOR y su ::before girando con
+   transform (ver el bloque de .integraciones-tag-ring, que comparte las reglas
+   base); --tag-delay desfasa cards. Antes rotaba la custom property --tag-angle
+   y repintaba el fondo en cada frame (no compuesto); ahora va por el compositor
+   y en Safari 16.0–16.3 (sin @property) también gira. */
+.plataforma-usecase-border {
+  border: 4px solid transparent;
+  background: linear-gradient(#fff, #fff) padding-box;
+}
+.plataforma-usecase-ring { inset: -4px; padding: 4px; }
+.plataforma-usecase-ring::before {
+  background: conic-gradient(
+    #ffe5d6 0deg,
+    #d2a398 90deg,
+    #a7c5f9 180deg,
+    #d2a398 270deg,
+    #ffe5d6 360deg
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  /* estático: el lineal debe abarcar exactamente la card (no el cuadrado
+     sobredimensionado del giro) para reproducir el fallback original */
+  .plataforma-usecase-ring::before {
+    animation: none;
+    inset: 0;
+    left: auto;
+    top: auto;
+    width: auto;
+    aspect-ratio: auto;
+    transform: none;
+    background: linear-gradient(180deg, #ffe5d6, #d2a398 25%, #a7c5f9 50%, #d2a398 75%, #ffe5d6);
+  }
+}
+
+/* Deriva del punteado del arco de Integraciones (/plataforma). El -48 debe ser
+   múltiplo del periodo del dasharray del círculo (6+6=12) para que el bucle cierre
+   sin salto. */
+@keyframes plataformaArcDash {
+  to { stroke-dashoffset: -48; }
+}
+.plataforma-arc-dash {
+  animation: plataformaArcDash 4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plataforma-arc-dash { animation: none; }
+}
+
+/* ── Plataforma: patrón de cruces + conectores del panel derecho de "Como
+   funciona" (tile de Figma "Patternpart" reconstruido como data-uri: cruz
+   naranja + guiones azul bebé; el hueco de 16px entre tiles viene del propio
+   canvas 96.8×97.2). Reutilizable en otras secciones de /plataforma. */
+.plataforma-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='97' height='97' viewBox='0 0 96.8 97.2'%3E%3Cpath d='M38.54 48.52V32.4H42.26V48.52H38.54ZM32.4 42.22V38.71H48.4V42.22H32.4Z' fill='%23FE8238'/%3E%3Cpath d='M80.8 40.11V41.11H52.4V40.11H80.8Z' fill='%23A7C5F9'/%3E%3Cpath d='M0 41.11V40.11H28.4V41.11H0Z' fill='%23A7C5F9'/%3E%3Cpath d='M39.9 0H40.9V28.4H39.9V0Z' fill='%23A7C5F9'/%3E%3Cpath d='M40.9 81.21H39.9V52.81H40.9V81.21Z' fill='%23A7C5F9'/%3E%3C/svg%3E");
+  background-size: 96.8px 97.2px;
+}
+
+/* Foco del patrón en el panel de "Como funciona": en Figma el patrón NUNCA se ve a
+   plena opacidad — va enmascarado por un radial (Rectangle 7080) con alfa máx. 10%
+   centrado bajo la captura. Radios y centro en % del panel de 712×622 de Figma
+   (rx 270/712, ry 178/622, centro 356/712 × 425.5/622). */
+.plataforma-pattern-spotlight {
+  -webkit-mask-image: radial-gradient(38% 28.6% at 50% 68.4%, rgb(0 0 0 / 0.1) 48%, transparent 100%);
+  mask-image: radial-gradient(38% 28.6% at 50% 68.4%, rgb(0 0 0 / 0.1) 48%, transparent 100%);
+}
+
+/* ── Plataforma: card activa del acordeón "Como funciona" con la muesca del raíl
+   troquelada en el borde izquierdo (petición del cliente: raíl integrado "como el
+   notch del iPhone" — misma construcción por suma de capas que .plataforma-benefit-card
+   y el notch de la Home). El hueco es un slot abierto al borde: --n de fondo,
+   arranca a --t del borde superior/inferior, hombros convexos en la boca y fillets
+   cóncavos en el fondo, radio --r. Geometría: el raíl va en x 4..10px e y 32..−32px
+   → slot de 14px con 4px de aire alrededor. El fondo+borde de la card viven en esta
+   capa aparte del contenido porque el mask recortaría también al raíl. */
+.plataforma-como-card {
+  --n: 14px;
+  --r: 6px;
+  --t: 28px;
+  --ccmask:
+    linear-gradient(#000 0 0) left var(--n) top 0 / calc(100% - var(--n)) 100% no-repeat,
+    linear-gradient(#000 0 0) left 0 top 0 / 100% calc(var(--t) - var(--r)) no-repeat,
+    linear-gradient(#000 0 0) left var(--r) top 0 / calc(100% - var(--r)) var(--t) no-repeat,
+    linear-gradient(#000 0 0) left 0 bottom 0 / 100% calc(var(--t) - var(--r)) no-repeat,
+    linear-gradient(#000 0 0) left var(--r) bottom 0 / calc(100% - var(--r)) var(--t) no-repeat,
+    radial-gradient(circle at 100% 0, #000 calc(var(--r) - 0.5px), transparent var(--r))
+      left 0 top calc(var(--t) - var(--r)) / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 100% 100%, #000 calc(var(--r) - 0.5px), transparent var(--r))
+      left 0 bottom calc(var(--t) - var(--r)) / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), #000 var(--r))
+      left calc(var(--n) - var(--r)) top var(--t) / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 0 0, transparent calc(var(--r) - 0.5px), #000 var(--r))
+      left calc(var(--n) - var(--r)) bottom var(--t) / var(--r) var(--r) no-repeat;
+  -webkit-mask: var(--ccmask);
+  mask: var(--ccmask);
+}
+
+/* Variantes de la muesca para las step-cards de ComoAyuda en <md (frame mobile
+   15153:11021, afinado con feedback 2026-08-19, 4ª tanda): el raíl ATRAVIESA
+   las cards exteriores, así que su slot solo cierra por un lado — en Detecta
+   entra por la muesca superior y SALE por el borde inferior (sin muesca abajo);
+   en Actúa entra por el borde superior y muere en la muesca inferior (sin
+   muesca arriba). La central no enmascara: va remetida 14px (el fondo del
+   slot) para que el raíl pase por fuera sin solapar. Misma geometría 14/6/28
+   que .plataforma-como-card. En md+ ninguna enmascara (ahí mandan las
+   lengüetas + barra horizontal). */
+@media (max-width: 47.9375rem) {
+  /* Detecta: muesca arriba (hombro + fillet), slot abierto hasta el borde inferior */
+  .casos-step-groove-top {
+    --n: 14px;
+    --r: 6px;
+    --t: 28px;
+    -webkit-mask:
+      linear-gradient(#000 0 0) left var(--n) top 0 / calc(100% - var(--n)) 100% no-repeat,
+      linear-gradient(#000 0 0) left 0 top 0 / 100% calc(var(--t) - var(--r)) no-repeat,
+      linear-gradient(#000 0 0) left var(--r) top 0 / calc(100% - var(--r)) var(--t) no-repeat,
+      radial-gradient(circle at 100% 0, #000 calc(var(--r) - 0.5px), transparent var(--r))
+        left 0 top calc(var(--t) - var(--r)) / var(--r) var(--r) no-repeat,
+      radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), #000 var(--r))
+        left calc(var(--n) - var(--r)) top var(--t) / var(--r) var(--r) no-repeat;
+    mask:
+      linear-gradient(#000 0 0) left var(--n) top 0 / calc(100% - var(--n)) 100% no-repeat,
+      linear-gradient(#000 0 0) left 0 top 0 / 100% calc(var(--t) - var(--r)) no-repeat,
+      linear-gradient(#000 0 0) left var(--r) top 0 / calc(100% - var(--r)) var(--t) no-repeat,
+      radial-gradient(circle at 100% 0, #000 calc(var(--r) - 0.5px), transparent var(--r))
+        left 0 top calc(var(--t) - var(--r)) / var(--r) var(--r) no-repeat,
+      radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), #000 var(--r))
+        left calc(var(--n) - var(--r)) top var(--t) / var(--r) var(--r) no-repeat;
+  }
+  /* Actúa: slot abierto desde el borde superior, muesca abajo (hombro + fillet) */
+  .casos-step-groove-bottom {
+    --n: 14px;
+    --r: 6px;
+    --t: 28px;
+    -webkit-mask:
+      linear-gradient(#000 0 0) left var(--n) top 0 / calc(100% - var(--n)) 100% no-repeat,
+      linear-gradient(#000 0 0) left 0 bottom 0 / 100% calc(var(--t) - var(--r)) no-repeat,
+      linear-gradient(#000 0 0) left var(--r) bottom 0 / calc(100% - var(--r)) var(--t) no-repeat,
+      radial-gradient(circle at 100% 100%, #000 calc(var(--r) - 0.5px), transparent var(--r))
+        left 0 bottom calc(var(--t) - var(--r)) / var(--r) var(--r) no-repeat,
+      radial-gradient(circle at 0 0, transparent calc(var(--r) - 0.5px), #000 var(--r))
+        left calc(var(--n) - var(--r)) bottom var(--t) / var(--r) var(--r) no-repeat;
+    mask:
+      linear-gradient(#000 0 0) left var(--n) top 0 / calc(100% - var(--n)) 100% no-repeat,
+      linear-gradient(#000 0 0) left 0 bottom 0 / 100% calc(var(--t) - var(--r)) no-repeat,
+      linear-gradient(#000 0 0) left var(--r) bottom 0 / calc(100% - var(--r)) var(--t) no-repeat,
+      radial-gradient(circle at 100% 100%, #000 calc(var(--r) - 0.5px), transparent var(--r))
+        left 0 bottom calc(var(--t) - var(--r)) / var(--r) var(--r) no-repeat,
+      radial-gradient(circle at 0 0, transparent calc(var(--r) - 0.5px), #000 var(--r))
+        left calc(var(--n) - var(--r)) bottom var(--t) / var(--r) var(--r) no-repeat;
+  }
+}
+
+/* ── Plataforma: card de beneficio con muesca para el icono ──────────────────
+   Réplica del vector "Rectangle 7092" de Figma: card blanca con un hueco en la
+   esquina superior derecha donde asienta el cuadrado del icono. Mask por suma
+   de capas (mismo método que .usecase-vector): columna izquierda + banda
+   inferior, cuartos de círculo convexos en la boca del hueco y un fillet
+   CÓNCAVO en la esquina interior que abraza el redondeo del icono (medido del
+   vector: muesca 44px = icono 40 + 4px de aire simétrico, hombros r12 — sin el
+   fillet la esquina queda a 90° y el hueco se ve descompensado; feedback
+   2026-08-04, misma regla de simetría que la muesca de Diagnóstico en la Home).
+   --n = lado del hueco (o --nx/--ny si no es cuadrado), --r = radio de hombros
+   Y del fillet (= redondeo del icono). El fillet va TANGENTE a los dos bordes
+   del corte con el MISMO r12 que los hombros, calcado del vector — hubo una
+   iteración con fillet concéntrico al icono (r + aire = 16) para igualar el
+   aire en toda la S, pero con la curva interior más amplia que las dos de
+   arriba el hueco se leía más ancho («el notch tiene que ser un poco más
+   estrecho para que se respete el padding con respecto a los 2 de arriba»,
+   feedback 2026-08-19, última ronda) — el propio vector de Figma asume el aire
+   √2 en la diagonal a cambio de radios consistentes.
+   Los offsets van con `right`/`top` en px puros (sin el trap de los % en
+   mask-position, ver nota en .diferencial-after-bg). */
+.plataforma-benefit-card {
+  --n: 44px;
+  --nx: var(--n);
+  --ny: var(--n);
+  --r: 12px;
+  --bcmask:
+    linear-gradient(#000 0 0) left 0 top 0 / calc(100% - var(--nx) - var(--r)) 100% no-repeat,
+    linear-gradient(#000 0 0) left 0 top var(--r) / calc(100% - var(--nx)) calc(100% - var(--r)) no-repeat,
+    linear-gradient(#000 0 0) left 0 bottom 0 / calc(100% - var(--r)) calc(100% - var(--ny)) no-repeat,
+    linear-gradient(#000 0 0) left 0 bottom 0 / 100% calc(100% - var(--ny) - var(--r)) no-repeat,
+    radial-gradient(circle at 0 100%, #000 calc(var(--r) - 0.5px), transparent var(--r))
+      right var(--nx) top 0 / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 0 100%, #000 calc(var(--r) - 0.5px), transparent var(--r))
+      right 0 top var(--ny) / var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 100% 0, transparent calc(var(--r) - 0.5px), #000 var(--r))
+      right calc(var(--nx) - var(--r)) top calc(var(--ny) - var(--r)) / var(--r) var(--r) no-repeat;
+  -webkit-mask: var(--bcmask);
+  mask: var(--bcmask);
+}
+
+/* ── Plataforma: raíl de progreso del acordeón "Como funciona" (misma
+   sincronización por animationDuration que los tabs del hero). En Figma
+   (nodo 14634:17985, verificado con el render aislado del nodo) la muesca lleva
+   el gradiente de marca COMPLETO — crema→naranja→berenjena→azul — comprimido en
+   su altura; los stops están muestreados de la columna central del asset raster
+   (extremos compositados sobre el blanco de la card, traen alpha). El degradado
+   se estira con la barra: todo el rango es visible a cualquier progreso. Por eso
+   se anima height (y no scaleY): el fondo se recalcula a la altura actual y las
+   puntas redondeadas no se achatan. Coste de layout irrelevante (elemento
+   absoluto de 6px sin hermanos). */
+@keyframes plataformaRailProgress {
+  from { height: 0; }
+  to { height: 100%; }
+}
+/* Barra del stepper de /solicitar-demo: crece de --from a --to (keyframes reiniciados
+   por key, como .plataforma-tab-progress). */
+@keyframes demoStepperFill {
+  from { width: var(--from, 0%); }
+  to { width: var(--to); }
+}
+.demo-stepper-fill {
+  width: var(--to);
+  animation: demoStepperFill 700ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-stepper-fill { animation: none; }
+}
+
+/* Mismas paradas en horizontal: barra de pasos de /casos-de-uso (ComoAyuda) y barra del
+   stepper de /solicitar-demo (DemoFlow). El anillo de progreso de la ficha del blog las
+   replica en SVG (ArticleSidebar). ES el «gradiente progresivo» de la marca: cualquier
+   barra/raíl de progreso nuevo usa esta clase (o .rail-gradient-y /
+   .plataforma-rail-progress en vertical), nunca un bg-gradient-to-r ad hoc.
+   Documentado en /library#gradiente (28-ago). */
+.rail-gradient-x {
+  background: linear-gradient(
+    to right,
+    #fbddaa 0%,
+    #fbbd7d 12.5%,
+    #ea8649 25%,
+    #ab472b 37.5%,
+    #662b3f 50%,
+    #61588d 62.5%,
+    #9ab0df 75%,
+    #d4ebfc 87.5%,
+    #f9feff 100%
+  );
+}
+
+/* Variante vertical SIN animación (el raíl móvil de ComoAyuda pinta su height desde JS
+   con el scroll; .plataforma-rail-progress no vale ahí porque su animation `both`
+   pisaría ese height inline). */
+.rail-gradient-y {
+  background: linear-gradient(
+    to bottom,
+    #fbddaa 0%,
+    #fbbd7d 12.5%,
+    #ea8649 25%,
+    #ab472b 37.5%,
+    #662b3f 50%,
+    #61588d 62.5%,
+    #9ab0df 75%,
+    #d4ebfc 87.5%,
+    #f9feff 100%
+  );
+}
+
+.plataforma-rail-progress {
+  background: linear-gradient(
+    to bottom,
+    #fbddaa 0%,
+    #fbbd7d 12.5%,
+    #ea8649 25%,
+    #ab472b 37.5%,
+    #662b3f 50%,
+    #61588d 62.5%,
+    #9ab0df 75%,
+    #d4ebfc 87.5%,
+    #f9feff 100%
+  );
+  animation: plataformaRailProgress linear both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plataforma-rail-progress { animation: none; height: 100%; }
+}
+
+/* ── Footer: popover del selector de idioma ──────────────────────────────────
+   Entrada suave del bannercito (se abre hacia arriba desde el botón "Español"). */
+@keyframes langPop {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.lang-pop {
+  animation: langPop 0.18s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lang-pop { animation: none; }
+}
+
+/* ── Casos de uso: barra de progreso de "Cómo ayuda Neety" ────────────────────
+   Sin CSS propio: la barra md+ se anima por TRANSICIONES de width encadenadas
+   desde ComoAyuda.tsx (rebobinado suave al clicar + carga linear del tramo —
+   feedback 2026-08-19, 3ª ronda; anima width y no scaleX para que la punta
+   redondeada no se achate). El raíl vertical móvil tampoco usa keyframes: su
+   altura la fija el scroll por JS («funcionar con el scroll», feedback
+   2026-08-19). Con prefers-reduced-motion el componente pinta el estado
+   estático (cambio seco al clicar). */
+
+/* ── Casos de uso: tile degradado del icono de las step-cards ────────────────
+   El fill de Figma (icon_container, p.ej. 15153:11037) NO es un lineal de dos
+   stops: es la textura granular de marca recortada — melocotón en la esquina
+   superior izquierda → naranja → ciruela profunda abajo, con el glow azul bebé
+   entrando por el lado inferior derecho y la esquina superior derecha ya
+   oscurecida. Réplica en CSS por capas (2 radiales + 1 lineal, stops
+   muestreados del export 2× del nodo; a 48px el grano no se aprecia). El
+   linear-gradient naranja→ciruela anterior quedaba plano («pulirlo para que se
+   parezca más al de Neety», feedback 2026-08-19). */
+.casos-step-icon {
+  background:
+    radial-gradient(
+        62% 62% at 105% 68%,
+        #a7c5f9 0%,
+        rgb(131 145 199 / 0.9) 50%,
+        rgb(131 145 199 / 0) 100%
+      ),
+    radial-gradient(60% 60% at 100% 0%, #49193b 0%, rgb(73 25 59 / 0) 100%),
+    linear-gradient(141deg, #fdc491 0%, #f0772f 30%, #c04413 60%, #431332 90%);
+}
+
+/* ── Casos de uso: unión móvil stats ↔ testimonial (Resultados) ───────────────
+   En <md la card del testimonial reproduce la unión "lego" del desktop
+   (feedback 2026-08-19): su silueta es el vector mobile de Figma (Rectangle
+   7105, 15153:13188 — orejas de 11.86px que suben 17.4px por encima del borde
+   y tramo central rebajado a 17.9px) aplicado como máscara 9-slice, la misma
+   técnica del bento de Funcionalidades: esquinas de 24px a tamaño fijo (oreja +
+   fillet completos), tramos rectos estirándose con la card. La stat-card
+   superior baja su pestaña central al hueco (span en Resultados.tsx); los
+   canales quedan en los ~4px del frame con el mt-1 del figure. Solo con soporte
+   de mask 9-slice (Chromium/Safari); sin él (Firefox) quedan las dos cards
+   redondeadas apiladas — degradación aceptada, como el bento (decisión
+   2026-08-18). El hairline plum/5 se pierde en el contorno troquelado (mismo
+   tradeoff: a 5% no se aprecia). */
+@media (max-width: 47.9375rem) {
+  @supports (-webkit-mask-box-image-source: url("/x.svg")) {
+    .casos-testimonial-mobile {
+      /* el radio lo pone la máscara; el del box recortaría las orejas */
+      border-radius: 0;
+      -webkit-mask-box-image-source: url("/assets/casos-testimonial-mask-mobile.svg");
+      -webkit-mask-box-image-slice: 24 fill;
+      -webkit-mask-box-image-width: 24px;
+      -webkit-mask-box-image-repeat: stretch;
+      /* orejas 2px más altas que el vector de Figma (feedback 2026-08-31, 3ª
+         ronda: coronillas r4→r5 y «2px más alto todavía»): la máscara baja su
+         tramo central a 19.9px y este margen negativo (colapsa con el mt-1 del
+         figure → 2px netos) sube el elemento para que la boca y el canal bajo
+         la pestaña del KPI no se muevan — solo las orejas trepan 2px más. */
+      margin-top: -2px;
+    }
+    /* el borde visible (tramo central) queda a 19.9px del top del elemento:
+       compensa el padding para mantener los 48px de respiro del diseño */
+    .casos-testimonial-mobile-content {
+      padding-top: 68px;
+    }
+    /* Último KPI: la pestaña que baja a la boca del testimonial es el vector
+       EXACTO de Figma (SVG del cliente «notch abajo», 31-ago: fillets r6 en la
+       unión con la card, esquinas inferiores r6, hairline plum/5 incluido en el
+       trazo) aplicado como border-image 9-slice en un ::before que desborda
+       18px por abajo. Antes era un span rectangular rounded-b-lg sin fillets y
+       la unión no casaba con la boca («no están bien enlazados», feedback
+       2026-08-31). La card pinta transparente y el ::before pone fondo + borde,
+       como la capa .casos-bento-shape del bento. Mismo gate @supports que la
+       máscara del testimonial: sin ella (Firefox) no debe haber pestaña.
+       padding-bottom 7px: en el frame (15153:13183) el troquel RECORTA la card
+       — la línea del borde cruza a 6.94px del texto (124.94 − 118) y son la
+       pestaña + el canal quienes completan los ~24px de respiro hasta su borde
+       inferior (142.97). Con el p-6 la card quedaba 17px más alta que el diseño
+       y todo el encaje bajaba («no está perfecto», 2ª ronda 31-ago). */
+    .casos-stat-notch-mobile {
+      border-color: transparent;
+      background: transparent;
+      padding-bottom: 7px;
+    }
+    .casos-stat-notch-mobile::before {
+      content: "";
+      position: absolute;
+      /* -1px = del padding box al border box; abajo, +18px de caída de la pestaña */
+      inset: -1px -1px -19px;
+      z-index: -1;
+      border: 24px solid transparent;
+      border-image: url("/assets/casos-stat-notch-mobile.svg") 24 fill / 24px stretch;
+    }
+  }
+}
+
+/* ── Casos de uso: "cristal" horneado de las cards de señal del hero ──────────
+   backdrop-filter + opacidad animada glitchea en Chromium: mientras la opacidad
+   del elemento está en animación el blur del backdrop se pierde y re-aparece de
+   golpe al terminar (feedback 2026-08-18). Como la composición vive en un stage
+   de coordenadas FIJAS (656×737) escalado como unidad, el cristal se hornea: el
+   background de cada card es la PROPIA FOTO difuminada (sigma 10) + velo blanco
+   45% (casos-ferias-hero-blur-v2.avif, generado con sharp desde
+   assets-src/casos-ferias-hero-v2.png), y HeroSignals fija el background-position
+   de cada card a su posición dentro del stage al montar. El bg-white/40 de
+   utilidad queda debajo como fallback si la imagen no carga. */
+.casos-glass {
+  background-image: url("/assets/casos-ferias-hero-blur-v2.avif");
+  background-size: 656px 737px;
+  background-repeat: no-repeat;
+}
+
+/* ── Casos de uso: bento "lego" de Funcionalidades (Figma 14710:2047) ─────────
+   Las 5 cards encajan entre sí como piezas de lego: la pestaña de una entra en
+   la muesca de la vecina siguiendo el contorno con el gap de 4px del grid.
+   Cada silueta es el vector EXACTO de Figma (Rectangle 7103–7107, en
+   public/assets/casos-bento-{a..e}.svg con los flips del frame ya aplicados)
+   usado como máscara 9-slice (-webkit-mask-box-image): las esquinas y encajes
+   quedan a tamaño fijo y los tramos rectos se estiran con la card, así el
+   troquel sobrevive a cualquier ancho/alto. Cada encaje está anclado al borde
+   que las dos cards comparten, por eso pestaña y muesca siguen alineadas en
+   cualquier viewport. La capa .casos-bento-shape lleva fondo+borde separada del
+   contenido (la máscara recortaría también los mocks); en el lado por el que la
+   pestaña sale la capa se extiende más allá de la card y su hairline plum/5 se
+   pierde en el contorno del troquel (mismo tradeoff aceptado que
+   .plataforma-benefit-card — a 5% de opacidad no se aprecia).
+   Solo en md+ (en móvil las cards se apilan y los encajes no tienen vecino) y
+   solo si hay soporte de mask 9-slice (Chromium/Safari): Firefox no lo soporta
+   y se queda con la card redondeada normal — degradación aceptada, ver
+   docs/decisiones.md 2026-08-18. */
+.casos-bento-shape {
+  position: absolute;
+  inset: 0;
+}
+@media (min-width: 48rem) {
+  @supports (-webkit-mask-box-image-source: url("/x.svg")) {
+    .casos-bento-a,
+    .casos-bento-b,
+    .casos-bento-c,
+    .casos-bento-d,
+    .casos-bento-e {
+      /* el radio lo pone la máscara; el del box redondearía la caja EXTENDIDA */
+      border-radius: 0;
+      -webkit-mask-box-image-repeat: stretch;
+    }
+    /* Empresas: muesca arriba-dcha (recibe la pestaña de B) + pestaña colgando
+       abajo-izda (encaja en la muesca superior de C, fila 2). El vector cuelga
+       12.3px pero la muesca de C mide 11.57: a -12.3 el canal inferior queda a
+       3.3px frente a los 4px laterales; -11.57 lo iguala a 4px y la pestaña
+       queda centrada en el zig zag (feedback 2026-08-19).
+       v2: muesca arriba-dcha REDIBUJADA como el offset exacto de 4px del
+       contorno de la pestaña de B (vertical a 16.65, arcos concéntricos con
+       los de B: r12.324/r4.324 sobre sus mismos centros) — el vector original
+       de Figma dejaba el canal a 2.55px y radios no concéntricos, y la S no
+       cerraba con el padding perfecto (feedback 2026-08-19, 2ª tanda).
+       v4: la muesca ya NO es un offset sino la MISMA S que la pestaña de B
+       (r8.325/r8.325) trasladada (-4, +4): 4px de aire en los tramos rectos
+       y en el centro de la S, algo más en la diagonal (nunca menos). El offset
+       exacto obligaba a radios distintos (r12/r4) y el cliente quería que las
+       dos S hicieran match exacto (feedback 2026-08-27). */
+    .casos-bento-a {
+      bottom: -11.57px;
+      -webkit-mask-box-image-source: url("/assets/casos-bento-a-v4.svg");
+      -webkit-mask-box-image-slice: 48 30 26 62 fill;
+      -webkit-mask-box-image-width: 48px 30px 26px 62px;
+    }
+    /* Contactos: pestaña saliendo 16.65px por arriba-izda (entra en A) +
+       borde inferior remetido en la esquina dcha (recibe la pestaña de E). */
+    .casos-bento-b {
+      left: -16.65px;
+      -webkit-mask-box-image-source: url("/assets/casos-bento-b.svg");
+      -webkit-mask-box-image-slice: 48 66 40 30 fill;
+      -webkit-mask-box-image-width: 48px 66px 40px 30px;
+    }
+    /* Señales: borde superior rebajado en la esquina izda (recibe la pestaña
+       de A) + pestaña saliendo 11.45px por abajo-dcha (entra en D). */
+    .casos-bento-c {
+      right: -11.45px;
+      -webkit-mask-box-image-source: url("/assets/casos-bento-c.svg");
+      -webkit-mask-box-image-slice: 30 26 48 66 fill;
+      -webkit-mask-box-image-width: 30px 26px 48px 66px;
+    }
+    /* Acción: pestaña saliendo 12.85px por arriba-dcha (entra en E) + borde
+       izdo remetido en la esquina inferior (recibe la pestaña de C). */
+    .casos-bento-d {
+      right: -12.85px;
+      -webkit-mask-box-image-source: url("/assets/casos-bento-d.svg");
+      -webkit-mask-box-image-slice: 44 26 48 30 fill;
+      -webkit-mask-box-image-width: 44px 26px 48px 30px;
+    }
+    /* Seguimiento: borde izdo remetido arriba (recibe la pestaña de D) +
+       pestaña subiendo 21.38px por arriba-dcha (entra en B, fila 1). */
+    .casos-bento-e {
+      top: -21.38px;
+      -webkit-mask-box-image-source: url("/assets/casos-bento-e.svg");
+      -webkit-mask-box-image-slice: 60 60 26 30 fill;
+      -webkit-mask-box-image-width: 60px 60px 26px 30px;
+    }
+  }
+}
+
+/* ── Sobre: card de la Misión (vector + gradiente CSS + grano en tile) ────────
+   Antes era un AVIF con todo horneado (silueta, gradiente y grano) → solo
+   funcionaba al aspect del export. Ahora (feedback 2026-08-19):
+   - Silueta: SVG trazado del export (sobre-mision-shape-{desktop,mobile}-v1.svg)
+     como máscara 9-slice, igual que .casos-bento-*: los troqueles de las
+     esquinas quedan a tamaño fijo y los tramos rectos se estiran → cualquier
+     formato. Desktop = frame 1352×408; móvil = frame responsive 358×501
+     (15153:16432). Firefox (sin mask 9-slice) cae a card redondeada normal.
+   - Gradiente: radial-gradients ajustados numéricamente contra el export
+     (malva por el borde dcho, lavanda arriba-dcha, menta abajo-izda, banda de
+     luz diagonal sobre base azul bebé).
+   - Grano: DOS tiles de 280×280 extraídos del export real por high-pass (el
+     NOISE multitone de Figma — el grano feTurbulence ya se descartó, ver
+     decisión de plataforma-hero-bg), en pseudo-elementos:
+       ::before = residuo positivo con mix-blend-mode plus-lighter (suma exacta)
+       ::after  = residuo negativo con multiply (resta ~exacta en fondos claros)
+     OJO: `linear-light` NO existe como <blend-mode> CSS (es de Photoshop; el
+     computed cae a `normal` y el tile gris tapaba el gradiente — feedback
+     2026-08-19 «se ve gris»). plus-lighter solo existe en mix-blend-mode, por
+     eso el grano va en pseudos y no en background-blend-mode. `isolation` evita
+     que los pseudos mezclen con la página; el contenido de la card va en z-10
+     para quedar por encima del grano. Los tiles van a 2× y se pintan a 140px:
+     tamaño de grano constante en cualquier viewport. */
+.mision-card {
+  isolation: isolate;
+  background-color: #e2ebfa;
+  background-image:
+    radial-gradient(40% 36% at 80% 56%, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0) 72%),
+    radial-gradient(48% 60% at 0% 106%, rgb(245 255 250) 0%, rgb(245 255 250 / 0) 72%),
+    radial-gradient(60% 55% at 102% -6%, rgb(232 228 236 / 0.9) 0%, rgb(232 228 236 / 0) 75%),
+    radial-gradient(88% 90% at 110% 108%, rgb(155 138 158) 0%, rgb(155 138 158) 12%, rgb(155 138 158 / 0) 72%);
+  /* Fallback sin mask 9-slice: card redondeada normal. */
+  border-radius: 1rem;
+}
+/* Grano solo si hay plus-lighter (si no, el tile aditivo casi negro taparía). */
+@supports (mix-blend-mode: plus-lighter) {
+  .mision-card::before,
+  .mision-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-repeat: repeat;
+    background-size: 140px 140px;
+  }
+  .mision-card::before {
+    background-image: url("/assets/sobre-grain-light-v1.png");
+    mix-blend-mode: plus-lighter;
+  }
+  .mision-card::after {
+    background-image: url("/assets/sobre-grain-dark-v1.png");
+    mix-blend-mode: multiply;
+  }
+}
+@supports (-webkit-mask-box-image-source: url("/x.svg")) {
+  .mision-card {
+    border-radius: 0;
+    /* v2: path EXACTO del export del cliente («grdiente sobree neety.svg»,
+       31-ago) — la v1 era un trazado a ojo y los notches no casaban con el
+       diseño: la muesca inferior real es honda (13.7px, x19.6–102, no el
+       escalón de 2px de la v1), el escalón del borde dcho va en y436.6–444.7
+       y el borde izdo remetido a x10.6. Slices remedidos con el mismo
+       criterio que desktop: los arcos deben caer DENTRO de esquinas fijas —
+       izda 116 (la muesca inferior ENTERA, arcos hasta x115.7, queda fija al
+       pie izdo; antes sus arcos caían en la banda que estira y se deformaban
+       a cualquier ancho ≠ 358, el «no cumple los notches» del feedback);
+       arriba 56 (pestaña sup-dcha hasta y54.1); dcha 88 (pestaña desde
+       x279.3); abajo 68 (escalón dcho desde y436.6). */
+    -webkit-mask-box-image-source: url("/assets/sobre-mision-shape-mobile-v2.svg");
+    -webkit-mask-box-image-slice: 56 88 68 116 fill;
+    -webkit-mask-box-image-width: 56px 88px 68px 116px;
+    -webkit-mask-box-image-repeat: stretch;
+  }
+  @media (min-width: 48rem) {
+    .mision-card {
+      /* v2: silueta remedida contra el fill real del vector de Figma
+         (Rectangle 7107, 14710:8794) — la v1 era un trazado a ojo y los
+         muros/niveles bailaban 8-12px (muro sup-dcho en x1100 y no 1091;
+         2º nivel a y34.5; pie dcho desde y349; fondo principal a y375.5;
+         pie izq a ras de x0/y407.5; muesca izq con pared en x40.5 — y el
+         borde inferior es UN nivel, sin el escalón espurio de la v1).
+         Validada por perfiles de alfa contra el export 2× (desv. ≤1px).
+         Feedback 2026-08-19. */
+      -webkit-mask-box-image-source: url("/assets/sobre-mision-shape-desktop-v2.svg");
+      /* dcha 270 / abajo 72: los arcos del notch (x 1089) y del pie dcho
+         (y 349) deben caer DENTRO de las esquinas fijas, no en bandas que
+         estiran. */
+      -webkit-mask-box-image-slice: 56 270 72 56 fill;
+      -webkit-mask-box-image-width: 56px 270px 72px 56px;
+    }
+  }
+}
+
+/* ── /sobre-neety: hover del grid de avatares ─────────────────────────────────
+   Tras la onda de entrada todas las fotos quedan ACTIVAS; al pasar el ratón
+   por una, el resto se atenúa (40% + gris) — feedback 2026-08-19, 6ª ronda.
+   Va con :has (Safari 15.4+/Chromium 105+, dentro del baseline): sin soporte,
+   simplemente no se atenúan y solo actúa el scale de la hovereada. La
+   transición la ponen las propias celdas (transition-[opacity,filter,scale]). */
+.sobre-avatar-grid:has([data-colorize]:hover) [data-colorize]:not(:hover) {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+/* Gracia al deshacer el atenuado: al saltar el ratón de una foto a otra hay
+   unos ms sin ninguna hovereada; sin esto, el resto arrancaba su vuelta a
+   plena opacidad y se re-atenuaba al instante → parpadeo tipo glitch
+   (feedback 2026-08-19). El delay vive en el estado BASE (= al volver al
+   reposo, y también da un respiro al cruzar huecos); mientras hay una foto
+   hovereada se anula, para que atenuado y scale respondan al momento. */
+.sobre-avatar-grid [data-colorize] {
+  transition-delay: 0.2s;
+}
+.sobre-avatar-grid:has([data-colorize]:hover) [data-colorize] {
+  transition-delay: 0s;
+}
+
+/* Estado servido (SSR) del grid: celdas ocultas hasta que la onda de entrada
+   toma el control — entre el primer paint y la hidratación el grid salía
+   completo de golpe y el staggering no se apreciaba (feedback 2026-08-19,
+   9ª ronda). AvatarGrid retira la clase en el mismo bloque síncrono en que el
+   timeline aplica su estado inicial (sin paint entre medias); también con
+   prefers-reduced-motion. El grid es decorativo (aria-hidden): sin JS queda
+   oculto, degradación asumida. */
+.sobre-avatar-grid.sobre-grid-pending [data-cell] {
+  visibility: hidden;
+}
+
+/* ── Blog: imagen del hero de la ficha del artículo ───────────────────────────
+   Silueta de cuadrados entrelazados del frame (vector @S-Rectangle 7112,
+   14809:496), trazada del alpha de su export a 2× → article-hero-shape-v1.svg.
+   Va como máscara 9-SLICE (-webkit-mask-box-image), la misma técnica de
+   .casos-bento-* y .mision-card: las cuatro esquinas (orejas) y la muesca del
+   borde superior quedan a TAMAÑO FIJO en píxeles y solo se estiran los tramos
+   rectos. Desde 2026-08-27 móvil (< lg) lleva SU PROPIA silueta, trazada del
+   export móvil del cliente (article-hero-shape-mobile-v1.svg), no la de desktop
+   estirada; en cada rango el 9-slice absorbe la variación de ancho.
+   Firefox no soporta mask 9-slice y se queda con la card redondeada de 20px
+   (mismo degradado aceptado que en .casos-bento-*, decisión 2026-08-18). */
+.article-hero-shape {
+  border-radius: 20px;
+}
+@supports (-webkit-mask-box-image-source: url("/x.svg")) {
+  /* < lg: silueta MÓVIL propia (Rectangle 7112 del frame móvil, 358×300): muesca
+     más ancha y honda, orejas más cortas y pestaña izquierda más estrecha que
+     en desktop. Slices (del path de Figma): arriba hasta el final de la S de la pestaña (y=64),
+     izquierda hasta pasada la pestaña (x=22), derecha desde donde arranca el filete de la muesca (x=331), abajo desde las pestañas (y=265). */
+  .article-hero-shape {
+    /* el radio lo pone la máscara; el del box recortaría además las orejas */
+    border-radius: 0;
+    -webkit-mask-box-image-source: url("/assets/blog/article-hero-shape-mobile-v1.svg");
+    -webkit-mask-box-image-slice: 66 28 36 24 fill;
+    -webkit-mask-box-image-width: 66px 28px 36px 24px;
+    -webkit-mask-box-image-repeat: stretch;
+  }
+  /* ≥ lg: silueta de desktop (@S-Rectangle 7112, 656×412). */
+  @media (min-width: 64rem) {
+    .article-hero-shape {
+      -webkit-mask-box-image-source: url("/assets/blog/article-hero-shape-v1.svg");
+      -webkit-mask-box-image-slice: 90 27 48 41 fill;
+      -webkit-mask-box-image-width: 90px 27px 48px 41px;
+    }
+  }
+}
+
+/* ── Eventos: card troquelada de cada ponente en la ficha ─────────────────────
+   Silueta `Rectangle 7110` del frame (14809:1061): la card del nombre lleva una
+   pestaña fina que se prolonga por encima de la foto y baja con un filete
+   cóncavo justo donde acaba esta.
+   Aquí NO se usa máscara sino `border-image` 9-slice, al contrario que
+   .casos-bento-* o .article-hero-shape: la pieza es plana (blanco + hairline
+   plum/5), así que el propio SVG puede pintarse como borde y el hairline se
+   conserva — y `border-image` sí funciona en Firefox, que no soporta mask
+   9-slice. Como en las demás, las esquinas y el escalón quedan a tamaño fijo en
+   píxeles y solo se estiran los tramos rectos: el escalón cae siempre a 105px
+   del borde izquierdo, que es donde acaba la foto (100px) más el gap de 4.
+   El elemento va en absoluto detrás del contenido (foto + textos), que se pinta
+   con `position: relative` encima. */
+.ponente-card-shape {
+  border-style: solid;
+  border-color: transparent;
+  border-width: 40px 20px 20px 130px;
+  border-image-source: url("/assets/eventos/ponente-card-shape-v1.svg");
+  border-image-slice: 40 20 20 130 fill;
+  border-image-repeat: stretch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ── Precios: fondo degradado propio del hero ────────────────────────────────
+   Asset del cliente («rectangle precio.png», 2208×947 = 1,5× de la card de Figma
+   1472×631, feedback 2026-08-27): esquinas redondeadas solo arriba (abajo recto,
+   lo tapa la nube precios-fog-v1.avif). Estirado 100% 100% en lg como el de
+   /manifesto; no-repeat por la lección de .plataforma-hero-bg. */
+.precios-hero-bg {
+  background-image: url("/assets/precios-hero-bg-v1.avif");
+  background-repeat: no-repeat;
+}
+
+/* Slider de volumen del reproductor de la Academia (VideoPlayer): pista fina con
+   relleno blanco hasta --fill y pomo pequeño; nativo por debajo. */
+.player-range {
+  appearance: none;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.player-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #fff var(--fill, 100%), rgb(255 255 255 / 0.2) var(--fill, 100%));
+}
+.player-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  margin-top: -3px;
+  border-radius: 9999px;
+  background: #fff;
+}
+.player-range::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.2);
+}
+.player-range::-moz-range-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: #fff;
+}
+.player-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 0;
+  border-radius: 9999px;
+  background: #fff;
+}

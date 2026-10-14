@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 175" width="850" height="175" preserveAspectRatio="xMinYMax meet">
+  <!-- Regions to CARVE OUT of the hero gradient (bottom-left interlocking-squares motif).
+       Measured from @S-Vector.png alpha. This viewBox = design x[0-850] y[730-905]:
+         · gradient keeps a rounded CONVEX bottom-left corner (arc near 0,30)
+         · R1 big notch : x[0-717] down to y833, steps in to x[0-657]; rounds the tab's bottom-left
+         · gradient tab : x[657-722] -> a fully rounded square ("el cuadrado")
+         · R2 white square: x[722-814]; its bottom corners are CONCAVE — they round the
+           neighbours (the tab on the left, the right-hand gradient on the right), which is
+           why R2 has no rounding of its own there but the shapes it touches do. -->
+  <g fill="#fff">
+    <path d="M0,6 Q0,30 24,30 H697 Q717,30 717,50 V83 Q717,103 697,103 H677 Q657,103 657,123 V155 Q657,175 677,175 H0 Z" />
+    <path d="M742,103 H794 Q814,103 814,123 V155 Q814,175 834,175 H702 Q722,175 722,155 V123 Q722,103 742,103 Z" />
+  </g>
+</svg>

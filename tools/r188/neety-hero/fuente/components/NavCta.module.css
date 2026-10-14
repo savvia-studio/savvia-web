@@ -1,0 +1,50 @@
+/* Text-swap only (no dot, no background scale) for the desktop navbar "Solicitar demo".
+   On hover the label rolls up + fades while an identical copy rolls in from below — the
+   same motion as the primary button, but nothing else about the button changes. */
+.btn {
+  --smooth: cubic-bezier(0.32, 0.72, 0, 1);
+}
+.swap {
+  display: inline-grid;
+  overflow: hidden; /* clip the rolling label */
+}
+.label,
+.swap::after {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  transition:
+    translate 0.55s var(--smooth),
+    opacity 0.4s var(--smooth);
+}
+/* Incoming copy — starts just below, hidden; rolls up into place on hover. */
+.swap::after {
+  content: attr(data-text);
+  translate: 0 1.05em;
+  opacity: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:is(:hover, :focus-visible) .label {
+    translate: 0 -1.05em;
+    opacity: 0;
+  }
+  .btn:is(:hover, :focus-visible) .swap::after {
+    translate: 0;
+    opacity: 1;
+    transition-delay: 0.06s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label,
+  .swap::after {
+    transition-duration: 0.15s;
+  }
+  .btn:is(:hover, :focus-visible) .label {
+    translate: 0;
+    opacity: 1;
+  }
+  .btn:is(:hover, :focus-visible) .swap::after {
+    opacity: 0;
+  }
+}

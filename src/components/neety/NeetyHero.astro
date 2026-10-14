@@ -1,0 +1,738 @@
+---
+// RONDA 188 · réplica EXACTA del hero de Neety (/home), a partir de lo extraído en tools/r188/neety-hero/ (LEEME.md): mismo marcado, mismas
+// medidas (Tailwind de Hero.tsx, SignalFeed.tsx, PillCta, Navbar y HomePage traducido a CSS), el degradado horneado con su muesca y la cinta de
+// tarjetas con su reloj de 26,6 s. Sin GSAP: la cinta es una función pura del tiempo (`pintar(t)`) con las mismas curvas (power1–3, back, sine).
+// Referencia: 1440 × 900 (card 1400 × 795). Breakpoints como el original: md 768 · lg 1024 · 1200 · xl 1280 · 1360 · alto < 840.
+// `?svh=830` fija 100svh en 830 px: así lo resolvía el Chrome sin ventana de la extracción a 1440 × 900 (padding 148, hueco 166).
+// `?t=4.2` congela la cinta en ese segundo (y el punto en su pico): es el instante de las capturas de tools/r188/neety-hero/capturas/.
+// `caja` (RONDA 188, savvia agentic): la web se pinta como en una tablet de 768 × 864 dentro de su caja, escalada a su ancho; no corre su propio reloj
+// (la película llama a `__nh.pintar(t)` y `__nh.latir(l)`) y sus piezas llevan `data-pz` / `data-slot` para que los agentes las monten.
+interface Props { caja?: boolean }
+const { caja = false } = Astro.props;
+const Hx = caja ? 'p' : 'h1';
+// dentro de savvia no puede haber otro <main> (y los carriles dibujan una fila por cada `main > section`)
+const Main = caja ? 'div' : 'main';
+const pz = (n: string, slot = false) => (caja ? { 'data-pz': n, ...(slot ? { 'data-slot': n } : {}) } : {});
+const A = '/media/neety-hero';
+const NAV = [
+  { label: 'Plataforma' },
+  { label: 'Casos de uso', mas: true },
+  { label: 'Recursos', mas: true },
+  { label: 'Compañía', mas: true },
+  { label: 'Precios' },
+];
+const LOGO = ["M80.9055 4.77539C74.9463 4.77539 70.6392 8.79043 70.6392 14.3541C70.6392 19.9178 74.9075 23.9406 80.8745 23.9406C85.497 23.9406 89.2277 21.5155 90.6755 17.6814H85.3574C84.4164 19.0568 82.7876 19.8557 80.8771 19.8557C78.2374 19.8557 76.3165 18.3381 75.8512 16.0216H91.0736C91.9733 9.69013 87.5317 4.77539 80.9107 4.77539H80.9055ZM75.8072 12.7253C76.314 10.3778 78.2349 8.82146 80.9055 8.82146C83.5761 8.82146 85.5358 10.3468 86.0425 12.7253H75.8072Z", "M58.5315 4.77539C52.5645 4.77539 48.2651 8.79043 48.2651 14.3541C48.2651 19.9178 52.5335 23.9406 58.4927 23.9406C63.123 23.9406 66.8459 21.5155 68.2937 17.6814H62.9834C62.0424 19.0568 60.4136 19.8557 58.4953 19.8557C55.8557 19.8557 53.9425 18.3381 53.4694 16.0216H68.6918C69.6019 9.69013 65.1499 4.77539 58.5366 4.77539H58.5315ZM53.4332 12.7253C53.9399 10.3778 55.8505 8.82146 58.5315 8.82146C61.2125 8.82146 63.154 10.3468 63.6608 12.7253H53.4332Z", "M105.771 18.8032V23.3948C97.9635 24.1937 95.4325 22.4537 95.4325 16.6367V9.65885H92.2163V5.17069C92.2163 5.17069 93.814 4.13655 94.4061 3.54968C95.0783 2.893 95.6005 2.1355 96.0116 1.25648C96.2494 0.74975 96.4304 0.315412 96.5648 0H101.583C101.583 0.0956578 101.575 0.18873 101.567 0.284388C101.552 0.48863 101.521 0.695457 101.487 0.891943C101.33 1.94418 101.068 2.90851 100.626 3.84699C100.528 4.05641 100.414 4.27099 100.285 4.48299C99.9645 5.01557 100.484 5.65932 101.071 5.46025C101.257 5.3982 101.433 5.34649 101.591 5.31547C102.92 5.04659 104.23 5.08537 105.668 5.2922V9.65368H100.784V16.4118C100.784 18.7282 101.684 19.3048 105.771 18.798V18.8032Z", "M129.266 5.20898L121.347 23.9708V25.204C121.347 30.5557 118.604 32.5076 111.404 31.8897V27.337C115.166 27.6937 115.996 26.9724 115.996 24.5163V23.901L108.465 6.02337L108.377 5.83464L108.116 5.20898H113.902C116.43 10.6511 117.361 15.2841 118.023 18.0116C118.188 18.6967 119.165 18.6916 119.328 18.0039C120.15 14.5369 120.978 10.5374 123.48 5.20898H129.266Z", "M45.4319 5.20898V23.5649H39.814C39.858 23.128 39.8502 22.6833 39.8088 22.2387C39.6796 21.0106 39.0694 19.8834 38.2602 18.8855C37.4536 17.8746 36.4479 17.0292 35.344 16.3518L33.5911 15.2841C33.1439 15.0126 32.5699 15.3332 32.5699 15.858V23.5649H27.4897V5.20898H32.9293C32.9344 6.08542 33.1025 7.07043 33.3662 7.84087C33.6816 8.7354 34.1315 9.511 34.7338 10.2401C35.8998 11.6517 37.4226 12.5824 39.0126 13.4407L39.4185 13.6553C39.8683 13.8932 40.4086 13.5648 40.4035 13.0555L40.3492 5.20898H45.4293H45.4319Z", "M16.952 5.20898H7.63706C6.83044 5.20898 6.17635 5.86308 6.17635 6.6697L7.21565 10.6666C7.33975 11.1475 7.22599 11.6723 6.87439 12.024C6.84854 12.0498 6.8201 12.0782 6.78907 12.1015C6.44264 12.3988 5.96177 12.4841 5.51968 12.3704L1.46071 11.3259C0.654089 11.3259 0 11.98 0 12.7866V22.1042C0 22.9108 0.654089 23.5649 1.46071 23.5649H10.7782C11.5849 23.5649 12.2389 22.9108 12.2389 22.1042L11.2875 18.0582C11.1893 17.6419 11.2746 17.1946 11.5538 16.8715C11.5771 16.8456 11.6004 16.8172 11.6262 16.7939C11.9571 16.463 12.4509 16.3518 12.906 16.4604L16.9546 17.448C17.7612 17.448 18.4153 16.7939 18.4153 15.9873V6.6697C18.4153 5.86308 17.7612 5.20898 16.9546 5.20898H16.952Z"];
+// Phosphor duotono (los mismos de @phosphor-icons/react 2.x): [la capa al 20 %, el trazo]
+const IC = {
+  buildings: ['M136,32V216H40V85.35a8,8,0,0,1,3.56-6.66l80-53.33A8,8,0,0,1,136,32Z', 'M240,208H224V96a16,16,0,0,0-16-16H144V32a16,16,0,0,0-24.88-13.32L39.12,72A16,16,0,0,0,32,85.34V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM208,96V208H144V96ZM48,85.34,128,32V208H48ZM112,112v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z'],
+  users: ['M136,108A52,52,0,1,1,84,56,52,52,0,0,1,136,108Z', 'M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z'],
+  termo: ['M152,138V48a32,32,0,0,0-64,0v90a56,56,0,1,0,64,0Zm-32,70a24,24,0,1,1,24-24A24,24,0,0,1,120,208Z', 'M128,153V48a8,8,0,0,0-16,0V153a32,32,0,1,0,16,0Zm-8,47a16,16,0,1,1,16-16A16,16,0,0,1,120,200Zm40-66V48a40,40,0,0,0-80,0v86a64,64,0,1,0,80,0Zm-40,98a48,48,0,0,1-27.42-87.4A8,8,0,0,0,96,138V48a24,24,0,0,1,48,0v90a8,8,0,0,0,3.42,6.56A48,48,0,0,1,120,232ZM177.3,80.77a8,8,0,0,1,2.33-11.07c15-9.79,26.87-4.75,35.51-1.06C223,72,227.76,74,235.63,68.89a8,8,0,0,1,8.74,13.41C237.88,86.53,232,88,226.69,88c-7,0-12.92-2.54-17.83-4.63C201,80,196.24,78,188.37,83.11A8,8,0,0,1,177.3,80.77Zm69.4,22.46a8,8,0,0,1-2.33,11.07C237.88,118.53,232,120,226.69,120c-7,0-12.92-2.54-17.83-4.63-7.87-3.36-12.62-5.38-20.49-.25a8,8,0,0,1-8.74-13.41c15-9.79,26.87-4.75,35.51-1.06,7.87,3.36,12.62,5.39,20.49.25A8,8,0,0,1,246.7,103.23Z'],
+  fuego: ['M208,144a80,80,0,0,1-160,0c0-30.57,14.42-58.26,31-80l33,32,26.27-72C159.86,41.92,208,88.15,208,144Z', 'M143.38,17.85a8,8,0,0,0-12.63,3.41l-22,60.41L84.59,58.26a8,8,0,0,0-11.93.89C51,87.53,40,116.08,40,144a88,88,0,0,0,176,0C216,84.55,165.21,36,143.38,17.85ZM128,216a72.08,72.08,0,0,1-72-72c0-22,8.09-44.79,24.06-67.84l26.37,25.58a8,8,0,0,0,13.09-3l22.27-61.07C164.21,58.08,200,97.91,200,144A72.08,72.08,0,0,1,128,216Z'],
+  responde: ['M80,56v96L32,104Z', 'M128,96H88V56a8,8,0,0,0-13.66-5.66l-48,48a8,8,0,0,0,0,11.32l48,48A8,8,0,0,0,88,152V112h40a88.1,88.1,0,0,1,88,88,8,8,0,0,0,16,0A104.11,104.11,0,0,0,128,96ZM72,132.69,43.31,104,72,75.31Z'],
+  calendario: ['M216,48V88H40V48a8,8,0,0,1,8-8H208A8,8,0,0,1,216,48Z', 'M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-38.34-85.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L116,164.69l42.34-42.35A8,8,0,0,1,169.66,122.34Z'],
+};
+const COMPANIES = [
+  { name: 'Betsaide', score: 94, logo: `${A}/betsaide.avif` },
+  { name: 'Arania', score: 91, logo: `${A}/arania.avif` },
+  { name: 'Fagor Automation', score: 88, logo: `${A}/fagor-automation.avif` },
+];
+const PEOPLE = [
+  { name: 'Iker Goikoetxea', score: 94, photo: `${A}/jon-96.jpg`, rol: 'Director de compras · Betsaide', jon: true },
+  { name: 'Ane Larrañaga', score: 91, photo: `${A}/nerea-96.jpg`, rol: 'Directora de operaciones · Arania' },
+  { name: 'Naroa Iturbe', score: 88, photo: `${A}/ines-96.jpg`, rol: 'Directora de planta · Fagor Automation' },
+];
+const ACTIONS = ['Ha visitado tu perfil', 'Ha aceptado tu solicitud', 'Has reaccionado a su post'];
+const MESSAGE = 'Hola Iker, he visto que Betsaide está reforzando compras. Creo que podemos ayudaros a priorizar mejor oportunidades. ¿Lo vemos esta semana?';
+// RONDA 188 · «Nuestros clientes» (Clients.tsx + LogoMarquee.tsx de Neety), solo en caja: es lo que asoma cuando la película baja por la web
+const CLIENTES = [
+  { src: `${A}/client-ojmar.avif`, alt: 'Ojmar', h: 20, w: 127, n: 24 },
+  { src: `${A}/client-telpark.avif`, alt: 'Telpark', h: 24, w: 119, n: 30 },
+  { src: `${A}/client-fagor-automation.avif`, alt: 'Fagor Automation', h: 30, w: 116, n: 36 },
+  { src: `${A}/client-betsaide.avif`, alt: 'Betsaide', h: 34, w: 106, n: 40 },
+  { src: `${A}/client-arania.avif`, alt: 'Arania', h: 24, w: 122, n: 28 },
+];
+const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qué cuentas importan hoy, por qué y qué debería hacer tu equipo con ellas.';
+---
+
+<div class:list={['nh-vp', caja && 'caja']} data-nh-vp data-neety-hero>
+<Main class="nh-main">
+  <!-- barra fija a nivel de página (StickyHeader: h-0, encima de la card) -->
+  <div class="nh-sticky">
+    {caja && <div class="nh-blur" aria-hidden="true" data-nav-blur><i></i><i></i><i></i><b></b></div>}
+    <div class="nh-sticky-in">
+      <nav class="nh-nav" aria-label="Neety">
+        <a href="#" class="nh-logo-a" aria-label="Neety" {...pz('logo', true)}><svg class="nh-logo" viewBox="0 0 130 32" aria-hidden="true"><g fill="#2A0E2C">{LOGO.map((d) => <path d={d} />)}</g></svg></a>
+        <div class="nh-der">
+          <ul class="nh-menu" data-menu>
+            <span class="nh-pastilla" aria-hidden="true" data-pastilla></span>
+            {NAV.map((n) => (
+              <li><a href="#" class:list={['nh-item', n.mas && 'nh-mas']} data-navitem>{n.label}{n.mas && <span class="nh-signo" aria-hidden="true">+</span>}</a></li>
+            ))}
+          </ul>
+          <div class="nh-acc">
+            <a href="#" class="nh-login">Log in</a>
+            <a href="#" class="nh-navcta"><span class="nh-swap" data-text="Solicitar demo"><span class="nh-swap-l">Solicitar demo</span></span></a>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <div class="nh-card">
+    <div class="nh-fondo" aria-hidden="true" {...pz('fondo')}>
+      <div class="nh-bg-m"></div>
+      <div class="nh-bg"></div>
+    </div>
+
+    <section class="nh-hero">
+      <div class="nh-col">
+        <div>
+          <div class="nh-eyebrow" {...pz('eyebrow')}>
+            <span class="nh-punto" aria-hidden="true" data-punto {...(caja ? { 'data-slot': 'punto' } : {})}><span class="nh-halo" data-halo></span><span class="nh-core"></span></span>
+            <span class="nh-eb-t">Detecta. Prioriza. <span class="nh-eb-a">Actúa.</span></span>
+          </div>
+          <Hx class="nh-h1" {...pz('h1', true)}>Detecta a quién vender, cuándo hacerlo y <span class="nh-h1-dim">qué acción tomar.</span></Hx>
+          <div class="nh-ctas" {...pz('ctas')}>
+            {caja && <span class="nh-esp" data-pz="esp" data-slot="esp" aria-hidden="true"><i></i><b>48</b></span>}
+            <a href="#" class="nh-pill" {...(caja ? { 'data-slot': 'ctas' } : {})}>
+              <span class="nh-pill-bg" aria-hidden="true"></span>
+              <span class="nh-pill-in" data-text="Solicitar demo">
+                <span class="nh-pill-t">Solicitar demo</span>
+                <span class="nh-pill-dw" aria-hidden="true">
+                  <span class="nh-pill-dot"></span>
+                  <svg class="nh-pill-ar" viewBox="0 0 16 16" fill="none"><path d="M2.5 8h10M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </span>
+              </span>
+            </a>
+            <a href="#" class="nh-how">Ver cómo funciona</a>
+          </div>
+        </div>
+
+        <!-- la ilustración: en línea en móvil, absoluta a la derecha en lg -->
+        <div class="nh-ilus" aria-hidden="true" {...pz('card')}>
+          <div class="nh-ilus-in">
+            <div class="sf-box" data-box>
+              <div class="sf-stage" data-stage>
+                <div class="sf-feed" data-feed>
+                  <!-- 1 · empresas -->
+                  <div class="sf-card"><div class="sf-c g3 p4">
+                    <div class="sf-skel g3 p4"><div class="sk-h bord"><div class="sks s8 r8"></div><div class="skb h35"></div></div>
+                      {[0, 1, 2].map(() => <div class="sk-row"><div class="sks s6 r4"></div><div class="skb h3" style="width:24%"></div><div class="sks sc ml"></div></div>)}</div>
+                    <div class="sf-head bord"><span class="chip s8 r8"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.buildings[0]} opacity="0.2" /><path d={IC.buildings[1]} /></svg></span><p class="t-lg">Neety encontró empresas que encajan</p></div>
+                    {COMPANIES.map((c) => (
+                      <div class="sf-in row"><span class="chip s6 r4"><img src={c.logo} alt="" class="lg12" /></span><p class="nm f1">{c.name}</p><span class="score"><span>{c.score}%</span></span></div>
+                    ))}
+                  </div></div>
+                  <!-- 2 · personas -->
+                  <div class="sf-card"><div class="sf-c g3 p4">
+                    <div class="sf-skel g3 p4"><div class="sk-h bord"><div class="sks s8 r8"></div><div class="skb h35"></div></div>
+                      {[0, 1, 2].map(() => <div class="sk-row"><div class="sks s8 r4"></div><div class="sk-col"><div class="skb h25" style="width:38%"></div><div class="skb h2" style="width:62%"></div></div><div class="sks sc"></div></div>)}</div>
+                    <div class="sf-head bord"><span class="chip s8 r8"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.users[0]} opacity="0.2" /><path d={IC.users[1]} /></svg></span><p class="t-lg">3 personas clave encontradas</p></div>
+                    {PEOPLE.map((p) => (
+                      <div class="sf-in row rel">
+                        {p.jon && <span class="sf-jonhl"></span>}
+                        <img src={p.photo} alt={p.name} class="foto" />
+                        <div class="per"><p class="nm">{p.name}</p><p class="rol">{p.rol}</p></div>
+                        <span class="score rel"><span>{p.score}%</span></span>
+                      </div>
+                    ))}
+                  </div></div>
+                  <!-- 3 · activarse -->
+                  <div class="sf-card"><div class="sf-c g3 p4">
+                    <div class="sf-skel g3 p4"><div class="sk-h bord"><div class="sks s8 r8"></div><div class="skb h35"></div></div>
+                      <div class="sk-acts">{[0, 1, 2].map((i) => <div class="sk-act"><div class="sks s15 rf"></div><div class="skb h25" style={`width:${48 - i * 6}%`}></div></div>)}</div></div>
+                    <div class="sf-head bord">
+                      <img src={`${A}/jon-96.jpg`} alt="Iker Goikoetxea" class="foto r8" />
+                      <p class="t-lg">Iker empieza a activarse</p>
+                      <span class="sf-pop pill-p" style="background:#fff9e5"><svg viewBox="0 0 256 256" class="ic12" style="color:#988c62"><path d={IC.termo[0]} opacity="0.2" /><path d={IC.termo[1]} /></svg><span class="pop-t" style="color:#988c62">Templado</span></span>
+                    </div>
+                    <div class="acts">
+                      <span class="sf-line"></span>
+                      {ACTIONS.map((a) => <div class="sf-act"><span class="sf-dot"></span><span class="act-t">{a}</span></div>)}
+                    </div>
+                  </div></div>
+                  <!-- 4 · señal -->
+                  <div class="sf-card"><div class="sf-c g3 p4 rel">
+                    <div class="sf-skel g3 p4"><div class="sk-h"><div class="sks s8 r4"></div><div class="skb h35"></div></div><div class="skb h25 ml11" style="width:55%"></div></div>
+                    <div class="sf-head"><span class="chip s8 r4"><img src={`${A}/betsaide.avif`} alt="" class="lg16" /></span><p class="t-md" style="max-width:210px">Señal: Betsaide cerró una ronda de financiación</p></div>
+                    <p class="sf-in sub">Es el momento perfecto para escribir</p>
+                    <span class="sf-pop pill-p hot"><svg viewBox="0 0 256 256" class="ic12" style="color:#b25959"><path d={IC.fuego[0]} opacity="0.2" /><path d={IC.fuego[1]} /></svg><span class="pop-t" style="color:#b25959">Hot</span></span>
+                  </div></div>
+                  <!-- 5 · mensaje -->
+                  <div class="sf-card"><div class="sf-c g3 p4">
+                    <div class="sf-skel g3 p4"><div class="sk-h"><div class="sks s6 r4"></div><div class="skb h35"></div></div>
+                      <div class="sk-msg"><div class="skb h2" style="width:88%"></div><div class="skb h2 mt2" style="width:62%"></div></div><div class="sk-btn"></div></div>
+                    <div class="sf-head"><span class="iso"><img src={`${A}/neety-isotipo.svg`} alt="" /></span><p class="t-md f1">Neety te preparó el mensaje</p></div>
+                    <div class="sf-in msg"><p><span class="sf-typed" data-typed>{MESSAGE}</span><span class="sf-caret" data-caret></span></p></div>
+                    <div class="sf-in"><div class="sf-btn" data-btn><span class="btn-d" data-btn-d>Aprobar y enviar</span><span class="btn-s" data-btn-s>Enviado ✓</span></div></div>
+                  </div></div>
+                  <!-- 6 · respuesta -->
+                  <div class="sf-card"><div class="sf-c g15 p4">
+                    <div class="sf-skel g15 p4"><div class="sk-h"><div class="sks s8 r8"></div><div class="skb h35"></div></div><div class="skb h25 ml11" style="width:55%"></div></div>
+                    <div class="sf-head"><span class="chip-b"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.responde[0]} opacity="0.2" /><path d={IC.responde[1]} /></svg></span><p class="t-md" style="max-width:309px">Iker respondió: “Me interesa, hablemos”</p></div>
+                    <p class="sf-in sub">Neety prepara el cierre por ti</p>
+                  </div></div>
+                  <!-- 7 · reunión -->
+                  <div class="sf-card"><div class="sf-c g15 preu">
+                    <div class="sf-skel g15 preu"><div class="sk-h"><div class="sks s8 r8"></div><div class="skb h35"></div></div><div class="skb h25 ml11" style="width:55%"></div></div>
+                    <div class="sf-head"><span class="chip-b"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.calendario[0]} opacity="0.2" /><path d={IC.calendario[1]} /></svg></span><p class="t-md f1">Reunión agendada</p><span class="sf-pop fecha"><span>18 Jun</span></span></div>
+                    <p class="sf-in sub">Iker Goikoetxea · Betsaide · 12:00</p>
+                  </div></div>
+                  <div class="sf-hueco"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="nh-sub">{SUB}</p>
+      </div>
+    </section>
+  </div>
+
+  <button type="button" class="nh-hamb" aria-label="Abrir menú" {...pz('nav')}><span></span><span></span></button>
+  <p class="nh-sub-m" {...pz('sub')}>{SUB}</p>
+  {caja && (
+    <section class="nh-clientes" aria-label="Nuestros clientes">
+      <div class="nh-cl-tag"><span class="nh-punto"><span class="nh-halo" data-halo></span><span class="nh-core"></span></span><p>Nuestros clientes</p></div>
+      <div class="nh-marquee">
+        <div class="nh-mq-pista" data-marquee>
+          {[...CLIENTES, ...CLIENTES].map((c) => <div class="nh-mq-t"><img src={c.src} alt="" width={c.w} height={c.n} style={`height:${c.h}px`} /></div>)}
+        </div>
+      </div>
+    </section>
+  )}
+  {caja && <img class="nh-secciones" src={`${A}/secciones-768.webp`} alt="" width="768" height="2700" decoding="async" />}
+</Main>
+</div>
+
+<style>
+  /* el «viewport» de la réplica: sus cortes responden a esta caja (container queries), no a la ventana */
+  .nh-vp { container: nh / size; position: relative; width: 100%; height: 100svh; }
+  .nh-vp.caja { position: absolute; left: 0; top: 0; width: 768px; height: 864px; transform: scale(var(--nh-s, 0.75)); transform-origin: 0 0; overflow: hidden; }
+  .caja .nh-main { min-height: 100%; background: transparent; }
+  /* el scroll de la película: la caja es el contenedor que se desplaza; la barra se queda pegada (sticky) y su banda de desenfoque y
+     tinte (NavBlur.tsx) aparece al pegarse; la hamburguesa, fija en la web real, se contra-desplaza */
+  .nh-blur { pointer-events: none; position: absolute; left: 0; right: 0; top: -32px; height: 160px; z-index: -10; }
+  .nh-blur > * { position: absolute; inset: 0; }
+  .nh-blur i { -webkit-backdrop-filter: blur(0px); backdrop-filter: blur(0px); transition: backdrop-filter 0.3s ease-out, -webkit-backdrop-filter 0.3s ease-out; }
+  .nh-blur i:nth-child(1) { -webkit-mask-image: linear-gradient(to bottom, #000, #000 55%, transparent); mask-image: linear-gradient(to bottom, #000, #000 55%, transparent); }
+  .nh-blur i:nth-child(2) { -webkit-mask-image: linear-gradient(to bottom, #000, #000 28%, transparent 72%); mask-image: linear-gradient(to bottom, #000, #000 28%, transparent 72%); }
+  .nh-blur i:nth-child(3) { -webkit-mask-image: linear-gradient(to bottom, #000, #000 12%, transparent 46%); mask-image: linear-gradient(to bottom, #000, #000 12%, transparent 46%); }
+  .nh-blur.on i:nth-child(1) { -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+  .nh-blur.on i:nth-child(2) { -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+  .nh-blur.on i:nth-child(3) { -webkit-backdrop-filter: blur(11px); backdrop-filter: blur(11px); }
+  .nh-blur b { opacity: 0; transition: opacity 0.3s; background: linear-gradient(to bottom, rgba(245,247,249,0.92) 0%, rgba(245,247,249,0.9) 45%, rgba(245,247,249,0.68) 62%, rgba(245,247,249,0.4) 78%, rgba(245,247,249,0.18) 90%, rgba(245,247,249,0) 100%); }
+  .nh-blur.on b { opacity: 1; }
+  /* «Nuestros clientes» en md (< lg): py-16 px-10, etiqueta mono al 40 %, cinta de tarjetas blancas de 180 px con su «nubecita» en los bordes */
+  .nh-clientes { max-width: 1600px; margin-inline: auto; padding: 64px 40px; }
+  .nh-cl-tag { display: flex; align-items: center; gap: 12px; }
+  .nh-cl-tag .nh-punto { flex: none; }
+  .nh-cl-tag p { font-family: var(--mono); font-size: 16px; line-height: 24px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.025em; color: rgb(67 27 68 / 0.4); }
+  .nh-marquee { position: relative; overflow: hidden; margin-top: 40px; }
+  .nh-marquee::before, .nh-marquee::after { content: ''; position: absolute; top: 0; bottom: 0; z-index: 10; width: 24px; pointer-events: none; }
+  .nh-marquee::before { left: 0; background: linear-gradient(to right, var(--surface), transparent); }
+  .nh-marquee::after { right: 0; background: linear-gradient(to left, var(--surface), transparent); }
+  .nh-mq-pista { display: flex; width: max-content; gap: 8px; will-change: transform; }
+  .nh-mq-t { display: flex; width: 180px; flex: none; align-items: center; justify-content: center; border-radius: 12px; background: #fff; padding: 48px 24px; }
+  .nh-mq-t img { width: auto; max-width: 100%; object-fit: contain; }
+  /* «Por qué Neety», «De ruido a señal» y el arranque de «Neety por dentro»: capturadas de la web real a 768 px (DPR 2), ya con sus entradas hechas */
+  .nh-secciones { display: block; width: 768px; height: 2700px; margin-inline: -20px; max-width: none; }
+  /* las PIEZAS que montan los agentes (la película pone --p 0 → 1): se asientan con un fundido y una subida corta; el degradado crece desde el centro */
+  .caja [data-pz]:not(.nh-fondo):not(.nh-esp) { opacity: var(--p, 0); translate: 0 calc((1 - var(--p, 0)) * 8px); }
+  .caja .nh-fondo { clip-path: circle(calc(var(--p, 0) * 80%) at 50% 50%); }
+  /* el espaciado «large · 48» abre el hueco del titular a la píldora (24 → 48) y una cota naranja lo marca */
+  .caja .nh-ctas { position: relative; margin-top: calc(24px + var(--esp, 0) * 24px); }
+  .nh-esp { position: absolute; left: 0; bottom: 100%; display: flex; align-items: center; gap: 8px; height: calc(24px + var(--esp, 0) * 24px); opacity: var(--p, 0); }
+  .nh-esp i { display: block; width: 10px; height: 100%; border-radius: 2px; background: #fe8238; }
+  .nh-esp b { font-family: var(--mono); font-size: 13px; font-weight: 500; color: #c2571a; }
+
+  /* tokens de Neety (app/globals.css @theme) */
+  .nh-main {
+    --plum: #431b44;
+    --ink: #2a0e2c;
+    --cream: #f8f7ec;
+    --surface: #f5f7f9;
+    --display: var(--font-bricolage), 'Bricolage Grotesque', system-ui, sans-serif;
+    --sans: var(--font-switzer), var(--font-inter), system-ui, sans-serif;
+    --body: var(--font-inter), system-ui, sans-serif;
+    --mono: var(--font-roboto-mono), 'Roboto Mono', ui-monospace, monospace;
+    --notch-w: clamp(355px, calc(min(100cqw - 40px, 1600px) * 0.7), 850px);
+    position: relative;
+    min-height: 100cqh;
+    padding: 16px;
+    background: var(--surface);
+    color: var(--plum);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* reset (el preflight de Tailwind de Neety) a especificidad 0, para que cualquier regla del componente lo pise */
+  :global(:where(.nh-main) :where(*, *::before, *::after)) { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid; }
+  :global(:where(.nh-main) :where(a)) { color: inherit; text-decoration: none; }
+  :global(:where(.nh-main) :where(img, svg)) { display: block; }
+  :global(:where(.nh-main) :where(ul)) { list-style: none; }
+  :global(:where(.nh-main) :where(button)) { font: inherit; background: none; cursor: pointer; }
+  @container nh (min-width: 48rem) { .nh-main { padding: 20px; } }
+
+  /* ── barra fija (StickyHeader + Navbar) ───────────────────────────── */
+  .nh-sticky { position: sticky; top: 0; z-index: 40; height: 0; margin-inline: -16px; }
+  @container nh (min-width: 48rem) { .nh-sticky { margin-inline: -20px; } }
+  .nh-sticky-in { max-width: 1640px; margin-inline: auto; padding-inline: 16px; }
+  @container nh (min-width: 48rem) { .nh-sticky-in { padding-inline: 20px; } }
+  .nh-nav { position: relative; z-index: 50; display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 16px; padding: 24px; }
+  @container nh (min-width: 48rem) { .nh-nav { padding: 32px 40px; } }
+  .nh-logo-a { flex: none; }
+  .nh-logo { height: 28px; width: auto; }
+  @container nh (min-width: 48rem) { .nh-logo { height: 32px; } }
+  .nh-der { display: none; align-items: center; gap: 20px; }
+  @container nh (min-width: 64rem) { .nh-der { display: flex; } }
+  .nh-menu { position: relative; display: flex; align-items: center; }
+  .nh-pastilla { position: absolute; left: 0; top: 0; border-radius: 9999px; background: #fff; opacity: 0; pointer-events: none; transition: opacity 0.25s, translate 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+  .nh-item { position: relative; z-index: 10; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-radius: 9999px; padding: 8px 12px; font-family: var(--sans); font-size: 14px; line-height: 20px; color: var(--plum); }
+  .nh-mas { gap: 4px; }
+  .nh-signo { color: rgb(67 27 68 / 0.7); }
+  .nh-acc { display: flex; align-items: center; gap: 12px; }
+  .nh-login { display: none; white-space: nowrap; font-family: var(--display); font-size: 14px; line-height: 20px; font-weight: 500; transition: opacity 0.15s; }
+  .nh-login:hover { opacity: 0.7; }
+  @container nh (min-width: 40rem) { .nh-login { display: inline-flex; } }
+  .nh-navcta { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 9999px; background: rgb(67 27 68 / 0.75); padding: 8px 16px; font-family: var(--display); font-size: 14px; line-height: 20px; font-weight: 500; color: #fff; transition: background-color 0.2s; }
+  .nh-navcta:hover { background: var(--plum); }
+  .nh-swap { display: inline-grid; overflow: hidden; }
+  .nh-swap-l, .nh-swap::after { grid-area: 1 / 1; white-space: nowrap; transition: translate 0.55s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1); }
+  .nh-swap::after { content: attr(data-text); translate: 0 1.05em; opacity: 0; }
+  @media (hover: hover) and (pointer: fine) {
+    .nh-navcta:is(:hover, :focus-visible) .nh-swap-l { translate: 0 -1.05em; opacity: 0; }
+    .nh-navcta:is(:hover, :focus-visible) .nh-swap::after { translate: 0; opacity: 1; transition-delay: 0.06s; }
+  }
+
+  /* hamburguesa móvil (MobileMenu): ciruela, en la muesca de arriba a la derecha */
+  .nh-hamb { position: absolute; right: 16px; top: 16px; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 50px; height: 48px; border-radius: 8px; background: var(--plum); }
+  .nh-hamb span { display: block; width: 18px; height: 1.5px; border-radius: 9999px; background: #fff; }
+  @container nh (min-width: 48rem) { .nh-hamb { right: 20px; top: 20px; } }
+  @container nh (min-width: 64rem) { .nh-hamb { display: none; } }
+
+  /* ── la card y su degradado con muesca ─────────────────────────────── */
+  .nh-card { position: relative; isolation: isolate; max-width: 1600px; margin-inline: auto; border-radius: 16px; }
+  @container nh (min-width: 48rem) { .nh-card { border-radius: 24px; } }
+  .nh-fondo { pointer-events: none; position: absolute; inset: 0; z-index: -10; overflow: hidden; border-radius: inherit; }
+  .nh-bg-m, .nh-bg { position: absolute; background-size: cover; background-position: center; background-repeat: no-repeat; -webkit-mask-repeat: no-repeat, no-repeat; mask-repeat: no-repeat, no-repeat; -webkit-mask-composite: xor; mask-composite: exclude; }
+  .nh-bg-m {
+    inset: -1px;
+    background-image: url('/media/neety-hero/hero-bg-mobile-v5.avif');
+    -webkit-mask-image: url('/media/neety-hero/hero-notch-tr.svg'), linear-gradient(#000, #000);
+    mask-image: url('/media/neety-hero/hero-notch-tr.svg'), linear-gradient(#000, #000);
+    -webkit-mask-position: top right, 0 0;
+    mask-position: top right, 0 0;
+    -webkit-mask-size: 69.141px 66.829px, cover;
+    mask-size: 69.141px 66.829px, cover;
+  }
+  .nh-bg {
+    display: none;
+    left: -1px; right: 0; top: 0; bottom: -1px;
+    background-image: url('/media/neety-hero/hero-bg-v4.avif');
+    -webkit-mask-image: url('/media/neety-hero/hero-notch.svg'), linear-gradient(#000, #000);
+    mask-image: url('/media/neety-hero/hero-notch.svg'), linear-gradient(#000, #000);
+    -webkit-mask-position: bottom left, 0 0;
+    mask-position: bottom left, 0 0;
+    -webkit-mask-size: var(--notch-w) auto, cover;
+    mask-size: var(--notch-w) auto, cover;
+  }
+  @container nh (min-width: 64rem) { .nh-bg-m { display: none; } .nh-bg { display: block; } }
+
+  /* ── el hero (Hero.tsx) ─────────────────────────────────────────────── */
+  .nh-hero { position: relative; padding: 124px 16px 8px; }
+  @container nh (min-width: 48rem) { .nh-hero { padding: 160px 40px 8px; } }
+  @container nh (min-width: 64rem) { .nh-hero { padding-top: clamp(128px, calc(33 * var(--nh-svh, 1cqh) - 149px), 176px); } }
+  @container nh (min-width: 1360px) { .nh-hero { padding-top: clamp(128px, calc(33 * var(--nh-svh, 1cqh) - 126px), 176px); } }
+  .nh-col { position: relative; display: flex; flex-direction: column; }
+  .nh-eyebrow { display: flex; align-items: center; gap: 12px; }
+  .nh-punto { position: relative; display: inline-block; width: 4px; height: 4px; }
+  .nh-halo, .nh-core { position: absolute; inset: 0; border-radius: 9999px; }
+  .nh-halo { background: rgba(67, 27, 68, 0.35); }
+  .nh-core { background: var(--plum); }
+  .nh-eb-t { font-family: var(--mono); font-size: 16px; line-height: 24px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.025em; color: rgb(67 27 68 / 0.6); }
+  .nh-eb-a { color: var(--plum); }
+  .nh-h1 {
+    --h1-cap: 4rem;
+    margin-top: 12px;
+    max-width: 720px;
+    text-wrap: balance;
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 5.6cqw, var(--h1-cap));
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--plum);
+  }
+  @container nh (max-height: 839px) { .nh-h1 { --h1-cap: 52px; } }
+  @container nh (min-width: 1024px) { .nh-h1 { max-width: 560px; } }
+  @container nh (min-width: 1200px) { .nh-h1 { max-width: 640px; } }
+  @container nh (min-width: 1360px) { .nh-h1 { max-width: 49rem; text-wrap: wrap; } .nh-h1-dim { display: block; } }
+  .nh-h1-dim { color: rgb(67 27 68 / 0.4); }
+  .nh-ctas { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+  @container nh (min-width: 64rem) { .nh-ctas { margin-top: clamp(108px, calc(40 * var(--nh-svh, 1cqh) - 194px), 200px); gap: 24px; } }
+  @container nh (min-width: 1360px) { .nh-ctas { margin-top: clamp(108px, calc(40 * var(--nh-svh, 1cqh) - 166px), 200px); } }
+  .nh-how { font-family: var(--display); font-size: 14px; line-height: 20px; font-weight: 500; transition: opacity 0.15s; }
+  .nh-how:hover { opacity: 0.7; }
+  @container nh (min-width: 64rem) { .nh-how { font-size: 16px; line-height: 24px; } }
+
+  /* la píldora (PillCta.module.css, variante primary) */
+  .nh-pill {
+    --elastic: linear(0, 0.007 0.9%, 0.026 1.8%, 0.113 4%, 0.605 12.3%, 0.807 16.5%, 0.947 20.9%, 0.992 23.2%, 1.024 25.6%, 1.045 28.7%, 1.051 32.3%, 1.011 47.8%, 1 55.7%, 1);
+    --smooth: cubic-bezier(0.32, 0.72, 0, 1);
+    position: relative; display: inline-flex; align-items: center; isolation: isolate; border-radius: 9999px;
+    font-family: var(--display); font-weight: 500; font-size: 14px;
+    -webkit-tap-highlight-color: transparent; transition: transform 0.45s var(--elastic);
+  }
+  .nh-pill:active { transform: scale(0.955, 0.954); }
+  @container nh (min-width: 1024px) { .nh-pill { font-size: 16px; } }
+  .nh-pill-bg { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background-color: var(--plum); transition: scale 0.45s var(--smooth); }
+  .nh-pill-in { display: inline-grid; grid-auto-flow: column; align-items: center; gap: 1.75rem; padding: 0.5rem 1rem; overflow: hidden; }
+  @container nh (min-width: 1024px) { .nh-pill-in { gap: 2rem; padding: 0.75rem 1.5rem; } }
+  .nh-pill-t, .nh-pill-in::after { grid-area: 1 / 1; color: #fff; white-space: nowrap; transition: translate 0.55s var(--smooth), opacity 0.4s var(--smooth); }
+  .nh-pill-in::after { content: attr(data-text); translate: 0 1.05em 0; opacity: 0; }
+  .nh-pill-dw { grid-area: 1 / 2; display: grid; place-items: center; place-content: center; width: 0.5rem; height: 0.5rem; }
+  .nh-pill-dot { grid-area: 1 / 1; width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--cream); transition: translate 0.5s var(--smooth), opacity 0.3s var(--smooth); }
+  .nh-pill-ar { grid-area: 1 / 1; width: 0.875rem; height: 0.875rem; color: var(--cream); opacity: 0; translate: -0.45rem 0; transition: translate 0.5s var(--smooth), opacity 0.3s var(--smooth); }
+  @media (hover: hover) and (pointer: fine) {
+    .nh-pill:is(:hover, :focus-visible) .nh-pill-t { translate: 0 -1.05em 0; opacity: 0; }
+    .nh-pill:is(:hover, :focus-visible) .nh-pill-in::after { translate: 0 0 0; opacity: 1; transition-delay: 0.06s; }
+    .nh-pill:is(:hover, :focus-visible) .nh-pill-dot { translate: 0.5rem 0; opacity: 0; }
+    .nh-pill:is(:hover, :focus-visible) .nh-pill-ar { translate: 0 0; opacity: 1; transition-delay: 0.06s; }
+  }
+  @media (hover: none) or (pointer: coarse) { .nh-pill:active .nh-pill-bg { background-color: var(--ink); transition-duration: 0s; } }
+
+  /* la ilustración */
+  .nh-ilus { pointer-events: none; position: relative; margin: 40px auto 0; width: 100%; max-width: 400px; user-select: none; }
+  @container nh (min-width: 64rem) { .nh-ilus { position: absolute; top: -8px; left: 508px; right: 32px; margin: 0; width: auto; max-width: none; } }
+  @container nh (min-width: 80rem) { .nh-ilus { right: 64px; } }
+  .nh-ilus-in { width: 100%; }
+  @container nh (min-width: 64rem) { .nh-ilus-in { margin-left: auto; max-width: 460px; } }
+
+  /* el subtítulo: dentro de la muesca en lg; debajo de la card en móvil */
+  .nh-sub, .nh-sub-m { font-family: var(--body); font-size: clamp(1.125rem, 1rem + 0.35cqw, 1.25rem); font-weight: 400; line-height: 1.5; color: rgb(42 14 44 / 0.6); }
+  .nh-sub { display: none; max-width: 500px; margin-top: calc(var(--notch-w) * 0.1706 - 50px - var(--sub-squeeze, 0px)); }
+  @container nh (min-width: 64rem) { .nh-sub { display: block; --sub-squeeze: clamp(0px, calc(128px - 13 * var(--nh-svh, 1cqh)), 16px); } .nh-sub-m { display: none; } }
+  @container nh (min-width: 1360px) { .nh-sub { --sub-squeeze: clamp(0px, calc(119px - 13 * var(--nh-svh, 1cqh)), 16px); } }
+  .nh-sub-m { padding: 24px 16px 0; }
+
+  /* ── la cinta (SignalFeed.tsx), en su lienzo de diseño de 408 × 760 ───── */
+  .sf-box {
+    position: relative; width: 100%; aspect-ratio: 310 / 290; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 82%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 82%, transparent);
+  }
+  @container nh (min-width: 64rem) {
+    .sf-box {
+      aspect-ratio: 408 / 760;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 72%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 72%, transparent);
+    }
+  }
+  .sf-stage { position: absolute; left: 0; top: 0; width: 408px; height: 760px; transform-origin: 0 0; }
+  .sf-feed { position: absolute; left: 0; right: 0; top: 0; display: flex; flex-direction: column; gap: 12px; }
+  .sf-hueco { height: 340px; width: 100%; flex: none; }
+  .sf-card { display: flex; width: 100%; flex-direction: column; align-items: center; border-radius: 12px; background: rgba(67, 27, 68, 0.1); padding: 4px; will-change: transform, opacity; }
+  @container nh (min-width: 64rem) { .sf-card { -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); will-change: transform, opacity, filter; } }
+  .sf-c { position: relative; display: flex; width: 100%; flex-direction: column; border-radius: 10px; background: #fff; font-family: var(--sans); }
+  .g3 { gap: 12px; }
+  .g15 { gap: 6px; }
+  .p4 { padding: 16px; }
+  .preu { padding: 12px 16px 18px; }
+  .rel { position: relative; }
+  .f1 { flex: 1; }
+  .sf-head, .row { display: flex; align-items: center; gap: 12px; }
+  .bord, .row { border-bottom: 1px solid rgba(67, 27, 68, 0.05); padding-bottom: 12px; }
+  .t-lg { flex: 1; font-family: var(--display); font-size: 16px; font-weight: 500; line-height: 21px; color: #431b44; }
+  .t-md { font-family: var(--display); font-size: 14px; font-weight: 500; line-height: 16px; color: #431b44; }
+  .sub { padding-left: 44px; font-family: var(--sans); font-size: 12px; line-height: 18px; letter-spacing: 0.25px; color: rgba(67, 27, 68, 0.6); }
+  .nm { font-family: var(--sans); font-size: 12px; font-weight: 500; line-height: 18px; color: #431b44; }
+  .rol { font-family: var(--sans); font-size: 10px; line-height: 1.2; color: rgba(67, 27, 68, 0.4); }
+  .per { position: relative; display: flex; flex: 1; flex-direction: column; justify-content: center; }
+  .score { display: flex; width: 40px; flex: none; flex-direction: column; align-items: center; border-radius: 12px; background: rgba(11, 183, 131, 0.15); padding: 2px 8px; }
+  .score span { width: 100%; text-align: center; font-family: var(--sans); font-size: 12px; font-weight: 500; line-height: 18px; color: #431b44; }
+  .chip { display: flex; flex: none; align-items: center; justify-content: center; background: #f5f7f9; }
+  .chip-b { display: flex; width: 32px; height: 32px; flex: none; align-items: center; justify-content: center; border-radius: 8px; background: rgba(167, 197, 249, 0.2); }
+  .s8 { width: 32px; height: 32px; }
+  .s6 { width: 24px; height: 24px; }
+  .s15 { width: 6px; height: 6px; }
+  .r8 { border-radius: 8px; }
+  .r4 { border-radius: 4px; }
+  .rf { border-radius: 9999px; }
+  .ic16 { width: 16px; height: 16px; fill: #431b44; }
+  .ic12 { width: 12px; height: 12px; fill: currentColor; }
+  .lg12 { width: 12px; height: 12px; object-fit: contain; }
+  .lg16 { width: 16px; height: 16px; border-radius: 3px; object-fit: contain; }
+  .foto { position: relative; width: 32px; height: 32px; flex: none; border-radius: 4px; object-fit: cover; }
+  .foto.r8 { border-radius: 8px; }
+  .sf-jonhl { position: absolute; left: -8px; right: -8px; top: -7px; bottom: 5px; z-index: 0; border-radius: 8px; background: rgba(167, 197, 249, 0.2); }
+  .pill-p { display: flex; flex: none; align-items: center; gap: 4px; border-radius: 32px; padding: 4px 8px; }
+  .pop-t { font-family: var(--display); font-size: 12px; font-weight: 500; line-height: 18px; }
+  .hot { position: absolute; right: 12px; top: 19px; background: rgba(190, 30, 30, 0.1); }
+  .acts { position: relative; display: flex; flex-direction: column; gap: 20px; }
+  .sf-line { position: absolute; left: 3px; top: 7px; bottom: 7px; width: 1px; transform-origin: top; background: rgba(67, 27, 68, 0.12); }
+  .sf-act { position: relative; display: flex; height: 14px; align-items: center; gap: 16px; }
+  .sf-dot { width: 7px; height: 7px; flex: none; border-radius: 9999px; background: #431b44; }
+  .act-t { font-family: var(--sans); font-size: 12px; line-height: 1; letter-spacing: 0.25px; color: rgba(67, 27, 68, 0.6); }
+  .iso { display: flex; width: 24px; height: 24px; flex: none; align-items: center; justify-content: center; border-radius: 4px; background: #431b44; padding: 6px; }
+  .iso img { width: 12px; height: 12px; object-fit: contain; filter: brightness(0) invert(1); }
+  .msg { border-radius: 8px; background: rgba(67, 27, 68, 0.05); padding: 12px; }
+  .msg p { font-family: var(--sans); font-size: 12px; line-height: 1.5; letter-spacing: 0.25px; color: rgba(67, 27, 68, 0.6); }
+  .sf-caret { margin-left: 1px; display: inline-block; height: 12px; width: 1px; translate: 0 1px; background: rgba(67, 27, 68, 0.6); vertical-align: middle; opacity: 0; }
+  .sf-btn { position: relative; display: flex; width: 100%; align-items: center; justify-content: center; border-radius: 32px; background: #431b44; padding: 8px 24px; }
+  .btn-d, .btn-s { font-family: var(--display); font-size: 12px; font-weight: 500; line-height: 1.2; }
+  .btn-d { color: #fff; }
+  .btn-s { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 4px; color: #0a935c; opacity: 0; }
+  .fecha { display: flex; height: 16px; flex: none; align-items: center; border-radius: 6px; background: rgba(67, 27, 68, 0.05); padding: 0 6px; }
+  .fecha span { font-family: var(--mono); font-size: 8px; font-weight: 500; line-height: 1; text-transform: uppercase; letter-spacing: 0.4px; color: rgba(67, 27, 68, 0.4); }
+
+  /* el esqueleto: la misma forma que el contenido de cada tarjeta, con animate-pulse */
+  .sf-skel { pointer-events: none; position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; }
+  .sk-h { display: flex; align-items: center; gap: 12px; }
+  .sk-h.bord { border-bottom-color: rgba(67, 27, 68, 0.04); }
+  .sk-row { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(67, 27, 68, 0.04); padding-bottom: 12px; }
+  .sk-col { display: flex; flex: 1; flex-direction: column; gap: 6px; }
+  .sk-acts { display: flex; flex-direction: column; gap: 20px; padding-top: 2px; }
+  .sk-act { display: flex; align-items: center; gap: 16px; }
+  .sk-msg { border-radius: 8px; background: rgba(67, 27, 68, 0.03); padding: 12px; }
+  .sk-btn { height: 32px; width: 100%; flex: none; border-radius: 32px; background: rgba(67, 27, 68, 0.05); animation: nh-pulso 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  .skb, .sks { flex: none; animation: nh-pulso 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  .skb { border-radius: 9999px; background: rgba(67, 27, 68, 0.055); }
+  .sks { background: rgba(67, 27, 68, 0.07); }
+  .sks.sc { height: 22px; width: 40px; border-radius: 12px; }
+  .ml { margin-left: auto; }
+  .ml11 { margin-left: 44px; }
+  .mt2 { margin-top: 8px; }
+  .h35 { height: 14px; flex: 1; max-width: 58%; }
+  .h3 { height: 12px; }
+  .h25 { height: 10px; }
+  .h2 { height: 8px; }
+  @keyframes nh-pulso { 50% { opacity: 0.5; } }
+  @media (prefers-reduced-motion: reduce) { .skb, .sks, .sk-btn { animation: none; } }
+</style>
+
+<script>
+  // ── la cinta, como función pura del tiempo (el timeline de SignalFeed.tsx, sin GSAP) ──
+  type Ease = (x: number) => number;
+  const E = {
+    p1o: (x: number) => 1 - (1 - x) ** 2,
+    p2o: (x: number) => 1 - (1 - x) ** 3,
+    p2i: (x: number) => x ** 3,
+    p2io: (x: number) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2),
+    p3o: (x: number) => 1 - (1 - x) ** 4,
+    back: (c: number) => (x: number) => 1 + (c + 1) * (x - 1) ** 3 + c * (x - 1) ** 2,
+    sine: (x: number) => -(Math.cos(Math.PI * x) - 1) / 2,
+  };
+  const cl = (x: number) => Math.min(Math.max(x, 0), 1);
+  document.querySelectorAll<HTMLElement>('[data-neety-hero]').forEach(iniciar);
+
+  function iniciar(raiz: HTMLElement) {
+    const box = raiz.querySelector<HTMLElement>('[data-box]')!;
+    const stage = raiz.querySelector<HTMLElement>('[data-stage]')!;
+    const feed = raiz.querySelector<HTMLElement>('[data-feed]')!;
+    const pista = raiz.querySelector<HTMLElement>('[data-marquee]'), hamb = raiz.querySelector<HTMLElement>('.nh-hamb'), navBlur = raiz.querySelector<HTMLElement>('[data-nav-blur]');
+    const halos = [...raiz.querySelectorAll<HTMLElement>('[data-halo]')], puntos = halos.map((h) => h.parentElement!);
+    const cards = [...feed.querySelectorAll<HTMLElement>('.sf-card')];
+    // los cortes los decide la caja (el contenedor `nh`), no la ventana
+    const lg = { get matches() { return raiz.offsetWidth >= 1024; } };
+    const caja = raiz.classList.contains('caja');
+    // en caja: escala = ancho del hueco / 768 (la película lee `__nh.escala` para colocar cursores y copias)
+    let escala = 1;
+    if (caja) {
+      const escalar = () => { escala = raiz.parentElement!.clientWidth / 768; raiz.style.setProperty('--nh-s', String(escala)); };
+      escalar();
+      new ResizeObserver(escalar).observe(raiz.parentElement!);
+    }
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const q = new URLSearchParams(location.search);
+    const fijo = q.has('t') ? Number(q.get('t')) : null;
+
+    // encaje: el lienzo de 408 px se escala al ancho de la caja y la zona activa (304) cae al 28 % (lg) o al 46 % del alto
+    const encajar = () => {
+      const sc = box.clientWidth / 408;
+      const ty = (lg.matches ? 0.28 : 0.46) * box.clientHeight - 304 * sc;
+      stage.style.transform = `translateY(${ty.toFixed(1)}px) scale(${sc})`;
+    };
+    encajar();
+    new ResizeObserver(encajar).observe(box);
+
+    const rd = cards.map((el) => ({
+      el,
+      skel: el.querySelector<HTMLElement>('.sf-skel'),
+      heads: [...el.querySelectorAll<HTMLElement>('.sf-head')],
+      ins: [...el.querySelectorAll<HTMLElement>('.sf-in')],
+      acts: [...el.querySelectorAll<HTMLElement>('.sf-act')],
+      dots: [...el.querySelectorAll<HTMLElement>('.sf-dot')],
+      pops: [...el.querySelectorAll<HTMLElement>('.sf-pop')],
+      line: el.querySelector<HTMLElement>('.sf-line'),
+      jonhl: el.querySelector<HTMLElement>('.sf-jonhl'),
+    }));
+    const typed = raiz.querySelector<HTMLElement>('[data-typed]')!;
+    const caret = raiz.querySelector<HTMLElement>('[data-caret]')!;
+    const btn = raiz.querySelector<HTMLElement>('[data-btn]')!;
+    const btnD = raiz.querySelector<HTMLElement>('[data-btn-d]')!;
+    const btnS = raiz.querySelector<HTMLElement>('[data-btn-s]')!;
+    const MENSAJE = typed.textContent!;
+
+    // el guion: se monta con las alturas reales (offsetTop/offsetHeight en px de diseño, la escala no les afecta)
+    type Tw = { k: number; at: number; dur: number; ease: Ease; f: (v: number) => void };
+    let G: { tws: Tw[]; vuelo: { at: number; dur: number; ease: Ease; de: number; a: number }[]; act: number[]; total: number; y0: number; letras: number[]; ini: number; fin: number; parpadeos: number; spacing: number };
+    const montar = () => {
+      // como el original: se mide con el mensaje aún sin teclear (la tarjeta 4 mide 160, no 196), y así paran 5 y 6 en −733 y −840
+      typed.textContent = '';
+      const stageH = 760, activeAt = stageH * 0.4, spacing = cards[1].offsetTop;
+      const centerY = (i: number) => activeAt - (cards[i].offsetTop + cards[i].offsetHeight / 2);
+      const tws: Tw[] = [], vuelo: typeof G.vuelo = [], act: number[] = [];
+      const tw = (k: number, at: number, dur: number, ease: Ease, f: (v: number) => void) => tws.push({ k, at, dur, ease, f });
+      const reveal = (k: number, els: HTMLElement[], at: number, stagger = 0.1, dur = 0.55) =>
+        els.forEach((el, i) => tw(k, at + i * stagger, dur, E.p3o, (v) => { el.style.opacity = v.toFixed(3); el.style.transform = `translateY(${((1 - v) * 18).toFixed(2)}px) scale(${(0.92 + 0.08 * v).toFixed(4)})`; }));
+      const popIn = (k: number, els: HTMLElement[], at: number) =>
+        els.forEach((el) => tw(k, at, 0.5, E.back(2), (v) => { el.style.opacity = cl(v).toFixed(3); el.style.transform = `scale(${(0.5 + 0.5 * v).toFixed(4)})`; }));
+      const entry = stageH * 0.5;
+      const y0 = centerY(0) + entry;
+      let t = 0.1, prev = y0, letras: number[] = [], ini = 0, fin = 0;
+      const move = 0.7, dwell = 1.25;
+      for (let k = 0; k < 7; k++) {
+        const mv = k === 0 ? 0.5 : move;
+        vuelo.push({ at: t, dur: mv, ease: k === 0 ? E.p2o : E.p2io, de: prev, a: centerY(k) });
+        prev = centerY(k);
+        const ca = t + mv, c = rd[k], ci = ca - 0.12;
+        act.push(ca - 0.14);
+        if (c.skel) { const s = c.skel; tw(k, ci, 0.3, E.p1o, (v) => { s.style.opacity = (1 - v).toFixed(3); }); }
+        c.heads.forEach((h) => tw(k, ci, 0.2, E.p1o, (v) => { h.style.opacity = v.toFixed(3); }));
+        let dur = 0.9;
+        if (k === 0) { reveal(k, c.ins, ci); dur = 0.9; }
+        else if (k === 1) {
+          reveal(k, c.ins, ci);
+          const j = c.jonhl!; tw(k, ci + 0.7, 0.5, E.p2o, (v) => { j.style.opacity = v.toFixed(3); });
+          dur = 1.2;
+        } else if (k === 2) {
+          reveal(k, c.ins, ci, 0, 0.5);
+          popIn(k, c.pops, ci + 0.2);
+          const b = ci + 0.35, gap = 0.42, ln = c.line!;
+          tw(k, b, 2 * gap + 0.45, E.p2io, (v) => { ln.style.transform = `scaleY(${v.toFixed(4)})`; });
+          c.acts.forEach((a, i) => tw(k, b + i * gap, 0.45, E.p3o, (v) => { a.style.opacity = v.toFixed(3); a.style.transform = `translateY(${((1 - v) * 8).toFixed(2)}px)`; }));
+          c.dots.forEach((d, i) => tw(k, b + i * gap, 0.45, E.back(2.4), (v) => { d.style.transform = `scale(${v.toFixed(4)})`; }));
+          dur = 0.35 + 2 * gap + 0.45;
+        } else if (k === 3) { reveal(k, c.ins, ci, 0.12); popIn(k, c.pops, ci + 0.5); dur = 1.1; }
+        else if (k === 4) {
+          reveal(k, c.ins, ci, 0.12, 0.5);
+          ini = ca + 0.75;
+          let ct = 0;
+          letras = [];
+          for (let i = 0; i < MENSAJE.length; i++) {
+            letras.push(ini + ct);
+            const ch = MENSAJE[i];
+            let dd = 0.014 + (MENSAJE.charCodeAt(i) % 5) * 0.004;
+            if (ch === ' ') dd += 0.008;
+            if (ch === ',' || ch === ';') dd += 0.07;
+            if (ch === '.' || ch === '?' || ch === '!') dd += 0.13;
+            ct += dd;
+          }
+          fin = ini + ct;
+          tw(k, fin + 0.45, 0.22, (x) => x, (v) => { const p = v < 0.5 ? E.p2io(v * 2) : E.p2io((1 - v) * 2); btn.style.transform = `scale(${(1 - 0.05 * p).toFixed(4)})`; });
+          tw(k, fin + 0.57, 0.18, E.p1o, (v) => { btnD.style.opacity = (1 - v).toFixed(3); btnS.style.opacity = v.toFixed(3); });
+          tw(k, fin + 0.57, 0.28, E.p1o, (v) => { btn.style.backgroundColor = `rgba(${Math.round(67 + (11 - 67) * v)},${Math.round(27 + (183 - 27) * v)},${Math.round(68 + (131 - 68) * v)},${(1 + (0.15 - 1) * v).toFixed(3)})`; });
+          dur = 0.7 + ct + 1.3;
+        } else if (k === 5) { reveal(k, c.ins, ci, 0.14); dur = 1.0; }
+        else { reveal(k, c.ins, ci, 0.14); popIn(k, c.pops, ci + 0.5); dur = 1.1; }
+        t += mv + dur + dwell;
+      }
+      vuelo.push({ at: t, dur: 0.5, ease: E.p2i, de: prev, a: centerY(6) - stageH * 0.55 });
+      G = { tws, vuelo, act, total: t + 0.62, y0, letras, ini, fin, parpadeos: Math.round((fin - ini) / 0.9), spacing };
+    };
+
+    // un fotograma: la posición de la cinta, la profundidad de cada tarjeta y el contenido que toca
+    const pintar = (tt: number) => {
+      const t = tt % G.total;
+      let y = G.y0;
+      for (const v of G.vuelo) { if (t < v.at) break; y = v.de + (v.a - v.de) * v.ease(cl((t - v.at) / v.dur)); }
+      feed.style.transform = `translateY(${y.toFixed(2)}px)`;
+      let activeK = -1;
+      G.act.forEach((a, k) => { if (t >= a) activeK = k; });
+      rd.forEach((c, k) => {
+        const d = cl((Math.abs(c.el.offsetTop + c.el.offsetHeight / 2 + y - 304) - 26) / (G.spacing * 0.8));
+        c.el.style.opacity = (1 - 0.72 * d).toFixed(3);
+        c.el.style.filter = lg.matches && d >= 0.02 ? `blur(${(d * 5).toFixed(2)}px)` : 'none';
+        c.el.style.transform = `scale(${(1 - 0.05 * d).toFixed(3)})`;
+        // base: esqueleto a la vista y contenido oculto (como las que aún no han llegado)
+        if (c.skel) c.skel.style.opacity = '1';
+        c.heads.forEach((h) => (h.style.opacity = '0'));
+        c.ins.forEach((it) => { it.style.opacity = '0'; it.style.transform = 'translateY(16px) scale(0.9)'; });
+        c.acts.forEach((it) => { it.style.opacity = '0'; it.style.transform = 'translateY(10px)'; });
+        c.dots.forEach((it) => (it.style.transform = 'scale(0)'));
+        if (c.line) c.line.style.transform = 'scaleY(0)';
+        if (c.jonhl) c.jonhl.style.opacity = '0';
+        c.pops.forEach((it) => { it.style.opacity = '0'; it.style.transform = 'scale(0.6)'; });
+      });
+      // la tarjeta del mensaje vuelve a su estado de salida en cada vuelta
+      btn.style.transform = 'scale(1)'; btn.style.backgroundColor = '#431b44'; btnD.style.opacity = '1'; btnS.style.opacity = '0'; caret.style.opacity = '0';
+      // las ya activadas (y la activa) reciben su guion: las pasadas quedan en su estado final
+      for (const w of G.tws) if (w.k <= activeK && t >= w.at) w.f(w.ease(cl((t - w.at) / w.dur)));
+      let n = 0;
+      if (activeK >= 4) { for (const l of G.letras) { if (t >= l) n++; else break; } }
+      const txt = MENSAJE.slice(0, n);
+      if (typed.textContent !== txt) typed.textContent = txt;
+      if (activeK === 4 && t >= G.ini && t < G.fin + 0.05) {
+        const s = Math.floor((t - G.ini) / 0.45);
+        caret.style.opacity = s <= 2 * G.parpadeos && s % 2 === 0 ? '1' : '0';
+      }
+    };
+
+    // el punto del eyebrow: vaivén senoidal de 1,2 s (periodo 2,4 s); el punto a ×1,35 y el halo a ×3 apagándose
+    const latir = (late: number) => {
+      puntos.forEach((p) => (p.style.transform = `scale(${(1 + 0.35 * late).toFixed(4)})`));
+      halos.forEach((h) => { h.style.transform = `scale(${(1 + 2 * late).toFixed(4)})`; h.style.opacity = (1 - late).toFixed(4); });
+    };
+
+    let listo = false;
+    const arrancar = () => {
+      montar();
+      listo = true;
+      if (caja) { pintar(0); latir(0); return; }
+      if (fijo !== null) { pintar(fijo); latir(0.991); return; }
+      if (reducido) { pintar(G.act[1] + 2); return; }
+      const t0 = performance.now();
+      const frame = (now: number) => {
+        const s = (now - t0) / 1000;
+        pintar(s);
+        const f = (s % 2.4) / 1.2;
+        latir(E.sine(f <= 1 ? f : 2 - f));
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    };
+    // las alturas dependen de las fuentes: se mide cuando han cargado
+    document.fonts.ready.then(arrancar);
+    // la API para quien la lleve dentro (la película de savvia agentic): la cinta en el segundo `t` de SU reloj y el punto en `late` (0–1)
+    (raiz as HTMLElement & { __nh?: unknown }).__nh = {
+      pintar: (t: number) => { if (listo) pintar(Math.max(0, t)); },
+      latir,
+      get escala() { return escala; },
+      remedir: () => { if (listo) montar(); },
+      // la marquesina de clientes (55 px/s, en bucle sin costura) en el segundo `t`
+      marquesina: (t: number) => { if (!pista) return; const loop = (pista.children[5] as HTMLElement).offsetLeft; pista.style.transform = `translateX(${(-((Math.max(0, t) * 55) % loop)).toFixed(2)}px)`; },
+      // el scroll de la página (px de la tablet): la barra pegada con su desenfoque en cuanto se pega (20 px) y la hamburguesa, fija
+      desplazar: (y: number) => {
+        raiz.scrollTop = y;
+        if (hamb) hamb.style.transform = `translateY(${raiz.scrollTop.toFixed(2)}px)`;
+        navBlur?.classList.toggle('on', raiz.scrollTop >= 20);
+      },
+    };
+
+    // la pastilla blanca del menú que sigue al cursor
+    const menu = raiz.querySelector<HTMLElement>('[data-menu]')!;
+    const pas = raiz.querySelector<HTMLElement>('[data-pastilla]')!;
+    menu.addEventListener('mouseover', (e) => {
+      const it = (e.target as HTMLElement).closest<HTMLElement>('[data-navitem]');
+      if (!it) return;
+      pas.style.height = `${it.offsetHeight}px`;
+      pas.style.width = `${it.offsetWidth}px`;
+      pas.style.translate = `${it.offsetLeft}px ${it.offsetTop}px`;
+      pas.style.opacity = '1';
+    });
+    menu.addEventListener('mouseleave', () => (pas.style.opacity = '0'));
+  }
+</script>

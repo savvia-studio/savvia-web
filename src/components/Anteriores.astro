@@ -33,36 +33,43 @@ const CELDAS = proyectos.celdas, T = proyectos.testimonios;
 // alto ∝ 1/√proporción, con la proporción leída del archivo (viewBox del SVG o cabecera del PNG) al compilar.
 import sharp from 'sharp';
 const PROP: Record<string, number> = {};
-for (const url of new Set(CELDAS.flat().map((it) => it.logo).filter(Boolean) as string[])) {
+for (const url of new Set([...CELDAS.flat().map((it) => it.logo)].filter(Boolean) as string[])) {
   try { const m = await sharp(`public${url}`).metadata(); PROP[url] = (m.width ?? 3) / (m.height ?? 1); } catch { PROP[url] = 3; }
 }
 const proporcion = (url: string) => PROP[url] ?? 3;
 // RONDA 144 · Andoni: «los logos, que todos tengan siempre el mismo tamaño, coherencia»: la MISMA ALTURA para todos (1,75 rem) y el ancho que dé su
 // proporción; solo si pasa de 8,5 rem (muy apaisado) se encoge para caber
-const talla = (url: string) => { const r = proporcion(url), h = Math.min(1.75, 8.5 / r); return `--lw:${(h * r).toFixed(2)}rem;--lh:${h.toFixed(2)}rem`; };
+// RONDA 189 (3.ª) · Eric: «tienen que ser todos consistentes en tamaño; míralos todos»: cada logotipo de la cuadrícula va RECORTADO a su tinta
+// (tools/r189/logos.cjs → public/media/logos/cuadricula/) y se dibuja con la MISMA ÁREA (ancho × alto constante, así un logo cuadrado sale más alto y uno
+// muy apaisado más bajo), corregida un poco por la densidad de tinta (los muy negros pesan más: se encogen; los finos crecen). Datos en logos-cuadricula.json.
+import LOGOS from '../data/logos-cuadricula.json';
+// y la ESCALA a mano de cada uno (Eric la ajustó logo a logo en el artefacto «Tallas de los logos»)
+const talla = (url: string, k = 1) => {
+  const d = (LOGOS as Record<string, { r: number; d: number }>)[url.split('/').pop()!.replace(/\.png$/, '')];
+  const r = d?.r ?? proporcion(url), tinta = d?.d ?? 0.3;
+  const AREA = 10.5, h = Math.min(2.2, Math.sqrt(AREA / r) * Math.pow(0.3 / tinta, 0.2)) * k;
+  return `--lw:${(h * r).toFixed(2)}rem;--lh:${h.toFixed(2)}rem`;
+};
 // RONDA 65 · dos FRANJAS entre filas del mosaico: HECHOS Y LOGOTIPOS tras la primera (estilo minimum.run: una línea, la frase a la izquierda, los hechos
 // numerados a la derecha y el muro de logotipos en baldosas, cada logotipo una máscara en el color del texto) y TESTIMONIOS tras la tercera (la captura de
 // Andoni: franja oscura a sangre, una línea sobre cada uno, el RETRATO grabado —la imagen la prepara Andoni; sin ella, la tarjeta empieza por la cita—,
 // el nombre y el cargo). Fuera las voces que rotaban, el reproductor dormido y la flora.
-type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble' | 'tel'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean; fondo?: string };
+type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble' | 'tel'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean; fondo?: string; barrido?: number };
 // Los DEGRADADOS salen de los colores de la web de cada cliente (home.ts › color); las escenas no llevan degradado (llevan la mesa).
 // RONDA 40 · «los testimonios ponemos menos cantidad y que sean animados y vayan rotando; si se nos ocurre alguna manera original de mostrarlos,
 // mejor»: TRES voces en un solo sitio del mosaico, junto a Isotrol. Cada cita entra palabra a palabra (el gesto de los titulares), un hilo de savia
 // mide su tiempo bajo el nombre de quien la dice, y si habla de un proyecto del mosaico, ese proyecto se SEÑALA (un punto de savia en su pie).
 const SITIO: Sitio[] = [
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'escena', est: 'otono', zoom: 3.3, cy: 0.6 },
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5 },
-  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6 }, // ronda 20: «Cubbo lo dejamos como estaba con el fondo de gradiente» (el iMac de roble queda en QUAD, sin uso)
-  // RONDA 76 · Eric: «Remerge, Isotrol y Naterra: detrás algo con su marca en vez de las estaciones». Remerge, su amarillo con la web en un teléfono;
-  // Isotrol, el atardecer con aerogeneradores de su portada (redibujado en silueta); Naterra, la madera de su propia web.
-  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'movil', zoom: 1.9, cy: 0.5 }, // ronda 77: Andoni, «Remerge con el mockup que teníamos antes, me gustaba más» (el teléfono de la ronda 76, fuera)
-  // RONDA 67 · «al final solo 2 proyectos, no 3» (Naterra sube) y «la línea de Isotrol, Monad y Naterra, como la primera»: la misma composición que la
-  // primera fila (cuadrada a la izquierda, 3 : 4 en el centro, 4 : 5 bajada a la derecha)
-  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, fondo: '/media/anteriores/fondos/isotrol.svg' },
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, izq: true }, // ronda 76: Monad sobre su verde (en claro se confundía con la página)
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: -5, izq: true, fondo: '/media/anteriores/fondos/naterra.jpg' },
-  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -5 },
-  { col: '8 / span 4', ratio: '4 / 5', baja: 40, tipo: 'mancha', g: 'g-marca', giro: 4, izq: true },
+  // RONDA 189 · Eric: «el fondo, un barrido: fondos de naturaleza difuminados con efecto de arrastre» (Harbor) y «las demás cards, como la de Kymatio»:
+  // todas sobre el paisaje de la ventana de la mesa barrido (tools/r189/barrido.cjs), el de la estación de la web, cada una con su encuadre y su
+  // dirección del arrastre (`v`), y su navegador ladeado encima. Filas: entrada + 0 + 1 · 2 + 3 · (testimonio) · 4 + 5 + 6.
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 0 },
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 1 },
+  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6, barrido: 2 },
+  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 3 },
+  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 4 },
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5, barrido: 5 },
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4, barrido: 6 },
 ];
 // RONDA 42 · «los testimonios no van antes de nuestros proyectos, van entre medias, y que puedas cambiar de testimonio con unas flechas muy sutiles»:
 // una fila entera en medio del mosaico (tras la primera fila de proyectos), centrada; el nombre de quien habla entre dos flechas finas.
@@ -98,12 +105,57 @@ import { flecha } from '../lib/flecha';
 import { icono } from '../lib/iconos';
 ---
 
-<section id="anteriores" class="surface-light section-y" aria-labelledby="ant-h" data-sube>
+<section id="anteriores" class="surface-light section-y" aria-labelledby="ant-h" data-sube data-sin-fila>
   <div class="wrap">
+    <!-- RONDA 189 · Eric: «después del mockup deberíamos poner el grid de reviews y demás»: la cuadrícula (citas, logotipos y cifras) abre la
+         sección, justo tras Proyectos destacados; antes iba tras la primera fila del mosaico -->
+    <div class="cuadricula-arriba">
+    <div class="banda cuadricula" data-banda data-cuadricula>
+          <span class="guias" aria-hidden="true">
+            {[0, 1, 2].map((r) => <i class="gh" style={`--r:${r}`} />)}
+            {[1, 2].map((c) => <i class="gv" style={`--c:${c}`} />)}
+            {[0, 1, 2].flatMap((r) => [0, 1, 2, 3].map((c) => <i class="gx" style={`--r:${r};--c:${c}`} />))}
+          </span>
+          {CELDAS.map((celda, c) => (
+            <div class="celda" style={`--c:${c}`} data-celda>
+              {celda.map((it, k) => (
+                <div class={`item ${it.tipo} ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-item>
+                  {it.tipo === 'cita' && (
+                    <>
+                      <p class="cq">“{it.q}”</p>
+                      <p class="cn">{it.n}</p>
+                      <p class="cr">{it.r}</p>
+                    </>
+                  )}
+                  {it.tipo === 'marca' && (
+                    <>
+                      <p class="cr">{it.rotulo}</p>
+                      {it.texto ? (
+                        <p class="marca-txt"><i class="mk" style={`--logo:url('${it.logo}')`} aria-hidden="true" />{it.texto}</p>
+                      ) : (
+                        <i class="mk grande" role="img" aria-label={it.n} style={`--logo:url('${it.logo}');${talla(it.logo!, it.escala)}`} />
+                      )}
+                    </>
+                  )}
+                  {it.tipo === 'cifra' && (
+                    <>
+                      <p class="cr">{it.l === 'desde' ? 'Desde' : ' '}</p>
+                      <p class="cv font-display tabular-nums">{it.v}</p>
+                      {it.l !== 'desde' && <p class="cr">{it.l}</p>}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+    </div>
     <!-- RONDA 24 · «ver todos los proyectos a la derecha del titular pegado a la línea derecha, con una animación más fluida, como que se rellena de
          naranja, y la flecha más minimalista» -->
+    <!-- RONDA 190 · «quita el titular "Más proyectos"» + «deja el espacio que ocupaba en blanco»: el titular sigue ocupando su sitio,
+         invisible (aria-labelledby lo sigue leyendo aunque esté oculto) -->
     <div class="cabecera flex flex-wrap items-end justify-between gap-6">
-      <h2 id="ant-h" class="text-h1 max-w-[12ch]" data-entra>{proyectos.titulo2}</h2>
+      <h2 id="ant-h" class="text-h1 max-w-[12ch] mt-24 lg:mt-32 invisible">{proyectos.titulo2}</h2>
     </div>
     <div class="mosaico mt-24 lg:mt-32">
       <!-- la pieza de entrada: solo degradado, con el símbolo (la gota) y el texto debajo -->
@@ -134,48 +186,7 @@ import { icono } from '../lib/iconos';
           const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}.mp4" type="video/mp4" /></video>`;
           return (
             <>
-            {i === 2 && (
-              <div class="banda cuadricula" data-banda data-cuadricula>
-                <span class="guias" aria-hidden="true">
-                  {[0, 1, 2].map((r) => <i class="gh" style={`--r:${r}`} />)}
-                  {[1, 2].map((c) => <i class="gv" style={`--c:${c}`} />)}
-                  {[0, 1, 2].flatMap((r) => [0, 1, 2, 3].map((c) => <i class="gx" style={`--r:${r};--c:${c}`} />))}
-                </span>
-                {CELDAS.map((celda, c) => (
-                  <div class="celda" style={`--c:${c}`} data-celda>
-                    {celda.map((it, k) => (
-                      <div class={`item ${it.tipo} ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-item>
-                        {it.tipo === 'cita' && (
-                          <>
-                            <p class="cq">“{it.q}”</p>
-                            <p class="cn">{it.n}</p>
-                            <p class="cr">{it.r}</p>
-                          </>
-                        )}
-                        {it.tipo === 'marca' && (
-                          <>
-                            <p class="cr">{it.rotulo}</p>
-                            {it.texto ? (
-                              <p class="marca-txt"><i class="mk" style={`--logo:url('${it.logo}')`} aria-hidden="true" />{it.texto}</p>
-                            ) : (
-                              <i class="mk grande" role="img" aria-label={it.n} style={`--logo:url('${it.logo}');${talla(it.logo!)}`} />
-                            )}
-                          </>
-                        )}
-                        {it.tipo === 'cifra' && (
-                          <>
-                            <p class="cr">{it.l === 'desde' ? 'Desde' : ' '}</p>
-                            <p class="cv font-display tabular-nums">{it.v}</p>
-                            {it.l !== 'desde' && <p class="cr">{it.l}</p>}
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
-            {i === 7 && (
+            {i === 4 && (
               <figure class="banda voz" data-banda data-voz>
                 <!-- RONDA 67 · «a los retratos, el estilo dithering, que se mimeticen más con el fondo; el cambio, animado con el estilo de savvia»: cada retrato
                      se pinta como TRAMA DE PUNTOS en el color del texto (lienzo 2D; la imagen es solo la fuente) y el relevo es el pintado rasgado de savvia -->
@@ -204,7 +215,7 @@ import { icono } from '../lib/iconos';
               </figure>
             )}
             <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo === 'mancha' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
-              <div class={`lamina ${s.g ?? ''} ${s.fondo ? 'con-fondo' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : undefined}>
+              <div class={`lamina ${s.g ?? ''} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? ['primavera', 'verano', 'otono', 'invierno'].map((e) => `--b-${e}:url('/media/anteriores/fondos/barrido-${s.barrido}-${e}.webp')`).join(';') : undefined}>
                 {s.tipo === 'escena' ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
                     <img class="foto" src={`/media/estudio/${s.est}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
@@ -228,7 +239,7 @@ import { icono } from '../lib/iconos';
               </div>
               <div class="pie pie-pieza mt-4">
                 <h3 class="nombre-pie font-display">{c.n}</h3>
-                <p class="detail text-fg2">{c.dominio}{c.sector && <> · {c.sector}</>}</p>
+                {c.sector && <p class="detail text-fg2">{c.sector}</p>}{/* RONDA 189 · Eric: a la derecha, solo la categoría (sin el dominio) */}
               </div>
             </a>
             </>
@@ -270,6 +281,22 @@ import { icono } from '../lib/iconos';
   {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const rejilla = document.querySelector<HTMLElement>('[data-cuadricula]');
+    // RONDA 189 · Eric: «que sea todo aleatorio cada vez que entramos»: en cada visita se barajan las citas y los logotipos y se reparten de nuevo por las
+    // celdas, alternando (las celdas impares empiezan por logotipo), antes de que arranque la rotación
+    if (rejilla) {
+      const cajas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')];
+      const todos = cajas.flatMap((c) => [...c.querySelectorAll<HTMLElement>('[data-item]')]);
+      const barajar = <T,>(a: T[]) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+      const citas = barajar(todos.filter((it) => it.classList.contains('cita')));
+      const marcas = barajar(todos.filter((it) => !it.classList.contains('cita')));
+      const reparto: HTMLElement[][] = cajas.map(() => []);
+      while (citas.length || marcas.length) cajas.forEach((_, c) => {
+        const logo = (reparto[c].length % 2 === 0) === (c % 2 === 1);
+        const it = (logo && marcas.length) || !citas.length ? marcas.shift() : citas.shift();
+        if (it) reparto[c].push(it);
+      });
+      reparto.forEach((lista, c) => lista.forEach((it, k) => { it.classList.toggle('on', k === 0); it.setAttribute('aria-hidden', k === 0 ? 'false' : 'true'); cajas[c].appendChild(it); }));
+    }
     if (rejilla) new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { rejilla.classList.add('trazada'); o.disconnect(); } }, { threshold: 0.3 }).observe(rejilla);
     if (rejilla && !reducido) {
       const celdas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')].map((el) => ({ items: [...el.querySelectorAll<HTMLElement>('[data-item]')], k: 0 }));
@@ -563,6 +590,8 @@ import { icono } from '../lib/iconos';
     mask: var(--logo) center / contain no-repeat;
   }
   .mk.grande { width: min(var(--lw), 90%); height: var(--lh); }
+  /* ronda 189 · el 90 % se mide contra la celda (si no, la caja del item encogía con el logo y la `escala` no se notaba) */
+  .item.marca { width: 100%; }
   .marca-txt {
     display: inline-flex;
     align-items: center;
@@ -578,6 +607,8 @@ import { icono } from '../lib/iconos';
   @media (width >= 48rem) {
     .cuadricula { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
+  /* la persona de cada cita: el nombre en la tipografía de titulares, algo mayor (ronda 189) */
+  .cn { font-family: var(--font-display); font-weight: 400 !important; font-size: var(--text-lead) !important; line-height: 1.15; }
   /* ── EL TESTIMONIO que rota (ronda 66): el retrato al carboncillo a la izquierda, la cita en Family y quién la dice entre dos flechas finas; en claro */
   .voz {
     display: grid;
@@ -686,6 +717,10 @@ import { icono } from '../lib/iconos';
     border-radius: var(--radius-lg);
     isolation: isolate;
     container-type: inline-size;
+    /* RONDA 189 · Eric: «al pasar, el redondeado no va bien» (esquinas rectas mientras el fondo escala bajo la ventana de cristal): una máscara lisa
+       obliga al navegador a recortar con las esquinas también las capas compuestas */
+    -webkit-mask-image: linear-gradient(#000, #000);
+    mask-image: linear-gradient(#000, #000);
   }
   .entrada .lamina {
     aspect-ratio: 3 / 2;
@@ -774,6 +809,28 @@ import { icono } from '../lib/iconos';
     filter: none;
   }
   .pieza:hover .lamina.con-fondo::before { transform: scale(1.04); }
+  /* RONDA 189 · el BARRIDO: el paisaje de la estación con desenfoque de movimiento; vira con ella (fundido de 1,2 s) */
+  .lamina.barrido::before {
+    background: var(--b-otono) center / cover no-repeat;
+    transition: transform 1.6s var(--ease-out-expo), background-image 1.2s ease;
+  }
+  :global(html[data-estacion='primavera']) .lamina.barrido::before { background-image: var(--b-primavera); }
+  :global(html[data-estacion='verano']) .lamina.barrido::before { background-image: var(--b-verano); }
+  :global(html[data-estacion='invierno']) .lamina.barrido::before { background-image: var(--b-invierno); }
+  /* RONDA 189 · Eric: «ese blur, efecto nube, en el borde» (la tarjeta de referencia sobre la playa): sin esquinas duras, la pieza se funde con la página
+     por un canto de NUBE (un rectángulo redondeado deformado con ruido y desenfocado: nube.svg, como máscara). La ventana, ladeada y grande como en
+     las demás (Eric: «me gustaba ladeado y más grande»). */
+  .lamina.barrido {
+    border-radius: 0;
+    -webkit-mask: url('/media/anteriores/fondos/nube.svg') 0 0 / 100% 100% no-repeat;
+    mask: url('/media/anteriores/fondos/nube.svg') 0 0 / 100% 100% no-repeat;
+  }
+  .lamina.barrido::before { inset: -2%; }
+  /* Eric: «bajamos un poco el aire de arriba»: la ventana sube del 34 % al 24 % */
+  .lamina.barrido .mockup { top: 24%; }
+  :global(html.anima) .pieza .lamina.barrido { clip-path: none; opacity: 0; scale: 0.96; }
+  :global(html.anima) .pieza.visto .lamina.barrido { clip-path: none; opacity: 1; scale: 1; transition: opacity 1.2s var(--ease-out-expo) calc(var(--i) * 110ms), scale 1.4s var(--ease-out-expo) calc(var(--i) * 110ms); }
+
   /* el TELÉFONO de Remerge: de pie en el centro, algo ladeado, con su web móvil */
   .tel-m {
     position: absolute;
@@ -948,15 +1005,25 @@ import { icono } from '../lib/iconos';
   }
   /* sobre la foto, un velo arriba para que el nombre se lea siempre (regla junto a la de las pantallas en perspectiva) */
 
-  /* ── el MOCKUP: una ventana de navegador con la web real */
+  /* ── el MOCKUP: una ventana de navegador con la web real.
+     RONDA 189 · Eric: «el mockup de la web, mucho mejor: más moderno y translúcido, y que el rectángulo de arriba no tenga tanto aire». La ventana
+     entera es CRISTAL (velo claro + desenfoque del fondo que hay detrás + filo de luz): un marco fino de 4 px alrededor de la web y una barra de 10 px
+     arriba, dentro del mismo cristal (sin franja propia); la web va dentro con sus esquinas redondeadas. */
   .mockup {
     position: absolute;
-    border-radius: calc(var(--spacing) * 2);
+    display: flex;
+    flex-direction: column;
+    padding: 0 4px 4px;
+    border-radius: 12px;
     overflow: hidden;
-    background: #fbfbfa;
+    background: color-mix(in srgb, #fff 20%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
     box-shadow:
-      0 0 0 1px rgb(0 0 0 / 0.18),
-      0 24px 48px -12px rgb(30 16 8 / 0.55);
+      inset 0 0 0 1px rgb(255 255 255 / 0.32),
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      0 0 0 1px rgb(0 0 0 / 0.08),
+      0 32px 60px -22px rgb(20 12 6 / 0.55);
     transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
   }
   /* RONDA 67 · «el proyecto de Cubbo salía como de un lado, y ahora no; me gustaba como estaba y aplicarlo en otros proyectos»: vuelve el navegador que
@@ -974,60 +1041,57 @@ import { icono } from '../lib/iconos';
     right: 14%;
     transform-origin: 100% 0;
   }
-  .claro .mockup {
+  /* sobre un degradado claro, el cristal se oscurece un poco para que la ventana se lea */
+  .claro .mockup,
+  .tinta-oscura .mockup {
+    background: color-mix(in srgb, #302018 7%, transparent);
     box-shadow:
-      0 0 0 1px rgb(48 32 24 / 0.14),
-      0 18px 40px -14px rgb(48 32 24 / 0.4);
+      inset 0 0 0 1px rgb(255 255 255 / 0.5),
+      0 0 0 1px rgb(48 32 24 / 0.1),
+      0 24px 48px -20px rgb(48 32 24 / 0.35);
   }
   .mockup :global(.vid) {
     display: block;
     width: 100%;
     height: auto;
+    border-radius: 7px;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
   }
-  /* RONDA 162 · Eric (captura de BOP): la barra flotaba ENCIMA de la cabecera de la web y la dirección se pisaba con su menú. La web empieza bajo la
-     barra (sus 12 px); la barra sigue siendo de cristal claro */
-  .mockup:has(.cromo) :global(.vid) { margin-top: 12px; }
-  /* RONDA 19 · «las barras de los navegadores son muy gordas»: 16 px (antes 24) */
-  /* RONDA 156 · Eric: «no me gusta el marco retro de web; prefiero que sea translúcido, más moderno, con backdrop filtering y minimalista, que ocupe
-     poco»: la barra flota SOBRE la web (absoluta, 12 px), cristal claro con desenfoque de lo que pasa por debajo, tres puntos tenues y la dirección en
-     una pastilla apenas marcada */
   .cromo {
-    position: absolute;
-    z-index: 1;
-    inset: 0 0 auto 0;
+    position: relative;
+    flex: none;
     display: flex;
     align-items: center;
     gap: 3px;
-    height: 12px;
-    padding-inline: 6px;
-    background: color-mix(in srgb, #fff 52%, transparent);
-    -webkit-backdrop-filter: blur(10px) saturate(1.4);
-    backdrop-filter: blur(10px) saturate(1.4);
-    box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.28);
+    height: 10px;
+    padding-inline: 2px;
   }
   .cromo i {
     flex: none;
-    width: 4px;
-    height: 4px;
+    width: 3.5px;
+    height: 3.5px;
     border-radius: 50%;
-    background: rgb(0 0 0 / 0.16);
+    background: rgb(255 255 255 / 0.55);
+    box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.12);
   }
+  .claro .cromo i,
+  .tinta-oscura .cromo i { background: rgb(48 32 24 / 0.22); box-shadow: none; }
   .cromo b {
-    margin-inline: auto;
-    min-width: 0;
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    max-width: 60%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 0 calc(var(--spacing) * 3);
-    height: 7px;
-    line-height: 7px;
-    border-radius: 4px;
-    background: rgb(255 255 255 / 0.42);
     font-family: var(--font-sans);
-    font-weight: 400;
-    font-size: 0.36rem;
-    color: rgb(0 0 0 / 0.5);
+    font-weight: 500;
+    font-size: 0.34rem;
+    letter-spacing: 0.01em;
+    color: rgb(255 255 255 / 0.78);
   }
+  .claro .cromo b,
+  .tinta-oscura .cromo b { color: rgb(48 32 24 / 0.55); }
 
   /* ── al pasar */
   .mancha:hover .mockup,

@@ -1,0 +1,1373 @@
+{
+  "url": "http://localhost:3159/home",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "dpr": 2,
+    "scrollbar": 0
+  },
+  "referencia": "Cajas x/y relativas a la esquina superior izquierda de la card del hero (main > div.isolate). xViewport/yViewport = absolutas.",
+  "contenedor": {
+    "main": {
+      "box": {
+        "x": -16,
+        "y": -16,
+        "w": 390,
+        "h": 11690.97,
+        "xViewport": 0,
+        "yViewport": 0
+      },
+      "padding": "16px",
+      "background": "rgb(245, 247, 249)"
+    },
+    "heroCard": {
+      "box": {
+        "x": 0,
+        "y": 0,
+        "w": 358,
+        "h": 753.14,
+        "xViewport": 16,
+        "yViewport": 16
+      },
+      "anchoContenedor": 358,
+      "maxWidth": "1600px",
+      "borderRadius": "16px",
+      "notchW": "clamp(355px, calc(min(100vw - 40px, 1600px) * 0.7), 850px)",
+      "notchWResuelto": 355
+    },
+    "heroSection": {
+      "box": {
+        "x": 0,
+        "y": 0,
+        "w": 358,
+        "h": 753.14,
+        "xViewport": 16,
+        "yViewport": 16
+      },
+      "padding": "124px 16px 8px"
+    },
+    "stickyNavWrapper": {
+      "box": {
+        "x": -16,
+        "y": 0,
+        "w": 390,
+        "h": 76,
+        "xViewport": 0,
+        "yViewport": 16
+      },
+      "maxWidth": "1640px"
+    }
+  },
+  "elementos": [
+    {
+      "name": "nav",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "w": 358,
+        "h": 76,
+        "xViewport": 16,
+        "yViewport": 16
+      },
+      "text": "",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "24px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "flex",
+      "visible": true
+    },
+    {
+      "name": "logo",
+      "box": {
+        "x": 24,
+        "y": 24,
+        "w": 113.75,
+        "h": 28,
+        "xViewport": 40,
+        "yViewport": 40
+      },
+      "text": "Neety",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true
+    },
+    {
+      "name": "nav-login",
+      "missing": true
+    },
+    {
+      "name": "nav-cta",
+      "missing": true
+    },
+    {
+      "name": "hamburguesa-movil",
+      "box": {
+        "x": 308,
+        "y": 0,
+        "w": 50,
+        "h": 48,
+        "xViewport": 324,
+        "yViewport": 16
+      },
+      "text": "Abrir menú",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgb(67, 27, 68)",
+      "border": "none",
+      "borderRadius": "8px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "flex",
+      "visible": true
+    },
+    {
+      "name": "eyebrow",
+      "box": {
+        "x": 16,
+        "y": 124,
+        "w": 326,
+        "h": 24,
+        "xViewport": 32,
+        "yViewport": 140
+      },
+      "text": "DETECTA. PRIORIZA. ACTÚA.",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "flex",
+      "visible": true
+    },
+    {
+      "name": "eyebrow-punto",
+      "box": {
+        "x": 15.3,
+        "y": 133.3,
+        "w": 5.39,
+        "h": 5.39,
+        "xViewport": 31.3,
+        "yViewport": 149.3
+      },
+      "text": "",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "matrix(1.3486, 0, 0, 1.3486, 0, 0)",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true,
+      "nota": "escala animada por GSAP (ver movimiento.md); el halo es el primer hijo"
+    },
+    {
+      "name": "eyebrow-punto-halo",
+      "box": {
+        "x": 9.93,
+        "y": 127.93,
+        "w": 16.14,
+        "h": 16.14,
+        "xViewport": 25.93,
+        "yViewport": 143.93
+      },
+      "text": "",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(67, 27, 68, 0.35)",
+      "border": "none",
+      "borderRadius": "3.35544e+07px",
+      "padding": "0px",
+      "opacity": "0.0041",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "matrix(2.9918, 0, 0, 2.9918, 0, 0)",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true
+    },
+    {
+      "name": "eyebrow-punto-core",
+      "box": {
+        "x": 15.3,
+        "y": 133.3,
+        "w": 5.39,
+        "h": 5.39,
+        "xViewport": 31.3,
+        "yViewport": 149.3
+      },
+      "text": "",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgb(67, 27, 68)",
+      "border": "none",
+      "borderRadius": "3.35544e+07px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true
+    },
+    {
+      "name": "eyebrow-texto",
+      "box": {
+        "x": 32,
+        "y": 124,
+        "w": 250.06,
+        "h": 24,
+        "xViewport": 48,
+        "yViewport": 140
+      },
+      "text": "DETECTA. PRIORIZA. ACTÚA.",
+      "fontFamily": "\"Roboto Mono\", \"Roboto Mono Fallback\", \"Roboto Mono\", ui-monospace, monospace",
+      "fontSize": "16px",
+      "fontWeight": "500",
+      "lineHeight": "24px",
+      "letterSpacing": "0.4px",
+      "textTransform": "uppercase",
+      "color": "oklab(0.299146 0.0721358 -0.0476629 / 0.6)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true
+    },
+    {
+      "name": "eyebrow-acento",
+      "box": {
+        "x": 222.05,
+        "y": 125,
+        "w": 60.02,
+        "h": 21,
+        "xViewport": 238.05,
+        "yViewport": 141
+      },
+      "text": "ACTÚA.",
+      "fontFamily": "\"Roboto Mono\", \"Roboto Mono Fallback\", \"Roboto Mono\", ui-monospace, monospace",
+      "fontSize": "16px",
+      "fontWeight": "500",
+      "lineHeight": "24px",
+      "letterSpacing": "0.4px",
+      "textTransform": "uppercase",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "inline",
+      "visible": true
+    },
+    {
+      "name": "h1",
+      "box": {
+        "x": 16,
+        "y": 160,
+        "w": 326,
+        "h": 179.19,
+        "xViewport": 32,
+        "yViewport": 176
+      },
+      "text": "Detecta a quién vender, cuándo hacerlo y qué acción tomar.",
+      "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+      "fontSize": "40px",
+      "fontWeight": "500",
+      "lineHeight": "44.8px",
+      "letterSpacing": "-0.8px",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true,
+      "lineas": [
+        {
+          "line": 1,
+          "text": "Detecta a quién",
+          "color": "rgb(67, 27, 68)",
+          "box": {
+            "x": 16,
+            "y": 158,
+            "w": 284.83,
+            "h": 48,
+            "xViewport": 32,
+            "yViewport": 174
+          }
+        },
+        {
+          "line": 2,
+          "text": "vender, cuándo",
+          "color": "rgb(67, 27, 68)",
+          "box": {
+            "x": 16,
+            "y": 202.8,
+            "w": 277.13,
+            "h": 48,
+            "xViewport": 32,
+            "yViewport": 218.8
+          }
+        },
+        {
+          "line": 3,
+          "text": "hacerlo y qué",
+          "color": "rgb(67, 27, 68)",
+          "box": {
+            "x": 16,
+            "y": 247.59,
+            "w": 247.19,
+            "h": 48,
+            "xViewport": 32,
+            "yViewport": 263.59
+          }
+        },
+        {
+          "line": 4,
+          "text": "acción tomar.",
+          "color": "oklab(0.299146 0.0721358 -0.0476629 / 0.4)",
+          "box": {
+            "x": 16,
+            "y": 292.39,
+            "w": 245.17,
+            "h": 48,
+            "xViewport": 32,
+            "yViewport": 308.39
+          }
+        }
+      ]
+    },
+    {
+      "name": "h1-segunda-parte-atenuada",
+      "box": {
+        "x": 16,
+        "y": 247.59,
+        "w": 247.19,
+        "h": 92.8,
+        "xViewport": 32,
+        "yViewport": 263.59
+      },
+      "text": "qué acción tomar.",
+      "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+      "fontSize": "40px",
+      "fontWeight": "500",
+      "lineHeight": "44.8px",
+      "letterSpacing": "-0.8px",
+      "textTransform": "none",
+      "color": "oklab(0.299146 0.0721358 -0.0476629 / 0.4)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "inline",
+      "visible": true
+    },
+    {
+      "name": "subtitulo",
+      "box": {
+        "x": 0,
+        "y": 753.14,
+        "w": 358,
+        "h": 132,
+        "xViewport": 16,
+        "yViewport": 769.14
+      },
+      "text": "No es otra herramienta para enviar más mensajes. Neety te dice qué cuentas importan hoy, por qué y qué debería hacer tu equipo con ellas.",
+      "fontFamily": "Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "18px",
+      "fontWeight": "400",
+      "lineHeight": "27px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "oklab(0.222976 0.0544756 -0.0382679 / 0.6)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "24px 16px 0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true,
+      "lineas": [
+        {
+          "line": 1,
+          "text": "No es otra herramienta para enviar",
+          "color": "oklab(0.222976 0.0544756 -0.0382679 / 0.6)",
+          "box": {
+            "x": 16,
+            "y": 780.14,
+            "w": 296.06,
+            "h": 21,
+            "xViewport": 32,
+            "yViewport": 796.14
+          }
+        },
+        {
+          "line": 2,
+          "text": "más mensajes. Neety te dice qué",
+          "color": "oklab(0.222976 0.0544756 -0.0382679 / 0.6)",
+          "box": {
+            "x": 16,
+            "y": 807.14,
+            "w": 282.17,
+            "h": 21,
+            "xViewport": 32,
+            "yViewport": 823.14
+          }
+        },
+        {
+          "line": 3,
+          "text": "cuentas importan hoy, por qué y qué",
+          "color": "oklab(0.222976 0.0544756 -0.0382679 / 0.6)",
+          "box": {
+            "x": 16,
+            "y": 834.14,
+            "w": 312.36,
+            "h": 21,
+            "xViewport": 32,
+            "yViewport": 850.14
+          }
+        },
+        {
+          "line": 4,
+          "text": "debería hacer tu equipo con ellas.",
+          "color": "oklab(0.222976 0.0544756 -0.0382679 / 0.6)",
+          "box": {
+            "x": 16,
+            "y": 861.14,
+            "w": 288.66,
+            "h": 21,
+            "xViewport": 32,
+            "yViewport": 877.14
+          }
+        }
+      ],
+      "nota": "en <lg el subtítulo va FUERA de la card, debajo, sobre fondo blanco"
+    },
+    {
+      "name": "fila-ctas",
+      "box": {
+        "x": 16,
+        "y": 363.19,
+        "w": 326,
+        "h": 37,
+        "xViewport": 32,
+        "yViewport": 379.19
+      },
+      "text": "Solicitar demo\nVer cómo funciona",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "flex",
+      "visible": true
+    },
+    {
+      "name": "cta-primario",
+      "box": {
+        "x": 16,
+        "y": 363.19,
+        "w": 164.36,
+        "h": 37,
+        "xViewport": 32,
+        "yViewport": 379.19
+      },
+      "text": "Solicitar demo",
+      "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "lineHeight": "21px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "9999px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "flex",
+      "visible": true,
+      "partes": [
+        {
+          "i": 0,
+          "class": "PillCta_bg__vF6Sf",
+          "box": {
+            "x": 16,
+            "y": 363.19,
+            "w": 164.36,
+            "h": 37,
+            "xViewport": 32,
+            "yViewport": 379.19
+          },
+          "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "lineHeight": "21px",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "color": "rgb(67, 27, 68)",
+          "background": "rgb(67, 27, 68)",
+          "border": "none",
+          "borderRadius": "9999px",
+          "padding": "0px",
+          "opacity": "1",
+          "filter": "none",
+          "backdropFilter": "none",
+          "transform": "none",
+          "mixBlendMode": "normal",
+          "display": "block",
+          "visible": true
+        },
+        {
+          "i": 1,
+          "class": "PillCta_inner__Z2Jwo",
+          "box": {
+            "x": 16,
+            "y": 363.19,
+            "w": 164.36,
+            "h": 37,
+            "xViewport": 32,
+            "yViewport": 379.19
+          },
+          "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "lineHeight": "21px",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "color": "rgb(67, 27, 68)",
+          "background": "rgba(0, 0, 0, 0)",
+          "border": "none",
+          "borderRadius": "0px",
+          "padding": "8px 16px",
+          "opacity": "1",
+          "filter": "none",
+          "backdropFilter": "none",
+          "transform": "none",
+          "mixBlendMode": "normal",
+          "display": "grid",
+          "visible": true
+        },
+        {
+          "i": 2,
+          "class": "PillCta_text__inGRq",
+          "box": {
+            "x": 32,
+            "y": 371.19,
+            "w": 96.36,
+            "h": 21,
+            "xViewport": 48,
+            "yViewport": 387.19
+          },
+          "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "lineHeight": "21px",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgba(0, 0, 0, 0)",
+          "border": "none",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "opacity": "1",
+          "filter": "none",
+          "backdropFilter": "none",
+          "transform": "none",
+          "mixBlendMode": "normal",
+          "display": "block",
+          "visible": true
+        },
+        {
+          "i": 3,
+          "class": "PillCta_dotWrap__zslyH",
+          "box": {
+            "x": 156.36,
+            "y": 377.69,
+            "w": 8,
+            "h": 8,
+            "xViewport": 172.36,
+            "yViewport": 393.69
+          },
+          "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "lineHeight": "21px",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "color": "rgb(67, 27, 68)",
+          "background": "rgba(0, 0, 0, 0)",
+          "border": "none",
+          "borderRadius": "0px",
+          "padding": "0px",
+          "opacity": "1",
+          "filter": "none",
+          "backdropFilter": "none",
+          "transform": "none",
+          "mixBlendMode": "normal",
+          "display": "grid",
+          "visible": true
+        },
+        {
+          "i": 4,
+          "class": "PillCta_dot__SGmW2",
+          "box": {
+            "x": 156.36,
+            "y": 377.69,
+            "w": 8,
+            "h": 8,
+            "xViewport": 172.36,
+            "yViewport": 393.69
+          },
+          "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "lineHeight": "21px",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "color": "rgb(67, 27, 68)",
+          "background": "rgb(248, 247, 236)",
+          "border": "none",
+          "borderRadius": "9999px",
+          "padding": "0px",
+          "opacity": "1",
+          "filter": "none",
+          "backdropFilter": "none",
+          "transform": "none",
+          "mixBlendMode": "normal",
+          "display": "block",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "name": "cta-secundario",
+      "box": {
+        "x": 196.36,
+        "y": 371.69,
+        "w": 125.13,
+        "h": 20,
+        "xViewport": 212.36,
+        "yViewport": 387.69
+      },
+      "text": "Ver cómo funciona",
+      "fontFamily": "\"Bricolage Grotesque\", \"Bricolage Grotesque Fallback\", \"Bricolage Grotesque\", system-ui, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "lineHeight": "20px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true
+    },
+    {
+      "name": "signalfeed-contenedor",
+      "box": {
+        "x": 16,
+        "y": 440.19,
+        "w": 326,
+        "h": 304.95,
+        "xViewport": 32,
+        "yViewport": 456.19
+      },
+      "text": "Neety encontró empresas que encajan\n\nBetsaide\n\n94%\n\nArania\n\n91%\n\nFagor Automation\n\n88%\n\n3 personas clave encontradas\n\nIker Goikoetxea\n\nDirector de compras · Betsaide\n\n94%\n\nAne Larrañaga\n\nDirectora de operaciones · Arania\n\n91%\n\nNaroa Iturbe\n\nDirectora de planta · Fagor Automation\n\n88%\n\nIker empieza a activarse\n\nTemplado\nHa visitado tu perfil\nHa aceptado tu solicitud\nHas reaccionado a su post\n\nSeñal: Betsaide cerró una ronda de financiación\n\nEs el momento perfecto para escribir\n\nHot\n\nNeety te preparó el mensaje\n\nAprobar y enviar\nEnviado ✓\n\nIker respondió: “Me interesa, hablemos”\n\nNeety prepara el cierre por ti\n\nReunión agendada\n\n18 JUN\n\nIker Goikoetxea · Betsaide · 12:00",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true
+    },
+    {
+      "name": "signalfeed-caja-mascara",
+      "box": {
+        "x": 16,
+        "y": 440.19,
+        "w": 326,
+        "h": 304.95,
+        "xViewport": 32,
+        "yViewport": 456.19
+      },
+      "text": "Neety encontró empresas que encajan\n\nBetsaide\n\n94%\n\nArania\n\n91%\n\nFagor Automation\n\n88%\n\n3 personas clave encontradas\n\nIker Goikoetxea\n\nDirector de compras · Betsaide\n\n94%\n\nAne Larrañaga\n\nDirectora de operaciones · Arania\n\n91%\n\nNaroa Iturbe\n\nDirectora de planta · Fagor Automation\n\n88%\n\nIker empieza a activarse\n\nTemplado\nHa visitado tu perfil\nHa aceptado tu solicitud\nHas reaccionado a su post\n\nSeñal: Betsaide cerró una ronda de financiación\n\nEs el momento perfecto para escribir\n\nHot\n\nNeety te preparó el mensaje\n\nAprobar y enviar\nEnviado ✓\n\nIker respondió: “Me interesa, hablemos”\n\nNeety prepara el cierre por ti\n\nReunión agendada\n\n18 JUN\n\nIker Goikoetxea · Betsaide · 12:00",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true,
+      "maskImage": "linear-gradient(rgba(0, 0, 0, 0), rgb(0, 0, 0) 10%, rgb(0, 0, 0) 82%, rgba(0, 0, 0, 0))"
+    },
+    {
+      "name": "signalfeed-stage-escalado",
+      "box": {
+        "x": 16,
+        "y": 337.59,
+        "w": 326,
+        "h": 607.25,
+        "xViewport": 32,
+        "yViewport": 353.59
+      },
+      "text": "Neety encontró empresas que encajan\n\nBetsaide\n\n94%\n\nArania\n\n91%\n\nFagor Automation\n\n88%\n\n3 personas clave encontradas\n\nIker Goikoetxea\n\nDirector de compras · Betsaide\n\n94%\n\nAne Larrañaga\n\nDirectora de operaciones · Arania\n\n91%\n\nNaroa Iturbe\n\nDirectora de planta · Fagor Automation\n\n88%\n\nIker empieza a activarse\n\nTemplado\nHa visitado tu perfil\nHa aceptado tu solicitud\nHas reaccionado a su post\n\nSeñal: Betsaide cerró una ronda de financiación\n\nEs el momento perfecto para escribir\n\nHot\n\nNeety te preparó el mensaje\n\nAprobar y enviar\nEnviado ✓\n\nIker respondió: “Me interesa, hablemos”\n\nNeety prepara el cierre por ti\n\nReunión agendada\n\n18 JUN\n\nIker Goikoetxea · Betsaide · 12:00",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "none",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "matrix(0.79902, 0, 0, 0.79902, 0, -102.6)",
+      "mixBlendMode": "normal",
+      "display": "block",
+      "visible": true
+    }
+  ],
+  "tarjetaActiva": {
+    "indice": 1,
+    "nota": "índice 0–6 en el orden del feed (ver movimiento.md)",
+    "frost": {
+      "name": "sf-card (marco frost)",
+      "box": {
+        "x": 16,
+        "y": 478.21,
+        "w": 326,
+        "h": 204.55,
+        "xViewport": 32,
+        "yViewport": 494.21
+      },
+      "text": "3 personas clave encontradas\n\nIker Goikoetxea\n\nDirector de compras · Betsaide\n\n94%\n\nAne Larrañaga\n\nDirectora de operaciones · Arania\n\n91%\n\nNaroa Iturbe\n\nDirectora de planta · Fagor Automation\n\n88%",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgba(67, 27, 68, 0.1)",
+      "border": "none",
+      "borderRadius": "12px",
+      "padding": "4px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "mixBlendMode": "normal",
+      "display": "flex",
+      "visible": true
+    },
+    "tarjetaBlanca": {
+      "name": "sf-card > tarjeta blanca",
+      "box": {
+        "x": 19.2,
+        "y": 481.41,
+        "w": 319.61,
+        "h": 198.16,
+        "xViewport": 35.2,
+        "yViewport": 497.41
+      },
+      "text": "3 personas clave encontradas\n\nIker Goikoetxea\n\nDirector de compras · Betsaide\n\n94%\n\nAne Larrañaga\n\nDirectora de operaciones · Arania\n\n91%\n\nNaroa Iturbe\n\nDirectora de planta · Fagor Automation\n\n88%",
+      "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(67, 27, 68)",
+      "background": "rgb(255, 255, 255)",
+      "border": "none",
+      "borderRadius": "10px",
+      "padding": "16px",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "transform": "none",
+      "mixBlendMode": "normal",
+      "display": "flex",
+      "visible": true
+    },
+    "filas": [
+      {
+        "name": "fila-1",
+        "box": {
+          "x": 31.98,
+          "y": 494.2,
+          "w": 294.04,
+          "h": 35.96,
+          "xViewport": 47.98,
+          "yViewport": 510.2
+        },
+        "text": "3 personas clave encontradas",
+        "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(67, 27, 68)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgba(67, 27, 68, 0.05) / bottom 1px solid rgba(67, 27, 68, 0.05)",
+        "borderRadius": "0px",
+        "padding": "0px 0px 12px",
+        "opacity": "1",
+        "filter": "none",
+        "backdropFilter": "none",
+        "transform": "none",
+        "mixBlendMode": "normal",
+        "display": "flex",
+        "visible": true,
+        "lineas": [
+          {
+            "line": 1,
+            "text": "3 personas clave encontradas",
+            "color": "rgb(67, 27, 68)",
+            "box": {
+              "x": 67.14,
+              "y": 499.39,
+              "w": 182.39,
+              "h": 15.18,
+              "xViewport": 83.14,
+              "yViewport": 515.39
+            }
+          }
+        ]
+      },
+      {
+        "name": "fila-2",
+        "box": {
+          "x": 31.98,
+          "y": 539.74,
+          "w": 294.04,
+          "h": 35.96,
+          "xViewport": 47.98,
+          "yViewport": 555.74
+        },
+        "text": "Iker Goikoetxea\n\nDirector de compras · Betsaide\n\n94%",
+        "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(67, 27, 68)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgba(67, 27, 68, 0.05) / bottom 1px solid rgba(67, 27, 68, 0.05)",
+        "borderRadius": "0px",
+        "padding": "0px 0px 12px",
+        "opacity": "1",
+        "filter": "none",
+        "backdropFilter": "none",
+        "transform": "matrix(1, 0, 0, 1, 0, 0.0007)",
+        "mixBlendMode": "normal",
+        "display": "flex",
+        "visible": true,
+        "lineas": [
+          {
+            "line": 1,
+            "text": "Iker Goikoetxea",
+            "color": "rgb(67, 27, 68)",
+            "box": {
+              "x": 67.14,
+              "y": 541.34,
+              "w": 67.7,
+              "h": 11.99,
+              "xViewport": 83.14,
+              "yViewport": 557.34
+            }
+          },
+          {
+            "line": 2,
+            "text": "Director de compras · Betsaide",
+            "color": "rgba(67, 27, 68, 0.4)",
+            "box": {
+              "x": 67.14,
+              "y": 554.12,
+              "w": 113.15,
+              "h": 10.39,
+              "xViewport": 83.14,
+              "yViewport": 570.12
+            }
+          },
+          {
+            "line": 3,
+            "text": "94%",
+            "color": "rgb(67, 27, 68)",
+            "box": {
+              "x": 300.69,
+              "y": 546.13,
+              "w": 18.69,
+              "h": 11.99,
+              "xViewport": 316.69,
+              "yViewport": 562.13
+            }
+          }
+        ]
+      },
+      {
+        "name": "fila-3",
+        "box": {
+          "x": 32.04,
+          "y": 585.36,
+          "w": 293.92,
+          "h": 35.94,
+          "xViewport": 48.04,
+          "yViewport": 601.36
+        },
+        "text": "Ane Larrañaga\n\nDirectora de operaciones · Arania\n\n91%",
+        "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(67, 27, 68)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgba(67, 27, 68, 0.05) / bottom 1px solid rgba(67, 27, 68, 0.05)",
+        "borderRadius": "0px",
+        "padding": "0px 0px 12px",
+        "opacity": "0.9953",
+        "filter": "none",
+        "backdropFilter": "none",
+        "transform": "matrix(0.9996, 0, 0, 0.9996, 0, 0.0846)",
+        "mixBlendMode": "normal",
+        "display": "flex",
+        "visible": true,
+        "lineas": [
+          {
+            "line": 1,
+            "text": "Ane Larrañaga",
+            "color": "rgb(67, 27, 68)",
+            "box": {
+              "x": 67.18,
+              "y": 586.96,
+              "w": 65.22,
+              "h": 11.98,
+              "xViewport": 83.18,
+              "yViewport": 602.96
+            }
+          },
+          {
+            "line": 2,
+            "text": "Directora de operaciones · Arania",
+            "color": "rgba(67, 27, 68, 0.4)",
+            "box": {
+              "x": 67.18,
+              "y": 599.73,
+              "w": 122.73,
+              "h": 10.38,
+              "xViewport": 83.18,
+              "yViewport": 615.73
+            }
+          },
+          {
+            "line": 3,
+            "text": "91%",
+            "color": "rgb(67, 27, 68)",
+            "box": {
+              "x": 300.64,
+              "y": 591.75,
+              "w": 18.68,
+              "h": 11.98,
+              "xViewport": 316.64,
+              "yViewport": 607.75
+            }
+          }
+        ]
+      },
+      {
+        "name": "fila-4",
+        "box": {
+          "x": 32.44,
+          "y": 631.44,
+          "w": 293.13,
+          "h": 35.84,
+          "xViewport": 48.44,
+          "yViewport": 647.44
+        },
+        "text": "Naroa Iturbe\n\nDirectora de planta · Fagor Automation\n\n88%",
+        "fontFamily": "switzer, \"switzer Fallback\", Inter, \"Inter Fallback\", system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(67, 27, 68)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgba(67, 27, 68, 0.05) / bottom 1px solid rgba(67, 27, 68, 0.05)",
+        "borderRadius": "0px",
+        "padding": "0px 0px 12px",
+        "opacity": "0.9613",
+        "filter": "none",
+        "backdropFilter": "none",
+        "transform": "matrix(0.9969, 0, 0, 0.9969, 0, 0.6972)",
+        "mixBlendMode": "normal",
+        "display": "flex",
+        "visible": true,
+        "lineas": [
+          {
+            "line": 1,
+            "text": "Naroa Iturbe",
+            "color": "rgb(67, 27, 68)",
+            "box": {
+              "x": 67.48,
+              "y": 633.03,
+              "w": 54.33,
+              "h": 11.95,
+              "xViewport": 83.48,
+              "yViewport": 649.03
+            }
+          },
+          {
+            "line": 2,
+            "text": "Directora de planta · Fagor Automation",
+            "color": "rgba(67, 27, 68, 0.4)",
+            "box": {
+              "x": 67.48,
+              "y": 645.78,
+              "w": 140.1,
+              "h": 10.35,
+              "xViewport": 83.48,
+              "yViewport": 661.78
+            }
+          },
+          {
+            "line": 3,
+            "text": "88%",
+            "color": "rgb(67, 27, 68)",
+            "box": {
+              "x": 300.31,
+              "y": 637.81,
+              "w": 18.63,
+              "h": 11.95,
+              "xViewport": 316.31,
+              "yViewport": 653.81
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "todasLasTarjetas": [
+    {
+      "i": 0,
+      "box": {
+        "x": 24.15,
+        "y": 287.89,
+        "w": 309.7,
+        "h": 176.1,
+        "xViewport": 40.15,
+        "yViewport": 303.89
+      },
+      "opacity": "0.28",
+      "filter": "none",
+      "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+      "titulo": "Neety encontró empresas que encajan"
+    },
+    {
+      "i": 1,
+      "box": {
+        "x": 16,
+        "y": 478.21,
+        "w": 326,
+        "h": 204.55,
+        "xViewport": 32,
+        "yViewport": 494.21
+      },
+      "opacity": "1",
+      "filter": "none",
+      "transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "titulo": "3 personas clave encontradas"
+    },
+    {
+      "i": 2,
+      "box": {
+        "x": 24.15,
+        "y": 695.93,
+        "w": 309.7,
+        "h": 135.87,
+        "xViewport": 40.15,
+        "yViewport": 711.93
+      },
+      "opacity": "0.28",
+      "filter": "none",
+      "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+      "titulo": "Iker empieza a activarse"
+    },
+    {
+      "i": 3,
+      "box": {
+        "x": 24.15,
+        "y": 847,
+        "w": 309.7,
+        "h": 77.43,
+        "xViewport": 40.15,
+        "yViewport": 863
+      },
+      "opacity": "0.28",
+      "filter": "none",
+      "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+      "titulo": "Señal: Betsaide cerró una ronda de financiación"
+    },
+    {
+      "i": 4,
+      "box": {
+        "x": 24.15,
+        "y": 939.26,
+        "w": 309.7,
+        "h": 121.75,
+        "xViewport": 40.15,
+        "yViewport": 955.26
+      },
+      "opacity": "0.28",
+      "filter": "none",
+      "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+      "titulo": "Neety te preparó el mensaje"
+    },
+    {
+      "i": 5,
+      "box": {
+        "x": 24.15,
+        "y": 1075.71,
+        "w": 309.7,
+        "h": 72.87,
+        "xViewport": 40.15,
+        "yViewport": 1091.71
+      },
+      "opacity": "0.28",
+      "filter": "none",
+      "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+      "titulo": "Iker respondió: “Me interesa, hablemos”"
+    },
+    {
+      "i": 6,
+      "box": {
+        "x": 24.15,
+        "y": 1161.97,
+        "w": 309.7,
+        "h": 71.35,
+        "xViewport": 40.15,
+        "yViewport": 1177.97
+      },
+      "opacity": "0.28",
+      "filter": "none",
+      "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+      "titulo": "Reunión agendada"
+    }
+  ],
+  "fondo": [
+    {
+      "class": "home-hero-bg-mobile absolute -inset-px bg-cover bg-center lg:hidden",
+      "display": "block",
+      "box": {
+        "x": -1,
+        "y": -1,
+        "w": 360,
+        "h": 755.14,
+        "xViewport": 15,
+        "yViewport": 15
+      },
+      "backgroundImage": "url(\"http://localhost:3159/assets/hero-bg-mobile-v5.avif\")",
+      "backgroundSize": "cover",
+      "backgroundPosition": "50% 50%",
+      "backgroundRepeat": "no-repeat",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "1",
+      "mixBlendMode": "normal",
+      "filter": "none",
+      "maskImage": "url(\"http://localhost:3159/assets/hero-notch-tr.svg\"), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
+      "maskSize": "69.141px 66.829px, cover",
+      "maskPosition": "100% 0%, 0px 0px",
+      "maskRepeat": "no-repeat, no-repeat",
+      "maskComposite": "exclude, exclude",
+      "webkitMaskComposite": "exclude, exclude"
+    },
+    {
+      "class": "home-hero-bg absolute -left-px right-0 top-0 -bottom-px hidden bg-cover bg-center lg:block",
+      "display": "none",
+      "box": {
+        "x": -16,
+        "y": -16,
+        "w": 0,
+        "h": 0,
+        "xViewport": 0,
+        "yViewport": 0
+      },
+      "backgroundImage": "url(\"http://localhost:3159/assets/hero-bg-v4.avif\")",
+      "backgroundSize": "cover",
+      "backgroundPosition": "50% 50%",
+      "backgroundRepeat": "no-repeat",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "opacity": "1",
+      "mixBlendMode": "normal",
+      "filter": "none",
+      "maskImage": "url(\"http://localhost:3159/assets/hero-notch.svg\"), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
+      "maskSize": "355px auto, cover",
+      "maskPosition": "0% 100%, 0px 0px",
+      "maskRepeat": "no-repeat, no-repeat",
+      "maskComposite": "exclude, exclude",
+      "webkitMaskComposite": "exclude, exclude"
+    }
+  ],
+  "fondoWrapper": {
+    "box": {
+      "x": 0,
+      "y": 0,
+      "w": 358,
+      "h": 753.14,
+      "xViewport": 16,
+      "yViewport": 16
+    },
+    "borderRadius": "16px",
+    "overflow": "hidden",
+    "zIndex": "-10"
+  },
+  "capturadoMsTrasLoad": 6013
+}
