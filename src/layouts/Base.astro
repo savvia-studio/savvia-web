@@ -41,10 +41,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:image" content={new URL('/og.jpg?v=156', Astro.site)} />
     <!-- RONDA 156 · Eric: «sin isotipo, el favicon es el fondo principal, que cambia con la estación; el árbol en pequeño»: uno por estación
          (tools/r156-favicon.cjs); el script de abajo pone el de la estación antes del primer pintado y lo cambia con ella -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon-otono.png?v=157" data-icono-apple />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-otono.png?v=187" data-icono-apple />
     <!-- Borrador: no indexar hasta tener licencias de fuentes y visto bueno. -->
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-otono.png?v=157" data-icono />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-otono.png?v=187" data-icono />
     <meta name="theme-color" content="#3b231b" />
     <Font cssVariable="--font-family-display" preload />
     <Font cssVariable="--font-timeless-sans" preload />
@@ -67,8 +67,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         document.querySelector('meta[name="theme-color"]').setAttribute('content', c);
         // ronda 156: el favicon de la estación (y el de iPhone), ahora y cada vez que cambie. Eric: «¿el cambio puede ser smooth?»: al cambiar, los dos
         // iconos se FUNDEN en un lienzo de 64 px (1,2 s, 12 pasos; el href va cambiando a un data: URL) y al acabar queda el PNG de la estación nueva.
-        // (Safari ignora los cambios de favicon en caliente: ahí se ve el de la carga.) ?v=157: Chrome guardaba un 404 de cuando aún no existían los PNG.
-        var V = '157', srcIcono = function (est) { return '/favicon-' + est + '.png?v=' + V; };
+        // (Safari ignora los cambios de favicon en caliente: ahí se ve el de la carga.) ?v=187: Chrome guardaba un 404 de cuando aún no existían los PNG.
+        var V = '187', srcIcono = function (est) { return '/favicon-' + est + '.png?v=' + V; };
         var icono = function (est) {
           var a = document.querySelector('[data-icono]'), b = document.querySelector('[data-icono-apple]');
           if (a) a.setAttribute('href', srcIcono(est));
