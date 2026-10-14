@@ -1,0 +1,237 @@
+{
+ "A1-brote": {
+  "dir": "Brote",
+  "nombre": "Dos cotiledones",
+  "idea": "La doble v de savvia es una semilla que germina: dos hojas que nacen del mismo punto.",
+  "capas": [
+   [
+    "fill",
+    "#F5F5F7",
+    "M48.00 58.00 C49.63 44.65 40.41 32.86 27.07 31.21 C25.44 44.56 34.65 56.35 48.00 58.00 Z"
+   ],
+   [
+    "fill",
+    "#F5F5F7",
+    "M48.00 58.00 C61.35 56.35 70.56 44.56 68.93 31.21 C55.59 32.86 46.37 44.65 48.00 58.00 Z"
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M48 58 L48 82",
+    4
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M48.00 58.00 C49.63 44.65 40.41 32.86 27.07 31.21 C25.44 44.56 34.65 56.35 48.00 58.00 Z\" fill=\"#F5F5F7\"/><path d=\"M48.00 58.00 C61.35 56.35 70.56 44.56 68.93 31.21 C55.59 32.86 46.37 44.65 48.00 58.00 Z\" fill=\"#F5F5F7\"/><path d=\"M48 58 L48 82\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+ },
+ "A2-brote-gota": {
+  "dir": "Brote",
+  "nombre": "Semilla y brote",
+  "idea": "Una gota de savia (la semilla) de la que salen las dos hojas: lo que alimenta y lo que crece.",
+  "capas": [
+   [
+    "fill",
+    "#FF616B",
+    "M48.00 47.00 L57.85 61.14 A12 12 0 1 1 38.15 61.14 Z"
+   ],
+   [
+    "fill",
+    "#F5F5F7",
+    "M48.00 45.00 C48.51 34.36 40.57 25.53 29.93 24.94 C29.42 35.57 37.37 44.40 48.00 45.00 Z"
+   ],
+   [
+    "fill",
+    "#F5F5F7",
+    "M48.00 45.00 C58.63 44.40 66.58 35.57 66.07 24.94 C55.43 25.53 47.49 34.36 48.00 45.00 Z"
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M48.00 47.00 L57.85 61.14 A12 12 0 1 1 38.15 61.14 Z\" fill=\"#FF616B\"/><path d=\"M48.00 45.00 C48.51 34.36 40.57 25.53 29.93 24.94 C29.42 35.57 37.37 44.40 48.00 45.00 Z\" fill=\"#F5F5F7\"/><path d=\"M48.00 45.00 C58.63 44.40 66.58 35.57 66.07 24.94 C55.43 25.53 47.49 34.36 48.00 45.00 Z\" fill=\"#F5F5F7\"/></svg>"
+ },
+ "A3-vv": {
+  "dir": "Brote",
+  "nombre": "vv de trazo",
+  "idea": "Las dos v dibujadas con un trazo continuo: los extremos se abren en hoja.",
+  "capas": [
+   [
+    "stroke",
+    "#F5F5F7",
+    "M20 30 Q27 52 34 68 Q41 52 48 36 Q55 52 62 68 Q69 52 76 30",
+    5.5
+   ],
+   [
+    "fill",
+    "#F5F5F7",
+    "M76.00 31.00 C82.00 29.61 85.30 23.90 83.50 18.01 C77.50 19.40 74.20 25.11 76.00 31.00 Z"
+   ],
+   [
+    "fill",
+    "#F5F5F7",
+    "M20.00 31.00 C21.80 25.11 18.50 19.40 12.50 18.01 C10.70 23.90 14.00 29.61 20.00 31.00 Z"
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M20 30 Q27 52 34 68 Q41 52 48 36 Q55 52 62 68 Q69 52 76 30\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"5.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M76.00 31.00 C82.00 29.61 85.30 23.90 83.50 18.01 C77.50 19.40 74.20 25.11 76.00 31.00 Z\" fill=\"#F5F5F7\"/><path d=\"M20.00 31.00 C21.80 25.11 18.50 19.40 12.50 18.01 C10.70 23.90 14.00 29.61 20.00 31.00 Z\" fill=\"#F5F5F7\"/></svg>"
+ },
+ "B1-anillos": {
+  "dir": "Anillos",
+  "nombre": "El corte del tronco",
+  "idea": "Cuatro anillos (lo que hemos ido creciendo) y la savia que los atraviesa hasta el centro.",
+  "capas": [
+   [
+    "stroke",
+    "#F5F5F7",
+    "M55.07 42.43 A9.0 9.0 0 1 1 50.81 39.45",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M59.48 36.14 A16.5 16.5 0 1 1 55.22 33.16",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M63.81 29.95 A24.0 24.0 0 1 1 59.56 26.96",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M68.14 23.78 A31.5 31.5 0 1 1 63.88 20.79",
+    3.6
+   ],
+   [
+    "stroke",
+    "#FF616B",
+    "M48 48 L68.65 18.51",
+    3.6
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M55.07 42.43 A9.0 9.0 0 1 1 50.81 39.45\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M59.48 36.14 A16.5 16.5 0 1 1 55.22 33.16\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M63.81 29.95 A24.0 24.0 0 1 1 59.56 26.96\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M68.14 23.78 A31.5 31.5 0 1 1 63.88 20.79\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M48 48 L68.65 18.51\" fill=\"none\" stroke=\"#FF616B\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+ },
+ "B2-anillos-exc": {
+  "dir": "Anillos",
+  "nombre": "Anillos excéntricos",
+  "idea": "Como en un roble de verdad, los anillos crecen más hacia un lado: el centro, la savia.",
+  "capas": [
+   [
+    "stroke",
+    "#F5F5F7",
+    "M40.00 50.00 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0",
+    3.4
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M35.00 48.40 a15 15 0 1 0 30 0 a15 15 0 1 0 -30 0",
+    3.4
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M30.00 46.80 a22 22 0 1 0 44 0 a22 22 0 1 0 -44 0",
+    3.4
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M25.00 45.20 a29 29 0 1 0 58 0 a29 29 0 1 0 -58 0",
+    3.4
+   ],
+   [
+    "fill",
+    "#FF616B",
+    "M45 50 a3.4 3.4 0 1 0 6.8 0 a3.4 3.4 0 1 0 -6.8 0"
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M40.00 50.00 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M35.00 48.40 a15 15 0 1 0 30 0 a15 15 0 1 0 -30 0\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30.00 46.80 a22 22 0 1 0 44 0 a22 22 0 1 0 -44 0\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M25.00 45.20 a29 29 0 1 0 58 0 a29 29 0 1 0 -58 0\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M45 50 a3.4 3.4 0 1 0 6.8 0 a3.4 3.4 0 1 0 -6.8 0\" fill=\"#FF616B\"/></svg>"
+ },
+ "B3-ese": {
+  "dir": "Anillos",
+  "nombre": "La s de anillos",
+  "idea": "Tres anillos que corren en paralelo y dibujan la s de savvia: la savia que sube por el tronco.",
+  "capas": [
+   [
+    "stroke",
+    "#F5F5F7",
+    "M48.00 38.00 A8 8 0 1 1 55.25 26.62",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M48.00 38.00 A20 20 0 1 1 29.87 66.45",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M48.00 44.00 A14 14 0 1 1 60.69 24.08",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M48.00 44.00 A14 14 0 1 1 35.31 63.92",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M48.00 50.00 A20 20 0 1 1 66.13 21.55",
+    3.6
+   ],
+   [
+    "stroke",
+    "#F5F5F7",
+    "M48.00 50.00 A8 8 0 1 1 40.75 61.38",
+    3.6
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M48.00 38.00 A8 8 0 1 1 55.25 26.62\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M48.00 38.00 A20 20 0 1 1 29.87 66.45\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M48.00 44.00 A14 14 0 1 1 60.69 24.08\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M48.00 44.00 A14 14 0 1 1 35.31 63.92\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M48.00 50.00 A20 20 0 1 1 66.13 21.55\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M48.00 50.00 A8 8 0 1 1 40.75 61.38\" fill=\"none\" stroke=\"#F5F5F7\" stroke-width=\"3.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+ },
+ "C1-gota-s": {
+  "dir": "Savia",
+  "nombre": "Gota con s",
+  "idea": "Una gota de savia con la s calada por dentro: la marca entera en una sola forma.",
+  "capas": [
+   [
+    "fill",
+    "#FF616B",
+    "M48.00 12.00 L67.32 47.48 A22 22 0 1 1 28.68 47.48 Z"
+   ],
+   [
+    "knock",
+    "#3B231B",
+    "M56 44 C56 37 40 37 40 44 C40 51 56 51 56 58 C56 66 40 66 40 59",
+    4.6
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M48.00 12.00 L67.32 47.48 A22 22 0 1 1 28.68 47.48 Z\" fill=\"#FF616B\"/><path d=\"M56 44 C56 37 40 37 40 44 C40 51 56 51 56 58 C56 66 40 66 40 59\" fill=\"none\" stroke=\"#3B231B\" stroke-width=\"4.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" data-knock=\"1\"/></svg>"
+ },
+ "C2-gota-nervio": {
+  "dir": "Savia",
+  "nombre": "Gota y nervio",
+  "idea": "La gota se abre arriba en el nervio de una hoja: la savia que sube y se reparte.",
+  "capas": [
+   [
+    "fill",
+    "#F5F5F7",
+    "M48.00 16.00 L65.81 50.91 A20 20 0 1 1 30.19 50.91 Z"
+   ],
+   [
+    "knock",
+    "#3B231B",
+    "M48 74 L48 26 M48 50 L58 40 M48 60 L38 50 M48 40 L40 33",
+    3
+   ]
+  ],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/><path d=\"M48.00 16.00 L65.81 50.91 A20 20 0 1 1 30.19 50.91 Z\" fill=\"#F5F5F7\"/><path d=\"M48 74 L48 26 M48 50 L58 40 M48 60 L38 50 M48 40 L40 33\" fill=\"none\" stroke=\"#3B231B\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" data-knock=\"1\"/></svg>"
+ },
+ "R0-actual": {
+  "dir": "Referencia",
+  "nombre": "El anillo-gota de hoy",
+  "idea": "El isotipo actual (el de Andoni): para medir lo nuevo contra él.",
+  "capas": [],
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 96 96\" width=\"96\" height=\"96\"><rect width=\"96\" height=\"96\" fill=\"#3B231B\"/></svg>"
+ }
+}
