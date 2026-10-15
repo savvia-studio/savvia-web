@@ -3924,3 +3924,4 @@ en mono en el pie.
 - **Fallo de Nilo:** en la ronda 196 di por hecho que «actualizado» era el diff local de `Servicios.astro`; lo editado vivía en la base del artefacto «Servicios de savvia» (https://claude.ai/artifact/R7DC9WNTxZxYMLwFACHezP, `servicios/datos`) y no se leyó.
 - **Hecho (`home.ts › servicios`, leído de esa base):** Consultoría suma Ilustraciones animadas, Animaciones 3D, Interacciones GSAP, Desarrollo agéntico e Integraciones con CMS (de 6 a 11 puntos); «Ilustraciones animadas (Lottie)» → «Ilustraciones animadas»; texto nuevo de End-to-end. Colaboración, sin cambios.
 - **Medido:** `astro check` 0 errores · build OK · la página sirve 11 puntos de Consultoría.
+- **PUBLICADA (15/10):** commit `f8cc923` → la Action (éxito); en vivo, 11 puntos de Consultoría; Chrome y WebKit, 1440 y 390: consola limpia, 0 ≥ 400, desborde 0.
