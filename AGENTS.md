@@ -3934,3 +3934,8 @@ en mono en el pie.
 ### Ronda 199 · 2026-10-15 · el texto del Estudio · PUBLICADA
 - **Eric (textual):** «Los dos de la primera conversación a la última. → Los dos desde la primera conversación a la última.»
 - **Hecho:** `home.ts › estudio.texto`. Publicada por la Action.
+
+### Ronda 200 · 2026-10-15 · el titular del Estudio, un pelín más pequeño (en local, Eric)
+- **Eric (textual):** «El estudio web que orquesta la IA. Un pelín más pequeño de tamaño el titular, creo».
+- **Hecho (`Estudio.astro`, `.titulo-estudio`):** de `text-h1` (44 → 72 px) a `clamp(2.5rem, 1.85rem + 2.6vw, 3.75rem)` (40 → 60 px). Sigue en dos líneas.
+- **Medido:** `astro check` 0 errores · Chrome 1440: 60 px; 390: 40 px (captura). No publicado.
