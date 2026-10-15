@@ -409,7 +409,8 @@ export const servicios = {
       cab: 'Qué incluye la consultoría:',
       d: 'Te ayudamos a decidir qué necesita tu web y a ordenarla para que tu equipo la cambie con IA sin salirse de tu marca.',
       // ronda 197 · Eric, desde el artefacto «Servicios de savvia»: la consultoría también incluye movimiento, desarrollo agéntico y CMS
-      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS', 'Migraciones de Webflow a IA', 'La receta: savvia.md', 'Formación a tu equipo'],
+      // ronda 201 · Eric, artefacto v28: la receta (savvia.md) sale de la consultoría
+      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS', 'Migraciones de Webflow a IA', 'Formación a tu equipo'],
     },
   ],
 };

@@ -3939,3 +3939,7 @@ en mono en el pie.
 - **Eric (textual):** «El estudio web que orquesta la IA. Un pelín más pequeño de tamaño el titular, creo».
 - **Hecho (`Estudio.astro`, `.titulo-estudio`):** de `text-h1` (44 → 72 px) a `clamp(2.5rem, 1.85rem + 2.6vw, 3.75rem)` (40 → 60 px). Sigue en dos líneas.
 - **Medido:** `astro check` 0 errores · Chrome 1440: 60 px; 390: 40 px (captura). No publicado.
+
+### Ronda 201 · 2026-10-15 · Servicios: la receta sale de la consultoría · PUBLICADA
+- **Eric (textual):** «actualiza» (artefacto «Servicios de savvia», versión 28).
+- **Hecho (`home.ts › servicios`):** «La receta: savvia.md» ya no la incluye la Consultoría (queda en 10 puntos); el resto ya coincidía con el artefacto.
