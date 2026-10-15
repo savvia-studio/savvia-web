@@ -171,7 +171,7 @@ import { icono } from '../lib/iconos';
           const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
           const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
-          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
+          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid${c.slug === 'home-of-ambrose' ? ' data-siempre' : ''}><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
           return (
             <>
             {i === 5 && (
@@ -250,7 +250,9 @@ import { icono } from '../lib/iconos';
       v.addEventListener('playing', () => pieza.classList.add('suena'));
       v.addEventListener('pause', () => pieza.classList.remove('suena'));
       if (reducido) return;
-      if (conRaton) {
+      // RONDA 204 · Eric: Home of Ambrose (`data-siempre`) suena siempre en bucle mientras está a la vista, «para que se vea que es vídeo»; el resto, al pasar
+      if (v.hasAttribute('data-siempre')) new IntersectionObserver((e) => tocar(v, e[0].isIntersecting), { threshold: 0.35 }).observe(pieza);
+      else if (conRaton) {
         pieza.addEventListener('pointerenter', () => tocar(v, true));
         pieza.addEventListener('pointerleave', () => tocar(v, false));
         pieza.addEventListener('focusin', () => tocar(v, true));
