@@ -546,7 +546,7 @@ export const partitura = {
   libreria: {
     ruta: 'neety / library',
     titulo: 'La librería de Neety',
-    peticion: 'Monta el hero de la home con el feed de señales. Con nuestro estilo.',
+    peticion: 'Hagamos el hero de la home con el feed de señales. Con nuestro estilo.',
     quien: 'Tu equipo',
     estado: ['Leyendo la librería…', 'Publicado en', 'Listo para publicar'],
     publicar: 'Publicar',

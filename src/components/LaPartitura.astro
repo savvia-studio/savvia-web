@@ -781,7 +781,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         pon(estadoAv, '--c', AG[ag]);
         pon(estadoQuien, '#', NOMBRES[ag]);
       }
-      pon(estadoTxt, '#', m === 'pub' ? ESTADO[1] : m === 'lee' ? ESTADO[0] : m === 'listo' ? ESTADO[2] : 'toma');
+      pon(estadoTxt, '#', m === 'pub' ? ESTADO[1] : m === 'lee' ? ESTADO[0] : m === 'listo' ? ESTADO[2] : 'ha añadido'); // ronda 203 · Eric: «ese "toma" queda raro»: como una notificación
       pon(estadoPieza, '#', m === 'pub' ? 'neety.com' : m === 'toma' ? picks[iAct].label : '');
       pon(estado, '--pub', pub ? '1' : '0');
       pon(estado, '--late', f3(0.5 - 0.5 * Math.cos(2 * Math.PI * t * 0.9)));
