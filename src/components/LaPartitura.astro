@@ -16,6 +16,18 @@
 //   pruebas; no se ven. Anterior: tools/retirados/LaPartitura.r116.astro.txt (y r90–r92).
 import { receta, partitura } from '../data/home';
 import NeetyHero from './neety/NeetyHero.astro';
+import { IAS } from '../data/ias';
+// RONDA 203 · Eric, tras ver el vídeo de Lunagraph: cada cursor lleva su icono delante del nombre: Claude, Codex (OpenAI), Tu equipo (dos personas, Iconoir)
+// y savvia (el favicon de la estación, sobre una píldora de su mismo fondo). Lo mismo en los avatares de la barra y de la píldora de estado.
+const svgIA = (id: string) => `<svg viewBox="0 0 24 24" fill="currentColor">${IAS.find((x) => x.id === id)!.svg}</svg>`;
+// los AVATARES (presencia de la barra, trío y avatar de la píldora de estado): Claude y Codex con su icono; savvia, el favicon de la estación (Eric)
+const avatar = (n: string) => (n === 'savvia' ? '<b class="av-sv"></b>' : ICONO_AGENTE[n]);
+const ICONO_AGENTE: Record<string, string> = {
+  Claude: svgIA('claude'),
+  Codex: svgIA('chatgpt'),
+  savvia: '<i class="fav"></i>',
+  'Tu equipo': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 20v-1a7 7 0 0 1 14 0v1"/><path d="M13 14a5 5 0 0 1 10 0v.5"/><circle cx="8" cy="8" r="4"/><circle cx="18" cy="6" r="3"/></svg>',
+};
 const P = partitura;
 const L = P.libreria;
 // el logotipo de Neety, tal cual está en su web (components/Logo.tsx: wordmark en Ciruela #2A0E2C)
@@ -60,7 +72,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         <div class="barra">
           <span class="semaforo"><i></i><i></i><i></i></span>
           <span class="ruta">{L.ruta}</span>
-          <span class="presencia">{P.agentes.slice(0, 3).map(([n, c]) => <i style={`--c: var(--color-${c})`}>{n.slice(0, 2)}</i>)}</span>
+          <span class="presencia">{P.agentes.slice(0, 3).map(([n, c]) => <i style={`--c: var(--color-${c})`} set:html={avatar(n)}></i>)}</span>
           <span class="publicar" data-publicar>{L.publicar}</span>
         </div>
         <nav class="indice">
@@ -152,15 +164,19 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
           <div class="neety" data-neety data-slot="fondo"><NeetyHero caja /></div>
           <!-- la PETICIÓN de Tu equipo: se teclea en vivo, se envía y se recoge en la píldora de estado -->
           <div class="composer" data-composer>
-            <span class="quien"><i></i>{L.quien}</span>
+            <!-- ronda 203 · Eric: «más fiel al típico chat de Claude o ChatGPT»: el texto arriba y, abajo, «+», el modelo y enviar -->
             <p class="campo"><span data-escrito></span><i class="caret" data-caret></i></p>
+            <span class="pie-chat">
+              <span class="mas" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9" /></svg></span>
+              <span class="modelo"><b set:html={ICONO_AGENTE.Claude}></b>Opus 5.5<svg class="baja" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 6.5 8 9.5l3-3" /></svg></span>
+            </span>
             <span class="enviar" data-enviar><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg></span>
           </div>
           <!-- ronda 188 · la píldora de estado, como un aviso de actividad de la app: quién (su avatar, en su color), qué hace y con qué pieza -->
           <div class="estado" data-estado data-m="lee">
-            <span class="e-trio">{P.agentes.slice(0, 3).map(([n, c]) => <i style={`--c: var(--color-${c})`}>{n.slice(0, 2)}</i>)}</span>
-            <span class="e-av" data-estado-av>Cl</span>
-            <span class="e-ok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5" /></svg></span>
+            <span class="e-trio">{P.agentes.slice(0, 3).map(([n, c]) => <i style={`--c: var(--color-${c})`} set:html={avatar(n)}></i>)}</span>
+            <span class="e-av" data-estado-av data-ag="0">{P.agentes.map(([n], i) => <i data-a={i} set:html={avatar(n)}></i>)}</span>
+            <span class="e-ok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.2 13.6 12.8 2.4 12.8Z" /></svg></span>
             <span class="e-txt"><b data-estado-quien></b><span data-estado-txt>{L.estado[0]}</span><code data-estado-pieza></code></span>
           </div>
         </div>
@@ -169,10 +185,10 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       </div>
 
       {P.agentes.map(([n, c]) => (
-        <div class="cursor" style={`--c: var(--color-${c})`} aria-hidden="true" data-agente>
+        <div class="cursor" style={`--c: var(--color-${c})`} aria-hidden="true" data-agente data-quien={n === 'savvia' ? 'savvia' : undefined}>
           <i class="onda"></i>
           <svg viewBox="0 0 16 16"><path d="M2 1.5 L14 7 L8.4 8.4 L6.2 14 Z" /></svg>
-          <span>{n}</span>
+          <span>{ICONO_AGENTE[n] && <b class="ic" set:html={ICONO_AGENTE[n]}></b>}{n}</span>
         </div>
       ))}
     </div>
@@ -316,6 +332,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     const SW0 = 236, SH0 = 176, KH = 1.2, SW = SW0 * KH, SH = SH0 * KH, HOLD = 40;
     type Caja = { lado: 'in' | 'out'; i: number; g: SVGGElement; x: number; y: number; w: number; h: number; P: number[]; tabla: number[]; hilo: SVGPathElement; pulso: SVGPathElement; cabeza: SVGCircleElement };
     let cajas: Caja[] = [], ins: Caja[] = [], outs: Caja[] = [];
+    let cmsTx: SVGTextElement | null = null; // ronda 203: el aviso del CMS junto a «Subir blog al CMS»
     let cam: SVGGElement, filo: SVGRectElement, gTexto: SVGGElement, filas: { bg: SVGRectElement; ic: SVGRectElement }[] = [], gPub: SVGGElement;
     type Vista = { S: number; cx: number; cy: number };
     let REST: Vista, INS: Vista, INS2: Vista, FOLD: Vista, DENTRO: Vista;
@@ -371,7 +388,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       // un filete, un check fino en savia, «Publicado en neety.com» y, a la derecha, cuándo
       gPub = el('g', { class: 'pub' }, gH);
       el('line', { x1: -SW0 / 2, x2: SW0 / 2, y1: SH0 / 2 - 22, y2: SH0 / 2 - 22, class: 'raya' }, gPub);
-      el('path', { d: `M${-SW0 / 2 + 12} ${SH0 / 2 - 11.5} l2.2 2.2 l4.3 -4.8`, class: 'pub-ok' }, gPub);
+      // ronda 203: el triángulo de Vercel en vez del check
+      el('path', { d: `M${-SW0 / 2 + 16.6} ${SH0 / 2 - 13.6} l2.8 4.8 h-5.6 z`, class: 'pub-vc' }, gPub); // a la altura de las mayúsculas del texto (mono 6,2: base en −9)
       el('text', { x: -SW0 / 2 + 23, y: SH0 / 2 - 9, class: 'fila-n' }, gPub).textContent = 'Publicado en neety.com';
       el('text', { x: SW0 / 2 - 13, y: SH0 / 2 - 9, class: 'fila-m', 'text-anchor': 'end' }, gPub).textContent = 'ahora';
       filo = el('rect', { x: -SW0 / 2, y: -SH0 / 2, width: SW0, height: SH0, rx: 6, class: 'filo' }, gH);
@@ -424,6 +442,12 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         c.tabla = tablaArco(c.P);
         c.hilo.setAttribute('d', dDe(c.P));
         c.pulso.setAttribute('d', dDe(c.P));
+      }
+      // ronda 203 · Eric: «un mensajito de CMS, Sanity por ejemplo; los logos no hacen falta»: a la derecha de «Subir blog al CMS», en escritorio
+      cmsTx = null;
+      if (modo === 'h') {
+        const cms = outs[SALE.findIndex((x) => /CMS/.test(x))];
+        if (cms) { cmsTx = el('text', { class: 'cms', x: f2(cms.w + 10), y: f2(BH / 2 + 4) }, cms.g) as SVGTextElement; cmsTx.textContent = '✓ en Sanity'; }
       }
 
       // ── LA CÁMARA: vistas calculadas de la geometría
@@ -688,6 +712,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         pon(r.g, '--l', f3(luz));
         const pop = r.lado === 'out' ? lerp(0.9, 1, ver) : 1;
         pon(r.g, 'opacity', f3(ver));
+        if (cmsTx && r.lado === 'out' && cmsTx.parentNode === r.g) { const cn = CONS.find((x) => x.o === r.i)!; pon(cmsTx, 'opacity', f3(EZ.sale(prog(t, cn.A + 0.7, cn.A + 1.1)))); }
         pon(r.g, '@transform', `translate(${f2(r.x + (r.w * (1 - pop)) / 2)} ${f2(r.y + (r.h * (1 - pop)) / 2)}) scale(${f3(pop)})`);
       }
 
@@ -738,7 +763,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       pon(caret, 'opacity', t < ENVIA && (Math.floor(t * 2.4) % 2 === 0 || (t > PIDE[0] && t < PIDE[1])) ? '1' : '0');
       pon(composer, 'opacity', f3(ca * (1 - col)));
       pon(composer, 'transform', `translateY(${f2((1 - ca) * 24 + col * 150)}px) scale(${f3(1 - col * 0.18)})`);
-      pon(enviar, '--l', f3(n >= PETICION.length ? 1 : 0));
+      pon(enviar, '--l', f3(n > 0 ? 1 : 0)); // como en Claude: se enciende en cuanto hay texto
       pon(enviar, '--clic', f3(blip(t, ENVIA, 0.3)));
       pon(neety, '--vacio', f3(1 - sm(t, PIEZA.fondo, PIEZA.fondo + 0.6)));
       // el ESTADO: qué agente toma qué de la librería, y al final, publicado
@@ -752,7 +777,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       pon(estado, '@data-m', m);
       if (m === 'toma') {
         const ag = picks[iAct].ag;
-        pon(estadoAv, '#', NOMBRES[ag].slice(0, 2));
+        pon(estadoAv, '@data-ag', String(ag));
         pon(estadoAv, '--c', AG[ag]);
         pon(estadoQuien, '#', NOMBRES[ag]);
       }
@@ -883,6 +908,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     stroke-width: calc(var(--u) * (1px + var(--l, 0) * 0.6px));
   }
   .mapa :global(.rot) { font-family: var(--font-sans); font-size: 13px; fill: var(--tinta); }
+  .mapa :global(.cms) { font-family: var(--font-mono); font-size: 11px; fill: color-mix(in oklab, var(--tinta) 55%, transparent); opacity: 0; }
   /* LA TARJETA de la librería (fuera): papel, barra con su ruta, título y las filas de su árbol */
   .mapa :global(.papel) { fill: var(--hoja-papel); }
   .mapa :global(.filo) { fill: none; stroke-width: calc(var(--u) * (1.2px + var(--g, 0) * 1.3px) / var(--kh, 1)); }
@@ -892,6 +918,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .mapa :global(.titulo) { font-family: var(--font-display); font-size: 14px; fill: var(--tinta); }
   .mapa :global(.fila-n) { font-family: var(--font-mono); font-size: 6.2px; fill: color-mix(in oklab, var(--tinta) 82%, transparent); }
   .mapa :global(.fila-m) { font-family: var(--font-mono); font-size: 5.4px; fill: color-mix(in oklab, var(--tinta) 50%, transparent); }
+  .mapa :global(.pub-vc) { fill: #000; }
   .mapa :global(.pub-ok) { fill: none; stroke: var(--color-coral); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
 
   /* LA LIBRERÍA POR DENTRO (r118): la librería REAL de Neety (Base cálida, Berenjena, Bricolage + Switzer) en miniatura a la izquierda y su home a la derecha.
@@ -1051,31 +1078,38 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
-    gap: 10px 18px;
-    padding: 16px 16px 16px 20px;
-    border-radius: 20px;
-    background: color-mix(in oklab, #fff 88%, transparent);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 0 1px rgb(67 27 68 / 0.1), 0 30px 60px -30px rgb(36 28 25 / 0.45);
-    color: #2a0e2c;
+    gap: 14px 12px;
+    padding: 18px 14px 14px 20px;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(31 30 29 / 0.1), 0 4px 20px -6px rgb(31 30 29 / 0.12), 0 30px 60px -36px rgb(36 28 25 / 0.4);
+    color: #1f1e1d;
     opacity: 0;
   }
-  .quien { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: rgb(42 14 44 / 0.55); }
-  .quien i { width: 8px; height: 8px; border-radius: 50%; background: var(--color-nogal); }
-  .campo { min-height: 56px; font-size: 19px; line-height: 1.35; letter-spacing: -0.005em; }
-  .caret { display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: -0.18em; background: var(--color-coral); }
+  /* el campo, como en Claude: texto grande arriba; vacío, su placeholder en gris */
+  .campo { grid-column: 1 / -1; min-height: 52px; font-size: 18px; line-height: 1.4; letter-spacing: -0.005em; }
+  .campo:has([data-escrito]:empty)::after { content: 'Pide un cambio a tu web…'; color: rgb(31 30 29 / 0.38); }
+  .caret { display: inline-block; width: 1.5px; height: 1.1em; margin-left: 1px; vertical-align: -0.18em; background: #1f1e1d; }
+  .campo:has([data-escrito]:empty) .caret { margin: 0 2px 0 0; }
+  .pie-chat { display: flex; align-items: center; gap: 8px; color: rgb(31 30 29 / 0.6); font-size: 14px; }
+  .mas { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; box-shadow: inset 0 0 0 1px rgb(31 30 29 / 0.14); }
+  .mas svg, .modelo .baja { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .modelo { display: flex; align-items: center; gap: 6px; padding: 0 6px 0 4px; height: 32px; border-radius: 10px; }
+  .modelo b { display: grid; width: 15px; height: 15px; color: #d97757; }
+  .modelo b :global(svg) { width: 100%; height: 100%; }
+  .modelo .baja { width: 13px; height: 13px; }
+  /* enviar: el cuadrado redondeado de Claude, apagado hasta que hay texto (--l) */
   .enviar {
     align-self: end;
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: color-mix(in oklab, #2a0e2c calc(25% + var(--l, 0) * 75%), transparent);
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: color-mix(in oklab, #d97757 calc(30% + var(--l, 0) * 70%), #fff);
     scale: calc(1 - var(--clic, 0) * 0.14);
   }
-  .enviar svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .enviar svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
   /* LA PÍLDORA DE ESTADO (ronda 188): un aviso de actividad de la propia app, en claro sobre la home: avatar del agente en su color, nombre, acción y la pieza en
      una etiqueta mono; al leer y al estar listo, los tres avatares; al publicar, un check en savia y el dominio */
   .estado {
@@ -1104,8 +1138,9 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .e-av { background: var(--c, #431b44); transition: background-color 0.3s; }
   .e-trio { display: flex; padding-left: 6px; }
   .e-trio i { margin-left: -6px; background: var(--c); box-shadow: 0 0 0 2px #fff; }
-  .e-ok { background: var(--color-coral); }
-  .e-ok svg { width: 13px; height: 13px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  /* ronda 203 · Eric: «cuando ponemos publicado, el icono de Vercel»: su triángulo, blanco sobre negro (antes un check en savia) */
+  .e-ok { background: #000; }
+  .e-ok svg { width: 12px; height: 12px; fill: #fff; translate: 0 -0.5px; }
   .e-txt { display: flex; align-items: center; gap: 6px; }
   .e-txt b { font-weight: 500; }
   .e-txt span { color: rgb(42 14 44 / 0.55); }
@@ -1176,9 +1211,9 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .app.v .fc-x { display: none; }
   .app.v .fc-pre { height: 70px; }
   .app.v .lienzo { padding: 12px; border-left: 0; border-top: 1px solid var(--linea); }
-  .app.v .composer { left: calc(50% - 224px); top: calc(46% - 54px); width: 448px; padding: 14px 14px 14px 16px; border-radius: 16px; gap: 8px 12px; }
-  .app.v .quien { font-size: 11px; }
+  .app.v .composer { left: calc(50% - 224px); top: calc(46% - 54px); width: 448px; padding: 14px 12px 12px 16px; border-radius: 18px; gap: 10px; }
   .app.v .campo { min-height: 44px; font-size: 16px; }
+  .app.v .pie-chat { font-size: 13px; }
   .app.v .enviar { width: 32px; height: 32px; }
   .app.v .estado { right: 14px; bottom: 14px; gap: 8px; font-size: 11.5px; padding: 5px 11px 5px 5px; }
   .app.v .e-av, .app.v .e-ok, .app.v .e-trio i { width: 20px; height: 20px; font-size: 9px; }
@@ -1192,6 +1227,30 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .cine.v .cursor span { font-size: 0.6875rem; left: 11px; top: 13px; }
   .cine.v .cursor svg { width: 14px; height: 14px; }
   .quieta .cursor { display: none; }
+  /* RONDA 203 · los iconos de los cursores */
+  .cursor span { display: inline-flex; align-items: center; gap: 0.35em; }
+  .cursor span:has(.ic) { padding-left: 0.45em; }
+  .cursor .ic { display: inline-grid; place-items: center; width: 12px; height: 12px; flex: none; }
+  .cursor .ic :global(svg) { width: 100%; height: 100%; display: block; }
+  .cine.v .cursor .ic { width: 10px; height: 10px; }
+  /* savvia: el favicon de la estación (el árbol, en la mitad baja: se sube 2 px para casar con el texto), sobre una píldora de su mismo fondo */
+  .cursor .ic :global(.fav) { width: 16px; height: 16px; border-radius: 3px; background: url(/favicon-otono.png?v=196) center / cover; translate: 0 -3.5px; }
+  .cursor[data-quien='savvia'] .ic { width: 16px; height: 16px; }
+  .cursor[data-quien='savvia'] span { gap: 0.5em; }
+  :global(html[data-estacion='invierno']) .cursor .ic :global(.fav) { background-image: url(/favicon-invierno.png?v=196); }
+  :global(html[data-estacion='primavera']) .cursor .ic :global(.fav) { background-image: url(/favicon-primavera.png?v=196); }
+  :global(html[data-estacion='verano']) .cursor .ic :global(.fav) { background-image: url(/favicon-verano.png?v=196); }
+  .cursor[data-quien='savvia'] span { background: var(--noche); color: #f5f5f7; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14); transition: background-color 2.4s, color 2.4s; }
+  :global(html[data-estacion='invierno']) .cursor[data-quien='savvia'] span { color: #22303e; box-shadow: 0 0 0 1px rgb(34 48 62 / 0.16); }
+  :is(.presencia, .e-trio, .e-av) i :global(svg[stroke]) { fill: none; stroke: #fff; }
+  /* los avatares con icono: el de la IA en blanco sobre su color; savvia, su favicon (el de la estación) a sangre */
+  :is(.presencia, .e-trio, .e-av) i :global(svg) { width: 55%; height: 55%; display: block; fill: #fff; }
+  .e-av i { display: none; }
+  .e-av[data-ag='0'] i[data-a='0'], .e-av[data-ag='1'] i[data-a='1'], .e-av[data-ag='2'] i[data-a='2'], .e-av[data-ag='3'] i[data-a='3'] { display: contents; }
+  :is(.presencia, .e-trio, .e-av) :global(.av-sv) { width: 100%; height: 100%; border-radius: 50%; background: url(/favicon-otono.png?v=196) center / cover; }
+  :global(html[data-estacion='invierno']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-invierno.png?v=196); }
+  :global(html[data-estacion='primavera']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-primavera.png?v=196); }
+  :global(html[data-estacion='verano']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-verano.png?v=196); }
   /* pie de foto de la ilustración (Eric): pegado a ella, pequeño y apagado */
   /* PRUEBA pie-figura (Eric): «Il. 1» (abreviatura de la RAE; antes «Ilus.») delante del texto (el filete, probado y quitado). Para revertir: .nota con solo
      margin-top 32 px, max-width 60ch y text-wrap: balance, y en el marcado el texto sin los dos <span>. */
