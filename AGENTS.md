@@ -3918,3 +3918,9 @@ en mono en el pie.
 - **Hecho:** los ocho PNG de la ronda 156 (el fondo de la estación con el árbol en pequeño) vuelven a `public/` desde `tools/retirados/favicon-r156/`; los del roble de la ronda 187, a `tools/retirados/favicon-r187/`. Caché `?v=187` → `?v=196` (Base.astro y Libro.astro). Sube también lo que había en local: rondas 192–195 y los cambios de Servicios de Eric.
 - **Medido:** `astro check` 0 errores · `astro build` OK (25 páginas) · `spacing-lint`: solo `NeetyHero.astro:227 px-10` (la réplica de Neety, con sus medidas).
 - **PUBLICADA (15/10) en https://savvia.studio:** commit `7f2c0e0` → la Action «Publicar en Vercel» (éxito). Medido EN VIVO (Chrome y WebKit, 1440 y 390, / y /proyectos, bajando la página entera): consola limpia, 0 respuestas ≥ 400, desborde 0; `favicon-otono.png?v=196` servido (200). Sigue `noindex`.
+
+### Ronda 197 · 2026-10-15 · Servicios, con lo editado por Eric en el artefacto · PUBLICADA
+- **Eric (textual):** «del artefacto ya he actualizado los servicios» · «en consultoría no has actualizado los servicios».
+- **Fallo de Nilo:** en la ronda 196 di por hecho que «actualizado» era el diff local de `Servicios.astro`; lo editado vivía en la base del artefacto «Servicios de savvia» (https://claude.ai/artifact/R7DC9WNTxZxYMLwFACHezP, `servicios/datos`) y no se leyó.
+- **Hecho (`home.ts › servicios`, leído de esa base):** Consultoría suma Ilustraciones animadas, Animaciones 3D, Interacciones GSAP, Desarrollo agéntico e Integraciones con CMS (de 6 a 11 puntos); «Ilustraciones animadas (Lottie)» → «Ilustraciones animadas»; texto nuevo de End-to-end. Colaboración, sin cambios.
+- **Medido:** `astro check` 0 errores · build OK · la página sirve 11 puntos de Consultoría.

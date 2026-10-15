@@ -387,7 +387,7 @@ export const servicios = {
   // RONDA 132 · los dieciséis puntos, en sus cuatro grupos (los mismos de la tabla de la ronda 73): la tarjeta de cada forma los marca con un check
   grupos: [
     { n: 'Estrategia', items: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web'] },
-    { n: 'Diseño y movimiento', items: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP'] },
+    { n: 'Diseño y movimiento', items: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP'] },
     { n: 'Desarrollo', items: ['Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje', 'Migraciones de Webflow y WordPress a IA', 'SEO técnico', 'Accesibilidad y rendimiento'] },
     { n: 'Después', items: ['La receta: savvia.md', 'Formación a tu equipo'] },
   ],
@@ -395,20 +395,21 @@ export const servicios = {
     {
       corto: 'End-to-end',
       cab: 'Qué incluye el end-to-end:',
-      d: 'De la primera conversación a la web publicada: la pensamos, la diseñamos y la construimos contigo, y te la dejamos lista para que tu equipo la lleve con IA.',
-      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje', 'Migraciones de Webflow y WordPress a IA', 'SEO técnico', 'Accesibilidad y rendimiento', 'Auditoría de tu web', 'La receta: savvia.md', 'Formación a tu equipo'],
+      d: 'Desde la primera conversación hasta la web publicada: pensamos, diseñamos y la construimos contigo, y te la dejamos lista para que tu equipo la siga elevando con IA.',
+      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje', 'Migraciones de Webflow y WordPress a IA', 'SEO técnico', 'Accesibilidad y rendimiento', 'Auditoría de tu web', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
     {
       corto: 'Colaboración',
       cab: 'Qué incluye la colaboración:',
       d: 'Nos sumamos a tu equipo o a tu agencia en la parte que más lo necesite: el diseño, el movimiento o el desarrollo.',
-      tags: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje'],
+      tags: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje'],
     },
     {
       corto: 'Consultoría',
       cab: 'Qué incluye la consultoría:',
       d: 'Te ayudamos a decidir qué necesita tu web y a ordenarla para que tu equipo la cambie con IA sin salirse de tu marca.',
-      tags: ['Narrativa de la web', 'Auditoría de tu web', 'Arquitectura de contenidos', 'Migraciones de Webflow y WordPress a IA', 'La receta: savvia.md', 'Formación a tu equipo'],
+      // ronda 197 · Eric, desde el artefacto «Servicios de savvia»: la consultoría también incluye movimiento, desarrollo agéntico y CMS
+      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Migraciones de Webflow y WordPress a IA', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
   ],
 };
