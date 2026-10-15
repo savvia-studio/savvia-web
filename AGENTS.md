@@ -3943,3 +3943,8 @@ en mono en el pie.
 ### Ronda 201 · 2026-10-15 · Servicios: la receta sale de la consultoría · PUBLICADA
 - **Eric (textual):** «actualiza» (artefacto «Servicios de savvia», versión 28).
 - **Hecho (`home.ts › servicios`):** «La receta: savvia.md» ya no la incluye la Consultoría (queda en 10 puntos); el resto ya coincidía con el artefacto.
+
+### Ronda 202 · 2026-10-15 · «Más proyectos» como en el artefacto de fondos · PUBLICADA
+- **Eric (textual):** «he actualizado el artefacto de proyectos; actualiza» (sus ajustes pegados del artefacto «Fondos de proyectos»).
+- **Hecho:** `home.ts › anteriores` en el orden nuevo (Wisable · Home of Ambrose en la mesa · Kymatio · Cubbo · Transcend · Monad · Neety en el móvil · THX; Remerge sale de la home y sigue en /proyectos) con los colores retocados por Eric. `Anteriores.astro › SITIO`: proporción, giro y la posición del navegador de cada pieza (`m`: x, y y ancho en %, `--mx/--top/--mw`); la mesa a zoom 2,88 centrada; las webs sin grabación en móvil (`CON_MOVIL`) enseñan en el teléfono la de escritorio recortada. Todas con el degradado de hoy. El slider de /proyectos no se toca (sus fondos generados eran de la prueba «Repartir estilos»).
+- **Medido:** `astro check` 0 errores · build OK · Chrome sin ventana 1440 y 390 sobre `astro preview`: las ocho piezas en su orden, sin errores, desborde 0.

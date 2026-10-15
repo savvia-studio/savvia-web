@@ -31,6 +31,8 @@ const CELDAS = proyectos.celdas, T = proyectos.testimonios;
 // RONDA 76 · «los logos, más grandes y proporcionales cada uno a su logo»: mismo PESO ÓPTICO para todos (área constante): ancho ∝ √proporción,
 // alto ∝ 1/√proporción, con la proporción leída del archivo (viewBox del SVG o cabecera del PNG) al compilar.
 import sharp from 'sharp';
+// las webs que tienen grabación en móvil (<slug>-movil.mp4); las demás, en el móvil, enseñan la de escritorio recortada
+const CON_MOVIL = new Set(['remerge']);
 const PROP: Record<string, number> = {};
 for (const url of new Set([...CELDAS.flat().map((it) => it.logo)].filter(Boolean) as string[])) {
   try { const m = await sharp(`public${url}`).metadata(); PROP[url] = (m.width ?? 3) / (m.height ?? 1); } catch { PROP[url] = 3; }
@@ -53,25 +55,21 @@ const talla = (url: string, k = 1) => {
 // numerados a la derecha y el muro de logotipos en baldosas, cada logotipo una máscara en el color del texto) y TESTIMONIOS tras la tercera (la captura de
 // Andoni: franja oscura a sangre, una línea sobre cada uno, el RETRATO grabado —la imagen la prepara Andoni; sin ella, la tarjeta empieza por la cita—,
 // el nombre y el cargo). Fuera las voces que rotaban, el reproductor dormido y la flora.
-type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble' | 'tel'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean; fondo?: string; barrido?: number };
+type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble' | 'tel'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean; fondo?: string; barrido?: number; m?: [number, number, number] };
 // Los DEGRADADOS salen de los colores de la web de cada cliente (home.ts › color); las escenas no llevan degradado (llevan la mesa).
 // RONDA 40 · «los testimonios ponemos menos cantidad y que sean animados y vayan rotando; si se nos ocurre alguna manera original de mostrarlos,
 // mejor»: TRES voces en un solo sitio del mosaico, junto a Isotrol. Cada cita entra palabra a palabra (el gesto de los titulares), un hilo de savia
 // mide su tiempo bajo el nombre de quien la dice, y si habla de un proyecto del mosaico, ese proyecto se SEÑALA (un punto de savia en su pie).
 const SITIO: Sitio[] = [
-  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5 }, // Home of Ambrose (ronda 191), en el sitio de la antigua pieza de entrada
-  // RONDA 190 · Eric: «me convence más lo anterior [el paisaje barrido], lo veo más dinámico; no quiero que todo siga el mismo patrón: mostrar los
-  // proyectos con diferentes vistas». Se mezclan las vistas: paisaje barrido con navegador ladeado (Kymatio, Remerge, THX y la entrada) · la MESA con la
-  // web en el monitor (Wisable, en la estación de la web) · DEGRADADO de su marca con navegador ladeado (Monad, Cubbo) · navegador RECTO sobre su color
-  // (Transcend) · el MÓVIL sobre la mesa con su web en móvil (Remerge). Filas: entrada + 0 + 1 · 2 + 3 · (testimonio) · 4 + 5 + 6.
-  // Eric: «poner de forma central la del ordenador y la de la derecha con gradiente» (y «ahí no tiene que ir con blur»: Kymatio, su degradado)
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'escena', est: 'otono', zoom: 3.3, cy: 0.6 },
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 5 },
-  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 6, izq: true },
-  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'claro', g: 'g-marca' },
-  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 5 },
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'movil', zoom: 2.5, cy: 0.5 }, // zoom 2,5: la lámina 16:9 cubre la pieza 3:4 · Eric: «una vista de mobile, como teníamos antes, con la web renderizada en mobile» (remerge-movil.mp4, a 390 px)
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4 }, // THX · ronda 191, Eric: «hay que quitarle el barrido» → su degradado
+  // RONDA 202 · Eric, desde el artefacto «Fondos de proyectos»: proporción, giro y el navegador colocado a mano en cada pieza (`m`: x, y y ancho, en % de la pieza)
+  { col: '1 / span 3', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -2.5, m: [5, 17, 111] },
+  { col: '5 / span 4', ratio: '1 / 1', baja: 0, tipo: 'escena', est: 'otono', zoom: 2.88, cy: 0.5 },
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4.5, m: [10, 23, 116] },
+  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 3.5, m: [1, 10, 95] },
+  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'claro', g: 'g-marca', giro: 0, m: [7, 11, 132] },
+  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -2.5, m: [6, 17, 118] },
+  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'movil', zoom: 2.5, cy: 0.5 }, // el móvil sobre la mesa; sin grabación en móvil, la de escritorio recortada
+  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4, m: [9, 20, 118] },
 ];
 // RONDA 42 · «los testimonios no van antes de nuestros proyectos, van entre medias, y que puedas cambiar de testimonio con unas flechas muy sutiles»:
 // una fila entera en medio del mosaico (tras la primera fila de proyectos), centrada; el nombre de quien habla entre dos flechas finas.
@@ -171,7 +169,7 @@ import { icono } from '../lib/iconos';
           const Z = s.zoom ?? 3;
           const quad = s.tipo === 'movil' || s.tipo === 'roble' ? escenaQuad(s.tipo) : null;
           const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
-          const esMovil = s.tipo === 'movil' || s.tipo === 'tel';
+          const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
           const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
           return (
@@ -204,7 +202,7 @@ import { icono } from '../lib/iconos';
                 </div>
               </figure>
             )}
-            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo === 'mancha' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};${s.ratio === '3 / 4' ? '--top:20%;' : ''}--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
+            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo === 'mancha' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};${s.m ? `--mx:${s.m[0]}%;--top:${s.m[1]}%;--mw:${s.m[2]}%;` : s.ratio === '3 / 4' ? '--top:20%;' : ''}--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
               <div class={`lamina ${s.g ?? ''} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
                 {s.tipo === 'escena' ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
@@ -1058,9 +1056,9 @@ import { icono } from '../lib/iconos';
      ASOMA ladeado y se sale por un lado y por abajo (la ronda 18), en todas las piezas con navegador; el lado alterna (`izq`) */
   .mancha .mockup,
   .claro .mockup {
-    left: 14%;
+    left: var(--mx, 14%);
     top: var(--top, 34%); /* ronda 190 · Eric: «el aire de arriba hay que reducir» en las piezas altas (3:4): 20 % */
-    width: 118%;
+    width: var(--mw, 118%);
     rotate: var(--giro, -6deg);
     transform-origin: 0 0;
   }
