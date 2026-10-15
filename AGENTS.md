@@ -3925,3 +3925,7 @@ en mono en el pie.
 - **Hecho (`home.ts › servicios`, leído de esa base):** Consultoría suma Ilustraciones animadas, Animaciones 3D, Interacciones GSAP, Desarrollo agéntico e Integraciones con CMS (de 6 a 11 puntos); «Ilustraciones animadas (Lottie)» → «Ilustraciones animadas»; texto nuevo de End-to-end. Colaboración, sin cambios.
 - **Medido:** `astro check` 0 errores · build OK · la página sirve 11 puntos de Consultoría.
 - **PUBLICADA (15/10):** commit `f8cc923` → la Action (éxito); en vivo, 11 puntos de Consultoría; Chrome y WebKit, 1440 y 390: consola limpia, 0 ≥ 400, desborde 0.
+
+### Ronda 198 · 2026-10-15 · Servicios: segunda pasada del artefacto · PUBLICADA
+- **Eric (textual):** «actualiza» (tras editar otra vez el artefacto «Servicios de savvia», versión 26).
+- **Hecho (`home.ts › servicios`):** End-to-end «…para que tu equipo la haga crecer con IA» · «Integraciones con CMS» (sin «Sanity, Supabase…») · «Migraciones de Webflow a IA» (sin WordPress) · «La receta: savviagentic.md». Las marcas por forma, sin cambios. OJO: «hacer crecer tu web» se rechazó en la ronda 39 (Keynote: «elevar»); se aplica porque lo escribe Eric, por acordar con Andoni. La lista del Manifiesto (`manifiesto.ts`) no se ha tocado.
