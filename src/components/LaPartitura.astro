@@ -1234,12 +1234,12 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .cursor .ic :global(svg) { width: 100%; height: 100%; display: block; }
   .cine.v .cursor .ic { width: 10px; height: 10px; }
   /* savvia: el favicon de la estación (el árbol, en la mitad baja: se sube 2 px para casar con el texto), sobre una píldora de su mismo fondo */
-  .cursor .ic :global(.fav) { width: 16px; height: 16px; border-radius: 3px; background: url(/favicon-otono.png?v=196) center / cover; translate: 0 -3.5px; }
+  .cursor .ic :global(.fav) { width: 16px; height: 16px; border-radius: 3px; background: url(/favicon-otono-32.png?v=205) center / cover; translate: 0 -3.5px; }
   .cursor[data-quien='savvia'] .ic { width: 16px; height: 16px; }
   .cursor[data-quien='savvia'] span { gap: 0.5em; }
-  :global(html[data-estacion='invierno']) .cursor .ic :global(.fav) { background-image: url(/favicon-invierno.png?v=196); }
-  :global(html[data-estacion='primavera']) .cursor .ic :global(.fav) { background-image: url(/favicon-primavera.png?v=196); }
-  :global(html[data-estacion='verano']) .cursor .ic :global(.fav) { background-image: url(/favicon-verano.png?v=196); }
+  :global(html[data-estacion='invierno']) .cursor .ic :global(.fav) { background-image: url(/favicon-invierno-32.png?v=205); }
+  :global(html[data-estacion='primavera']) .cursor .ic :global(.fav) { background-image: url(/favicon-primavera-32.png?v=205); }
+  :global(html[data-estacion='verano']) .cursor .ic :global(.fav) { background-image: url(/favicon-verano-32.png?v=205); }
   .cursor[data-quien='savvia'] span { background: var(--noche); color: #f5f5f7; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14); transition: background-color 2.4s, color 2.4s; }
   :global(html[data-estacion='invierno']) .cursor[data-quien='savvia'] span { color: #22303e; box-shadow: 0 0 0 1px rgb(34 48 62 / 0.16); }
   :is(.presencia, .e-trio, .e-av) i :global(svg[stroke]) { fill: none; stroke: #fff; }
@@ -1247,10 +1247,10 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   :is(.presencia, .e-trio, .e-av) i :global(svg) { width: 55%; height: 55%; display: block; fill: #fff; }
   .e-av i { display: none; }
   .e-av[data-ag='0'] i[data-a='0'], .e-av[data-ag='1'] i[data-a='1'], .e-av[data-ag='2'] i[data-a='2'], .e-av[data-ag='3'] i[data-a='3'] { display: contents; }
-  :is(.presencia, .e-trio, .e-av) :global(.av-sv) { width: 100%; height: 100%; border-radius: 50%; background: url(/favicon-otono.png?v=196) center / cover; }
-  :global(html[data-estacion='invierno']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-invierno.png?v=196); }
-  :global(html[data-estacion='primavera']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-primavera.png?v=196); }
-  :global(html[data-estacion='verano']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-verano.png?v=196); }
+  :is(.presencia, .e-trio, .e-av) :global(.av-sv) { width: 100%; height: 100%; border-radius: 50%; background: url(/favicon-otono-32.png?v=205) center / cover; }
+  :global(html[data-estacion='invierno']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-invierno-32.png?v=205); }
+  :global(html[data-estacion='primavera']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-primavera-32.png?v=205); }
+  :global(html[data-estacion='verano']) :is(.presencia, .e-trio, .e-av) :global(.av-sv) { background-image: url(/favicon-verano-32.png?v=205); }
   /* pie de foto de la ilustración (Eric): pegado a ella, pequeño y apagado */
   /* PRUEBA pie-figura (Eric): «Il. 1» (abreviatura de la RAE; antes «Ilus.») delante del texto (el filete, probado y quitado). Para revertir: .nota con solo
      margin-top 32 px, max-width 60ch y text-wrap: balance, y en el marcado el texto sin los dos <span>. */

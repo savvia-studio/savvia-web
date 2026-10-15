@@ -32,7 +32,7 @@ const CELDAS = proyectos.celdas, T = proyectos.testimonios;
 // alto ∝ 1/√proporción, con la proporción leída del archivo (viewBox del SVG o cabecera del PNG) al compilar.
 import sharp from 'sharp';
 // las webs que tienen grabación en móvil (<slug>-movil.mp4); las demás, en el móvil, enseñan la de escritorio recortada
-const CON_MOVIL = new Set(['remerge', 'neety-com']); // ronda 204: Neety, grabada por Eric en móvil (Screen Studio, 500 × 1080)
+const CON_MOVIL = new Set(['remerge', 'neety-com', 'cubbo']); // ronda 204: Neety, grabada por Eric en móvil (Screen Studio, 500 × 1080) · ronda 206: Cubbo (Chrome a 390 px, tools/r189/grabar.cjs)
 const PROP: Record<string, number> = {};
 for (const url of new Set([...CELDAS.flat().map((it) => it.logo)].filter(Boolean) as string[])) {
   try { const m = await sharp(`public${url}`).metadata(); PROP[url] = (m.width ?? 3) / (m.height ?? 1); } catch { PROP[url] = 3; }
@@ -55,18 +55,18 @@ const talla = (url: string, k = 1) => {
 // numerados a la derecha y el muro de logotipos en baldosas, cada logotipo una máscara en el color del texto) y TESTIMONIOS tras la tercera (la captura de
 // Andoni: franja oscura a sangre, una línea sobre cada uno, el RETRATO grabado —la imagen la prepara Andoni; sin ella, la tarjeta empieza por la cita—,
 // el nombre y el cargo). Fuera las voces que rotaban, el reproductor dormido y la flora.
-type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble' | 'tel'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean; fondo?: string; barrido?: number; m?: [number, number, number] };
+type Sitio = { col: string; ratio: string; baja: number; tipo: 'escena' | 'claro' | 'mancha' | 'movil' | 'roble' | 'tel'; g?: string; giro?: number; est?: string; zoom?: number; cy?: number; izq?: boolean; espejo?: boolean; fondo?: string; barrido?: number; m?: [number, number, number] };
 // Los DEGRADADOS salen de los colores de la web de cada cliente (home.ts › color); las escenas no llevan degradado (llevan la mesa).
 // RONDA 40 · «los testimonios ponemos menos cantidad y que sean animados y vayan rotando; si se nos ocurre alguna manera original de mostrarlos,
 // mejor»: TRES voces en un solo sitio del mosaico, junto a Isotrol. Cada cita entra palabra a palabra (el gesto de los titulares), un hilo de savia
 // mide su tiempo bajo el nombre de quien la dice, y si habla de un proyecto del mosaico, ese proyecto se SEÑALA (un punto de savia en su pie).
 const SITIO: Sitio[] = [
   // RONDA 202 · Eric, desde el artefacto «Fondos de proyectos»: proporción, giro y el navegador colocado a mano en cada pieza (`m`: x, y y ancho, en % de la pieza)
-  { col: '1 / span 3', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -2.5, m: [5, 17, 111] },
+  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -2.5, m: [5, 17, 111], fondo: '/media/anteriores/fondos/mas-wisable.webp' },
   { col: '5 / span 4', ratio: '1 / 1', baja: 0, tipo: 'escena', est: 'otono', zoom: 2.88, cy: 0.5 },
   { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4.5, m: [10, 23, 116] },
-  { col: '2 / span 5', ratio: '5 / 4', baja: 0, tipo: 'mancha', g: 'g-marca', giro: 3.5, m: [1, 10, 95] },
-  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'claro', g: 'g-marca', giro: 0, m: [7, 11, 132] },
+  { col: '2 / span 4', ratio: '4 / 5', baja: 0, tipo: 'movil', zoom: 2.3, cy: 0.47, espejo: true }, // ronda 206: Cubbo, el móvil de la mesa en ESPEJO y con la cámara más abierta (el de Neety, en cuadro cerrado)
+  { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'claro', g: 'g-marca', giro: 0, m: [7, 11, 132], fondo: '/media/anteriores/fondos/mas-transcend.webp' },
   { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -2.5, m: [6, 17, 118] },
   { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'movil', zoom: 2.5, cy: 0.5 }, // el móvil sobre la mesa; sin grabación en móvil, la de escritorio recortada
   { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4, m: [9, 20, 118] },
@@ -79,6 +79,7 @@ const LAM = { w: 1672, h: 941 };
 // las pantallas en perspectiva: esquinas medidas por inundación en la lámina (px): TL · TR · BR · BL
 const QUAD: Record<string, { foto: string; q: [number, number][] }> = {
   movil: { foto: 'mesa-movil', q: [[964, 183], [1205, 178], [1195, 714], [943, 705]] }, // ronda 67: esquinas de las rectas ajustadas a los cuatro bordes de la pantalla (antes, las de dentro del redondeo)
+  'movil-espejo': { foto: 'mesa-movil-espejo', q: [[467, 178], [708, 183], [729, 705], [477, 714]] }, // ronda 206: la lámina del móvil volteada (x' = 1672 − x; esquinas TL·TR·BR·BL reordenadas)
   roble: { foto: 'mesa-roble', q: [[792, 274], [1220, 249], [1212, 535], [781, 519]] },
 };
 // homografía del cuadrado unidad al cuadrilátero (Heckbert): x' = (a·u + b·v + c) / (g·u + h·v + 1)
@@ -167,11 +168,12 @@ import { icono } from '../lib/iconos';
           const s = SITIO[i];
           // escena: la lámina se amplía `zoom` veces y se coloca para que el centro de la pantalla caiga en (50 %, cy) de la pieza
           const Z = s.zoom ?? 3;
-          const quad = s.tipo === 'movil' || s.tipo === 'roble' ? escenaQuad(s.tipo) : null;
+          const clave = s.espejo ? 'movil-espejo' : s.tipo;
+          const quad = s.tipo === 'movil' || s.tipo === 'roble' ? escenaQuad(clave) : null;
           const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
           const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
-          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? 844 : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid${c.slug === 'home-of-ambrose' ? ' data-siempre' : ''}><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
+          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid${c.slug === 'home-of-ambrose' ? ' data-siempre' : ''}><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
           return (
             <>
             {i === 5 && (
@@ -211,7 +213,7 @@ import { icono } from '../lib/iconos';
                   </div>
                 ) : quad ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`} data-mesa-quad>
-                    <img class="foto" src={`/media/anteriores/${QUAD[s.tipo].foto}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
+                    <img class="foto" src={`/media/anteriores/${QUAD[clave].foto}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
                     <span class="pantalla quad" style={`left:${((quad.x0 / LAM.w) * 100).toFixed(3)}%;top:${((quad.y0 / LAM.h) * 100).toFixed(3)}%;width:${((quad.W / LAM.w) * 100).toFixed(3)}%;height:${((quad.H / LAM.h) * 100).toFixed(3)}%;transform:${quad.matriz}`}><Fragment set:html={video} /></span>
                   </div>
                 ) : s.tipo === 'tel' ? (
@@ -239,25 +241,63 @@ import { icono } from '../lib/iconos';
 
 <script>
   import { crearEstela } from '../scripts/estela';
+  // RONDA 206 · el navegador de mancha y claro, al pasar (o enfocar): centrado, recto y entero. Se mide una vez por entrada: la escala que lo lleva al 88 % del ancho de
+  // la pieza y el desplazamiento de su esquina (origen 0 0) para que quede en el centro; solo transformaciones, así que ida y vuelta son la misma curva.
+  {
+    if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll<HTMLElement>('.pieza.mancha, .pieza.claro').forEach((pz) => {
+        const mk = pz.querySelector<HTMLElement>('.mockup'), lam = pz.querySelector<HTMLElement>('.lamina');
+        if (!mk || !lam) return;
+        const entra = () => {
+          pz.classList.add('interactivo');
+          const W = lam.clientWidth, H = lam.clientHeight, s = (W * 0.88) / mk.offsetWidth;
+          mk.style.setProperty('--hs', String(s));
+          mk.style.setProperty('--hx', ((W - mk.offsetWidth * s) / 2 - mk.offsetLeft).toFixed(1) + 'px');
+          mk.style.setProperty('--hy', ((H - mk.offsetHeight * s) / 2 - mk.offsetTop).toFixed(1) + 'px');
+          requestAnimationFrame(() => pz.classList.add('centra'));
+        };
+        const sale = () => pz.classList.remove('centra');
+        // si se pierde un pointerleave (scroll con el cursor encima, cambio de pestaña), la pieza vuelve a su sitio igualmente
+        setInterval(() => { if (pz.classList.contains('centra') && !pz.matches(':hover, :focus-visible')) sale(); }, 250);
+        addEventListener('blur', sale);
+        pz.addEventListener('pointerenter', entra); pz.addEventListener('pointerleave', sale);
+        pz.addEventListener('focusin', entra); pz.addEventListener('focusout', sale);
+      });
+    }
+  }
   // RONDA 19 · el VÍDEO de cada web: al pasar el cursor o enfocar la pieza; en táctil (sin hover), mientras la pieza está a la vista.
   // Con movimiento reducido no se reproduce solo. La fuente se carga la primera vez que hace falta (preload="none").
   {
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches, conRaton = matchMedia('(hover: hover)').matches;
     const vids = [...document.querySelectorAll<HTMLVideoElement>('[data-vid]')];
-    const tocar = (v: HTMLVideoElement, si: boolean) => { if (si) { v.play().catch(() => {}); } else { v.pause(); } };
+    // RONDA 206 · Eric: «al hacer hover out no se empieza de nuevo; tiene que ir al hero otra vez» · «no es verdad, no siempre vuelve al estado inicial»: al parar,
+    // el vídeo vuelve al primer fotograma (el hero). Para que NUNCA se quede a medias aunque se pierda un pointerleave (scroll con el cursor encima, cambio de pestaña,
+    // foco de un clic), cada vídeo lleva su estado (`activo`) y un vigilante: si suena o avanza sin estar activo, se para y se reinicia.
+    const activos = new Set<() => void>();
+    let vigilante = 0;
+    const vigilar = () => { if (!vigilante) vigilante = window.setInterval(() => { activos.forEach((f) => f()); if (!activos.size) { clearInterval(vigilante); vigilante = 0; } }, 250); };
     vids.forEach((v) => {
       const pieza = v.closest('[data-pieza]')!;
-      v.addEventListener('playing', () => pieza.classList.add('suena'));
+      let activo = false;
+      const parar = () => { activo = false; activos.delete(comprueba); v.pause(); if (v.currentTime > 0) v.currentTime = 0; };
+      const comprueba = () => { if (activo && conRaton && !pieza.matches(':hover, :focus-visible')) parar(); };
+      const tocar = (si: boolean) => { if (si) { activo = true; v.play().catch(() => {}); if (conRaton) { activos.add(comprueba); vigilar(); } } else parar(); };
+      v.addEventListener('playing', () => { pieza.classList.add('suena'); if (!activo) parar(); });
+      v.addEventListener('timeupdate', () => { if (!activo && v.currentTime > 0.05) parar(); });
       v.addEventListener('pause', () => pieza.classList.remove('suena'));
       if (reducido) return;
+      document.addEventListener('visibilitychange', () => { if (document.hidden && !v.hasAttribute('data-siempre')) parar(); });
+      addEventListener('blur', () => { if (!v.hasAttribute('data-siempre')) parar(); });
       // RONDA 204 · Eric: Home of Ambrose (`data-siempre`) suena siempre en bucle mientras está a la vista, «para que se vea que es vídeo»; el resto, al pasar
-      if (v.hasAttribute('data-siempre')) new IntersectionObserver((e) => tocar(v, e[0].isIntersecting), { threshold: 0.35 }).observe(pieza);
+      if (v.hasAttribute('data-siempre')) new IntersectionObserver((e) => { if (e[0].isIntersecting) { activo = true; v.play().catch(() => {}); } else parar(); }, { threshold: 0.35 }).observe(pieza);
       else if (conRaton) {
-        pieza.addEventListener('pointerenter', () => tocar(v, true));
-        pieza.addEventListener('pointerleave', () => tocar(v, false));
-        pieza.addEventListener('focusin', () => tocar(v, true));
-        pieza.addEventListener('focusout', () => tocar(v, false));
-      } else new IntersectionObserver((e) => tocar(v, e[0].isIntersecting), { threshold: 0.55 }).observe(pieza);
+        pieza.addEventListener('pointerenter', () => tocar(true));
+        pieza.addEventListener('pointerleave', () => tocar(false));
+        pieza.addEventListener('focusin', () => { if (pieza.matches(':focus-visible')) tocar(true); });
+        pieza.addEventListener('focusout', () => tocar(false));
+        // si la pieza sale de la pantalla (scroll con el cursor encima), también se reinicia
+        new IntersectionObserver((e) => { if (!e[0].isIntersecting) parar(); }, { threshold: 0 }).observe(pieza);
+      } else new IntersectionObserver((e) => tocar(e[0].isIntersecting), { threshold: 0.55 }).observe(pieza);
     });
     // las pantallas en perspectiva: la homografía lleva píxeles → hace falta la escala real de la lámina (--s = ancho de la mesa / 1672)
     const mesas = [...document.querySelectorAll<HTMLElement>('[data-mesa-quad]')];
@@ -838,6 +878,9 @@ import { icono } from '../lib/iconos';
     filter: none;
   }
   .pieza:hover .lamina.con-fondo::before { transform: scale(1.04); }
+  /* RONDA 206 · Eric: «Kymatio no lo has puesto como el artefacto»: el degradado de hoy, tal cual lo pinta el artefacto «Fondos de proyectos» (las dos manchas sobre
+     la propia pieza), sin el desenfoque ni el 160 % de antes, que desplazaba las manchas */
+  .lamina.g-marca:not(.con-fondo)::before { inset: 0; filter: none; }
   /* RONDA 189 · el BARRIDO: el paisaje de la estación con desenfoque de movimiento; vira con ella (fundido de 1,2 s) */
   .lamina.barrido::before {
     background: var(--b-otono) center / cover no-repeat;
@@ -1034,6 +1077,7 @@ import { icono } from '../lib/iconos';
      entera es CRISTAL (velo claro + desenfoque del fondo que hay detrás + filo de luz): un marco fino de 4 px alrededor de la web y una barra de 10 px
      arriba, dentro del mismo cristal (sin franja propia); la web va dentro con sus esquinas redondeadas. */
   .mockup {
+    --ease-suave: cubic-bezier(0.32, 0.72, 0, 1); /* ronda 206: sin rebote */
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -1126,15 +1170,6 @@ import { icono } from '../lib/iconos';
   .tinta-oscura .cromo b { color: rgb(48 32 24 / 0.55); }
 
   /* ── al pasar */
-  .mancha:hover .mockup,
-  .mancha:focus-visible .mockup {
-    translate: -3% -4%;
-    rotate: calc(var(--giro, -6deg) * 0.5);
-  }
-  .claro:hover .mockup,
-  .claro:focus-visible .mockup {
-    translate: 0 -3%;
-  }
   .escena:hover .mesa,
   .escena:focus-visible .mesa,
   .movil:hover .mesa,
@@ -1184,12 +1219,20 @@ import { icono } from '../lib/iconos';
     opacity: 1;
     transition: opacity 0.9s ease calc(0.55s + var(--i) * 110ms);
   }
-  /* una vez dentro, el «al pasar» manda otra vez con su propio ritmo */
-  :global(html.anima) .pieza.visto:hover .mockup {
-    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
+  /* RONDA 206 · Eric: «al hacer hover, el mockup centrado y que se vea la web entera; al salir, vuelve al estado inicial» · «cuidado con el rebote de ida y vuelta,
+     smoothness»: el navegador (mancha y claro) se coloca por TRANSFORMACIÓN (translate + scale + rotate a 0; el JS mide cuánto) y no por left/top/width, con la misma
+     curva y duración y SIN retardo en la ida y en la vuelta (antes, la vuelta heredaba los retardos y duraciones distintas de la entrada: de ahí el rebote) */
+  :global(html.anima) .pieza.interactivo .mockup,
+  .pieza.interactivo .mockup {
+    transition: translate 0.8s var(--ease-suave), scale 0.8s var(--ease-suave), rotate 0.8s var(--ease-suave);
+    will-change: translate, scale, rotate;
   }
-  :global(html.anima) .mancha.visto:hover .mockup { translate: -3% -4%; }
-  :global(html.anima) .claro.visto:hover .mockup { translate: 0 -3%; }
+  :global(html.anima) .pieza.interactivo.centra .mockup,
+  .pieza.interactivo.centra .mockup {
+    translate: var(--hx, 0px) var(--hy, 0px);
+    scale: var(--hs, 1);
+    rotate: 0deg;
+  }
   :global(html.anima) .escena.visto:hover .mesa,
   :global(html.anima) .movil.visto:hover .mesa,
   :global(html.anima) .roble.visto:hover .mesa { scale: 1.06; transition: scale 1.6s var(--ease-out-expo); }

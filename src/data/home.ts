@@ -286,11 +286,11 @@ export const proyectos = {
     // ronda 191 · Eric: Home of Ambrose, primera pieza; «el gradiente no cumple con su paleta» → la de su CSS: melocotón, terracota y oliva
     // ronda 202 · Eric, desde el artefacto «Fondos de proyectos»: nuevo orden (Wisable ↔ Home of Ambrose, Monad ↔ Cubbo, Neety en el móvil en lugar de
     // Remerge, que sigue en /proyectos) y algunos colores retocados a ojo (Wisable, Kymatio, Cubbo, Transcend, Monad, THX)
-    { n: 'Wisable', slug: 'wisable', dominio: 'wisable.com', sector: 'Venta de empresas', logo: '', color: ['#0b0f2e', '#1b2150', '#eeff00'] },
+    { n: 'Wisable', slug: 'wisable', dominio: 'wisable.com', sector: 'Venta de empresas', logo: '', color: ['#0b0f2e', '#1b2150', '#e6f24a'] },
     { n: 'Home of Ambrose', slug: 'home-of-ambrose', dominio: 'homeofambrose.com', sector: 'Vivienda', logo: '', color: ['#f6e5d5', '#c25631', '#4d4d1c'] },
-    { n: 'Kymatio', slug: 'kymatio', dominio: 'kymatio.com', sector: 'Ciberseguridad', logo: '', color: ['#0b1f17', '#123a2c', '#156f4e'] },
+    { n: 'Kymatio', slug: 'kymatio', dominio: 'kymatio.com', sector: 'Ciberseguridad', logo: '', color: ['#0b1f17', '#123a2c', '#2fbf8a'] },
     { n: 'Cubbo', slug: 'cubbo', dominio: 'cubbo.com', sector: 'Logística para ecommerce', logo: 'cubbo', color: ['#1b40d6', '#4963e2', '#8095ff'] },
-    { n: 'Transcend', slug: 'transcend-network', dominio: 'transcend-network.com', sector: 'Comunidad de fundadores', logo: '', color: ['#fff6ee', '#ff6b1a', '#ffffff'] },
+    { n: 'Transcend', slug: 'transcend-network', dominio: 'transcend-network.com', sector: 'Comunidad de fundadores', logo: '', color: ['#fff6ee', '#ff6b1a', '#3f7bff'] },
     { n: 'Monad', slug: 'monad', dominio: 'monad.com', sector: 'Ciberseguridad', logo: '', color: ['#e4efe0', '#b8d8b1', '#fff4d6'] },
     { n: 'Neety', slug: 'neety-com', dominio: 'neety.com', sector: 'Ventas B2B', logo: '', color: ['#eee8f7', '#a7c5f9', '#fe8238'] },
     { n: 'THX', slug: 'thx', dominio: 'thx.vision', sector: 'Consultoría', logo: '', color: ['#3f86bd', '#7fb3dc', '#bbdaf2'] },

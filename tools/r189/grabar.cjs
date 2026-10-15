@@ -15,6 +15,7 @@ const SITIOS = {
   invopop: { url: 'https://invopop.com', w: 1440, h: 900 },
   'business-online-payroll': { url: 'https://businessonlinepayroll.com', w: 1440, h: 900 },
   cubbo: { url: 'https://cubbo.com', w: 1440, h: 900 },
+  'cubbo-movil': { url: 'https://cubbo.com', w: 390, h: 844, movil: true }, // ronda 206: el móvil de Cubbo
   remerge: { url: 'https://remerge.io', w: 390, h: 844, movil: true },
   'remerge-movil': { url: 'https://remerge.io', w: 390, h: 844, movil: true }, // ronda 190: la vista del móvil sobre la mesa
   isotrol: { url: 'https://isotrol.com', w: 1440, h: 900 },

@@ -16,9 +16,10 @@ interface Props {
   transicion?: boolean; // lleva el nombre de la transición compartida con la portada del caso
   sube?: boolean; // ronda 130: solo la rejilla de «Todos los proyectos»: navegador recto, cortado por abajo, que sube al entrar
   href?: string; // ronda 191: el slider de /proyectos enlaza también webs sin caso (se abren en su web)
+  fondo?: string; // ronda 206: fondo generado (artefacto «Fondos de proyectos») en lugar del degradado de marca
   grande?: boolean; // ronda 154: la CARÁTULA del caso de estudio: la misma pieza a todo el ancho y alta, sin nombre ni pie, con el vídeo a la vista
 }
-const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false, grande = false, href } = Astro.props;
+const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false, grande = false, href, fondo } = Astro.props;
 const destino = href ?? `/proyectos/${p.slug}`, fuera = /^https?:/.test(destino);
 const [c1, c2, c3] = p.colores;
 const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // la pantalla del monitor en la lámina (ronda 26)
@@ -33,7 +34,7 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
 ---
 
 <Tag href={grande ? undefined : destino} target={!grande && fuera ? '_blank' : undefined} rel={!grande && fuera ? 'noopener' : undefined} class={`pieza ${tipo}${tipo !== 'escena' && claroFondo ? ' fondo-claro' : ''}${sube ? ' pz-sube' : ''}${grande ? ' pz-grande' : ''}`} style={`--c1:${c1};--c2:${c2};--c3:${c3};--giro:${giro}deg`} data-pieza-obra data-a-la-vista={grande ? '' : undefined}>
-  <div class={`lamina ${tipo === 'escena' ? '' : 'g-marca'}`} style={transicion ? `view-transition-name: obra-${p.slug}` : undefined}>
+  <div class={`lamina ${tipo === 'escena' ? '' : 'g-marca'}${fondo ? ' con-fondo' : ''}`} style={[transicion ? `view-transition-name: obra-${p.slug}` : '', fondo ? `--fondo:url('${fondo}')` : ''].filter(Boolean).join(';') || undefined}>
     {
       tipo === 'escena' ? (
         <div class="mesa" style={`--z:${zoom};--left:${left.toFixed(2)};--cy:${cy};--py:${py}`}>
@@ -355,6 +356,8 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   .escena:focus-visible .mesa {
     scale: 1.06;
   }
+  /* RONDA 206 · el fondo generado del artefacto «Fondos de proyectos» (con su grano), en lugar de las manchas */
+  .lamina.con-fondo::before { background: var(--fondo) center / cover no-repeat; }
   .pieza:not(.pz-grande):hover .g-marca::before {
     transform: scale(1.15) rotate(8deg);
   }

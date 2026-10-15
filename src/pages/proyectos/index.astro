@@ -17,18 +17,19 @@ import { flecha } from '../../lib/flecha';
 // RONDA 191 · Eric: «en el slider tienen que estar neety.com, surepayroll.com, claudiabe.studio, homeofambrose.com y elevenlab.org; aunque no les
 // llamemos proyectos destacados, solo que sea una slide que vaya pasando» (sustituyen a los cuatro de antes). Grabadas con tools/r189/grabar.cjs
 // (public/media/anteriores/video/<clave>.mp4). Las que no tienen caso enlazan a su web; Neety, a su caso. Colores, de su propia web.
-type Slide = { p: (typeof proyectos)[number]; href: string };
-const web = (slug: string, nombre: string, dominio: string, url: string, sector: string, colores: string[], vid = slug): Slide => ({
+type Slide = { p: (typeof proyectos)[number]; href: string; fondo?: string };
+const web = (slug: string, nombre: string, dominio: string, url: string, sector: string, colores: string[], vid = slug, fondo?: string): Slide => ({
   href: url,
+  fondo,
   p: { slug, nombre, dominio, url, sector, colores, servicios: [], portada: { tipo: 'video', src: `/media/anteriores/video/${vid}.mp4`, poster: `/media/anteriores/video/${vid}.jpg` } } as unknown as (typeof proyectos)[number],
 });
 const neety = proyectos.find((p) => p.slug === 'neety')!;
 const SLIDES: Slide[] = [
-  { href: '/proyectos/neety', p: { ...neety, dominio: 'neety.com', portada: { tipo: 'video', src: '/media/anteriores/video/neety-com.mp4', poster: '/media/anteriores/video/neety-com.jpg' } } },
-  web('surepayroll', 'SurePayroll', 'surepayroll.com', 'https://www.surepayroll.com/', 'Nóminas', ['#0f2421', '#1fc58e', '#8f7cf0']),
-  web('claudia-be', 'Claudia BE', 'claudiabe.studio', 'https://claudiabe.studio/', 'Estudio de branding', ['#f6e9e1', '#ee4f4f', '#f4a3a3']),
+  { href: '/proyectos/neety', p: { ...neety, dominio: 'neety.com', portada: { tipo: 'video', src: '/media/anteriores/video/neety-com.mp4', poster: '/media/anteriores/video/neety-com.jpg' } }, fondo: '/media/anteriores/fondos/slider-neety.webp' },
+  web('surepayroll', 'SurePayroll', 'surepayroll.com', 'https://www.surepayroll.com/', 'Nóminas', ['#0f2421', '#1fc58e', '#8f7cf0'], 'surepayroll', '/media/anteriores/fondos/slider-surepayroll.webp'),
+  web('claudia-be', 'Claudia BE', 'claudiabe.studio', 'https://claudiabe.studio/', 'Estudio de branding', ['#f6e9e1', '#ee4f4f', '#f4a3a3'], 'claudia-be', '/media/anteriores/fondos/slider-claudia-be.webp'),
   web('home-of-ambrose', 'Home of Ambrose', 'homeofambrose.com', 'https://www.homeofambrose.com/', 'Vivienda', ['#f6e5d5', '#c25631', '#4d4d1c']),
-  web('eleven-lab', 'Eleven Lab', 'elevenlab.org', 'https://www.elevenlab.org/', 'Consultoría de diseño', ['#0d6b7a', '#1c3fa8', '#0a8f86']),
+  web('eleven-lab', 'Eleven Lab', 'elevenlab.org', 'https://www.elevenlab.org/', 'Consultoría de diseño', ['#0d6b7a', '#1c3fa8', '#0a8f86'], 'eleven-lab', '/media/anteriores/fondos/slider-eleven-lab.webp'),
 ];
 const servicios = SERVICIOS.map((s) => [s, proyectos.filter((p) => p.servicios.includes(s)).length] as const).filter(([, n]) => n);
 const sectores = [...new Set(proyectos.map((p) => p.sector).filter(Boolean))].sort((a, b) => a!.localeCompare(b!, 'es')) as string[];
@@ -60,11 +61,11 @@ const texto = (p: (typeof proyectos)[number]) =>
     <section class="destacados" aria-roledescription="carrusel" aria-label="Algunas webs" data-slider>
       <ul class="pista" data-pista>
         {
-          SLIDES.map(({ p, href }, i) => {
+          SLIDES.map(({ p, href, fondo }, i) => {
             const tipo = luz(p.colores[0]) ? 'claro' : 'mancha';
             return (
               <li class={`slide ${tipo}`} style="--k:1.6" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${SLIDES.length}: ${p.nombre}`} data-slide>
-                <Pieza p={p} tipo={tipo} giro={i % 2 ? 5 : -5} href={href} transicion={href.startsWith('/')} />
+                <Pieza p={p} tipo={tipo} giro={i % 2 ? 5 : -5} href={href} fondo={fondo} transicion={href.startsWith('/')} />
               </li>
             );
           })
