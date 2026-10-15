@@ -3930,3 +3930,7 @@ en mono en el pie.
 - **Eric (textual):** «actualiza» (tras editar otra vez el artefacto «Servicios de savvia», versión 26).
 - **Hecho (`home.ts › servicios`):** End-to-end «…para que tu equipo la haga crecer con IA» · «Integraciones con CMS» (sin «Sanity, Supabase…») · «Migraciones de Webflow a IA» (sin WordPress) · «La receta: savviagentic.md» (y en la versión 27 vuelve a «savvia.md»). Las marcas por forma, sin cambios. OJO: «hacer crecer tu web» se rechazó en la ronda 39 (Keynote: «elevar»); se aplica porque lo escribe Eric, por acordar con Andoni. La lista del Manifiesto (`manifiesto.ts`) no se ha tocado.
 - **PUBLICADA (15/10):** la Action (éxito); en vivo, los textos nuevos y «La receta: savvia.md» (artefacto versión 27).
+
+### Ronda 199 · 2026-10-15 · el texto del Estudio · PUBLICADA
+- **Eric (textual):** «Los dos de la primera conversación a la última. → Los dos desde la primera conversación a la última.»
+- **Hecho:** `home.ts › estudio.texto`. Publicada por la Action.

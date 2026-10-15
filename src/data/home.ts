@@ -441,7 +441,7 @@ export const estudio = {
   // RONDA 191 · las tres cifras (+75 clientes · 8 países · 6 años) probadas y QUITADAS el 15/10 (Eric): el texto basta.
   titulo: 'El estudio web que orquesta la IA.',
   // ronda 191 · Eric, su versión: «Somos Andoni y Eric. Los dos en cada decisión…»
-  texto: 'Somos Andoni y Eric. Los dos en cada decisión.\nLos dos de la primera conversación a la última.', // el salto de línea, a petición de Eric
+  texto: 'Somos Andoni y Eric. Los dos en cada decisión.\nLos dos desde la primera conversación a la última.', // el salto de línea, a petición de Eric
   // RONDA 129 · el nombre de cada uno es una llamada (la de «Sentarse») y al pasar caen sus AFICIONES. Son datos de Andoni y Eric: FALTA, no se inventan.
   // `gesto`: fotogramas del gesto característico de cada uno, en el mismo lienzo que la pose final (ronda 140: /media/equipo/juntos-r140.webp, 1200 × 1000, con alfa). Vacío = sin gesto.
   // RONDA 137 · Andoni: «Yo, Andoni, tiro a canasta. Eric hace un revés de tenis.» (storyboard → tools/r137-equipo/montar.py)
