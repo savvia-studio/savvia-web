@@ -12,7 +12,6 @@ import { servicios } from '../data/home';
 const L = servicios.lista;
 const GRUPOS = servicios.grupos;
 const quien = (t: string) => L.map((s, k) => (s.tags.includes(t) ? k : -1)).filter((k) => k >= 0).join(' ');
-const dos = (n: number) => String(n).padStart(2, '0');
 // la tarjeta, en dos columnas en escritorio: Estrategia + Diseño | Desarrollo + Después (8 y 8)
 const COLS = [GRUPOS.slice(0, 2), GRUPOS.slice(2)];
 const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle class="onda" cx="10" cy="10" r="9" /><circle class="aro" cx="10" cy="10" r="8.25" /><circle class="relleno" cx="10" cy="10" r="8.25" /><path class="v" d="M6 10.4 8.7 13 14 7.2" pathLength="1" /></svg>`;
@@ -36,7 +35,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
             L.map((s, k) => (
               <div class={`fila${k === 0 ? ' on' : ''}`} data-fila={k}>
                 <button type="button" class="opcion" aria-pressed={k === 0 ? 'true' : 'false'} aria-describedby={`serv-d-${k}`} aria-controls="serv-tarjeta" data-opcion={k} tabindex={k === 0 ? 0 : -1}>
-                  <span class="num detail" aria-hidden="true">{dos(k + 1)}</span>
                   <span class="nombre font-display">{s.corto}</span>
                 </button>
                 <div class="d-caja">
@@ -52,7 +50,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
       </div>
 
       <div class="tarjeta" id="serv-tarjeta" data-tarjeta-serv>
-        <p class="cab detail">Qué incluye · <span data-cab>{L[0].corto}</span></p>
+        <p class="cab detail" data-cab data-cabs={JSON.stringify(L.map((s) => s.cab))}>{L[0].cab}</p>
         <div class="cols">
           {
             COLS.map((col) => (
@@ -94,7 +92,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     const opciones = [...raiz.querySelectorAll<HTMLButtonElement>('[data-opcion]')];
     const filas = [...raiz.querySelectorAll<HTMLElement>('[data-fila]')];
     const dm = [...raiz.querySelectorAll<HTMLElement>('[data-dm]')];
-    const nombres = opciones.map((o) => o.querySelector('.nombre')!.textContent || '');
+    const L_CAB = JSON.parse(cab.dataset.cabs || '[]') as string[];
     const puntos = [...tarjeta.querySelectorAll<HTMLLIElement>('li[data-quien]')].map((li) => ({
       li,
       s: (li.dataset.quien || '').split(' ').filter(Boolean).map(Number),
@@ -166,7 +164,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
       opciones.forEach((o, i) => { o.setAttribute('aria-pressed', String(i === k)); o.tabIndex = i === k ? 0 : -1; });
       filas.forEach((f, i) => f.classList.toggle('on', i === k));
       dm.forEach((p, i) => p.classList.toggle('on', i === k));
-      cab.textContent = nombres[k];
+      cab.textContent = L_CAB[k];
       visto = true;
       recorrer(k, sonar);
     };
@@ -261,7 +259,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     border-radius: calc(var(--spacing) * 2);
   }
   .opcion:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; }
-  .num { color: var(--fg2); font-variant-numeric: tabular-nums; min-width: 2ch; transition: color 0.3s ease; }
   .nombre {
     font-size: clamp(2.25rem, 1.4rem + 2.2vw, 3.75rem);
     line-height: 0.95;
@@ -271,7 +268,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
   }
   .fila:not(.on) .opcion:hover .nombre { opacity: 0.7; }
   .fila.on .nombre { opacity: 1; }
-  .fila.on .num { color: var(--fg); }
   .d-caja { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.55s var(--ease-out-expo); }
   .d-caja > .d { overflow: hidden; min-height: 0; }
   .fila.on .d-caja { grid-template-rows: 1fr; }
@@ -279,7 +275,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     color: var(--fg2);
     text-wrap: pretty;
     max-width: 34ch;
-    padding-left: calc(2ch + var(--spacing) * 4);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
@@ -298,7 +293,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
       align-items: center;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
-    .opcion .num { display: none; }
     .nombre { font-family: inherit; font-size: 0.875rem; font-weight: 600; letter-spacing: 0; line-height: 1.2; opacity: 0.8; }
     .fila.on .opcion { background: var(--fg); color: var(--color-niebla); }
     .d-movil { display: grid; margin-top: calc(var(--spacing) * 4); }
@@ -316,7 +310,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     .selector { padding-block: calc(var(--spacing) * 6); } /* + los 24 de cada opción = 48 px hasta cada línea */
   }
   .cab { color: var(--fg2); }
-  .cab span { color: var(--fg); }
   .cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(var(--spacing) * 8); margin-top: calc(var(--spacing) * 4); }
   .grupo + .grupo { margin-top: calc(var(--spacing) * 6); }
   .g { color: var(--fg2); padding-bottom: calc(var(--spacing) * 2); border-bottom: 1px solid var(--rule); }

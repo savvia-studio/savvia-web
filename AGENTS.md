@@ -3862,3 +3862,58 @@ en mono en el pie.
   sustituye el archivo. Medido: `astro check` 0 errores, servido en la home (200). **SIN mirar a ojo** con el semitono en la página. No publicado ni subido.
 - **A media ronda (Eric): «pon esto para Home of Ambrose: screen.studio/share/bCswiQ0U»** → la grabación nueva (Douglas 1927: hero, galería, texto y plano; 28 s) sustituye a la anterior en `public/media/anteriores/video/home-of-ambrose.{mp4,jpg}` (960 px, 30 fps, sin audio, 1,5 MB); también en el artefacto. **ARTEFACTO «Fondos de proyectos» (versiones 7–9):** vídeos reales en cada pieza; vista navegador · sobremesa · móvil; la sección simulada como en la home (12 columnas, `col`, proporción y `baja` de `SITIO`, hueco del testimonio); el mockup se mueve arrastrando y se escala pellizcando (o ⌘ + rueda); panel de la pieza elegida a la derecha.
 - **PUBLICADA (14/10) en https://savvia.studio** (Eric: «sube todo a producción»): commit `bcea8d6` (ronda 191 y los cambios que había sin subir en Estudio, Problemas, Servicios, `entintar.ts` y el retrato de Juanjo Velaz) → la Action «Publicar en Vercel» (éxito). Medido EN VIVO (Chrome, 1440 y 390): / y /proyectos sin errores de consola, 0 respuestas ≥ 400, desborde 0; el vídeo de Home of Ambrose responde 200. **SIN medir en vivo:** WebKit. Sigue `noindex`.
+
+### Ronda 192 · 2026-10-15 · fuera las cifras del Estudio (en local, Eric)
+- **Eric (textual):** «quitamos los kpis» (+75 Clientes · 8 Países · 6 Años juntos).
+- **Hecho:** `Estudio.astro` sin la fila de cifras (marcado y estilos `.cifras/.kpis/.kpi/.num/.lbl`); `home.ts › estudio.kpis` fuera. Queda el titular, el texto y Eric y Andoni.
+  Vuelve a cumplirse el Diccionario («no se presume ni años ni número de clientes»).
+- **Medido:** `astro check` 0 errores · vista previa (1280): la sección sin las cifras, consola limpia. No publicado ni subido.
+- **A media ronda (Eric): «en el "hemos trabajado con" pondremos logo de surepayroll.com y de wisable.com».** Logotipos sacados de su web (SurePayroll: el SVG negro de su
+  barra; Wisable: su isotipo + su palabra, SVG en línea de la barra) → `public/media/logos/cuadricula/{surepayroll,wisable}.png` (en negro: van como máscara) y su
+  proporción y densidad en `logos-cuadricula.json` (5,704 · 0,265 y 5,595 · 0,424). En la cuadrícula: SurePayroll en la fila 2 (antes de la cita de Farco, que la
+  nombra; Kalma pasa a la fila 6) y Wisable en la fila 3. `astro check` 0 errores; los dos sirven 200. **SIN mirar a ojo** en la celda (rotan). No publicado ni subido.
+- **A media ronda (Eric): «Qué incluye · Consultoría» → «Qué incluye la consultoría:» (y «el end-to-end:», «la colaboración:») · «el 01 02 03 quitamos de al lado de las 3 formas».**
+  `home.ts › servicios.lista[].cab` con la frase de cada forma; la tarjeta (`Servicios.astro`) la pone entera y la cambia al elegir otra. Fuera los números del
+  selector (marcado, `dos()` y sus estilos). Medido (vista previa): cambia a «Qué incluye la consultoría:» al pulsar, consola limpia · `astro check` 0 errores.
+  No publicado ni subido.
+
+### Ronda 193 · 2026-10-15 · el testimonio entra todo a la vez y escalonado (en local, Eric)
+- **Eric (textual, con captura del testimonio de Alberto Arenaza):** «la forma en la que sale el texto/contenido junto con la foto ilustrada tiene que ser smooth, todo al conjunto, stagger y bien sincronizado».
+- **Hecho (`Anteriores.astro`):** un solo reloj por relevo. Retrato, cita, nombre y cargo se van JUNTOS (0,35 s, con desenfoque); cuando se han ido, entran desde el mismo instante: el retrato se dibuja (1,6 s, curva más pareja: pow 1,5 en vez de 2,2, para acabar con el texto), la cita sube PALABRA A PALABRA desde el desenfoque (24 ms entre palabras; sustituye al tecleo con cursor de la ronda 68), el nombre cuando la cita va por la mitad (`--dq`) y el cargo 110 ms después; la primera vez, las flechas al final. Antes el retrato viejo se apagaba encima del nuevo y el nombre iba por libre. Sin JS o con movimiento reducido, todo a la vista.
+- **Medido** (Chrome y WebKit sin ventana, 1440×900, relevo con la flecha): a 150 ms todo fuera; a 450 ms retrato dibujándose y la primera palabra a 0,78–0,84; a 750 ms la última palabra a 0,65–0,91 y el nombre a 0,81–0,97; a 1,1 s todo a 1; consola limpia · `astro check` 0 errores. **SIN medir:** móvil. No publicado ni subido.
+- **A media ronda (Eric): «ya he ajustado los logos en el artefacto» · «el logo de Valuat tiene que ser más nítido».** Tallas leídas de `logos2` en el artefacto
+  «Tallas de logos»: solo cambian SurePayroll (×1,25) y Valuat (×1,05) en `home.ts › celdas`; el resto ya coincidía (Zrive sigue fuera). Valuat era un PNG de
+  925 × 240 ampliado: rehecho desde el SVG de la barra de su web (valuat.com, Illustrator, en negro) a 2414 × 634 con sharp (density 1200 + trim); proporción y
+  densidad 3,808 · 0,323. `astro check` 0 errores; consola limpia. **SIN mirar a ojo** dentro de su celda (rotan). No publicado ni subido.
+- **A media ronda (Eric): «he vuelto a ajustar los logos de tamaños».** Tallas releídas de `logos2` en el artefacto «Tallas de logos» y pasadas a `home.ts › celdas`:
+  Remerge 1,3 · Universidad de Mondragón 1,6 · Naterra 1,25 · Cubbo 1,35 · Farco Studio 1,05 · SurePayroll 1,35 · Junipero 1,25 · Transcend Network 1,25 · Valuat 1,15 ·
+  Wisable 1,15 · Invopop 1,25 · Isotrol 1,15; las demás, iguales. `astro check` 0 errores. No publicado ni subido.
+- **A media ronda (Eric): «el espacio entre reseña y nombre, siempre el mismo; centramos el contenido aunque unas sean más altas».** `Anteriores.astro`: cada cita va
+  pegada al pie de su pila (`align-self: end`; la fila, `minmax(0, 1fr)`: si no, las citas ocultas más altas la estiraban y la activa quedaba pegada al nombre)
+  y, a partir de 64rem, la pila mide lo que la cita activa (`ajustarPila`, al relevar y al cambiar el ancho): el bloque queda centrado junto al retrato. En
+  móvil se reserva la más alta, para que la página no salte. Cargos: José Luis Antúnez «Mentor, Estrategia y narrativa» · JJ Velaz «Mentor, Estrategia de
+  negocio». Medido (Chrome, 1440 y 390, las cuatro reseñas): hueco cita → nombre 32 px en todas; a 1440, el texto centrado con el retrato (450 / 450) y la
+  sección no cambia de alto; sin errores · `astro check` 0. **SIN medir:** WebKit. No publicado ni subido.
+- **A media ronda (Eric):** cargos del testimonio: Alberto Arenaza «Cliente con apertura internacional, Transcend Network» · Danny Saltaren «Cliente y colaborador».
+- **A media ronda (Eric): «en vez de sus títulos, lo que ha significado para nosotros».** Bajo el nombre (propuestas de Nilo con lo que dijo Eric, por confirmar):
+  José Luis «Nuestro mentor en estrategia y narrativa» · Alberto «Nos abrió la puerta a proyectos internacionales» · JJ «Nuestro mentor de negocio desde el
+  principio» · Danny «Primero cliente, hoy compañero de proyectos».
+- **A media ronda (Eric):** «Danny Saltaren» (con tilde) y debajo «Nos descubrió y nos impulsó en nuestros inicios» (Eric: «nos descubrió y nos ensalzó en nuestros inicios, o algo así»).
+- **Corrección (Eric):** «Saltaren», sin tilde.
+
+### Ronda 194 · 2026-10-15 · el marco de cristal, menos redondo que la card (en local, Eric)
+- **Andoni (Telegram, vía Eric):** «el marco de cristal me mola pero no sé si lo veo muy redondeado comparado con la card que lo contiene» · «de momento me sigo quedando con los gradientes; igual sí podemos buscar algún estilo de gradiente que nos mole» (grainient.supply/collections). Eric: «el marco lo modificamos, sí»; los gradientes que le gustan los pasa después.
+- **Hecho (`Anteriores.astro › .mockup`):** la card mide 8 px de radio y el marco 9: el marco se leía más redondo que lo que lo contiene. `--r-fuera` 9 → 6 px y `--marco` 4 → 3 px: dentro, 6 − 3 = 3 px (sigue la regla radio exterior = interior + relleno).
+- **Medido:** `astro check` 0 errores · Chrome sin ventana 1440 DPR 2: captura de Home of Ambrose, sin errores. El artefacto «Fondos de proyectos» sigue con 9 px. **Pendiente:** los gradientes de referencia de Eric. No publicado ni subido.
+- **A media ronda (Eric):** añadido y QUITADO el mismo día el testimonio de Brian Farrell («Colaborador de largo plazo»). Su retrato al carboncillo, en `tools/retirados/brian-farrell.r193.webp` (`tools/r191/retrato.py` gana parámetros por entorno: S, OY, TOP, DX, FY, BODY). Su cita sigue en la cuadrícula.
+
+### Ronda 195 · 2026-10-15 · el mockup sin la dirección (en local, Eric)
+- **Eric (textual):** «igual no hace falta que el mockup tenga la url arriba, ¿no? Así que ocupe lo mismo abajo que arriba».
+- **Hecho (`Anteriores.astro`):** fuera la barra con el dominio (`.cromo`) de los navegadores de cristal de «Más proyectos»; el marco va igual por los cuatro lados (`padding: var(--marco)`, 3 px). Los estilos de `.cromo` quedan sin uso.
+- **Medido:** `astro check` 0 errores · Chrome sin ventana 1440 DPR 2 (Home of Ambrose): marco parejo, sin errores. No publicado ni subido.
+- **A media ronda (Eric):** la explicación de cada forma, alineada con su nombre: fuera la sangría (`padding-left: 2ch + 16px`) que quedaba de los números 01/02/03.
+
+### Ronda 196 · 2026-10-15 · vuelve el favicon de la ronda 156 · PUBLICADA (rondas 192–196)
+- **Eric (textual):** «cambia el favicon a lo que teníamos antes y sube a producción con todos estos cambios» · «del artefacto ya he actualizado los servicios».
+- **Hecho:** los ocho PNG de la ronda 156 (el fondo de la estación con el árbol en pequeño) vuelven a `public/` desde `tools/retirados/favicon-r156/`; los del roble de la ronda 187, a `tools/retirados/favicon-r187/`. Caché `?v=187` → `?v=196` (Base.astro y Libro.astro). Sube también lo que había en local: rondas 192–195 y los cambios de Servicios de Eric.
+- **Medido:** `astro check` 0 errores · `astro build` OK (25 páginas) · `spacing-lint`: solo `NeetyHero.astro:227 px-10` (la réplica de Neety, con sus medidas).

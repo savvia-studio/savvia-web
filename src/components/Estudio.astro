@@ -33,24 +33,12 @@ const [A, E] = estudio.personas;
 -->
 <section id="estudio" class="surface-dark section-y relative" aria-label={estudio.pregunta} data-equipo data-sube>
   <!-- RONDA 191 · Eric: «con todo lo que he contado, ¿cómo reharías el layout?» → DOS COLUMNAS: a la izquierda, alineados a la izquierda como el
-       manifiesto, el titular de Andoni, la entradilla y las tres cifras (la prueba de lo que dice el texto); a la derecha, Eric y Andoni en 3D con
-       sus llamadas y la hierba. En móvil se apila: texto, cifras y los dos. -->
+       manifiesto, el titular de Andoni y la entradilla (las tres cifras, quitadas el 15/10); a la derecha, Eric y Andoni en 3D con
+       sus llamadas y la hierba. En móvil se apila: texto y los dos. -->
   <div class="wrap estudio-grid">
     <div class="lado-texto">
     <h2 class="text-h1 max-w-[15ch]" data-entra>{estudio.titulo}</h2>
     <p class="text-sub text-fg2 mt-4 lg:mt-6 max-w-[34rem] whitespace-pre-line" data-enfoca style="--d:2">{estudio.texto}</p>
-      <div class="cifras">
-      <div class="historia">
-      <ul class="kpis" data-enfoca style="--d:3">
-        {estudio.kpis.map((k) => (
-          <li class="kpi" aria-label={`${k.n} ${k.t}`}>
-            <span class="num" aria-hidden="true">{k.n}</span>
-            <span class="lbl" aria-hidden="true">{k.t}</span>
-            </li>
-        ))}
-      </ul>
-      </div>
-      </div>
     </div>
     <div class="paseo" data-paseo>
       <!-- RONDA 12 · «Eric y Andoni generan vegetación a su paso hasta juntarse»: hierba, helechos y alguna flor que BROTAN del suelo por
@@ -423,36 +411,14 @@ const [A, E] = estudio.personas;
 </script>
 
 <style>
-  /* RONDA 191 · tres cifras en fila (en móvil, una bajo otra): la cifra en Family, grande; debajo, qué cuenta, en secundario */
-  /* RONDA 191 · Eric: «mejor sin grid y debajo del 3D»: tres cifras en fila, sin líneas (probada y descartada la rejilla de la cuadrícula de testimonios) */
-  .kpis {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    justify-content: start;
-    column-gap: calc(var(--spacing) * 12);
-    width: 100%;
-  }
-  /* en móvil, una cifra bajo otra */
-  @media (max-width: 639px) {
-    .kpis { column-gap: calc(var(--spacing) * 6); }
-  }
   /* ronda 191 · Eric: «cada sección, arriba y abajo, el mismo espacio hasta su línea»: el aire extra (para la gota de la sección siguiente, que sube
      hasta ~240 px) se reparte por igual arriba y abajo: el contenido queda centrado entre las dos líneas */
   #estudio { padding-block: calc(var(--space-section) + clamp(4rem, 2rem + 7lvh, 7.5rem)); }
   .estudio-grid { display: grid; gap: calc(var(--spacing) * 16); align-items: center; }
   .lado-texto { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-  .cifras { margin-top: calc(var(--spacing) * 12); width: 100%; }
   @media (width >= 64rem) {
     .estudio-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: calc(var(--spacing) * 12); }
   }
-  .historia { width: 100%; }
-  .kpi { position: relative; display: flex; flex-direction: row; align-items: baseline; text-align: left; gap: calc(var(--spacing) * 2); outline: none; }
-  .num { font-family: var(--font-display); font-size: var(--text-h2); line-height: 1; letter-spacing: -0.02em; }
-  /* la etiqueta, como los rótulos ANDONI / ERIC (detail en mayúsculas): las cifras y las llamadas hablan igual */
-  /* ronda 191 · como la web anterior (Eric): la etiqueta AL LADO de la cifra, sobre su misma línea base, en minúsculas y pequeña */
-  .lbl { font-size: var(--text-aux); line-height: 1.2; max-width: 7em; }
-  .lbl { color: var(--fg2); white-space: nowrap; }
-  .num { color: var(--fg); }
   .paseo {
     --ch: clamp(16rem, 34vw, 26rem); /* alto de la pose final (ronda 141: las poses reconstruidas son nativas, figuras de 333–475 px; a 26rem las figuras miden
       ~360–380 px CSS: ≤ 1,1× nativo a DPR 1, nunca más grandes de lo que dan) */
@@ -463,7 +429,7 @@ const [A, E] = estudio.personas;
     /* ronda 138: aire debajo para que, al acabar el paseo (fila al 70 %), la sección siguiente no asome: ≥ 30 % de la pantalla con el relleno de la sección */
     margin-bottom: max(calc(var(--spacing) * 12), calc(36lvh - var(--space-section)));
   }
-  /* ronda 191 · las cifras van justo debajo y ya ocupan ese aire (Eric: «más recogido y más arriba») */
+  /* ronda 191 · en dos columnas, sin aire extra debajo del paseo */
   .estudio-grid .paseo { margin-bottom: 0; }
   .verde {
     position: absolute;

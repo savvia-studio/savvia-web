@@ -220,7 +220,6 @@ import { icono } from '../lib/iconos';
                   <div class="tel-m"><span class="tel-pant"><Fragment set:html={video} /></span></div>
                 ) : (
                   <div class="mockup">
-                    <span class="cromo" aria-hidden="true"><b>{c.dominio}</b></span>
                     <Fragment set:html={video} />
                   </div>
                 )}
@@ -388,7 +387,14 @@ import { icono } from '../lib/iconos';
         const mia = ++gen, img = fuentes[n]; if (img.loading === 'lazy') img.loading = 'eager';
         await listo(img);
         if (mia !== gen) return;
-        escribir(n, true);
+        // RONDA 193 · Eric: «la forma en la que sale el texto junto con la foto ilustrada tiene que ser smooth, todo en conjunto, stagger y bien
+        // sincronizado». UN reloj por relevo: retrato, cita, nombre y cargo se van JUNTOS (0,35 s) y, cuando se han ido, entran escalonados desde
+        // el mismo instante: el retrato empieza a dibujarse, la cita sube palabra a palabra, después el nombre, el cargo y las flechas.
+        // (Antes: la cita se tecleaba con cursor mientras el retrato viejo aún se apagaba encima del nuevo y el nombre iba por libre.)
+        const primero = !voz.classList.contains('vista');
+        const SALIDA = primero || !dibujado || reducido ? 0 : 350;
+        voz.style.setProperty('--d0', `${SALIDA}ms`);
+        mostrar(n);
         // RONDA 152 · Andoni: «el estilo del árbol, que es lo principal, llevarlo a todas las ilustraciones»: el retrato lo PINTA el motor del roble
         // (estela.ts: líneas del dibujo por delante, la pintura con canto rasgado desde abajo, semitono en los cantos y el hervor en reposo), fundido con
         // el papel de la sección. Cada relevo, en un lienzo nuevo encima; el anterior se apaga y suelta su contexto. Sin WebGL, el carboncillo de antes.
@@ -396,10 +402,13 @@ import { icono } from '../lib/iconos';
         // el motor del roble (pintarConMotor) queda guardado, sin usar
         void pintarConMotor;
         const nuevo = lienzos[1 - frente], viejo = lienzos[frente];
+        viejo.classList.remove('on');
+        if (SALIDA) await new Promise((r) => setTimeout(r, SALIDA));
+        if (mia !== gen) return;
         const P = preparar(img, nuevo); if (!P) return;
         anchoR = innerWidth; frente = 1 - frente;
         nuevo.style.zIndex = '2'; viejo.style.zIndex = '1';
-        viejo.classList.remove('on'); nuevo.classList.add('on');
+        nuevo.classList.add('on');
         if (!dibujado || reducido) { pintar(nuevo, P, 1); return; }
         const t0 = performance.now(), DUR = 1600;
         let impar = false;
@@ -407,39 +416,46 @@ import { icono } from '../lib/iconos';
           if (mia !== gen) return;
           const p = Math.min(1, (ahora - t0) / DUR);
           impar = !impar;
-          if (impar || p >= 1) pintar(nuevo, P, 1 - Math.pow(1 - p, 2.2)); // a 30 fps: el dibujo avanza igual y el hilo queda libre la mitad de los fotogramas
+          if (impar || p >= 1) pintar(nuevo, P, 1 - Math.pow(1 - p, 1.5)); // a 30 fps: el dibujo avanza igual y el hilo queda libre la mitad de los fotogramas
           if (p < 1) requestAnimationFrame(paso);
         };
         requestAnimationFrame(paso);
       };
-      // la CITA se ESCRIBE: lo escrito y lo que falta (transparente, para que el alto no baile) en la misma caja, con un cursor de savia
-      const citas = grupos[0], textos = citas.map((q) => q.textContent || '');
-      let genCita = 0;
-      const escribir = (n: number, animar: boolean) => {
-        const mia = ++genCita, q = citas[n], txt = textos[n];
+      // la CITA sube PALABRA A PALABRA (el gesto de los titulares): cada palabra en su caja con su índice (--w) para el escalón; el nombre y el cargo
+      // entran cuando la cita va por la mitad (--dq, según su largo)
+      const citas = grupos[0];
+      citas.forEach((q, i) => {
+        const palabras = (q.textContent || '').trim().split(/\s+/);
         q.textContent = '';
-        const hecho = document.createElement('span'), cursor = document.createElement('i'), falta = document.createElement('span');
-        cursor.className = 'cursor-cita'; falta.className = 'falta-cita';
-        q.append(hecho, cursor, falta);
-        if (!animar || reducido) { hecho.textContent = txt; cursor.remove(); return; }
-        const t0 = performance.now(), porLetra = Math.min(22, 1600 / txt.length);
-        const paso = (ahora: number) => {
-          if (mia !== genCita) return;
-          const k2 = Math.min(txt.length, Math.floor((ahora - t0) / porLetra));
-          hecho.textContent = txt.slice(0, k2); falta.textContent = txt.slice(k2);
-          if (k2 < txt.length) requestAnimationFrame(paso);
-          else window.setTimeout(() => mia === genCita && cursor.remove(), 900);
-        };
-        falta.textContent = txt; requestAnimationFrame(paso);
+        palabras.forEach((w, j) => {
+          const caja = document.createElement('span'), dentro = document.createElement('span');
+          caja.className = 'w'; caja.style.setProperty('--w', String(j)); dentro.textContent = w; caja.append(dentro);
+          q.append(caja, j < palabras.length - 1 ? ' ' : '');
+        });
+        q.classList.add('partida');
+        grupos[1][i]?.style.setProperty('--dq', `${Math.round(Math.min(palabras.length, 40) * 24 * 0.55 + 120)}ms`);
+      });
+      const pila = voz.querySelector<HTMLElement>('.citas');
+      const ajustarPila = (n: number) => {
+        if (!pila) return;
+        if (!matchMedia('(width >= 64rem)').matches) { pila.style.height = ''; return; }
+        pila.style.height = `${citas[n].offsetHeight}px`;
       };
+      const mostrar = (n: number) => {
+        ajustarPila(n);
+        grupos.forEach((g) => g.forEach((el, i) => { el.classList.toggle('on', i === n); if (el.hasAttribute('aria-hidden')) el.setAttribute('aria-hidden', String(i !== n)); }));
+        voz.classList.add('vista');
+      };
+      // sin movimiento reducido, nada está puesto hasta que la sección asoma (entonces entra todo a la vez)
+      if (!reducido) { grupos.forEach((g) => g.forEach((el) => el.classList.remove('on'))); voz.classList.add('js'); }
       const poner = (n: number) => {
         k = (n + grupos[0].length) % grupos[0].length;
-        grupos.forEach((g) => g.forEach((el, i) => { el.classList.toggle('on', i === k); if (el.hasAttribute('aria-hidden')) el.setAttribute('aria-hidden', String(i !== k)); }));
         const vn = voz.querySelector('[data-voz-n]'); if (vn) vn.textContent = `${String(k + 1).padStart(2, '0')}/${String(grupos[0].length).padStart(2, '0')}`;
         pintarRetrato(k);
       };
-      // la primera vez, al asomar: el retrato se dibuja y la cita se escribe
+      // la primera vez, al asomar: el retrato se dibuja y la cita sube con él
       new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { pintarRetrato(0); o.disconnect(); } }, { threshold: 0.35 }).observe(voz);
+      addEventListener('resize', () => ajustarPila(k));
       addEventListener('resize', () => { const img = fuentes[k], cv = lienzos[frente]; if (motorCv || !img.naturalWidth || innerWidth === anchoR) return; anchoR = innerWidth; gen++; const P = preparar(img, cv); if (P) pintar(cv, P, 1); });
       const programar = () => { clearTimeout(reloj); if (visible && !quieto && !reducido) reloj = window.setTimeout(() => { poner(k + 1); programar(); }, 9000); };
       voz.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => b.addEventListener('click', () => { poner(k + Number(b.dataset.paso)); programar(); }));
@@ -620,14 +636,20 @@ import { icono } from '../lib/iconos';
     width: 100%;
     height: 100%;
     opacity: 0;
-    transition: opacity 0.8s ease;
+    filter: blur(6px);
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 1, 1), filter 0.35s cubic-bezier(0.4, 0, 1, 1);
   }
-  .retrato-cv.on { opacity: 1; transition-duration: 0.2s; }
+  .retrato-cv.on { opacity: 1; filter: none; transition: opacity 0.2s ease; }
   .retrato-cv { mix-blend-mode: multiply; } /* ronda 69: la tinta se hunde en el grano del papel */
   .retrato-cv.motor { mix-blend-mode: normal; } /* ronda 152: el motor del roble ya se funde con el papel */
-  .citas { display: grid; }
+  /* RONDA 193 · Eric: «el espacio entre reseña y nombre siempre el mismo; centramos el contenido aunque unas sean más altas». Cada cita va pegada
+     al pie de la pila (el hueco hasta el nombre no cambia) y en escritorio la pila mide lo que la cita activa (lo pone el JS al relevar, con la
+     anterior ya ida): el bloque, centrado junto al retrato. En móvil se reserva la más alta, para que la página no salte. */
+  .citas { display: grid; grid-template-rows: minmax(0, 1fr); }
+  @media (width >= 64rem) { .voz.js .citas { transition: height 0.45s cubic-bezier(0.22, 1, 0.36, 1); } }
   .vq {
     grid-area: 1 / 1;
+    align-self: end;
     font-size: var(--text-h3);
     line-height: 1.2;
     text-wrap: pretty;
@@ -635,18 +657,25 @@ import { icono } from '../lib/iconos';
     transition: opacity 0.5s ease;
   }
   .vq.on { opacity: 1; }
-  /* RONDA 68 · la cita se escribe: lo que falta ocupa su sitio sin verse; un cursor fino de savia en la punta */
-  .vq :global(.falta-cita) { color: transparent; }
-  .vq :global(.cursor-cita) {
+  /* RONDA 193 · la cita sube palabra a palabra (sustituye al tecleo de la ronda 68): la que llega espera a que se vaya la anterior (--d0) y cada
+     palabra sale 24 ms después de la anterior; la que se va, todas a la vez y más rápido */
+  .voz { --sube: cubic-bezier(0.22, 1, 0.36, 1); --d0: 0ms; }
+  .vq.partida { opacity: 1; transition: none; }
+  .vq.partida :global(.w) { display: inline-block; }
+  .vq.partida :global(.w > span) {
     display: inline-block;
-    width: 2px;
-    height: 0.9em;
-    margin-inline: 1px -3px;
-    vertical-align: -0.08em;
-    background: var(--color-coral);
-    animation: cursor-cita 0.9s steps(1) infinite;
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(6px);
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.4, 0, 1, 1), filter 0.3s ease;
   }
-  @keyframes cursor-cita { 50% { opacity: 0; } }
+  .vq.partida.on :global(.w > span) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: opacity 0.7s ease, transform 0.9s var(--sube), filter 0.7s ease;
+    transition-delay: calc(var(--d0) + var(--w) * 24ms);
+  }
   .autor {
     display: flex;
     align-items: center;
@@ -658,10 +687,14 @@ import { icono } from '../lib/iconos';
     grid-area: 1 / 1;
     display: grid;
     gap: calc(var(--spacing) * 1);
-    opacity: 0;
-    transition: opacity 0.6s ease;
+    --dq: 300ms;
   }
-  .quien.on { opacity: 1; transition-delay: 0.3s; }
+  .quien > * { opacity: 0; transform: translateY(0.5em); filter: blur(4px); transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.4, 0, 1, 1), filter 0.3s ease; }
+  .quien.on > * { opacity: 1; transform: none; filter: none; transition: opacity 0.7s ease, transform 0.9s var(--sube), filter 0.7s ease; transition-delay: calc(var(--d0) + var(--dq)); }
+  .quien.on > span { transition-delay: calc(var(--d0) + var(--dq) + 110ms); }
+  /* las flechas, la primera vez, al final del todo */
+  .voz.js .barra-voz { opacity: 0; transition: opacity 0.8s ease 0.9s; }
+  .voz.js.vista .barra-voz { opacity: 1; }
   .quien b { font-weight: 500; color: var(--fg); }
   .quien span { color: var(--fg2); }
   /* RONDA 144 (2.ª) · Andoni: «los botones del slider de testimonios, a la derecha de los nombres, pegados a la guía derecha y mucho más sutiles,
@@ -699,7 +732,7 @@ import { icono } from '../lib/iconos';
     .retratos { width: 100%; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .item, .retrato-cv, .vq, .quien { transition: none; }
+    .item, .retrato-cv, .vq, .quien, .quien > *, .vq :global(.w > span) { transition: none !important; }
   }
   .lamina {
     position: relative;
@@ -1005,9 +1038,10 @@ import { icono } from '../lib/iconos';
     display: flex;
     flex-direction: column;
     /* Eric: radios concéntricos, interior = exterior − relleno (12 − 4 = 8) */
-    --r-fuera: 9px; /* Eric: «demasiado redondeado»: 12 → 9 (dentro, 9 − 4 = 5) */
-    --marco: 4px;
-    padding: 0 var(--marco) var(--marco);
+    --r-fuera: 6px; /* Eric: «demasiado redondeado»: 12 → 9; ronda 194, Andoni: «muy redondeado comparado con la card» (8 px): 9 → 6 (dentro, 6 − 3 = 3) */
+    --marco: 3px;
+    /* ronda 195 · Eric: «no hace falta que el mockup tenga la url arriba; que ocupe lo mismo abajo que arriba»: fuera la barra, el marco igual por los cuatro lados */
+    padding: var(--marco);
     border-radius: var(--r-fuera);
     overflow: hidden;
     background: color-mix(in srgb, #fff 20%, transparent);

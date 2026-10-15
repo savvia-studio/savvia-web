@@ -306,22 +306,22 @@ export const proyectos = {
   celdas: [
     [
       { tipo: 'cita', q: 'Nunca tuve que ir detrás de ellos: venían a mí con soluciones. Entendieron desde el primer día quiénes somos.', n: 'Ignasi Vegas', r: 'Cofundador y CEO, Cubbo' },
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/remerge.png', n: 'Remerge', escala: 1.25 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/remerge.png', n: 'Remerge', escala: 1.3 },
       { tipo: 'cita', q: 'Un equipo fiable y comprometido, con talento, profesionalidad y un flujo de trabajo impecable.', n: 'Félix Gonzalo', r: 'Sr. Webflow Developer / Tech Lead, Edgar Allan' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/thx.png', n: 'THX' },
       { tipo: 'cita', q: 'Un proyecto complejo, con varios idiomas y una migración de contenido extensa, llevado con una precisión sólida.', n: 'Guilherme Escobar', r: 'Global Marketing Director, Remerge' },
-      { tipo: 'marca', rotulo: 'Hemos colaborado con', logo: '/media/logos/cuadricula/universidad-de-mondragon.png', n: 'Universidad de Mondragón', escala: 1.55 },
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/naterra.png', n: 'Naterra', escala: 1.2 },
+      { tipo: 'marca', rotulo: 'Hemos colaborado con', logo: '/media/logos/cuadricula/universidad-de-mondragon.png', n: 'Universidad de Mondragón', escala: 1.6 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/naterra.png', n: 'Naterra', escala: 1.25 },
     ],
     [
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/cubbo.png', n: 'Cubbo', escala: 1.25 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/cubbo.png', n: 'Cubbo', escala: 1.35 },
       { tipo: 'cita', q: 'Eric y Andoni responden en minutos y despliegan en horas. Superaron nuestras expectativas.', n: 'Juan Moliner', r: 'Cofundador, Invopop' },
-      { tipo: 'marca', rotulo: 'Colaboramos activamente con', logo: '/media/logos/cuadricula/farco-studio.png', n: 'Farco Studio' },
+      { tipo: 'marca', rotulo: 'Colaboramos activamente con', logo: '/media/logos/cuadricula/farco-studio.png', n: 'Farco Studio', escala: 1.05 },
       { tipo: 'cita', q: 'Se comunicaron constantemente conmigo durante todo el proceso y juntos construimos algo precioso.', n: 'Sean Klamm', r: 'CEO, Playground IEP' },
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/kalma.png', n: 'Kalma', escala: 1.1 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/surepayroll.png', n: 'SurePayroll', escala: 1.35 },
       { tipo: 'cita', q: 'Llevamos un año colaborando en SurePayroll y los resultados han sido muy buenos: nos han ayudado a hacer crecer la relación con el cliente.', n: 'Brian Farrell', r: 'Fundador y director, Farco Studio' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/profounders-capital.png', n: 'PROFounders Capital', escala: 1.4 },
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/junipero.png', n: 'Junipero', escala: 1.15 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/junipero.png', n: 'Junipero', escala: 1.25 },
       { tipo: 'cita', q: 'Cercanos, humanos y capaces de entender de verdad tu proyecto. Más que un proveedor, son parte de tu equipo.', n: 'Unai Arambarri', r: 'Fundador y CEO, Neety' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/neety.png', n: 'Neety', escala: 1.3 },
     ],
@@ -329,13 +329,14 @@ export const proyectos = {
       { tipo: 'cita', q: 'Supieron transmitir lo que hace nuestra tecnología. El mejor equipo que he visto en diseño y en trato con el cliente.', n: 'Nuria Pastor', r: 'CEO, Vitalera' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/codely.png', n: 'Codely', escala: 1.2 },
       { tipo: 'cita', q: 'Pensaron en todo, siempre estuvieron disponibles y me lo pusieron facilísimo con vídeos cortos en Loom. Seis estrellas de cinco.', n: 'Thomas Hauer', r: 'Fundador, THX' },
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/transcend-network.png', n: 'Transcend Network', escala: 1.15 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/transcend-network.png', n: 'Transcend Network', escala: 1.25 },
       { tipo: 'cita', q: 'Un colaborador clave en la digitalización de nuestra herramienta: la terminamos a tiempo y con la calidad que buscábamos.', n: 'Ainara Martínez Rivera', r: 'Coordinadora de investigación, Universidad de Mondragón' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/impact-bridge.png', n: 'Impact Bridge', escala: 1.2 },
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/valuat.png', n: 'Valuat' },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/valuat.png', n: 'Valuat', escala: 1.15 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/wisable.png', n: 'Wisable', escala: 1.15 },
     ],
     [
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/invopop.png', n: 'Invopop', escala: 1.2 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/invopop.png', n: 'Invopop', escala: 1.25 },
       { tipo: 'cita', q: 'Una gozada trabajar con ellos: profesionalidad del máximo nivel, un equipo que aporta y multiplica el resultado.', n: 'Fernando Mateus', r: 'CEO y fundador, Kymatio' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/monad.png', n: 'Monad', escala: 1.25 },
       { tipo: 'cita', q: 'Compartimos un boceto y en la siguiente iteración ya estaba diseñado y listo para desarrollar. Muy productivo y con muy pocas reuniones.', n: 'Javi Ferrer', r: 'Cofundador, Codely' },
@@ -350,11 +351,12 @@ export const proyectos = {
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/lyra.png', n: 'Lyra', escala: 1.1 },
     ],
     [
-      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/isotrol.png', n: 'Isotrol', escala: 1.05 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/isotrol.png', n: 'Isotrol', escala: 1.15 },
       { tipo: 'cita', q: 'Comunicación fluida durante todo el desarrollo, mucho oficio y un acompañamiento como socios del más alto nivel.', n: 'Olalla Castro', r: 'Fundadora y CEO, Eleven Lab' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/routal.png', n: 'Routal', escala: 1.05 },
       { tipo: 'cita', q: 'Su forma de trabajar, profesional y cercana, hizo que todo el proceso fuera fluido y agradable. Un trabajo de diez.', n: 'Manu Cabrera', r: 'Fundador, Kabila' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/kymatio.png', n: 'Kymatio', escala: 1.15 },
+      { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/kalma.png', n: 'Kalma', escala: 1.1 },
       { tipo: 'cita', q: 'Destacaría lo rápido que entendieron la misión del proyecto, la ejecución precisa de nuestras ideas y su agilidad para añadir matices.', n: 'Edu Riera', r: 'Fundador, Zrive' },
     ],
   ] as { tipo: 'cita' | 'marca' | 'cifra'; q?: string; n?: string; r?: string; rotulo?: string; logo?: string; texto?: string; v?: string; l?: string; escala?: number }[][],
@@ -362,12 +364,12 @@ export const proyectos = {
   // RONDA 66 · «los testimonios destacados, que sean uno como teníamos antes y que vayan rotando; te paso las imágenes (José Luis, Alberto de Transcend
   // y Danny Saltaren); y no hagas cambio de color». Citas reales de sus casos, traducidas del inglés y sin el nombre del estudio anterior.
   testimonios: [
-    { n: 'José Luis Antúnez', r: 'Strategy Partner, Routal', retrato: '/media/testimonios/jl-antunez.webp', q: 'Habla con Eric y Andoni cuando necesites rediseñar tu web. Un gran trabajo y un gran proceso de documentación, diseño, desarrollo y entrega. Calidad, cercanía y rapidez.' },
-    { n: 'Alberto Arenaza', r: 'Cofundador, Transcend Network', retrato: '/media/testimonios/alberto.webp', q: 'Ha sido un placer trabajar con ellos. Su dedicación, su rapidez y su proactividad lo ponen muy fácil. Los recomiendo sin dudarlo.' },
+    { n: 'José Luis Antúnez', r: 'Nuestro mentor en estrategia y narrativa', retrato: '/media/testimonios/jl-antunez.webp', q: 'Habla con Eric y Andoni cuando necesites rediseñar tu web. Un gran trabajo y un gran proceso de documentación, diseño, desarrollo y entrega. Calidad, cercanía y rapidez.' },
+    { n: 'Alberto Arenaza', r: 'Nos abrió la puerta a proyectos internacionales', retrato: '/media/testimonios/alberto.webp', q: 'Ha sido un placer trabajar con ellos. Su dedicación, su rapidez y su proactividad lo ponen muy fácil. Los recomiendo sin dudarlo.' },
     // RONDA 191 · Juanjo (JJ) Velaz: su cita de la home en inglés de treseiscero.app (2022, en web.archive.org), traducida y sin «treseiscero».
     //   Retrato: su foto pasada a carboncillo con tools/r191/retrato.py (no es de la mano de Andoni).
-    { n: 'JJ Velaz', r: 'Emprendedor', retrato: '/media/testimonios/juanjo-velaz.webp', q: 'Trabajar con Eric y Andoni fue fácil, rápido y de mucha calidad. Les cuento lo que necesito y sé que lo resolverán sin idas y venidas. Comunicación excelente y precios claros.' },
-    { n: 'Danny Saltaren', r: 'Diseñador y fundador, MITO', retrato: '/media/testimonios/danny.webp', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.' },
+    { n: 'JJ Velaz', r: 'Nuestro mentor de negocio desde el principio', retrato: '/media/testimonios/juanjo-velaz.webp', q: 'Trabajar con Eric y Andoni fue fácil, rápido y de mucha calidad. Les cuento lo que necesito y sé que lo resolverán sin idas y venidas. Comunicación excelente y precios claros.' },
+    { n: 'Danny Saltaren', r: 'Nos descubrió y nos impulsó en nuestros inicios', retrato: '/media/testimonios/danny.webp', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.' },
   ],
 
   enlace: { label: 'Todos los proyectos', href: '/proyectos' },
@@ -392,16 +394,19 @@ export const servicios = {
   lista: [
     {
       corto: 'End-to-end',
+      cab: 'Qué incluye el end-to-end:',
       d: 'De la primera conversación a la web publicada: la pensamos, la diseñamos y la construimos contigo, y te la dejamos lista para que tu equipo la lleve con IA.',
       tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje', 'Migraciones de Webflow y WordPress a IA', 'SEO técnico', 'Accesibilidad y rendimiento', 'Auditoría de tu web', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
     {
       corto: 'Colaboración',
+      cab: 'Qué incluye la colaboración:',
       d: 'Nos sumamos a tu equipo o a tu agencia en la parte que más lo necesite: el diseño, el movimiento o el desarrollo.',
       tags: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas (Lottie)', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS (Sanity, Supabase…)', 'Multilenguaje'],
     },
     {
       corto: 'Consultoría',
+      cab: 'Qué incluye la consultoría:',
       d: 'Te ayudamos a decidir qué necesita tu web y a ordenarla para que tu equipo la cambie con IA sin salirse de tu marca.',
       tags: ['Narrativa de la web', 'Auditoría de tu web', 'Arquitectura de contenidos', 'Migraciones de Webflow y WordPress a IA', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
@@ -432,14 +437,7 @@ export const estudio = {
   // primeras frases son suyas; la tercera (el puente al titular) es de Nilo. OJO: el Diccionario dice «no se presume ni años ni número de clientes»
   // (Andoni, ronda 5): por acordar entre los dos.
   // Después: «todo un copy entero; más discreto, más elegante». Un solo texto que desemboca en el titular (que pasa a ser una frase de él).
-  // RONDA 191 · Eric: «en vez de copy podrían ser 3 KPIs: +84 clientes · 8 países (al pasar, el nombre de los países, siguiendo al ratón) ·
-  // 6 años trabajando juntos (realmente 8, pero bueno)». Los países salen del CMS de treseiscero (Countries, 8). OJO: el Diccionario dice
-  // «no se presume ni años ni número de clientes» (Andoni, ronda 5): por acordar entre los dos.
-  kpis: [
-    { n: '+75', t: 'Clientes' }, // Holded: 76 clientes únicos facturados (12-06-2020 → 30-09-2026), 74–75 sin los posibles dobles
-    { n: '8', t: 'Países' }, // Alemania, Andorra, Austria, España, Estados Unidos, Italia, México y Reino Unido (CMS de treseiscero › Countries)
-    { n: '6', t: 'Años juntos' },
-  ] as { n: string; t: string }[],
+  // RONDA 191 · las tres cifras (+75 clientes · 8 países · 6 años) probadas y QUITADAS el 15/10 (Eric): el texto basta.
   titulo: 'El estudio web que orquesta la IA.',
   // ronda 191 · Eric, su versión: «Somos Andoni y Eric. Los dos en cada decisión…»
   texto: 'Somos Andoni y Eric. Los dos en cada decisión.\nLos dos de la primera conversación a la última.', // el salto de línea, a petición de Eric
