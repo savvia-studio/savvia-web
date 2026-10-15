@@ -389,14 +389,14 @@ export const servicios = {
     { n: 'Estrategia', items: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web'] },
     { n: 'Diseño y movimiento', items: ['Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP'] },
     { n: 'Desarrollo', items: ['Desarrollo agéntico', 'Integraciones con CMS', 'Multilenguaje', 'Migraciones de Webflow a IA', 'SEO técnico', 'Accesibilidad y rendimiento'] },
-    { n: 'Después', items: ['La receta: savviagentic.md', 'Formación a tu equipo'] },
+    { n: 'Después', items: ['La receta: savvia.md', 'Formación a tu equipo'] },
   ],
   lista: [
     {
       corto: 'End-to-end',
       cab: 'Qué incluye el end-to-end:',
       d: 'Desde la primera conversación hasta la web publicada: pensamos, diseñamos y la construimos contigo, y te la dejamos lista para que tu equipo la haga crecer con IA.',
-      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS', 'Multilenguaje', 'Migraciones de Webflow a IA', 'SEO técnico', 'Accesibilidad y rendimiento', 'Auditoría de tu web', 'La receta: savviagentic.md', 'Formación a tu equipo'],
+      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Diseño digital', 'Sistema de diseño', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS', 'Multilenguaje', 'Migraciones de Webflow a IA', 'SEO técnico', 'Accesibilidad y rendimiento', 'Auditoría de tu web', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
     {
       corto: 'Colaboración',
@@ -409,7 +409,7 @@ export const servicios = {
       cab: 'Qué incluye la consultoría:',
       d: 'Te ayudamos a decidir qué necesita tu web y a ordenarla para que tu equipo la cambie con IA sin salirse de tu marca.',
       // ronda 197 · Eric, desde el artefacto «Servicios de savvia»: la consultoría también incluye movimiento, desarrollo agéntico y CMS
-      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS', 'Migraciones de Webflow a IA', 'La receta: savviagentic.md', 'Formación a tu equipo'],
+      tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS', 'Migraciones de Webflow a IA', 'La receta: savvia.md', 'Formación a tu equipo'],
     },
   ],
 };
