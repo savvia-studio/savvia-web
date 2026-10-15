@@ -32,7 +32,7 @@ const CELDAS = proyectos.celdas, T = proyectos.testimonios;
 // alto ∝ 1/√proporción, con la proporción leída del archivo (viewBox del SVG o cabecera del PNG) al compilar.
 import sharp from 'sharp';
 // las webs que tienen grabación en móvil (<slug>-movil.mp4); las demás, en el móvil, enseñan la de escritorio recortada
-const CON_MOVIL = new Set(['remerge']);
+const CON_MOVIL = new Set(['remerge', 'neety-com']); // ronda 204: Neety, grabada por Eric en móvil (Screen Studio, 500 × 1080)
 const PROP: Record<string, number> = {};
 for (const url of new Set([...CELDAS.flat().map((it) => it.logo)].filter(Boolean) as string[])) {
   try { const m = await sharp(`public${url}`).metadata(); PROP[url] = (m.width ?? 3) / (m.height ?? 1); } catch { PROP[url] = 3; }
