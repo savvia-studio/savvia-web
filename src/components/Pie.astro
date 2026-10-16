@@ -15,7 +15,6 @@
 //   la ESTACIÓN DE LA WEB (la de hoy o la elegida con el icono de la barra), pintado en su color de árbol; ya no rota solo cada 6 s.
 //   El formulario se DIBUJA al abrir y al cerrar (src/scripts/dibujar.ts), como el paisaje.
 import { pie, nav } from '../data/home';
-const year = new Date().getFullYear();
 const CAPAS = [
   { n: 'montes', d: 40, m: 6 },
   { n: 'arboles', d: 90, m: 20 },
@@ -71,10 +70,7 @@ import { flecha } from '../lib/flecha';
   <canvas class="clima" aria-hidden="true" data-clima></canvas>
   <!-- RONDA 43 · «en verano poner el rayo de luz que tenemos en el hero, que se mueve con el ratón ligeramente; y ojo que se va al salir el formulario» -->
   <div class="luz-pie" aria-hidden="true"><i class="haz"></i></div>
-  <p class="wrap linea detail flex justify-between" data-linea>
-    <span>savvia · {pie.desde}</span>
-    <span>© {year}</span>
-  </p>
+  <!-- RONDA 207 · Eric: «no pongas nada ni @ ni na»: fuera la línea mono del pie («savvia · desde 2020» y «© año») -->
 </footer>
 
 
@@ -746,23 +742,6 @@ import { flecha } from '../lib/flecha';
   }
   .enlace-pie:hover {
     translate: 0.25em 0;
-  }
-  /* la línea mono, sobre la hierba (ronda 26: fuera la mezcla por diferencia, que viraba de color): Rosa niebla con una sombra Cacao */
-  /* RONDA 35 · la línea mono, sin nada alrededor: en color-dodge sobre el paisaje (Andoni: «el típico efecto de color dodge y listo») */
-  .linea {
-    position: absolute;
-    left: 50%;
-    bottom: max(calc(var(--spacing) * 5), env(safe-area-inset-bottom));
-    translate: -50% 0;
-    z-index: 4;
-    color: var(--color-niebla);
-    mix-blend-mode: color-dodge;
-    pointer-events: none;
-  }
-  /* RONDA 132 · en invierno (nieve) el color-dodge con tinta oscura no se ve: Cacao normal con un halo de nieve */
-  :global(html[data-estacion='invierno']) .linea {
-    mix-blend-mode: normal;
-    text-shadow: 0 0 6px var(--noche), 0 0 14px var(--noche);
   }
   :global(html:not(.js)) .capa { translate: 0 0; }
   .pronto { opacity: 0.5; cursor: default; }

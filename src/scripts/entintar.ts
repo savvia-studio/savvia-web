@@ -1,7 +1,7 @@
 // Texto que se ENTINTA letra a letra con el scroll (ronda 186, el manifiesto de Problemas; ronda 190, la historia del Estudio).
 // El marcado: cada letra en un `.c` (arranca al 20 % de tinta desde el CSS con `html.anima`). Empieza cuando el texto asoma al 80 % de la
 // pantalla y acaba cuando su final llega al 62 %; una franja blanda de 14 letras.
-export function entintar(sec: HTMLElement, texto: HTMLElement) {
+export function entintar(sec: HTMLElement, texto: HTMLElement, desde = 0.8) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const cs = [...texto.querySelectorAll<HTMLElement>('.c')];
   const N = cs.length, BLANDO = 14;
@@ -9,7 +9,7 @@ export function entintar(sec: HTMLElement, texto: HTMLElement) {
   let ini = 0, fin = 1;
   const medir = () => {
     const r = texto.getBoundingClientRect(), y = r.top + scrollY;
-    ini = y - innerHeight * 0.8;
+    ini = y - innerHeight * desde;
     fin = y + r.height - innerHeight * 0.62;
   };
   let pedido = false;

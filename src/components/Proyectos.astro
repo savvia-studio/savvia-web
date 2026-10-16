@@ -93,8 +93,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <i class="capta" aria-hidden="true" data-capta></i>
             <!-- RONDA 172 (Eric, Agentation sobre el monitor: «un pequeño aviso de que puedes hacer scroll sobre la pantalla; solo la primera vez, hasta que
                  hagas scroll»): sentado, una píldora al pie de la pantalla y una capa que recoge el primer gesto (el iframe es de otro dominio) -->
-            <div class="aviso-desliza" aria-hidden="true" data-aviso-desliza><i class="rueda"><i></i></i><span data-aviso-texto>desliza para recorrer la web</span></div>
-            <i class="capta-desliza" aria-hidden="true" data-capta-desliza></i>
+            <!-- RONDA 208 (Eric: «sentado, no es intuitivo hacer scroll dentro de la pantalla; hay que guiar un poco al usuario, respetando el diseño»): la píldora
+                 sale por SESIÓN (no una vez por navegador) cuando la web ya ha cargado, se va al entrar el puntero y vuelve a asomar si pasan unos segundos fuera;
+                 ya no hay capa que se trague el primer gesto; y el HILO del borde derecho (carril de cristal con un pulgar de savia que respira) avisa siempre
+                 de que la pantalla se recorre -->
+            <div class="aviso-desliza" aria-hidden="true" data-aviso-desliza><span class="icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path class="ch" d="M6.5 9 12 14.5 17.5 9" /></svg></span><span data-aviso-texto>desliza dentro para ver la web</span></div>
             <!-- RONDA 50 · «el indicador de scroll como estaba antes, encima de la pantalla del ordenador»: vuelve la píldora de la ronda 39, al pie
                  de la web; se va con el primer gesto sobre ella (la capa `capta`, ronda 41) -->
             <div class="sigue-cursor" aria-hidden="true" data-sigue><span class="txt"><svg class="silla" viewBox="0 0 24 24" fill="none"><rect class="respaldo" x="7" y="2.5" width="10" height="8.5" rx="3" /><rect x="5" y="12.5" width="14" height="3" rx="1.5" /><path d="M12 15.5v4M7.5 21.5l4.5-2 4.5 2" /></svg>clic para sentarte</span></div>
@@ -388,6 +391,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       urlEl.textContent = host;
       const desde = performance.now();
       cuandoListo(w, () => setTimeout(() => { if (yo !== turno) return; w.classList.remove('cargando'); tintar(w); }, Math.max(0, 800 - (performance.now() - desde))));
+      // ronda 210 · red de seguridad: una web que nunca dispara `load` (lenta, bloqueada) no deja la pantalla de carga para siempre
+      setTimeout(() => { if (yo === turno && w.classList.contains('cargando')) { w.classList.remove('cargando'); tintar(w); } }, 12000);
     }
 
     if (!reducido) webs.forEach((x) => x.classList.add('cargando')); // hasta que alguien teclee la dirección, pestaña en blanco
@@ -410,22 +415,44 @@ const pad = (n: number) => String(n).padStart(2, '0');
     capta.addEventListener('touchstart', scrollDescubierto, { passive: true });
     capta.addEventListener('pointerdown', scrollDescubierto);
     $('.visor').addEventListener('scroll', scrollDescubierto, { capture: true, passive: true });
-    // RONDA 172 · el aviso de «desliza» sentado: una vez por navegador (savvia:deslizado), hasta el primer gesto dentro de la pantalla
-    const aviso = $('[data-aviso-desliza]'), captaD = $('[data-capta-desliza]');
-    if (TACTIL) $('[data-aviso-texto]').textContent = 'desliza con el dedo para recorrer la web';
-    const yaDeslizo = () => { try { return localStorage.getItem('savvia:deslizado') === '1'; } catch { return false; } };
-    let finAvisoD = 0;
+    // RONDA 208 · el aviso de «desliza» sentado (antes, una vez por navegador y con una capa que se tragaba el primer gesto). Ahora, por sesión de sentado:
+    //   · sale cuando la cámara se ha posado Y la web ha cargado (antes asomaba tras la pantalla de carga);
+    //   · se va en cuanto el puntero entra en la pantalla (sin capa: la primera rueda ya mueve la web);
+    //   · si el puntero sigue fuera, vuelve a asomar a los 4 s (hasta 3 veces); en táctil, se va con el primer toque en la pantalla;
+    //   · el HILO del borde derecho (`data-hilo-desliza`) está mientras estés sentado y la web lista, y se aquieta con el puntero dentro.
+    // RONDA 209 · Eric: «me has puesto un scroll de más» (el hilo se leía como una segunda barra): fuera el hilo. Queda SOLO la píldora con texto,
+    //   que sale al sentarte y se queda hasta que el visitante lo hace: con el puntero dentro de la pantalla 6 s (la web de dentro es de otro dominio:
+    //   no se ve su rueda), un scroll del visor o un toque. Si se va y no ha deslizado, vuelve a los 4 s fuera (hasta 3 veces).
+    const aviso = $('[data-aviso-desliza]'), pantallaD = $('[data-pantalla]');
+    if (TACTIL) $('[data-aviso-texto]').textContent = 'desliza dentro con el dedo para ver la web';
+    let vigilaD = 0, fuera0 = 0, dentro0 = 0, mostradas = 0, deslizado = false;
+    const tictacD = () => {
+      if (!sentado) { avisarDesliza(false); return; }
+      // ronda 211 (Eric: «lo del desliza que aparezca cuando aparece ya la web»): con la cámara posada Y la pantalla de carga ya fuera (navegar() la retira al cargar la web, o a los 12 s)
+      const w = webs[activo];
+      if (performance.now() - posado < 900 || !w || w.classList.contains('cargando')) return; // ronda 213: «un pelín antes» (1600 → 900 ms)
+      if (deslizado) { aviso.classList.remove('on'); return; }
+      const ahora = performance.now();
+      if (pantallaD.matches(':hover')) {
+        // ronda 212 (Eric, «no parece la ayuda»: la captura no la enseñaba): te sientas con un CLIC en el monitor, así que el puntero ya está dentro de la pantalla;
+        // antes, con el puntero dentro solo se sabía esconder la guía, nunca mostrarla. Ahora sale igual y se queda 6 s con el puntero dentro (leerla y probar la rueda)
+        if (!dentro0) dentro0 = ahora;
+        if (ahora - dentro0 < 6000) { if (mostradas < 1) mostradas = 1; aviso.classList.add('on'); }
+        else { deslizado = true; aviso.classList.remove('on'); }
+        fuera0 = 0; return;
+      }
+      dentro0 = 0;
+      if (aviso.classList.contains('on') || mostradas >= 3) return;
+      if (!fuera0) fuera0 = ahora;
+      if (ahora - fuera0 >= (mostradas ? 4000 : 0)) { aviso.classList.add('on'); mostradas++; }
+    };
     function avisarDesliza(si: boolean) {
-      clearTimeout(finAvisoD);
-      if (!si || yaDeslizo()) { aviso.classList.remove('on'); captaD.classList.remove('on'); return; }
-      captaD.classList.add('on');
-      finAvisoD = window.setTimeout(() => sentado && aviso.classList.add('on'), reducido ? 0 : 1600); // cuando la cámara se posa
+      clearInterval(vigilaD); vigilaD = 0; fuera0 = 0; dentro0 = 0; mostradas = 0; deslizado = false;
+      aviso.classList.remove('on');
+      if (si) vigilaD = window.setInterval(tictacD, 120);
     }
-    const deslizo = () => { try { localStorage.setItem('savvia:deslizado', '1'); } catch {} avisarDesliza(false); };
-    captaD.addEventListener('wheel', deslizo, { passive: true });
-    captaD.addEventListener('touchstart', deslizo, { passive: true });
-    captaD.addEventListener('pointerdown', deslizo);
-    $('.visor').addEventListener('scroll', () => sentado && deslizo(), { capture: true, passive: true });
+    pantallaD.addEventListener('touchstart', () => { if (sentado) { deslizado = true; aviso.classList.remove('on'); } }, { passive: true });
+    $('.visor').addEventListener('scroll', () => { if (sentado) { deslizado = true; aviso.classList.remove('on'); } }, { capture: true, passive: true });
     void avisarScroll; // ronda 152: la píldora sale al explorar la pantalla de pie (explorar)
 
     // ── EL ESTRENO (ronda 13): la primera web se busca en la página de inicio Cacao (la misma materia que el titular: sin corte).
@@ -573,7 +600,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       avisarDesliza(si);
       // RONDA 67 · sentado se CARGA la web real del proyecto (con su pantalla de carga); de pie vuelven las capturas que rotan
       webs.forEach((w) => desmontar(w));
-      if (si) { webs.forEach((w, i) => (w.hidden = i !== activo)); if (estrenado) navegar(false); else montar(webs[activo]); }
+      // RONDA 210 · Eric: «si te sientas pronto se queda pillado y no carga»: sentado ANTES del estreno (estrenado = false) solo se montaba la web y nadie le quitaba la
+      // pantalla de carga (`cargando` solo lo retiran estrenar() y navegar()). Ahora sentarse antes cuenta como estreno y siempre se navega.
+      if (si) { webs.forEach((w, i) => (w.hidden = i !== activo)); if (!estrenado) { estrenado = true; inicio.classList.add('fuera'); } navegar(false); }
       else { webs.forEach((w) => { w.hidden = false; w.classList.remove('cargando'); montar(w); }); inicio.classList.add('fuera'); }
       ajustar();
       // RONDA 43 · «al sentarnos hemos perdido ese movimiento de cámara»: cambiar las cuatro láminas a 5120 px EN PLENO VIAJE (decodificar y subir ~240 MB
@@ -1318,18 +1347,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
     position: absolute;
     left: 50%;
     bottom: 5cqh;
-    z-index: 3;
+    z-index: 4; /* ronda 208: por encima de la pantalla de carga (z 3, la última en el documento) */
     display: flex;
     align-items: center;
-    gap: 1.6cqh;
-    padding: 1.4cqh 2.6cqh 1.4cqh 2cqh;
+    gap: 1.8cqh;
+    padding: 0.9cqh 3.4cqh 0.9cqh 0.9cqh; /* ronda 213: el disco a ras del borde, como la píldora de la silla */ /* ronda 208: más grande (2,4 → 3,2 cqh de letra); era casi invisible */
     border-radius: 99px;
     background: color-mix(in oklab, var(--noche) 58%, transparent);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-niebla) 16%, transparent), 0 1cqh 3cqh -1cqh rgb(0 0 0 / 0.4);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     color: var(--color-niebla);
-    font: 500 2.4cqh/1 var(--font-sans);
+    font: 500 3.2cqh/1 var(--font-sans);
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
@@ -1337,33 +1366,33 @@ const pad = (n: number) => String(n).padStart(2, '0');
     transition: opacity 0.5s ease, translate 0.7s var(--ease-out-expo);
   }
   .aviso-desliza.on { opacity: 1; translate: -50% 0; }
-  .aviso-desliza .rueda {
-    position: relative;
-    width: 2.2cqh;
-    height: 3.4cqh;
-    border-radius: 99px;
-    box-shadow: inset 0 0 0 1.5px currentColor;
-  }
-  .aviso-desliza .rueda i {
-    position: absolute;
-    left: 50%;
-    top: 0.7cqh;
-    width: 0.4cqh;
-    height: 0.8cqh;
-    margin-left: -0.2cqh;
-    border-radius: 99px;
+  /* RONDA 213 · Eric: «el icono animado de mouse, que sea algo original, como el de la silla de sentarte»: igual que la silla (disco Coral, glifo de trazo en tinta
+     oscura, entra con rebote y se endereza), pero una VENTANA por la que sube una página, en bucle: lo que hay que hacer dentro de la pantalla */
+  .aviso-desliza .icono {
+    flex: none;
+    width: 5.6cqh;
+    height: 5.6cqh;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
     background: var(--color-coral);
-    animation: rueda-baja 1.6s var(--ease-out-expo) infinite;
+    scale: 0.35;
+    rotate: -12deg;
+    transition: scale 0.3s ease-in, rotate 0.3s ease-in;
   }
-  @keyframes rueda-baja {
-    0% { translate: 0 0; opacity: 0; }
-    20% { opacity: 1; }
-    70% { translate: 0 1.2cqh; opacity: 0; }
-    100% { translate: 0 1.2cqh; opacity: 0; }
+  .aviso-desliza.on .icono { scale: 1; rotate: 0deg; transition: scale 0.5s cubic-bezier(0.34, 1.9, 0.5, 1) 0.1s, rotate 0.8s var(--ease-out-expo) 0.2s; }
+  .aviso-desliza .icono svg {
+    width: 76%;
+    height: 76%;
+    stroke: #1b1714;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
-  .capta-desliza { position: absolute; inset: 0; z-index: 2; display: none; }
-  [data-estudio].sentado .capta-desliza.on { display: block; }
-  @media (prefers-reduced-motion: reduce) { .aviso-desliza .rueda i { animation: none; } }
+  /* ronda 214 (Eric: «pon un icono que se entienda mejor»): un chevrón hacia abajo que se enciende y baja, el gesto universal de «sigue bajando» */
+  .aviso-desliza .ch { animation: ch-cascada 1.5s ease-in-out infinite; }
+  @keyframes ch-cascada { 0%, 100% { opacity: 0.25; transform: translateY(-1px); } 40% { opacity: 1; transform: translateY(1.5px); } }
+  @media (prefers-reduced-motion: reduce) { .aviso-desliza .ch { animation: none; } }
   /* RONDA 66 · «en proyectos destacados, quitamos el navegador» (y con él la píldora «desliza dentro») */
   .cromo,
   .tras-cromo,
