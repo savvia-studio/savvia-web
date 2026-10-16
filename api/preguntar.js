@@ -16,7 +16,7 @@ const POR_HORA = 12; // preguntas por IP y hora (la web además corta a 12 por s
 const ORIGENES = ['https://savvia.studio', 'https://www.savvia.studio'];
 const visitas = new Map(); // respaldo sin Upstash: memoria de la instancia, NO es una garantía
 
-const FICHAS = fichasJson.map((f) => ({ q: String(f.q), a: String(f.a) }));
+const FICHAS = fichasJson.map((f) => ({ q: String(f.q), a: String(f.a).replaceAll('{otro}', 'el compañero').replaceAll('{yo}', 'uno de los dos') })); // `{otro}` solo lo resuelve la web al enseñar la respuesta escrita
 
 // Lo que sabemos de savvia además de las respuestas escritas. Solo hechos ciertos; lo que falta (precios, plazos, mínimos, idiomas) NO va aquí.
 const CONOCIMIENTO = [
@@ -25,7 +25,7 @@ const CONOCIMIENTO = [
   'savvia agentic es su forma de hacer y cuidar una web: a medida, con su savvia (un documento, savvia.md, con las decisiones de la web) y agentes de IA que la cambian junto al cliente.',
   'Las decisiones las toman personas; la IA ejecuta más rápido lo decidido.',
   'El cliente se queda con el código y con su savvia.',
-  'Contacto: botón «Contáctanos» de la web o hola@savvia.studio. Suelen contestar en el día.',
+  'Contacto: botón «Contáctanos» de la web o hola@savvia.studio (también eric@savvia.studio y andoni@savvia.studio). Suelen contestar en el día.',
 ];
 const SIEMPRE = [
   'Si una respuesta escrita contesta la pregunta, usa esa, tal cual.',
@@ -59,7 +59,7 @@ const VETADO = /(\d[\d.,]*\s?(€|eur\b|euros?|\$|usd|dólares)|(€|\$)\s?\d|ht
 function limpio(texto) {
   if (VETADO.test(texto)) return false;
   const correos = (texto.match(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g) || []).map((c) => c.toLowerCase());
-  return correos.every((c) => c === 'hola@savvia.studio');
+  return correos.every((c) => ['hola@savvia.studio', 'eric@savvia.studio', 'andoni@savvia.studio'].includes(c));
 }
 
 async function frenar(ip) {

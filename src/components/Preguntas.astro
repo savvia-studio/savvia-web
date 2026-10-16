@@ -2,6 +2,8 @@
 import { preguntas, pie } from '../data/home';
 const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara-eric-transparente.webp'];
 const NOMBRE = ['Andoni', 'Eric'];
+// `{yo}` = quien contesta · `{otro}` = el compañero de quien contesta (si contesta Andoni, «Eric»; si contesta Eric, «Andoni»): «Con {otro} y conmigo»
+const resolver = (t: string, quien: number) => t.replaceAll('{otro}', NOMBRE[1 - quien]).replaceAll('{yo}', NOMBRE[quien]);
 import { flecha } from '../lib/flecha';
 ---
 
@@ -28,13 +30,13 @@ import { flecha } from '../lib/flecha';
         <div class="charla" role="log" aria-live="polite" aria-label={`Conversación con ${preguntas.firma}`} data-charla>
           {
             preguntas.lista.map((x, i) => (
-              <div class={`intercambio ${i === 0 ? 'q-on a-on' : 'pendiente'}`} data-i={i} data-claves={x.claves.join(' ')}>
+              <div class={`intercambio ${i === 0 ? 'q-on a-on' : 'pendiente'}`} data-i={i} data-claves={x.claves.join(' ')} hidden={i > 6}>
                 <p class="burbuja tu"><span class="sr-only">Tú: </span>{x.q}</p>
                 <div class="resp">
                   <img class="cara" src={CARA[i % 2]} alt="" width="144" height="144" loading="lazy" decoding="async" />
                   <div class="burbuja ellos">
                     <p class="quien detail">{NOMBRE[i % 2]}</p>
-                    <p data-respuesta>{x.a}</p>
+                    <p data-respuesta data-raw={x.a}>{resolver(x.a, i % 2)}</p>
                   </div>
                 </div>
               </div>
@@ -48,7 +50,7 @@ import { flecha } from '../lib/flecha';
         <div class="sugeridas" data-sugeridas>
           <p class="detail text-fg2">Lo que suele preguntar la gente</p>
           <div class="chips">
-            {preguntas.lista.map((x, i) => i > 0 && <button type="button" class="chip" data-q={i}>{x.q}</button>)}
+            {(() => { let n = 0; return preguntas.lista.map((x, i) => i > 0 && <button type="button" class="chip" data-q={i} data-prio={x.chip ? '' : undefined} hidden={++n > 6}>{x.q}</button>); })()}
           </div>
         </div>
         <form class="compositor" data-libre novalidate>
@@ -73,14 +75,17 @@ import { flecha } from '../lib/flecha';
     const charla = raiz.querySelector<HTMLElement>('[data-charla]')!, escribiendo = raiz.querySelector<HTMLElement>('[data-escribiendo]')!, caraEsc = raiz.querySelector<HTMLImageElement>('[data-escribe-cara]')!;
     const inter = [...raiz.querySelectorAll<HTMLElement>('.intercambio')];
     let turno = 1, ocupado = false; // la primera la contestó Andoni: ahora le toca a Eric
+    charla.addEventListener('scroll', () => charla.classList.toggle('desplazada', charla.scrollTop > 2), { passive: true });
     const bajar = () => charla.scrollTo({ top: charla.scrollHeight, behavior: reducido ? 'auto' : 'smooth' });
     // una pregunta → su burbuja; «está escribiendo…» con la cara de quien contesta; y la respuesta
     const conversar = (ex: HTMLElement, quien: number, alFinal?: () => void) => {
       ocupado = true;
       charla.insertBefore(ex, escribiendo);
-      ex.classList.remove('pendiente'); ex.classList.add('q-on');
+      ex.hidden = false; ex.classList.remove('pendiente'); ex.classList.add('q-on');
       const r = ex.querySelector<HTMLElement>('.resp');
       if (r) { r.querySelector<HTMLImageElement>('.cara')!.src = caras[quien]; r.querySelector('.quien')!.textContent = nombres[quien]; }
+      const rr = ex.querySelector<HTMLElement>('[data-respuesta]');
+      if (rr && rr.dataset.raw !== undefined) rr.textContent = rr.dataset.raw.replaceAll('{otro}', nombres[1 - quien]).replaceAll('{yo}', nombres[quien]);
       bajar();
       const largo = ex.querySelector('[data-respuesta]')?.textContent?.length ?? 80;
       const espera = reducido ? 0 : Math.min(2000, 700 + largo * 7);
@@ -89,17 +94,25 @@ import { flecha } from '../lib/flecha';
         setTimeout(() => { escribiendo.hidden = true; ex.classList.add('a-on'); ocupado = false; alFinal?.(); bajar(); }, espera);
       }, reducido ? 0 : 450);
     };
-    raiz.querySelectorAll<HTMLButtonElement>('[data-q]').forEach((b) => b.addEventListener('click', () => {
+    // SUGERENCIAS: salen 6 y, al usar una, entra otra en su lugar
+    // salen todas, poco a poco: primero las más relevantes (`chip` en preguntas.json), al azar, y después el resto
+    const mezclar = <T,>(a: T[]) => { for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; };
+    const todas = [...raiz.querySelectorAll<HTMLButtonElement>('[data-q]')];
+    const chips = [...mezclar(todas.filter((c) => 'prio' in c.dataset)), ...mezclar(todas.filter((c) => !('prio' in c.dataset)))];
+    chips.forEach((b, k) => { b.hidden = k >= 6; b.parentElement!.append(b); });
+    chips.forEach((b) => b.addEventListener('click', () => {
       if (ocupado) return;
       const ex = inter[Number(b.dataset.q)];
       b.remove();
+      const siguiente = chips.find((c) => c.hidden && c.isConnected);
+      if (siguiente) siguiente.hidden = false;
       conversar(ex, turno); turno = 1 - turno;
-      if (!raiz.querySelector('[data-q]')) raiz.querySelector<HTMLElement>('[data-sugeridas]')!.hidden = true;
+      if (!raiz.querySelector('[data-q]:not([hidden])')) raiz.querySelector<HTMLElement>('[data-sugeridas]')!.hidden = true;
     }));
     // LA PREGUNTA LIBRE: por palabras clave (exacta = 2 puntos; misma raíz = 1) como respaldo; el modelo solo elige entre respuestas ya escritas
     const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ ]/g, ' ');
     const VACIAS = new Set('el la los las un una unos unas de del al a en y o que con por para mi tu su me te se es son como cuando donde cual cuales hay web pagina sitio si no mas muy ya lo le les nos vosotros'.split(' '));
-    const fichas = inter.map((d) => ({ claves: new Set(d.dataset.claves!.split(' ')), a: d.querySelector('[data-respuesta]')!.textContent! }));
+    const fichas = inter.map((d) => ({ claves: new Set(d.dataset.claves!.split(' ')), a: (d.querySelector<HTMLElement>('[data-respuesta]')!.dataset.raw ?? d.querySelector('[data-respuesta]')!.textContent!) }));
     const form = raiz.querySelector<HTMLFormElement>('[data-libre]')!, campo = form.querySelector<HTMLInputElement>('input')!;
     // MANDAN LAS RESPUESTAS ESCRITAS (api/preguntar.js, OpenRouter): si una encaja, sale esa tal cual; si no, la IA redacta con lo que ya hemos escrito y
     // se avisa de que es IA; si ni así, por correo. Si falla o no hay clave, la búsqueda por palabras de arriba.
@@ -136,7 +149,8 @@ import { flecha } from '../lib/flecha';
       ex.removeAttribute('data-i'); ex.removeAttribute('data-claves');
       ex.querySelector('.tu')!.lastChild!.textContent = q;
       const rp = ex.querySelector<HTMLElement>('[data-respuesta]')!;
-      rp.textContent = v.tipo === 'ia' ? v.texto : mejor >= 0 ? fichas[mejor].a : sinRespuesta;
+      rp.dataset.raw = v.tipo === 'ia' ? v.texto : mejor >= 0 ? fichas[mejor].a : sinRespuesta;
+      rp.textContent = rp.dataset.raw;
       if (v.tipo === 'ia' || mejor < 0) {
         const a = document.createElement('a');
         [...rp.attributes].filter((at) => at.name.startsWith('data-astro-cid')).forEach((at) => a.setAttribute(at.name, ''));
@@ -178,6 +192,9 @@ import { flecha } from '../lib/flecha';
     overscroll-behavior: contain;
     scrollbar-width: none;
     padding: calc(var(--spacing) * 2) calc(var(--spacing) * 1) calc(var(--spacing) * 2) 0;
+  }
+  /* el difuminado de arriba solo cuando hay conversación por encima (al cargar, la primera pregunta se ve entera) */
+  .charla.desplazada {
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 6));
     mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 6));
   }

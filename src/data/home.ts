@@ -494,7 +494,7 @@ export const preguntas = {
   firma: 'Eric y Andoni',
   nota: 'Solemos contestar en el día.',
   // RONDA 39 · reescritas hacia quien pregunta (punto 8): lo que gana o lo que decide el cliente va primero.
-  lista: listaPreguntas as { q: string; a: string; claves: string[] }[], // ronda 205 · en src/data/preguntas.json: la leen también la web y api/preguntar.js
+  lista: listaPreguntas as { q: string; a: string; claves: string[]; chip: boolean }[], // ronda 205 · en src/data/preguntas.json: la leen también la web y api/preguntar.js
 
   libre: {
     etiqueta: '¿Tienes otra?',
