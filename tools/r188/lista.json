@@ -1,0 +1,542 @@
+{
+ "kuanta": [
+  {
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-plano",
+   "y": 10400,
+   "arriba": 0,
+   "espera": 1500,
+   "caja": [
+    230,
+    40,
+    760,
+    760
+   ],
+   "salto": 10700,
+   "desde": 0.4,
+   "hold": 0,
+   "dur": 3.2,
+   "holdFin": 1.6,
+   "ancho": 1400
+  },
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6500,
+   "espera": 600,
+   "hold": 0,
+   "dur": 7,
+   "sinFijos": "botones"
+  },
+  {
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-matriz",
+   "y": 6400,
+   "arriba": 0,
+   "espera": 1000,
+   "accion": "bajar",
+   "dy": 1600,
+   "dur": 6,
+   "ida": true,
+   "hold": 0.8
+  },
+  {
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-tensor",
+   "y": 21272,
+   "arriba": 120,
+   "espera": 1500,
+   "dur": 8,
+   "hold": 0
+  },
+  {
+   "nombre": "portada",
+   "vp": [
+    1440,
+    810
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 1500,
+   "espera": 300,
+   "cast": true,
+   "sinFijos": false,
+   "hold": 0,
+   "dur": 6,
+   "holdFin": 0
+  }
+ ],
+ "arkdev": [
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 7000,
+   "espera": 600,
+   "hold": 0,
+   "dur": 7,
+   "sinFijos": "botones"
+  },
+  {
+   "nombre": "x-terminal",
+   "y": 350,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 600,
+   "espera": 200,
+   "caja": [
+    200,
+    320,
+    1040,
+    585
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 7,
+   "hold": 0
+  },
+  {
+   "nombre": "x-canales",
+   "y": 1550,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    40,
+    200,
+    1360,
+    680
+   ],
+   "formato": [
+    2,
+    1
+   ],
+   "accion": "pulsar",
+   "textos": [
+    "Instagram",
+    "TikTok",
+    "LinkedIn",
+    "YouTube",
+    "Reddit"
+   ],
+   "dur": 9,
+   "hold": 0.6,
+   "ancho": 2400
+  },
+  {
+   "nombre": "x-pasos",
+   "y": 6560,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    100,
+    140,
+    1240,
+    470
+   ],
+   "dur": 8,
+   "hold": 0
+  },
+  {
+   "nombre": "x-muelle",
+   "y": 4100,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    100,
+    50,
+    700,
+    525
+   ],
+   "formato": [
+    4,
+    3
+   ],
+   "dur": 10
+  },
+  {
+   "nombre": "portada",
+   "vp": [
+    1440,
+    810
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 1500,
+   "espera": 300,
+   "cast": true,
+   "sinFijos": false,
+   "hold": 0,
+   "dur": 6,
+   "holdFin": 0
+  }
+ ],
+ "playground": [
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 5000,
+   "espera": 600,
+   "hold": 0,
+   "dur": 8,
+   "zoom": 1.3334,
+   "sinFijos": "botones"
+  },
+  {
+   "cast": true,
+   "zoom": 1.3334,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-app",
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 4500,
+   "espera": 800,
+   "accion": "bajar",
+   "dy": 900,
+   "dur": 5,
+   "ida": true,
+   "hold": 0.8
+  },
+  {
+   "nombre": "x-copilot",
+   "y": 5600,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    110,
+    214,
+    1220,
+    686
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "sobre": "[role=tab]",
+   "dur": 9,
+   "hold": 0.6
+  },
+  {
+   "nombre": "x-cromos",
+   "y": 10300,
+   "arriba": 0,
+   "espera": 1500,
+   "caja": [
+    0,
+    180,
+    1440,
+    640
+   ],
+   "dur": 10,
+   "hold": 0,
+   "ancho": 2400
+  },
+  {
+   "nombre": "x-notas",
+   "y": 12400,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    100,
+    200,
+    1240,
+    690
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "exacto": false,
+   "textos": [
+    "Wait, is this another",
+    "Does it help with",
+    "Can I talk instead",
+    "Can I bring"
+   ],
+   "dur": 8
+  },
+  {
+   "nombre": "portada",
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 1500,
+   "espera": 300,
+   "caja": [
+    0,
+    0,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 7
+  }
+ ],
+ "neety": [
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6000,
+   "espera": 600,
+   "hold": 0,
+   "dur": 9,
+   "zoom": 1.3334,
+   "sinFijos": "botones"
+  },
+  {
+   "nombre": "x-feed",
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera": 2500,
+   "caja": [
+    760,
+    150,
+    640,
+    480
+   ],
+   "dur": 9,
+   "hold": 0,
+   "sinFijos": "botones"
+  },
+  {
+   "cast": true,
+   "zoom": 1.3334,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-dentro",
+   "y": 3154,
+   "arriba": 70,
+   "espera": 800,
+   "accion": "bajar",
+   "dy": 1700,
+   "dur": 6,
+   "ida": true,
+   "hold": 0.7
+  },
+  {
+   "cast": true,
+   "zoom": 1.3334,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-casos",
+   "texto": "Abre nuevos mercados con más criterio",
+   "arriba": 330,
+   "espera": 1000,
+   "accion": "pulsar",
+   "sobre": "[role=tab], .tabs button, [class*=tab] button",
+   "dur": 8,
+   "hold": 0.6,
+   "caja": [
+    0,
+    0,
+    1440,
+    810
+   ]
+  }
+ ],
+ "cubbo": [
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6000,
+   "espera": 600,
+   "hold": 0,
+   "dur": 6,
+   "zoom": 1.3334,
+   "sinFijos": "botones"
+  },
+  {
+   "cast": true,
+   "zoom": 1.3334,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-operacion",
+   "y": 3656,
+   "arriba": 60,
+   "espera": 1200,
+   "accion": "pulsar",
+   "textos": [
+    "Centralizamos la operación",
+    "Ejecutamos el fulfillment",
+    "Activamos la red de entrega",
+    "Ampliamos tus capacidades"
+   ],
+   "dur": 9,
+   "hold": 0.6,
+   "caja": [
+    0,
+    0,
+    1440,
+    810
+   ]
+  },
+  {
+   "nombre": "x-capas",
+   "sel": "h2",
+   "n": 0,
+   "arriba": 70,
+   "espera": 1500,
+   "caja": [
+    0,
+    0,
+    1440,
+    810
+   ],
+   "accion": "pasar",
+   "exacto": false,
+   "textos": [
+    "Fulfillment",
+    "Supply Chain",
+    "WMS",
+    "Puntos de recolección",
+    "Infraestructura para IOR",
+    "Cubbo Engage"
+   ],
+   "dur": 8,
+   "hold": 0.5,
+   "contiene": "La capa tecnológica"
+  }
+ ],
+ "remerge": [
+  {
+   "nombre": "cubierta",
+   "movil": true,
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6000,
+   "espera": 600,
+   "hold": 0,
+   "dur": 7,
+   "sinFijos": "botones"
+  },
+  {
+   "cast": true,
+   "zoom": 1.3334,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-home",
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 5000,
+   "espera": 600,
+   "dur": 7,
+   "hold": 0,
+   "caja": [
+    0,
+    0,
+    1440,
+    810
+   ]
+  },
+  {
+   "nombre": "x-objetivos",
+   "y": 850,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    0,
+    60,
+    1440,
+    810
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "accion": "pulsar",
+   "textos": [
+    "Acquire high-value users",
+    "Measure and analyze performance",
+    "Find and re-engage app users"
+   ],
+   "dur": 8
+  }
+ ],
+ "business-online-payroll": [
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "zoom": 1.3334,
+   "sinFijos": "botones",
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6000,
+   "espera": 600,
+   "hold": 0,
+   "dur": 6
+  }
+ ]
+}

@@ -3790,3 +3790,183 @@ Lo que queda fijo de cada ronda está en `AGENTS.md`. Aquí, el historial. Las r
 - **El naranja por detrás de las cards (Eric: «que lo naranja no quede por encima de los mockups arriba»):** la gota de Servicios (`.sube`, z-index 3) subía sobre el final de «Más proyectos» y tapaba cards y pies. `#anteriores > .wrap { position: relative; z-index: 4 }`: el contenido por encima de la gota, que pasa por detrás. Medido (Chromium 1440, a mitad de transición): cards y pies de Neety y THX enteros sobre el naranja; sin errores. Sin subir.
 - **Marrón sobre Servicios, texto en blanco donde toca** (Eric: «lo mismo aquí, solo que si el marrón toca las letras de Consultoría, lo que toque tiene que volverse white»): `data-sube-eco` en Estudio; `entradas.ts` mete dentro de la gota (`.sube`) un ECO inerte del contenido de Servicios (superficie oscura, alineado por abajo, sin ids ni vídeos/canvas; se hace al acercarse y se rehace si el original cambia de clase/contenido). La curva de la gota recorta también el eco: lo que cubre el marrón se ve en blanco, lo demás es el original. Medido (Chromium 1440, con el relleno forzado a 70 px para que se solapen): «Consultoría», las filas y los círculos, claros sobre el marrón y alineados con el original, sin costura; sin errores.
 - **Eric: «del espacio que has quitado, hay que ampliar más ahora»:** relleno inferior de Servicios 163 → ~194 px (0,9 × la altura de la gota de Estudio, `clamp(90px, 24lvh, 240px)`; móvil 182). Hueco fin Servicios → título Estudio: 463 px (1440) · 263 (390). Con eso la curva ya no llega a tocar el texto en reposo; el blanco solo se ve si algo queda dentro de la gota. Sin subir.
+
+
+## Rondas de Nilo en local (14–16/10), renumeradas al juntarlas con las de Eric
+Se trabajaron en paralelo a las rondas 203–216 de Eric y se habían numerado igual: aquí van como 217–226 (las menciones «ronda 2xx» dentro del texto y en los
+comentarios del código conservan su número de entonces: 203→217 · 204→218 · 205→219 · 206→220 · 207→221 · 208→222 · 209→223 · 210→224 · 211–215→225 · 216→226).
+
+### Ronda 217 · 2026-10-14 · los casos: nada fuera de las guías ni recortado, vídeos regrabados sin saltos y a más calidad, la paleta a lo ancho y el espaciado medido (en local, Nilo)
+- **Andoni (textual):** «en el portfolio, este detalle [las cuatro tarjetas de Kuanta] se sale de las guías: tiene que estar dentro y verse sin cortar» · «cerciorarse de que
+  todos los vídeos se ven con buena calidad; en Kuanta, en el plano que se construye, las isometrías como que vibran: con mostrar una construyéndose es suficiente» ·
+  «la paleta de colores, que tenga más presencia, y podríamos poner el sistema de espaciados para que todo se vea dónde está».
+- **Hecho:** · `[slug].astro`: la fila «sangre» ya no sale de las guías (12 columnas a la proporción real de su vídeo, como la ancha) y en parejas y tríos ninguna pieza
+  se recorta: la que no lleva placa va ENTERA sobre el color de su web (antes llenaban su hueco: Arkdev «atraca» y «clientes» e Invopop «ficha» perdían los lados).
+  · VÍDEOS: la causa de la vibración era el grabador de la ronda 154 (capturas a 2× en bucle, 6–10 por segundo, rellenadas a 30 fps repitiendo fotogramas) y la
+  calidad, CRF 23–26 en los detalles y CRF 29 en las portadas. `tools/r188/grabar.cjs`: la página corre a CÁMARA LENTA mientras se graba (performance.now, Date.now,
+  rAF y temporizadores a 0,2 y `Animation.setPlaybackRate`), cada captura cae en su hora exacta y no se repite ningún fotograma (40–260 capturas por segundo de página);
+  CRF 18 (21–23 en los más pesados a pantalla completa). Regrabados los de las webs en vivo (Kuanta, Arkdev, Playground, Neety, Cubbo, Remerge; lista
+  `tools/r188/lista.json`); recortados de nuevo desde sus grabaciones originales los archivados de Invopop e Isotrol y las portadas (`tools/r188/archivo.sh`). Kuanta
+  «Un plano que se construye»: una sola ilustración (Edge and on-prem) de línea a relleno (opciones nuevas `salto` y `desde`). La cubierta de Business Online Payroll
+  no se pudo regrabar (sin fotogramas con `zoom`): sigue la anterior.
+  · EL SISTEMA: la paleta, a lo ancho de la retícula, un panel por color (el ancho sigue al uso, mínimo 14) con nombre, valor y %, que se descubre al llegar; fuera la
+  barra fina y la lista repetida. ESPACIADO medido en cada web entregada (`tools/r188/espacios.cjs` → `src/data/espaciado.json`, a 1440 px): paso base (4, 8 o fluido),
+  aire entre secciones, contenedor y los nueve valores que más se usan con su caja a escala real y para qué (relleno, margen, entre elementos). Invopop no lo tiene
+  (invopop.com ya no es la web entregada).
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /, /proyectos y tres casos (Chrome y WebKit, 1280 y 390): limpio, desborde 0 · `tools/r188/ver.cjs`: 0 piezas
+  fuera de las guías en cinco casos · fotogramas del plano capturados (una construcción, sin saltos).
+- **Pendiente:** no publicado ni subido. `public/media/obra` pasa de 58 a 87 MB (más calidad); los vídeos se cargan solo al verse.
+
+### Ronda 218 · 2026-10-14 · los gestos nuevos de Eric y Andoni (en local, Nilo)
+- **Andoni (textual):** «aquí te paso para actualizar los gestos de Eric y Andoni» (`~/Desktop/frames-referencia-v3.zip`: baloncesto y fútbol, 16 fotogramas + cierre, 1024 × 1536).
+- **Hecho:** `tools/r189-equipo/montar.cjs` (fuente en `tools/r189-equipo/fuente/`, fuera de git): Andoni tira a canasta, Eric da un toque de fútbol. El 01 de cada uno se
+  encaja sobre su mitad de la foto (solape de máscaras 0,94 y 0,89) y todos los fotogramas llevan su misma escala y sitio (el salto y la patada se ven como son) →
+  `public/media/equipo/r189/` (2,6 MB). `home.ts` apunta a ellos; `Estudio.astro` a 10 fps y sin el saltito artificial de la ronda 144 (los fotogramas ya saltan).
+- **Medido:** fotogramas 1, 4, 7, 10, 13 y 16 de cada uno sobre la foto (`tools/r189-equipo/ver.cjs`): sin errores ni salirse · verify limpio en /.
+- **Pendiente:** son fotogramas generados (su LEEME avisa de diferencias de cara y ropa con la foto); en tres del tiro asoma una mota suelta junto a los pies; no publicado.
+
+### Ronda 219 · 2026-10-14 · la carátula del caso sin el hueco de arriba y el marco de navegador de treseiscero (en local, Nilo)
+- **Andoni (textual):** «en el portfolio, la primera vista que ves del proyecto le sobra mucho espacio por arriba, y el marco en el que están metidos se ve raro: tiene que
+  ser un marco estilo el que teníamos en treseiscero.com».
+- **Hecho (`obra/Pieza.astro`):** el MARCO, el de treseiscero.com (medido allí): ventana clara (#F3F2EE) y recta, filo fino, radio pequeño; barra con tres puntos grises,
+  candado y dominio centrados y recargar a la derecha; la web en un margen fino con su propio radio. Sustituye a la barra de cristal translúcido de la ronda 156 (Eric)
+  en el listado, la rejilla y la carátula. La CARÁTULA ya no mide 78 lvh con el navegador hundido hasta el borde (~170 px vacíos arriba a 1280): la lámina va a 12:5 y
+  el navegador empieza al 7 % (el teléfono, 2:1 y al 8 %; en móvil, 2:1). Al revisarlo: las portadas regrabadas de Arkdev y Playground arrancaban en la pantalla de carga
+  de su web → vuelven las anteriores; el póster de las portadas recortadas, al 60 % del vídeo (el de Neety enseñaba su pantalla de carga).
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /, /proyectos y dos casos (Chrome y WebKit, 1280 y 390): limpio · capturas de la carátula (Kuanta, Neety,
+  Remerge, Arkdev en WebKit 390) y de la rejilla.
+- **Pendiente:** en los destacados del listado el navegador sigue algo ladeado (ronda 68); en treseiscero iba recto. No publicado ni subido.
+- **Al integrar lo de Eric (15/10, Andoni):** «quédate con el marco de cristal de Eric (lo que está publicado) y conserva el resto de la ronda 190» → `Pieza.astro` vuelve al
+  marco de cristal de las rondas 191–196 (fuera el de treseiscero) y se quedan la carátula a 12:5 con el navegador al 7 % (teléfono 2:1 al 8 %; en móvil 2:1) y las
+  portadas recuperadas. Rondas 188–190 locales renumeradas 203–205 (Eric publicó otras con esos números).
+
+### Ronda 220 · 2026-10-15 · el favicon del roble, reducido y en color, y los gestos nuevos a 30 fps (en local, Nilo)
+- **Andoni (textual):** «el favicon quiero algo reducido del árbol pero que siga manteniendo los colores lo mejor posible» · «te paso para poner nuevos movimientos
+  míos y de Eric» (`~/Desktop/animaciones-web-30fps.zip`: baloncesto y fútbol, 61 PNG por persona, 256 × 384, 30 fps, con alfa).
+- **Hecho:** · FAVICON (`tools/r206/favicon.cjs`): de la lámina del hero de cada estación se queda solo el núcleo del roble (fuera las estelas horizontales: solo lo
+  casi opaco y las columnas donde el árbol es denso; en invierno, más permisivo porque sus ramas son finas), recortado y agrandado hasta llenar el icono (6 % de
+  margen), con mediana y saturación ×1,25 para que el color aguante a 16–32 px; mismo fondo de estación que la ronda 156. Favicon 64 px redondeado e icono de
+  iPhone 180 px; `?v=206` en `Base.astro`. Los anteriores, en `tools/retirados/favicon-r196/`. No es el redibujo de la ronda 187 (que se retiró): es la lámina.
+  · GESTOS (`tools/r206/montar.cjs`, copia del de la ronda 189; fuente en `tools/r206/fuente/`, fuera de git): 60 fotogramas por persona (el 61 repite el
+  primero), el primero encajado sobre su mitad de la foto (solape 0,94 Andoni y 0,89 Eric, como en la 189); se borran las motas sueltas de los intermedios →
+  `public/media/equipo/r206/` (120 WebP, 2,2 MB). `home.ts` apunta a ellos; `Estudio.astro` a 30 fps (2 s por gesto). La mota junto a los pies de Andoni que ya
+  salía en la 189 era la punta de su zapatilla en la FOTO, que cruzaba el corte entre las dos mitades: el corte de abajo pasa del 49,17 % al 51 %.
+- **Medido:** fotogramas 0 · 10 · 20 · 30 · 40 · 50 de cada uno sobre la foto (`tools/r206/ver.cjs`, Chrome 1440 y WebKit 390): sin errores, sin mota.
+- **Pendiente:** los intermedios están interpolados (su LEEME lo avisa): en el pase de Eric hay fotogramas con fantasma en las piernas (≈ 20 y 40) y el tiro de
+  Andoni se emborrona algo a mitad; además vienen a 384 px de alto y en la web se pintan a ×2,4: en pantallas retina se ven algo blandos (pedir la versión a
+  doble resolución si se quiere nitidez). No publicado ni subido.
+
+### Ronda 221 · 2026-10-15 · el favicon con el estilo del hero y las v del wordmark acabadas en bola (en local, Nilo)
+- **Andoni (textual):** «el favicon no me gusta, el árbol no entra bien: hay que ponerlo con más espacio por arriba y que no se corte por los lados» · «el favicon
+  tiene que conservar el estilo del hero» · «podemos trabajar el wordmark de savvia haciéndole alguna ligera modificación y que tenga más personalidad» → «modificar
+  las v de alguna manera sutil pero que se note».
+- **Hecho:** · FAVICON (`tools/r207/favicon.cjs`; sustituye al de la ronda 206): la lámina del hero de cada estación TAL CUAL (estelas, trama y color), con el núcleo
+  del roble al 70 % del ancho, 10 % de aire abajo y el resto arriba; las estelas se desvanecen entre el 80 y el 94 % del icono (no se cortan). `?v=208`.
+  · WORDMARK (`tools/r207/wordmark.cjs` → `public/savvia-palabra.svg`; el anterior en `tools/retirados/savvia-palabra.r206.svg`): la misma palabra en Family, pero el
+  brazo fino de cada v acaba en una BOLA (r 52) en vez de en remate, como la v caligráfica del logotipo de la ronda 10, y rima con el punto de la i. Misma caja
+  (2373 × 707): no cambia de tamaño en la barra, el menú, Agentic, Proyectos, la receta ni el libro. `?v=208`. Probadas y descartadas (hojas en el scratch de la
+  sesión): la gota en el punto de la i (con las letras más juntas), las vv unidas por el remate, las vv cruzadas (se lee «sawia»), la gota que cuelga del vértice
+  (se lee «sayyia»), la v que sube hasta el punto de la i y las v caligráficas enteras del logotipo antiguo (la que más carácter tiene; queda como alternativa).
+- **Medido:** `astro check` 0 errores · barra en Chrome y WebKit, 1440 y 390, sin errores y con `favicon-otono.png?v=208`.
+- **Después (Andoni):** «no me gusta ninguna, deja la que está» → vuelve `savvia-palabra.svg` de siempre (`?v=209` para saltar la caché). `tools/r207/wordmark.cjs` queda como
+  registro de lo probado. El favicon, a rehacer ILUSTRADO (ver ronda 208). No publicado ni subido.
+
+### Ronda 222 · 2026-10-15 · el wordmark nuevo de Andoni, calcado y en la web (en local, Nilo)
+- **Andoni (textual, con una imagen del wordmark en blanco sobre negro):** «replica este wordmark y vamos a llevarlo a web para ver cómo queda».
+- **El wordmark:** «savvia» en Family con las v retocadas: en el vértice de cada v la savia hace una gota hacia dentro, remates ondulados, y el brazo fino de la
+  segunda v sube hasta ser el PUNTO de la i (la i ya no lleva punto propio).
+- **Hecho (`tools/r208/`):** se CALCA de su imagen (`wordmark-referencia.png`) con potrace, no se redibuja, para que sea fiel: recorte a la palabra + 20 px, ×4
+  lanczos, desenfoque 1,2, umbral 128, tolerancia 1 (`trazo-potrace.svg`) → `wordmark.cjs` → `public/savvia-palabra.svg` (29 KB; coordenadas enteras, caja
+  ajustada a la tinta, 944 × 272). La proporción pasa de 2373/707 a 944/272 en la barra, el menú, Agentic, Proyectos, la receta, el libro y `global.css`; `?v=210`.
+  La anterior, en `tools/retirados/savvia-palabra.r206.svg`.
+- **Medido:** barra en Chrome y WebKit, 1440 y 390, sin errores.
+- **Pendiente:** es un calco de una imagen de 944 px de ancho: para el archivo maestro de marca convendría el vector original. La carga y el titular del pie
+  escriben la palabra con la fuente, no con este SVG. No publicado ni subido.
+- **Después (Andoni):** «trabajarlo un poco más para que los grosores coincidan mejor con el resto de letras». Medido sobre el calco (superpuesto a Family): en sus
+  v el brazo grueso medía ~80 px y el fino ~90 (en Family, ~150 y ~66: sus v eran casi monolineales) y la bola, más pequeña que el punto de la i. Probado
+  ensanchar el calco fila a fila (`ajustar.cjs`: deja muescas y cortes donde el brazo toca el remate; se queda como registro). SOLUCIÓN (`vector.cjs` →
+  `public/savvia-palabra.svg`, `?v=211`, de vuelta a la caja 2373 × 707): la palabra RECONSTRUIDA EN VECTORIAL sobre los glifos de Family (s, a, palo de la i
+  y a, exactos) y sus v con los brazos de la v de Family (grueso y fino de la fuente) más lo suyo dibujado a medida: un solo remate que une las dos v (con
+  una comba leve), la savia que baja por el canto de dentro del brazo grueso y cuelga en una gota (más arriba que en su dibujo: con el brazo de Family,
+  junto al vértice no cabe), la gotita bajo el primer remate, la banderita y el brazo fino de la segunda v que sube en curva hasta la bola, que es el punto
+  de Family en su sitio. El calco, en `tools/r208/palabra-calco.svg`.
+- **Después (Andoni):** «no me convence nada, deja de momento la que teníamos de Family» → vuelve `savvia-palabra.svg` de siempre (`?v=212`). Calco y
+  reconstrucción se quedan en `tools/r208/` como registro.
+
+### Ronda 223 · 2026-10-15 · el móvil de la mesa, en las cuatro estaciones (en local, Nilo)
+- **Andoni (textual):** «aquí va el mockup de las 4 estaciones para ponerlo donde tengamos y que cambie con las estaciones» (`~/Desktop/mockup-cuatro-estaciones.zip`:
+  primavera, verano, otoño, invierno; 1672 × 941; generados con la herramienta integrada de imágenes a partir de `mesa-movil.webp`, `tools/r209/generacion.json`).
+- **Hecho:** → `public/media/anteriores/mesa-movil-<estación>.webp` (144–157 KB). En «Más proyectos», la pieza del móvil sobre la mesa (`Anteriores.astro`, tipo
+  `movil`) lleva las cuatro y enseña la de la estación de la web (otoño por defecto); las demás no se pintan ni se descargan (`display: none` + `loading=lazy`).
+  La pantalla, comprobada sobre las cuatro con el cuadrilátero medido de siempre (964,183 · 1205,178 · 1195,714 · 943,705): cae en su sitio (±2–4 px, que tapan
+  las esquinas redondeadas del vídeo). `mesa-movil.webp` (la de antes) se queda sin uso.
+- **Medido:** `tools/r209` (Chrome y WebKit, 1440): al cambiar `data-estacion`, se ve solo la lámina de esa estación, cargada a 1672 px; sin errores.
+- **Pendiente:** el cambio es instantáneo (las otras piezas viran con un fundido de 1,2 s); no publicado ni subido.
+
+### Ronda 224 · 2026-10-15 · el wordmark nuevo de Andoni, a prueba (en local, Nilo)
+- **Andoni (textual, con `~/Desktop/savvia_wordmark_new.svg`):** «vamos a probar este wordmark nuevo».
+- **Hecho:** su SVG tal cual (vectorizado con VTracer; copia en `tools/r210/wordmark-andoni.svg`) → `public/savvia-palabra.svg` con la caja ajustada a la tinta
+  (1044 × 272; su lienzo traía 12 px de margen). Proporción 1044/272 en la barra, el menú, Agentic, Proyectos, la receta, el libro y `global.css`; `?v=213`.
+  A la misma altura que el de Family, sale un 14 % más ancho.
+- **Medido:** `astro check` 0 errores · barra en Chrome y WebKit, 1440 y 390, sin errores.
+- **Pendiente:** su visto bueno; la carga y el titular del pie escriben la palabra con la fuente. No publicado ni subido.
+
+### Ronda 225 · 2026-10-15 · los favicons ilustrados de Andoni, por estación (en local, Nilo)
+- **Andoni (textual, con `~/Desktop/savvia-favicons-estaciones-v4.zip`):** «aquí tienes los favicons». Hechos por él con ImageGen a partir de los robles del hero
+  (capturas en `~/Desktop/savvia-arboles-hero/`): icono con esquinas redondeadas, márgenes amplios, colores apagados y el tronco desde abajo; ICO y PNG de 16 a
+  512 por estación (`tools/r211/`: LEEME, prompts y vista previa).
+- **Hecho:** `favicon-<estación>.png` = su PNG de 64 px; `apple-touch-icon-<estación>.png` = su PNG de 180 con las esquinas transparentes rellenas del fondo
+  de su estación (iOS pinta de negro lo transparente y redondea él). `?v=211` en `Base.astro`. Los de la ronda 207, en `tools/retirados/favicon-r207/`.
+- **Medido:** responden 200; revisados a 180 y a 32 px.
+- **Pendiente:** no publicado ni subido.
+- **Ronda 225b (Andoni, `~/Desktop/savvia-favicons-estaciones-v5.zip`):** «nuevos favicon para probar» → la v5, montada igual que la v4 (64 px y 180 a sangre; `?v=212`;
+  material en `tools/r212/`; la v4, en `tools/retirados/favicon-r211/`). El árbol va más pequeño y con más aire que en la v4. No publicado ni subido.
+- **Ronda 225c (Andoni, `~/Desktop/savvia-favicons-estaciones-v6.zip`):** «prueba este» → la v6, montada igual (`?v=213`; material en `tools/r213/`; la v5, en
+  `tools/retirados/favicon-r212/`). No publicado ni subido.
+- **Ronda 225d (Andoni, `~/Desktop/savvia-favicons-estaciones-v7.zip`):** «prueba estos» → la v7, con `tools/r213/montar.cjs` (64 px; 180 a sangre con cada esquina
+  rellena del color de al lado), `?v=214`; material en `tools/r214/`; la v6, en `tools/retirados/favicon-r213/`. No publicado ni subido.
+- **Ronda 225e · 2026-10-16 (Andoni, `~/Desktop/savvia-favicons-estaciones-v9.zip`):** «prueba estos» → la v9, con `tools/r213/montar.cjs`, `?v=215`; material en
+  `tools/r215/`; la v7, en `tools/retirados/favicon-r214/`. No publicado ni subido.
+
+### Ronda 226 · 2026-10-16 · el wordmark nuevo (savvia.svg) y el favicon de luz tenue (en local, Nilo)
+- **Andoni (textual):** «prueba este wordmark para savvia, y enséñamelo en la web. De favicon nos quedamos con luz tenue, aplícalo también».
+- **Hecho:** · WORDMARK: su `~/Desktop/savvia.svg` (copia en `tools/r216/wordmark-andoni.svg`; la v de la segunda «v» sube y se riza como punto de la i) →
+  `public/savvia-palabra.svg` en blanco y con la caja ajustada a la tinta (1407 × 399). Proporción 1407/399 en la barra, el menú, Agentic, Proyectos, la receta, el
+  libro y `global.css`; `?v=216`. En la barra, al mismo ancho que el de la ronda 210: 1,3 rem (móvil) y 1,425 rem (escritorio). El de la 210, en
+  `tools/retirados/savvia-palabra.r210.svg`.
+  · FAVICON: la versión «luz tenue» (`~/Desktop/savvia-favicons-telegram-luz-tenue.zip`, carpeta `favicon/`) con `tools/r213/montar.cjs`; `?v=216`; material en
+  `tools/r216/`; la v9, en `tools/retirados/favicon-r215/`. Sus archivos para Telegram (`telegram/<estación>/subir-telegram.png`) son para el avatar del canal.
+- **Medido:** `astro check` 0 errores · barra en Chrome y WebKit, 1440 y 390, sin errores y con `favicon-otono.png?v=216`.
+- **Pendiente:** no publicado ni subido.
+
+### Ronda 227 · 2026-10-16 · los marcos de Eric en el portfolio y los casos, la carátula con más aire y sus vídeos, nada recortado (en local, Nilo)
+- **Andoni (textual):** «en portfolio y case studies faltan los nuevos marcos propuestos por Eric» · «en case studies la portada de arriba, darle un poco más de aire y
+  utilizar los vídeos que ha puesto Eric» · «cerciorarse de que ninguna de las imágenes de los case studies sale cortada, y que se ven en buena calidad» · «dejamos
+  el savvia de antes».
+- **Antes:** se juntó lo de Eric (16/10: visor modal, vídeos «-grande», fondos generados, chat con OpenRouter, sus favicons de 32 px…) con lo local. Las rondas
+  locales de Nilo se renumeraron 217–226 (ver arriba). Favicons: su forma de servirlos (pestaña con el de 32 px) con los archivos de LUZ TENUE de Andoni (`?v=217`).
+  Móvil de la mesa: las cuatro estaciones también en su versión en espejo (`mesa-movil-espejo-<estación>.webp`).
+- **Hecho:** · WORDMARK: vuelve el de la ronda 210 (su SVG de VTracer; 1044/272, `?v=227`; barra 1,2 / 1,3125 rem).
+  · `obra/Pieza.astro` (rejilla y slider de /proyectos y carátula del caso): la VENTANA DE CRISTAL de «Más proyectos» (marco de 3 px igual por los cuatro lados, sin barra
+  ni puntitos, radio 6, velo + desenfoque del fondo; más oscura sobre marca clara) y el degradado de marca como el artefacto «Fondos de proyectos» (las dos manchas
+  sobre la pieza, sin desenfoque; al pasar, ×1,04). Carátula: lámina 12:5 → 11:5 y la ventana del 7 % al 12 % (más aire arriba), marco de 5 px y radio 10, la toma
+  ENTERA (sin recorte de proporción). Neety y Cubbo, con las tomas grandes de Eric (`neety-com-grande`, `cubbo-grande`).
+  · `obra/Medio.astro` (mosaico de detalles): sobre placa, el degradado de marca y la web dentro de la misma ventana de cristal; y la ventana toma la proporción REAL del
+  archivo (leída con sharp al compilar): Arkdev «atraca» y «clientes» e Invopop «ficha» estaban marcadas 1:1 siendo apaisadas y se recortaban a cuadrado.
+- **Medido:** `tools/r227/medios.cjs` (todos los vídeos e imágenes de los nueve casos y de /proyectos, Chrome ×2): 0 recortes. Calidad: dos vídeos de fila ancha se ven algo
+  blandos en retina (×1,47: Kuanta «x-tarjetas», 1680 px, y Invopop «c-mapa», 1674 px, archivada: no se puede regrabar).
+- **Pendiente:** regrabar Kuanta «x-tarjetas» a más resolución; las tomas de Eric (1600 px) son algo más pequeñas que nuestras cubiertas (1920); no publicado ni subido.
+- **Después (Andoni: «sí, hazlo»):** Kuanta «x-tarjetas» regrabado con `tools/r188/grabar.cjs` en modo capturas a ×2 (antes, screencast a 1×) y a 2560 px
+  (`tools/r227/lista.json`; la toma anterior, en `tools/retirados/obra-r226/`): 2560 × 1098, 275 fotogramas a 30 fps, 587 KB. `medios.cjs`: ya no sale blando;
+  queda solo Invopop «c-mapa» (archivada).
+- **Ronda 228 (Andoni):** «el wordmark, savvia con letras normal, el que está en producción» → `savvia-palabra.svg` de `origin/main` (Family), proporción 2373/707,
+  barra a 1,375 / 1,5 rem como en producción; `?v=228`.
+- **Ronda 229 (Andoni):** «en el portfolio todos los gradientes tienen como un grano raro; fíjate en los de la home, tenemos que utilizar ese estilo. En Claudia BE además
+  es oscuro y queda muy raro. Mira esa consistencia en todos lados» → el grano venía de las imágenes de fondo del slider de /proyectos (`slider-*.webp`, ronda 206 de
+  Eric; ruido medido 1,9–2,2 frente a 0,17 de los fondos de la home; la de Claudia BE, granate sobre una marca clara). Fuera del slider: cada diapositiva lleva el
+  degradado liso de su marca (el mismo CSS que «Más proyectos», la rejilla, las carátulas y las placas de detalle). Revisados los demás fondos en uso: lisos.
+- **Ronda 230 (Andoni):** «el de Home of Ambrose, ese verde por abajo tampoco me gusta en el gradiente, mejor un naranja amarillento» → su tercer color, `#4d4d1c` → `#e9a23b`
+  (slider de /proyectos y `home.ts`, el visor de «Más proyectos»).
+- **Ronda 231 · PUBLICADA (16/10)** (Andoni: «con esto publica lo nuevo y ya iremos puliendo proyecto por proyecto»): Switzer guardada en el proyecto
+  (`src/assets/fonts/switzer/`, proveedor local: el build de Vercel del 16/10 falló al bajarla de Fontshare); commit de las rondas 217–231 y push a `main`.
+  `public/media/equipo/r189/` (gestos de la 218, sustituidos por los de la 220) se queda fuera del commit.

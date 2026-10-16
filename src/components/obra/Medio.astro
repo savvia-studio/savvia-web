@@ -2,6 +2,7 @@
 // RONDA 62 · un medio de un proyecto (portada o galería): vídeo en bucle y sin sonido sobre el color de su web. Se descarga y corre solo a la
 // vista (`al="vista"`) o al pasar el cursor (`al="pasar"`, las tarjetas del listado: si no, el póster). Las webs móviles, dentro de un teléfono.
 import type { Medio } from '../../data/proyectos';
+import sharp from 'sharp';
 interface Props {
   medio: Medio;
   color: string;
@@ -15,9 +16,14 @@ interface Props {
   placa?: string;
   natural?: string;
   pos?: string;
+  colores?: [string, string, string]; // ronda 227: con placa, el degradado de marca de «Más proyectos» (las dos manchas sobre la placa)
 }
-const { medio, color, alt, al = 'vista', proporcion = '16 / 10', clase = '', transicion, placa, natural = '16 / 9', pos } = Astro.props;
-const estilo = [`--color:${placa ?? color}`, `--prop:${proporcion}`, `--r:${natural}`, pos ? `--pos:${pos}` : '', transicion ? `view-transition-name:${transicion}` : ''].filter(Boolean).join(';');
+const { medio, color, alt, al = 'vista', proporcion = '16 / 10', clase = '', transicion, placa, natural = '16 / 9', pos, colores } = Astro.props;
+// RONDA 227 · «que ninguna imagen de los casos salga cortada»: sobre placa, la ventana toma la proporción REAL del archivo (la del póster en los vídeos),
+// leída al compilar; antes valía la `prop` del dato (p. ej. «1 / 1» en fotos apaisadas) y la imagen se recortaba a esa forma
+const fuente = medio.tipo === 'video' ? medio.poster : medio.src;
+const real = placa && fuente ? await sharp(`public${fuente}`).metadata().then((m) => (m.width && m.height ? `${m.width} / ${m.height}` : null), () => null) : null;
+const estilo = [`--color:${placa ?? color}`, placa && colores ? `--c2:${colores[1]};--c3:${colores[2]}` : '', `--prop:${proporcion}`, `--r:${real ?? natural}`, pos ? `--pos:${pos}` : '', transicion ? `view-transition-name:${transicion}` : ''].filter(Boolean).join(';');
 ---
 
 <div class={`medio ${medio.movil ? 'movil' : ''} ${placa ? 'placa' : ''} ${proporcion === 'auto' ? 'lleno' : ''} ${clase}`} style={estilo} data-obra-medio data-al={al}>
@@ -82,16 +88,38 @@ const estilo = [`--color:${placa ?? color}`, `--prop:${proporcion}`, `--r:${natu
   .placa {
     container-type: size;
   }
+  /* RONDA 227 · los marcos de Eric («Más proyectos»): sobre la placa, el degradado de marca (las dos manchas, en oklab) y la web dentro de la VENTANA
+     DE CRISTAL: marco fino igual por los cuatro lados, sin barra, radios concéntricos (la web, entera: el marco no recorta nada) */
+  .placa:not(.movil) {
+    background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2, var(--color)), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3, var(--color)), transparent 70%), var(--color);
+  }
   .placa:not(.movil) .marco {
+    --r-fuera: 6px;
+    --m: 3px;
     inset: auto;
     left: 50%;
     top: 50%;
-    width: min(86cqw, calc(82cqh * var(--r)));
-    aspect-ratio: var(--r);
+    width: min(86cqw, calc(82cqh * var(--r) + 2 * var(--m)));
+    aspect-ratio: auto;
     transform: translate(-50%, -50%);
-    border-radius: calc(var(--radius-lg) * 0.6);
+    padding: var(--m);
+    border-radius: var(--r-fuera);
     overflow: hidden;
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08);
+    background: color-mix(in srgb, #fff 20%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.32),
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      0 0 0 1px rgb(0 0 0 / 0.08),
+      0 28px 56px -24px rgb(20 12 6 / 0.5);
+  }
+  .placa:not(.movil) .marco video,
+  .placa:not(.movil) .marco img {
+    height: auto;
+    aspect-ratio: var(--r);
+    border-radius: calc(var(--r-fuera) - var(--m));
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
   }
   /* las webs móviles: un teléfono centrado sobre el color de su web */
   .movil .marco {

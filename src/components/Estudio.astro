@@ -134,13 +134,13 @@ const [A, E] = estudio.personas;
       Promise.all(ans.map((an) => an.finished)).then(() => { ul.classList.remove('abierta'); ans.forEach((an) => an.cancel()); }, () => {});
     };
 
-    // ── EL GESTO (ronda 141: 12 poses reconstruidas por persona; Andoni tira a canasta, Eric hace un revés). `estudio.personas[i].gesto` = lista de
+    // ── EL GESTO (ronda 206: 60 fotogramas por persona a 30 fps; Andoni tira a canasta, Eric da un pase con el pie bajo; tools/r206/montar.cjs). `estudio.personas[i].gesto` = lista de
     //    {src, x, y, w, h}: cada fotograma recortado a su silueta, nativo, y su caja en % de la pose final (montar.cjs: 01 y 12 encajados sobre la foto).
     //    Al pasar / enfocar / tocar: fundido de 120 ms de su mitad de la foto al 01, las 12 poses UNA vez a 11 fps y fundido de 120 ms del 12 a la foto.
     //    Si el puntero se va a mitad, el gesto TERMINA (no se invierte ni se corta); volver a pasar mientras dura no lo reinicia. Cada uno, el suyo.
     //    Con movimiento reducido, no se reproduce. Sonda: window.__gesto(i, f) pinta el fotograma f (−1 = la foto) sin reloj.
     type Marco = { src: string; x: number; y: number; w: number; h: number };
-    const FPS = 11, FUNDE = 120;
+    const FPS = 30, FUNDE = 120; // ronda 206: los gestos nuevos vienen a 30 por segundo (2 s; el primero y el último, la pose de reposo)
     const gestos = quienes.map((b, i) => {
       let src: Marco[] = [];
       try { src = JSON.parse(b.dataset.gestoSrc || '[]'); } catch {}
@@ -192,11 +192,9 @@ const [A, E] = estudio.personas;
           if (!oculta) { g.caja.style.opacity = '1'; mitad(i, true); oculta = true; }
           if (t < FUNDE + dura) {
             ver(g, Math.min(g.src.length - 1, Math.floor(((t - FUNDE) / 1000) * FPS)));
-            // RONDA 144 · Eric: «el tiro se queda corto (parece que haces el conejo): elévate más, incluso un saltito»: Andoni despega en el tiro
-            if (i === 0) { const u = (t - FUNDE) / dura, k = Math.min(1, Math.max(0, (u - 0.28) / 0.5)); g.caja.style.transform = `translateY(${(-Math.sin(Math.PI * k) * 0.075 * g.caja.offsetHeight).toFixed(1)}px)`; }
+            // (ronda 144: Andoni despegaba con un translateY; ronda 189: los fotogramas nuevos ya traen el salto)
             g.reloj = requestAnimationFrame(paso); return;
           }
-          if (i === 0) g.caja.style.transform = '';
           if (!saliendo) { saliendo = true; g.saliendo = true; ver(g, g.src.length - 1); mitad(i, false); soltarPendiente(); } // la foto vuelve DEBAJO del 12, que se funde
           const k = (t - FUNDE - dura) / FUNDE;
           if (k < 1) { g.caja.style.opacity = String(1 - k); g.reloj = requestAnimationFrame(paso); return; }
@@ -523,8 +521,10 @@ const [A, E] = estudio.personas;
   }
   /* la pose final va dos veces, recortada por la mitad, para poder retirar a uno cuando se mira al otro */
   /* ronda 140: la misma foto dos veces, partida por donde no se tocan (las manos: en x 566 hasta y 560 y en x 590 por debajo, de 1200 × 1000) */
-  .ma { clip-path: polygon(0 0, 47.17% 0, 47.17% 56%, 49.17% 56%, 49.17% 100%, 0 100%); }
-  .me { clip-path: polygon(47.17% 0, 100% 0, 100% 100%, 49.17% 100%, 49.17% 56%, 47.17% 56%); }
+  /* ronda 206: por debajo, el corte va al 51 % (no al 49,17): la punta de la zapatilla de Andoni llega al 49,9 % y, al retirar su mitad, quedaba
+     como una mota suelta en la de Eric (medido en la foto: el pie de Eric empieza en el 53,3 %) */
+  .ma { clip-path: polygon(0 0, 47.17% 0, 47.17% 56%, 51% 56%, 51% 100%, 0 100%); }
+  .me { clip-path: polygon(47.17% 0, 100% 0, 100% 100%, 51% 100%, 51% 56%, 47.17% 56%); }
   .juntos[data-mira='0'] .me,
   .juntos[data-mira='1'] .ma {
     opacity: 0.45; /* ronda 129: el otro se retira, un poco */

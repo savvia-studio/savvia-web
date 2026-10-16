@@ -28,7 +28,8 @@ const SLIDES: Slide[] = [
   { href: '/proyectos/neety', p: { ...neety, dominio: 'neety.com', portada: { tipo: 'video', src: '/media/anteriores/video/neety-com.mp4', poster: '/media/anteriores/video/neety-com.jpg' } }, fondo: '/media/anteriores/fondos/slider-neety.webp' },
   web('surepayroll', 'SurePayroll', 'surepayroll.com', 'https://www.surepayroll.com/', 'Nóminas', ['#0f2421', '#1fc58e', '#8f7cf0'], 'surepayroll', '/media/anteriores/fondos/slider-surepayroll.webp'),
   web('claudia-be', 'Claudia BE', 'claudiabe.studio', 'https://claudiabe.studio/', 'Estudio de branding', ['#f6e9e1', '#ee4f4f', '#f4a3a3'], 'claudia-be', '/media/anteriores/fondos/slider-claudia-be.webp'),
-  web('home-of-ambrose', 'Home of Ambrose', 'homeofambrose.com', 'https://www.homeofambrose.com/', 'Vivienda', ['#f6e5d5', '#c25631', '#4d4d1c']),
+  // ronda 230 · Andoni: «el verde de abajo del gradiente no me gusta, mejor un naranja amarillento»: #4d4d1c → #e9a23b (también en home.ts)
+  web('home-of-ambrose', 'Home of Ambrose', 'homeofambrose.com', 'https://www.homeofambrose.com/', 'Vivienda', ['#f6e5d5', '#c25631', '#e9a23b']),
   web('eleven-lab', 'Eleven Lab', 'elevenlab.org', 'https://www.elevenlab.org/', 'Consultoría de diseño', ['#0d6b7a', '#1c3fa8', '#0a8f86'], 'eleven-lab', '/media/anteriores/fondos/slider-eleven-lab.webp'),
 ];
 const servicios = SERVICIOS.map((s) => [s, proyectos.filter((p) => p.servicios.includes(s)).length] as const).filter(([, n]) => n);
@@ -61,11 +62,14 @@ const texto = (p: (typeof proyectos)[number]) =>
     <section class="destacados" aria-roledescription="carrusel" aria-label="Algunas webs" data-slider>
       <ul class="pista" data-pista>
         {
-          SLIDES.map(({ p, href, fondo }, i) => {
+          // RONDA 229 · Andoni: «en el portfolio todos los gradientes tienen como un grano raro; fíjate en los de la home, tenemos que utilizar ese estilo. Claudia BE
+          // además es oscuro y queda muy raro»: fuera las imágenes de fondo del slider (slider-*.webp, con ruido; la de Claudia BE, granate): cada diapositiva
+          // lleva el degradado LISO de su marca, como «Más proyectos» y la rejilla. (Los datos `fondo` se quedan por si vuelven.)
+          SLIDES.map(({ p, href }, i) => {
             const tipo = luz(p.colores[0]) ? 'claro' : 'mancha';
             return (
               <li class={`slide ${tipo}`} style="--k:1.6" aria-roledescription="diapositiva" aria-label={`${i + 1} de ${SLIDES.length}: ${p.nombre}`} data-slide>
-                <Pieza p={p} tipo={tipo} giro={i % 2 ? 5 : -5} href={href} fondo={fondo} transicion={href.startsWith('/')} />
+                <Pieza p={p} tipo={tipo} giro={i % 2 ? 5 : -5} href={href} transicion={href.startsWith('/')} />
               </li>
             );
           })

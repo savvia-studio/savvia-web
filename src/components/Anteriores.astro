@@ -214,7 +214,9 @@ import { icono } from '../lib/iconos';
                   </div>
                 ) : quad ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`} data-mesa-quad>
-                    <img class="foto" src={`/media/anteriores/${QUAD[clave].foto}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
+                    {/* RONDA 209 · el móvil de la mesa en la estación de la web (una lámina por estación; en espejo, la misma volteada): solo se pinta y se descarga
+                        la de la estación activa */}
+                    {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} src={`/media/anteriores/${QUAD[clave].foto}-${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
                     <span class="pantalla quad" style={`left:${((quad.x0 / LAM.w) * 100).toFixed(3)}%;top:${((quad.y0 / LAM.h) * 100).toFixed(3)}%;width:${((quad.W / LAM.w) * 100).toFixed(3)}%;height:${((quad.H / LAM.h) * 100).toFixed(3)}%;transform:${quad.matriz}`}><Fragment set:html={video} /></span>
                   </div>
                 ) : s.tipo === 'tel' ? (
@@ -1188,6 +1190,13 @@ import { icono } from '../lib/iconos';
     height: 100%;
     object-fit: cover;
   }
+  /* ronda 209: el móvil de la mesa, en la estación de la web (otoño si no hay otra) */
+  .mesa .foto-e { display: none; }
+  .mesa .foto-e[data-e='otono'] { display: block; }
+  :global(html[data-estacion='primavera']) .mesa .foto-e[data-e='primavera'],
+  :global(html[data-estacion='verano']) .mesa .foto-e[data-e='verano'],
+  :global(html[data-estacion='invierno']) .mesa .foto-e[data-e='invierno'] { display: block; }
+  :global(html:is([data-estacion='primavera'], [data-estacion='verano'], [data-estacion='invierno'])) .mesa .foto-e[data-e='otono'] { display: none; }
   .mesa .pantalla {
     position: absolute;
     z-index: 2; /* por encima del grano de la pieza (::after, z 1): la web se ve limpia */

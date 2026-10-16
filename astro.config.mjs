@@ -144,10 +144,15 @@ export default defineConfig({
       // Solo se descarga donde se usa (el ensayo de su web dentro de la partitura)
       name: 'Switzer',
       cssVariable: '--font-switzer',
-      provider: fontProviders.fontshare(),
-      weights: [400, 500],
-      styles: ['normal'],
+      // ronda 231: guardada en el proyecto (src/assets/fonts/switzer/, de la API de Fontshare): el 16/10 un build de Vercel falló al no poder descargarla
+      provider: fontProviders.local(),
       fallbacks: ['system-ui', 'sans-serif'],
+      options: {
+        variants: [
+          { src: ['./src/assets/fonts/switzer/Switzer-Regular.woff2'], weight: 400, style: 'normal' },
+          { src: ['./src/assets/fonts/switzer/Switzer-Medium.woff2'], weight: 500, style: 'normal' },
+        ],
+      },
     },
     {
       // RONDA 188 · réplica del hero de Neety (tools/r188/neety-hero): su subtítulo va en Inter 400 y el eyebrow en Roboto Mono 500 (RootShell.tsx).

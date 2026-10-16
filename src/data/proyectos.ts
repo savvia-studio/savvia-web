@@ -19,7 +19,7 @@ export type Apartado = { titulo: string; texto: string[] };
 export type Detalle = { titulo: string; texto: string; medio: Medio; prop?: string; pie?: string };
 // RONDA 153 · Andoni: «la parte de detalles, que se presente más con imágenes (referencia: casabien.com/proyectos/rebranding-identidad-hannun);
 // terminamos con una conclusión; en colores y typos, mostrar mejor tamaños y cómo se usan». «Los detalles» pasa a ser un MOSAICO de filas:
-// ancha (12 columnas) · sangre (a todo el ancho de la ventana) · par (6 + 6) · par75 (7 + 5) · par57 (5 + 7) · trio (4 + 4 + 4); cada pieza con
+// ancha (12 columnas) · sangre (ronda 188: ya no sale de las guías; las 12 columnas a la proporción de su vídeo, como la ancha) · par (6 + 6) · par75 (7 + 5) · par57 (5 + 7) · trio (4 + 4 + 4); cada pieza con
 // su título y UNA frase. `placa`: el vídeo, entero y centrado sobre un color de su paleta (índice); sin placa, el medio llena su hueco.
 // Los textos largos de cada detalle se quedan en `detalles` (fuente de los hechos). Medios: x-* (ronda 152), d*/g* (ronda 62, solo los que
 // enseñan la web entregada) y c-* (primeros planos y tramos: tools/r153/recorte.sh). Escala, botón y ejemplo aplicado: medidos en la web
@@ -458,7 +458,7 @@ export const proyectos: Proyecto[] = [
     color: '#f5f7f9',
     colores: ['#EEE8F7', '#A7C5F9', '#FE8238'], // ronda 154: «el gradiente de Neety se ve sucio» → su paleta real: lavanda (base) · Azul bebé · Naranja Core (acento)
     portada: m('neety', 'portada'),
-    cubierta: m('neety', 'cubierta'),
+    cubierta: { tipo: 'video', src: '/media/anteriores/video/neety-com-grande.mp4', poster: '/media/anteriores/video/neety-com-grande.jpg' }, // ronda 227: la toma grande de Eric (visor de «Más proyectos»)
   },
   {
     slug: 'invopop',
@@ -652,7 +652,7 @@ export const proyectos: Proyecto[] = [
     color: '#1b40d6',
     colores: ['#1b40d6', '#4963e2', '#788ae8'],
     portada: m('cubbo', 'portada'),
-    cubierta: m('cubbo', 'cubierta'),
+    cubierta: { tipo: 'video', src: '/media/anteriores/video/cubbo-grande.mp4', poster: '/media/anteriores/video/cubbo-grande.jpg' }, // ronda 227: la toma grande de Eric (visor de «Más proyectos»)
   },
   {
     slug: 'remerge',

@@ -487,11 +487,11 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   /* RONDA 153 · el isotipo delante de la palabra (proporción áurea) · RONDA 156 · Eric: «quitemos el isotipo»: fuera; queda la palabra */
   .logo-marca {
     display: block;
-    height: 1.375rem; /* ronda 147: «savvia del menú, más pequeño» (antes 1,75 rem) */
+    height: 1.375rem; /* ronda 147: «savvia del menú, más pequeño» (antes 1,75 rem) · ronda 228: vuelve con el wordmark de producción */
     aspect-ratio: 2373 / 707; /* ronda 144: vuelve el logotipo de naturaleza (1184 × 439) */
     background: currentColor;
-    -webkit-mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
-    mask: url('/savvia-palabra.svg?v=156') center / contain no-repeat;
+    -webkit-mask: url('/savvia-palabra.svg?v=228') center / contain no-repeat;
+    mask: url('/savvia-palabra.svg?v=228') center / contain no-repeat;
     transition: background-color 0.12s linear;
   }
   @media (width >= 64rem) {

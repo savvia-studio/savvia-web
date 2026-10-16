@@ -45,7 +45,6 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
         <div class="telefono-m"><video class="vid" muted loop playsinline preload="none" poster={video.poster} data-src={video.src} aria-label={`La web de ${p.nombre}`} /></div>
       ) : (
         <div class="mockup">
-          <span class="cromo" aria-hidden="true"><i /><i /><i /><b>{p.dominio ?? p.nombre.toLowerCase()}</b></span>
           <video class="vid" muted loop playsinline preload="none" poster={video.poster} data-src={video.src} aria-label={`La web de ${p.nombre}`} />
         </div>
       )
@@ -94,11 +93,11 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   .g-marca::before {
     content: '';
     position: absolute;
-    inset: -30%;
+    inset: 0;
     z-index: -2;
-    /* RONDA 154 · «el gradiente de Neety se ve sucio»: las manchas se mezclan en OKLAB (en sRGB, dos colores claros se cruzan por un gris turbio) */
+    /* RONDA 154 · «el gradiente de Neety se ve sucio»: las manchas se mezclan en OKLAB (en sRGB, dos colores claros se cruzan por un gris turbio)
+       RONDA 227 · como en «Más proyectos» (Eric, ronda 206: el artefacto «Fondos de proyectos»): las dos manchas sobre la propia pieza, sin desenfoque */
     background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3), transparent 70%), var(--c1);
-    filter: blur(34px);
     transition: transform 1.6s var(--ease-out-expo);
   }
   .nombre {
@@ -167,13 +166,24 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     opacity: 0;
     filter: blur(4px);
   }
-  /* el navegador */
+  /* el navegador · RONDA 227 · Andoni: «en portfolio y case studies faltan los nuevos marcos propuestos por Eric»: la VENTANA DE CRISTAL de «Más proyectos»
+     (Anteriores.astro, rondas 189 y 195 de Eric): un marco fino de cristal (velo claro + desenfoque del fondo + filo de luz) igual por los cuatro lados,
+     sin barra ni puntitos, radios concéntricos; la web dentro con sus esquinas */
   .mockup {
+    --r-fuera: 6px;
+    --marco: 3px;
     position: absolute;
-    border-radius: calc(var(--spacing) * 2);
+    padding: var(--marco);
+    border-radius: var(--r-fuera);
     overflow: hidden;
-    background: #fbfbfa;
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.18), 0 24px 48px -12px rgb(30 16 8 / 0.55);
+    background: color-mix(in srgb, #fff 20%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.32),
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      0 0 0 1px rgb(0 0 0 / 0.08),
+      0 32px 60px -22px rgb(20 12 6 / 0.55);
   }
   /* RONDA 68 · «revisar que las miniaturas estén bien encajadas y la web no se vea cortada»: el navegador, ENTERO dentro de su pieza, bajo el nombre
      (lo más ancho que quepa en el 62 % de abajo), con la web a su proporción real (16:9, la de las grabaciones: ya no se recorta por los lados); la
@@ -192,7 +202,7 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     right: 0;
     margin-inline: auto;
     bottom: 9%;
-    width: min(84%, calc((62cqh - 14px) * 16 / 9));
+    width: min(84%, calc((62cqh - 6px) * 16 / 9));
     transition: transform 0.9s var(--ease-out-expo);
   }
   .mancha .mockup {
@@ -201,7 +211,7 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   /* LA REJILLA (`.pz-sube`, ronda 129 → 130): el navegador RECTO al 86 %, alineado con el nombre, cortado por el borde de abajo (nunca se le ven las
      esquinas de abajo: al menos un 18 % fuera); con JS (`html.pz-js`) espera bajo el borde y SUBE al entrar en pantalla (`.vista`). */
   .pieza.pz-sube .mockup {
-    --top: max(calc(var(--spacing) * 8 + var(--text-lead) * 1.3 + var(--spacing) * 4), calc(100cqh - 0.82 * (48.375cqw + 14px)));
+    --top: max(calc(var(--spacing) * 8 + var(--text-lead) * 1.3 + var(--spacing) * 4), calc(100cqh - 0.82 * (48.375cqw + 6px)));
     left: 7%;
     right: auto;
     margin-inline: 0;
@@ -215,8 +225,14 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   :global(html.pz-js) .pieza.pz-sube:not(.vista) .mockup {
     transform: translateY(calc(100cqh - var(--top) + 8px));
   }
-  .claro .mockup {
-    box-shadow: 0 0 0 1px rgb(48 32 24 / 0.14), 0 18px 40px -14px rgb(48 32 24 / 0.4);
+  /* sobre un degradado claro, el cristal se oscurece un poco para que la ventana se lea (como en «Más proyectos») */
+  .claro .mockup,
+  .fondo-claro .mockup {
+    background: color-mix(in srgb, #302018 7%, transparent);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.5),
+      0 0 0 1px rgb(48 32 24 / 0.1),
+      0 24px 48px -20px rgb(48 32 24 / 0.35);
   }
   .mockup .vid {
     display: block;
@@ -224,46 +240,8 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     aspect-ratio: 16 / 9;
     object-fit: cover;
     object-position: 50% 0;
-    transform: scale(1.012); /* algunas grabaciones traen un filo claro en el canto derecho: se recorta */
-    transform-origin: 50% 0;
-  }
-  /* RONDA 156 · Eric: «el marco retro de web no me gusta: translúcido, moderno, con backdrop filtering, minimalista, que ocupe poco»: la barra
-     flota sobre la web (absoluta), cristal claro que desenfoca lo que pasa debajo, puntos tenues y la dirección en una pastilla apenas marcada */
-  .cromo {
-    position: absolute;
-    z-index: 1;
-    inset: 0 0 auto 0;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    height: 12px;
-    padding-inline: 6px;
-    background: color-mix(in srgb, #fff 52%, transparent);
-    -webkit-backdrop-filter: blur(10px) saturate(1.4);
-    backdrop-filter: blur(10px) saturate(1.4);
-    box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.28);
-  }
-  .cromo i {
-    flex: none;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: rgb(0 0 0 / 0.16);
-  }
-  .cromo b {
-    margin-inline: auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 0 calc(var(--spacing) * 3);
-    height: 7px;
-    line-height: 7px;
-    border-radius: 4px;
-    background: rgb(255 255 255 / 0.42);
-    font-weight: 400;
-    font-size: 0.36rem;
-    color: rgb(0 0 0 / 0.5);
+    border-radius: calc(var(--r-fuera) - var(--marco));
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
   }
   /* la mesa, con la web dentro del monitor */
   .mesa {
@@ -359,15 +337,19 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   /* RONDA 206 · el fondo generado del artefacto «Fondos de proyectos» (con su grano), en lugar de las manchas */
   .lamina.con-fondo::before { background: var(--fondo) center / cover no-repeat; }
   .pieza:not(.pz-grande):hover .g-marca::before {
-    transform: scale(1.15) rotate(8deg);
+    transform: scale(1.04); /* ronda 227: como en «Más proyectos» (el fondo ya no sobra por los lados para girar) */
   }
   /* RONDA 154 · LA CARÁTULA del caso (`grande`): la lámina a lo ancho y alta; el navegador recto, centrado y grande, con un 18 % por debajo del borde
      (nunca se le ven las esquinas de abajo); en móvil, una lámina 4:5 con el navegador casi a lo ancho. Con JS, espera un poco más abajo y SUBE al
      llegar (`.vista`). Solo `transform`. */
+  /* ronda 190 (Andoni: «a la primera vista del proyecto le sobra mucho espacio por arriba»): la lámina con la proporción justa para que el navegador
+     (80 % del ancho, 7 % desde arriba) quede cortado por abajo, sin el hueco de antes (medía 78 lvh y el navegador se bajaba hasta su borde) */
+  /* RONDA 227 · Andoni: «la portada de arriba, darle un poco más de aire»: la lámina algo más alta (12:5 → 11:5) y el navegador baja del 7 % al 12 % */
   .pz-grande .lamina {
-    aspect-ratio: auto;
-    height: clamp(26rem, 78lvh, 54rem);
+    aspect-ratio: 11 / 5;
+    height: auto;
   }
+  .pz-grande.telefono .lamina { aspect-ratio: 2 / 1; }
   .pz-grande .mockup {
     --ancho: min(80cqw, 74rem);
     left: 0;
@@ -375,28 +357,16 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     margin-inline: auto;
     bottom: auto;
     width: var(--ancho);
-    top: max(11cqh, calc(100cqh - 0.82 * (var(--ancho) * 9 / 16 + var(--cromo-h))));
+    top: 12cqh; /* ronda 227 (ronda 190: 7 %) */
     transform: translateY(0);
     transition: transform 1.6s var(--ease-out-expo);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.14), 0 40px 90px -30px rgb(30 16 8 / 0.5);
-    --cromo-h: clamp(16px, 2.1cqw, 30px);
+    --r-fuera: 10px; /* la ventana grande, con el marco proporcionado */
+    --marco: 5px;
   }
-  .pz-grande .cromo {
-    height: var(--cromo-h);
-    gap: calc(var(--cromo-h) * 0.3);
-    padding-inline: calc(var(--cromo-h) * 0.6);
-  }
-  .pz-grande .cromo i { width: calc(var(--cromo-h) * 0.36); height: calc(var(--cromo-h) * 0.36); }
-  .pz-grande .cromo b {
-    height: calc(var(--cromo-h) * 0.62);
-    line-height: calc(var(--cromo-h) * 0.62);
-    font-size: calc(var(--cromo-h) * 0.4);
-    padding-inline: calc(var(--cromo-h) * 1.4);
-    border-radius: calc(var(--cromo-h) * 0.16);
-  }
-  .pz-grande .mockup .vid { transform: none; }
+  /* la carátula enseña la toma entera (las de Eric, `-grande`, son 16:10): sin recorte de proporción */
+  .pz-grande .mockup .vid { aspect-ratio: auto; height: auto; }
   .pz-grande .telefono-m {
-    top: 12cqh;
+    top: 8cqh;
     bottom: auto;
     height: 112cqh;
     padding: 0.9%;
@@ -409,8 +379,8 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     transform: translateY(12cqh);
   }
   @media (width < 48rem) {
-    .pz-grande .lamina { height: auto; aspect-ratio: 6 / 5; }
-    .pz-grande .mockup { --ancho: 92cqw; --cromo-h: 14px; }
+    .pz-grande .lamina { height: auto; aspect-ratio: 2 / 1; }
+    .pz-grande .mockup { --ancho: 92cqw; --r-fuera: 7px; --marco: 3px; top: 10cqh; }
     .pz-grande.telefono .lamina { aspect-ratio: 4 / 5; }
     .pz-grande .telefono-m { top: 10cqh; height: 104cqh; }
   }
