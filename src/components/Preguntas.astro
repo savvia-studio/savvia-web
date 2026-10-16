@@ -140,7 +140,7 @@ import { flecha } from '../lib/flecha';
       if (v.tipo === 'ia' || mejor < 0) {
         const a = document.createElement('a');
         [...rp.attributes].filter((at) => at.name.startsWith('data-astro-cid')).forEach((at) => a.setAttribute(at.name, ''));
-        a.className = 'por-correo'; a.textContent = v.tipo === 'ia' ? 'Respuesta rápida con IA · confirmársela a Eric y Andoni' : 'Mandársela por correo';
+        a.className = 'por-correo'; a.textContent = v.tipo === 'ia' ? 'Respuesta rápida con IA, confirmársela a Eric y Andoni' : 'Mandársela por correo';
         a.href = `mailto:${correo}?subject=${encodeURIComponent('Una pregunta')}&body=${encodeURIComponent(q)}`;
         rp.after(a);
       }
