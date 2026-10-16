@@ -49,6 +49,8 @@ if (!reducido && 'IntersectionObserver' in window) {
   for (const s of subes) {
     if (!s.sec.hasAttribute('data-sube-eco')) continue;
     let previo = s.sec.previousElementSibling as HTMLElement | null;
+    // el pie va fuera de <main>: su sección anterior es la última de <main>
+    if (previo?.tagName === 'MAIN') previo = ([...previo.children].reverse().find((c) => c.tagName === 'SECTION') as HTMLElement | undefined) ?? null;
     while (previo && previo.tagName !== 'SECTION') previo = previo.previousElementSibling as HTMLElement | null;
     const fuente = previo?.querySelector<HTMLElement>(':scope > .wrap');
     if (!previo || !fuente) continue;

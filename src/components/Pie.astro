@@ -26,7 +26,7 @@ const [antes, despues] = pie.tagline.split('savia');
 import { flecha } from '../lib/flecha';
 ---
 
-<footer id="contacto" class="surface-dark pie" data-sube data-pie data-horizonte={JSON.stringify(HORIZONTE)}>
+<footer id="contacto" class="surface-dark pie" data-sube data-sube-eco data-pie data-horizonte={JSON.stringify(HORIZONTE)}>
   <div class="wrap contenido">
     <div class="grid-12 gap-y-12">
       <div class="col-span-4 lg:col-span-7">
@@ -714,7 +714,7 @@ import { flecha } from '../lib/flecha';
     bottom: 0;
     width: 100%;
     height: var(--alto);
-    translate: calc(var(--mx) * var(--m) * -2) calc(var(--p) * var(--d) + var(--my) * var(--m) * -1);
+    translate: calc(var(--mx) * var(--m) * -2) calc(var(--p) * var(--d) + var(--my) * var(--m) * -1 + var(--m) * 0.5); /* el + m/2: el ratón solo baja la capa, nunca la sube y deja marrón bajo el monte */
     scale: 1.04;
     will-change: translate;
   }
