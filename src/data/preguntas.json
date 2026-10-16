@@ -482,7 +482,7 @@
   },
   {
     "q": "¿Dónde estáis?",
-    "a": "Los dos somos de Donostia. Ahora mismo Andoni vive en Berlín y Eric en Pamplona, aunque pronto volveremos a casa. Mientras tanto, y siempre, trabajamos con equipos de cualquier sitio.",
+    "a": "Los dos somos de Donostia. Ahora mismo {otro} vive en {otro.ciudad} y yo en {yo.ciudad}, aunque pronto volveremos a casa. Mientras tanto, y siempre, trabajamos con equipos de cualquier sitio.",
     "claves": [
       "estais"
     ],
@@ -490,7 +490,7 @@
   },
   {
     "q": "¿Cómo os contacto?",
-    "a": "Con el botón «Contáctanos» de la web o escribiendo directamente a hola@savvia.studio. Si prefieres hablar con uno de nosotros, también puedes escribir a eric@savvia.studio o a andoni@savvia.studio. Solemos contestar en el día.",
+    "a": "Con el botón «Contáctanos» de la web o escribiendo directamente a hola@savvia.studio. Si prefieres hablar conmigo, escríbeme a {yo.correo}; y si quieres hablar con {otro}, a {otro.correo}. Solemos contestar en el día.",
     "claves": [
       "contacto"
     ],

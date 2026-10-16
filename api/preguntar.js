@@ -9,6 +9,7 @@
 // (sin precios, cifras en euros ni enlaces) y se acota. La clave nunca sale de aquí.
 // Variables en Vercel: OPENROUTER_API_KEY (obligatoria) · OPENROUTER_MODEL (opcional) · UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN (recomendadas).
 import fichasJson from '../src/data/preguntas.json' with { type: 'json' };
+import personas from '../src/data/personas.json' with { type: 'json' };
 
 const MODELO = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5';
 const MAX_PREGUNTA = 160;
@@ -16,7 +17,10 @@ const POR_HORA = 12; // preguntas por IP y hora (la web además corta a 12 por s
 const ORIGENES = ['https://savvia.studio', 'https://www.savvia.studio'];
 const visitas = new Map(); // respaldo sin Upstash: memoria de la instancia, NO es una garantía
 
-const FICHAS = fichasJson.map((f) => ({ q: String(f.q), a: String(f.a).replaceAll('{otro}', 'el compañero').replaceAll('{yo}', 'uno de los dos') })); // `{otro}` solo lo resuelve la web al enseñar la respuesta escrita
+// `{yo}` = quien contesta · `{otro}` = su compañero · `{yo.ciudad}`… (src/data/personas.json). Sin saber quién contesta, se habla en plural.
+const resolver = (t, quien) => String(t).replace(/\{(yo|otro)(?:\.(\w+))?\}/g, (_, w, k) => (quien === 0 || quien === 1 ? personas[w === 'yo' ? quien : 1 - quien][k || 'nombre'] : w === 'yo' ? 'uno de los dos' : 'el otro'));
+const fichasDe = (quien) => fichasJson.map((f) => ({ q: String(f.q), a: resolver(f.a, quien) }));
+const FICHAS = fichasDe(null);
 
 // Lo que sabemos de savvia además de las respuestas escritas. Solo hechos ciertos; lo que falta (precios, plazos, mínimos, idiomas) NO va aquí.
 const CONOCIMIENTO = [
@@ -51,8 +55,12 @@ const SISTEMA =
   '{"tipo":"ia","texto":"..."}  si ninguna escrita encaja pero las respuestas escritas y los datos bastan para contestar.\n' +
   '{"tipo":"ninguna"}  si no bastan, si la pregunta no trata de savvia o de webs, o si dudas.\n\n' +
   `SIEMPRE:\n${li(SIEMPRE)}\n\nNUNCA:\n${li(NUNCA)}`;
-const BASE =
-  `Respuestas escritas:\n${FICHAS.map((f, i) => `[${i}] Pregunta: ${f.q}\nRespuesta: ${f.a}`).join('\n\n')}\n\n` + `Datos de la marca:\n${li(CONOCIMIENTO)}\n\n`;
+const baseDe = (quien) =>
+  `Respuestas escritas:\n${fichasDe(quien).map((f, i) => `[${i}] Pregunta: ${f.q}\nRespuesta: ${f.a}`).join('\n\n')}\n\n` +
+  `Datos de la marca:\n${li([...CONOCIMIENTO, ...personas.map((p) => `${p.nombre} vive ahora en ${p.ciudad} (escribe a ${p.correo}); los dos son de Donostia.`)])}\n\n` +
+  (quien === 0 || quien === 1
+    ? `QUIÉN CONTESTA: eres ${personas[quien].nombre}, uno de los dos socios; el otro es ${personas[1 - quien].nombre}. Si hablas de ti usa la primera persona del singular («yo», «conmigo»); nombra a ${personas[1 - quien].nombre} por su nombre; si hablas del estudio, plural.\n\n`
+    : '');
 
 // lo que NO puede salir de la IA: precios o cifras de dinero, enlaces, correos que no sean el nuestro, y las palabras vetadas
 const VETADO = /(\d[\d.,]*\s?(€|eur\b|euros?|\$|usd|dólares)|(€|\$)\s?\d|https?:\/\/|www\.|\bprompt\b|vibe coding|treseiscero|madrid)/i;
@@ -101,6 +109,7 @@ export default async function handler(req, res) {
 
   let cuerpo = req.body;
   try { if (typeof cuerpo === 'string') cuerpo = JSON.parse(cuerpo || '{}'); } catch { return res.status(400).json({ error: 'datos' }); }
+  const quien = cuerpo?.quien === 0 || cuerpo?.quien === 1 ? cuerpo.quien : null;
   const pregunta = String(cuerpo?.pregunta ?? '').replace(/\s+/g, ' ').trim().slice(0, MAX_PREGUNTA);
   if (pregunta.length < 3) return res.status(400).json({ error: 'datos' });
 
@@ -112,7 +121,7 @@ export default async function handler(req, res) {
         model: MODELO,
         max_tokens: 260,
         temperature: 0.2,
-        messages: [{ role: 'system', content: SISTEMA }, { role: 'user', content: `${BASE}Pregunta del visitante:\n"""${pregunta}"""\n\nJSON:` }],
+        messages: [{ role: 'system', content: SISTEMA }, { role: 'user', content: `${baseDe(quien)}Pregunta del visitante:\n"""${pregunta}"""\n\nJSON:` }],
       }),
       signal: AbortSignal.timeout(12000),
     });

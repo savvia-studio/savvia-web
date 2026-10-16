@@ -1,10 +1,11 @@
 ---
 import { preguntas, pie } from '../data/home';
 const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara-eric-transparente.webp'];
-const NOMBRE = ['Andoni', 'Eric'];
-// `{yo}` = quien contesta · `{otro}` = el compañero de quien contesta (si contesta Andoni, «Eric»; si contesta Eric, «Andoni»): «Con {otro} y conmigo»
-const resolver = (t: string, quien: number) => t.replaceAll('{otro}', NOMBRE[1 - quien]).replaceAll('{yo}', NOMBRE[quien]);
+const NOMBRE = personas.map((p) => p.nombre); // [Andoni, Eric]
+// `{yo}` = quien contesta · `{otro}` = su compañero · `{yo.ciudad}`, `{otro.correo}`… = datos de cada uno (src/data/personas.json)
+const resolver = (t: string, quien: number) => t.replace(/\{(yo|otro)(?:\.(\w+))?\}/g, (_, w, k) => (personas as Record<string, string>[])[w === 'yo' ? quien : 1 - quien][k || 'nombre']);
 import { flecha } from '../lib/flecha';
+import personas from '../data/personas.json';
 ---
 
 <!--
@@ -64,13 +65,14 @@ import { flecha } from '../lib/flecha';
   </div>
 </section>
 
-<script define:vars={{ sinRespuesta: preguntas.libre.sinRespuesta, correo: pie.correo, caras: CARA, nombres: NOMBRE }} is:inline>
-  window.__PREG = { sinRespuesta, correo, caras, nombres };
+<script define:vars={{ sinRespuesta: preguntas.libre.sinRespuesta, correo: pie.correo, caras: CARA, nombres: NOMBRE, personas }} is:inline>
+  window.__PREG = { sinRespuesta, correo, caras, nombres, personas };
 </script>
 <script>
   const raiz = document.querySelector<HTMLElement>('[data-preguntas]');
   if (raiz) {
-    const { sinRespuesta, correo, caras, nombres } = (window as any).__PREG as { sinRespuesta: string; correo: string; caras: string[]; nombres: string[] };
+    const { sinRespuesta, correo, caras, nombres, personas } = (window as any).__PREG as { sinRespuesta: string; correo: string; caras: string[]; nombres: string[]; personas: Record<string, string>[] };
+    const resolver = (t: string, quien: number) => t.replace(/\{(yo|otro)(?:\.(\w+))?\}/g, (_, w, k) => personas[w === 'yo' ? quien : 1 - quien][k || 'nombre']);
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const charla = raiz.querySelector<HTMLElement>('[data-charla]')!, escribiendo = raiz.querySelector<HTMLElement>('[data-escribiendo]')!, caraEsc = raiz.querySelector<HTMLImageElement>('[data-escribe-cara]')!;
     const inter = [...raiz.querySelectorAll<HTMLElement>('.intercambio')];
@@ -90,7 +92,7 @@ import { flecha } from '../lib/flecha';
         caraEsc.src = caras[quien]; escribiendo.hidden = reducido; charla.insertBefore(escribiendo, null); bajar();
         (pendiente ?? Promise.resolve()).catch(() => {}).then(() => {
           const rr = ex.querySelector<HTMLElement>('[data-respuesta]');
-          if (rr && rr.dataset.raw !== undefined) rr.textContent = rr.dataset.raw.replaceAll('{otro}', nombres[1 - quien]).replaceAll('{yo}', nombres[quien]);
+          if (rr && rr.dataset.raw !== undefined) rr.textContent = resolver(rr.dataset.raw, quien);
           const largo = rr?.textContent?.length ?? 80;
           const espera = reducido ? 0 : Math.min(pendiente ? 600 : 2000, 700 + largo * 7);
           setTimeout(() => { escribiendo.hidden = true; ex.classList.add('a-on'); ocupado = false; alFinal?.(); bajar(); }, espera);
@@ -98,10 +100,10 @@ import { flecha } from '../lib/flecha';
       }, reducido ? 0 : 450);
     };
     // SUGERENCIAS: salen 6 y, al usar una, entra otra en su lugar
-    // salen todas, poco a poco: primero las más relevantes (`chip` en preguntas.json), al azar, y después el resto
+    // salen todas, poco a poco y siempre en orden aleatorio
     const mezclar = <T,>(a: T[]) => { for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; };
     const todas = [...raiz.querySelectorAll<HTMLButtonElement>('[data-q]')];
-    const chips = [...mezclar(todas.filter((c) => 'prio' in c.dataset)), ...mezclar(todas.filter((c) => !('prio' in c.dataset)))];
+    const chips = mezclar(todas);
     chips.forEach((b, k) => { b.hidden = k >= 6; b.parentElement!.append(b); });
     chips.forEach((b) => b.addEventListener('click', () => {
       if (ocupado) return;
@@ -120,10 +122,10 @@ import { flecha } from '../lib/flecha';
     // MANDAN LAS RESPUESTAS ESCRITAS (api/preguntar.js, OpenRouter): si una encaja, sale esa tal cual; si no, la IA redacta con lo que ya hemos escrito y
     // se avisa de que es IA; si ni así, por correo. Si falla o no hay clave, la búsqueda por palabras de arriba.
     type Veredicto = { tipo: 'escrita'; i: number } | { tipo: 'ia'; texto: string } | { tipo: 'ninguna' };
-    const elegir = async (q: string, local: number): Promise<Veredicto> => {
+    const elegir = async (q: string, local: number, quien: number): Promise<Veredicto> => {
       const respaldo: Veredicto = local >= 0 ? { tipo: 'escrita', i: local } : { tipo: 'ninguna' };
       try {
-        const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q }), signal: AbortSignal.timeout(14000) });
+        const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q, quien }), signal: AbortSignal.timeout(14000) });
         if (!r.ok) return respaldo;
         const v = await r.json();
         if (v.tipo === 'escrita' && Number.isInteger(v.i) && v.i >= 0 && v.i < fichas.length) return v;
@@ -151,7 +153,7 @@ import { flecha } from '../lib/flecha';
       const rp = ex.querySelector<HTMLElement>('[data-respuesta]')!;
       rp.dataset.raw = ''; rp.textContent = '';
       // la pregunta sale en el chat AL INSTANTE; la respuesta se rellena cuando llega (la IA tarda un par de segundos)
-      const pendiente = elegir(q, local).then((v) => {
+      const pendiente = elegir(q, local, turno).then((v) => {
         const mejor = v.tipo === 'escrita' ? v.i : -1;
         rp.dataset.raw = v.tipo === 'ia' ? v.texto : mejor >= 0 ? fichas[mejor].a : sinRespuesta;
         rp.textContent = rp.dataset.raw;
