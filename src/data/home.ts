@@ -1,3 +1,4 @@
+import listaPreguntas from './preguntas.json'; // ronda 205 · ver `preguntas.lista`
 // Copy de la home. Fuente: estructura (Google Doc) + Narrativa – Savvia (Keynote), ronda 82.
 // Lo marcado `falta` son datos de Andoni y Eric que NO se inventan.
 // [[…]] = detalle de IA: una marca Iris MUY sutil junto a la palabra. Hoy, dos en toda la página.
@@ -493,18 +494,11 @@ export const preguntas = {
   firma: 'Eric y Andoni',
   nota: 'Solemos contestar en el día.',
   // RONDA 39 · reescritas hacia quien pregunta (punto 8): lo que gana o lo que decide el cliente va primero.
-  lista: [
-    { q: '¿La web la hace la IA?', a: 'No. La deciden personas: tú y dos diseñadores con criterio. La IA ejecuta más rápido lo que se decide, y eso te da más web por el mismo presupuesto.', claves: ['ia', 'inteligencia', 'artificial', 'agentes', 'agente', 'robot', 'automatica', 'chatgpt', 'claude'] },
-    { q: '¿Qué es savvia agentic?', a: 'La forma de hacer y cuidar una web: a medida, con su savvia (la receta, en un documento que entiende cualquier IA) y los agentes que la cambian contigo.', claves: ['agentic', 'agentico', 'agentica', 'producto', 'sistema', 'metodo', 'receta', 'savvia'] },
-    { q: '¿Cuánto tarda?', a: 'Depende del alcance, pero ves algo real en los primeros días, no una presentación al cabo de un mes. Las entregas son tempranas y frecuentes.', claves: ['tarda', 'tiempo', 'plazo', 'plazos', 'semanas', 'meses', 'rapido', 'fecha'] },
-    { q: '¿Cuánto cuesta?', a: 'Lo sabes antes de empezar, con un número cerrado, en cuanto entendemos tu proyecto. El desarrollo agéntico te da más calidad a un coste asumible.', claves: ['cuesta', 'precio', 'precios', 'coste', 'costes', 'presupuesto', 'tarifa', 'caro', 'dinero', 'pagar', 'costar', 'vale', 'cobrais', 'inversion'] },
-    { q: '¿Y si mi web está en Webflow o WordPress?', a: 'Si lo que tienes te sirve, se mejora; si te encierra, te proponemos salir y te explicamos por qué. La herramienta se elige por tu problema, no al revés.', claves: ['webflow', 'wordpress', 'framer', 'shopify', 'migrar', 'migracion', 'cms', 'plataforma', 'herramienta', 'tecnologia', 'stack'] },
-    { q: '¿Voy a depender de vosotros?', a: 'No. Te quedas con el código y con tu savvia: el documento con cada decisión. Con él, cualquiera, persona o agente, sabe cambiarla.', claves: ['dependo', 'dependencia', 'depender', 'despues', 'terminar', 'mantenimiento', 'mantener', 'propiedad', 'codigo', 'documento', 'documentacion'] },
-    { q: '¿Mi equipo puede tocarla?', a: 'Sí, y aprende a hacerlo. Tu equipo se forma en desarrollo agéntico para cambiar la web sin miedo y sin llamar a nadie.', claves: ['equipo', 'tocar', 'editar', 'cambiar', 'actualizar', 'formacion', 'aprender', 'ensenar', 'contenido'] },
-  ],
+  lista: listaPreguntas as { q: string; a: string; claves: string[] }[], // ronda 205 · en src/data/preguntas.json: la leen también la web y api/preguntar.js
+
   libre: {
     etiqueta: '¿Tienes otra?',
-    ayuda: 'Escríbela. Buscamos entre lo que ya tenemos respondido; si no está, nos la mandas y te contestamos nosotros.',
+    ayuda: 'Escríbela. Si ya la hemos respondido, te enseñamos nuestra respuesta; si no, te contesta una IA con lo que sabemos de savvia y nosotros lo confirmamos.',
     boton: 'Preguntar',
     sinRespuesta: 'Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.',
   },

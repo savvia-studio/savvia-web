@@ -101,25 +101,34 @@ import { flecha } from '../lib/flecha';
     const VACIAS = new Set('el la los las un una unos unas de del al a en y o que con por para mi tu su me te se es son como cuando donde cual cuales hay web pagina sitio si no mas muy ya lo le les nos vosotros'.split(' '));
     const fichas = inter.map((d) => ({ claves: new Set(d.dataset.claves!.split(' ')), a: d.querySelector('[data-respuesta]')!.textContent! }));
     const form = raiz.querySelector<HTMLFormElement>('[data-libre]')!, campo = form.querySelector<HTMLInputElement>('input')!;
-    // la IA solo ELIGE entre las respuestas escritas (api/preguntar.js, OpenRouter); si falla o no hay clave, la búsqueda por palabras de arriba
-    const elegir = async (q: string, local: number): Promise<number> => {
+    // MANDAN LAS RESPUESTAS ESCRITAS (api/preguntar.js, OpenRouter): si una encaja, sale esa tal cual; si no, la IA redacta con lo que ya hemos escrito y
+    // se avisa de que es IA; si ni así, por correo. Si falla o no hay clave, la búsqueda por palabras de arriba.
+    type Veredicto = { tipo: 'escrita'; i: number } | { tipo: 'ia'; texto: string } | { tipo: 'ninguna' };
+    const elegir = async (q: string, local: number): Promise<Veredicto> => {
+      const respaldo: Veredicto = local >= 0 ? { tipo: 'escrita', i: local } : { tipo: 'ninguna' };
       try {
-        const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q, lista: preguntasLista }), signal: AbortSignal.timeout(9000) });
-        if (!r.ok) return local;
-        const { i } = await r.json();
-        return typeof i === 'number' && i >= -1 && i < fichas.length ? i : local;
-      } catch { return local; }
+        const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q }), signal: AbortSignal.timeout(14000) });
+        if (!r.ok) return respaldo;
+        const v = await r.json();
+        if (v.tipo === 'escrita' && Number.isInteger(v.i) && v.i >= 0 && v.i < fichas.length) return v;
+        if (v.tipo === 'ia' && typeof v.texto === 'string' && v.texto) return v;
+        return v.tipo === 'ninguna' ? v : respaldo;
+      } catch { return respaldo; }
     };
-    const preguntasLista = inter.map((d) => d.querySelector('.tu')!.textContent!.replace(/^Tú: /, ''));
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = campo.value.trim();
       if (q.length < 3 || ocupado) return campo.focus();
+      // LÍMITE POR SESIÓN: 12 preguntas libres (la barrera de verdad, contra bots, está en el servidor: por IP y con tope de gasto)
+      let hechas = 0; try { hechas = Number(sessionStorage.getItem('savvia-preguntas') || 0); } catch {}
+      if (hechas >= 12) { campo.value = ''; campo.placeholder = 'Mejor escríbenos a ' + correo; campo.disabled = true; return; }
+      try { sessionStorage.setItem('savvia-preguntas', String(hechas + 1)); } catch {}
       ocupado = true; campo.value = '';
       const palabras = norm(q).split(/\s+/).filter((w) => w.length > 2 && !VACIAS.has(w));
       let mejor = -1, puntos = 0;
       fichas.forEach((f, i) => { const p = palabras.reduce((s, w) => s + (f.claves.has(w) ? 2 : [...f.claves].some((c) => c.length >= 5 && w.length >= 5 && c.slice(0, 4) === w.slice(0, 4)) ? 1 : 0), 0); if (p > puntos) { puntos = p; mejor = i; } });
-      mejor = await elegir(q, mejor);
+      const v = await elegir(q, mejor);
+      mejor = v.tipo === 'escrita' ? v.i : -1;
       ocupado = false;
       // se CLONA un intercambio de la página (así trae el ámbito de estilos de Astro, que un innerHTML no llevaría) y se rellena
       const ex = inter[0].cloneNode(true) as HTMLElement;
@@ -127,11 +136,11 @@ import { flecha } from '../lib/flecha';
       ex.removeAttribute('data-i'); ex.removeAttribute('data-claves');
       ex.querySelector('.tu')!.lastChild!.textContent = q;
       const rp = ex.querySelector<HTMLElement>('[data-respuesta]')!;
-      rp.textContent = mejor >= 0 ? fichas[mejor].a : sinRespuesta;
-      if (mejor < 0) {
+      rp.textContent = v.tipo === 'ia' ? v.texto : mejor >= 0 ? fichas[mejor].a : sinRespuesta;
+      if (v.tipo === 'ia' || mejor < 0) {
         const a = document.createElement('a');
         [...rp.attributes].filter((at) => at.name.startsWith('data-astro-cid')).forEach((at) => a.setAttribute(at.name, ''));
-        a.className = 'por-correo'; a.textContent = 'Mandársela por correo';
+        a.className = 'por-correo'; a.textContent = v.tipo === 'ia' ? 'Respuesta rápida con IA · confirmársela a Eric y Andoni' : 'Mandársela por correo';
         a.href = `mailto:${correo}?subject=${encodeURIComponent('Una pregunta')}&body=${encodeURIComponent(q)}`;
         rp.after(a);
       }
