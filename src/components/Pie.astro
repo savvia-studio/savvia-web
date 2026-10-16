@@ -27,7 +27,7 @@ import { flecha } from '../lib/flecha';
 ---
 
 <footer id="contacto" class="surface-dark pie" data-sube data-pie data-horizonte={JSON.stringify(HORIZONTE)}>
-  <div class="wrap contenido pt-24 lg:pt-32">
+  <div class="wrap contenido">
     <div class="grid-12 gap-y-12">
       <div class="col-span-4 lg:col-span-7">
         <p class="text-h1 font-display tracking-[-0.02em] titular" data-entra>
@@ -132,7 +132,7 @@ import { flecha } from '../lib/flecha';
     contacta.addEventListener('click', (e) => { if (!pie.classList.contains('cta-abierto')) { e.preventDefault(); hacerCta(true); } });
     // RONDA 65 · «quitamos la iluminación del punto; que entre una luz como en el hero en todos los escenarios, y esa luz ilumina el Contáctanos»: el haz
     // (.luz-pie, 18°, sigue al ratón) está en todas las estaciones; donde cruza la palabra, una copia en luz cálida la ilumina (máscara: la banda del haz)
-    const haz = pie.querySelector<HTMLElement>('.luz-pie .haz')!, luces = [...pie.querySelectorAll<HTMLElement>('[data-contacta-luz]')];
+    const haz = pie.querySelector<HTMLElement>(':scope > .luz-pie .haz')!, luces = [...pie.querySelectorAll<HTMLElement>('[data-contacta-luz]')];
     const S = Math.sin((108 * Math.PI) / 180), C = -Math.cos((108 * Math.PI) / 180); // el eje del degradado de 108° (perpendicular a la banda)
     let rafL = 0;
     const iluminar = () => {
@@ -179,6 +179,8 @@ import { flecha } from '../lib/flecha';
       // asomaba por encima de las preguntas hasta el final del Estudio, cortado en seco por el borde de la capa. Ahora no sube más allá de la sección
       // de antes del pie, y fuera de la vista vale 0 (ver el IntersectionObserver).
       pie.style.setProperty('--arriba', `${Math.round(Math.min(Math.max(0, r.top), arribaMax()))}px`);
+      // la copia de la luz que vive dentro de la gota marrón (la crea entradas.ts) necesita el alto del pie
+      pie.style.setProperty('--pie-h', `${Math.round(r.height)}px`);
       const k = Math.min(1, Math.max(0, (vh - r.top) / Math.max(1, r.height)));
       const e = 1 - (1 - k) * (1 - k);
       if (Math.abs(e - ult) < 0.002) return;
@@ -417,8 +419,10 @@ import { flecha } from '../lib/flecha';
     pointer-events: none; /* su caja (con el relleno de abajo) pisaba el «Contáctanos»: solo sus enlaces reciben el puntero */
     /* RONDA 27: «a 80 px de Carta fundacional»: las cimas de los montes (al 43,6 % del alto de la lámina) quedan 80 px bajo el último enlace:
        lo que sobra del paisaje por debajo de las cimas (56,4 % de su alto) + 80 px */
+    padding-top: 160px; /* más aire entre la curva y el titular */
     padding-bottom: calc(400px + 0.564 * min(33.35vw, 62lvh)); /* ronda 35: a 400 px de Carta fundacional: el panel, más alto, asoma por encima del paisaje sin tocar los enlaces */
   }
+  @media (min-width: 1024px) { .contenido { padding-top: 256px; } }
   .contenido a {
     pointer-events: auto;
   }
@@ -678,6 +682,15 @@ import { flecha } from '../lib/flecha';
     background: linear-gradient(90deg, transparent, rgb(255 236 200 / 0.05) 30%, rgb(255 236 200 / 0.12) 50%, rgb(255 236 200 / 0.05) 70%, transparent);
     transform: translateX(calc(var(--lx, 0) * 30vw)) skewX(-18deg);
   }
+  /* la copia dentro de la gota (.sube): el mismo haz que la capa del pie, con la caja ampliada 240 px por ARRIBA (el alto máximo de la gota) para que cubra
+     toda la gota aunque --arriba valga 0. Por abajo termina donde el pie (si no, ensanchaba la página). El centro de la caja queda 120 px más alto: el
+     origen de la inclinación baja otros 120 px para que la diagonal coincida con la de la capa del pie en la línea */
+  :global(.sube) .luz-pie {
+    top: calc(100% - var(--arriba, 0px) - 240px);
+    bottom: auto;
+    height: calc(var(--arriba, 0px) + var(--pie-h, 0px) + 240px);
+  }
+  :global(.sube) .luz-pie .haz { transform-origin: 50% calc(50% + 120px); }
   .pie:has(.pintado) .luz-pie { /* ronda 65: en todas las estaciones (antes, solo en verano) */
     opacity: 1;
   }

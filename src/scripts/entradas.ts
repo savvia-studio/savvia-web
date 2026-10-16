@@ -37,9 +37,39 @@ if (!reducido && 'IntersectionObserver' in window) {
   const subes = [...document.querySelectorAll<HTMLElement>('[data-sube]')].map((sec) => {
     const gota = document.createElement('div');
     gota.className = 'sube'; gota.setAttribute('aria-hidden', 'true');
+    // la luz del pie también va DENTRO de su gota marrón (recortada por su curva): «que la luz esté en todo lo marrón»; su geometría, en Pie.astro (:global(.sube) .luz-pie)
+    const luz = sec.hasAttribute('data-pie') ? sec.querySelector(':scope > .luz-pie') : null;
+    if (luz) gota.appendChild(luz.cloneNode(true));
     sec.prepend(gota);
     return { sec, path: gota, v: -1, on: false };
   });
+  // RONDA 216 · Eric: «si el marrón toca las letras de Consultoría, lo que toque tiene que volverse blanco»: en las secciones con `data-sube-eco`, la gota lleva dentro un ECO
+  // del contenido de la sección anterior, alineado por abajo y con la superficie de la que llega (texto claro). La gota, recortada con su curva, recorta también el eco:
+  // donde el marrón cubre el contenido, se ve el contenido en blanco; el resto, el original. Es una copia (sin ids, inerte): se rehace cuando cambia el original.
+  for (const s of subes) {
+    if (!s.sec.hasAttribute('data-sube-eco')) continue;
+    let previo = s.sec.previousElementSibling as HTMLElement | null;
+    while (previo && previo.tagName !== 'SECTION') previo = previo.previousElementSibling as HTMLElement | null;
+    const fuente = previo?.querySelector<HTMLElement>(':scope > .wrap');
+    if (!previo || !fuente) continue;
+    const superficie = [...s.sec.classList].find((c) => c.startsWith('surface-')) ?? 'surface-dark';
+    const rehacer = () => {
+      s.path.querySelector('.sube-eco')?.remove();
+      const caja = previo!.cloneNode(false) as HTMLElement; // sus atributos (el CSS de su componente cuelga de ellos)
+      ['id', 'data-sube', 'aria-labelledby'].forEach((a) => caja.removeAttribute(a));
+      caja.className = `sube-eco ${superficie}`; caja.setAttribute('aria-hidden', 'true'); caja.setAttribute('inert', '');
+      const copia = fuente.cloneNode(true) as HTMLElement;
+      copia.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+      copia.querySelectorAll('video, canvas, iframe').forEach((e) => e.remove());
+      caja.appendChild(copia);
+      s.path.appendChild(caja);
+    };
+    let t = 0;
+    const pedirEco = () => { clearTimeout(t); t = window.setTimeout(() => { if ((s as any).on) rehacer(); }, 250); };
+    // se hace al acercarse la sección (la marca `on` la pone el IntersectionObserver de más abajo) y se rehace si el original cambia de clase o de contenido
+    (s as any).eco = rehacer;
+    new MutationObserver(pedirEco).observe(previo, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'aria-pressed', 'aria-expanded', 'hidden', 'data-estado'] });
+  }
   // RONDA 41 · «hay un momento que se ve como geométrica y tiene que ser siempre fluida»: con 33 muestras repartidas por igual, al principio (gota
   // estrecha, w = 12) la cima caía entre 3 o 4 puntos y se veía un PICO poligonal. Ahora las muestras se reparten según la propia campana: se
   // concentran donde la curva cambia (alrededor de la cima, a la escala de su anchura) y hay 120: el contorno es liso en todo el recorrido.
@@ -61,7 +91,7 @@ if (!reducido && 'IntersectionObserver' in window) {
     const vh = innerHeight;
     for (const s of subes) {
       if (!s.on) continue;
-      const v = Math.round(Math.min(1, Math.max(0, (vh - s.sec.getBoundingClientRect().top) / (vh * 0.72))) * 1000) / 1000; // ronda 41: pasos finos (antes 1/200 daba saltos)
+      const v = Math.round(Math.min(1, Math.max(0, (vh - s.sec.getBoundingClientRect().top) / (vh * (s.sec.hasAttribute('data-pie') ? 0.9 : 0.72)))) * 1000) / 1000; // ronda 41: pasos finos (antes 1/200 daba saltos)
       if (v !== s.v) { s.v = v; dibujar(s.path, v); }
     }
   };
@@ -79,7 +109,7 @@ if (!reducido && 'IntersectionObserver' in window) {
     return null;
   };
   const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(mover); } };
-  const io = new IntersectionObserver((es) => { es.forEach((e) => { const s = subes.find((x) => x.sec === e.target); if (s) s.on = e.isIntersecting; }); pedir(); }, { rootMargin: '30% 0px' });
+  const io = new IntersectionObserver((es) => { es.forEach((e) => { const s = subes.find((x) => x.sec === e.target); if (s) { const antes = s.on; s.on = e.isIntersecting; if (s.on && !antes && (s as any).eco && !s.path.querySelector('.sube-eco')) (s as any).eco(); } }); pedir(); }, { rootMargin: '30% 0px' });
   subes.forEach((s) => io.observe(s.sec));
   addEventListener('scroll', pedir, { passive: true });
   addEventListener('resize', pedir);

@@ -31,7 +31,7 @@ const [A, E] = estudio.personas;
     Sin gestos por ahora (`gesto: []`: el gancho queda, sin hacer nada). Lo de las rondas 137–138, en tools/retirados/equipo-r139/.
   · Con movimiento reducido: la pose final, sin paseo. Los textos de cada uno son FALTA (datos de Andoni y Eric: no se inventan).
 -->
-<section id="estudio" class="surface-dark section-y relative" aria-label={estudio.pregunta} data-equipo data-sube>
+<section id="estudio" class="surface-dark section-y relative" aria-label={estudio.pregunta} data-equipo data-sube data-sube-eco>
   <!-- RONDA 191 · Eric: «con todo lo que he contado, ¿cómo reharías el layout?» → DOS COLUMNAS: a la izquierda, alineados a la izquierda como el
        manifiesto, el titular de Andoni y la entradilla (las tres cifras, quitadas el 15/10); a la derecha, Eric y Andoni en 3D con
        sus llamadas y la hierba. En móvil se apila: texto y los dos. -->
@@ -415,7 +415,7 @@ const [A, E] = estudio.personas;
   .titulo-estudio { font-size: clamp(2.5rem, 1.85rem + 2.6vw, 3.75rem); }
   /* ronda 191 · Eric: «cada sección, arriba y abajo, el mismo espacio hasta su línea»: el aire extra (para la gota de la sección siguiente, que sube
      hasta ~240 px) se reparte por igual arriba y abajo: el contenido queda centrado entre las dos líneas */
-  #estudio { padding-block: calc(var(--space-section) + clamp(4rem, 2rem + 7lvh, 7.5rem)); }
+  #estudio { padding-block: calc(var(--space-section) + clamp(4rem, 2rem + 7lvh, 7.5rem)); padding-top: max(5rem, calc(var(--space-section) * 0.85)); } /* ronda 215: menos aire arriba (Eric: «hay mucho espacio») */
   .estudio-grid { display: grid; gap: calc(var(--spacing) * 16); align-items: center; }
   .lado-texto { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
   @media (width >= 64rem) {

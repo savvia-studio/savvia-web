@@ -783,6 +783,16 @@ html.tipo-antes {
   /* RONDA 171 (Eric, captura): sentado en Proyectos, la gota de la sección siguiente asomaba ENCIMA del monitor (el escenario fijo vive dentro del
      contexto de apilamiento de su sección y esta gota, que va después en el DOM, le pasa por encima) */
   html.estudio-sentado .sube { visibility: hidden; }
+  /* RONDA 216 · el ECO de la sección anterior dentro de la gota (entradas.ts): el contenido, alineado por abajo con ella y con el texto claro de la sección que llega.
+     La gota lo recorta con su curva: lo que cubre el marrón se ve en blanco */
+  .sube .sube-eco {
+    position: absolute;
+    left: 0;
+    bottom: 1px;
+    width: 100%;
+    background: transparent !important;
+    pointer-events: none;
+  }
 
 }
 

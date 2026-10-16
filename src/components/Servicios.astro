@@ -206,7 +206,8 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
   /* ronda 192 · «falta un poco de espacio aquí abajo» (Eric): +80 más (la gota de la sección siguiente se come parte del hueco) */
   /* ronda 191 · Eric: «cada sección, arriba y abajo, el mismo espacio hasta su línea»: los 160 px extra (para la gota de la sección siguiente, que
      sube ~240 px) se reparten por igual: línea de arriba → titular = línea de abajo del bloque → fin de la sección */
-  [data-servicios] > .wrap { padding-block: calc(var(--space-section) + 80px); }
+  /* ronda 215 · Eric: «hay mucho espacio» entre Más proyectos y Servicios, y entre Servicios y la siguiente: los 272 px de arriba y de abajo (192 + 80) bajan a 144 y 163 en escritorio */
+  [data-servicios] > .wrap { padding-top: max(4rem, calc(var(--space-section) * 0.75)); padding-bottom: calc(clamp(90px, 24lvh, 240px) * 0.9); } /* ronda 216: abajo, casi la altura de la gota de Estudio (.sube: clamp(90px, 24lvh, 240px)); antes 163 (0,85 × la sección) */
   /* ── EL BLOQUE ENTRE GUÍAS (ronda 134): las líneas de arriba y abajo son filas de los carriles; el bloque se apoya en ellas */
   .cuerpo { --hueco: calc(var(--spacing) * 16); position: relative; display: grid; gap: calc(var(--spacing) * 8); align-items: stretch; padding-block: calc(var(--spacing) * 6); }
   @media (width >= 64rem) {

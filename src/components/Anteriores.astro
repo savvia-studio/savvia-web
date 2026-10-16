@@ -260,7 +260,7 @@ import { icono } from '../lib/iconos';
             let w = movil ? 390 : 960, h = movil ? (c.slug === 'cubbo' ? 798 : 844) : 600;
             if (grande) { w = grande.width ?? w; h = grande.height ?? h; }
             return (
-              <article class={`vis-slide ${movil ? 'movil' : ''} ${s.fondo ? 'con-fondo' : 'g-marca'}`} data-vis-slide data-n={c.n} data-sector={c.sector ?? ''} aria-hidden="true" style={`--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]};${s.fondo ? `--fondo:url('${s.fondo}')` : ''}`}>
+              <article class={`vis-slide ${movil ? 'movil' : ''} ${s.fondo ? 'con-fondo' : 'g-marca'}`} data-vis-slide data-n={c.n} data-sector={c.sector ?? ''} aria-hidden="true" style={`--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]};--vf:${claro(c.color[0]) ? '#f6f7fb' : '#000'};${s.fondo ? `--fondo:url('${s.fondo}')` : ''}`}>
                 <div class="vis-marco">
                   <video class="vis-vid" muted loop playsinline preload="none" poster={`${base}.jpg`} width={w} height={h} data-src={`${base}.mp4`} aria-label={`Recorrido por la web de ${c.n}`}></video>
                 </div>
@@ -662,6 +662,11 @@ import { icono } from '../lib/iconos';
   #anteriores {
     overflow-x: clip;
   }
+  /* ronda 215 · Eric: «hay mucho espacio» tras el último proyecto: el relleno de abajo, a la mitad (192 → 96 px) */
+  #anteriores { padding-bottom: max(3rem, calc(var(--space-section) / 2)); }
+  /* ronda 216 · Eric: «que lo naranja no quede por encima de los mockups; que quede por detrás»: la gota de Servicios (.sube, z-index 3, sube sobre el final de esta sección)
+     pasa por DETRÁS de las cards: el contenido, por encima (z-index 4) */
+  #anteriores > .wrap { position: relative; z-index: 4; }
   .mosaico {
     transform-style: flat;
     display: grid;
@@ -1489,7 +1494,7 @@ import { icono } from '../lib/iconos';
     height: auto;
     border-radius: calc(var(--r-fuera) - var(--marco));
     box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
-    background: #000;
+    background: var(--vf, #000); /* RONDA 215: el fondo asoma por el hueco de medio píxel del borde: en webs claras, claro (Eric: la línea negra de Neety) */
   }
   /* el móvil, de pie y centrado: el alto manda */
   .vis-slide.movil .vis-marco {
