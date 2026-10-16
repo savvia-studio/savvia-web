@@ -121,7 +121,7 @@ import personas from '../data/personas.json';
     const form = raiz.querySelector<HTMLFormElement>('[data-libre]')!, campo = form.querySelector<HTMLInputElement>('input')!;
     // MANDAN LAS RESPUESTAS ESCRITAS (api/preguntar.js, OpenRouter): si una encaja, sale esa tal cual; si no, la IA redacta con lo que ya hemos escrito y
     // se avisa de que es IA; si ni así, por correo. Si falla o no hay clave, la búsqueda por palabras de arriba.
-    type Veredicto = { tipo: 'escrita'; i: number } | { tipo: 'ia'; texto: string } | { tipo: 'ninguna' };
+    type Veredicto = { tipo: 'escrita'; i: number } | { tipo: 'ia' | 'fuera'; texto: string } | { tipo: 'ninguna' };
     const elegir = async (q: string, local: number, quien: number): Promise<Veredicto> => {
       const respaldo: Veredicto = local >= 0 ? { tipo: 'escrita', i: local } : { tipo: 'ninguna' };
       try {
@@ -129,7 +129,7 @@ import personas from '../data/personas.json';
         if (!r.ok) return respaldo;
         const v = await r.json();
         if (v.tipo === 'escrita' && Number.isInteger(v.i) && v.i >= 0 && v.i < fichas.length) return v;
-        if (v.tipo === 'ia' && typeof v.texto === 'string' && v.texto) return v;
+        if ((v.tipo === 'ia' || v.tipo === 'fuera') && typeof v.texto === 'string' && v.texto) return v;
         return v.tipo === 'ninguna' ? v : respaldo;
       } catch { return respaldo; }
     };
@@ -155,9 +155,9 @@ import personas from '../data/personas.json';
       // la pregunta sale en el chat AL INSTANTE; la respuesta se rellena cuando llega (la IA tarda un par de segundos)
       const pendiente = elegir(q, local, turno).then((v) => {
         const mejor = v.tipo === 'escrita' ? v.i : -1;
-        rp.dataset.raw = v.tipo === 'ia' ? v.texto : mejor >= 0 ? fichas[mejor].a : sinRespuesta;
+        rp.dataset.raw = v.tipo === 'ia' || v.tipo === 'fuera' ? v.texto : mejor >= 0 ? fichas[mejor].a : sinRespuesta;
         rp.textContent = rp.dataset.raw;
-        if (v.tipo === 'ia' || mejor < 0) {
+        if (v.tipo === 'ia' || (v.tipo !== 'fuera' && mejor < 0)) {
           const a = document.createElement('a');
           [...rp.attributes].filter((at) => at.name.startsWith('data-astro-cid')).forEach((at) => a.setAttribute(at.name, ''));
           a.className = 'por-correo'; a.textContent = v.tipo === 'ia' ? 'Respuesta rápida con IA, confirmársela a Eric y Andoni' : 'Mandársela por correo';
