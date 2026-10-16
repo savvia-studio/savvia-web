@@ -504,7 +504,7 @@ export const preguntas = {
   ],
   libre: {
     etiqueta: '¿Tienes otra?',
-    ayuda: 'Escríbela. Aquí no contesta ninguna IA: si ya la tenemos respondida te la enseñamos, y si no, nos llega a nosotros.',
+    ayuda: 'Escríbela. Buscamos entre lo que ya tenemos respondido; si no está, nos la mandas y te contestamos nosotros.',
     boton: 'Preguntar',
     sinRespuesta: 'Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.',
   },

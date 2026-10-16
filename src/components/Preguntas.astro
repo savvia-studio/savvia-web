@@ -96,18 +96,31 @@ import { flecha } from '../lib/flecha';
       conversar(ex, turno); turno = 1 - turno;
       if (!raiz.querySelector('[data-q]')) raiz.querySelector<HTMLElement>('[data-sugeridas]')!.hidden = true;
     }));
-    // LA PREGUNTA LIBRE: por palabras clave (exacta = 2 puntos; misma raíz = 1), sin ningún modelo detrás
+    // LA PREGUNTA LIBRE: por palabras clave (exacta = 2 puntos; misma raíz = 1) como respaldo; el modelo solo elige entre respuestas ya escritas
     const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ ]/g, ' ');
     const VACIAS = new Set('el la los las un una unos unas de del al a en y o que con por para mi tu su me te se es son como cuando donde cual cuales hay web pagina sitio si no mas muy ya lo le les nos vosotros'.split(' '));
     const fichas = inter.map((d) => ({ claves: new Set(d.dataset.claves!.split(' ')), a: d.querySelector('[data-respuesta]')!.textContent! }));
     const form = raiz.querySelector<HTMLFormElement>('[data-libre]')!, campo = form.querySelector<HTMLInputElement>('input')!;
-    form.addEventListener('submit', (e) => {
+    // la IA solo ELIGE entre las respuestas escritas (api/preguntar.js, OpenRouter); si falla o no hay clave, la búsqueda por palabras de arriba
+    const elegir = async (q: string, local: number): Promise<number> => {
+      try {
+        const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q, lista: preguntasLista }), signal: AbortSignal.timeout(9000) });
+        if (!r.ok) return local;
+        const { i } = await r.json();
+        return typeof i === 'number' && i >= -1 && i < fichas.length ? i : local;
+      } catch { return local; }
+    };
+    const preguntasLista = inter.map((d) => d.querySelector('.tu')!.textContent!.replace(/^Tú: /, ''));
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = campo.value.trim();
       if (q.length < 3 || ocupado) return campo.focus();
+      ocupado = true; campo.value = '';
       const palabras = norm(q).split(/\s+/).filter((w) => w.length > 2 && !VACIAS.has(w));
       let mejor = -1, puntos = 0;
       fichas.forEach((f, i) => { const p = palabras.reduce((s, w) => s + (f.claves.has(w) ? 2 : [...f.claves].some((c) => c.length >= 5 && w.length >= 5 && c.slice(0, 4) === w.slice(0, 4)) ? 1 : 0), 0); if (p > puntos) { puntos = p; mejor = i; } });
+      mejor = await elegir(q, mejor);
+      ocupado = false;
       // se CLONA un intercambio de la página (así trae el ámbito de estilos de Astro, que un innerHTML no llevaría) y se rellena
       const ex = inter[0].cloneNode(true) as HTMLElement;
       ex.className = inter[0].className.replace(/\b(q-on|a-on)\b/g, '').trim() + ' pendiente';
@@ -122,7 +135,6 @@ import { flecha } from '../lib/flecha';
         a.href = `mailto:${correo}?subject=${encodeURIComponent('Una pregunta')}&body=${encodeURIComponent(q)}`;
         rp.after(a);
       }
-      campo.value = '';
       conversar(ex, turno); turno = 1 - turno;
     });
     (window as any).__preguntar = (q: string) => { campo.value = q; form.requestSubmit(); };
