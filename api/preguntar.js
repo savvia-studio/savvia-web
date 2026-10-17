@@ -18,7 +18,7 @@ const ORIGENES = ['https://savvia.studio', 'https://www.savvia.studio'];
 const visitas = new Map(); // respaldo sin Upstash: memoria de la instancia, NO es una garantía
 
 // `{yo}` = quien contesta · `{otro}` = su compañero · `{yo.ciudad}`… (src/data/personas.json). Sin saber quién contesta, se habla en plural.
-const resolver = (t, quien) => String(t).replace(/\{(yo|otro)(?:\.(\w+))?\}/g, (_, w, k) => (quien === 0 || quien === 1 ? personas[w === 'yo' ? quien : 1 - quien][k || 'nombre'] : w === 'yo' ? 'uno de los dos' : 'el otro'));
+const resolver = (t, quien) => String(t).replaceAll('{donostia}', 'Donostia').replace(/\{(yo|otro)(?:\.(\w+))?\}/g, (_, w, k) => (quien === 0 || quien === 1 ? personas[w === 'yo' ? quien : 1 - quien][k || 'nombre'] : w === 'yo' ? 'uno de los dos' : 'el otro'));
 const fichasDe = (quien) => fichasJson.map((f) => ({ q: String(f.q), a: resolver(f.a, quien) }));
 const FICHAS = fichasDe(null);
 
@@ -36,6 +36,7 @@ const SIEMPRE = [
   'Contesta en castellano, de tú, en máximo 3 frases cortas.',
   'Habla en plural cuando hables de savvia («hacemos», «te contestamos»).',
   'Escribe «savvia» siempre con minúscula, también al empezar frase.',
+  'Cuando nombres la ciudad, alterna «Donostia» y «San Sebastián» (a veces una, a veces otra), sin explicarlo.',
   'Si falta un dato concreto, di que se lo cuente a Eric y Andoni para darle un número cerrado.',
 ];
 const NUNCA = [

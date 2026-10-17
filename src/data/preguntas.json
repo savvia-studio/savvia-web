@@ -482,7 +482,7 @@
   },
   {
     "q": "¿Dónde estáis?",
-    "a": "Los dos somos de Donostia. Ahora mismo {otro} vive en {otro.ciudad} y yo en {yo.ciudad}, aunque pronto volveremos a casa. Mientras tanto, y siempre, trabajamos con equipos de cualquier sitio.",
+    "a": "Los dos somos de {donostia}. Ahora mismo {otro} vive en {otro.ciudad} y yo en {yo.ciudad}, aunque pronto volveremos a casa. Mientras tanto, y siempre, trabajamos con equipos de cualquier sitio.",
     "claves": [
       "estais"
     ],
@@ -490,11 +490,25 @@
   },
   {
     "q": "¿Cómo os contacto?",
-    "a": "Con el botón «Contáctanos» de la web o escribiendo directamente a hola@savvia.studio. Si prefieres hablar conmigo, escríbeme a {yo.correo}; y si quieres hablar con {otro}, a {otro.correo}. Solemos contestar en el día.",
+    "a": "Como te venga mejor, o escribe directamente a hola@savvia.studio. Solemos contestar en el día.",
     "claves": [
       "contacto"
     ],
-    "chip": false
+    "chip": false,
+    "ctas": [
+      {
+        "t": "Contáctanos",
+        "h": "cal"
+      },
+      {
+        "t": "Escribir a {yo}",
+        "h": "mailto:{yo.correo}"
+      },
+      {
+        "t": "Escribir a {otro}",
+        "h": "mailto:{otro.correo}"
+      }
+    ]
   },
   {
     "q": "¿Qué proyectos no cogéis?",
