@@ -365,7 +365,7 @@ import { flecha } from '../lib/flecha';
     $('[data-saltar]').addEventListener('click', saltar);
     addEventListener('keydown', (e) => {
       if (e.key === 'Escape') return saltar();
-      if ((e.key === ' ' || e.key === 'Enter') && !rota && !arrancando) { e.preventDefault(); medir(); const cx = innerWidth / 2, cy = innerHeight / 2; arrancar(Array.from({ length: 41 }, (_, i) => ({ x: cx + 40 * Math.cos((i / 40) * Math.PI * 2 - Math.PI / 2), y: cy + 40 * Math.sin((i / 40) * Math.PI * 2 - Math.PI / 2) }))); }
+      if ((e.key === ' ' || e.key === 'Enter') && !rota && !arrancando && !parado) { e.preventDefault(); medir(); const cx = innerWidth / 2, cy = innerHeight / 2; arrancar(Array.from({ length: 41 }, (_, i) => ({ x: cx + 40 * Math.cos((i / 40) * Math.PI * 2 - Math.PI / 2), y: cy + 40 * Math.sin((i / 40) * Math.PI * 2 - Math.PI / 2) }))); }
     });
     // la rueda salta, pero solo un scroll de verdad (≥ 90 px seguidos y pasado el primer medio segundo): un roce del trackpad —o la inercia de la página
     // anterior— saltaba la carga sin que nadie lo pidiera, y dibujando la V con el dedo es fácil rozarlo

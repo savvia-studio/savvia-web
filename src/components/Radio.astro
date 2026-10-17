@@ -211,9 +211,11 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
         if (relojes.get(a) !== k) return;
         const p = Math.min(1, (t - t0) / ms), e = 1 - (1 - p) * (1 - p);
         a.volume = Math.max(0, Math.min(1, v0 + (hasta - v0) * e));
-        if (p < 1) requestAnimationFrame(paso); else fin?.();
+        if (p < 1) sig(); else fin?.();
       };
-      requestAnimationFrame(paso);
+      // en una pestaña oculta el rAF no corre (el fundido se quedaba a 0 y la música «volvía» al regresar): ahí manda un temporizador
+      const sig = () => { if (document.hidden) setTimeout(() => paso(performance.now()), 250); else requestAnimationFrame(paso); };
+      sig();
     };
 
     // la pieza que suena, SIEMPRE a la vista en la lista: se centra moviendo solo la lista (nunca la página)
@@ -242,12 +244,21 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     const meta = (a: HTMLAudioElement) => new Promise<void>((r) => { if (a.readyState >= 1) r(); else a.addEventListener('loadedmetadata', () => r(), { once: true }); });
 
     // una pieza (la pedida o una al azar de la emisora); `aMedias` = entrar a mitad de ella (al encender o al cambiar de emisora, como una radio)
+    // la SIGUIENTE se elige y se descarga mientras suena la actual: en el relevo ya está en caché y no hay hueco entre piezas
+    let prox: Pista | null = null;
+    const precargar = () => {
+      prox = alAzar();
+      const l = libre(), u = `/media/radio/${prox.id}.mp3`;
+      if (!l.src.endsWith(u)) { l.preload = 'auto'; l.src = u; l.load(); }
+    };
     const sonar = async (aMedias: boolean, pedida?: Pista, desde?: number, relevo = false) => {
-      const t = ++turno, p = pedida ?? alAzar(), nuevo = libre(), viejo = vivo();
+      const t = ++turno, p = pedida ?? (prox && cola().some((c) => c.id === prox!.id) ? prox : alAzar()), nuevo = libre(), viejo = vivo();
+      prox = null;
       // play() se pide YA, dentro del gesto (RONDA 158 · Eric: «a veces clico una canción y a la primera no suena»): antes se esperaba a los metadatos
       // y, si la pieza tardaba en llegar (primera vez, sin caché), el navegador ya no lo contaba como respuesta al clic y lo bloqueaba. Suena a volumen 0
       // y, si entra a medias, salta a su punto en cuanto se conoce la duración.
-      nuevo.src = `/media/radio/${p.id}.mp3`; nuevo.volume = 0;
+      if (!nuevo.src.endsWith(`/media/radio/${p.id}.mp3`)) nuevo.src = `/media/radio/${p.id}.mp3`;
+      nuevo.volume = 0;
       if (ctx?.state === 'suspended') ctx.resume().catch(() => {});
       const pl = nuevo.play();
       try {
@@ -262,6 +273,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       if (!viejo.paused) fundir(viejo, 0, relevo ? CRUCE : CAMBIO, () => viejo.pause()); else viejo.pause();
       fundir(nuevo, nivel(), desde != null ? SIGUE : relevo ? CRUCE : ENTRA, () => { if (cede) nuevo.pause(); });
       pintar(); medir();
+      precargar();
     };
     els.forEach((a) => {
       a.addEventListener('ended', () => { if (on && a === vivo()) sonar(false); });

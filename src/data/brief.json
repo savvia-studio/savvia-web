@@ -1,0 +1,135 @@
+{
+  "saludo": [
+    "Hola, soy {yo}.",
+    "Hacemos webs a medida, de principio a fin, y las dejamos preparadas para cambiarlas con IA."
+  ],
+  "servicio": {
+    "q": "¿Cómo quieres trabajar con nosotros?",
+    "opciones": [
+      { "t": "End-to-end", "r": "De la primera conversación a la web publicada. Vamos a conocer tu proyecto.", "ruta": "e2e" },
+      { "t": "Colaboración", "r": "Nos sumamos a tu equipo en la parte que más lo necesite.", "ruta": "colab" },
+      { "t": "Consultoría", "r": "Te ayudamos a decidir y a ordenar tu web para que la cambies con IA.", "ruta": "consul" },
+      { "t": "No lo tengo claro", "r": "Sin problema. Cuéntanos y te decimos cuál encaja.", "ruta": "indeciso" }
+    ],
+    "solo": { "t": "Solo tengo una pregunta", "r": "Claro. Escríbela abajo y te contestamos." }
+  },
+  "rutas": {
+    "e2e": ["hoy", "marca", "tamano", "extras", "plazo"],
+    "colab": ["parte", "equipo", "plazo"],
+    "consul": ["quiere", "cambia", "plazo"],
+    "indeciso": ["frase", "plazo"]
+  },
+  "pasos": {
+    "hoy": {
+      "q": "¿Dónde está tu web hoy?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "En Webflow", "r": "Si te encierra, la migramos tal cual, pixel a pixel, con su CMS." },
+        { "t": "En WordPress u otra", "r": "También se puede migrar. Lo vemos contigo." },
+        { "t": "Todavía no tengo", "r": "Mejor: partimos de cero." }
+      ]
+    },
+    "marca": {
+      "q": "¿Tienes marca definida? Logo, tipografía, colores…",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "Sí, completa", "r": "Partimos de ella." },
+        { "t": "Sí, pero por ajustar", "r": "La ordenamos juntos en tu savvia." },
+        { "t": "Todavía no", "r": "Para empezar hace falta al menos un logo y una idea visual. Lo hablamos en la llamada." }
+      ]
+    },
+    "tamano": {
+      "q": "¿Cuántas páginas necesitas, más o menos?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "Una landing", "r": "Poco y bien hecho." },
+        { "t": "De 2 a 4", "r": "Un tamaño muy cuidable." },
+        { "t": "De 5 a 8", "r": "Perfecto." },
+        { "t": "Más de 8", "r": "Entonces la savvia de tu web será clave." }
+      ]
+    },
+    "extras": {
+      "q": "¿Qué más necesitas? Puedes elegir varias.",
+      "tipo": "varios",
+      "r": "Anotado.",
+      "opciones": [
+        { "t": "Ilustraciones animadas" },
+        { "t": "Animaciones 3D" },
+        { "t": "Interacciones avanzadas" },
+        { "t": "Varios idiomas" },
+        { "t": "Contenido que publicarás a menudo" },
+        { "t": "Integraciones (CRM, newsletter)" },
+        { "t": "Área de usuario con pagos" },
+        { "t": "Nada de esto" }
+      ]
+    },
+    "parte": {
+      "q": "¿En qué parte quieres que nos sumemos? Puedes elegir varias.",
+      "tipo": "varios",
+      "r": "Anotado.",
+      "opciones": [
+        { "t": "Diseño" },
+        { "t": "Movimiento" },
+        { "t": "Desarrollo" },
+        { "t": "Todavía no lo sé" }
+      ]
+    },
+    "equipo": {
+      "q": "¿Con quién trabajaríamos?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "Con mi equipo", "r": "Mejor así: se queda con el conocimiento." },
+        { "t": "Con mi agencia", "r": "Nos coordinamos sin problema." },
+        { "t": "Con freelances", "r": "Nos adaptamos a vuestra forma de trabajar." },
+        { "t": "Voy yo a solas", "r": "Entonces os lo dejamos todo muy claro." }
+      ]
+    },
+    "quiere": {
+      "q": "¿Qué quieres decidir u ordenar? Puedes elegir varias.",
+      "tipo": "varios",
+      "r": "Anotado.",
+      "opciones": [
+        { "t": "La narrativa de la web" },
+        { "t": "La arquitectura de contenidos" },
+        { "t": "Una auditoría de mi web" },
+        { "t": "Migrar a una web preparada para IA" },
+        { "t": "Formar a mi equipo" },
+        { "t": "Crear nuestra savvia" }
+      ]
+    },
+    "cambia": {
+      "q": "¿Cómo cambias hoy tu web?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "La toca una agencia", "r": "Ahí se pierde mucho tiempo." },
+        { "t": "La toca mi equipo", "r": "Perfecto, entonces hay base." },
+        { "t": "Nadie se atreve", "r": "Es muy común, y tiene arreglo." },
+        { "t": "Con IA, a ratos", "r": "Justo para eso sirve una savvia." }
+      ]
+    },
+    "frase": {
+      "q": "Cuéntanos en una frase qué necesitas.",
+      "tipo": "texto",
+      "ph": "Escribe en una frase…",
+      "r": "Gracias, con eso ya podemos orientarte."
+    },
+    "plazo": {
+      "q": "¿Para cuándo lo necesitarías?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "En menos de un mes", "r": "Es poco para hacerlo con cuidado, pero cuéntanos y lo vemos." },
+        { "t": "Entre 1 y 3 meses", "r": "Buen plazo." },
+        { "t": "Más adelante", "r": "Perfecto, así lo preparamos con calma." }
+      ]
+    }
+  },
+  "contacto": [
+    { "id": "nombre", "q": "Última parte. ¿Cómo te llamas?", "ph": "Tu nombre", "tipo": "texto" },
+    { "id": "email", "q": "¿A qué email te escribimos?", "ph": "nombre@empresa.com", "tipo": "email" },
+    { "id": "mas", "q": "¿Algo más que quieras contarnos? Tu empresa, tu web actual, un presupuesto orientativo…", "ph": "Opcional", "tipo": "opcional" }
+  ],
+  "fin": [
+    "Gracias, {nombre}. Con esto ya llegamos a la llamada con contexto.",
+    "Te escribimos en un máximo de 48 horas."
+  ]
+}
