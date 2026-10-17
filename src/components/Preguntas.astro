@@ -77,7 +77,13 @@ import personas from '../data/personas.json';
     const charla = raiz.querySelector<HTMLElement>('[data-charla]')!, escribiendo = raiz.querySelector<HTMLElement>('[data-escribiendo]')!, caraEsc = raiz.querySelector<HTMLImageElement>('[data-escribe-cara]')!;
     const inter = [...raiz.querySelectorAll<HTMLElement>('.intercambio')];
     let turno = 1, ocupado = false; // la primera la contestó Andoni: ahora le toca a Eric
-    charla.addEventListener('scroll', () => charla.classList.toggle('desplazada', charla.scrollTop > 2), { passive: true });
+    const bordes = () => {
+      charla.classList.toggle('desplazada', charla.scrollTop > 2);
+      charla.classList.toggle('hay-mas', charla.scrollTop + charla.clientHeight < charla.scrollHeight - 2);
+    };
+    charla.addEventListener('scroll', bordes, { passive: true });
+    new MutationObserver(bordes).observe(charla, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+    addEventListener('resize', bordes); bordes();
     const bajar = () => charla.scrollTo({ top: charla.scrollHeight, behavior: reducido ? 'auto' : 'smooth' });
     // una pregunta → su burbuja; «está escribiendo…» con la cara de quien contesta; y la respuesta
     // `pendiente`: si la respuesta aún se está buscando (pregunta libre), la pregunta ya está en pantalla y «está escribiendo…» espera a que llegue
@@ -200,11 +206,15 @@ import personas from '../data/personas.json';
     scrollbar-width: none;
     padding: calc(var(--spacing) * 2) calc(var(--spacing) * 1) calc(var(--spacing) * 2) 0;
   }
-  /* el difuminado de arriba solo cuando hay conversación por encima (al cargar, la primera pregunta se ve entera) */
-  .charla.desplazada {
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 6));
-    mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 6));
+  /* los difuminados de arriba y de abajo solo cuando hay conversación por encima o por debajo (al cargar, la primera pregunta se ve entera) */
+  .charla {
+    --ft: 0px;
+    --fb: 0px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--ft), #000 calc(100% - var(--fb)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--ft), #000 calc(100% - var(--fb)), transparent 100%);
   }
+  .charla.desplazada { --ft: calc(var(--spacing) * 6); }
+  .charla.hay-mas { --fb: calc(var(--spacing) * 6); }
   .charla::-webkit-scrollbar {
     display: none;
   }
