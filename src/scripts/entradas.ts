@@ -62,6 +62,7 @@ if (!reducido && 'IntersectionObserver' in window) {
       caja.className = `sube-eco ${superficie}`; caja.setAttribute('aria-hidden', 'true'); caja.setAttribute('inert', '');
       const copia = fuente.cloneNode(true) as HTMLElement;
       copia.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+      copia.querySelectorAll('[data-carril-fila]').forEach((e) => e.removeAttribute('data-carril-fila')); // la copia no es una guía: Carriles la contaba y trazaba una línea doble
       copia.querySelectorAll('video, canvas, iframe').forEach((e) => e.remove());
       caja.appendChild(copia);
       s.path.appendChild(caja);

@@ -33,8 +33,7 @@ import { rich } from '../lib/rich';
     <!-- RONDA 25 · en las esquinas de abajo DEL RECUADRO (en su misma caja, pero fuera de su máscara, que se desvanece a 0 abajo y los borraba):
          «desde 2020» y la estación (la de HOY al cargar; el clic en el árbol la cambia) -->
     <!-- RONDA 65 · «sustituimos desde 2020 por la hora y la estación por desde 2020»: la hora de Donostia (el estudio), en vivo -->
-    <p class="esquina desde detail tabular-nums" data-hora></p>
-    <p class="esquina estacion detail">desde 2020</p>
+    <!-- ronda 205 · Eric: «quitamos la hora y desde 2020 en el hero» -->
     <!-- RONDA 21 · «cuando clicas para cambiar de color que no haga la animación de redibujado; el redibujado solo con la carga»: el clic cambia
          de ESTACIÓN (otoño → invierno → primavera → verano) con un viraje suave del color; nada se redibuja. El hover ya no hace nada. -->
     <div class="arbol-caja" aria-hidden="true" data-arbol>
@@ -87,12 +86,6 @@ import { rich } from '../lib/rich';
     const caja = hero.querySelector<HTMLElement>('[data-arbol]')!;
     let est = estacionActual(), heroVisible = true;
     const rotular = () => { hero.dataset.estacion = EST[est]; };
-    // la hora del estudio (Donostia), al minuto
-    const hora = hero.querySelector<HTMLElement>('[data-hora]')!;
-    const fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
-    // ronda 66: «solo la hora, sin Donostia»
-    const tic = () => { hora.textContent = fmt.format(new Date()); setTimeout(tic, 60000 - (Date.now() % 60000) + 50); };
-    tic();
     rotular();
     if (t) t.fondo(...fondoDe(est));
     // CAMBIO DE ESTACIÓN (ronda 66): la lámina nueva se DIBUJA y se PINTA encima de la vieja (líneas y pintura rasgada desde la base, 2,4 s, el gesto de

@@ -36,7 +36,10 @@
     if (ys.length) setTimeout(() => { trazadas = true; }, 1500);
   };
   const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(colocar); } };
-  new ResizeObserver(pedir).observe(document.body);
+  const ro = new ResizeObserver(pedir);
+  ro.observe(document.body);
+  // Servicios: al cambiar de forma el bloque cambia de alto (la descripción abre/cierra) y sus guías deben seguirlo, aunque el body no cambie
+  document.querySelectorAll('[data-serv]').forEach((el) => ro.observe(el));
   addEventListener('load', pedir);
   addEventListener('savvia:gota', pedir);
   colocar();

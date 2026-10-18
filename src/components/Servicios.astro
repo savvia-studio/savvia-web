@@ -14,10 +14,12 @@ const GRUPOS = servicios.grupos;
 const quien = (t: string) => L.map((s, k) => (s.tags.includes(t) ? k : -1)).filter((k) => k >= 0).join(' ');
 // la tarjeta, en dos columnas en escritorio: Estrategia + Diseño | Desarrollo + Después (8 y 8)
 const COLS = [GRUPOS.slice(0, 2), GRUPOS.slice(2)];
+// «Qué incluye <u>la colaboración</u>:» → solo el nombre del servicio va subrayado
+const subrayar = (t: string) => t.replace(/^(Qué incluye (?:la |el )?)(.*)(:)$/, '$1<u>$2</u>$3');
 const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle class="onda" cx="10" cy="10" r="9" /><circle class="aro" cx="10" cy="10" r="8.25" /><circle class="relleno" cx="10" cy="10" r="8.25" /><path class="v" d="M6 10.4 8.7 13 14 7.2" pathLength="1" /></svg>`;
 ---
 
-<section id="servicios" class="surface-warm" aria-labelledby="serv-h" data-servicios data-sube>
+<section id="servicios" class="surface-warm" aria-labelledby="serv-h" data-servicios data-sube data-sin-fila>
   <div class="wrap section-y">
     <h2 id="serv-h" class="text-h2 max-w-[16ch]" data-entra>{servicios.titulo}</h2>
     <p class="text-sub text-fg2 mt-4">{servicios.sub}</p>
@@ -50,7 +52,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
       </div>
 
       <div class="tarjeta" id="serv-tarjeta" data-tarjeta-serv>
-        <p class="cab detail" data-cab data-cabs={JSON.stringify(L.map((s) => s.cab))}>{L[0].cab}</p>
+        <p class="cab font-display" data-cab data-cabs={JSON.stringify(L.map((s) => s.cab))} set:html={subrayar(L[0].cab)} />
         <div class="cols">
           {
             COLS.map((col) => (
@@ -164,7 +166,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
       opciones.forEach((o, i) => { o.setAttribute('aria-pressed', String(i === k)); o.tabIndex = i === k ? 0 : -1; });
       filas.forEach((f, i) => f.classList.toggle('on', i === k));
       dm.forEach((p, i) => p.classList.toggle('on', i === k));
-      cab.textContent = L_CAB[k];
+      cab.innerHTML = L_CAB[k].replace(/^(Qué incluye (?:la |el )?)(.*)(:)$/, '$1<u>$2</u>$3');
       visto = true;
       recorrer(k, sonar);
     };
@@ -310,8 +312,9 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
   @media (width >= 64rem) {
     .selector { padding-block: calc(var(--spacing) * 6); } /* + los 24 de cada opción = 48 px hasta cada línea */
   }
-  .cab { color: var(--fg2); }
-  .cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(var(--spacing) * 8); margin-top: calc(var(--spacing) * 4); }
+  .cab { margin-top: calc(var(--spacing) * -4); color: var(--fg); font-size: clamp(1.25rem, 1rem + 0.7vw, 1.625rem); line-height: 1.1; letter-spacing: -0.02em; } /* «Qué incluye…» en letra de titular, un pelín más arriba (Eric) */
+  .cab :global(u) { text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(var(--spacing) * 8); margin-top: calc(var(--spacing) * 8); }
   .grupo + .grupo { margin-top: calc(var(--spacing) * 6); }
   .g { color: var(--fg2); padding-bottom: calc(var(--spacing) * 2); border-bottom: 1px solid var(--rule); }
   .punto {

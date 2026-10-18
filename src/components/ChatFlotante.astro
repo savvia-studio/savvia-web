@@ -20,25 +20,26 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   · PROTOTIPO: aún NO envía nada. Al terminar, el resumen queda en pantalla y se avisa.
 -->
 <div class="cf" data-cf hidden data-cal={pie.cal} data-correo={pie.correo} data-caras={JSON.stringify(CARA)} data-personas={JSON.stringify(personas)}>
+  <i class="cf-velo" aria-hidden="true"></i>
   <button type="button" class="cf-btn" data-cf-btn aria-expanded="false" aria-controls="cf-panel" aria-label="Abrir el chat">
     <span class="cf-ic cf-ic-chat" set:html={ico(chatR)} />
     <span class="cf-ic cf-ic-plegar" set:html={ico(plegarR)} />
   </button>
+  <button type="button" class="cf-hola" data-cf-hola tabindex="-1" aria-hidden="true">¿Hablamos?</button>
   <section class="cf-panel surface-light" id="cf-panel" role="dialog" aria-label="Chat con Eric y Andoni" data-cf-panel hidden>
     <header class="cf-cab">
       <span class="cf-caras" aria-hidden="true"><img src={CARA[1]} alt="" width="72" height="72" /><img src={CARA[0]} alt="" width="72" height="72" /></span>
       <span class="cf-quien"><b>Eric y Andoni</b><small>Solemos contestar en el día</small></span>
-      <span class="cf-prog" data-cf-prog hidden aria-live="polite" data-cf-prog-t>0/0</span>
       <button type="button" class="cf-x" data-cf-x aria-label="Cerrar el chat"><span set:html={ico(xR)} /></button>
     <i class="cf-linea" data-cf-linea aria-hidden="true"></i>
     </header>
-    <p class="cf-proto">Prototipo: aún no envía nada.</p>
     <div class="cf-lista" role="log" aria-live="polite" data-cf-lista></div>
     <form class="cf-form" data-cf-form novalidate>
       <label for="cf-campo" class="sr-only">Escribe tu mensaje</label>
       <input id="cf-campo" type="text" maxlength="160" autocomplete="off" placeholder="Escribe una pregunta…" data-cf-campo />
       <button type="submit" class="cf-mandar" aria-label="Enviar" data-cf-mandar><span set:html={ico(enviarR)} /></button>
     </form>
+    <p class="cf-mail">¿Prefieres el correo? <a class="link" href={`mailto:${pie.correo}`}>{pie.correo}</a></p>
   </section>
 </div>
 
@@ -77,7 +78,6 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const lista = raiz.querySelector<HTMLElement>('[data-cf-lista]')!;
     const form = raiz.querySelector<HTMLFormElement>('[data-cf-form]')!;
     const campo = raiz.querySelector<HTMLInputElement>('[data-cf-campo]')!;
-    const prog = raiz.querySelector<HTMLElement>('[data-cf-prog]')!;
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const esperar = (ms: number) => new Promise<void>((r) => setTimeout(r, reducido ? 0 : ms));
 
@@ -91,7 +91,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
 
     // ── APARECER / DESAPARECER el botón: nunca en el hero; no con «Pregunta» a la vista, ni con el menú abierto ni sentado
     const html = document.documentElement;
-    let abierto = false, preguntasVisible = false;
+    let abierto = false, preguntasVisible = false, pieCerca = false;
     // el color del icono: el fondo REAL que tiene debajo (en invierno el hero es claro, en otoño oscuro): el primer elemento con color de fondo sólido
     const luminancia = (c: string) => {
       const m = c.match(/[\d.]+/g); if (!m || m.length < 3) return null;
@@ -111,7 +111,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     let raf = 0;
     const refrescarBtn = () => {
       const lejos = enHero || scrollY > innerHeight * 0.9;
-      const oculto = !lejos || preguntasVisible || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
+      const oculto = !lejos || (preguntasVisible && !pieCerca) || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
       raiz.classList.toggle('cf-fuera', oculto && !abierto);
       if (!raf) raf = requestAnimationFrame(() => { raf = 0; raiz.classList.toggle('cf-claro', fondoClaro()); });
     };
@@ -121,6 +121,35 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const sec = document.getElementById('preguntas');
     if (sec) new IntersectionObserver((es) => { preguntasVisible = es[0].isIntersecting; refrescarBtn(); }, { threshold: 0.15 }).observe(sec);
     refrescarBtn();
+
+    // ── «¿Hablamos?»: un susurro junto al icono. A los 8 s de verlo, se queda 5 s y se va; vuelve cada 45 s, hasta HOLA_MAX veces por visita.
+    //    Si el visitante abre el chat, no vuelve. (Decisión pendiente de Eric: cuántas veces y cada cuánto.)
+    const hola = raiz.querySelector<HTMLElement>('[data-cf-hola]')!;
+    hola.addEventListener('click', () => btn.click()); // también es clicable: abre el chat
+    const HOLA_MAX = 3, HOLA_CADA = 45000;
+    let holaVeces = 0, holaFin = false;
+    try { holaVeces = +(sessionStorage.getItem('savvia:chat-hola') ?? 0); } catch {}
+    if (!reducido) {
+      const intentar = (espera: number) => setTimeout(() => {
+        if (holaFin || holaVeces >= HOLA_MAX) return;
+        if (abierto || raiz.classList.contains('cf-fuera')) return intentar(3000);
+        holaVeces++;
+        try { sessionStorage.setItem('savvia:chat-hola', String(holaVeces)); } catch {}
+        raiz.classList.add('cf-hola-on');
+        setTimeout(() => { raiz.classList.remove('cf-hola-on'); intentar(HOLA_CADA); }, 5000);
+      }, espera);
+      btn.addEventListener('click', () => { holaFin = true; }, { once: true });
+      intentar(8000);
+    }
+
+    // en el pie, «¿Hablamos?» queda siempre junto al icono (es la salida de la página: ya no hay «Contáctanos»)
+    // (aparece ya cuando la gota del pie asoma por debajo de «Preguntas»: 80 px DESPUÉS de que el pie asome (margen negativo))
+    const pie = document.querySelector('footer');
+    if (pie) new IntersectionObserver((es) => { pieCerca = es[0].isIntersecting; raiz.classList.toggle('cf-hola-pie', pieCerca); refrescarBtn(); }, { rootMargin: '0px 0px -80px 0px' }).observe(pie);
+
+    // el velo de fondo no va sobre el hero (el árbol se ve mejor sin desenfoque): mientras el hero ocupa la pantalla, se quita
+    const hero = document.querySelector('[data-hero]');
+    if (hero) new IntersectionObserver((es) => raiz.classList.toggle('cf-en-hero', es[0].isIntersecting), { threshold: 0.5 }).observe(hero);
 
     // ── ABRIR / CERRAR: el panel se dibuja desde el botón, como el menú
     const poner = (si: boolean) => {
@@ -188,7 +217,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
         const f = filaBot();
         f.append(el('p', 'cf-b', t));
         lista.append(f); bajar();
-        if (ctas && i === textos.length - 1) { f.querySelector('.cf-b')!.after(botones(ctas)); bajar(); }
+        if (ctas && i === textos.length - 1) { lista.append(botones(ctas)); bajar(); }
       }
     };
     const botones = (ctas: Cta[]) => {
@@ -216,10 +245,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const total = () => secuencia.length + 1; // + contacto
     const linea = raiz.querySelector<HTMLElement>('[data-cf-linea]')!;
     const pintarProg = () => {
-      if (!ruta) { prog.hidden = true; linea.style.setProperty('--p', '0'); return; }
-      prog.hidden = false;
+      if (!ruta) { linea.style.setProperty('--p', '0'); return; }
       const n = Math.min(Math.max(0, idx + 1), total()), t = total();
-      prog.textContent = `${n}/${t}`;
       linea.style.setProperty('--p', String(n / t));
     };
     const ponerCampo = (ph: string, bloqueo = false) => { campo.placeholder = ph; campo.type = 'text'; campo.dataset.modo = bloqueo ? 'texto' : 'libre'; };
@@ -231,7 +258,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       ocupado = false;
     };
     const mostrarServicio = async () => {
-      await bot([brief.servicio.q]);
+      await bot([...((brief.servicio as { expl?: string[] }).expl ?? []), brief.servicio.q]);
       paso = 'servicio';
       const ops = brief.servicio.opciones as Opcion[];
       opciones(ops.map((o) => o.t), async (t, i) => {
@@ -298,7 +325,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       idx = secuencia.length; pintarProg(); ponerCampo('Escribe una pregunta…');
       quien = 1 - quien;
       const fin = (brief.fin as string[]).map((t) => t);
-      await bot(fin, [{ t: 'Reservar una llamada de 15 minutos', h: 'cal' }, { t: 'Escribir a hola@savvia.studio', h: `mailto:${correo}` }]);
+      await pensar(700);
       const f = filaBot(); const r = el('div', 'cf-b cf-resumen');
       r.append(el('p', 'cf-rt', 'Esto es lo que nos has contado'));
       respuestas.forEach((x) => { const l = el('p', 'cf-rl'); l.innerHTML = '<small></small><span></span>'; l.querySelector('small')!.textContent = x.q; l.querySelector('span')!.textContent = x.a; r.append(l); });
@@ -309,6 +336,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
         r.append(l);
       });
       f.append(r); lista.append(f); bajar();
+      quien = 1 - quien;
+      await bot(fin, [{ t: 'Reservar una llamada de 15 minutos', h: 'cal' }, { t: 'Escribir a hola@savvia.studio', h: `mailto:${correo}` }]);
       (window as any).__chatBrief = { ruta, respuestas, datos }; // para la fase 2 (envío)
     };
 
@@ -405,7 +434,47 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf-ic-plegar { opacity: 0; rotate: -90deg; filter: blur(3px); }
   .cf-abierto .cf-ic-chat { opacity: 0; rotate: 90deg; filter: blur(3px); }
   .cf-abierto .cf-ic-plegar { opacity: 1; rotate: 0deg; filter: blur(0); }
+  .cf-hola {
+    position: fixed;
+    z-index: 52;
+    right: calc(max(var(--cf-m), env(safe-area-inset-right)) + 48px + 4px);
+    bottom: max(var(--cf-m), env(safe-area-inset-bottom));
+    height: 48px;
+    display: flex;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-size: var(--text-aux);
+    color: var(--color-niebla);
+    white-space: nowrap;
+    opacity: 0;
+    translate: 8px 0;
+    filter: blur(4px);
+    padding: 0;
+    border: 0;
+    background: none;
+    pointer-events: none;
+    transition: opacity 0.8s var(--ease-out-expo), translate 0.8s var(--ease-out-expo), filter 0.8s var(--ease-out-expo), color 0.4s var(--ease-out-expo);
+  }
+  .cf.cf-claro .cf-hola { color: var(--color-cacao); }
+  .cf .cf-hola:hover { opacity: 1 !important; }
+  .cf.cf-hola-on:not(.cf-abierto):not(.cf-fuera) .cf-hola,
+  .cf.cf-hola-pie:not(.cf-abierto):not(.cf-fuera) .cf-hola {
+    pointer-events: auto;
+    cursor: pointer; opacity: 0.85; translate: 0 0; filter: blur(0); }
   .cf.cf-fuera .cf-btn { opacity: 0; scale: 0.8; pointer-events: none; }
+  /* el fondo con el chat abierto: desenfoque suave y un velo Cacao muy ligero, para que la conversación se lea y el resto de la página quede en segundo plano */
+  .cf-velo {
+    position: fixed;
+    inset: 0;
+    z-index: 51;
+    pointer-events: none;
+    background: color-mix(in oklab, var(--color-cacao) 14%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out-expo);
+  }
+  .cf-abierto:not(.cf-en-hero) .cf-velo { opacity: 1; }
   .cf-panel {
     position: fixed;
     z-index: 52;
@@ -436,14 +505,9 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf-quien small { color: var(--fg2); font-size: var(--text-aux); white-space: nowrap; }
   /* progreso mínimo: «2/4» y un filo de 1 px que se rellena a lo largo del borde de la cabecera */
   .cf-cab { position: relative; }
-  .cf-prog { margin-left: auto; font-size: var(--text-aux); color: var(--fg2); font-variant-numeric: tabular-nums; }
-  .cf-prog[hidden] { display: none; }
   .cf-linea { position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--color-cacao); transform-origin: left; transform: scaleX(var(--p, 0)); transition: transform 0.7s var(--ease-out-expo); }
   .cf-x { margin-left: auto; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; color: var(--fg); transition: background-color 0.3s ease; }
-  .cf-prog:not([hidden]) + .cf-x { margin-left: 4px; }
   .cf-x:hover, .cf-x:focus-visible { background: var(--hole); }
-  .cf-proto { display: none; margin: 0; padding: 6px 16px; font-size: var(--text-aux); color: var(--fg2); background: var(--hole); }
-  .cf-local .cf-proto { display: block; } /* aviso solo en local: el brief aún no envía nada */
   .cf-lista {
     --ft: 0px; --fb: 0px;
     flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
@@ -474,15 +538,17 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf-op-s { color: var(--fg2); box-shadow: inset 0 0 0 1px var(--rule); }
   .cf-op-ok { background: var(--color-cacao); color: var(--color-niebla); box-shadow: none; }
   .cf-op-ok:disabled { opacity: 0.35; cursor: default; }
-  .cf-ctas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .cf-ctas { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-left: 36px; animation: cf-llega 0.5s var(--ease-out-expo) both; }
   .cf-cta { padding: 8px 14px; border-radius: 999px; font-size: var(--text-aux); font-weight: 500; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 30%, transparent); transition: background-color 0.3s ease, box-shadow 0.3s ease; }
   .cf-cta-1 { background: var(--color-cacao); color: var(--color-niebla); box-shadow: none; }
   .cf-cta:hover, .cf-cta:focus-visible { box-shadow: inset 0 0 0 1px var(--color-cacao); }
   .cf-cta-1:hover, .cf-cta-1:focus-visible { background: color-mix(in oklab, var(--color-cacao) 82%, var(--color-niebla)); }
-  .cf-resumen { display: grid; gap: 8px; }
-  .cf-rt { margin: 0; font-weight: 600; }
-  .cf-rl { margin: 0; display: grid; gap: 1px; }
+  .cf-resumen { display: grid; gap: 0; padding: 14px 16px; }
+  .cf-rt { margin: 0 0 4px; font-weight: 600; }
+  .cf-rl { margin: 0; padding-block: 8px; display: grid; gap: 1px; border-top: 1px solid var(--rule); font-size: var(--text-ui); line-height: 1.35; }
   .cf-rl small { color: var(--fg2); font-size: var(--text-aux); }
+  .cf-mail { margin: 0; padding: 0 16px 12px; text-align: center; font-size: var(--text-aux); color: var(--fg2); }
+  .cf-mail a { color: var(--fg); }
   .cf-form { display: flex; gap: 8px; padding: 12px 16px 16px; border-top: 1px solid var(--rule); }
   .cf-form input { flex: 1; min-width: 0; min-height: 44px; padding-inline: 16px; border-radius: 999px; background: color-mix(in oklab, #fff 50%, transparent); box-shadow: inset 0 0 0 1px var(--rule); font-size: max(1rem, var(--text-ui)); color: var(--fg); transition: box-shadow 0.45s var(--ease-out-expo), background-color 0.45s var(--ease-out-expo); }
   .cf-form input:hover { background: color-mix(in oklab, #fff 72%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 38%, transparent); }
