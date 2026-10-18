@@ -11,7 +11,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
 ---
 
 <!--
-  CHAT FLOTANTE · PROTOTIPO (ronda 206, solo con ?chat=1; ?chat=0 lo quita). La conversación de «Preguntas» como panel plegable abajo a la derecha, con un
+  CHAT FLOTANTE · PROTOTIPO (ronda 206, puesto siempre desde la ronda 205; ?chat=0 lo quita en esa sesión). La conversación de «Preguntas» como panel plegable abajo a la derecha, con un
   BRIEF guiado que se adapta a los tres servicios (End-to-end · Colaboración · Consultoría) y las preguntas libres siempre disponibles.
   · Cerrado: círculo de cristal (el mismo del (+) de la ronda 21) con un píxel Iris, que es el detalle de IA. No aparece en el hero: entra tras la primera
     pantalla y se esconde cuando se ve la sección «Pregunta» (ahí ya está la conversación entera) y mientras el menú está abierto o se está sentado.
@@ -62,8 +62,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     try {
       const q = new URLSearchParams(location.search);
       if (q.has('chat')) sessionStorage.setItem('savvia:chat', q.get('chat') === '0' ? '0' : q.get('chat') === 'hero' ? 'hero' : '1');
-      return sessionStorage.getItem('savvia:chat') ?? (local ? 'hero' : '0');
-    } catch { return new URLSearchParams(location.search).get('chat') ?? (local ? 'hero' : '0'); }
+      return sessionStorage.getItem('savvia:chat') ?? (local ? 'hero' : '1');
+    } catch { return new URLSearchParams(location.search).get('chat') ?? (local ? 'hero' : '1'); }
   })();
   const enHero = activo === 'hero'; // ?chat=hero: también visible desde el hero, para decidir si queda o no
   if (raiz && activo !== '0') {
