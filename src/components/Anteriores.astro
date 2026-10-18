@@ -20,7 +20,10 @@
 //     HOMOGRAFÍA (cuadrado unidad → cuadrilátero) que se aplica como `matrix3d`; los términos de perspectiva y traslación van en píxeles, así que
 //     dependen del tamaño real de la lámina en pantalla: el JS mide la mesa y deja la escala en `--s`.
 //   · Barras de navegador a 16 px (antes 24).
-import { proyectos } from '../data/home';
+import { home } from '../data/idioma';
+import { langDe } from '../lib/i18n';
+const lang = langDe(Astro.currentLocale), en = lang === 'en';
+const { proyectos } = home(lang);
 import { proyectos as OBRA } from '../data/proyectos';
 // RONDA 77 · Andoni: «donde estaban los logos pusimos el reel, pero prefiero HEROES que van rotando con el estilo del resto, rotando entre varios»: la
 // pieza de entrada es una pieza de marca más (degradado de su web + navegador que asoma), que rota entre los heroes de los destacados
@@ -143,7 +146,7 @@ import { icono } from '../lib/iconos';
                   )}
                   {it.tipo === 'cifra' && (
                     <>
-                      <p class="cr">{it.l === 'desde' ? 'Desde' : ' '}</p>
+                      <p class="cr">{it.l === 'desde' ? (en ? 'From' : 'Desde') : ' '}</p>
                       <p class="cv font-display tabular-nums">{it.v}</p>
                       {it.l !== 'desde' && <p class="cr">{it.l}</p>}
                     </>
@@ -174,7 +177,7 @@ import { icono } from '../lib/iconos';
           const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
           const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
-          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="Recorrido por la web de ${c.n}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
+          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
           return (
             <>
             {i === 5 && (
@@ -188,7 +191,7 @@ import { icono } from '../lib/iconos';
                 </div>
                 <div class="voz-txt">
                   <div class="citas">
-                    {T.map((t, k) => <blockquote class={`vq font-display ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-vq>«{t.q}»</blockquote>)}
+                    {T.map((t, k) => <blockquote class={`vq font-display ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-vq>{en ? `“${t.q}”` : `«${t.q}»`}</blockquote>)}
                   </div>
                   <div class="pie-voz">
                   <figcaption class="autor">
@@ -197,9 +200,9 @@ import { icono } from '../lib/iconos';
                     </span>
                   </figcaption>
                   <!-- RONDA 144 · la barra de cristal de la casa (Eric: «las flechas no tienen el mismo espacio a cada lado») -->
-                  <div class="barra-cristal barra-voz" role="group" aria-label="Testimonios">
-                    <button type="button" class="paso" aria-label="Testimonio anterior" data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
-                    <button type="button" class="paso" aria-label="Testimonio siguiente" data-paso="1"><Fragment set:html={flecha()} /></button>
+                  <div class="barra-cristal barra-voz" role="group" aria-label={en ? 'Testimonials' : 'Testimonios'}>
+                    <button type="button" class="paso" aria-label={en ? 'Previous testimonial' : 'Testimonio anterior'} data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
+                    <button type="button" class="paso" aria-label={en ? 'Next testimonial' : 'Testimonio siguiente'} data-paso="1"><Fragment set:html={flecha()} /></button>
                   </div>
                   </div>
                 </div>
@@ -245,8 +248,8 @@ import { icono } from '../lib/iconos';
   <!-- RONDA 214 · Eric: «que al hacer clic en cada card se vea el mockup en grande, rollo slider modal»: un VISOR sobre la página (dialog nativo). Una lámina con el fondo de
        la marca y la web grabada en grande (navegador de cristal; el móvil, de pie), el nombre y el sector debajo, y el slider entre los ocho con flechas, teclado y
        gesto. La card sigue siendo un enlace a la web (sin JS, o con Cmd/Ctrl, va allí); el visor lleva solo la barra de flechas. -->
-  <dialog class="vis" data-vis aria-label="Proyectos" aria-hidden="true">
-    <button type="button" class="vis-x barra-cristal" aria-label="Cerrar" data-vis-cerrar><span class="paso"><Fragment set:html={icono('x', 'regular')} /></span></button>
+  <dialog class="vis" data-vis aria-label={en ? 'Projects' : 'Proyectos'} aria-hidden="true">
+    <button type="button" class="vis-x barra-cristal" aria-label={en ? 'Close' : 'Cerrar'} data-vis-cerrar><span class="paso"><Fragment set:html={icono('x', 'regular')} /></span></button>
     <div class="vis-caja" data-vis-caja>
       <div class="vis-panel" data-vis-panel>
         {
@@ -264,7 +267,7 @@ import { icono } from '../lib/iconos';
             return (
               <article class={`vis-slide ${movil ? 'movil' : ''} ${s.fondo ? 'con-fondo' : 'g-marca'}`} data-vis-slide data-n={c.n} data-sector={c.sector ?? ''} aria-hidden="true" style={`--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]};--vf:${claro(c.color[0]) ? '#f6f7fb' : '#000'};${s.fondo ? `--fondo:url('${s.fondo}')` : ''}`}>
                 <div class="vis-marco">
-                  <video class="vis-vid" muted loop playsinline preload="none" poster={`${base}.jpg`} width={w} height={h} data-src={`${base}.mp4`} aria-label={`Recorrido por la web de ${c.n}`}></video>
+                  <video class="vis-vid" muted loop playsinline preload="none" poster={`${base}.jpg`} width={w} height={h} data-src={`${base}.mp4`} aria-label={en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}></video>
                 </div>
               </article>
             );
@@ -277,9 +280,9 @@ import { icono } from '../lib/iconos';
           <p class="detail vis-sector" data-vis-sector></p>
         </div>
         <div class="vis-acciones">
-          <div class="barra-cristal" role="group" aria-label="Proyectos">
-            <button type="button" class="paso" aria-label="Proyecto anterior" data-vis-paso="-1"><Fragment set:html={flecha('izq')} /></button>
-            <button type="button" class="paso" aria-label="Proyecto siguiente" data-vis-paso="1"><Fragment set:html={flecha()} /></button>
+          <div class="barra-cristal" role="group" aria-label={en ? 'Projects' : 'Proyectos'}>
+            <button type="button" class="paso" aria-label={en ? 'Previous project' : 'Proyecto anterior'} data-vis-paso="-1"><Fragment set:html={flecha('izq')} /></button>
+            <button type="button" class="paso" aria-label={en ? 'Next project' : 'Proyecto siguiente'} data-vis-paso="1"><Fragment set:html={flecha()} /></button>
           </div>
         </div>
       </div>

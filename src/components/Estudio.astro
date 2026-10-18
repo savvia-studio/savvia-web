@@ -1,5 +1,9 @@
 ---
-import { estudio } from '../data/home';
+import { langDe } from '../lib/i18n';
+import { home } from '../data/idioma';
+const lang = langDe(Astro.currentLocale);
+const en = lang === 'en';
+const { estudio } = home(lang);
 const [A, E] = estudio.personas;
 ---
 
@@ -54,7 +58,7 @@ const [A, E] = estudio.personas;
       ))}
       <div class="juntos" data-juntos>
         <img class="mitad ma" src="/media/equipo/juntos-r140.webp" alt="" width="1200" height="1000" loading="lazy" decoding="async" />
-        <img class="mitad me" src="/media/equipo/juntos-r140.webp" alt="Andoni y Eric, de pie, uno junto al otro" width="1200" height="1000" loading="lazy" decoding="async" />
+        <img class="mitad me" src="/media/equipo/juntos-r140.webp" alt={en ? 'Andoni and Eric, standing side by side' : 'Andoni y Eric, de pie, uno junto al otro'} width="1200" height="1000" loading="lazy" decoding="async" />
         <!-- RONDA 129 · Andoni: «que el nombre salga como el de la silla, lo de sentarse, y cuando hagamos hover en uno de los dos cada uno hará
              un gesto característico (los fotogramas llegarán) y saldrán sus hobbies como cayendo de su nombre».
              · Cada uno: un punto en el pecho, la línea a 45° y su nombre (la llamada de «Sentarse»); todo ello es el botón. Andoni, hacia la
@@ -66,12 +70,12 @@ const [A, E] = estudio.personas;
         {
           [A, E].map((p, i) => (
             <div class={`persona p${i}`}>
-              <button type="button" class="llamada-q" aria-expanded="false" aria-controls={`aficiones-${i}`} aria-label={`${p.n}: sus aficiones`} data-quien={i} data-gesto-src={JSON.stringify(p.gesto)}>
+              <button type="button" class="llamada-q" aria-expanded="false" aria-controls={`aficiones-${i}`} aria-label={en ? `${p.n}: interests` : `${p.n}: sus aficiones`} data-quien={i} data-gesto-src={JSON.stringify(p.gesto)}>
                 <i class="punto" aria-hidden="true"></i>
                 <svg class="linea" viewBox="0 0 120 64" fill="none" aria-hidden="true"><path d="M2 62L58 6H118" pathLength="1" /></svg>
                 <span class="nombre detail detail-caps">{p.n}</span>
               </button>
-              <ul class="aficiones" id={`aficiones-${i}`} aria-label={`Aficiones de ${p.n}`} data-aficiones={i}>
+              <ul class="aficiones" id={`aficiones-${i}`} aria-label={en ? `${p.n}'s interests` : `Aficiones de ${p.n}`} data-aficiones={i}>
                 {p.hobbies.map((h, k) => <li style={`--k:${k}`}>{h}</li>)}
               </ul>
             </div>

@@ -12,6 +12,8 @@
 // en una pieza al azar y a mitad de ella, como una radio; encadena sin repetir la última. Mientras suena, el ambiente de la mesa de Proyectos se calla
 // (sonido-estudio.ts escucha `savvia:radio`). Piezas de HoliznaCC0 (dominio público, CC0): «Lo-Fi And Chill» y «Relaxing Instrumentals».
 import { icono } from '../lib/iconos';
+import { langDe } from '../lib/i18n';
+const en = langDe(Astro.currentLocale) === 'en';
 const EMISORAS = [
   { id: 'lofi', nombre: 'Lo-fi', pistas: [
     { f: 'first-snow', t: 'First Snow', fin: 169.5 }, { f: 'laundry-on-the-wire', t: 'Laundry On The Wire' }, { f: 'everything-you-ever-dreamed', t: 'Everything You Ever Dreamed', fin: 212.1 },
@@ -26,19 +28,19 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
 ---
 
 <div class="radio" data-radio data-filtro="todas">
-  <button type="button" class="musica-ic" aria-label="Encender la música" aria-pressed="false" aria-expanded="false" aria-controls="radio-panel" data-radio-play>
+  <button type="button" class="musica-ic" aria-label={en ? 'Turn the music on' : 'Encender la música'} aria-pressed="false" aria-expanded="false" aria-controls="radio-panel" data-radio-play>
     <span class="m-ondas" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     <span class="m-pausa" aria-hidden="true"><Fragment set:html={icono('pause', 'fill')} /></span>
   </button>
   <div class="panel" id="radio-panel" data-radio-panel>
     <div class="cabeza">
-      <div class="emisoras" role="tablist" aria-label="Emisora">
-        <button type="button" role="tab" aria-selected="true" data-em="todas">Todas</button>
+      <div class="emisoras" role="tablist" aria-label={en ? 'Station' : 'Emisora'}>
+        <button type="button" role="tab" aria-selected="true" data-em="todas">{en ? 'All' : 'Todas'}</button>
         {EMISORAS.map((e) => <button type="button" role="tab" aria-selected="false" data-em={e.id}>{e.nombre}</button>)}
       </div>
-      <button type="button" class="sig" aria-label="Siguiente pieza" data-radio-sig><Fragment set:html={icono('skip-next', 'fill')} /></button>
+      <button type="button" class="sig" aria-label={en ? 'Next track' : 'Siguiente pieza'} data-radio-sig><Fragment set:html={icono('skip-next', 'fill')} /></button>
     </div>
-    <ol class="pistas" aria-label="Piezas">
+    <ol class="pistas" aria-label={en ? 'Tracks' : 'Piezas'}>
       {PISTAS.map((p) => (
         <li data-em={p.em}>
           <button type="button" data-pista={p.id} data-t={p.t} data-ini={p.ini} data-fin={p.fin}>
@@ -176,6 +178,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
 </style>
 
 <script>
+  import { t } from '../scripts/i18n';
   const caja = document.querySelector<HTMLElement>('[data-radio]');
   if (caja) {
     type Pista = { id: string; em: string; t: string; ini: number; fin: number };
@@ -232,7 +235,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       caja.classList.toggle('cede', on && cede);
       caja.dataset.filtro = em;
       bPlay.setAttribute('aria-pressed', String(on));
-      bPlay.setAttribute('aria-label', on ? `Apagar la música${actual ? ` · ${actual.t}` : ''}` : 'Encender la música');
+      bPlay.setAttribute('aria-label', on ? `${t('Apagar la música', 'Turn the music off')}${actual ? ` · ${actual.t}` : ''}` : t('Encender la música', 'Turn the music on'));
       tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.em === em)));
       items.forEach((b) => b.classList.toggle('on', on && !!actual && b.dataset.pista === actual.id));
       if (actual && actual.id !== vista) { vista = actual.id; centrar(caja.classList.contains('abierto')); }

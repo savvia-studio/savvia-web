@@ -17,6 +17,8 @@ export default defineConfig({
     '/sistema/metodo/[slug]': '/metodo/[slug]',
   },
   site: 'https://savvia.studio',
+  // Dos idiomas: castellano en / (el de siempre) e inglés en /en/. El enrutado automático por país vive en vercel.json.
+  i18n: { defaultLocale: 'es', locales: ['es', 'en'], routing: { prefixDefaultLocale: false } },
   devToolbar: { enabled: false },
   fonts: [
     {

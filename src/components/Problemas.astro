@@ -1,5 +1,7 @@
 ---
-import { problemas } from '../data/home';
+import { home } from '../data/idioma';
+import { langDe } from '../lib/i18n';
+const { problemas } = home(langDe(Astro.currentLocale));
 // RONDA 186 · la sección 2 como MANIFIESTO (sustituye a Dolores.astro, que queda guardado). Texto de la sesión de narrativa del 21-sep (Drive con José
 // Luis). Se ENTINTA LETRA A LETRA, en orden de lectura, atado al scroll (sin fijar nada): de la entrada de la sección a que el final del texto llega a
 // media pantalla. Cada palabra va en una pieza que no se parte; la marca ([[…]]) entera. Sin JS o con movimiento reducido: todo a plena tinta.

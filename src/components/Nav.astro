@@ -1,7 +1,11 @@
 ---
-import { nav, pie } from '../data/home';
+import { home } from '../data/idioma';
+import { langDe, ruta } from '../lib/i18n';
 import Radio from "./Radio.astro"; // RONDA 156 · Eric: fuera el (+) flotante (Mando.astro, en tools/retirados); la radio, en la barra
 import { icono, ICONO_ESTACION } from '../lib/iconos';
+const lang = langDe(Astro.currentLocale);
+const en = lang === 'en';
+const { nav, pie } = home(lang);
 const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden de estacion.ts
 ---
 
@@ -23,17 +27,17 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   <!-- RONDA 24: el logotipo es una máscara con el color de la barra: blanco por diferencia sobre lo oscuro, Cacao sobre lo claro (sin mezcla:
        la diferencia daba un azul sucio sobre Rosa arcilla y Rosa niebla) -->
   <!-- RONDA 156 · Eric: «quitemos el isotipo, no me gusta»: solo la palabra (el isotipo de la ronda 153 queda en public/, lo usa el brandbook) -->
-  <a href="/" class="marca" aria-label="savvia, inicio"><span class="logo-marca" aria-hidden="true"></span></a>
+  <a href={ruta(lang, '/')} class="marca" aria-label={en ? 'savvia, home' : 'savvia, inicio'}><span class="logo-marca" aria-hidden="true"></span></a>
   <div class="acciones-nav">
     <!-- RONDA 156 · Eric: «una estación de 2 radios de música lo-fi e instrumental sin derechos» → «el botón de música tiene que ir arriba a la derecha
          cerca de la hoja y menú, no sticky»: la radio (Radio.astro), junto a la estación y la rejilla -->
     <Radio />
     <!-- RONDA 156 · Eric: «este botón [el (+) flotante] lo quitamos; vamos a ponerlo como teníamos antes, arriba al lado del menú: la hoja
          correspondiente a la estación en la que estamos». El icono de la estación (Iconoir, relleno: ronda 152); clic = la siguiente; el relevo gira y enfoca. -->
-    <button type="button" class="estacion-ic" aria-label="Cambiar de estación" data-estacion-ic>
+    <button type="button" class="estacion-ic" aria-label={en ? 'Change season' : 'Cambiar de estación'} data-estacion-ic>
       {EST.map((e) => <span data-ic={e}><Fragment set:html={icono(ICONO_ESTACION[e], 'fill')} /></span>)}
     </button>
-    <button type="button" class="rejilla" aria-expanded="false" aria-controls="menu" aria-label="Abrir el menú" data-rejilla>
+    <button type="button" class="rejilla" aria-expanded="false" aria-controls="menu" aria-label={en ? 'Open the menu' : 'Abrir el menú'} data-rejilla>
       {Array.from({ length: 9 }).map((_, i) => <span style={`--i:${i}`} />)}
     </button>
   </div>
@@ -42,12 +46,12 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
 <div class="velo" data-velo hidden></div>
 
 <div id="menu" class="menu surface-light" data-menu hidden>
-  <nav aria-label="Principal">
+  <nav aria-label={en ? 'Main' : 'Principal'}>
     <ul class="flex flex-col">
       {
         nav.links.map((l, i) => (
           <li style={`--n:${i}`}>
-            <a href={l.href} class="enlace"><span class="font-display text-h2">{l.label}</span></a>
+            <a href={ruta(lang, l.href)} class="enlace"><span class="font-display text-h2">{l.label}</span></a>
           </li>
         ))
       }
@@ -57,12 +61,12 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
         <p class="detail detail-caps text-fg2">{nav.mas.titulo}</p>
         <ul class="text-lead mt-3 flex flex-col gap-1">
           <li><a href={`mailto:${pie.correo}`} class="enlace inline-block">{pie.correo}</a></li>
-          {nav.mas.links.map((l) => <li>{l.href ? <a href={l.href} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· pronto</small></span>}</li>)}
+          {nav.mas.links.map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}</li>)}
         </ul>
       </div>
       <!-- RONDA 60 / 130 · el REEL vuelve, montado de nuevo con Kuanta y Arkdev (tools/r130 en la carpeta de la rama musical): miniatura en bucle y muda;
            al pulsarla, el reproductor grande se pinta desde ella -->
-      <button type="button" class="reel" data-reel aria-label={`Ver el reel de proyectos (${nav.reel.duracion})`}>
+      <button type="button" class="reel" data-reel aria-label={en ? `Watch the project reel (${nav.reel.duracion})` : `Ver el reel de proyectos (${nav.reel.duracion})`}>
         <video muted loop playsinline preload="none" poster="/media/reel/reel-mini.jpg" data-reel-mini></video>
         <span class="reel-pie"><Fragment set:html={icono('play', 'fill')} />{nav.reel.label} · {nav.reel.duracion}</span>
       </button>
@@ -70,20 +74,20 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   </nav>
 </div>
 
-<dialog class="reel-dlg" aria-label="Reel de proyectos de savvia" data-reel-dlg>
+<dialog class="reel-dlg" aria-label={en ? 'savvia project reel' : 'Reel de proyectos de savvia'} data-reel-dlg>
   <div class="reel-panel surface-dark" data-reel-panel>
     <video class="reel-video" playsinline preload="none" poster="/media/reel/reel.jpg" data-reel-video></video>
     <div class="reel-mandos">
-      <button type="button" class="reel-bt" aria-label="Pausar" data-reel-play>
+      <button type="button" class="reel-bt" aria-label={en ? 'Pause' : 'Pausar'} data-reel-play>
         <Fragment set:html={icono('play', 'fill', 'ic-play')} />
         <Fragment set:html={icono('pause', 'fill', 'ic-pausa')} />
       </button>
       <span class="reel-hilo" aria-hidden="true" data-reel-hilo><i></i></span>
-      <button type="button" class="reel-bt" aria-label="Silenciar" data-reel-son>
+      <button type="button" class="reel-bt" aria-label={en ? 'Mute' : 'Silenciar'} data-reel-son>
         <Fragment set:html={icono('speaker-high', 'fill', 'ic-son')} />
         <Fragment set:html={icono('speaker-slash', 'fill', 'ic-mudo')} />
       </button>
-      <button type="button" class="reel-bt" aria-label="Cerrar el reel" data-reel-cerrar><Fragment set:html={icono('x')} /></button>
+      <button type="button" class="reel-bt" aria-label={en ? 'Close the reel' : 'Cerrar el reel'} data-reel-cerrar><Fragment set:html={icono('x')} /></button>
     </div>
   </div>
 </dialog>
@@ -91,6 +95,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
 <script>
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
+  import { t } from '../scripts/i18n';
   import { EST, NOMBRE, estacionActual, fijarEstacion } from '../scripts/estacion';
   const btn = document.querySelector<HTMLButtonElement>('[data-rejilla]')!;
   const menu = document.querySelector<HTMLElement>('[data-menu]')!;
@@ -99,7 +104,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   function poner(si: boolean, devolverFoco = false) {
     abierto = si;
     btn.setAttribute('aria-expanded', String(si));
-    btn.setAttribute('aria-label', si ? 'Cerrar el menú' : 'Abrir el menú');
+    btn.setAttribute('aria-label', si ? t('Cerrar el menú', 'Close the menu') : t('Abrir el menú', 'Open the menu'));
     document.documentElement.classList.toggle('menu-abierto', si);
     // RONDA 40 · la tarjeta se DIBUJA desde el botón (líneas de sus enlaces, luego la pintura rasgada) y al cerrar se recoge hacia él
     const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
@@ -153,8 +158,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   let origenReel: [number, number] = [innerWidth / 2, innerHeight / 2], cerrandoReel = false;
   const estadoReel = () => {
     dlg.classList.toggle('suena', !vid.paused); dlg.classList.toggle('mudo', vid.muted);
-    dlg.querySelector('[data-reel-play]')!.setAttribute('aria-label', vid.paused ? 'Reproducir' : 'Pausar');
-    dlg.querySelector('[data-reel-son]')!.setAttribute('aria-label', vid.muted ? 'Activar el sonido' : 'Silenciar');
+    dlg.querySelector('[data-reel-play]')!.setAttribute('aria-label', vid.paused ? t('Reproducir', 'Play') : t('Pausar', 'Pause'));
+    dlg.querySelector('[data-reel-son]')!.setAttribute('aria-label', vid.muted ? t('Activar el sonido', 'Turn the sound on') : t('Silenciar', 'Mute'));
   };
   ['play', 'pause', 'ended', 'volumechange'].forEach((ev) => vid.addEventListener(ev, estadoReel));
   vid.addEventListener('timeupdate', () => hilo.style.setProperty('--p', vid.duration ? (vid.currentTime / vid.duration).toFixed(4) : '0'));
@@ -195,7 +200,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       const pintar = (n: number, anim: boolean) => {
         caras.forEach((c) => { const k = EST.indexOf(c.dataset.ic as (typeof EST)[number]); c.classList.toggle('sale', anim && k === est && k !== n); c.classList.toggle('on', k === n); });
         est = n;
-        ic.setAttribute('aria-label', `Estación: ${NOMBRE[n]}. Cambiar a ${NOMBRE[(n + 1) % 4]}`);
+        ic.setAttribute('aria-label', t(`Estación: ${NOMBRE[n]}. Cambiar a ${NOMBRE[(n + 1) % 4]}`, `Season: ${NOMBRE[n]}. Change to ${NOMBRE[(n + 1) % 4]}`));
       };
       pintar(est, false);
       ic.addEventListener('click', () => fijarEstacion((est + 1) % 4, 'nav'));

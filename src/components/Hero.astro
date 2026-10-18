@@ -1,6 +1,8 @@
 ---
-import { hero } from '../data/home';
+import { home } from '../data/idioma';
+import { langDe } from '../lib/i18n';
 import { rich } from '../lib/rich';
+const { hero } = home(langDe(Astro.currentLocale));
 ---
 
 <!--

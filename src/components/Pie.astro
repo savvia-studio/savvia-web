@@ -14,7 +14,11 @@
 // · RONDA 40 · el pie es OSCURO, con el fondo de la estación (la paleta de Andoni: «fondo oscuro — footer y secciones oscuras»), y el paisaje enseña
 //   la ESTACIÓN DE LA WEB (la de hoy o la elegida con el icono de la barra), pintado en su color de árbol; ya no rota solo cada 6 s.
 //   El formulario se DIBUJA al abrir y al cerrar (src/scripts/dibujar.ts), como el paisaje.
-import { pie, nav } from '../data/home';
+import { home } from '../data/idioma';
+import { langDe, ruta } from '../lib/i18n';
+const lang = langDe(Astro.currentLocale);
+const en = lang === 'en';
+const { pie, nav } = home(lang);
 const CAPAS = [
   { n: 'montes', d: 40, m: 6 },
   { n: 'arboles', d: 90, m: 20 },
@@ -22,7 +26,8 @@ const CAPAS = [
 ];
 // el horizonte del paisaje (primera fila con tinta de árboles + hierba) en 51 columnas: ahí cae la gota
 const HORIZONTE = [0.619, 0.598, 0.52, 0.519, 0.505, 0.475, 0.454, 0.436, 0.454, 0.46, 0.513, 0.555, 0.531, 0.571, 0.628, 0.627, 0.63, 0.666, 0.679, 0.684, 0.705, 0.694, 0.702, 0.735, 0.753, 0.763, 0.771, 0.772, 0.772, 0.774, 0.768, 0.759, 0.747, 0.735, 0.729, 0.718, 0.706, 0.696, 0.64, 0.598, 0.591, 0.543, 0.555, 0.544, 0.579, 0.606, 0.574, 0.589, 0.576, 0.568, 0.588];
-const [antes, despues] = pie.tagline.split('savia');
+// el logotipo ocupa el lugar de la palabra de la marca en el titular («savia» / «savvia» / «sap»)
+const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
 ---
 
 <footer id="contacto" class="surface-dark pie" data-sube data-sube-eco data-pie data-horizonte={JSON.stringify(HORIZONTE)}>
@@ -37,7 +42,7 @@ const [antes, despues] = pie.tagline.split('savia');
       <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
       <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
         <ul class="enlaces text-ui flex flex-col gap-3 font-light lg:items-end" data-enlaces>
-          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={l.href} class="enlace-pie">{l.label}</a> : <span class="enlace-pie pronto">{l.label} · pronto</span>}</li>)}
+          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie">{l.label}</a> : <span class="enlace-pie pronto">{l.label} · {en ? 'soon' : 'pronto'}</span>}</li>)}
         </ul>
       </div>
     </div>

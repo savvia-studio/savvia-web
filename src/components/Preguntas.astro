@@ -1,11 +1,21 @@
 ---
-import { preguntas, pie } from '../data/home';
+import { home, fichasDe } from '../data/idioma';
+import { langDe } from '../lib/i18n';
+const lang = langDe(Astro.currentLocale);
+const en = lang === 'en';
+const { preguntas: preguntasBase, pie } = home(lang);
+const preguntas = { ...preguntasBase, lista: fichasDe(lang) as { q: string; a: string; claves: string[]; chip: boolean; ctas?: { t: string; h: string }[] }[] };
+const personas = (en ? personasEn : personasEs) as Record<string, string>[];
+const T = en
+  ? { conversacion: 'Conversation with', tu: 'You: ', escribiendo: 'Typing', suele: 'What people usually ask', otra: 'Ask another question…' }
+  : { conversacion: 'Conversación con', tu: 'Tú: ', escribiendo: 'Está escribiendo', suele: 'Lo que suele preguntar la gente', otra: 'Escribe otra pregunta…' };
 const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara-eric-transparente.webp'];
 const NOMBRE = personas.map((p) => p.nombre); // [Andoni, Eric]
 // `{yo}` = quien contesta · `{otro}` = su compañero · `{yo.ciudad}`, `{otro.correo}`… = datos de cada uno (src/data/personas.json)
-const resolver = (t: string, quien: number) => t.replaceAll('{donostia}', 'Donostia').replace(/\{(yo|otro)(?:\.(\w+))?\}/g, (_, w, k) => (personas as Record<string, string>[])[w === 'yo' ? quien : 1 - quien][k || 'nombre']);
+const resolver = (t: string, quien: number) => t.replaceAll('{donostia}', 'Donostia').replace(/\{(yo|otro)(?:\.(\w+))?\}/g, (_, w, k) => personas[w === 'yo' ? quien : 1 - quien][k || 'nombre']);
 import { flecha } from '../lib/flecha';
-import personas from '../data/personas.json';
+import personasEs from '../data/personas.json';
+import personasEn from '../data/personas.en.json';
 ---
 
 <!--
@@ -28,11 +38,11 @@ import personas from '../data/personas.json';
         </p>
       </div>
       <div class="col-span-4 lg:col-span-6 lg:col-start-7" data-enfoca style="--d:2">
-        <div class="charla" role="log" aria-live="polite" aria-label={`Conversación con ${preguntas.firma}`} data-charla>
+        <div class="charla" role="log" aria-live="polite" aria-label={`${T.conversacion} ${preguntas.firma}`} data-charla>
           {
             preguntas.lista.map((x, i) => (
               <div class={`intercambio ${i === 0 ? 'q-on a-on' : 'pendiente'}`} data-i={i} data-claves={x.claves.join(' ')} data-ctas={(x as { ctas?: unknown }).ctas ? JSON.stringify((x as { ctas?: unknown }).ctas) : undefined} hidden={i > 6}>
-                <p class="burbuja tu"><span class="sr-only">Tú: </span>{x.q}</p>
+                <p class="burbuja tu"><span class="sr-only">{T.tu}</span>{x.q}</p>
                 <div class="resp">
                   <img class="cara" src={CARA[i % 2]} alt="" width="144" height="144" loading="lazy" decoding="async" />
                   <div class="burbuja ellos">
@@ -45,18 +55,18 @@ import personas from '../data/personas.json';
           }
           <div class="escribiendo" hidden data-escribiendo>
             <img class="cara" src={CARA[1]} alt="" width="144" height="144" loading="lazy" decoding="async" data-escribe-cara />
-            <p class="burbuja ellos puntos" aria-label="Está escribiendo"><i></i><i></i><i></i></p>
+            <p class="burbuja ellos puntos" aria-label={T.escribiendo}><i></i><i></i><i></i></p>
           </div>
         </div>
         <div class="sugeridas" data-sugeridas>
-          <p class="detail text-fg2">Lo que suele preguntar la gente</p>
+          <p class="detail text-fg2">{T.suele}</p>
           <div class="chips">
             {(() => { let n = 0; return preguntas.lista.map((x, i) => i > 0 && <button type="button" class="chip" data-q={i} data-prio={x.chip ? '' : undefined} hidden={++n > 6}>{x.q}</button>); })()}
           </div>
         </div>
         <form class="compositor" data-libre novalidate>
           <label for="otra" class="sr-only">{preguntas.libre.etiqueta}</label>
-          <input id="otra" name="otra" type="text" autocomplete="off" maxlength="160" placeholder="Escribe otra pregunta…" class="campo text-ui" aria-describedby="otra-ayuda" />
+          <input id="otra" name="otra" type="text" autocomplete="off" maxlength="160" placeholder={T.otra} class="campo text-ui" aria-describedby="otra-ayuda" />
           <button type="submit" class="mandar" aria-label={preguntas.libre.boton}><Fragment set:html={flecha()} /></button>
         </form>
         <p id="otra-ayuda" class="text-aux text-fg2 mt-3">{preguntas.libre.ayuda}</p>
@@ -69,6 +79,8 @@ import personas from '../data/personas.json';
   window.__PREG = { sinRespuesta, correo, cal, caras, nombres, personas };
 </script>
 <script>
+  import { t } from '../scripts/i18n';
+  import { mejorFicha } from '../scripts/buscar-ficha';
   const raiz = document.querySelector<HTMLElement>('[data-preguntas]');
   if (raiz) {
     const { sinRespuesta, correo, cal, caras, nombres, personas } = (window as any).__PREG as { sinRespuesta: string; correo: string; cal: string; caras: string[]; nombres: string[]; personas: Record<string, string>[] };
@@ -141,8 +153,6 @@ import personas from '../data/personas.json';
       if (!raiz.querySelector('[data-q]:not([hidden])')) raiz.querySelector<HTMLElement>('[data-sugeridas]')!.hidden = true;
     }));
     // LA PREGUNTA LIBRE: por palabras clave (exacta = 2 puntos; misma raíz = 1) como respaldo; el modelo solo elige entre respuestas ya escritas
-    const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ ]/g, ' ');
-    const VACIAS = new Set('el la los las un una unos unas de del al a en y o que con por para mi tu su me te se es son como cuando donde cual cuales hay web pagina sitio si no mas muy ya lo le les nos vosotros'.split(' '));
     const fichas = inter.map((d) => ({ claves: new Set(d.dataset.claves!.split(' ')), ctas: d.dataset.ctas || '', a: (d.querySelector<HTMLElement>('[data-respuesta]')!.dataset.raw ?? d.querySelector('[data-respuesta]')!.textContent!) }));
     const form = raiz.querySelector<HTMLFormElement>('[data-libre]')!, campo = form.querySelector<HTMLInputElement>('input')!;
     // MANDAN LAS RESPUESTAS ESCRITAS (api/preguntar.js, OpenRouter): si una encaja, sale esa tal cual; si no, la IA redacta con lo que ya hemos escrito y
@@ -151,7 +161,7 @@ import personas from '../data/personas.json';
     const elegir = async (q: string, local: number, quien: number): Promise<Veredicto> => {
       const respaldo: Veredicto = local >= 0 ? { tipo: 'escrita', i: local } : { tipo: 'ninguna' };
       try {
-        const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q, quien }), signal: AbortSignal.timeout(14000) });
+        const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q, quien, lang: t('es', 'en') }), signal: AbortSignal.timeout(14000) });
         if (!r.ok) return respaldo;
         const v = await r.json();
         if (v.tipo === 'escrita' && Number.isInteger(v.i) && v.i >= 0 && v.i < fichas.length) return v;
@@ -165,12 +175,10 @@ import personas from '../data/personas.json';
       if (q.length < 3 || ocupado) return campo.focus();
       // LÍMITE POR SESIÓN: 12 preguntas libres (la barrera de verdad, contra bots, está en el servidor: por IP y con tope de gasto)
       let hechas = 0; try { hechas = Number(sessionStorage.getItem('savvia-preguntas') || 0); } catch {}
-      if (hechas >= 12) { campo.value = ''; campo.placeholder = 'Mejor escríbenos a ' + correo; campo.disabled = true; return; }
+      if (hechas >= 12) { campo.value = ''; campo.placeholder = t('Mejor escríbenos a ', 'Better write to us at ') + correo; campo.disabled = true; return; }
       try { sessionStorage.setItem('savvia-preguntas', String(hechas + 1)); } catch {}
       ocupado = true; campo.value = '';
-      const palabras = norm(q).split(/\s+/).filter((w) => w.length > 2 && !VACIAS.has(w));
-      let local = -1, puntos = 0;
-      fichas.forEach((f, i) => { const p = palabras.reduce((s, w) => s + (f.claves.has(w) ? 2 : [...f.claves].some((c) => c.length >= 5 && w.length >= 5 && c.slice(0, 4) === w.slice(0, 4)) ? 1 : 0), 0); if (p > puntos) { puntos = p; local = i; } });
+      const local = mejorFicha(q, fichas);
       // se CLONA un intercambio de la página (así trae el ámbito de estilos de Astro, que un innerHTML no llevaría) y se rellena
       const ex = inter[0].cloneNode(true) as HTMLElement;
       ex.className = inter[0].className.replace(/\b(q-on|a-on)\b/g, '').trim() + ' pendiente';
@@ -187,8 +195,8 @@ import personas from '../data/personas.json';
         if (v.tipo === 'ia' || (v.tipo !== 'fuera' && mejor < 0)) {
           const a = document.createElement('a');
           [...rp.attributes].filter((at) => at.name.startsWith('data-astro-cid')).forEach((at) => a.setAttribute(at.name, ''));
-          a.className = 'por-correo'; a.textContent = v.tipo === 'ia' ? 'Respuesta rápida con IA, confirmársela a Eric y Andoni' : 'Mandársela por correo';
-          a.href = `mailto:${correo}?subject=${encodeURIComponent('Una pregunta')}&body=${encodeURIComponent(q)}`;
+          a.className = 'por-correo'; a.textContent = v.tipo === 'ia' ? t('Respuesta rápida con IA, confirmársela a Eric y Andoni', 'Quick AI answer: have Eric and Andoni confirm it') : t('Mandársela por correo', 'Send it by email');
+          a.href = `mailto:${correo}?subject=${encodeURIComponent(t('Una pregunta', 'A question'))}&body=${encodeURIComponent(q)}`;
           rp.after(a);
         }
       });

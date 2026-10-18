@@ -7,19 +7,21 @@
 // `?t=4.2` congela la cinta en ese segundo (y el punto en su pico): es el instante de las capturas de tools/r188/neety-hero/capturas/.
 // `caja` (RONDA 188, savvia agentic): la web se pinta como en una tablet de 768 × 864 dentro de su caja, escalada a su ancho; no corre su propio reloj
 // (la película llama a `__nh.pintar(t)` y `__nh.latir(l)`) y sus piezas llevan `data-pz` / `data-slot` para que los agentes las monten.
+import { langDe } from '../../lib/i18n';
 interface Props { caja?: boolean }
 const { caja = false } = Astro.props;
+const en = langDe(Astro.currentLocale) === 'en';
 const Hx = caja ? 'p' : 'h1';
 // dentro de savvia no puede haber otro <main> (y los carriles dibujan una fila por cada `main > section`)
 const Main = caja ? 'div' : 'main';
 const pz = (n: string, slot = false) => (caja ? { 'data-pz': n, ...(slot ? { 'data-slot': n } : {}) } : {});
 const A = '/media/neety-hero';
 const NAV = [
-  { label: 'Plataforma' },
-  { label: 'Casos de uso', mas: true },
-  { label: 'Recursos', mas: true },
-  { label: 'Compañía', mas: true },
-  { label: 'Precios' },
+  { label: en ? 'Platform' : 'Plataforma' },
+  { label: en ? 'Use cases' : 'Casos de uso', mas: true },
+  { label: en ? 'Resources' : 'Recursos', mas: true },
+  { label: en ? 'Company' : 'Compañía', mas: true },
+  { label: en ? 'Pricing' : 'Precios' },
 ];
 const LOGO = ["M80.9055 4.77539C74.9463 4.77539 70.6392 8.79043 70.6392 14.3541C70.6392 19.9178 74.9075 23.9406 80.8745 23.9406C85.497 23.9406 89.2277 21.5155 90.6755 17.6814H85.3574C84.4164 19.0568 82.7876 19.8557 80.8771 19.8557C78.2374 19.8557 76.3165 18.3381 75.8512 16.0216H91.0736C91.9733 9.69013 87.5317 4.77539 80.9107 4.77539H80.9055ZM75.8072 12.7253C76.314 10.3778 78.2349 8.82146 80.9055 8.82146C83.5761 8.82146 85.5358 10.3468 86.0425 12.7253H75.8072Z", "M58.5315 4.77539C52.5645 4.77539 48.2651 8.79043 48.2651 14.3541C48.2651 19.9178 52.5335 23.9406 58.4927 23.9406C63.123 23.9406 66.8459 21.5155 68.2937 17.6814H62.9834C62.0424 19.0568 60.4136 19.8557 58.4953 19.8557C55.8557 19.8557 53.9425 18.3381 53.4694 16.0216H68.6918C69.6019 9.69013 65.1499 4.77539 58.5366 4.77539H58.5315ZM53.4332 12.7253C53.9399 10.3778 55.8505 8.82146 58.5315 8.82146C61.2125 8.82146 63.154 10.3468 63.6608 12.7253H53.4332Z", "M105.771 18.8032V23.3948C97.9635 24.1937 95.4325 22.4537 95.4325 16.6367V9.65885H92.2163V5.17069C92.2163 5.17069 93.814 4.13655 94.4061 3.54968C95.0783 2.893 95.6005 2.1355 96.0116 1.25648C96.2494 0.74975 96.4304 0.315412 96.5648 0H101.583C101.583 0.0956578 101.575 0.18873 101.567 0.284388C101.552 0.48863 101.521 0.695457 101.487 0.891943C101.33 1.94418 101.068 2.90851 100.626 3.84699C100.528 4.05641 100.414 4.27099 100.285 4.48299C99.9645 5.01557 100.484 5.65932 101.071 5.46025C101.257 5.3982 101.433 5.34649 101.591 5.31547C102.92 5.04659 104.23 5.08537 105.668 5.2922V9.65368H100.784V16.4118C100.784 18.7282 101.684 19.3048 105.771 18.798V18.8032Z", "M129.266 5.20898L121.347 23.9708V25.204C121.347 30.5557 118.604 32.5076 111.404 31.8897V27.337C115.166 27.6937 115.996 26.9724 115.996 24.5163V23.901L108.465 6.02337L108.377 5.83464L108.116 5.20898H113.902C116.43 10.6511 117.361 15.2841 118.023 18.0116C118.188 18.6967 119.165 18.6916 119.328 18.0039C120.15 14.5369 120.978 10.5374 123.48 5.20898H129.266Z", "M45.4319 5.20898V23.5649H39.814C39.858 23.128 39.8502 22.6833 39.8088 22.2387C39.6796 21.0106 39.0694 19.8834 38.2602 18.8855C37.4536 17.8746 36.4479 17.0292 35.344 16.3518L33.5911 15.2841C33.1439 15.0126 32.5699 15.3332 32.5699 15.858V23.5649H27.4897V5.20898H32.9293C32.9344 6.08542 33.1025 7.07043 33.3662 7.84087C33.6816 8.7354 34.1315 9.511 34.7338 10.2401C35.8998 11.6517 37.4226 12.5824 39.0126 13.4407L39.4185 13.6553C39.8683 13.8932 40.4086 13.5648 40.4035 13.0555L40.3492 5.20898H45.4293H45.4319Z", "M16.952 5.20898H7.63706C6.83044 5.20898 6.17635 5.86308 6.17635 6.6697L7.21565 10.6666C7.33975 11.1475 7.22599 11.6723 6.87439 12.024C6.84854 12.0498 6.8201 12.0782 6.78907 12.1015C6.44264 12.3988 5.96177 12.4841 5.51968 12.3704L1.46071 11.3259C0.654089 11.3259 0 11.98 0 12.7866V22.1042C0 22.9108 0.654089 23.5649 1.46071 23.5649H10.7782C11.5849 23.5649 12.2389 22.9108 12.2389 22.1042L11.2875 18.0582C11.1893 17.6419 11.2746 17.1946 11.5538 16.8715C11.5771 16.8456 11.6004 16.8172 11.6262 16.7939C11.9571 16.463 12.4509 16.3518 12.906 16.4604L16.9546 17.448C17.7612 17.448 18.4153 16.7939 18.4153 15.9873V6.6697C18.4153 5.86308 17.7612 5.20898 16.9546 5.20898H16.952Z"];
 // Phosphor duotono (los mismos de @phosphor-icons/react 2.x): [la capa al 20 %, el trazo]
@@ -37,12 +39,12 @@ const COMPANIES = [
   { name: 'Fagor Automation', score: 88, logo: `${A}/fagor-automation.avif` },
 ];
 const PEOPLE = [
-  { name: 'Iker Goikoetxea', score: 94, photo: `${A}/jon-96.jpg`, rol: 'Director de compras · Betsaide', jon: true },
-  { name: 'Ane Larrañaga', score: 91, photo: `${A}/nerea-96.jpg`, rol: 'Directora de operaciones · Arania' },
-  { name: 'Naroa Iturbe', score: 88, photo: `${A}/ines-96.jpg`, rol: 'Directora de planta · Fagor Automation' },
+  { name: 'Iker Goikoetxea', score: 94, photo: `${A}/jon-96.jpg`, rol: en ? 'Head of procurement · Betsaide' : 'Director de compras · Betsaide', jon: true },
+  { name: 'Ane Larrañaga', score: 91, photo: `${A}/nerea-96.jpg`, rol: en ? 'Head of operations · Arania' : 'Directora de operaciones · Arania' },
+  { name: 'Naroa Iturbe', score: 88, photo: `${A}/ines-96.jpg`, rol: en ? 'Plant manager · Fagor Automation' : 'Directora de planta · Fagor Automation' },
 ];
-const ACTIONS = ['Ha visitado tu perfil', 'Ha aceptado tu solicitud', 'Has reaccionado a su post'];
-const MESSAGE = 'Hola Iker, he visto que Betsaide está reforzando compras. Creo que podemos ayudaros a priorizar mejor oportunidades. ¿Lo vemos esta semana?';
+const ACTIONS = en ? ['Visited your profile', 'Accepted your request', 'You reacted to their post'] : ['Ha visitado tu perfil', 'Ha aceptado tu solicitud', 'Has reaccionado a su post'];
+const MESSAGE = en ? 'Hi Iker, I saw that Betsaide is strengthening its procurement team. I think we can help you prioritise opportunities better. Shall we talk this week?' : 'Hola Iker, he visto que Betsaide está reforzando compras. Creo que podemos ayudaros a priorizar mejor oportunidades. ¿Lo vemos esta semana?';
 // RONDA 188 · «Nuestros clientes» (Clients.tsx + LogoMarquee.tsx de Neety), solo en caja: es lo que asoma cuando la película baja por la web
 const CLIENTES = [
   { src: `${A}/client-ojmar.avif`, alt: 'Ojmar', h: 20, w: 127, n: 24 },
@@ -51,7 +53,7 @@ const CLIENTES = [
   { src: `${A}/client-betsaide.avif`, alt: 'Betsaide', h: 34, w: 106, n: 40 },
   { src: `${A}/client-arania.avif`, alt: 'Arania', h: 24, w: 122, n: 28 },
 ];
-const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qué cuentas importan hoy, por qué y qué debería hacer tu equipo con ellas.';
+const SUB = en ? 'This is not another tool for sending more messages. Neety tells you which accounts matter today, why, and what your team should do about them.' : 'No es otra herramienta para enviar más mensajes. Neety te dice qué cuentas importan hoy, por qué y qué debería hacer tu equipo con ellas.';
 ---
 
 <div class:list={['nh-vp', caja && 'caja']} data-nh-vp data-neety-hero>
@@ -71,7 +73,7 @@ const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qu�
           </ul>
           <div class="nh-acc">
             <a href="#" class="nh-login">Log in</a>
-            <a href="#" class="nh-navcta"><span class="nh-swap" data-text="Solicitar demo"><span class="nh-swap-l">Solicitar demo</span></span></a>
+            <a href="#" class="nh-navcta"><span class="nh-swap" data-text={en ? 'Request a demo' : 'Solicitar demo'}><span class="nh-swap-l">{en ? 'Request a demo' : 'Solicitar demo'}</span></span></a>
           </div>
         </div>
       </nav>
@@ -89,22 +91,22 @@ const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qu�
         <div>
           <div class="nh-eyebrow" {...pz('eyebrow')}>
             <span class="nh-punto" aria-hidden="true" data-punto {...(caja ? { 'data-slot': 'punto' } : {})}><span class="nh-halo" data-halo></span><span class="nh-core"></span></span>
-            <span class="nh-eb-t">Detecta. Prioriza. <span class="nh-eb-a">Actúa.</span></span>
+            <span class="nh-eb-t">{en ? 'Detect. Prioritise. ' : 'Detecta. Prioriza. '}<span class="nh-eb-a">{en ? 'Act.' : 'Actúa.'}</span></span>
           </div>
-          <Hx class="nh-h1" {...pz('h1', true)}>Detecta a quién vender, cuándo hacerlo y <span class="nh-h1-dim">qué acción tomar.</span></Hx>
+          <Hx class="nh-h1" {...pz('h1', true)}>{en ? 'Detect who to sell to, when to do it and ' : 'Detecta a quién vender, cuándo hacerlo y '}<span class="nh-h1-dim">{en ? 'what action to take.' : 'qué acción tomar.'}</span></Hx>
           <div class="nh-ctas" {...pz('ctas')}>
             {caja && <span class="nh-esp" data-pz="esp" data-slot="esp" aria-hidden="true"><i></i><b>48</b></span>}
             <a href="#" class="nh-pill" {...(caja ? { 'data-slot': 'ctas' } : {})}>
               <span class="nh-pill-bg" aria-hidden="true"></span>
-              <span class="nh-pill-in" data-text="Solicitar demo">
-                <span class="nh-pill-t">Solicitar demo</span>
+              <span class="nh-pill-in" data-text={en ? 'Request a demo' : 'Solicitar demo'}>
+                <span class="nh-pill-t">{en ? 'Request a demo' : 'Solicitar demo'}</span>
                 <span class="nh-pill-dw" aria-hidden="true">
                   <span class="nh-pill-dot"></span>
                   <svg class="nh-pill-ar" viewBox="0 0 16 16" fill="none"><path d="M2.5 8h10M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 </span>
               </span>
             </a>
-            <a href="#" class="nh-how">Ver cómo funciona</a>
+            <a href="#" class="nh-how">{en ? 'See how it works' : 'Ver cómo funciona'}</a>
           </div>
         </div>
 
@@ -118,7 +120,7 @@ const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qu�
                   <div class="sf-card"><div class="sf-c g3 p4">
                     <div class="sf-skel g3 p4"><div class="sk-h bord"><div class="sks s8 r8"></div><div class="skb h35"></div></div>
                       {[0, 1, 2].map(() => <div class="sk-row"><div class="sks s6 r4"></div><div class="skb h3" style="width:24%"></div><div class="sks sc ml"></div></div>)}</div>
-                    <div class="sf-head bord"><span class="chip s8 r8"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.buildings[0]} opacity="0.2" /><path d={IC.buildings[1]} /></svg></span><p class="t-lg">Neety encontró empresas que encajan</p></div>
+                    <div class="sf-head bord"><span class="chip s8 r8"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.buildings[0]} opacity="0.2" /><path d={IC.buildings[1]} /></svg></span><p class="t-lg">{en ? 'Neety found companies that fit' : 'Neety encontró empresas que encajan'}</p></div>
                     {COMPANIES.map((c) => (
                       <div class="sf-in row"><span class="chip s6 r4"><img src={c.logo} alt="" class="lg12" /></span><p class="nm f1">{c.name}</p><span class="score"><span>{c.score}%</span></span></div>
                     ))}
@@ -127,7 +129,7 @@ const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qu�
                   <div class="sf-card"><div class="sf-c g3 p4">
                     <div class="sf-skel g3 p4"><div class="sk-h bord"><div class="sks s8 r8"></div><div class="skb h35"></div></div>
                       {[0, 1, 2].map(() => <div class="sk-row"><div class="sks s8 r4"></div><div class="sk-col"><div class="skb h25" style="width:38%"></div><div class="skb h2" style="width:62%"></div></div><div class="sks sc"></div></div>)}</div>
-                    <div class="sf-head bord"><span class="chip s8 r8"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.users[0]} opacity="0.2" /><path d={IC.users[1]} /></svg></span><p class="t-lg">3 personas clave encontradas</p></div>
+                    <div class="sf-head bord"><span class="chip s8 r8"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.users[0]} opacity="0.2" /><path d={IC.users[1]} /></svg></span><p class="t-lg">{en ? '3 key people found' : '3 personas clave encontradas'}</p></div>
                     {PEOPLE.map((p) => (
                       <div class="sf-in row rel">
                         {p.jon && <span class="sf-jonhl"></span>}
@@ -143,8 +145,8 @@ const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qu�
                       <div class="sk-acts">{[0, 1, 2].map((i) => <div class="sk-act"><div class="sks s15 rf"></div><div class="skb h25" style={`width:${48 - i * 6}%`}></div></div>)}</div></div>
                     <div class="sf-head bord">
                       <img src={`${A}/jon-96.jpg`} alt="Iker Goikoetxea" class="foto r8" />
-                      <p class="t-lg">Iker empieza a activarse</p>
-                      <span class="sf-pop pill-p" style="background:#fff9e5"><svg viewBox="0 0 256 256" class="ic12" style="color:#988c62"><path d={IC.termo[0]} opacity="0.2" /><path d={IC.termo[1]} /></svg><span class="pop-t" style="color:#988c62">Templado</span></span>
+                      <p class="t-lg">{en ? 'Iker is starting to engage' : 'Iker empieza a activarse'}</p>
+                      <span class="sf-pop pill-p" style="background:#fff9e5"><svg viewBox="0 0 256 256" class="ic12" style="color:#988c62"><path d={IC.termo[0]} opacity="0.2" /><path d={IC.termo[1]} /></svg><span class="pop-t" style="color:#988c62">{en ? 'Warm' : 'Templado'}</span></span>
                     </div>
                     <div class="acts">
                       <span class="sf-line"></span>
@@ -154,28 +156,28 @@ const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qu�
                   <!-- 4 · señal -->
                   <div class="sf-card"><div class="sf-c g3 p4 rel">
                     <div class="sf-skel g3 p4"><div class="sk-h"><div class="sks s8 r4"></div><div class="skb h35"></div></div><div class="skb h25 ml11" style="width:55%"></div></div>
-                    <div class="sf-head"><span class="chip s8 r4"><img src={`${A}/betsaide.avif`} alt="" class="lg16" /></span><p class="t-md" style="max-width:210px">Señal: Betsaide cerró una ronda de financiación</p></div>
-                    <p class="sf-in sub">Es el momento perfecto para escribir</p>
+                    <div class="sf-head"><span class="chip s8 r4"><img src={`${A}/betsaide.avif`} alt="" class="lg16" /></span><p class="t-md" style="max-width:210px">{en ? 'Signal: Betsaide closed a funding round' : 'Señal: Betsaide cerró una ronda de financiación'}</p></div>
+                    <p class="sf-in sub">{en ? 'The perfect moment to get in touch' : 'Es el momento perfecto para escribir'}</p>
                     <span class="sf-pop pill-p hot"><svg viewBox="0 0 256 256" class="ic12" style="color:#b25959"><path d={IC.fuego[0]} opacity="0.2" /><path d={IC.fuego[1]} /></svg><span class="pop-t" style="color:#b25959">Hot</span></span>
                   </div></div>
                   <!-- 5 · mensaje -->
                   <div class="sf-card"><div class="sf-c g3 p4">
                     <div class="sf-skel g3 p4"><div class="sk-h"><div class="sks s6 r4"></div><div class="skb h35"></div></div>
                       <div class="sk-msg"><div class="skb h2" style="width:88%"></div><div class="skb h2 mt2" style="width:62%"></div></div><div class="sk-btn"></div></div>
-                    <div class="sf-head"><span class="iso"><img src={`${A}/neety-isotipo.svg`} alt="" /></span><p class="t-md f1">Neety te preparó el mensaje</p></div>
+                    <div class="sf-head"><span class="iso"><img src={`${A}/neety-isotipo.svg`} alt="" /></span><p class="t-md f1">{en ? 'Neety prepared your message' : 'Neety te preparó el mensaje'}</p></div>
                     <div class="sf-in msg"><p><span class="sf-typed" data-typed>{MESSAGE}</span><span class="sf-caret" data-caret></span></p></div>
-                    <div class="sf-in"><div class="sf-btn" data-btn><span class="btn-d" data-btn-d>Aprobar y enviar</span><span class="btn-s" data-btn-s>Enviado ✓</span></div></div>
+                    <div class="sf-in"><div class="sf-btn" data-btn><span class="btn-d" data-btn-d>{en ? 'Approve and send' : 'Aprobar y enviar'}</span><span class="btn-s" data-btn-s>{en ? 'Sent ✓' : 'Enviado ✓'}</span></div></div>
                   </div></div>
                   <!-- 6 · respuesta -->
                   <div class="sf-card"><div class="sf-c g15 p4">
                     <div class="sf-skel g15 p4"><div class="sk-h"><div class="sks s8 r8"></div><div class="skb h35"></div></div><div class="skb h25 ml11" style="width:55%"></div></div>
-                    <div class="sf-head"><span class="chip-b"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.responde[0]} opacity="0.2" /><path d={IC.responde[1]} /></svg></span><p class="t-md" style="max-width:309px">Iker respondió: “Me interesa, hablemos”</p></div>
-                    <p class="sf-in sub">Neety prepara el cierre por ti</p>
+                    <div class="sf-head"><span class="chip-b"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.responde[0]} opacity="0.2" /><path d={IC.responde[1]} /></svg></span><p class="t-md" style="max-width:309px">{en ? 'Iker replied: “I\'m interested, let\'s talk”' : 'Iker respondió: “Me interesa, hablemos”'}</p></div>
+                    <p class="sf-in sub">{en ? 'Neety prepares the close for you' : 'Neety prepara el cierre por ti'}</p>
                   </div></div>
                   <!-- 7 · reunión -->
                   <div class="sf-card"><div class="sf-c g15 preu">
                     <div class="sf-skel g15 preu"><div class="sk-h"><div class="sks s8 r8"></div><div class="skb h35"></div></div><div class="skb h25 ml11" style="width:55%"></div></div>
-                    <div class="sf-head"><span class="chip-b"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.calendario[0]} opacity="0.2" /><path d={IC.calendario[1]} /></svg></span><p class="t-md f1">Reunión agendada</p><span class="sf-pop fecha"><span>18 Jun</span></span></div>
+                    <div class="sf-head"><span class="chip-b"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.calendario[0]} opacity="0.2" /><path d={IC.calendario[1]} /></svg></span><p class="t-md f1">{en ? 'Meeting scheduled' : 'Reunión agendada'}</p><span class="sf-pop fecha"><span>{en ? 'Jun 18' : '18 Jun'}</span></span></div>
                     <p class="sf-in sub">Iker Goikoetxea · Betsaide · 12:00</p>
                   </div></div>
                   <div class="sf-hueco"></div>
@@ -190,11 +192,11 @@ const SUB = 'No es otra herramienta para enviar más mensajes. Neety te dice qu�
     </section>
   </div>
 
-  <button type="button" class="nh-hamb" aria-label="Abrir menú" {...pz('nav')}><span></span><span></span></button>
+  <button type="button" class="nh-hamb" aria-label={en ? 'Open menu' : 'Abrir menú'} {...pz('nav')}><span></span><span></span></button>
   <p class="nh-sub-m" {...pz('sub')}>{SUB}</p>
   {caja && (
-    <section class="nh-clientes" aria-label="Nuestros clientes">
-      <div class="nh-cl-tag"><span class="nh-punto"><span class="nh-halo" data-halo></span><span class="nh-core"></span></span><p>Nuestros clientes</p></div>
+    <section class="nh-clientes" aria-label={en ? 'Our clients' : 'Nuestros clientes'}>
+      <div class="nh-cl-tag"><span class="nh-punto"><span class="nh-halo" data-halo></span><span class="nh-core"></span></span><p>{en ? 'Our clients' : 'Nuestros clientes'}</p></div>
       <div class="nh-marquee">
         <div class="nh-mq-pista" data-marquee>
           {[...CLIENTES, ...CLIENTES].map((c) => <div class="nh-mq-t"><img src={c.src} alt="" width={c.w} height={c.n} style={`height:${c.h}px`} /></div>)}

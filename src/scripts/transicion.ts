@@ -7,7 +7,7 @@
 //   igual —una gota desde el centro de abajo que se ensancha— y la Cacao se retira (0,55 s). `clip-path: polygon()` por fotograma.
 //   No se intercepta: otra web, anclas, nueva pestaña, modificadores, movimiento reducido.
 const SALE = 500, LLEGA = 550;
-const esLibro = (p: string) => /^\/metodo(\/[^/]+)?\/?$/.test(p);
+const esLibro = (p: string) => /^(\/en)?\/metodo(\/[^/]+)?\/?$/.test(p);
 const reducido = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const campana = (t: number) => 1 / Math.pow(1 + t * t, 1.5);
 const curva = (k: number) => (k <= 0 ? 0 : k >= 1 ? 1 : k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);

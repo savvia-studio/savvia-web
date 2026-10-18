@@ -14,11 +14,16 @@
 // · Sonidos de ordenador (r109): posar, clic, tecleo; un timbre suave al publicar. La música de la web sigue sonando.
 // · Los nombres internos `partitura` (data-partitura, __partitura, el objeto de home.ts y el nombre del archivo) se quedan: los usan la portada y las
 //   pruebas; no se ven. Anterior: tools/retirados/LaPartitura.r116.astro.txt (y r90–r92).
-import { receta, partitura } from '../data/home';
+import { home } from '../data/idioma';
+import { partitura as partituraEs } from '../data/home';
+import { langDe } from '../lib/i18n';
 import NeetyHero from './neety/NeetyHero.astro';
 import { IAS } from '../data/ias';
 // RONDA 203 · Eric, tras ver el vídeo de Lunagraph: cada cursor lleva su icono delante del nombre: Claude, Codex (OpenAI), Tu equipo (dos personas, Iconoir)
 // y savvia (el favicon de la estación, sobre una píldora de su mismo fondo). Lo mismo en los avatares de la barra y de la píldora de estado.
+const lang = langDe(Astro.currentLocale);
+const en = lang === 'en';
+const { receta, partitura } = home(lang);
 const svgIA = (id: string) => `<svg viewBox="0 0 24 24" fill="currentColor">${IAS.find((x) => x.id === id)!.svg}</svg>`;
 // los AVATARES (presencia de la barra, trío y avatar de la píldora de estado): Claude y Codex con su icono; savvia, el favicon de la estación (Eric)
 const avatar = (n: string) => (n === 'savvia' ? '<b class="av-sv"></b>' : ICONO_AGENTE[n]);
@@ -26,6 +31,7 @@ const ICONO_AGENTE: Record<string, string> = {
   Claude: svgIA('claude'),
   Codex: svgIA('chatgpt'),
   savvia: '<i class="fav"></i>',
+  'Your team': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 20v-1a7 7 0 0 1 14 0v1"/><path d="M13 14a5 5 0 0 1 10 0v.5"/><circle cx="8" cy="8" r="4"/><circle cx="18" cy="6" r="3"/></svg>',
   'Tu equipo': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 20v-1a7 7 0 0 1 14 0v1"/><path d="M13 14a5 5 0 0 1 10 0v.5"/><circle cx="8" cy="8" r="4"/><circle cx="18" cy="6" r="3"/></svg>',
 };
 const P = partitura;
@@ -41,7 +47,12 @@ const NEETY = ["M80.9055 4.77539C74.9463 4.77539 70.6392 8.79043 70.6392 14.3541
 // píxel con la web real) en su vista de TABLET, 768 × 864, escalada al hueco (576 × 648 = ×0,75). La película mueve su cinta y su punto con su reloj.
 // RONDA 118 · el índice y los textos de cada sección de la librería (los que se ven dentro) salen de `libreria` en home.ts
 const PG = L.paginas;
-const SECDE: Record<string, string> = { 'Color': 'color', 'Tipografía': 'tipo', 'Espaciado': 'esp', 'Botones': 'botones', 'Componentes de la web': 'comp' };
+const SECDE_ES: Record<string, string> = { 'Color': 'color', 'Tipografía': 'tipo', 'Espaciado': 'esp', 'Botones': 'botones', 'Componentes de la web': 'comp' };
+// la clave de cada entrada del índice sale de su posición (en castellano), así no depende del idioma del rótulo
+const secDe = (gi: number, ii: number) => SECDE_ES[partituraEs.libreria.indice[gi][1][ii]];
+const TABS_V: [string, string][] = en
+  ? [['color', 'Colour'], ['tipo', 'Typography'], ['botones', 'Buttons'], ['esp', 'Spacing'], ['comp', 'Components']]
+  : [['color', 'Color'], ['tipo', 'Tipografía'], ['botones', 'Botones'], ['esp', 'Espaciado'], ['comp', 'Componentes']];
 const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobile de cada paso de la escala (la librería real: «48 / 32px»)
 ---
 
@@ -63,7 +74,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       data-estado-p={JSON.stringify(L.estado)}
       data-peticion-p={JSON.stringify(L.peticion)}
       role="img"
-      aria-label="Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y savvia cogen piezas de la librería real de Neety (el degradado del hero, el titular H1 XL, el botón Solicitar demo, el espaciado, el logotipo y el punto pulsante) y las colocan en su home. Al publicar en neety.com, la misma librería sirve para cambiar textos, editar ilustraciones, crear landings para anuncios, subir el blog al CMS, añadir idiomas, publicar casos de cliente, actualizar precios, ajustar el SEO, hacer tests A/B y revisar la accesibilidad."
+      aria-label={en ? "Looping film: what goes into a website (strategy, voice, identity, components…) is stored in Neety's library. Their team asks for a new hero; Claude, Codex and savvia pick pieces from Neety's real library (the hero gradient, the XL H1 headline, the Request a demo button, the spacing, the logo and the pulsing dot) and place them on its home page. Once published on neety.com, the same library is used to change copy, edit illustrations, create landing pages for ads, upload the blog to the CMS, add languages, publish client case studies, update pricing, tune SEO, run A/B tests and review accessibility." : "Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y savvia cogen piezas de la librería real de Neety (el degradado del hero, el titular H1 XL, el botón Solicitar demo, el espaciado, el logotipo y el punto pulsante) y las colocan en su home. Al publicar en neety.com, la misma librería sirve para cambiar textos, editar ilustraciones, crear landings para anuncios, subir el blog al CMS, añadir idiomas, publicar casos de cliente, actualizar precios, ajustar el SEO, hacer tests A/B y revisar la accesibilidad."}
     >
       <svg class="mapa" aria-hidden="true" data-mapa></svg>
 
@@ -76,14 +87,14 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
           <span class="publicar" data-publicar>{L.publicar}</span>
         </div>
         <nav class="indice">
-          {L.indice.map(([g, items]) => (
+          {L.indice.map(([g, items], gi) => (
             <Fragment>
               <p class="ind-g">{g}</p>
-              <ul>{items.map((x) => <li data-s={SECDE[x]}>{x}</li>)}</ul>
+              <ul>{items.map((x, ii) => <li data-s={secDe(gi, ii)}>{x}</li>)}</ul>
             </Fragment>
           ))}
         </nav>
-        <div class="tabs-v">{['Color', 'Tipografía', 'Botones', 'Espaciado', 'Componentes de la web'].map((x) => <span data-s={SECDE[x]}>{x === 'Componentes de la web' ? 'Componentes' : x}</span>)}</div>
+        <div class="tabs-v">{TABS_V.map(([k, x]) => <span data-s={k}>{x}</span>)}</div>
         <div class="libmain">
           <div class="scroller" data-scroller>
             <section class="sec" data-sec="color">
@@ -93,7 +104,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
               <p class="et">{PG.color.etiqueta}</p>
               <div class="swatches">
                 {L.color.map(([n, hx]) => (
-                  <span class="sw pk" data-src={hx === 'grad' ? 'base' : undefined}><i class={`blk ${hx === 'grad' ? 'grad' : ''}`} style={hx === 'grad' ? undefined : `background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx === 'grad' ? 'azul → berenjena · grano' : hx}</small></span>
+                  <span class="sw pk" data-src={hx === 'grad' ? 'base' : undefined}><i class={`blk ${hx === 'grad' ? 'grad' : ''}`} style={hx === 'grad' ? undefined : `background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx === 'grad' ? (en ? 'blue → aubergine · grain' : 'azul → berenjena · grano') : hx}</small></span>
                 ))}
               </div>
               <p class="et et2">{PG.color.rampas}</p>
@@ -106,7 +117,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
             <section class="sec" data-sec="tipo">
               <p class="eb">{PG.tipo.eyebrow}</p>
               <h3 class="tt">{PG.tipo.titulo}</h3>
-              <p class="tx">Titulares en <b>Bricolage Grotesque</b>, cuerpo en <b>Switzer</b>.</p>
+              <p class="tx">{en ? <Fragment>Headings in <b>Bricolage Grotesque</b>, body in <b>Switzer</b>.</Fragment> : <Fragment>Titulares en <b>Bricolage Grotesque</b>, cuerpo en <b>Switzer</b>.</Fragment>}</p>
               <p class="et">{PG.tipo.etiqueta}</p>
               <div class="tps">
                 {[['H1 · XL', 'Desktop 112px · Mobile 64px · 120%', 'xl'], ['H1 · L', 'Desktop 80px · Mobile 48px · 120%', 'l'], ['H1 · M', 'Desktop 64px · Mobile 40px · 120%', 'm'], ['H2', 'Desktop 48px · Mobile 32px · 120%', 'h2']].map(([n, m, c]) => (
@@ -165,7 +176,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
           <!-- la PETICIÓN de Tu equipo: se teclea en vivo, se envía y se recoge en la píldora de estado -->
           <div class="composer" data-composer>
             <!-- ronda 203 · Eric: «más fiel al típico chat de Claude o ChatGPT»: el texto arriba y, abajo, «+», el modelo y enviar -->
-            <p class="campo"><span data-escrito></span><i class="caret" data-caret></i></p>
+            <p class="campo" style={en ? "--ph: 'Ask for a change to your website…'" : undefined}><span data-escrito></span><i class="caret" data-caret></i></p>
             <span class="pie-chat">
               <span class="mas" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9" /></svg></span>
               <span class="modelo"><b set:html={ICONO_AGENTE.Claude}></b>Opus 5.5<svg class="baja" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 6.5 8 9.5l3-3" /></svg></span>
@@ -193,12 +204,13 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       ))}
     </div>
 
-    <p class="nota detail text-fg2" data-enfoca><span class="fig">Il. 1</span><span class="txt">{P.nota} <a class="link" href={P.enlace.href} target="_blank" rel="noopener">{P.enlace.label}</a></span></p>
+    <p class="nota detail text-fg2" data-enfoca><span class="fig">{en ? 'Fig. 1' : 'Il. 1'}</span><span class="txt">{P.nota} <a class="link" href={P.enlace.href} target="_blank" rel="noopener">{P.enlace.label}</a></span></p>
   </div>
 </section>
 
 <script>
   import { tecla, clic, teclear, papel, posar, tocar } from '../scripts/sonidos';
+  import { t as tr } from '../scripts/i18n';
 
   const sec = document.querySelector<HTMLElement>('[data-partitura]');
   if (sec) iniciar(sec);
@@ -390,8 +402,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       el('line', { x1: -SW0 / 2, x2: SW0 / 2, y1: SH0 / 2 - 22, y2: SH0 / 2 - 22, class: 'raya' }, gPub);
       // ronda 203: el triángulo de Vercel en vez del check
       el('path', { d: `M${-SW0 / 2 + 16.6} ${SH0 / 2 - 13.6} l2.8 4.8 h-5.6 z`, class: 'pub-vc' }, gPub); // a la altura de las mayúsculas del texto (mono 6,2: base en −9)
-      el('text', { x: -SW0 / 2 + 23, y: SH0 / 2 - 9, class: 'fila-n' }, gPub).textContent = 'Publicado en neety.com';
-      el('text', { x: SW0 / 2 - 13, y: SH0 / 2 - 9, class: 'fila-m', 'text-anchor': 'end' }, gPub).textContent = 'ahora';
+      el('text', { x: -SW0 / 2 + 23, y: SH0 / 2 - 9, class: 'fila-n' }, gPub).textContent = tr('Publicado en neety.com', 'Published on neety.com');
+      el('text', { x: SW0 / 2 - 13, y: SH0 / 2 - 9, class: 'fila-m', 'text-anchor': 'end' }, gPub).textContent = tr('ahora', 'now');
       filo = el('rect', { x: -SW0 / 2, y: -SH0 / 2, width: SW0, height: SH0, rx: 6, class: 'filo' }, gH);
 
       // LAS CAJAS (lo que entra, lo que sale) y sus HILOS
@@ -447,7 +459,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       cmsTx = null;
       if (modo === 'h') {
         const cms = outs[SALE.findIndex((x) => /CMS/.test(x))];
-        if (cms) { cmsTx = el('text', { class: 'cms', x: f2(cms.w + 10), y: f2(BH / 2 + 4) }, cms.g) as SVGTextElement; cmsTx.textContent = '✓ en Sanity'; }
+        if (cms) { cmsTx = el('text', { class: 'cms', x: f2(cms.w + 10), y: f2(BH / 2 + 4) }, cms.g) as SVGTextElement; cmsTx.textContent = tr('✓ en Sanity', '✓ in Sanity'); }
       }
 
       // ── LA CÁMARA: vistas calculadas de la geometría
@@ -781,7 +793,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         pon(estadoAv, '--c', AG[ag]);
         pon(estadoQuien, '#', NOMBRES[ag]);
       }
-      pon(estadoTxt, '#', m === 'pub' ? ESTADO[1] : m === 'lee' ? ESTADO[0] : m === 'listo' ? ESTADO[2] : 'ha añadido'); // ronda 203 · Eric: «ese "toma" queda raro»: como una notificación
+      pon(estadoTxt, '#', m === 'pub' ? ESTADO[1] : m === 'lee' ? ESTADO[0] : m === 'listo' ? ESTADO[2] : tr('ha añadido', 'added')); // ronda 203 · Eric: «ese "toma" queda raro»: como una notificación
       pon(estadoPieza, '#', m === 'pub' ? 'neety.com' : m === 'toma' ? picks[iAct].label : '');
       pon(estado, '--pub', pub ? '1' : '0');
       pon(estado, '--late', f3(0.5 - 0.5 * Math.cos(2 * Math.PI * t * 0.9)));
@@ -1088,7 +1100,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   }
   /* el campo, como en Claude: texto grande arriba; vacío, su placeholder en gris */
   .campo { grid-column: 1 / -1; min-height: 52px; font-size: 18px; line-height: 1.4; letter-spacing: -0.005em; }
-  .campo:has([data-escrito]:empty)::after { content: 'Pide un cambio a tu web…'; color: rgb(31 30 29 / 0.38); }
+  .campo:has([data-escrito]:empty)::after { content: var(--ph, 'Pide un cambio a tu web…'); color: rgb(31 30 29 / 0.38); }
   .caret { display: inline-block; width: 1.5px; height: 1.1em; margin-left: 1px; vertical-align: -0.18em; background: #1f1e1d; }
   .campo:has([data-escrito]:empty) .caret { margin: 0 2px 0 0; }
   .pie-chat { display: flex; align-items: center; gap: 8px; color: rgb(31 30 29 / 0.6); font-size: 14px; }

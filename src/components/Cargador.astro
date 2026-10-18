@@ -30,6 +30,8 @@ import isoRaw from '../../public/savvia-isotipo-gota.svg?raw';
 // y «la carga volvemos al círculo»
 const ISO = [...isoRaw.matchAll(/ d="([^"]+)"/g)].map((m) => m[1].replace(/\s+/g, ' ')).join(' ');
 import { flecha } from '../lib/flecha';
+import { langDe } from '../lib/i18n';
+const en = langDe(Astro.currentLocale) === 'en';
 ---
 
 <div class="cargador" aria-hidden="true" data-cargador>
@@ -46,9 +48,9 @@ import { flecha } from '../lib/flecha';
     <path class="vv" d={ISO} mask="url(#cg-vv)" />
   </svg>
   <div class="mundo" data-mundo>
-    <p class="pista" data-carga-pista><span class="dicho">Dibuja un círculo.</span><span class="como"><span class="con-raton">Haz clic y dibújalo sin soltar.</span><span class="con-dedo">Arrastra el dedo.</span></span></p>
+    <p class="pista" data-carga-pista><span class="dicho">{en ? 'Draw a circle.' : 'Dibuja un círculo.'}</span><span class="como"><span class="con-raton">{en ? 'Click and draw it without letting go.' : 'Haz clic y dibújalo sin soltar.'}</span><span class="con-dedo">{en ? 'Drag your finger.' : 'Arrastra el dedo.'}</span></span></p>
     <!-- «esc para saltar»: abajo, centrado, con un poco de aire; aparece y se va con la consigna -->
-    <button type="button" class="btn-secondary btn-sm saltar" data-saltar><kbd>esc</kbd><span class="btn-tx"><span class="con-tecla">para saltar</span><span class="sin-tecla">Saltar</span></span><Fragment set:html={flecha()} /></button>
+    <button type="button" class="btn-secondary btn-sm saltar" data-saltar><kbd>esc</kbd><span class="btn-tx"><span class="con-tecla">{en ? 'to skip' : 'para saltar'}</span><span class="sin-tecla">{en ? 'Skip' : 'Saltar'}</span></span><Fragment set:html={flecha()} /></button>
     <!-- el CUELLO que sujeta la gota mientras se descuelga, el resto que se retrae y el satélite (en el sistema del mundo) -->
     <svg class="cuello" viewBox="-20 -4 40 40" data-cuello><path d="" data-cuello-d /><circle class="resto" r="0" data-resto /></svg>
     <i class="satelite" data-satelite></i>

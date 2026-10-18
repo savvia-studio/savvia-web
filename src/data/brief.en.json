@@ -1,0 +1,141 @@
+{
+  "saludo": [
+    "Hi, I'm {yo}.",
+    "We make custom websites, end to end, and leave them ready to be changed with AI."
+  ],
+  "servicio": {
+    "expl": [
+      "We work in three ways.",
+      "End-to-end: from the idea to the published website.",
+      "Collaboration: we join your team on whatever it needs.",
+      "Consulting: we help you and train your team to change your website with AI."
+    ],
+    "q": "How would you like to work with us?",
+    "opciones": [
+      { "t": "End-to-end", "r": "From the first conversation to the published website. Let's get to know your project.", "ruta": "e2e" },
+      { "t": "Collaboration", "r": "We join your team on the part that needs it most.", "ruta": "colab" },
+      { "t": "Consulting", "r": "We help you decide and organise your website so you can change it with AI.", "ruta": "consul" },
+      { "t": "I'm not sure", "r": "No problem. Tell us and we'll say which one fits.", "ruta": "indeciso" }
+    ],
+    "solo": { "t": "I just have a question", "r": "Of course. Write it below and we'll answer." }
+  },
+  "rutas": {
+    "e2e": ["hoy", "marca", "tamano", "extras", "plazo"],
+    "colab": ["parte", "equipo", "plazo"],
+    "consul": ["quiere", "cambia", "plazo"],
+    "indeciso": ["frase", "plazo"]
+  },
+  "pasos": {
+    "hoy": {
+      "q": "Where is your website today?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "On Webflow", "r": "If it locks you in, we migrate it as it is, pixel for pixel, with its CMS." },
+        { "t": "On WordPress or another platform", "r": "That can be migrated too. We'll look at it with you." },
+        { "t": "I don't have one yet", "r": "Even better: we start from scratch." }
+      ]
+    },
+    "marca": {
+      "q": "Do you have a defined brand? Logo, typography, colours…",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "Yes, complete", "r": "We start from it." },
+        { "t": "Yes, but it needs adjusting", "r": "We'll organise it together in your savvia." },
+        { "t": "Not yet", "r": "To start we need at least a logo and a visual idea. We'll talk it through on the call." }
+      ]
+    },
+    "tamano": {
+      "q": "Roughly how many pages do you need?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "A landing page", "r": "Little and well made." },
+        { "t": "2 to 4", "r": "A very manageable size." },
+        { "t": "5 to 8", "r": "Perfect." },
+        { "t": "More than 8", "r": "Then your website's savvia will be key." }
+      ]
+    },
+    "extras": {
+      "q": "What else do you need? You can pick several.",
+      "tipo": "varios",
+      "r": "Noted.",
+      "opciones": [
+        { "t": "Animated illustrations" },
+        { "t": "3D animations" },
+        { "t": "Advanced interactions" },
+        { "t": "Several languages" },
+        { "t": "Content you'll publish often" },
+        { "t": "Integrations (CRM, newsletter)" },
+        { "t": "User area with payments" },
+        { "t": "None of these" }
+      ]
+    },
+    "parte": {
+      "q": "Which part would you like us to join? You can pick several.",
+      "tipo": "varios",
+      "r": "Noted.",
+      "opciones": [
+        { "t": "Design" },
+        { "t": "Motion" },
+        { "t": "Development" },
+        { "t": "I don't know yet" }
+      ]
+    },
+    "equipo": {
+      "q": "Who would we be working with?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "My team", "r": "Better that way: they keep the knowledge." },
+        { "t": "My agency", "r": "We'll coordinate without any problem." },
+        { "t": "Freelancers", "r": "We adapt to the way you work." },
+        { "t": "Just me", "r": "Then we'll make everything very clear for you." }
+      ]
+    },
+    "quiere": {
+      "q": "What would you like to decide or organise? You can pick several.",
+      "tipo": "varios",
+      "r": "Noted.",
+      "opciones": [
+        { "t": "The website's narrative" },
+        { "t": "The content architecture" },
+        { "t": "An audit of my website" },
+        { "t": "Migrating to an AI-ready website" },
+        { "t": "Training my team" },
+        { "t": "Creating our savvia" }
+      ]
+    },
+    "cambia": {
+      "q": "How do you change your website today?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "An agency handles it", "r": "A lot of time gets lost there." },
+        { "t": "My team handles it", "r": "Perfect, so there's a base." },
+        { "t": "Nobody dares", "r": "Very common, and fixable." },
+        { "t": "With AI, now and then", "r": "That's exactly what a savvia is for." }
+      ]
+    },
+    "frase": {
+      "q": "Tell us in one sentence what you need.",
+      "tipo": "texto",
+      "ph": "Write it in one sentence…",
+      "r": "Thanks, that's enough for us to point you in the right direction."
+    },
+    "plazo": {
+      "q": "When would you need it by?",
+      "tipo": "uno",
+      "opciones": [
+        { "t": "In under a month", "r": "That's short to do it with care, but tell us and we'll see." },
+        { "t": "Between 1 and 3 months", "r": "A good timeframe." },
+        { "t": "Later on", "r": "Perfect, so we can prepare it calmly." }
+      ]
+    }
+  },
+  "contacto": [
+    { "id": "nombre", "q": "Last part. What's your name?", "ph": "Your name", "tipo": "texto" },
+    { "id": "email", "q": "Which email should we write to?", "ph": "name@company.com", "tipo": "email" },
+    { "id": "mas", "q": "Anything else you'd like to tell us? Your company, your current website, a rough budget…", "ph": "Optional", "tipo": "opcional" }
+  ],
+  "fin": [
+    "Thanks, {nombre}. With this we'll arrive at the call with context.",
+    "We'll write to you within 48 hours."
+  ]
+}

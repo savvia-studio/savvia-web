@@ -1,6 +1,14 @@
 ---
-import { pie } from '../data/home';
-import personas from '../data/personas.json';
+import { home } from '../data/idioma';
+import { langDe } from '../lib/i18n';
+import personasEs from '../data/personas.json';
+import personasEn from '../data/personas.en.json';
+const lang = langDe(Astro.currentLocale);
+const personas = lang === 'en' ? personasEn : personasEs;
+const { pie } = home(lang);
+const T = lang === 'en'
+  ? { abrir: 'Open the chat', hola: 'Shall we talk?', chat: 'Chat with Eric and Andoni', nombres: 'Eric and Andoni', suelen: 'We usually reply the same day', cerrar: 'Close the chat', escribe: 'Write your message', ph: 'Write a question…', enviar: 'Send', prefieres: 'Prefer email?' }
+  : { abrir: 'Abrir el chat', hola: '¿Hablamos?', chat: 'Chat con Eric y Andoni', nombres: 'Eric y Andoni', suelen: 'Solemos contestar en el día', cerrar: 'Cerrar el chat', escribe: 'Escribe tu mensaje', ph: 'Escribe una pregunta…', enviar: 'Enviar', prefieres: '¿Prefieres el correo?' };
 // el icono de chat es el propio (burbuja con rabillo, trazo 1,7), no el de Iconoir: Eric lo prefirió
 const chatR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H11l-4.2 3.2v-3.2H6.5a2 2 0 0 1-2-2z"></path></svg>';
 import plegarR from 'iconoir/icons/regular/nav-arrow-down.svg?raw';
@@ -21,37 +29,43 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
 -->
 <div class="cf" data-cf hidden data-cal={pie.cal} data-correo={pie.correo} data-caras={JSON.stringify(CARA)} data-personas={JSON.stringify(personas)}>
   <i class="cf-velo" aria-hidden="true"></i>
-  <button type="button" class="cf-btn" data-cf-btn aria-expanded="false" aria-controls="cf-panel" aria-label="Abrir el chat">
+  <button type="button" class="cf-btn" data-cf-btn aria-expanded="false" aria-controls="cf-panel" aria-label={T.abrir}>
     <span class="cf-ic cf-ic-chat" set:html={ico(chatR)} />
     <span class="cf-ic cf-ic-plegar" set:html={ico(plegarR)} />
   </button>
-  <button type="button" class="cf-hola" data-cf-hola tabindex="-1" aria-hidden="true">¿Hablamos?</button>
-  <section class="cf-panel surface-light" id="cf-panel" role="dialog" aria-label="Chat con Eric y Andoni" data-cf-panel hidden>
+  <button type="button" class="cf-hola" data-cf-hola tabindex="-1" aria-hidden="true">{T.hola}</button>
+  <section class="cf-panel surface-light" id="cf-panel" role="dialog" aria-label={T.chat} data-cf-panel hidden>
     <header class="cf-cab">
       <span class="cf-caras" aria-hidden="true"><img src={CARA[1]} alt="" width="72" height="72" /><img src={CARA[0]} alt="" width="72" height="72" /></span>
-      <span class="cf-quien"><b>Eric y Andoni</b><small>Solemos contestar en el día</small></span>
-      <button type="button" class="cf-x" data-cf-x aria-label="Cerrar el chat"><span set:html={ico(xR)} /></button>
+      <span class="cf-quien"><b>{T.nombres}</b><small>{T.suelen}</small></span>
+      <button type="button" class="cf-x" data-cf-x aria-label={T.cerrar}><span set:html={ico(xR)} /></button>
     <i class="cf-linea" data-cf-linea aria-hidden="true"></i>
     </header>
     <div class="cf-lista" role="log" aria-live="polite" data-cf-lista></div>
     <form class="cf-form" data-cf-form novalidate>
-      <label for="cf-campo" class="sr-only">Escribe tu mensaje</label>
-      <input id="cf-campo" type="text" maxlength="160" autocomplete="off" placeholder="Escribe una pregunta…" data-cf-campo />
-      <button type="submit" class="cf-mandar" aria-label="Enviar" data-cf-mandar><span set:html={ico(enviarR)} /></button>
+      <label for="cf-campo" class="sr-only">{T.escribe}</label>
+      <input id="cf-campo" type="text" maxlength="160" autocomplete="off" placeholder={T.ph} data-cf-campo />
+      <button type="submit" class="cf-mandar" aria-label={T.enviar} data-cf-mandar><span set:html={ico(enviarR)} /></button>
     </form>
-    <p class="cf-mail">¿Prefieres el correo? <a class="link" href={`mailto:${pie.correo}`}>{pie.correo}</a></p>
+    <p class="cf-mail">{T.prefieres} <a class="link" href={`mailto:${pie.correo}`}>{pie.correo}</a></p>
   </section>
 </div>
 
 <script>
-  import brief from '../data/brief.json';
-  import fichasJson from '../data/preguntas.json';
+  import { t } from '../scripts/i18n';
+  import { mejorFicha } from '../scripts/buscar-ficha';
+  import briefEs from '../data/brief.json';
+  import briefEn from '../data/brief.en.json';
+  import fichasEs from '../data/preguntas.json';
+  import fichasEn from '../data/preguntas.en.json';
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
 
   type Opcion = { t: string; r?: string; ruta?: string };
   type Paso = { q: string; tipo: string; opciones?: Opcion[]; ph?: string; r?: string };
   type Cta = { t: string; h: string };
+  const brief = t(briefEs, briefEn);
+  const fichasJson = t(fichasEs, fichasEn);
   const fichas = fichasJson as { q: string; a: string; claves: string[]; ctas?: Cta[] }[];
   const PASOS = brief.pasos as Record<string, Paso>;
   const RUTAS = brief.rutas as Record<string, string[]>;
@@ -156,7 +170,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       if (si === abierto) return;
       abierto = si;
       btn.setAttribute('aria-expanded', String(si));
-      btn.setAttribute('aria-label', si ? 'Cerrar el chat' : 'Abrir el chat');
+      btn.setAttribute('aria-label', si ? t('Cerrar el chat', 'Close the chat') : t('Abrir el chat', 'Open the chat'));
       raiz.classList.toggle('cf-abierto', si);
       const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
       const linea = tinta('cacao', 0.55);
@@ -193,7 +207,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, txt?: string) => { const e = document.createElement(tag); e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
     let ultimaCara: HTMLElement | null = null, ultimoQuien = -1;
     const escribiendo = el('div', 'cf-m cf-bot');
-    escribiendo.innerHTML = '<span class="cf-cara"></span><p class="cf-b cf-pts" aria-label="Está escribiendo"><i></i><i></i><i></i></p>';
+    escribiendo.innerHTML = `<span class="cf-cara"></span><p class="cf-b cf-pts" aria-label="${t('Está escribiendo', 'Typing')}"><i></i><i></i><i></i></p>`;
     const filaBot = (): HTMLElement => {
       const f = el('div', 'cf-m cf-bot');
       const cara = el('span', 'cf-cara'); const img = el('img', ''); img.alt = ''; img.width = 72; img.height = 72; img.src = caras[quien]; cara.append(img);
@@ -284,7 +298,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const mostrarPaso = async (id: string) => {
       const p = PASOS[id]; paso = id;
       await bot([p.q]);
-      if (p.tipo === 'texto') { esperaTexto = { id, tipo: 'texto', sig: siguiente }; ponerCampo(p.ph || 'Escribe aquí…', true); campo.focus({ preventScroll: true }); return; }
+      if (p.tipo === 'texto') { esperaTexto = { id, tipo: 'texto', sig: siguiente }; ponerCampo(p.ph || t('Escribe aquí…', 'Write here…'), true); campo.focus({ preventScroll: true }); return; }
       if (p.tipo === 'varios') {
         const marcadas = new Set<string>();
         quitarOpciones();
@@ -294,7 +308,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
           b.addEventListener('click', () => { const on = !marcadas.has(o.t); on ? marcadas.add(o.t) : marcadas.delete(o.t); b.setAttribute('aria-pressed', String(on)); listo.disabled = marcadas.size === 0; });
           c.append(b);
         });
-        const listo = el('button', 'cf-op cf-op-ok', 'Listo'); listo.type = 'button'; listo.disabled = true;
+        const listo = el('button', 'cf-op cf-op-ok', t('Listo', 'Done')); listo.type = 'button'; listo.disabled = true;
         listo.addEventListener('click', async () => {
           if (ocupado || !marcadas.size) return; ocupado = true;
           const t = [...marcadas].join(', ');
@@ -319,17 +333,17 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       await bot([c.q]);
       esperaTexto = { id: c.id, tipo: c.tipo, sig: () => contacto(k + 1) };
       ponerCampo(c.ph, true); campo.focus({ preventScroll: true });
-      if (c.tipo === 'opcional') opciones([], () => {}, { t: 'Saltar', fn: async () => { if (ocupado) return; ocupado = true; esperaTexto = null; tu('Saltar'); quien = 1 - quien; ponerCampo('Escribe una pregunta…'); await contacto(k + 1); ocupado = false; } });
+      if (c.tipo === 'opcional') opciones([], () => {}, { t: t('Saltar', 'Skip'), fn: async () => { if (ocupado) return; ocupado = true; esperaTexto = null; tu(t('Saltar', 'Skip')); quien = 1 - quien; ponerCampo(t('Escribe una pregunta…', 'Write a question…')); await contacto(k + 1); ocupado = false; } });
     };
     const terminar = async () => {
-      idx = secuencia.length; pintarProg(); ponerCampo('Escribe una pregunta…');
+      idx = secuencia.length; pintarProg(); ponerCampo(t('Escribe una pregunta…', 'Write a question…'));
       quien = 1 - quien;
       const fin = (brief.fin as string[]).map((t) => t);
       await pensar(700);
       const f = filaBot(); const r = el('div', 'cf-b cf-resumen');
-      r.append(el('p', 'cf-rt', 'Esto es lo que nos has contado'));
+      r.append(el('p', 'cf-rt', t('Esto es lo que nos has contado', 'This is what you told us')));
       respuestas.forEach((x) => { const l = el('p', 'cf-rl'); l.innerHTML = '<small></small><span></span>'; l.querySelector('small')!.textContent = x.q; l.querySelector('span')!.textContent = x.a; r.append(l); });
-      ([['nombre', 'Nombre'], ['email', 'Email'], ['mas', 'Algo más']] as const).forEach(([id, etiqueta]) => {
+      ([['nombre', t('Nombre', 'Name')], ['email', 'Email'], ['mas', t('Algo más', 'Anything else')]] as const).forEach(([id, etiqueta]) => {
         if (!datos[id]) return;
         const l = el('p', 'cf-rl'); l.innerHTML = '<small></small><span></span>';
         l.querySelector('small')!.textContent = etiqueta; l.querySelector('span')!.textContent = datos[id];
@@ -337,29 +351,22 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       });
       f.append(r); lista.append(f); bajar();
       quien = 1 - quien;
-      await bot(fin, [{ t: 'Reservar una llamada de 15 minutos', h: 'cal' }, { t: 'Escribir a hola@savvia.studio', h: `mailto:${correo}` }]);
+      await bot(fin, [{ t: t('Reservar una llamada de 15 minutos', 'Book a 15-minute call'), h: 'cal' }, { t: t('Escribir a hola@savvia.studio', 'Write to hola@savvia.studio'), h: `mailto:${correo}` }]);
       (window as any).__chatBrief = { ruta, respuestas, datos }; // para la fase 2 (envío)
     };
 
     // ── PREGUNTAS LIBRES: la web y la IA contestan; si hay brief en marcha, se vuelve a él
-    const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9ñ ]/g, ' ');
-    const VACIAS = new Set('el la los las un una unos unas de del al a en y o que con por para mi tu su me te se es son como cuando donde cual cuales hay web pagina sitio si no mas muy ya lo le les nos vosotros'.split(' '));
-    const buscar = (q: string) => {
-      const ws = norm(q).split(/\s+/).filter((w) => w.length > 2 && !VACIAS.has(w));
-      let mejor = -1, pts = 0;
-      fichas.forEach((f, i) => { const cl = new Set(f.claves); const p = ws.reduce((s, w) => s + (cl.has(w) ? 2 : [...cl].some((c) => c.length >= 5 && w.length >= 5 && c.slice(0, 4) === w.slice(0, 4)) ? 1 : 0), 0); if (p > pts) { pts = p; mejor = i; } });
-      return mejor;
-    };
+    const buscar = (q: string) => mejorFicha(q, fichas);
     const libre = async (q: string) => {
       let hechas = 0; try { hechas = Number(sessionStorage.getItem('savvia-preguntas') || 0); } catch {}
-      if (hechas >= 12) { tu(q); await bot([`Mejor escríbenos a ${correo}.`]); campo.disabled = true; return; }
+      if (hechas >= 12) { tu(q); await bot([t(`Mejor escríbenos a ${correo}.`, `Better write to us at ${correo}.`)]); campo.disabled = true; return; }
       try { sessionStorage.setItem('savvia-preguntas', String(hechas + 1)); } catch {}
       ocupado = true; tu(q); quien = 1 - quien;
       const local = buscar(q);
       let v: { tipo: string; i?: number; texto?: string } = local >= 0 ? { tipo: 'escrita', i: local } : { tipo: 'ninguna' };
       const api = (async () => {
         try {
-          const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q, quien }), signal: AbortSignal.timeout(14000) });
+          const r = await fetch('/api/preguntar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pregunta: q, quien, lang: t('es', 'en') }), signal: AbortSignal.timeout(14000) });
           if (!r.ok) return;
           const d = await r.json();
           if (d.tipo === 'escrita' && Number.isInteger(d.i) && d.i >= 0 && d.i < fichas.length) v = d;
@@ -372,35 +379,35 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       await Promise.all([api, esperar(700)]);
       escribiendo.remove();
       if (v.tipo === 'escrita') { const f = fichas[v.i!]; await bot([f.a], f.ctas); }
-      else if (v.tipo === 'ia' || v.tipo === 'fuera') await bot([v.texto!], v.tipo === 'ia' ? [{ t: 'Respuesta rápida con IA, confirmársela a Eric y Andoni', h: `mailto:${correo}?subject=${encodeURIComponent('Una pregunta')}&body=${encodeURIComponent(q)}` }] : undefined);
-      else await bot(['Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.'], [{ t: 'Mandársela por correo', h: `mailto:${correo}?subject=${encodeURIComponent('Una pregunta')}&body=${encodeURIComponent(q)}` }]);
+      else if (v.tipo === 'ia' || v.tipo === 'fuera') await bot([v.texto!], v.tipo === 'ia' ? [{ t: t('Respuesta rápida con IA, confirmársela a Eric y Andoni', 'Quick AI answer: have Eric and Andoni confirm it'), h: `mailto:${correo}?subject=${encodeURIComponent(t('Una pregunta', 'A question'))}&body=${encodeURIComponent(q)}` }] : undefined);
+      else await bot([t('Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.', "We haven't written that one yet. Send it to us and we'll answer you ourselves, usually the same day.")], [{ t: t('Mandársela por correo', 'Send it by email'), h: `mailto:${correo}?subject=${encodeURIComponent(t('Una pregunta', 'A question'))}&body=${encodeURIComponent(q)}` }]);
       await reofrecer();
       ocupado = false;
     };
     const reofrecer = async () => {
       if (esperaTexto) return;
-      if (!ruta) { opciones([], () => {}, { t: 'Cuéntanos tu proyecto', fn: async () => { if (ocupado) return; ocupado = true; quitarOpciones(); tu('Cuéntanos tu proyecto'); quien = 1 - quien; await mostrarServicio(); ocupado = false; } }); return; }
-      if (paso && paso !== 'servicio' && PASOS[paso] && idx < secuencia.length) { quien = 1 - quien; await bot(['Seguimos con tu brief.']); await mostrarPaso(paso); }
-      else if (paso === 'servicio') { quien = 1 - quien; await bot(['Seguimos con tu brief.']); await mostrarServicio(); }
+      if (!ruta) { opciones([], () => {}, { t: t('Cuéntanos tu proyecto', 'Tell us about your project'), fn: async () => { if (ocupado) return; ocupado = true; quitarOpciones(); tu(t('Cuéntanos tu proyecto', 'Tell us about your project')); quien = 1 - quien; await mostrarServicio(); ocupado = false; } }); return; }
+      if (paso && paso !== 'servicio' && PASOS[paso] && idx < secuencia.length) { quien = 1 - quien; await bot([t('Seguimos con tu brief.', "Let's carry on with your brief.")]); await mostrarPaso(paso); }
+      else if (paso === 'servicio') { quien = 1 - quien; await bot([t('Seguimos con tu brief.', "Let's carry on with your brief.")]); await mostrarServicio(); }
     };
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const t = campo.value.trim();
-      if (!t || ocupado) return campo.focus();
+      const txt = campo.value.trim();
+      if (!txt || ocupado) return campo.focus();
       if (esperaTexto) {
         const e2 = esperaTexto;
-        if (e2.tipo === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) { ocupado = true; tu(t); campo.value = ''; quien = 1 - quien; await bot(['Parece que falta algo en ese email. ¿Me lo escribes otra vez?']); ocupado = false; return; }
-        ocupado = true; esperaTexto = null; campo.value = ''; tu(t);
-        quitarOpciones(); ponerCampo('Escribe una pregunta…');
-        if (PASOS[e2.id]) { respuestas.push({ q: PASOS[e2.id].q, a: t }); datos[e2.id] = t; if (PASOS[e2.id].r) { quien = 1 - quien; await bot([PASOS[e2.id].r!]); } }
-        else datos[e2.id] = t;
+        if (e2.tipo === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(txt)) { ocupado = true; tu(txt); campo.value = ''; quien = 1 - quien; await bot([t('Parece que falta algo en ese email. ¿Me lo escribes otra vez?', 'Something seems to be missing from that email. Could you type it again?')]); ocupado = false; return; }
+        ocupado = true; esperaTexto = null; campo.value = ''; tu(txt);
+        quitarOpciones(); ponerCampo(t('Escribe una pregunta…', 'Write a question…'));
+        if (PASOS[e2.id]) { respuestas.push({ q: PASOS[e2.id].q, a: txt }); datos[e2.id] = txt; if (PASOS[e2.id].r) { quien = 1 - quien; await bot([PASOS[e2.id].r!]); } }
+        else datos[e2.id] = txt;
         await e2.sig();
         ocupado = false;
         return;
       }
       campo.value = '';
-      await libre(t);
+      await libre(txt);
     });
     // atajos para probar: window.__chat.abrir()
     (window as any).__chat = { abrir: () => poner(true), cerrar: () => poner(false), estado: () => ({ ocupado, espera: esperaTexto && esperaTexto.id, paso, idx, ruta }) };

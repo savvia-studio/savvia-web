@@ -1,9 +1,13 @@
 ---
 import sharp from 'sharp';
 import Cta from './Cta.astro';
-import { proyectos } from '../data/home';
+import { home } from '../data/idioma';
+import { langDe, ruta } from '../lib/i18n';
 import { icono, ICONO_ESTACION } from '../lib/iconos';
 // RONDA 152 · los iconos de estación y de la interfaz, de la iconografía de la casa (Phosphor: estaciones rellenas, interfaz regular)
+const lang = langDe(Astro.currentLocale);
+const en = lang === 'en';
+const { proyectos } = home(lang);
 const P = proyectos.nuevos;
 // RONDA 50 · el TINTE del cristal de la barra: el color medio de la cabecera de cada web (la franja de arriba de su captura, el 4,2 % de su ancho: ~60 px a 1440), medido al compilar
 const TINTE: Record<string, string> = {};
@@ -21,7 +25,7 @@ for (const p of P) {
 const LARGO: Record<string, boolean> = {};
 for (const p of P) LARGO[p.slug] = await sharp(`public/media/proyectos/${p.slug}-largo.webp`).metadata().then(() => true).catch(() => false);
 const EST = ['primavera', 'verano', 'otono', 'invierno'];
-const nombreEst: Record<string, string> = { primavera: 'Primavera', verano: 'Verano', otono: 'Otoño', invierno: 'Invierno' };
+const nombreEst: Record<string, string> = en ? { primavera: 'Spring', verano: 'Summer', otono: 'Autumn', invierno: 'Winter' } : { primavera: 'Primavera', verano: 'Verano', otono: 'Otoño', invierno: 'Invierno' };
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
@@ -97,11 +101,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
                  sale por SESIÓN (no una vez por navegador) cuando la web ya ha cargado, se va al entrar el puntero y vuelve a asomar si pasan unos segundos fuera;
                  ya no hay capa que se trague el primer gesto; y el HILO del borde derecho (carril de cristal con un pulgar de savia que respira) avisa siempre
                  de que la pantalla se recorre -->
-            <div class="aviso-desliza" aria-hidden="true" data-aviso-desliza><span class="icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path class="ch" d="M6.5 9 12 14.5 17.5 9" /></svg></span><span data-aviso-texto>desliza dentro para ver la web</span></div>
+            <div class="aviso-desliza" aria-hidden="true" data-aviso-desliza><span class="icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path class="ch" d="M6.5 9 12 14.5 17.5 9" /></svg></span><span data-aviso-texto>{en ? 'scroll inside to see the site' : 'desliza dentro para ver la web'}</span></div>
             <!-- RONDA 50 · «el indicador de scroll como estaba antes, encima de la pantalla del ordenador»: vuelve la píldora de la ronda 39, al pie
                  de la web; se va con el primer gesto sobre ella (la capa `capta`, ronda 41) -->
-            <div class="sigue-cursor" aria-hidden="true" data-sigue><span class="txt"><svg class="silla" viewBox="0 0 24 24" fill="none"><rect class="respaldo" x="7" y="2.5" width="10" height="8.5" rx="3" /><rect x="5" y="12.5" width="14" height="3" rx="1.5" /><path d="M12 15.5v4M7.5 21.5l4.5-2 4.5 2" /></svg>clic para sentarte</span></div>
-            <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span data-pista-texto>clic para navegar</span></p>
+            <div class="sigue-cursor" aria-hidden="true" data-sigue><span class="txt"><svg class="silla" viewBox="0 0 24 24" fill="none"><rect class="respaldo" x="7" y="2.5" width="10" height="8.5" rx="3" /><rect x="5" y="12.5" width="14" height="3" rx="1.5" /><path d="M12 15.5v4M7.5 21.5l4.5-2 4.5 2" /></svg>{en ? 'click to sit down' : 'clic para sentarte'}</span></div>
+            <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span data-pista-texto>{en ? 'click to browse' : 'clic para navegar'}</span></p>
             <!-- RONDA 67 · la PANTALLA DE CARGA al sentarse o al cambiar de proyecto sentado: savvia, una línea de savia que corre y el dominio -->
             <!-- RONDA 162 · la CONSTRUCCIÓN del reel antes de cada miniatura (de pie): el agente y nosotros dibujan la maqueta y se pinta la web -->
             <div class="construye" aria-hidden="true" data-construye></div>
@@ -109,7 +113,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <div class="visor">
             {
               P.map((p, i) => (
-                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-cap-largo={LARGO[p.slug] ? `/media/proyectos/${p.slug}-largo.webp` : undefined} data-tinte={TINTE[p.slug]} data-embed={(p as any).embed === false ? 'no' : 'si'} tabindex="-1" role="region" aria-label={`Web de ${p.n}`} hidden={i !== 0}>
+                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-cap-largo={LARGO[p.slug] ? `/media/proyectos/${p.slug}-largo.webp` : undefined} data-tinte={TINTE[p.slug]} data-embed={(p as any).embed === false ? 'no' : 'si'} tabindex="-1" role="region" aria-label={en ? `${p.n} website` : `Web de ${p.n}`} hidden={i !== 0}>
                   <!-- RONDA 19: aquí se monta, al acercarse, el <iframe> con la web REAL (o su captura si la web no se deja embeber) -->
                 </div>
               ))
@@ -120,7 +124,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <button type="button" class="llamada" data-sentarse>
             <i class="punto-silla" aria-hidden="true"></i>
             <svg class="linea" viewBox="0 0 120 64" fill="none" aria-hidden="true"><path d="M2 62L58 6H118" /></svg>
-            <span class="detail detail-caps">Siéntate a ver los proyectos</span>
+            <span class="detail detail-caps">{en ? 'Sit down to see the projects' : 'Siéntate a ver los proyectos'}</span>
           </button>
         </div>
 
@@ -142,7 +146,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 <p class="detail ficha-cat">{p.cat}</p>
                 <p class="ficha-n font-display">{p.n}</p>
                 <p class="text-aux mt-3 ficha-d">{p.d}</p>
-                <Cta class="ficha-ver mt-6" href={`/proyectos/${p.slug}`} variante="secundario" tam="sm">Ver caso de estudio</Cta>
+                <Cta class="ficha-ver mt-6" href={ruta(lang, `/proyectos/${p.slug}`)} variante="secundario" tam="sm">{en ? 'View case study' : 'Ver caso de estudio'}</Cta>
               </div>
             ))
           }
@@ -155,8 +159,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <div class="ui ui-guia" data-guia>
           <!-- RONDA 40 · «quitamos proyectos con números: con las flechas ya es suficiente». En móvil, las flechas a los lados del nombre -->
           <p class="guia-nombre" aria-live="polite" data-guia-nombre>{P[0].n}</p>
-          <button type="button" class="giro arriba" data-giro="-1" aria-label="Proyecto anterior"><Fragment set:html={icono('caret-up')} /></button>
-          <button type="button" class="giro abajo" data-giro="1" aria-label="Proyecto siguiente"><Fragment set:html={icono('caret-down')} /></button>
+          <button type="button" class="giro arriba" data-giro="-1" aria-label={en ? 'Previous project' : 'Proyecto anterior'}><Fragment set:html={icono('caret-up')} /></button>
+          <button type="button" class="giro abajo" data-giro="1" aria-label={en ? 'Next project' : 'Proyecto siguiente'}><Fragment set:html={icono('caret-down')} /></button>
         </div>
         <div class="ui ui-lista" data-lista>
           <ol class="dial" data-dial>
@@ -193,15 +197,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <div class="arriba cristal">
             <button type="button" class="cerrar" data-levantarse>
               <Fragment set:html={icono('x')} />
-              <span>Levantarse</span>
+              <span>{en ? 'Stand up' : 'Levantarse'}</span>
               <kbd class="salir">esc</kbd>
             </button>
           </div>
           <!-- RONDA 14 · «en la vista sentado de proyectos que también puedas ver otros»: sin levantarte, anterior · proyecto · siguiente -->
-          <div class="otros cristal" role="group" aria-label="Cambiar de proyecto">
-            <button type="button" class="paso" data-otro="-1" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg></button>
+          <div class="otros cristal" role="group" aria-label={en ? 'Switch project' : 'Cambiar de proyecto'}>
+            <button type="button" class="paso" data-otro="-1" aria-label={en ? 'Previous project' : 'Proyecto anterior'}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg></button>
             <p class="cual" aria-live="polite"><span data-otro-nombre>{P[0].n}</span></p>
-            <button type="button" class="paso" data-otro="1" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></button>
+            <button type="button" class="paso" data-otro="1" aria-label={en ? 'Next project' : 'Proyecto siguiente'}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></button>
           </div>
         </div>
       </div>
@@ -218,6 +222,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </script>
 
 <script>
+  import { t } from '../scripts/i18n';
   import { crearSonido } from '../scripts/sonido-estudio';
   import { construir } from '../scripts/construir';
   import { EST, estacionActual } from '../scripts/estacion';
@@ -287,7 +292,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const vivo = sentado || explorando;
       if (w.dataset.embed === 'no' || !vivo) {
         // ronda 152: sentado o explorando de pie, la que no se deja embeber enseña su página ENTERA (Neety: 1440 × 12 144), que se recorre
-        const img = new Image(); img.src = (vivo && w.dataset.capLargo) || w.dataset.cap!; img.alt = `${w.getAttribute('aria-label')}, completa`; img.decoding = 'async';
+        const img = new Image(); img.src = (vivo && w.dataset.capLargo) || w.dataset.cap!; img.alt = t(`${w.getAttribute('aria-label')}, completa`, `${w.getAttribute('aria-label')}, full page`); img.decoding = 'async';
         img.complete && img.naturalWidth ? listo() : img.addEventListener('load', listo, { once: true });
         m.el = img;
       } else {
@@ -403,7 +408,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const TACTIL = matchMedia('(hover: none)').matches;
     const sigue = $('[data-sigue]'); document.body.append(sigue);
     // ronda 157: los textos de la píldora (B: se entra con el clic; D: con el movimiento) y «¿cae dentro del monitor?» (se declaran aquí: entrar() los usa desde el primer fotograma)
-    const TXT_B = matchMedia('(hover: none)').matches ? 'toca para sentarte' : 'clic para sentarte', TXT_D = 'desliza dentro';
+    const TXT_B = matchMedia('(hover: none)').matches ? t('toca para sentarte', 'tap to sit down') : t('clic para sentarte', 'click to sit down'), TXT_D = t('desliza dentro', 'scroll inside');
     const pistaTexto = $('[data-pista-texto]');
     // ronda 160 (Eric: «que el clic también sirva en el recuadro exterior»): cuenta también el marco del monitor (≈ 4 % del ancho de la pantalla)
     const enMonitor = (x: number, y: number) => { const r = $('[data-pantalla]').getBoundingClientRect(), m = r.width * 0.04; return x >= r.left - m && x <= r.right + m && y >= r.top - m && y <= r.bottom + m; };
@@ -424,7 +429,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     //   que sale al sentarte y se queda hasta que el visitante lo hace: con el puntero dentro de la pantalla 6 s (la web de dentro es de otro dominio:
     //   no se ve su rueda), un scroll del visor o un toque. Si se va y no ha deslizado, vuelve a los 4 s fuera (hasta 3 veces).
     const aviso = $('[data-aviso-desliza]'), pantallaD = $('[data-pantalla]');
-    if (TACTIL) $('[data-aviso-texto]').textContent = 'desliza dentro con el dedo para ver la web';
+    if (TACTIL) $('[data-aviso-texto]').textContent = t('desliza dentro con el dedo para ver la web', 'swipe inside to see the site');
     let vigilaD = 0, fuera0 = 0, dentro0 = 0, mostradas = 0, deslizado = false;
     const tictacD = () => {
       if (!sentado) { avisarDesliza(false); return; }

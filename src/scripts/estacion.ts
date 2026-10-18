@@ -3,7 +3,8 @@
 // html[data-estacion]) y la que se elija después (clic en el árbol del hero o botones de estación de Proyectos). Quien la cambia avisa con
 // `savvia:estacion`; el árbol, las raíces y el fondo (CSS: --noche) la siguen.
 export const EST = ['otono', 'invierno', 'primavera', 'verano'] as const;
-export const NOMBRE = ['otoño', 'invierno', 'primavera', 'verano'];
+import { t } from './i18n';
+export const NOMBRE = t(['otoño', 'invierno', 'primavera', 'verano'], ['autumn', 'winter', 'spring', 'summer']); // rótulo visible según el idioma
 // RONDA 40 · la paleta de Andoni: el fondo oscuro y el color del árbol de cada estación (los mismos de global.css › --noche y --arbol)
 // RONDA 132 · «el invierno, en versión clara (la nieve)»: el fondo de invierno es la NIEVE (#ECEFF3); el motor del árbol se funde hacia ella (tinta sobre nieve)
 export const NOCHE: [number, number, number][] = [[59, 35, 27], [245, 245, 247], [58, 41, 50], [27, 49, 37]]; // ronda 152: las noches de la paleta nueva

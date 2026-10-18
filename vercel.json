@@ -1,8 +1,94 @@
 {
   "rewrites": [
-    { "source": "/musica-clara", "destination": "https://savvia-musica.vercel.app/musica/clara/" },
-    { "source": "/musica-clara/", "destination": "https://savvia-musica.vercel.app/musica/clara/" },
-    { "source": "/musica", "destination": "https://savvia-musica.vercel.app/musica/" },
-    { "source": "/musica/:path(.*)", "destination": "https://savvia-musica.vercel.app/musica/:path" }
+    {
+      "source": "/musica-clara",
+      "destination": "https://savvia-musica.vercel.app/musica/clara/"
+    },
+    {
+      "source": "/musica-clara/",
+      "destination": "https://savvia-musica.vercel.app/musica/clara/"
+    },
+    {
+      "source": "/musica",
+      "destination": "https://savvia-musica.vercel.app/musica/"
+    },
+    {
+      "source": "/musica/:path(.*)",
+      "destination": "https://savvia-musica.vercel.app/musica/:path"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "(US|GB|IE|CA|AU|NZ|ZA|SG|IN)"
+        }
+      ],
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "savvia-lang"
+        }
+      ],
+      "destination": "/en",
+      "permanent": false
+    },
+    {
+      "source": "/proyectos",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "(US|GB|IE|CA|AU|NZ|ZA|SG|IN)"
+        }
+      ],
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "savvia-lang"
+        }
+      ],
+      "destination": "/en/proyectos",
+      "permanent": false
+    },
+    {
+      "source": "/proyectos/:slug*",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "(US|GB|IE|CA|AU|NZ|ZA|SG|IN)"
+        }
+      ],
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "savvia-lang"
+        }
+      ],
+      "destination": "/en/proyectos/:slug*",
+      "permanent": false
+    },
+    {
+      "source": "/manifiesto",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "(US|GB|IE|CA|AU|NZ|ZA|SG|IN)"
+        }
+      ],
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "savvia-lang"
+        }
+      ],
+      "destination": "/en/manifiesto",
+      "permanent": false
+    }
   ]
 }

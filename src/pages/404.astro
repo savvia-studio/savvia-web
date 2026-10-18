@@ -18,25 +18,49 @@ import Cuatro from '../components/404/Cuatro.astro';
       <Cuatro />
       <div class="hueco" data-cuatro-hueco aria-hidden="true"></div>
       <div class="wrap texto" data-carril-fila data-cuatro-suelo>
-        <h1 id="perdida-h" class="font-display text-h2 titular"><span class="sr">Error 404. </span>Esta página no existe.</h1>
+        <h1 id="perdida-h" class="font-display text-h2 titular"><span class="sr" data-en="Error 404. ">Error 404. </span><span data-en="This page does not exist.">Esta página no existe.</span></h1>
         <div class="lado">
           <p class="text-sub text-fg2 linea">
-            La dirección ha cambiado o nunca estuvo. Mientras tanto, <span data-mientras>caen las hojas</span>.
+            <span data-en="The address has changed, or never existed. Meanwhile, ">La dirección ha cambiado o nunca estuvo. Mientras tanto, </span><span data-mientras>caen las hojas</span>.
           </p>
           <div class="acciones">
-            <Cta href="/">Volver al inicio</Cta>
-            <Cta href="/proyectos" variante="secundario" flecha="no">Ver proyectos</Cta>
+            <Cta href="/" data-en-href="/en/" data-en="Back to home">Volver al inicio</Cta>
+            <Cta href="/proyectos" variante="secundario" flecha="no" data-en-href="/en/proyectos" data-en="See projects">Ver proyectos</Cta>
           </div>
         </div>
       </div>
     </section>
   </main>
   <Pie />
+  <!-- una sola URL para los dos idiomas: el HTML lleva el castellano y, antes del primer pintado, esto lo pasa a inglés si la dirección de origen era /en/ o la cookie/almacén dicen «en» -->
+  <script is:inline>
+    (function () {
+      var en = false;
+      try {
+        var ref = document.referrer ? new URL(document.referrer) : null;
+        en = /^\/en(\/|$)/.test(location.pathname) || /(?:^|; )savvia-lang=en/.test(document.cookie) || localStorage.getItem('savvia-lang') === 'en' || (!!ref && ref.origin === location.origin && /^\/en(\/|$)/.test(ref.pathname));
+      } catch (e) {}
+      if (!en) return;
+      document.documentElement.lang = 'en';
+      document.title = 'Page not found — savvia';
+      var d = document.querySelector('meta[name="description"]');
+      if (d) d.setAttribute('content', 'This page does not exist or has moved. The rest of savvia is right where it was.');
+      document.querySelectorAll('[data-en]').forEach(function (el) {
+        var cta = el.querySelector('.btn-tx');
+        (cta || el).textContent = el.getAttribute('data-en');
+        var h = el.getAttribute('data-en-href');
+        if (h) el.setAttribute('href', h);
+      });
+    })();
+  </script>
 </Base>
 
 <script>
   // la frase sigue a la estación
-  const FRASE: Record<string, string> = { invierno: 'nieva', otono: 'caen las hojas', primavera: 'florece', verano: 'da el sol' };
+  const EN = document.documentElement.lang === 'en';
+  const FRASE: Record<string, string> = EN
+    ? { invierno: 'it is snowing', otono: 'the leaves are falling', primavera: 'the flowers are blooming', verano: 'the sun is out' }
+    : { invierno: 'nieva', otono: 'caen las hojas', primavera: 'florece', verano: 'da el sol' };
   const el = document.querySelector<HTMLElement>('[data-mientras]');
   const poner = () => { if (el) el.textContent = FRASE[document.documentElement.dataset.estacion || 'otono'] || FRASE.otono; };
   poner();
