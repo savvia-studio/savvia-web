@@ -62,8 +62,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     try {
       const q = new URLSearchParams(location.search);
       if (q.has('chat')) sessionStorage.setItem('savvia:chat', q.get('chat') === '0' ? '0' : q.get('chat') === 'hero' ? 'hero' : '1');
-      return sessionStorage.getItem('savvia:chat') ?? (local ? 'hero' : '1');
-    } catch { return new URLSearchParams(location.search).get('chat') ?? (local ? 'hero' : '1'); }
+      return sessionStorage.getItem('savvia:chat') ?? 'hero';
+    } catch { return new URLSearchParams(location.search).get('chat') ?? 'hero'; }
   })();
   const enHero = activo === 'hero'; // ?chat=hero: también visible desde el hero, para decidir si queda o no
   if (raiz && activo !== '0') {
