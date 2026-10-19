@@ -605,6 +605,8 @@ export const preguntas = {
 export const pie = {
   tagline: 'La savia de tu web.',
   pitch: 'El estudio que orquesta la IA, con criterio.', // ronda 24: «lo dejamos solo en esto»; ronda 48: sin «tu web» (ya lo dice el titular del pie)
+  contactar: 'Contáctanos', // ronda 228: vuelve la palabra entre las montañas
+  agenda: 'Haz clic para agendar una reunión con nosotros',
   correo: 'hola@savvia.studio',
   cal: '', // ronda 65: «Contáctanos» llevará a un cal.com (falta el enlace); mientras, al correo
   faltaCorreo: '¿hola@savvia.com o @savvia.studio?',

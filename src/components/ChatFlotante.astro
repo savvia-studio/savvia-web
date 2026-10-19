@@ -156,7 +156,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       intentar(8000);
     }
 
-    // en el pie, «¿Hablamos?» queda siempre junto al icono (es la salida de la página: ya no hay «Contáctanos»)
+    // RONDA 228 · Eric: «que el ¿Hablamos? no aparezca en el pie: ya está el Contáctanos» (vuelve la palabra, que abre este mismo chat). En el pie solo queda el
+    // icono; la palabra sale al pasar por encima, como en el resto de la página
     // (aparece ya cuando la gota del pie asoma por debajo de «Preguntas»: 80 px DESPUÉS de que el pie asome (margen negativo))
     const pie = document.querySelector('footer');
     if (pie) new IntersectionObserver((es) => { pieCerca = es[0].isIntersecting; raiz.classList.toggle('cf-hola-pie', pieCerca); refrescarBtn(); }, { rootMargin: '0px 0px -80px 0px' }).observe(pie);
@@ -435,8 +436,13 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     border-radius: 50%;
     cursor: pointer;
     color: var(--color-niebla);
-    transition: opacity 0.5s var(--ease-out-expo), scale 0.5s var(--ease-out-expo), color 0.4s var(--ease-out-expo);
+    transition: opacity 0.8s ease, scale 0.5s var(--ease-out-expo), color 0.4s var(--ease-out-expo), translate 0.6s var(--ease-out-expo); /* opacidad como la barra (0,8 s ease): entran al unísono al acabar la carga */
   }
+  /* RONDA 218 · con la pantalla de carga («Dibuja un círculo») el icono no se ve y sale a la vez que la barra, cuando `html.cargando` se retira */
+  html.cargando .cf-btn { opacity: 0; pointer-events: none; }
+  /* RONDA 218 · Andoni: «bajarlo un poco en el hero, se me hace raro ver el icono flotando»; Eric: «que se mueva de altura al scroll no me convence»: una sola posición, siempre la misma.
+     En escritorio, más cerca del borde inferior (centro a 28 px; antes 40) */
+  @media (width >= 64rem) { .cf-btn { bottom: max(4px, env(safe-area-inset-bottom)); } }
   .cf.cf-claro .cf-btn { color: var(--color-cacao); }
   .cf-btn:hover .cf-ic-chat { rotate: 12deg; scale: 1.1; }
   .cf-abierto .cf-btn:hover .cf-ic-plegar { translate: 0 2px; }
@@ -470,10 +476,15 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   }
   .cf.cf-claro .cf-hola { color: var(--color-cacao); }
   .cf .cf-hola:hover { opacity: 1 !important; }
-  .cf.cf-hola-on:not(.cf-abierto):not(.cf-fuera) .cf-hola,
-  .cf.cf-hola-pie:not(.cf-abierto):not(.cf-fuera) .cf-hola {
+  .cf.cf-hola-on:not(.cf-abierto):not(.cf-fuera) .cf-hola {
     pointer-events: auto;
     cursor: pointer; opacity: 0.85; translate: 0 0; filter: blur(0); }
+  @media (width >= 64rem) { .cf-hola { bottom: max(4px, env(safe-area-inset-bottom)); } } /* la palabra, a la altura del icono (va después de su regla base) */
+  /* RONDA 218 · Eric: «cuando haces hover sobre el chat, que siempre aparezca el ¿Hablamos?» (también al pasar del icono a la palabra: 4 px de hueco entre los dos) */
+  @media (hover: hover) {
+    .cf:not(.cf-abierto):not(.cf-fuera):is(:has(.cf-btn:hover), :has(.cf-hola:hover)) .cf-hola {
+      pointer-events: auto; cursor: pointer; opacity: 0.85; translate: 0 0; filter: blur(0); }
+  }
   .cf.cf-fuera .cf-btn { opacity: 0; scale: 0.8; pointer-events: none; }
   /* el fondo con el chat abierto: desenfoque suave y un velo Cacao muy ligero, para que la conversación se lea y el resto de la página quede en segundo plano */
   .cf-velo {
@@ -505,6 +516,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   /* el contorno de la caja: en invierno el panel y la página son del mismo blanco; un filo de 1 px, en el color de la estación, los separa */
   .cf-panel::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 24%, transparent); pointer-events: none; }
   .cf-panel[hidden] { display: none; }
+  /* escritorio: con el icono más bajo (4 px), el panel baja: 12 px sobre la caja del botón (antes 24 → «mucho espacio»; sin hueco → «muy pegado»); el chevron queda a ~27 px del borde del panel */
+  @media (width >= 64rem) { .cf-panel { bottom: calc(max(4px, env(safe-area-inset-bottom)) + 48px + 12px); right: var(--cf-lado); /* la esquina derecha, a ras del borde derecho del icono (a su eje no: «más a la derecha») */ } }
   @media (width < 40rem) {
     .cf { --cf-m: 8px; }
     /* móvil: el panel acaba POR DEBAJO de la barra (logo y iconos, ~56 px + área segura); antes, el 86 % de dvh la pisaba en pantallas bajas (iPhone 13 mini) */

@@ -365,6 +365,8 @@ export const preguntas = {
 export const pie = {
   tagline: 'The sap of your web.',
   pitch: 'The studio that orchestrates AI, with judgement.',
+  contactar: 'Contact us', // ronda 228: vuelve la palabra entre las montañas
+  agenda: 'Click to book a call with us',
   correo: 'hola@savvia.studio',
   cal: '',
   faltaCorreo: 'hola@savvia.com or @savvia.studio?',
