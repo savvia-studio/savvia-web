@@ -244,12 +244,15 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       [...cine.children].forEach((c) => { if (c !== film) c.remove(); }); // fuera la escena: sin nodos ni imágenes (la réplica de Neety pesa 19 MB decodificada)
       cine.classList.add('v', 'film-on');
       const nombre = () => `/media/partitura/partitura-${document.documentElement.dataset.estacion || 'otono'}-${film.dataset.lang === 'en' ? 'en' : 'es'}`;
+      // HEVC donde el aparato lo decodifica (Safari/iOS, por hardware): misma nitidez con menos MB; H.264 como respaldo
+      const hevc = film.canPlayType('video/mp4; codecs="hvc1.1.6.L123.B0"') !== '';
+      const archivo = () => `${nombre()}${hevc ? '-hevc' : ''}.mp4`;
       let cargada = '', visible = false;
       const cargar = () => {
         const base = nombre();
         if (base === cargada) return;
         const t = film.currentTime || 0;
-        cargada = base; film.poster = `${base}.jpg`; film.src = `${base}.mp4`;
+        cargada = base; film.poster = `${base}.jpg`; film.src = archivo();
         if (t) film.addEventListener('loadedmetadata', () => { film.currentTime = t; }, { once: true });
         if (visible && !reducido) film.play().catch(() => {});
       };

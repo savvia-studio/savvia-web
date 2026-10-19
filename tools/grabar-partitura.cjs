@@ -5,7 +5,7 @@
 const { chromium } = require('/Users/ericruiz/.ship-studio/playwright-env/node_modules/playwright-core');
 const fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
 const [est = 'otono', lang = 'es', base = 'http://localhost:4321', fps = '30'] = process.argv.slice(2);
-const FPS = +fps, VEL = 0.62, DSF = 2.4;
+const FPS = +fps, VEL = 0.62, DSF = 3;
 (async () => {
   const out = path.join(__dirname, '..', 'public', 'media', 'partitura'); fs.mkdirSync(out, { recursive: true });
   const tmp = fs.mkdtempSync(path.join(require('os').tmpdir(), `partitura-${est}-${lang}-`));
@@ -37,8 +37,11 @@ const FPS = +fps, VEL = 0.62, DSF = 2.4;
   await b.close();
   const f = path.join(out, `partitura-${est}-${lang}`);
   // dimensiones pares; H.264 High, yuv420p, sin audio; faststart para empezar a reproducir sin bajarlo entero
-  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(tmp, '%05d.jpg'), '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2:in_range=pc:out_range=tv:out_color_matrix=bt709', '-color_range', 'tv', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-c:v', 'libx264', '-profile:v', 'high', '-preset', 'slow', '-crf', '24', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', f + '.mp4']);
+  const COM = ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(tmp, '%05d.jpg'), '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2:in_range=pc:out_range=tv:out_color_matrix=bt709', '-color_range', 'tv', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-pix_fmt', 'yuv420p', '-an'];
+  // H.264 (respaldo, lo reproduce todo) y HEVC (Safari/iOS: misma nitidez con menos MB; la etiqueta hvc1 es la que Safari exige)
+  execFileSync('ffmpeg', [...COM, '-c:v', 'libx264', '-profile:v', 'high', '-preset', 'slow', '-crf', '24', '-movflags', '+faststart', f + '.mp4']);
+  execFileSync('ffmpeg', [...COM, '-c:v', 'libx265', '-preset', 'slow', '-crf', '27', '-tag:v', 'hvc1', '-x265-params', 'log-level=error', '-movflags', '+faststart', f + '-hevc.mp4']);
   fs.copyFileSync(path.join(tmp, String(Math.round(N * 0.7)).padStart(5, '0') + '.jpg'), f + '.jpg');
-  console.log('listo', f + '.mp4', (fs.statSync(f + '.mp4').size / 1e6).toFixed(2) + ' MB');
+  console.log('listo', f, 'h264', (fs.statSync(f + '.mp4').size / 1e6).toFixed(2) + ' MB', 'hevc', (fs.statSync(f + '-hevc.mp4').size / 1e6).toFixed(2) + ' MB');
   fs.rmSync(tmp, { recursive: true, force: true });
 })();
