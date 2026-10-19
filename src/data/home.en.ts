@@ -177,7 +177,7 @@ export const proyectos = {
       n: 'Playground IEP',
       cat: 'Special education',
       d: 'Science-based AI for special education, told with stickers you can pick up.',
-      url: 'https://playground-iep-two.vercel.app/home-v5.html',
+      url: 'https://playgroundiep.treseiscero.app/home-v2', dominio: 'playgroundiep.com', // ronda 230: la home v2
       estacion: 'primavera',
       hechos: [
         ['Work', 'Home · agentic design and development'],
