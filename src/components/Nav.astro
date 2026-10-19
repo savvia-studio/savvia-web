@@ -93,6 +93,25 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
 </dialog>
 
 <script>
+  // PRUEBA (?barra=oculta, o siempre en localhost; solo móvil): la barra se esconde al bajar y vuelve al subir un poco. Siempre visible en el hero, con el menú, la radio o el chat abiertos.
+  if ((/[?&]barra=oculta/.test(location.search) || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) && matchMedia('(width < 48rem)').matches) {
+    const html = document.documentElement;
+    let ultimo = scrollY, acum = 0, pedido = false;
+    const abierto = () => html.classList.contains('menu-abierto') || !!document.querySelector('.radio.abierto, .cf-abierto');
+    const revisar = () => {
+      pedido = false;
+      const y = Math.max(0, scrollY), d = y - ultimo; ultimo = y;
+      if (y < 64 || abierto()) { acum = 0; html.classList.remove('barra-oculta'); return; }
+      if (Math.sign(d) !== Math.sign(acum)) acum = 0; // cambio de sentido: se cuenta de nuevo
+      acum += d;
+      if (acum > 10) html.classList.add('barra-oculta');
+      else if (acum < -32) html.classList.remove('barra-oculta');
+    };
+    addEventListener('scroll', () => { if (!pedido) { pedido = true; requestAnimationFrame(revisar); } }, { passive: true });
+  }
+</script>
+
+<script>
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
   import { t } from '../scripts/i18n';
@@ -484,6 +503,15 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       padding-block: calc(var(--spacing) * 6);
     }
   }
+  /* PRUEBA ?barra=oculta (móvil): se esconde al bajar */
+  :global(html.barra-oculta) .barra-nav {
+    translate: 0 -60%;
+    opacity: 0;
+    filter: blur(6px);
+    pointer-events: none;
+  }
+  :global(html.barra-oculta) .barra-nav > * { pointer-events: none; }
+  .barra-nav { transition: translate 0.9s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.7s ease, filter 0.7s ease; }
   .barra-nav > * {
     pointer-events: auto;
   }
