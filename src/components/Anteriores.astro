@@ -212,7 +212,8 @@ import { icono } from '../lib/iconos';
               <div class={`lamina ${s.g ?? ''} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
                 {s.tipo === 'escena' ? (
                   <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
-                    <img class="foto" src={`/media/estudio/${s.est}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />
+                    {/* RONDA 232 · Andoni: «el de Home of Ambrose no cambia el mockup de estación»: la mesa del estudio, una lámina por estación (como el móvil) */}
+                    {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} src={`/media/estudio/${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
                     <span class="pantalla"><Fragment set:html={video} /></span>
                   </div>
                 ) : quad ? (
@@ -292,6 +293,35 @@ import { icono } from '../lib/iconos';
 
 <script>
   import { crearEstela } from '../scripts/estela';
+  import { rasgarCopia, estaVisible } from '../scripts/revelar';
+  import { EST, estacionActual } from '../scripts/estacion';
+  // RONDA 232 · «al cambiar de estación, los mockups fluidos como el hero»: la mesa (una foto por estación, por CSS) y los paisajes barridos (una
+  // imagen de fondo por estación, por CSS) cambiaban de golpe (Safari no funde background-image). Al cambiar, se congela una copia del aspecto
+  // VIEJO encima de cada pieza a la vista y se le abre un agujero con el canto rasgado desde abajo, como el árbol del hero.
+  {
+    let prev = EST[estacionActual()] as string;
+    // las cuatro fotos de la mesa, pedidas al acercarse la pieza (si no, la nueva llega vacía bajo la copia que se rasga)
+    const cerca = new IntersectionObserver((en) => en.forEach((e) => { if (!e.isIntersecting) return; e.target.querySelectorAll<HTMLImageElement>('.foto-e').forEach((i) => { i.loading = 'eager'; }); cerca.unobserve(e.target); }), { rootMargin: '400px 0px' });
+    document.querySelectorAll('.mesa').forEach((m) => cerca.observe(m));
+    addEventListener('savvia:estacion', () => {
+      const viejo = prev; prev = EST[estacionActual()];
+      if (viejo === prev) return;
+      document.querySelectorAll<HTMLElement>('.lamina.barrido').forEach((l) => {
+        if (!estaVisible(l)) return;
+        const c = document.createElement('div');
+        c.style.cssText = `position:absolute;inset:-2%;pointer-events:none;background:var(--b-${viejo}) center / cover no-repeat`;
+        l.prepend(c); rasgarCopia(c, { ox: 0.5, oy: 1, ref: l });
+      });
+      document.querySelectorAll<HTMLElement>('.mesa').forEach((m) => {
+        const img = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${viejo}"]`);
+        if (!img || !estaVisible(m)) return;
+        // la propia foto vieja (ya descodificada: una copia nueva llegaba en blanco el primer fotograma en Chrome), encima de todas y bajo la pantalla (z 2);
+        // al acabar vuelve a su sitio y el CSS la esconde
+        img.style.cssText = 'display:block;position:absolute;inset:0;z-index:1;pointer-events:none';
+        rasgarCopia(img, { ox: 0.5, oy: 1, ref: m.closest<HTMLElement>('.lamina') ?? undefined, fin: () => { img.style.cssText = ''; } });
+      });
+    });
+  }
   // RONDA 214 · EL VISOR de los proyectos (ver el dialog `data-vis`): clic en una card → la web en grande; flechas, teclado (← → Esc) y gesto entre los ocho.
   {
     const vis = document.querySelector<HTMLDialogElement>('[data-vis]');
@@ -1032,7 +1062,7 @@ import { icono } from '../lib/iconos';
   /* RONDA 189 · el BARRIDO: el paisaje de la estación con desenfoque de movimiento; vira con ella (fundido de 1,2 s) */
   .lamina.barrido::before {
     background: var(--b-otono) center / cover no-repeat;
-    transition: transform 1.6s var(--ease-out-expo), background-image 1.2s ease;
+    transition: transform 1.6s var(--ease-out-expo); /* ronda 232: sin fundido de background-image (el relevo lo hace el script, como el hero) */
   }
   :global(html[data-estacion='primavera']) .lamina.barrido::before { background-image: var(--b-primavera); }
   :global(html[data-estacion='verano']) .lamina.barrido::before { background-image: var(--b-verano); }

@@ -113,6 +113,12 @@
 @property --tinta { syntax: '<color>'; inherits: true; initial-value: #f5f5f7; }
 @property --tinta-inv { syntax: '<color>'; inherits: true; initial-value: #302018; }
 @property --k2 { syntax: '<percentage>'; inherits: true; initial-value: 60%; }
+/* RONDA 232 · «al cambiar de estación, todo fluido como el hero»: los colores de marca que cambian con la estación (coral, cacao, el bloque de Servicios)
+   y la tierra de las raíces no estaban registrados y SALTABAN de golpe mientras el fondo se fundía en 2,4 s. Registrados, viajan con él. */
+@property --color-coral { syntax: '<color>'; inherits: true; initial-value: #ff616b; }
+@property --color-cacao { syntax: '<color>'; inherits: true; initial-value: #3b231b; }
+@property --color-salvia { syntax: '<color>'; inherits: true; initial-value: #ecbf8f; }
+@property --tierra-k { syntax: '<percentage>'; inherits: true; initial-value: 30%; }
 :root {
   --noche: #3b231b;
   --noche-honda: #3b231b;
@@ -129,7 +135,7 @@
   --tierra-mancha: calc(var(--roble-w) * 0.62) calc(var(--raices-h) * 1.75);
   --tierra-paradas: var(--tierra), color-mix(in srgb, var(--tierra), var(--noche) 55%) 55%, transparent;
   /* la tinta cambia en un golpe corto cuando el fondo va por la mitad de su fundido (curva muy en S, a 0,72 s): así nunca hay un tramo con texto y fondo del mismo gris */
-  transition: --noche 2.4s ease, --noche-honda 2.4s ease, --arbol 2.4s ease, --tinta 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --tinta-inv 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --k2 2.4s ease;
+  transition: --noche 2.4s ease, --noche-honda 2.4s ease, --arbol 2.4s ease, --tinta 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --tinta-inv 1.2s cubic-bezier(0.9, 0, 0.1, 1) 0.12s, --k2 2.4s ease, --color-coral 2.4s ease, --color-cacao 2.4s ease, --color-salvia 2.4s ease, --tierra-k 2.4s ease;
 }
 /* RONDA 152 · Andoni: «pulir los colores de cada estación para que cada una te transmita su esencia; que cada estación tenga colores propios, todos y
    cada uno de ellos». Las once tintas de la web son de la estación (ninguna común), sacadas de lo que se ve fuera ese trimestre:

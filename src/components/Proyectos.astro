@@ -226,6 +226,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   import { crearSonido } from '../scripts/sonido-estudio';
   import { construir } from '../scripts/construir';
   import { EST, estacionActual } from '../scripts/estacion';
+  import { revelar, estaVisible } from '../scripts/revelar';
 
   const raiz0 = document.querySelector<HTMLElement>('[data-estudio]');
   if (raiz0) {
@@ -251,6 +252,24 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (img.src) return;
       const px = innerWidth * Math.min(devicePixelRatio || 1, 2);
       img.src = innerWidth < 700 ? img.dataset.srcM! : px > 2600 ? img.dataset.srcXl! : img.dataset.src!;
+    };
+    // RONDA 232 · el cambio de estación de la mesa, como el del hero: la lámina nueva llega encima ya descodificada y se DESCUBRE con el canto
+    // rasgado desde abajo (2,6 s); la vieja se queda entera debajo hasta que la tapa (antes las dos se fundían a la vez: a medio fundido se veía el fondo)
+    let cancelarCapa = () => {}, capaPedida = '';
+    const ponCapa = () => {
+      const id = estActual(), nueva = capas.find((c) => c.dataset.capa === id)!, vieja = capas.find((c) => c.classList.contains('on') && c !== nueva);
+      if (capaPedida === id && nueva.classList.contains('on')) return;
+      capaPedida = id; cancelarCapa();
+      capas.forEach((c) => c.classList.remove('queda', 'llega'));
+      if (!vieja || !estaVisible(escenario)) { capas.forEach((c) => c.classList.toggle('on', c === nueva)); return; }
+      pedir(nueva);
+      vieja.classList.add('queda');
+      const ir = () => {
+        if (capaPedida !== id) return;
+        nueva.classList.add('llega', 'on'); vieja.classList.remove('on');
+        cancelarCapa = revelar(nueva, { ox: 0.5, oy: 1, fin: () => { vieja.classList.remove('queda'); nueva.classList.remove('llega'); } });
+      };
+      (nueva.decode ? nueva.decode() : Promise.resolve()).then(ir, ir);
     };
     const mejorar = (img: HTMLImageElement) => {
       const xl = img.dataset.srcXl!;
@@ -487,7 +506,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
     function pintar(primera = false) {
       void nombreEst;
-      capas.forEach((c) => c.classList.toggle('on', c.dataset.capa === estActual()));
+      ponCapa();
       if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!); // sentado y cambiando de estación: esa, a 5120
       ests.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.est === estActual())));
       webs.forEach((w, i) => { w.classList.toggle('on', i === activo); w.hidden = sentado && i !== activo; if (sentado && i !== activo) desmontar(w); });
@@ -544,7 +563,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const { n, origen } = (ev as CustomEvent).detail as { n: number; origen: string };
       if (origen === 'proyectos') return;
       estManual = EST[n]; cargar(); capas.forEach(pedir);
-      capas.forEach((c) => c.classList.toggle('on', c.dataset.capa === estActual()));
+      ponCapa();
       if (sentado) mejorar(capas.find((c) => c.dataset.capa === estActual())!);
       ests.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.est === estActual())));
       sonido.estacion(estActual()); aire.estacion(estActual());
@@ -921,6 +940,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .capa.on {
     opacity: 1;
+  }
+  /* ronda 232: el relevo de estación (ponCapa): la vieja, entera debajo; la nueva, encima, sin fundido (la descubre la máscara rasgada) */
+  .capa.queda {
+    opacity: 1;
+    transition: none;
+    z-index: 1;
+  }
+  .capa.llega {
+    z-index: 2;
+    transition: none;
   }
   .aire {
     position: absolute;

@@ -1,6 +1,7 @@
 ---
 import { langDe } from '../lib/i18n';
 import { home } from '../data/idioma';
+import { ILUSTRACIONES, GESTOS } from '../data/ilustraciones-equipo';
 const lang = langDe(Astro.currentLocale);
 const en = lang === 'en';
 const { estudio } = home(lang);
@@ -33,9 +34,14 @@ const [A, E] = estudio.personas;
     (andoni-paso-r140.webp · eric-paso-r140.webp: 4 pasos + llegada) y la pose final conjunta (juntos-r140.webp, 1200 × 1000), montadas como la v03
     (celda = alto × 0,6, pose final = alto × 1,2, centros a 477,253 y 705,270 / 1000; paseo hasta el 94 %, celda 4 desde el 93 %, fundido 96,5–100 %).
     Sin gestos por ahora (`gesto: []`: el gancho queda, sin hacer nada). Lo de las rondas 137–138, en tools/retirados/equipo-r139/.
+  · RONDA 254 · Andoni: «quitamos los frames, dejamos a Andoni y Eric parados y cuando hovereamos, las cards que salen acompañadas por ilustraciones» (el
+    estilo de su referencia: cómic a línea gruesa con trama de puntos, los objetos SALEN DE LA CABEZA). Fuera los gestos (canasta y pase): los dos, de pie.
+    RONDA 259 · «más protagonismo, sin cards ni letras»: al pasar, de la cabeza de cada uno salen GRANDES sus tres objetos (src/data/ilustraciones-equipo.ts),
+    se dibujan a tinta y hacen su gesto; las aficiones en texto quedan solo para lectores de pantalla.
   · Con movimiento reducido: la pose final, sin paseo. Los textos de cada uno son FALTA (datos de Andoni y Eric: no se inventan).
 -->
 <section id="estudio" class="surface-dark section-y relative" aria-label={estudio.pregunta} data-equipo data-sube data-sube-eco>
+  <svg class="defs-eq" width="0" height="0" aria-hidden="true"><defs><linearGradient id="papel-eq" gradientUnits="userSpaceOnUse" x1="-20" y1="-10" x2="120" y2="150"><stop offset="0" stop-color="#fdfaf4" /><stop offset="1" stop-color="#e8dfd2" /></linearGradient><linearGradient id="brillo-eq" gradientUnits="userSpaceOnUse" x1="-30" y1="-6" x2="130" y2="142"><stop offset=".26" stop-color="#fff" stop-opacity="0" /><stop offset=".38" stop-color="#fff" stop-opacity=".34" /><stop offset=".47" stop-color="#fff" stop-opacity="0" /><stop offset=".6" stop-color="#fff" stop-opacity=".1" /><stop offset=".66" stop-color="#fff" stop-opacity="0" /></linearGradient><pattern id="trama-eq" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="3" cy="3" r="1.45" fill="currentColor" /></pattern></defs></svg>
   <!-- RONDA 191 · Eric: «con todo lo que he contado, ¿cómo reharías el layout?» → DOS COLUMNAS: a la izquierda, alineados a la izquierda como el
        manifiesto, el titular de Andoni y la entradilla (las tres cifras, quitadas el 15/10); a la derecha, Eric y Andoni en 3D con
        sus llamadas y la hierba. En móvil se apila: texto y los dos. -->
@@ -70,13 +76,23 @@ const [A, E] = estudio.personas;
         {
           [A, E].map((p, i) => (
             <div class={`persona p${i}`}>
-              <button type="button" class="llamada-q" aria-expanded="false" aria-controls={`aficiones-${i}`} aria-label={en ? `${p.n}: interests` : `${p.n}: sus aficiones`} data-quien={i} data-gesto-src={JSON.stringify(p.gesto)}>
+              <button type="button" class="llamada-q" aria-expanded="false" aria-controls={`aficiones-${i}`} aria-label={en ? `${p.n}: interests` : `${p.n}: sus aficiones`} data-quien={i} data-gesto-src="[]">
                 <i class="punto" aria-hidden="true"></i>
                 <svg class="linea" viewBox="0 0 120 64" fill="none" aria-hidden="true"><path d="M2 62L58 6H118" pathLength="1" /></svg>
                 <span class="nombre detail detail-caps">{p.n}</span>
               </button>
               <ul class="aficiones" id={`aficiones-${i}`} aria-label={en ? `${p.n}'s interests` : `Aficiones de ${p.n}`} data-aficiones={i}>
-                {p.hobbies.map((h, k) => <li style={`--k:${k}`}>{h}</li>)}
+                {p.hobbies.map((h, k) => (
+                  <li style={`--k:${k}`}>
+                    {(() => {
+                      // ronda 262: la pegatina entera en un SVG (dibujo + nombre a mano), en capas: canto · troquel · tinta · brillo
+                      const d = ILUSTRACIONES[p.n as 'Andoni' | 'Eric'][k], t = `<text x="50" y="121" text-anchor="middle" class="t">${h}</text>`;
+                      return <svg class="ilu pegatina" data-ilu={GESTOS[p.n as 'Andoni' | 'Eric'][k]} viewBox="-30 -6 160 148" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                        set:html={`<g class="canto" transform="translate(0.6 2.6)">${d}${t}</g><g class="troquel">${d}${t}</g><g class="tinta">${d}${t}</g><g class="brillo">${d}${t}</g>`} />;
+                    })()}
+                    <span class="solo-lectores">{h}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           ))
@@ -105,12 +121,12 @@ const [A, E] = estudio.personas;
     // ── RONDA 129 · LAS AFICIONES CAEN DEL NOMBRE. Cada píldora sale del nombre (medido: dx, dy hasta su sitio final), cae acelerando como algo
     //    con peso, se posa SIN rebote (frena en el último tramo) y queda casi recta, con un giro mínimo («nada que reste seriedad»). Al cerrar,
     //    suben un poco y se apagan. Con movimiento reducido, aparecen sin caer.
-    const GIRO = [-1.2, 0.8, -0.5, 1, -0.8];
+    const GIRO = [-7, 5, -3, 4, -5]; // ronda 261: pegatinas, ladeadas como pegadas a mano
     const caer = (i: number) => {
       const ul = listas[i], nombre = quienes[i].querySelector<HTMLElement>('.nombre')!;
       ul.getAnimations({ subtree: true }).forEach((an) => an.cancel());
       ul.classList.add('abierta');
-      if (reducido) return;
+      if (reducido) { ul.querySelectorAll('.ilu').forEach((sv) => sv.classList.add('viva')); return; }
       const n = nombre.getBoundingClientRect(), cx = n.left + n.width / 2, cy = n.top + n.height / 2;
       [...ul.children].forEach((li, k) => {
         const r = (li as HTMLElement).getBoundingClientRect(), g = GIRO[k % GIRO.length];
@@ -125,9 +141,30 @@ const [A, E] = estudio.personas;
           ],
           { duration: t, delay: 40 + k * 110, fill: 'backwards' },
         );
+        // ronda 261: PEGATINAS: llegan hechas y, al tocar su sitio, se pegan (un aplastado breve, como al presionarla con el dedo); luego, su gesto
+        const peg = li.querySelector<SVGSVGElement>('.pegatina');
+        const llega = 40 + k * 110 + t * 0.74;
+        // ronda 262: en el aire, la sombra va lejos y difusa; al tocar, se pega (sombra de contacto) y se aplasta un instante, como al presionarla
+        peg?.animate([{ filter: 'drop-shadow(0 18px 14px rgb(0 0 0 / .22)) drop-shadow(0 0 0 rgb(0 0 0 / 0))' }, { filter: 'var(--sombra-pegada)' }], { duration: t * 0.74, delay: 40 + k * 110, easing: 'cubic-bezier(.55,0,.85,.45)', fill: 'backwards' });
+        peg?.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06, .92)', offset: 0.35 }, { transform: 'scale(1)' }], { duration: 260, delay: llega, easing: 'cubic-bezier(.2,.7,.3,1)' });
       });
     };
+    // ── RONDA 258 · «sorpréndeme con las ilustraciones»: cada una se DIBUJA A TINTA trazo a trazo (como el roble del hero), luego se IMPRIME su trama
+    //    y su relleno, y entonces cobra vida con su gesto (CSS, clase .viva): el vapor del café sube, la azada golpea y brota el tallo, el balón gira,
+    //    los AirPods suenan, los botones del mando parpadean, el baloncesto deja su estela. Con movimiento reducido, aparecen hechas y quietas.
+    const dibujar = (svg: SVGSVGElement, retraso: number) => {
+      svg.classList.remove('viva');
+      const trazos = [...svg.querySelectorAll<SVGGeometryElement>('path, circle, rect, ellipse')];
+      trazos.forEach((el, n) => {
+        el.setAttribute('pathLength', '1');
+        el.animate([{ strokeDasharray: '1', strokeDashoffset: 1, fillOpacity: 0 }, { offset: 0.7, strokeDashoffset: 0, fillOpacity: 0 }, { strokeDasharray: '1', strokeDashoffset: 0, fillOpacity: 1 }],
+          { duration: 760, delay: retraso + n * 55, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'backwards' });
+      });
+      const fin = retraso + trazos.length * 55 + 760;
+      setTimeout(() => { if (svg.closest('.abierta')) svg.classList.add('viva'); }, fin);
+    };
     const recoger = (i: number) => {
+      listas[i].querySelectorAll('.ilu').forEach((sv) => sv.classList.remove('viva'));
       const ul = listas[i];
       if (!ul.classList.contains('abierta')) return;
       ul.getAnimations({ subtree: true }).forEach((an) => an.cancel());
@@ -281,7 +318,23 @@ const [A, E] = estudio.personas;
       { t: [[90, 125, 65], [120, 145, 75], [75, 105, 55], [160, 150, 80], [103, 131, 77]], suelo: '90,110,70', flor: ['rgba(242,201,90,.8)', 'rgba(255,236,190,.7)'], pFlor: 0.94 },
     ];
     let paleta = PALETAS[estacionActual()], TONOS = paleta.t;
-    addEventListener('savvia:estacion', (ev) => { paleta = PALETAS[(ev as CustomEvent).detail.n as number]; TONOS = paleta.t; pintarVerde(xaU, xeU, performance.now() / 1000); });
+    // RONDA 232 · el cambio de estación de la estela, fluido como el del hero: los tonos viajan de una paleta a otra en 2,4 s (antes, de golpe)
+    let virando = 0;
+    addEventListener('savvia:estacion', (ev) => {
+      const de = TONOS.map((c) => c.slice()), meta = PALETAS[(ev as CustomEvent).detail.n as number], id = ++virando;
+      if (reducido) { paleta = meta; TONOS = meta.t; pintarVerde(xaU, xeU, performance.now() / 1000); return; }
+      let a = 0;
+      const paso = (ahora: number) => {
+        if (id !== virando) return;
+        if (!a) a = ahora;
+        const k = Math.min(1, (ahora - a) / 2400), e = k * k * (3 - 2 * k);
+        TONOS = meta.t.map((c, i) => c.map((v, j) => Math.round(de[i][j] + (v - de[i][j]) * e)));
+        if (k > 0.5) paleta = meta;
+        pintarVerde(xaU, xeU, ahora / 1000);
+        if (k < 1) requestAnimationFrame(paso); else TONOS = meta.t;
+      };
+      requestAnimationFrame(paso);
+    });
     const sembrar = () => {
       const r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2); VW = r.width; VH = r.height;
       for (const [c, x] of [[cv, cx], [cv2, cx2]] as const) { c.width = Math.round(VW * dpr); c.height = Math.round(VH * dpr); x.setTransform(dpr, 0, 0, dpr, 0, 0); }
@@ -413,6 +466,48 @@ const [A, E] = estudio.personas;
 </script>
 
 <style>
+
+  /* RONDA 257 · cada afición lleva su ilustración DENTRO de la píldora (cómic a línea con trama de puntos), en la tinta de la píldora */
+  .defs-eq { position: absolute; width: 0; height: 0; color: #2a1712; } /* r261: la trama, en la tinta de las pegatinas */
+  /* RONDA 260 · las aficiones: sin píldora; el objeto dibujado y, al lado, su nombre escrito a mano con una flecha que lo señala */
+  /* RONDA 261 · PEGATINAS: tinta Cacao sobre papel (los interiores, var(--noche), pasan a papel), troqueladas con un borde de papel que sigue la forma
+     (cuatro sombras sin desenfoque) y una sombra suave de pegatina sobre el fondo */
+  .aficiones li { padding: 0 !important; border: 0 !important; background: none !important; text-transform: none !important; letter-spacing: 0 !important;
+    --papel: #f6f1ea; --noche: var(--papel); color: #2a1712 !important; }
+  .solo-lectores { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  /* RONDA 262 · más realista: canto de vinilo (la silueta un poco más oscura y desplazada = grosor), papel con su luz, brillo diagonal de vinilo sobre TODA la
+     pegatina (letras incluidas) y dos sombras: una de contacto, pegada, y otra suave */
+  .pegatina { --sombra-pegada: drop-shadow(0 1px .6px rgb(0 0 0 / .5)) drop-shadow(0 5px 7px rgb(0 0 0 / .32)); filter: var(--sombra-pegada); transform-origin: 50% 60%; }
+  .pegatina :global(.canto), .pegatina :global(.canto *) { fill: #b9ad9e !important; stroke: #b9ad9e !important; stroke-width: 21px !important; }
+  .pegatina :global(.troquel), .pegatina :global(.troquel *) { fill: url(#papel-eq) !important; stroke: url(#papel-eq) !important; stroke-width: 20px !important; }
+  .pegatina :global(.brillo), .pegatina :global(.brillo *) { fill: url(#brillo-eq) !important; stroke: url(#brillo-eq) !important; stroke-width: 20px !important; }
+  .pegatina :global(.brillo) { mix-blend-mode: screen; opacity: .7; }
+  .pegatina :global(.t) { font-family: var(--font-mano), cursive; font-weight: 500; font-size: 27px; }
+  .pegatina :global(.tinta .t) { fill: #2a1712; stroke: none; }
+  .aficiones .ilu { width: clamp(84px, 8vw, 112px); height: auto; aspect-ratio: 160 / 148; flex: none; overflow: visible; }
+  .aficiones .ilu :global(.v) { stroke-width: 3.4; }
+  .rotulo { display: flex; align-items: center; gap: 2px; }
+  .mano { font-family: var(--font-mano), cursive; font-weight: 500; font-size: 1.3rem; line-height: 1; white-space: nowrap; margin-top: -10px; color: #2a1712;
+    -webkit-text-stroke: 9px var(--papel); paint-order: stroke fill; position: relative; }
+  /* RONDA 258 · el gesto de cada una, cuando ya está dibujada (.viva) */
+  .ilu :global(*) { transform-box: fill-box; }
+  .ilu.viva[data-ilu='cafe'] :global(.v) { animation: vapor 2.4s ease-out infinite; }
+  .ilu.viva[data-ilu='airpods'] :global(.v) { animation: suena 1.6s ease-in-out infinite; }
+  .ilu.viva[data-ilu='balon'] :global(.v) { animation: estela 1.4s ease-in-out infinite; }
+  .ilu.viva[data-ilu='futbol'] :global(.v) { animation: estela 1.4s ease-in-out infinite; }
+  .ilu.viva[data-ilu='futbol'] { animation: rueda 6s linear infinite; }
+  .ilu.viva[data-ilu='mando'] :global(.boton) { animation: pulsa 1.8s steps(1) infinite; }
+  .ilu.viva[data-ilu='mando'] :global(.b2) { animation-delay: .9s; }
+  .ilu.viva[data-ilu='azada'] :global(.golpe) { transform-origin: 0% 100%; animation: cava 2.6s cubic-bezier(.65,0,.35,1) infinite; }
+  .ilu.viva[data-ilu='azada'] :global(.brote) { transform-origin: 50% 100%; animation: brota 2.6s cubic-bezier(.16,1,.3,1) infinite; }
+  @keyframes vapor { 0% { opacity: 0; transform: translateY(6%); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(-18%); } }
+  @keyframes suena { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  @keyframes estela { 0%, 100% { opacity: .3; transform: translateX(0); } 50% { opacity: 1; transform: translateX(-8%); } }
+  @keyframes rueda { to { transform: rotate(360deg); } }
+  @keyframes pulsa { 0% { opacity: 1; } 50% { opacity: .25; } }
+  @keyframes cava { 0%, 100% { transform: rotate(0deg); } 18% { transform: rotate(-16deg); } 30% { transform: rotate(3deg); } 40% { transform: rotate(0deg); } }
+  @keyframes brota { 0%, 30% { transform: scale(.2); opacity: 0; } 55%, 85% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .ilu.viva, .ilu.viva :global(*) { animation: none !important; } }
   /* ronda 200 · Eric: «un pelín más pequeño el titular»: de text-h1 (44 → 72) a 40 → 60 */
   .titulo-estudio { font-size: clamp(2.5rem, 1.85rem + 2.6vw, 3.75rem); }
   /* ronda 191 · Eric: «cada sección, arriba y abajo, el mismo espacio hasta su línea»: el aire extra (para la gota de la sección siguiente, que sube
@@ -661,9 +756,9 @@ const [A, E] = estudio.personas;
   .p0 .aficiones li:nth-child(3) { margin-right: calc(var(--spacing) * 1); }
   .p1 .aficiones li:nth-child(2) { margin-left: calc(var(--spacing) * 3); }
   .p1 .aficiones li:nth-child(3) { margin-left: calc(var(--spacing) * 1); }
-  .aficiones.abierta li:nth-child(1) { rotate: -1.2deg; }
-  .aficiones.abierta li:nth-child(2) { rotate: 0.8deg; }
-  .aficiones.abierta li:nth-child(3) { rotate: -0.5deg; }
+  .aficiones.abierta li:nth-child(1) { rotate: -7deg; }
+  .aficiones.abierta li:nth-child(2) { rotate: 5deg; }
+  .aficiones.abierta li:nth-child(3) { rotate: -3deg; }
 
   /* el gesto (ronda 141): una capa por persona sobre la pose final, con sus 12 fotogramas en su caja (inline, % de .juntos); entra y sale en 120 ms.
      Mientras dura, su mitad de la foto se esconde sin transición (la capa ya la cubre). Sin recorte: el brazo puede salirse de su mitad. */

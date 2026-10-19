@@ -82,6 +82,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
 
 <script>
   import { crearEstela, ESTACIONES_PIE, type Estela } from '../scripts/estela';
+  import { revelar } from '../scripts/revelar';
   import { tinta } from '../scripts/tinta';
   import { caerRealista } from '../scripts/gota';
   import { tiempoEncima } from '../scripts/tiempo-encima';
@@ -278,7 +279,27 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
       const n = (ev as CustomEvent).detail.n as number;
       if (n === est) return;
       est = n; paisaje.dataset.estacion = NOMBRES_EST[n];
-      estelas.forEach((t) => (visible && !reducido && paisaje.classList.contains('pintado') ? t?.renacer(n) : t?.estacion(n)));
+      if (!(visible && !reducido && paisaje.classList.contains('pintado'))) { estelas.forEach((t) => t?.estacion(n)); return; }
+      // RONDA 232 · como el árbol del hero: cada capa se repinta YA en la estación nueva en un lienzo clonado y se DESCUBRE con el canto rasgado
+      // desde el centro de abajo del paisaje (un solo círculo para las tres capas); el lienzo viejo se apaga detrás y suelta su contexto.
+      // Antes (renacer) la estación nueva subía a manchas con un filo de color.
+      const pr = paisaje.getBoundingClientRect(), px = pr.left + pr.width / 2, py = pr.bottom;
+      capas.forEach((c, i) => {
+        const viejo = estelas[i], cv = c.querySelector<HTMLCanvasElement>('[data-lienzo]')!, img = c.querySelector<HTMLImageElement>('[data-lamina]')!;
+        if (!viejo) return;
+        const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv.after(cv2);
+        const t2 = crearEstela(cv2, img, { origen: [0.5, 1], dir: 1, radial: true, paisaje: true, estaciones: ESTACIONES_PIE, intensidad: 0.62 });
+        if (!t2) { cv2.remove(); viejo.estacion(n); return; }
+        t2.estacion(n); t2.crecer(1); t2.visible(true);
+        estelas[i] = t2;
+        const r = cv.getBoundingClientRect();
+        cv.removeAttribute('data-lienzo');
+        revelar(cv2, { ox: (px - r.left) / r.width, oy: (py - r.top) / r.height, viejo: cv, fin: () => {
+          viejo.visible(false);
+          const g = (cv.getContext('webgl') || cv.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext();
+          cv.remove();
+        } });
+      });
     });
     new IntersectionObserver((en) => {
       visible = en[0].isIntersecting; pie.classList.toggle('viva', visible); pedir();

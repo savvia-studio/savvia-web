@@ -131,6 +131,17 @@ export default defineConfig({
       fallbacks: ['system-ui', 'sans-serif'],
     },
     {
+      // RONDA 260 · Andoni: «que salgan debajo de nuestro nombre con unas letras escritas a mano que indiquen qué es cada icono». Caveat (OFL, Google Fonts),
+      // solo para esos rótulos de Eric y Andoni.
+      name: 'Caveat',
+      cssVariable: '--font-mano',
+      provider: fontProviders.google(),
+      weights: [500],
+      styles: ['normal'],
+      subsets: ['latin', 'latin-ext'],
+      fallbacks: ['cursive'],
+    },
+    {
       // RONDA 155 · la CAPITULAR del Manifiesto (Andoni: «la letra grande de este estilo», una mayúscula caligráfica tipo copperplate). Pinyon Script,
       // OFL (Google Fonts). Solo la capitular la usa y solo se carga en /manifiesto (<Font> en la propia página). Excepción expresa a «sin cursivas».
       name: 'Pinyon Script',

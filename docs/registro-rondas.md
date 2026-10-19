@@ -3976,3 +3976,377 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **Hecho:** `Pie.astro` recupera la palabra partida (Contá delante / ctanos detrás de los montes) del commit 065d8e7 (que la había quitado), con el texto en `pie.contactar` (es/en). Fuera la puerta/píldora de hover: al pasar, la palabra entera pasa a blanco liso (en invierno, pizarra #22303e, porque ahí el fondo es claro). Clic = `window.__chat.abrir()` (con el dedo, 1.º toque enciende, 2.º abre; sin JS, mailto). El motor de la 404 pasa a `src/scripts/tiempo-encima.ts` (`tiempoEncima({ zona, cv, palabra?, espera? })`); la 404 lo usa igual y el pie lo usa con la palabra (posiciones de letra por Range, línea base por sonda): hojas, nieve, flores y hierba se posan sobre su tinta. `ChatFlotante`: el «¿Hablamos?» ya no se queda fijo en el pie.
 - **Después (misma ronda):** la palabra va en BLANCO liso al 88 % (invierno: pizarra) y al 100 % al pasar; la mitad de detrás sube sobre la bruma del paisaje (z 2) y la hierba sigue delante; fuera la luz cálida del haz; al pasar con ratón, una píldora de cristal («clic para escribirnos») sustituye al puntero.
 - **Pendiente:** el clima general del pie (hojas/nieve/flores/musgo sobre todo el paisaje) convive con el de la palabra; decidir si se quita.
+
+### Ronda 232 · 2026-10-19 · el cambio de estación, fluido en toda la web como en el hero (en local)
+- **Andoni (textual):** «tenemos que hacer que al cambiar de estaciones en todas las secciones y mockups se cambie fluido, ahora en algunas se cambia raro, en el hero
+  funciona perfecto, tenemos que coger eso de referencia y llevarlo a todas las secciones y elementos de la web».
+- **Antes (grabado fotograma a fotograma, `tools/r232/cambio.cjs`):** Servicios cambiaba de fondo DE GOLPE (y el coral, el cacao y la tierra de las raíces: no estaban
+  registrados y saltaban mientras el fondo se fundía 2,4 s); la mesa de Proyectos fundía las dos láminas a la vez (a mitad se veía el fondo); el móvil de Cubbo
+  (Más proyectos) cambiaba de foto de golpe (`display`); el paisaje del pie subía a manchas con un filo de color (`renacer`); el vídeo de savvia agentic en
+  móvil enseñaba el póster y saltaba; la estela del Estudio cambiaba de paleta de golpe.
+- **Hecho:** el gesto del hero (rondas 66–67) en `src/scripts/revelar.ts`: la estación nueva llega ya pintada y se DESCUBRE con el canto de papel rasgado
+  (`rasgo-circulo.png`) que crece desde abajo en 2,6 s, y la vieja se apaga detrás; para lo que cambia por CSS, `rasgarCopia` congela una copia de lo viejo
+  encima y le abre el agujero rasgado. Aplicado a: la mesa de Proyectos (`ponCapa`), el móvil de la mesa y los paisajes barridos de «Más proyectos» (fuera
+  el fundido de `background-image`, que Safari no hace), el paisaje del pie (un lienzo clonado por capa, un solo círculo desde el centro de abajo) y la
+  película de móvil de savvia agentic (segundo vídeo sincronizado). `global.css`: `--color-coral`, `--color-cacao`, `--color-salvia` y `--tierra-k`
+  registrados con `@property` y en la misma transición de 2,4 s que el fondo. Estudio: los tonos viajan de una paleta a otra en 2,4 s.
+- **Medido:** `astro check` 0 errores · `astro build` OK (el `@property` y la transición sobreviven al minificador) · `tools/verify.cjs` en / y /proyectos (Chrome y
+  WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · hojas `tools/shots/r232-*` · Servicios en WebKit: `--color-salvia` 236·191·143 → 229·197·163 → 216·208·198
+  → 208·215·221 → 202·220·237 cada 400 ms (fundido) · móvil de Cubbo (Chrome y WebKit, `tools/r232/mesa-probe6.cjs`): otoño → invierno descubriéndose desde abajo ·
+  película de móvil: la nueva entra a 0,1 s de la vieja y se descubre en 2,6 s (Chrome y WebKit).
+- **Ojo para pruebas:** la captura de un solo elemento de Playwright espera a que pare la animación y miente; y en WebKit headless la captura llega tarde al
+  primer fotograma: medir valores, no solo mirar.
+- **A media ronda (Andoni):** «el de Home of Ambrose no cambia el mockup de estación, tenemos que hacer que cambie» → su mesa del estudio llevaba la lámina de otoño
+  fija: ahora una por estación (`/media/estudio/<estación>.webp`, 150–185 KB, se piden al acercarse la pieza) y el mismo relevo rasgado desde abajo. En las mesas el
+  relevo usa la PROPIA foto vieja (una copia nueva llegaba en blanco el primer fotograma en Chrome y se saltaba el gesto). Medido: el círculo crece 229 → 1263 px
+  en 2,4 s y la foto vieja se apaga (Chrome); capturas en Chrome y WebKit `tools/shots/r232-hoa-*`.
+- **Pendiente:** el texto de las secciones que pasan de oscuro a claro (invierno) cambia de tinta en un golpe corto a mitad del fundido, como en el hero (ronda 152): se
+  ha dejado así; no publicado.
+
+### Ronda 233 · 2026-10-19 · el reel «de cerca»: animaciones en detalle y savvia agentic (en local)
+- **Andoni (textual):** «vale ahora vamos con el reel, quiero que muestre mejor nuestro trabajo. Sobre todo que haya animaciones que hacemos en detalle porque es lo
+  que más llama la atención. Luego también mostrar el savvia agentic bien estaría guay porque es nuestro producto clave ahora. No tiene que ser muy largo, te
+  diría de dejarlo en 30 segundos máximo».
+- **Antes:** el reel de la ronda 152 se iba casi entero en la «construcción» (webs pequeñas, ladeadas y en gris): las animaciones apenas se veían; savvia agentic no salía.
+- **Hecho (HyperFrames, `tools/r233/hf/`, `node build.cjs` genera `index.html`):** 30 s, cortes al pulso de «Distant Miles» (93 BPM; la canción entra en su 6,8 s
+  para que el primer golpe fuerte caiga al empezar las animaciones). «Lo que hacemos, de cerca.» → ONCE animaciones de los casos a sangre (los vídeos `x-*` de
+  `public/media/obra/`; para cada una, el tramo con más movimiento medido fotograma a fotograma, `tools/r233/movimiento.cjs`), con su rótulo «proyecto · qué es»:
+  esfera, plano y matriz de Kuanta · muelle y terminal de Arkdev · cromos y notas de Playground · feed de Neety · componentes de Remerge · mapa de Invopop ·
+  capas de Cubbo. La primera entra rasgando el titular desde abajo (el gesto de la web). → «savvia agentic · Tu web, en una librería que cualquier IA sabe
+  leer.» → la escena de ESCRITORIO de savvia agentic grabada fotograma a fotograma a 1920×1080 (`tools/r233/grabar-agentic.cjs`, `__partitura.ir(t)`, tramo
+  2,6–15,4 s, a 1,5×): la librería de Neety y Claude, Codex, tu equipo y savvia montando su home; entra rasgándose y se acerca despacio. → logotipo que se
+  descubre + savvia.studio.
+- **Web:** `public/media/reel/reel.mp4` (1600×900, 6,1 MB, −15,6 LUFS; antes 8,7 MB), `reel-mini.mp4` (7 s del arranque, 346 KB) y sus pósters. Los anteriores, en
+  `tools/retirados/reel-r152/`. El menú sigue diciendo «0:30».
+- **Medido:** `hyperframes check` 0 errores, contraste 9/9 · render sin fotogramas negros · `tools/r60-reel.cjs` (Chrome 1280 y 390, WebKit 1280): miniatura en el
+  menú, el reel abre, suena y cierra, 0 errores.
+- **Pendiente:** el render de HyperFrames sube el volumen por su cuenta (−11,7 LUFS): la versión web va normalizada a −16 con ffmpeg; no publicado.
+
+### Ronda 234 · 2026-10-19 · el reel vuelve a construirse, ahora con savvia agentic de hilo (en local)
+- **Andoni (textual):** «me gustaba lo de antes que se construían las webs, quiero eso pero en algún frame como que salgan animaciones más en detalle en una fila de
+  2-3 y luego una se haga zoom y se vea y cosas así. El inicio tiene que ser como en el hero la caída de la gota y empiezan a crearse cosas. Necesitamos que se vea el
+  savvia agentic a lo largo del reel. Cómo lo usamos para construir todo».
+- **Hecho (`tools/r234-reel/`, sobre el de la ronda 152; `node montar.cjs` genera `hf/index.html`):** 45 pulsos de «Distant Miles» (30 s). 0–2: la GOTA de agua de
+  la carga cae y del impacto nace la LIBRERÍA de savvia agentic (marca/color.md · tipografía · voz · espaciado · tokens.css · componentes/), que se acopla a la
+  izquierda y se queda todo el reel: cada ficha que suelta un agente enciende antes el archivo del que sale, con el nombre del agente (Claude, Codex, Diseño,
+  savvia), y debajo del título se lee la librería de cada proyecto. 2–30: se construyen Kuanta (ahora en navegador, abierto con el canto rasgado desde la
+  librería), Arkdev, Playground, Neety (los tres agentes a la vez) y Remerge en el móvil, cada una sustituida por su web real. Dos FILAS DE DETALLE (4 pulsos): tres
+  animaciones de los casos en fila (muelle · esfera · cromos; feed · plano · notas) y la del centro se abre a pantalla completa (el mismo vídeo recortado con
+  clip-path, sin corte). 34–40: la librería se abre en la escena real de savvia agentic (la librería de Neety y los agentes montando su home). 40–45: logotipo +
+  «savvia agentic · savvia.studio». Fuera de esta versión las tres «firmas» de la 152 (ruleta de Arkdev, isométricas de Kuanta, notas de Playground).
+- **Web:** `reel.mp4` 1600×900, 9,8 MB, −15,1 LUFS; `reel-mini.mp4` (7 s: fila de detalle con su zoom, 232 KB) y pósters. El reel de la ronda 233 queda en
+  `tools/r233/hf/renders/`.
+- **Medido:** `hyperframes check` 0 errores (un aviso de contraste en una ficha heredada de la 152) · render sin fotogramas negros · `tools/r60-reel.cjs` (Chrome 1280 y
+  390, WebKit 1280): abre, suena y cierra, 0 errores.
+
+### Ronda 235 · 2026-10-19 · el reel: la librería como la de Neety, cinco proyectos y el roble de las estaciones al final (en local)
+- **Andoni (textual):** «lo de savvia agentic que sea como la librería de Neety siempre a la izquierda y que el primer ejemplo sea Neety, luego el resto de ejemplos
+  cogería Kuanta, Home of Ambrose, Cubbo y Monad, y el final que salga nuestro árbol pasando por las estaciones y listo».
+- **Hecho (`tools/r234-reel/montar.cjs`; la versión de la 234, en `montar.r234.cjs`):** la LIBRERÍA es ahora una ventana clara como la de Neety («<proyecto> / library»,
+  «La librería», apartados Fundamentos: Color · Tipografía · Voz · Espaciado · Radios y tokens; Componentes: Componentes de la web); nace de la gota y se queda a la
+  izquierda hasta el final; cada ficha de un agente marca antes su apartado (filete naranja de Neety + el nombre del agente). Orden: Neety (savvia orquesta a los
+  tres agentes; se abre con el canto rasgado desde la librería) → Kuanta → fila (feed de Neety · esfera de Kuanta ampliada · Neety por dentro) → Home of Ambrose
+  (Diseño compone el titular a la deriva) → Cubbo (Codex, el azul de la marca) → fila (tensor de Kuanta · operación de Cubbo ampliada · capas de Cubbo) → Monad
+  (Claude dibuja el pipeline) → el ROBLE del hero (las cuatro láminas) pasando por otoño, invierno, primavera y verano, cada una descubierta desde la base del tronco
+  con el canto rasgado sobre la noche de su estación; al final, el logotipo y «savvia agentic · savvia.studio». Construcciones nuevas medidas sobre el primer
+  fotograma de sus grabaciones (`public/media/anteriores/video/*-grande.mp4`).
+- **Web:** `reel.mp4` 9,7 MB, −15,1 LUFS; `reel-mini.mp4` (7 s, Kuanta y la fila con la esfera) y pósters.
+- **Medido:** `hyperframes check` en verde (0 errores) · render sin fotogramas negros · `tools/r60-reel.cjs` (Chrome 1280 y 390, WebKit 1280): abre, suena y cierra, 0 errores.
+
+### Ronda 236–237 · 2026-10-19 · referencias de reels de estudios web y el reel «La mesa» (en local)
+- **Andoni (textual):** «quiero que busques los mejores reel/vídeos de portfolio y nos basemos en ellos para hacer el nuestro» → «sí, monta el reel La mesa».
+- **Referencias (`tools/ref236/`, `ver.cjs` reproduce cada reel en la página, saca la hoja y cuenta los cortes):** Active Theory (112 s, 124 planos, ~0,9 s por
+  plano, mucha gente usando las piezas) · Cuberto (128 s, ~1,4 s, dispositivos en 3D sobre el color de cada marca) · Lusion (11,5 s, ~1 s) · Immersive Garden (9,5 s,
+  ~0,6 s: UN monitor sobre una mesa, en una sala con plantas, al que la cámara vuelve; en su pantalla se escriben «Design», «Technology» y entran las webs, que
+  luego pasan a pantalla completa) · Hello Monday (plano único). Elegida la de Immersive Garden porque ya tenemos ese escenario: la MESA del estudio con sus estaciones.
+- **Hecho (`tools/r234-reel/mesa.cjs`):** lo que pasa DENTRO del monitor es el reel de la ronda 235 (librería + construcciones + filas + roble), encogido a la
+  pantalla medida de la lámina (5120 px; Proyectos › PANT) y con un reflejo leve. La gota cae sobre el monitor y la mesa de otoño se abre rasgada; la cámara entra
+  en la pantalla (a escala ×4,76 el contenido queda nítido); en cada cambio de bloque sale a la mesa y la ventana cambia de estación (invierno → primavera →
+  verano, con el canto rasgado) y vuelve a entrar; al final, la mesa en verano con el roble pasando por las estaciones en el monitor, y entra por última vez con el
+  logotipo.
+- **Web:** `reel.mp4` 8,4 MB, −15,1 LUFS; `reel-mini.mp4` (7 s: la gota y la mesa que se abre) y pósters. La versión 235 queda en `tools/r234-reel/hf/renders/`.
+- **Medido:** render sin fotogramas negros · `tools/r60-reel.cjs` (Chrome 1280 y 390, WebKit 1280): abre, suena y cierra, 0 errores · `hyperframes check`: los avisos que
+  quedan son el grano de película «tapando» el texto de la librería (es una textura casi transparente: falso positivo).
+
+### Ronda 238 · 2026-10-19 · prueba de reel CINÉTICO al estilo del de Linearity (en local, sin poner en la web)
+- **Andoni (textual):** «podemos probar algo de este estilo» (x.com/linearityhq/status/2110362970119454745, «Introducing Linearity AI», 58 s).
+- **Referencia medida (`tools/ref236/linearity.jpg`):** 11 planos en 58 s: casi un plano continuo de TIPOGRAFÍA CINÉTICA (palabras grandes que entran desenfocadas), la
+  INTERFAZ dentro de la frase («edit [anuncio] text», «change [color]», «move [pieza] layouts»), manchas de degradado cálido como respiro, centro en claro,
+  apertura y cierre en negro con el logotipo.
+- **Hecho (`tools/r238-cinetico/build.cjs`, HyperFrames):** 30 s a pulso de «Distant Miles». Negro: «Tu web merece / algo más que una plantilla.» (tachada en coral) →
+  manchas coral y miel: «Conoce» → logotipo + «agentic» → claro: «Tu marca, [la librería de Neety] en una librería.» → «Pide [la petición se escribe] y listo.» → la
+  web de Neety → «edita [Neety con el titular seleccionado] textos» · «cambia [el roble vira de estación] colores» · «mueve [secciones que se reordenan] secciones» →
+  Kuanta, Cubbo, Home of Ambrose y Monad, el nombre enorme y la web ladeada delante → «Cambios en horas, / no en presupuestos.» → negro: logotipo + agentic y el
+  roble de otoño a verano.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. El reel del menú sigue siendo «La mesa» (ronda 237).
+- **Medido:** `hyperframes check` en verde (0 errores) · render sin fotogramas negros.
+
+### Ronda 239 · 2026-10-19 · el reel cinético, afinado (en local, sin poner en la web)
+- **Andoni (textual):** «esto está mucho mejor, pero podemos hacer que los textos se vean centrados más pequeños siempre con la tipografía nuestra, savvia agentic
+  también con la typo. Luego las estaciones finales tienen que ir con los árboles como los tenemos en el hero, también las guías del hero. Y mostrar más la librería,
+  vamos a añadir algo estilo lo que tenemos en savvia agentic».
+- **Hecho (`tools/r238-cinetico/build.cjs`; la primera versión, en `build.v1.cjs`):** textos en Family, centrados y más pequeños (frases 88–96 px, antes 150; nombres
+  de las webs 150, antes 230); «savvia agentic» escrito en Family (fuera el logotipo + palabra). Bloque nuevo de 6 pulsos, «Los agentes leen tu librería»: la escena real
+  de savvia agentic (`agentic.mp4`, a 1,6×: la librería de Neety, Color · Tipografía · Botones · Espaciado, y Claude, Codex, tu equipo y savvia cogiendo piezas para su
+  home). Final: el HERO REAL de la web capturado en sus cuatro estaciones (`hero-est.cjs`: guías, haz de luz, el roble pintado por su motor; sin barra ni titular) que
+  se relevan con el canto rasgado desde la base del tronco, con «savvia agentic.» + «Tu web, en una librería que cualquier IA sabe leer.» donde va el titular del
+  hero (la tinta pasa a oscura en invierno).
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4` (7,6 MB). El reel del menú sigue siendo «La mesa».
+- **Medido:** `hyperframes check` en verde (0 errores, 0 avisos).
+
+### Ronda 240 · 2026-10-19 · reel cinético: sin degradados, con la gota, copy de la web y las webs que se montan (en local, sin poner en la web)
+- **Andoni (textual):** «quita lo de los gradientes y necesitamos añadir la animación de la gota en algún lado, y coge copies que hayamos puesto por la web. Y cuando
+  mostramos cada web que se vayan montando como teníamos antes. Lo de cambia de colores que sea con las estaciones del hero también».
+- **Hecho (`tools/r238-cinetico/build.cjs`; la v2, en `build.v2.cjs`):** fuera las manchas de degradado (fondos lisos). Abre la GOTA de agua de la carga (la del reel
+  de la mesa) y del impacto nace el manifiesto. Copy, todo de `home.ts`: «La IA es la base; / el criterio sigue siendo nuestro.» · «savvia agentic: / tu web conectada
+  con la IA.» · «Los fundamentos de diseño y desarrollo de tu web, [librería] en una librería que cualquier IA sabe leer.» · «La web, su receta y los agentes que la
+  mantienen al día.» (con la escena real de agentic) · «Así tú y tu equipo podréis cambiar lo que queráis» (con la petición que se escribe) · edita / cambia / mueve
+  («cambia» con el hero real en sus cuatro estaciones) · «Proyectos destacados con desarrollo agéntico.»: Kuanta, Home of Ambrose y Cubbo se MONTAN (el constructor de
+  los reels anteriores, `build-obra.cjs`, a 0,62 de tiempo: retícula, cajas, agente con sus fichas y «✓ publicado», y la web real) · final: el hero con su titular,
+  «Elevamos tu web con IA. / Especialistas en orquestar el desarrollo agéntico.», pasando por las cuatro estaciones.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4` (6,6 MB). El reel del menú sigue siendo «La mesa».
+- **Medido:** `hyperframes check` en verde (0 errores, 0 avisos).
+
+### Ronda 241 · 2026-10-19 · reel cinético más largo (40 s), ejemplos reales, nombres que asoman y animaciones repasadas (en local, sin poner en la web)
+- **Andoni (textual):** «igual alargamos un poco el vídeo para mostrar mejor todo y hacer un final más redondo, vigila todas las animaciones porque algunas se ven como
+  movidas y fuera de lugar, lo de cambiar colores sería mejor que fuese sobre un ejemplo real y lo mismo con lo de mover secciones. Y luego me gustaba como presentábamos
+  antes los proyectos con el nombre como asomando por detrás».
+- **Hecho (`build.cjs`; la v3, en `build.v3.cjs`):** 61 pulsos (40,4 s). Cada cambio, 3 pulsos y en un navegador: «edita» (neety.com, el titular seleccionado) · «cambia
+  colores» = savvia.studio pasando por sus cuatro estaciones (el hero real) · «mueve secciones» = tres secciones REALES de neety.com (hero, «De ruido comercial a
+  señales accionables», «Así te ayuda Neety a vender mejor», recortadas de su grabación) que se reordenan. «Proyectos destacados con desarrollo agéntico.» sola y, por
+  proyecto (Kuanta, Home of Ambrose, Cubbo, Monad, 3,5 pulsos), el NOMBRE grande sale primero y la web sube delante tapándole la parte de abajo, se monta (agente,
+  fichas, «✓ publicado») y queda la web real. Final: el hero rasgado desde la base del roble, sus cuatro estaciones con «Elevamos tu web con IA.», y al final el titular
+  se recoge, salen ondas desde la base del roble y queda «savvia agentic.» + savvia.studio (4 s de cierre).
+- **Animaciones (revisadas a 6 fps, tramo a tramo):** la tarjeta de cada frase ya no aparece encima de las palabras: se descubre DENTRO del hueco según se abre; un
+  respiro entre un ejemplo y el siguiente (antes se mezclaban); las webs suben opacas y se descubren de abajo arriba (antes entraban como un rectángulo lavado); la escena
+  de agentic, quieta (fuera el zoom continuo: la cámara ya va dentro del vídeo); el paso al hero, rasgado sobre el claro (antes asomaba negro).
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4` (7,9 MB). El menú sigue con «La mesa».
+- **Medido:** `hyperframes check` en verde (0 errores, 0 avisos).
+
+### Ronda 242 · 2026-10-19 · reel cinético: las líneas de savvia agentic como carreteras (en local, sin poner en la web)
+- **Andoni (textual):** «tenemos que ajustar la parte de savvia agentic: igual podemos mantener la animación que teníamos de las líneas de savvia agentic haciendo como
+  que sigues una de ellas y vas a la librería en uso y luego sales de ellas y vas a los ejemplos reales, jugando con los zooms, movimientos y las líneas como si fueran
+  carreteras por las que se mueve la cámara» · «el fondo inicial tiene que ser nuestro marrón».
+- **Hecho (`build.cjs`; la v4, en `build.v4.cjs`):** el DIAGRAMA REAL de la sección savvia agentic (`diagrama.cjs`: la escena de escritorio capturada a 3×, 3600×2025, y
+  sus 49 líneas muestreadas en coordenadas de la escena; `rutas.json`: la de «Voz» y la de «Cambios de copy»). Entra pequeño entre «Los fundamentos de diseño y
+  desarrollo de tu web, / en una librería que cualquier IA sabe leer.», se abre a pantalla completa, la cámara baja a «Voz» (×2,6) y RECORRE su línea hasta la
+  librería mientras la línea se enciende de savia (Coral) a su paso; se centra en la librería y entra la librería EN USO (la escena de agentic) con «La web, su receta
+  y los agentes que la mantienen al día.»; sale por la línea de «Cambios de copy» (también encendiéndose), con «Así tú y tu equipo podréis cambiar lo que queráis», se
+  mete en la etiqueta (×6) y pasa a los ejemplos reales (edita · cambia · mueve, 2,8 pulsos cada uno). El recorrido es un proxy de 0 a 1 interpolado sobre los puntos
+  de la línea (seek-safe). Fondo del principio (gota, manifiesto, «savvia agentic:»): el marrón de la web (#3B231B).
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. El menú sigue con «La mesa».
+
+### Ronda 243 · 2026-10-19 · el reel cinético: el diagrama se GENERA y la cámara sigue la línea (en local)
+- **Andoni (textual):** «genera las animaciones para el vídeo: que aparezcan los tags de la izquierda y luego se genere la línea y cuando se genera la cámara la sigue
+  haciendo zoom y llega a la librería generando la web, y luego lo mismo cuando publicas, una animación del estilo. Y el final que no ocupe tanto tiempo».
+- **Hecho (`tools/r238-cinetico/build.cjs`):** fuera la captura fija del diagrama: se construye en vivo (píldoras en HTML a ×1,6, líneas SVG con `pathLength=1`). El
+  paso del marrón al claro, rasgado desde el centro (`rasgo-circulo.png`). Entran las etiquetas de la izquierda una a una, se trazan sus líneas grises, la de «Voz» se
+  enciende de savia y la cámara la RECORRE con zoom hasta la tarjeta de la librería, cuyas filas se rellenan; dentro, la librería en uso (agentic.mp4). Al publicar:
+  fila «Publicado en neety.com», se trazan las líneas de salida, brotan las etiquetas de la derecha y la cámara sigue «Cambios de copy» hasta los ejemplos reales.
+  Final acortado: 37,5 s en total (antes ~45). Arreglado: las filas de la librería caían fuera de la tarjeta.
+- **Medido:** `hyperframes check` 0 errores · hojas de contacto a 6–8 fps de cada tramo (`hf/renders/r243*.jpg`) · exportado a −16 LUFS, 1600×900, 8,9 MB.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. El menú sigue con «La mesa». No publicado.
+
+### Ronda 244 · 2026-10-19 · el reel cinético vuelve al estilo Linearity (en local)
+- **Andoni (textual):** «me gustaba más con el estilo de Linearity, nos hemos ido un poco. Tenemos que mantener nuestros colores, typos y el final pero el resto volver a eso».
+- **Hecho:** `build.cjs` = la versión de la ronda 241 (`build.v4.cjs`: tipografía cinética con la interfaz dentro de la frase, la librería, la escena de agentic, la
+  petición, edita · cambia · mueve, las webs que se montan con el nombre detrás) con el marrón de la web de fondo y el FINAL corto de la ronda 243 (hero por las cuatro
+  estaciones y «savvia agentic.»). Fuera el diagrama de líneas y la cámara por carreteras (rondas 242–243, guardadas en `build.v6.cjs`). 37,5 s.
+- **Medido:** `hyperframes check` en verde · hoja de contactos a 1 fps (`hf/renders/r244-hoja.jpg`) · −16 LUFS, 1600×900.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. El menú sigue con «La mesa». No publicado.
+
+### Ronda 245 · 2026-10-19 · reel cinético: la interfaz otra vez ENTRE dos palabras, colores elegidos en la librería y secciones enteras (en local)
+- **Andoni (textual):** «me gustaba más cuando salían la librería y lo de escribir entre medias de dos palabras, ahora queda raro eso. Luego también lo de los colores
+  estaría mejor que fuese como que los eliges en una librería o algo y luego también que las secciones se vean bloques de sección enteros no cortados como ahora».
+- **Hecho (`build.cjs`; la anterior, en `build.v7.cjs`):** vuelve la frase con la interfaz dentro (ronda 238): «Tu web, [la librería] en una librería.» y «Pide [la
+  petición se escribe] y listo.». «cambia colores»: a la izquierda la paleta de la librería de savvia (Otoño · Invierno · Primavera · Verano con sus muestras y su hex),
+  el cursor elige cada una y el hero se repinta con el canto rasgado. «mueve secciones»: tres secciones ENTERAS de neety.com (`secciones.cjs` → `neety-blq0..2.jpg`:
+  hero, «Por qué Neety», «De ruido a señal») como bloques; el hero baja al final y las otras suben. 37,5 s.
+- **Medido:** `hyperframes check` en verde · hoja a 2 fps (`hf/renders/r245-hoja.jpg`) y detalle (`r245-zoom.jpg`) · −16 LUFS, 1600×900.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 246 · 2026-10-19 · reel cinético: la selección de «edita textos», ajustada al titular (en local)
+- **Andoni (textual):** «vale me gusta bastante, podemos hacer que edita textos el recuadro que sale se alinee bien con el texto?»
+- **Hecho:** medido el titular de Neety en el fotograma («Detecta a quién vender, / cuándo hacerlo y / qué acción tomar.»): el recuadro de selección lo rodea entero
+  (282 × 94 px dentro de la pantalla del navegador, antes 250 × 74 y desplazado) y el cursor llega a su esquina de abajo a la derecha.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 247 · 2026-10-19 · reel cinético × el reel de Bolt Templates: túnel de webs, muro con zoom y parejas (en local)
+- **Andoni (textual + `~/Desktop/1920x1080.mp4`, «Introducing bolt Templates», 31 s):** «vale perfecto, podemos hacer una mezcla entre lo que tenemos y esto, podemos alargar más el
+  vídeo a 60 segundos si hace falta».
+- **Referencia medida (hoja a 1 fps):** apertura con el texto entre un TECHO y un SUELO de plantillas en perspectiva que avanzan; un MURO de plantillas que se recorre y
+  en el que la cámara entra en una (Kern Studio) que pasa a verse viva a pantalla completa; tarjeta a un lado + frase al otro («Fully Interactive», «Real, working
+  apps.»); fila de tarjetas con etiqueta; la petición que construye; «Get started now».
+- **Hecho (`build.cjs`; la anterior, en `build.v8.cjs`; `B()` con desplazamiento `OFF` por bloque):** «savvia agentic: tu web conectada con la IA.» dentro de un TÚNEL de
+  webs (46 portadas y galerías de `public/media/obra/` en `hf/assets/muro/`, techo y suelo a ±72°, avanzando hacia la cámara) sobre el marrón · tras «Proyectos
+  destacados», el MURO de 40 webs que se recorre y la cámara entra en Kuanta, que cobra vida (su esfera, `x-esfera.mp4`) a pantalla completa y se encoge en su tarjeta ·
+  tres PAREJAS animación en detalle + frase (copy de la web: «Como un traje / a medida.» · Playground copilot «Mano a mano / contigo.» · Invopop mapa «De principio / a
+  fin.») · el montaje de Home of Ambrose, Cubbo y Monad · el final de siempre. Se queda todo lo de Linearity (frases con la interfaz dentro, edita · cambia · mueve).
+  47,5 s.
+- **Medido:** `hyperframes check` en verde · instantáneas del túnel, el muro y las parejas · hoja a 1 fps (`hf/renders/r247-hoja.jpg`) · −16 LUFS, 1600×900.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 248 · 2026-10-19 · reel cinético: un solo color de letra, túnel sutil, otros momentos en detalle y el muro que entra en ola (en local)
+- **Andoni (textual):** «las letras siempre del mismo color, el frame en que salen los proyectos por arriba y por abajo que sea más sutil y que tengan un gradiente
+  para que parezca que se desvanecen. Luego los momentos en detalle con las frases elegir otros proyectos, u otras cosas a destacar. Luego cuando salen todos los
+  proyectos en grid hacerlo de una manera animada más chula, ahora parece que entran un poco ortopédico».
+- **Hecho (`build.cjs`; la anterior, en `build.v9.cjs`):** fuera el coral y el 55 % de las segundas líneas: todo en la tinta de su fondo (Cacao sobre claro, Rosa niebla
+  sobre marrón) · túnel al 42 % y cada plano con máscara en degradado (se desvanece hacia el horizonte y hacia la cámara) · momentos en detalle: Arkdev (los iconos que
+  atracan, `x-muelle`; es la web en la que entra la cámara del muro), Playground (las notas, `x-notas`) e Isotrol (el mapa, `x-mapa`) · el muro: las webs llegan en OLA
+  desde la que se va a abrir (escala, giro en X, desenfoque y subida, escalonadas por la rejilla) mientras la cámara se aleja, recorre y entra. 47,5 s.
+- **Medido:** `hyperframes check` en verde · instantáneas del túnel, el muro y las parejas · tira del muro a 4 fps (`hf/renders/r248-muro.jpg`) · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 249 · 2026-10-19 · reel cinético: la rejilla del portfolio con zoom a Kuanta, otros detalles y «savvia» al final (en local)
+- **Andoni (textual):** «al final que ponga savvia, y debajo savvia.studio. Luego el grid sigue sin convencerme, el grid tienen que ser webs y como lo tenemos un poco en
+  el portfolio, haces zoom en por ejemplo kuanta. Y luego los detalles probemos otros».
+- **Hecho (`build.cjs`; la anterior, en `build.v10.cjs`):** el muro es la REJILLA de /proyectos con sus nueve tarjetas reales (`portfolio-piezas.cjs` las captura a 2× desde
+  el servidor local, con la caja de la pantalla de cada una en `portfolio.json`): entran una a una subiendo con el recorte de la web, la cámara baja por la rejilla y
+  entra en la pantalla de Kuanta (llenando el alto que se ve, porque la lámina corta el navegador por abajo); ahí pasa a la web viva (`obra/kuanta/portada.mp4`), que
+  se asienta y se encoge en su tarjeta. Detalles: Kuanta (su hero) «Como un traje a medida.» · Playground (los cromos de testimonios, `x-cromos`) «Mano a mano contigo.»
+  · Neety (el feed de señales, `x-feed`) «De principio a fin.». Final: «savvia» y debajo «savvia.studio». 47,5 s.
+- **Medido:** `hyperframes check` en verde · tira del paso del zoom a la web viva a 8 fps (`hf/renders/r249-zoom.jpg`, sin salto) · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 250 · 2026-10-19 · reel cinético: la rejilla entera y quieta, detalles y webs con más tiempo (en local)
+- **Andoni (textual):** «el grid sigue sin convencerme, se ve raro, luego los detalles hay que dejarlos un poco más para que se vea la animación y lo mismo con la
+  construcción de las webs».
+- **Hecho (`build.cjs`; la anterior, en `build.v11.cjs`):** la rejilla del portfolio se ve ENTERA y la cámara casi quieta (un acercamiento mínimo); las nueve tarjetas llegan
+  en ola diagonal (suben, se enfocan y aparecen), las demás se apartan desenfocándose y solo entonces la cámara entra en Kuanta. Cada detalle dura 5 pulsos (antes
+  3,5) y cada web montada 5,5 (antes 3,5): la construcción va más pausada (`build-obra.cjs` acepta `k`, aquí 1,5; la anterior en `build-obra.v1.cjs`) y la web viva se
+  queda dos pulsos más. 54,6 s.
+- **Medido:** `hyperframes check` en verde · instantáneas de la rejilla, las parejas y el montaje · hoja a 1 fps (`hf/renders/r250-hoja.jpg`) · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 251 · 2026-10-19 · reel cinético: la rejilla y el túnel como en Bolt, y el clic en Kuanta (en local)
+- **Andoni (textual + el vídeo de Bolt otra vez):** «el grid, tenemos que hacer que aparezca como en este vídeo y el carrusel superior e inferior también. Y luego que
+  parezca que clicas en el proyecto destacado».
+- **Referencia medida (0–9 s a 5 fps):** arriba y abajo no hay un techo entero sino dos PILAS estrechas de tarjetas en el centro, en perspectiva fuerte; el titular se
+  queda y la rejilla SUBE desde abajo, fila a fila, mientras el titular se va hacia arriba; un cursor va a una tarjeta, la pulsa y la tarjeta se abre a pantalla completa.
+- **Hecho (`build.cjs`; la anterior, en `build.v12.cjs`):** túnel = una pila de webs arriba y otra abajo (una columna de 760 px, ±72°, al 60 %, desvanecidas) · «Proyectos
+  destacados con desarrollo agéntico.» se queda y, al llegar la rejilla del portfolio desde abajo (fila a fila, descubriéndose), sube y se desvanece · el CURSOR entra
+  desde abajo a la derecha, se posa en Kuanta (la tarjeta crece un poco), pulsa (cursor y tarjeta se hunden) y la cámara entra en su pantalla. 54,6 s.
+- **Medido:** `hyperframes check` en verde · tiras del túnel y la rejilla (`hf/renders/r251-*.jpg`) · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 252 · 2026-10-19 · reel cinético: la rejilla en tornado, el clic que vuela a la primera pareja, Arkdev de segundo detalle y pilas más finas (en local)
+- **Andoni (textual):** «el grid sigue saliendo raro, podemos hacer que salgan como un tornado y se organicen y luego al hacer clic que vaya directamente al frame de un
+  traje a medida. Y luego la segunda animación en detalle que sea algún detalle que encaje bien en ese hueco, el de playground no. Alguna animación más vistosa. Las pilas
+  de arriba y abajo más sutiles y estrechas».
+- **Hecho (`build.cjs`; la anterior, en `build.v13.cjs`):** cada tarjeta del portfolio va en un giro alrededor del centro de la rejilla: llega girando (280° + 34° por
+  tarjeta), creciendo desde el 10 %, ladeada y desenfocada, y se asienta en su sitio, escalonadas 0,09 s (el titular se desvanece al empezar). El cursor pulsa Kuanta y
+  su pantalla VUELA directa a la tarjeta de «Como un traje a medida.» (sin el paso a pantalla completa). Segundo detalle: Arkdev, los iconos que atracan (`x-muelle`). Pilas
+  de 500 px al 34 %. 52,7 s.
+- **Medido:** `hyperframes check` en verde · tira del tornado y el clic a 5 fps (`hf/renders/r252-muro.jpg`) · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 253 · 2026-10-19 · reel cinético: tornado en 3D, Neety entero, colores sobre Neety y nombres sin tapar (en local)
+- **Andoni (textual):** «el tornado quiero que sea en 3D, vamos como si lo vieras desde alante. Y luego el tercer detalle usar el de Neety pero como se va moviendo la
+  animación de arriba abajo» · (a media ronda) «cambia colores que sea el proyecto de Neety» · «los proyectos que salen, Monad y demás, la web tapa un poco el titular».
+- **Hecho (`build.cjs`; la anterior, en `build.v14.cjs`):** el tornado es 3D: cada tarjeta orbita un eje vertical (`rotationY` del giro, `z` de la tarjeta, perspectiva
+  1600 en la rejilla) subiendo en embudo hasta asentarse. Tercer detalle: el feed de Neety ENTERO (4:3, sin recortar) y al doble de velocidad, para que se vea bajar
+  la secuencia de tarjetas. «cambia colores» sobre Neety: su paleta real (Naranja Core · Azul bebé · Berenjena · Mint claro, con hex) y su hero reteñido con el canto
+  rasgado en cada elección. Montaje: el nombre sube (34 px) y la web baja (62 %): ya no lo tapa. 52,7 s.
+- **Medido:** `hyperframes check` en verde · instantáneas del tornado, la paleta de Neety y el montaje · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 254 · 2026-10-19 · web: Eric y Andoni de pie, y al pasar, sus aficiones salen de la cabeza en ilustraciones (en local)
+- **Andoni (textual + referencia: cómic a línea gruesa con trama de puntos, objetos que salen de una cabeza abierta):** «quiero empezar a probar en la web la parte de
+  Eric y Andoni. Quitamos los frames, dejamos a Andoni y Eric parados y cuando hovereamos hacemos que las cards que salen estén acompañadas por ilustraciones del estilo
+  que te voy a mandar».
+- **Hecho:** `Estudio.astro`: fuera los gestos (canasta y pase: `data-gesto-src="[]"`); siguen de pie (la entrada directa de la ronda 144). Al pasar (o enfocar/tocar),
+  además de caer sus píldoras, de la CABEZA de cada uno sale en abanico (Andoni hacia la izquierda, Eric hacia la derecha) una ilustración por afición, dibujada a línea
+  en la tinta de la sección con sombras de trama de puntos (`#trama-eq`) y rayas de velocidad: balón de baloncesto · mando · taza de café / balón de fútbol · hoja ·
+  cascos (`src/data/ilustraciones-equipo.ts`, SVG 100 × 100). Crecen desde la cabeza y se posan ladeadas, sin rebote; al irse, vuelven y se apagan. Movimiento
+  reducido: aparecen quietas. La copia previa del componente, en el scratchpad de la sesión.
+- **Medido:** `astro check` 0 errores · `tools/r254/equipo.cjs` (Chrome y WebKit a 1280): los dos estallidos sin pisar los nombres, 0 errores de consola, 0 capas de gesto.
+  **SIN medir:** el toque en móvil (la prueba no simula dedo).
+- **Pendiente de Andoni:** si las ilustraciones son las que quiere (son de Nilo, a partir de sus aficiones de home.ts) o si manda las suyas; no publicado.
+
+### Ronda 255 · 2026-10-19 · reel cinético: colores reales de Neety, apertura de Kuanta y nombres algo tapados (en local)
+- **Andoni (textual):** «cambia colores: coger una sección de Neety que cambiando los colores se vea bien» · «cuando clicas en Kuanta la transición de abrir se ve un poco
+  rara, mejorarla» · «los titulares de los proyectos, Monad y compañía, tienen que ir un poco tapados por la web que enseñamos».
+- **Hecho (`build.cjs`; la anterior, en `build.v15.cjs`):** «cambia colores» con la sección «Por qué Neety» RECOLOREADA EN SU PROPIA PÁGINA (`neety-tinte.cjs`: sus variables
+  `--color-plum/naranja/ink` cambiadas y sus degradados reteñidos), cuatro paletas: Naranja Core (la suya) · Azul · Mint · Frambuesa. Kuanta: tras el clic, la tarjeta
+  ENTERA crece hasta que su pantalla cae en el hueco de «Como un traje a medida.» y ahí la web viva aparece encima (antes saltaba a su pantalla recortada). Montaje: la
+  web sube (50 %) y tapa la parte de abajo del nombre. 52,7 s.
+- **Medido:** `hyperframes check` en verde · tira de la apertura de Kuanta (`hf/renders/r255-kuanta.jpg`) · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 256 · 2026-10-19 · reel cinético: Neety en colores planos y la apertura de Kuanta encajada (en local)
+- **Andoni (textual):** «abre el local para verlo» · «de Neety deberíamos coger una sección de colores planos sin gradientes, porque creo que quedará mejor hacer
+  combinaciones en una plana» · «cuando se hace clic en Kuanta sigue habiendo una transición rara, revísala».
+- **Hecho (`build.cjs`; la anterior, en `build.v16.cjs`):** la web abierta en el panel del navegador (`localhost:4332/?carga=0#estudio`). «cambia colores»: «Por qué Neety» en
+  su propia página SIN degradados y con colores lisos de su paleta (`neety-plano.cjs`: fondo, tarjeta, cifras, textos y botón; fuera la barra y los velos fijos),
+  cuatro combinaciones: Crema + naranja · Berenjena + azul bebé · Azul bebé + berenjena · Mint. Kuanta: la causa medida a 10 fps era que la tarjeta seguía al 102,5 %
+  (el hover) cuando volaba, y su pantalla no caía donde aparece la web viva (se veían dos capas desplazadas): ahora vuelve al 100 % durante el vuelo y la web viva
+  aparece EXACTA sobre su pantalla.
+- **Medido:** `hyperframes check` en verde · tiras a 10 fps de la apertura y de los colores · −16 LUFS.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. No publicado.
+
+### Ronda 257 · 2026-10-19 · reel: la pantalla de Kuanta sale de su tarjeta · web: las ilustraciones dentro de las píldoras, AirPods y azada (en local)
+- **Andoni (textual):** «el reel, solo falta el clic en Kuanta, que se sigue viendo raro: hay una transición final que se ve rara, cuando pasa del zoom al frame con texto» ·
+  «las ilustraciones, que queden más mimetizadas con las cards que salen, y a Eric en música ponerle unos AirPods y en la huerta una azada».
+- **Hecho · reel (`build.cjs`; la anterior, en `build.v17.cjs`):** ya no hay relevo entre la tarjeta y la web viva: al pulsar, la web viva se pone EXACTA sobre la pantalla
+  de la tarjeta (con su recorte) y es ELLA la que vuela hasta el hueco de «Como un traje a medida.», mientras la tarjeta, debajo, se mueve igual y se disuelve. Fuera el
+  crecimiento al pasar el cursor (dejaba la tarjeta al 102,5 %). · **Web (`Estudio.astro`, `ilustraciones-equipo.ts`):** fuera el estallido desde la cabeza: cada
+  píldora lleva DENTRO su ilustración, en la tinta de la píldora y con una trama más gruesa para que se lea a 28 px; Eric: AirPods (música) y azada con brote (la huerta).
+- **Medido:** `hyperframes check` en verde · tira a 8 fps del clic (una sola pieza que sale de la tarjeta) · `astro check` 0 errores · `tools/r254/equipo.cjs` (Chrome y
+  WebKit): píldoras con su ilustración, 0 errores de consola.
+- **Archivo:** `tools/r238-cinetico/reel-cinetico.mp4`. Nada publicado.
+
+### Ronda 258 · 2026-10-19 · web: las ilustraciones de las aficiones se dibujan a tinta y cobran vida (en local)
+- **Andoni (textual):** «sorpréndeme de alguna manera original con las ilustraciones».
+- **Idea:** el lenguaje de la casa (el roble del hero se DIBUJA y luego se PINTA) llevado a las píldoras: cada ilustración se dibuja a tinta trazo a trazo, después se
+  imprime su trama y su relleno, y entonces hace SU gesto, en bucle y discreto mientras la píldora está abierta.
+- **Hecho (`Estudio.astro`, `ilustraciones-equipo.ts` › `GESTOS`):** al caer cada píldora, sus trazos se escriben (`pathLength` 1 + `stroke-dashoffset`, 55 ms entre trazos)
+  y el relleno entra al final; gestos: el vapor del café sube · los botones del mando parpadean · el baloncesto deja su estela · el balón de fútbol gira despacio · la
+  azada golpea y brota el tallo · los AirPods suenan. Movimiento reducido: hechas y quietas.
+- **Medido:** `astro check` 0 errores · `tools/r254/dibuja.cjs` (Chrome y WebKit, DPR 2): trazos a medio dibujar a los 0,9 s, las 3 ilustraciones de cada uno con
+  su gesto a los 2,6 s, 0 errores de consola.
+- **Pendiente de Andoni:** verlo en movimiento (la web está abierta en local); nada publicado.
+
+### Ronda 259 · 2026-10-19 · web: los objetos de Eric y Andoni salen GRANDES de su cabeza, sin píldoras ni textos (en local)
+- **Andoni (textual):** «no me convence, creo que las ilustraciones tienen que tener más protagonismo, igual tienen que ir sin cards ni letras, de alguna forma que queden guay».
+- **Hecho (`Estudio.astro`; la de la ronda 258, en el scratchpad de la sesión):** fuera las píldoras y sus textos visibles (las aficiones quedan en la lista solo para
+  lectores de pantalla). Al pasar por uno, de su CABEZA salen sus tres objetos grandes (84–150 px) en abanico hacia su lado, como la referencia del cómic; mientras vuelan
+  se dibujan a tinta, se imprime su trama (más fina, 6 unidades) y hacen su gesto (r258); alrededor, confeti dibujado igual. Al irse, se apagan desenfocándose.
+  Probadas y quitadas en la ronda las rayas de velocidad junto a la cabeza (cruzaban los objetos).
+- **Medido:** `astro check` 0 errores · `tools/r254/dibuja.cjs` (Chrome y WebKit, DPR 2): los objetos de cada uno sin pisar los nombres, los 3 con su gesto a los 2,6 s, 0
+  errores de consola. **SIN medir:** el toque en móvil.
+- Nada publicado.
+
+### Ronda 260 · 2026-10-19 · web: los objetos caen bajo el nombre, con su nombre escrito a mano (en local)
+- **Andoni (textual):** «que salgan debajo de nuestro nombre como salían las etiquetas y con unas letras escritas a mano que indiquen qué es cada icono».
+- **Hecho (`Estudio.astro`, `astro.config.mjs`, `Base.astro`):** fuera el estallido de la cabeza (r259). Vuelve la caída desde el nombre de la ronda 129, ahora con cada
+  objeto dibujado a tinta (r258, con su gesto) y debajo su rótulo ESCRITO A MANO (Caveat, OFL, nueva en la API de fuentes como `--font-mano`, solo aquí) con una flechita
+  que sube hacia el objeto; el objeto se dibuja, luego la flecha y luego las letras se escriben de izquierda a derecha. Sin píldoras. Probado y descartado en la ronda: el
+  rótulo al lado del objeto (el bloque lo recortaba por los lados).
+- **Medido:** `astro check` 0 errores · `tools/r254/dibuja.cjs` (Chrome y WebKit, DPR 2): los seis rótulos enteros y legibles, los objetos con su gesto, 0 errores de consola.
+- Nada publicado.
+
+### Ronda 261 · 2026-10-19 · web: lo que sale de Eric y Andoni, en PEGATINAS (en local)
+- **Andoni (textual):** «vale, vamos a cambiar, vamos a hacer como si fueran stickers lo que sale».
+- **Hecho (`Estudio.astro`; la de la ronda 260, en el scratchpad de la sesión):** cada afición es una pegatina troquelada: la ilustración en tinta Cacao sobre papel
+  (#F6F1EA; los interiores, que usaban `var(--noche)`, pasan a papel; la trama de puntos, en Cacao) y su nombre escrito a mano DENTRO de la pegatina. El troquel es
+  la misma ilustración detrás, en papel y con trazo de 20 unidades (silueta suave que sigue la forma), y el de las letras, un `-webkit-text-stroke` de papel; sombra suave
+  debajo. Caen del nombre como las etiquetas, ladeadas como pegadas a mano (−7°, 5°, −3°) y al tocar su sitio se aplastan un instante, como al presionarlas. Quietas:
+  sin el dibujo a tinta ni los gestos. Probado y descartado en la ronda: el borde con cuatro sombras (salía irregular).
+- **Medido:** `astro check` 0 errores · `tools/r254/dibuja.cjs` (Chrome y WebKit, DPR 2): las seis pegatinas enteras, troquel limpio, 0 errores de consola.
+- Nada publicado.
+
+### Ronda 262 · 2026-10-19 · web: las pegatinas, más realistas (en local)
+- **Andoni (textual):** «¿podemos hacer que parezcan un poco más realistas los stickers?».
+- **Hecho (`Estudio.astro`; la de la ronda 261, en el scratchpad):** cada pegatina es UN SVG (dibujo + nombre a mano en `<text>`, Caveat) en cuatro capas: CANTO (la silueta
+  algo más oscura y desplazada 2,6 unidades abajo = el grosor del vinilo) · TROQUEL (papel con su luz, degradado de #FDFAF4 a #E8DFD2) · TINTA · BRILLO de vinilo en
+  diagonal sobre toda la pegatina, letras incluidas (`screen`, al 70 %). Dos sombras: de contacto pegada + suave; en el aire la sombra va lejos y difusa y al tocar se
+  pega, con el aplastado de la ronda 261. Más grandes (84–112 px) y el nombre unido al dibujo en una sola silueta. La lista de aficiones sigue en texto para lectores.
+- **Medido:** `astro check` 0 errores · `tools/r254/dibuja.cjs` (Chrome y WebKit, DPR 2): seis pegatinas con canto, brillo y sombra, 0 errores de consola.
+- Nada publicado.
+
+### Ronda 263 · 2026-10-19 · PUBLICADO: rondas 232–262 + el reel cinético en el menú, junto con lo último de Eric
+- **Andoni (textual):** «vale, publica esto junto con el reel y mira si Eric ha publicado algo para juntarlo».
+- **Hecho:** el reel del menú pasa a ser el CINÉTICO (`reel.mp4` 1600 × 900, 52,7 s, −16 LUFS; `reel-mini.mp4` = 7 s del tornado y el clic en Kuanta, 640 px, mudo;
+  pósters nuevos; «Reel · 0:53»); los de la ronda 237 («La mesa»), en `tools/retirados/reel-r237/` (local). `.gitignore`: el material pesado de los reels (proyectos
+  HyperFrames, renders, tomas) se queda en local; se versionan los scripts. Juntado con los 6 commits nuevos de Eric (correo de contacto, menú en móvil, pastillas de
+  Proyectos, savvia agentic en móvil, aviso «Desliza», web de dentro a 1280 px en móvil).

@@ -1,0 +1,13 @@
+const { chromium, launchOpts, userAgent } = require('/Users/andonimart/Desktop/savvia/savvia_inspo/scripts/pw.cjs');
+(async () => { const b = await chromium.launch(launchOpts); const ctx = await b.newContext({ viewport: { width: 1920, height: 1080 }, userAgent });
+  await ctx.addInitScript(() => { try { localStorage.setItem('savvia:carga', '1'); } catch {} });
+  const p = await ctx.newPage(); await p.goto('http://localhost:4332/?carga=0&grabando=1', { waitUntil: 'load' });
+  const cine = p.locator('[data-partitura] [data-cine]').first(); await cine.scrollIntoViewIfNeeded(); await p.waitForTimeout(3000);
+  await p.evaluate(() => window.__partitura.ir(0.2)); await p.waitForTimeout(300);
+  const info = await p.evaluate(() => { const c = document.querySelector('[data-partitura] [data-cine]'); const r = c.getBoundingClientRect();
+    const paths = [...c.querySelectorAll('svg path')].map((pa) => { const bb = pa.getBoundingClientRect(); return { d: (pa.getAttribute('d') || '').slice(0, 80), w: Math.round(bb.width), h: Math.round(bb.height), x: Math.round(bb.left - r.left), y: Math.round(bb.top - r.top), svg: pa.ownerSVGElement?.getAttribute('viewBox'), len: Math.round(pa.getTotalLength ? pa.getTotalLength() : 0) }; });
+    const labels = [...c.querySelectorAll('*')].filter((e) => e.children.length === 0 && /^(Estrategia|Voz|Cambios de copy|Editar ilustraciones|Identidad|Añadir idiomas)$/.test(e.textContent.trim())).map((e) => { const bb = e.getBoundingClientRect(); return [e.textContent.trim(), Math.round(bb.left - r.left), Math.round(bb.top - r.top), Math.round(bb.width), Math.round(bb.height)]; });
+    return { caja: [r.left, r.top, r.width, r.height], n: paths.length, paths: paths.slice(0, 30), labels }; });
+  console.log(JSON.stringify(info, null, 0).slice(0, 4000));
+  await cine.screenshot({ path: '/Users/andonimart/Desktop/savvia/savvia-web-main/tools/r238-cinetico/diagrama-probe.jpg', type: 'jpeg' });
+  await b.close(); })();

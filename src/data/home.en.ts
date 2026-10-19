@@ -10,7 +10,7 @@ export const nav = {
     { label: 'Lab', href: '/lab' },
     { label: 'Manifesto', href: '/en/manifiesto' },
   ] as { label: string; href: string }[],
-  reel: { label: 'Reel', duracion: '0:30' },
+  reel: { label: 'Reel', duracion: '0:53' },
   mas: { titulo: 'More', links: [{ label: 'System', href: '/sistema' }, { label: 'Method', href: '/metodo' }] as { label: string; href: string }[] },
 };
 

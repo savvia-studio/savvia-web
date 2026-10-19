@@ -215,6 +215,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
 <script>
   import { tecla, clic, teclear, papel, posar, tocar } from '../scripts/sonidos';
   import { t as tr } from '../scripts/i18n';
+  import { revelar } from '../scripts/revelar';
 
   const sec = document.querySelector<HTMLElement>('[data-partitura]');
   if (sec) iniciar(sec);
@@ -240,7 +241,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     if (grabando) sec.classList.add('grabando');
     else if (sec.hasAttribute('data-film-movil') && matchMedia('(width < 64rem)').matches) { peliculaMovil(); return; }
     function peliculaMovil() {
-      const film = cine.querySelector<HTMLVideoElement>('[data-film]')!;
+      let film = cine.querySelector<HTMLVideoElement>('[data-film]')!;
       [...cine.children].forEach((c) => { if (c !== film) c.remove(); }); // fuera la escena: sin nodos ni imágenes (la réplica de Neety pesa 19 MB decodificada)
       cine.classList.add('v', 'film-on');
       const nombre = () => `/media/partitura/partitura-${document.documentElement.dataset.estacion || 'otono'}-${film.dataset.lang === 'en' ? 'en' : 'es'}`;
@@ -260,7 +261,28 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         visible = e[0].isIntersecting;
         if (visible) { cargar(); if (!reducido) film.play().catch(() => {}); } else film.pause();
       }, { rootMargin: '40% 0px' }).observe(cine);
-      addEventListener('savvia:estacion', () => { if (visible) cargar(); else cargada = ''; });
+      // RONDA 232 · al cambiar de estación con la película a la vista, la nueva se carga en un segundo vídeo, se pone en el mismo instante y, cuando ya
+      // tiene imagen, se DESCUBRE encima con el canto rasgado desde abajo (como el árbol del hero); luego se retira la vieja. Antes: póster y salto.
+      let relevo = 0;
+      const relevar = () => {
+        const base = nombre();
+        if (base === cargada) return;
+        cargada = base;
+        const id = ++relevo, vieja = film, nueva = vieja.cloneNode(false) as HTMLVideoElement;
+        nueva.removeAttribute('poster'); nueva.preload = 'auto'; nueva.muted = true;
+        nueva.style.zIndex = '1'; nueva.style.visibility = 'hidden';
+        vieja.after(nueva);
+        nueva.src = archivo();
+        nueva.addEventListener('loadedmetadata', () => { nueva.currentTime = (vieja.currentTime || 0) % (nueva.duration || 1e9); }, { once: true });
+        nueva.addEventListener('seeked', () => {
+          if (id !== relevo) return nueva.remove();
+          nueva.play().catch(() => {});
+          nueva.style.visibility = '';
+          film = nueva;
+          revelar(nueva, { ox: 0.5, oy: 1, fin: () => { vieja.pause(); vieja.removeAttribute('src'); vieja.load(); vieja.remove(); nueva.style.zIndex = ''; } });
+        }, { once: true });
+      };
+      addEventListener('savvia:estacion', () => { if (visible && !reducido && cargada) relevar(); else if (visible) cargar(); else cargada = ''; });
       // el póster es el único fotograma antes de llegar (y con movimiento reducido)
       film.poster = `${nombre()}.jpg`;
       // si se cruza el punto de corte (girar una tableta, cambiar el ancho en escritorio), se recarga: son dos motores distintos
