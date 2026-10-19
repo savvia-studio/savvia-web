@@ -47,7 +47,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       <input id="cf-campo" type="text" maxlength="160" autocomplete="off" placeholder={T.ph} data-cf-campo />
       <button type="submit" class="cf-mandar" aria-label={T.enviar} data-cf-mandar><span set:html={ico(enviarR)} /></button>
     </form>
-    <p class="cf-mail">{T.prefieres} <a class="link" href={`mailto:${pie.correo}`}>{pie.correo}</a></p>
+    <p class="cf-mail">{T.prefieres} <a class="link" href={`mailto:${pie.correo}`} data-copiar={pie.correo}>{pie.correoTexto}</a></p>
   </section>
 </div>
 
@@ -241,6 +241,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
         const a = el('a', k === 0 ? 'cf-cta cf-cta-1' : 'cf-cta', resolver(x.t));
         a.href = x.h === 'cal' ? cal || `mailto:${correo}` : resolver(x.h);
         if (/^https?:/.test(a.href)) { a.target = '_blank'; a.rel = 'noopener'; }
+        if (a.href.startsWith('mailto:')) a.dataset.copiar = a.href.slice(7).split('?')[0];
         c.append(a);
       });
       return c;
@@ -352,7 +353,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       });
       f.append(r); lista.append(f); bajar();
       quien = 1 - quien;
-      await bot(fin, [{ t: t('Reservar una llamada de 15 minutos', 'Book a 15-minute call'), h: 'cal' }, { t: t('Escribir a hola@savvia.studio', 'Write to hola@savvia.studio'), h: `mailto:${correo}` }]);
+      await bot(fin, [{ t: t('Reservar una llamada de 15 minutos', 'Book a 15-minute call'), h: 'cal' }, { t: t('Contactar vía email', 'Contact via email'), h: `mailto:${correo}` }]);
       (window as any).__chatBrief = { ruta, respuestas, datos }; // para la fase 2 (envío)
     };
 
@@ -360,7 +361,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const buscar = (q: string) => mejorFicha(q, fichas);
     const libre = async (q: string) => {
       let hechas = 0; try { hechas = Number(sessionStorage.getItem('savvia-preguntas') || 0); } catch {}
-      if (hechas >= 12) { tu(q); await bot([t(`Mejor escríbenos a ${correo}.`, `Better write to us at ${correo}.`)]); campo.disabled = true; return; }
+      if (hechas >= 12) { tu(q); await bot([t('Mejor escríbenos por email.', 'Better email us.')]); campo.disabled = true; return; }
       try { sessionStorage.setItem('savvia-preguntas', String(hechas + 1)); } catch {}
       ocupado = true; tu(q); quien = 1 - quien;
       const local = buscar(q);
@@ -480,6 +481,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     pointer-events: auto;
     cursor: pointer; opacity: 0.85; translate: 0 0; filter: blur(0); }
   @media (width >= 64rem) { .cf-hola { bottom: max(4px, env(safe-area-inset-bottom)); } } /* la palabra, a la altura del icono (va después de su regla base) */
+  /* móvil: el icono, casi al borde (centro a 24 px; en iPhone, la mitad de la barra de inicio) */
+  @media (width < 64rem) { .cf-btn, .cf-hola { bottom: calc(env(safe-area-inset-bottom) / 2); } }
   /* RONDA 218 · Eric: «cuando haces hover sobre el chat, que siempre aparezca el ¿Hablamos?» (también al pasar del icono a la palabra: 4 px de hueco entre los dos) */
   @media (hover: hover) {
     .cf:not(.cf-abierto):not(.cf-fuera):is(:has(.cf-btn:hover), :has(.cf-hola:hover)) .cf-hola {

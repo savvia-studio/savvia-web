@@ -374,7 +374,7 @@ import { flecha } from '../../lib/flecha';
       if (b.tipo === 'contacto')
         return (
           <div class="contacto">
-            <a class="correo" href={`mailto:${contacto.correo}`}>{contacto.correo}</a>
+            <a class="correo" href={`mailto:${contacto.correo}`} data-copiar={contacto.correo}>{contacto.texto}</a>
             <p class="detail cn">{contacto.nota}</p>
             <ul class="paginas">
               {contacto.paginas.map((p) => (

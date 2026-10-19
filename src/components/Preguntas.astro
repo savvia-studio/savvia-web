@@ -127,6 +127,7 @@ import personasEn from '../data/personas.en.json';
               a.textContent = resolver(c.t, quien);
               a.href = c.h === 'cal' ? cal || `mailto:${correo}` : resolver(c.h, quien);
               if (/^https?:/.test(a.href)) { a.target = '_blank'; a.rel = 'noopener'; }
+              if (a.href.startsWith('mailto:')) a.dataset.copiar = a.href.slice(7).split('?')[0];
               caja.append(a);
             });
             rr.after(caja);
@@ -175,7 +176,7 @@ import personasEn from '../data/personas.en.json';
       if (q.length < 3 || ocupado) return campo.focus();
       // LÍMITE POR SESIÓN: 12 preguntas libres (la barrera de verdad, contra bots, está en el servidor: por IP y con tope de gasto)
       let hechas = 0; try { hechas = Number(sessionStorage.getItem('savvia-preguntas') || 0); } catch {}
-      if (hechas >= 12) { campo.value = ''; campo.placeholder = t('Mejor escríbenos a ', 'Better write to us at ') + correo; campo.disabled = true; return; }
+      if (hechas >= 12) { campo.value = ''; campo.placeholder = t('Mejor escríbenos por email', 'Better email us'); campo.disabled = true; return; }
       try { sessionStorage.setItem('savvia-preguntas', String(hechas + 1)); } catch {}
       ocupado = true; campo.value = '';
       const local = mejorFicha(q, fichas);

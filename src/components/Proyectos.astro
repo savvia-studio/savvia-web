@@ -286,7 +286,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const montadas = new Map<HTMLElement, Montada>();
     // RONDA 160 · «que la pantalla sea como si tuviese más altura, como la veo en mi MacBook Air»: la web se pinta al ancho de un MacBook Air
     // (1710 px, antes 1440) y se reduce: letra más pequeña y cabe más alto de cada sección (a 1440, Neety enseñaba sus pasos cortados).
-    const BASE = () => (innerWidth < 700 ? 1024 : 1710);
+    const BASE_PRUEBA = +(new URLSearchParams(location.search).get('base') || 0); // ronda 230: ?base=1710 para probar en el móvil qué ancho aguanta Safari
+    const BASE = () => (BASE_PRUEBA >= 800 && BASE_PRUEBA <= 1920 ? BASE_PRUEBA : innerWidth < 700 ? 1280 : 1710); // móvil por defecto a 1280: a 1710 Safari se quedó sin memoria
     // RONDA 160 · «el lateral de la web no está bien ajustado»: el iframe iba siempre 20 px más ancho (ronda 159) y en Mac, donde la barra se
     // superpone y no ocupa sitio, recortaba 20 px de la derecha de cada web. Ahora se ensancha solo lo que ocupa la barra en ESTE navegador (0 en Mac).
     const BARRA = (() => {
@@ -426,6 +427,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // ronda 160: declarados aquí porque entrar() los usa desde el primer fotograma (ver «seguir», más abajo)
     const TACTIL = matchMedia('(hover: none)').matches;
     const sigue = $('[data-sigue]'); document.body.append(sigue);
+    const MOVIL = matchMedia('(width < 48rem), (hover: none)').matches; // móvil: no hay puntero que seguir; la píldora va SIEMPRE centrada en el monitor
+    if (MOVIL) sigue.classList.add('fija');
+    if (TACTIL) sigue.querySelector('.txt')!.lastChild!.textContent = t('toca para sentarte', 'tap to sit down'); // táctil: la misma píldora que en escritorio, anclada en el centro del monitor
     // ronda 157: los textos de la píldora (B: se entra con el clic; D: con el movimiento) y «¿cae dentro del monitor?» (se declaran aquí: entrar() los usa desde el primer fotograma)
     const TXT_B = matchMedia('(hover: none)').matches ? t('toca para sentarte', 'tap to sit down') : t('clic para sentarte', 'click to sit down'), TXT_D = t('desliza dentro', 'scroll inside');
     const pistaTexto = $('[data-pista-texto]');
@@ -449,8 +453,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     //   no se ve su rueda), un scroll del visor o un toque. Si se va y no ha deslizado, vuelve a los 4 s fuera (hasta 3 veces).
     const aviso = $('[data-aviso-desliza]'), pantallaD = $('[data-pantalla]');
     if (TACTIL) $('[data-aviso-texto]').textContent = t('desliza dentro con el dedo para ver la web', 'swipe inside to see the site');
+    // ronda 230 (Eric: «ambas pills encima del ordenador, con algo de espacio, en mobile»): la pantalla recorta (overflow), así que en móvil el aviso sale
+    // al <body> y se coloca (fixed) justo encima del monitor
+    const colocaAviso = () => { if (!MOVIL) return; const r = pantallaD.getBoundingClientRect(); aviso.style.left = `${r.left + r.width / 2}px`; aviso.style.top = `${r.top - 16}px`; };
+    if (MOVIL) { aviso.classList.add('fuera'); document.body.append(aviso); }
     let vigilaD = 0, fuera0 = 0, dentro0 = 0, mostradas = 0, deslizado = false;
     const tictacD = () => {
+      colocaAviso();
       if (!sentado) { avisarDesliza(false); return; }
       // ronda 211 (Eric: «lo del desliza que aparezca cuando aparece ya la web»): con la cámara posada Y la pantalla de carga ya fuera (navegar() la retira al cargar la web, o a los 12 s)
       const w = webs[activo];
@@ -739,8 +748,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         // RONDA 157 (Eric) · en B «ya tiene que ser el slider igual que cuando estás sentado»: el selector de proyecto (sin el esc) y la ficha
         barra.hidden = nf !== 'B';
         escenario.classList.remove('mira');
-        if ((nf === 'C' || nf === 'D') && TACTIL) { pistaTexto.textContent = TXT_B; pistaScroll.classList.add('on'); } // ronda 167: en táctil, «toca para sentarte» mientras se aleja
-        else pistaScroll.classList.remove('on');
+        pistaScroll.classList.remove('on'); // táctil: «toca para sentarte» es la píldora del centro (invitarQuieto), no esta pista
       }
       if (!invita()) { if (sigue.classList.contains('on')) seguir(null); escenario.classList.remove('mira'); }
       else queueMicrotask(() => invitarQuieto()); // en microtarea: `invitarQuieto` se declara más abajo
@@ -778,8 +786,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const w = webs[activo]; desmontar(w); montar(w); ajustar();
       clearTimeout(finAviso);
       if (si) seguir(null);
-      if (fase === 'B' && TACTIL) { pistaTexto.textContent = TXT_B; pistaScroll.classList.toggle('on', !si); }
-      else pistaScroll.classList.remove('on');
+      pistaScroll.classList.remove('on');
     }
     let finAviso = 0, ultX = -1, ultY = -1;
     // RONDA 160 (Eric, Agentation) · «ese clic para navegar, más presente, como al pasar sobre la pantalla; y si haces clic, que los bordes de la
@@ -805,9 +812,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // fotograma de la entrada (que va con el scroll), si la escena invita y el puntero está encima, la silla sale ahí sin moverlo. Si el ratón no se
     // ha movido nunca en la página, sale en el centro del monitor.
     let pX = -1, pY = -1;
-    addEventListener('pointermove', (ev) => { if (ev.pointerType === 'mouse') { pX = ev.clientX; pY = ev.clientY; } }, { passive: true });
+    addEventListener('pointermove', (ev) => { if (!MOVIL && ev.pointerType === 'mouse') { pX = ev.clientX; pY = ev.clientY; } }, { passive: true });
     const invitarQuieto = () => {
-      if (TACTIL || sentado) return;
+      if (sentado) return;
       if (!invita()) return;
       // RONDA 171 (Eric: «que toda la sección tenga el ratón personalizado y que siempre se muestre aunque no hagas hover»): con el puntero sobre la
       // escena, la silla va en él; si no (fuera de la escena o sin haberlo movido nunca), se ancla en el centro del monitor
@@ -815,14 +822,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (er.bottom <= 0 || er.top >= innerHeight) return seguir(null); // la sección no se ve
       let x = pX, y = pY, encima = x >= er.left && x <= er.right && y >= er.top && y <= er.bottom;
       if (encima) { const sobre = document.elementFromPoint(x, y) as HTMLElement | null; if (sobre?.closest('[data-barra], .ui-info, [data-sentarse]')) encima = false; }
-      if (!encima) { const r = $('[data-pantalla]').getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; if (y < 24 || y > innerHeight - 24) return seguir(null); } // anclada al monitor, solo si se ve
+      if (!encima) { const r = $('[data-pantalla]').getBoundingClientRect(); x = r.left + r.width / 2; y = MOVIL ? r.top - 28 : r.top + r.height / 2; /* ronda 230: en móvil la píldora va ENCIMA del monitor (no tapa la pantalla) */ if (y < 24 || y > innerHeight - 24) return seguir(null); } // anclada al monitor, solo si se ve
       escenario.classList.toggle('mira', encima);
       seguir({ clientX: x, clientY: y } as PointerEvent);
     };
     addEventListener('scroll', () => { if (fase === 'D' || !invita()) invitarQuieto(); if (!invita() && sigue.classList.contains('on')) seguir(null); }, { passive: true });
     // la pantalla no coge el puntero de pie: el movimiento se mira en el escenario y se comprueba si cae dentro del rectángulo del monitor
     escenario.addEventListener('pointermove', (ev) => {
-      if (sentado || ev.pointerType !== 'mouse') return;
+      if (sentado || MOVIL || ev.pointerType !== 'mouse') return;
       if (invita()) { pX = ev.clientX; pY = ev.clientY; invitarQuieto(); return; } // ronda 161/165/171: toda la escena invita a sentarse
       if (explorando || fase !== 'D') return;
       const primero = ultX < 0, mov = Math.abs(ev.clientX - ultX) + Math.abs(ev.clientY - ultY); ultX = ev.clientX; ultY = ev.clientY;
@@ -1424,6 +1431,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     stroke-linejoin: round;
   }
   /* ronda 214 (Eric: «pon un icono que se entienda mejor»): un chevrón hacia abajo que se enciende y baja, el gesto universal de «sigue bajando» */
+  /* móvil: el monitor mide ~300 px y los cqh dejaban el aviso diminuto: en px, al pie de la pantalla (en el centro taparía la web que hay que deslizar) */
+  @media (width < 48rem) {
+    .aviso-desliza.fuera { position: fixed; bottom: auto; z-index: 60; translate: -50% calc(-100% + 6px); }
+    .aviso-desliza.fuera.on { translate: -50% -100%; }
+    .aviso-desliza { bottom: 12px; gap: 8px; padding: 5px 16px 5px 5px; font-size: 14px; background: color-mix(in oklab, var(--noche) 78%, transparent); }
+    .aviso-desliza .icono { width: 28px; height: 28px; }
+  }
   .aviso-desliza .ch { animation: ch-cascada 1.5s ease-in-out infinite; }
   @keyframes ch-cascada { 0%, 100% { opacity: 0.25; transform: translateY(-1px); } 40% { opacity: 1; transform: translateY(1.5px); } }
   @media (prefers-reduced-motion: reduce) { .aviso-desliza .ch { animation: none; } }
@@ -2177,6 +2191,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     clip-path: inset(0 calc(100% - 34px) 0 0 round 99px);
     transition: clip-path 0.35s cubic-bezier(0.5, 0, 0.75, 0);
   }
+  /* móvil: sin puntero, la píldora se centra en el monitor (el punto --x --y es el centro) y nace y se recoge desde su centro */
+  .sigue-cursor.fija .txt { transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%)); clip-path: inset(0 calc(50% - 17px) 0 calc(50% - 17px) round 99px); }
+  .sigue-cursor.fija.on .txt { clip-path: inset(0 0 0 0 round 99px); }
   .sigue-cursor.on .txt {
     clip-path: inset(0 0 0 0 round 99px);
     transition: clip-path 0.75s cubic-bezier(0.34, 1.5, 0.5, 1) 0.12s;

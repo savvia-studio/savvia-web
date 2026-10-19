@@ -60,7 +60,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       <div class="mas">
         <p class="detail detail-caps text-fg2">{nav.mas.titulo}</p>
         <ul class="text-lead mt-3 flex flex-col gap-1">
-          <li><a href={`mailto:${pie.correo}`} class="enlace inline-block">{pie.correo}</a></li>
+          <li><a href={`mailto:${pie.correo}`} data-copiar={pie.correo} class="enlace inline-block">{pie.correoTexto}</a></li>
           {nav.mas.links.map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}</li>)}
         </ul>
       </div>
@@ -93,19 +93,28 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
 </dialog>
 
 <script>
-  // Solo móvil: la barra se esconde al bajar y vuelve al subir un poco. Siempre visible en el hero, con el menú, la radio o el chat abiertos.
+  // Solo móvil: la barra se comporta como una barra ESTÁTICA de la página que, al subir, se vuelve «sticky»: baja con el contenido píxel a píxel
+  // (--barra-o = px escondidos, de 0 a su alto) y reaparece con el mismo gesto al subir. Al parar el dedo a medias, termina de salir o de volver.
+  // Siempre visible arriba del todo, con el menú, la radio o el chat abiertos.
   if (matchMedia('(width < 48rem)').matches) {
     const html = document.documentElement;
-    let ultimo = scrollY, acum = 0, pedido = false;
+    const barra = document.querySelector<HTMLElement>('.barra-nav');
+    let ultimo = scrollY, o = 0, pedido = false, parar = 0;
+    const alto = () => (barra ? barra.offsetHeight : 72);
     const abierto = () => html.classList.contains('menu-abierto') || !!document.querySelector('.radio.abierto, .cf-abierto');
+    const poner = (v: number) => {
+      o = v;
+      html.style.setProperty('--barra-o', o + 'px');
+      html.classList.toggle('barra-oculta', o > alto() / 2);
+    };
+    const asentar = () => { html.classList.remove('barra-sigue'); poner(o > alto() / 2 ? alto() : 0); };
     const revisar = () => {
       pedido = false;
       const y = Math.max(0, scrollY), d = y - ultimo; ultimo = y;
-      if (y < 64 || abierto()) { acum = 0; html.classList.remove('barra-oculta'); return; }
-      if (Math.sign(d) !== Math.sign(acum)) acum = 0; // cambio de sentido: se cuenta de nuevo
-      acum += d;
-      if (acum > 10) html.classList.add('barra-oculta');
-      else if (acum < -32) html.classList.remove('barra-oculta');
+      if (y <= 0 || abierto()) { html.classList.remove('barra-sigue'); if (o) poner(0); return; }
+      html.classList.add('barra-sigue');
+      poner(Math.min(alto(), Math.max(0, o + d)));
+      clearTimeout(parar); parar = window.setTimeout(asentar, 140);
     };
     addEventListener('scroll', () => { if (!pedido) { pedido = true; requestAnimationFrame(revisar); } }, { passive: true });
   }
@@ -125,6 +134,10 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     btn.setAttribute('aria-expanded', String(si));
     btn.setAttribute('aria-label', si ? t('Cerrar el menú', 'Close the menu') : t('Abrir el menú', 'Open the menu'));
     document.documentElement.classList.toggle('menu-abierto', si);
+    // ronda 230: los iconos y el logotipo cambian de color al compás del fondo de la tarjeta (se dibuja en 1,05 s y se recoge en 0,72 s)
+    document.documentElement.classList.add('menu-cambia');
+    clearTimeout((window as any).__menuCambia);
+    (window as any).__menuCambia = setTimeout(() => document.documentElement.classList.remove('menu-cambia'), 1100);
     // RONDA 40 · la tarjeta se DIBUJA desde el botón (líneas de sus enlaces, luego la pintura rasgada) y al cerrar se recoge hacia él
     const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
     const LINEA = tinta('cacao', 0.55); // Cacao, sobre la tarjeta Rosa niebla
@@ -504,12 +517,10 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     }
   }
   /* móvil: la barra se esconde al bajar (script de arriba) */
-  :global(html.barra-oculta) .barra-nav {
-    translate: 0 -60%;
-    opacity: 0;
-    filter: blur(6px);
-    pointer-events: none;
-  }
+  :global(html) .barra-nav { translate: 0 calc(var(--barra-o, 0px) * -1); }
+  :global(html.cargando) .barra-nav, :global(html.estudio-sentado) .barra-nav { opacity: 0; }
+  :global(html.barra-oculta) .barra-nav { pointer-events: none; }
+  :global(html.barra-sigue) .barra-nav { transition: none; } /* mientras hay scroll, sin retraso: sigue al dedo */
   :global(html.barra-oculta) .barra-nav > * { pointer-events: none; }
   .barra-nav { transition: translate 0.9s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.7s ease, filter 0.7s ease; }
   .barra-nav > * {
@@ -918,6 +929,20 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   html.menu-abierto [data-radio-play],
   html.menu-abierto [data-estacion-ic] {
     color: var(--color-cacao);
+  }
+  /* ronda 230 · en móvil la tarjeta cubre el logotipo: Cacao mientras está abierta */
+  @media (width < 36rem) {
+    html.menu-abierto .logo-marca {
+      background-color: var(--color-cacao);
+    }
+  }
+  html.menu-cambia [data-rejilla],
+  html.menu-cambia [data-radio-play],
+  html.menu-cambia [data-estacion-ic],
+  html.menu-cambia .logo-marca {
+    transition-property: color, background-color;
+    transition-duration: 0.72s;
+    transition-timing-function: ease;
   }
   html.estudio-sentado [data-nav] {
     opacity: 0;

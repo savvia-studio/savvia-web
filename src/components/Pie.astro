@@ -158,6 +158,20 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
       contacta.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { px = e.clientX; py = e.clientY; if (!cursorC.classList.contains('on')) poner(true); } }, { passive: true });
       contacta.addEventListener('pointerleave', () => poner(false));
       contacta.addEventListener('click', () => poner(false));
+      // ronda 229 · Eric: «a veces desaparece el ratón y no la píldora; y que aparezca aunque no muevas el ratón»: los eventos del puntero no llegan si el
+      // ratón está quieto (la palabra aparece o se hace pulsable debajo, o el scroll la quita de debajo): se comprueba con la última posición conocida
+      let lx = -1, ly = -1;
+      const sincro = () => {
+        if (lx < 0) return;
+        const bajo = document.elementFromPoint(lx, ly)?.closest('[data-contacta]') === contacta;
+        if (bajo) { px = lx; py = ly; if (!cursorC.classList.contains('on')) { cx = lx; cy = ly; hacerCta(true); poner(true); } }
+        else if (cursorC.classList.contains('on')) { hacerCta(false); poner(false); }
+      };
+      window.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { lx = e.clientX; ly = e.clientY; sincro(); } }, { passive: true });
+      document.addEventListener('pointerleave', () => { lx = -1; poner(false); hacerCta(false); });
+      window.addEventListener('scroll', sincro, { passive: true });
+      window.addEventListener('blur', () => { poner(false); });
+      new MutationObserver(sincro).observe(paisaje, { attributes: true, attributeFilter: ['class'] });
     }
     // RONDA 65 · «quitamos la iluminación del punto; que entre una luz como en el hero en todos los escenarios, y esa luz ilumina el Contáctanos»: el haz
     // (.luz-pie, 18°, sigue al ratón) está en todas las estaciones; donde cruza la palabra, una copia en luz cálida la ilumina (máscara: la banda del haz)
@@ -578,7 +592,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     opacity: 0; /* ronda 29: sale DESPUÉS de que el paisaje se haya pintado */
     white-space: nowrap;
     pointer-events: none;
-    transition: color 0.5s ease, opacity 0.8s ease, clip-path 0.9s var(--ease-out-expo);
+    transition: color 0.5s ease, opacity 1.8s cubic-bezier(0.22, 0.61, 0.36, 1), clip-path 0.9s var(--ease-out-expo);
   }
   .contacta-tras {
     z-index: 0; /* antes que los montes en el DOM: las montañas la tapan */
@@ -594,16 +608,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
      (--rev, máscara) mientras sale del desenfoque, en 2,6 s; la mitad de detrás, un poco después (asoma tras las montañas) */
   .pintado .contacta { opacity: 1; }
   /* (solo las LETRAS: la máscara sobre el enlace recortaría la puerta, que sobresale por arriba) */
-  .contacta-tras > span:first-child,
-  .contacta-delante [data-contacta-txt] {
-    --rev: -30%;
-    filter: blur(14px);
-    -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--rev) - 30%), transparent var(--rev));
-    mask-image: linear-gradient(90deg, #000 calc(var(--rev) - 30%), transparent var(--rev));
-    transition: --brillo 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) 0.25s, filter 2.2s cubic-bezier(0.22, 0.61, 0.36, 1), --rev 2.6s cubic-bezier(0.45, 0, 0.25, 1);
-  }
-  .pintado .contacta-tras > span:first-child,
-  .pintado .contacta-delante [data-contacta-txt] { --rev: 130%; filter: blur(0); }
+  /* ronda 229 · Eric: «que salga directo de opacidad 0-1, smooth, sin letra por letra»: sin máscara ni desenfoque, solo el fundido del bloque */
   /* la copia iluminada por el haz entra cuando la palabra ya se ha descubierto */
   .contacta .contacta-luz { opacity: 0; transition: opacity 1.2s ease 1.6s; }
   .pintado .contacta .contacta-luz { opacity: 1; }
@@ -629,9 +634,8 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     background: color-mix(in oklab, var(--pal) calc(88% + var(--brillo) * 12%), transparent);
     -webkit-background-clip: text;
     background-clip: text;
-    transition: --brillo 0.5s ease, filter 2.2s cubic-bezier(0.22, 0.61, 0.36, 1), --rev 2.6s cubic-bezier(0.45, 0, 0.25, 1);
+    transition: --brillo 0.5s ease;
   }
-  .contacta-tras > span:first-child { transition-delay: 0s, 0.3s, 0.3s; }
   .cta-abierto .contacta-tras > span:first-child,
   .cta-abierto .contacta [data-contacta-txt] { --brillo: 1; }
   :global(html[data-estacion='invierno']) .contacta-tras > span:first-child,
@@ -658,7 +662,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   /* RONDA 228 · la píldora que sustituye al ratón sobre «Contáctanos» (el mismo lenguaje que «clic para sentarte» de Proyectos: cristal, círculo con icono en la
      punta del puntero que se estira hasta la píldora con un rebote líquido) */
   @media (hover: hover) { .pintado .contacta-delante { cursor: none; } }
-  .cursor-contacto { position: fixed; left: 0; top: 0; z-index: 70; pointer-events: none; opacity: 0; transition: opacity 0.25s ease; }
+  .cursor-contacto { position: fixed; left: 0; top: 0; z-index: 70; pointer-events: none; opacity: 0; transition: opacity 0.25s ease 0s; }
   .cursor-contacto.on { opacity: 1; }
   .cursor-contacto .txt {
     position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; padding: 4px 13px 4px 4px; border-radius: 99px;
@@ -667,10 +671,10 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     color: var(--color-niebla); font-family: var(--font-sans); font-weight: 500; font-size: 12.5px; line-height: 1; white-space: nowrap;
     transform: translate(calc(var(--x, 0px) - 17px), calc(var(--y, 0px) - 17px));
-    clip-path: inset(0 calc(100% - 34px) 0 0 round 99px);
-    transition: clip-path 0.35s cubic-bezier(0.5, 0, 0.75, 0);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
-  .cursor-contacto.on .txt { clip-path: inset(0 0 0 0 round 99px); transition: clip-path 0.75s cubic-bezier(0.34, 1.5, 0.5, 1) 0.12s; }
+  .cursor-contacto.on .txt { opacity: 1; transition: opacity 0.7s ease 0.5s; }
   .cursor-contacto svg { flex: none; width: 26px; height: 26px; padding: 4.5px; border-radius: 50%; background: var(--color-coral); stroke: #1b1714; stroke-width: 1.6; stroke-linejoin: round; }
   @media (prefers-reduced-motion: reduce) { .cursor-contacto, .cursor-contacto .txt { transition: none; } }
   .capa.hierba {
