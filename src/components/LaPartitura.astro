@@ -803,6 +803,12 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       curs.forEach((c, q) => {
         const [x, y] = manoEn(q, t);
         pon(c, 'transform', `translate3d(${f2(x * k)}px, ${f2(y * k)}px, 0)`);
+        // la etiqueta pasa a la izquierda del cursor si no cabe a la derecha (Publicar queda pegado al borde: «Tu equipo» se cortaba)
+        const et = c.querySelector<HTMLElement>('span');
+        if (et) {
+          const ew = et.offsetWidth, off = et.offsetLeft, over = x * k + off + ew + 12 - cine.clientWidth;
+          pon(et, 'translate', `${f2(-clamp(over / 24) * (ew + off - 4))}px 0`); // espejo del caso normal: su borde derecho, junto a la flecha
+        }
         let cl = 0, on = 0;
         for (const tc of CLICS[q]) { cl = Math.max(cl, blip(t, tc, 0.35)); const p = prog(t, tc, tc + 0.5); if (p > 0 && p < 1) on = p; }
         pon(c, '--clic', f3(cl));
@@ -1181,8 +1187,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
      una etiqueta mono; al leer y al estar listo, los tres avatares; al publicar, un check en savia y el dominio */
   .estado {
     position: absolute;
-    right: 28px;
-    bottom: 28px;
+    right: 42px; /* 28 px de aire desde el marco de la home (el lienzo tiene 14 px de relleno) */
+    bottom: 42px;
     z-index: 5;
     display: flex;
     align-items: center;
@@ -1284,13 +1290,13 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .app.v .campo { min-height: 44px; font-size: 16px; }
   .app.v .pie-chat { font-size: 13px; }
   .app.v .enviar { width: 32px; height: 32px; }
-  .app.v .estado { right: 14px; bottom: 14px; gap: 8px; font-size: 11.5px; padding: 5px 11px 5px 5px; }
+  .app.v .estado { right: 26px; bottom: 26px; gap: 8px; font-size: 11.5px; padding: 5px 11px 5px 5px; }
   .app.v .e-av, .app.v .e-ok, .app.v .e-trio i { width: 20px; height: 20px; font-size: 9px; }
   .app.v .e-txt code { font-size: 10.5px; padding: 2px 6px; }
   .app.v .chip { font-size: 10.5px; padding: 3px 7px; }
   .app.v .neety { height: 412px; border-radius: 12px; }
   .cursor { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; will-change: transform; }
-  .cursor svg { position: relative; width: 18px; height: 18px; display: block; fill: var(--c); filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.18)); scale: calc(1 - var(--clic, 0) * 0.2); transform-origin: 2px 2px; }
+  .cursor svg { position: relative; width: 18px; height: 18px; display: block; fill: var(--c); stroke: #fff; stroke-width: 1.4px; stroke-linejoin: round; paint-order: stroke; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.18)); scale: calc(1 - var(--clic, 0) * 0.2); transform-origin: 2px 2px; }
   .cursor span { position: absolute; left: 14px; top: 16px; padding: 0.15em 0.6em; border-radius: 999px; background: var(--c); color: #fff; font-size: 0.8125rem; line-height: 1.5; white-space: nowrap; }
   .cursor .onda { position: absolute; left: 2px; top: 2px; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 1.5px solid var(--c); opacity: calc((1 - var(--onda, 0)) * min(1, var(--onda, 0) * 20)); scale: calc(0.2 + var(--onda, 0) * 1.3); }
   .cine.v .cursor span { font-size: 0.6875rem; left: 11px; top: 13px; }
@@ -1302,6 +1308,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .cursor .ic { display: inline-grid; place-items: center; width: 12px; height: 12px; flex: none; }
   .cursor .ic :global(svg) { width: 100%; height: 100%; display: block; }
   .cine.v .cursor .ic { width: 10px; height: 10px; }
+  .cine.v .cursor[data-quien='savvia'] .ic { width: 14px; height: 14px; } /* el favicon a la escala de la píldora móvil (con 10 px desbordaba y el árbol quedaba más bajo que el texto) */
+  .cine.v .cursor .ic :global(.fav) { width: 14px; height: 14px; translate: 0 -3px; }
   /* savvia: el favicon de la estación (el árbol, en la mitad baja: se sube 2 px para casar con el texto), sobre una píldora de su mismo fondo */
   .cursor .ic :global(.fav) { width: 16px; height: 16px; border-radius: 3px; background: url(/favicon-otono-32.png?v=205) center / cover; translate: 0 -3.5px; }
   .cursor[data-quien='savvia'] .ic { width: 16px; height: 16px; }
