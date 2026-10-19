@@ -142,6 +142,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <slot />
     <script>
       import '../scripts/entradas';
+      import '../scripts/copiar-correo'; // el correo se copia, no abre el programa de correo
       import '../scripts/transicion';
       // ronda 134: fuera '../scripts/cta' (la gota de los CTA de cristal: el CTA ya es Coral lleno)
       import '../scripts/cta-liquido'; // ronda 136: el color del CTA primario entra como un líquido desde donde entra el cursor

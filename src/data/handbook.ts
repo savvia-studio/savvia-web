@@ -578,7 +578,7 @@ export const capitulos: Capitulo[] = [
   },
 ];
 
-export const contacto = { correo: pie.correo, nota: preguntas.nota, paginas: nav.links };
+export const contacto = { correo: pie.correo, texto: pie.correoTexto, nota: preguntas.nota, paginas: nav.links };
 export const testimonios = proyectosHome.testimonios;
 export const juntos = IMG.juntos;
 
