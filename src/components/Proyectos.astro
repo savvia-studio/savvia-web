@@ -1396,10 +1396,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     stroke-linejoin: round;
   }
   /* ronda 214 (Eric: «pon un icono que se entienda mejor»): un chevrón hacia abajo que se enciende y baja, el gesto universal de «sigue bajando» */
-  /* móvil: el monitor mide ~300 px y los cqh dejaban el aviso diminuto y pegado abajo: en px y centrado en la pantalla, como la píldora de sentarse */
+  /* móvil: el monitor mide ~300 px y los cqh dejaban el aviso diminuto: en px, al pie de la pantalla (en el centro taparía la web que hay que deslizar) */
   @media (width < 48rem) {
-    .aviso-desliza { top: 50%; bottom: auto; gap: 8px; padding: 5px 16px 5px 5px; font-size: 14px; translate: -50% calc(-50% + 6px); }
-    .aviso-desliza.on { translate: -50% -50%; }
+    .aviso-desliza { bottom: 12px; gap: 8px; padding: 5px 16px 5px 5px; font-size: 14px; background: color-mix(in oklab, var(--noche) 78%, transparent); }
     .aviso-desliza .icono { width: 28px; height: 28px; }
   }
   .aviso-desliza .ch { animation: ch-cascada 1.5s ease-in-out infinite; }
