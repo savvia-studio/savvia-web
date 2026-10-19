@@ -588,15 +588,18 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   .rejilla span:nth-child(3) { --dx: -1; --dy: 1; }
   .rejilla span:nth-child(7) { --dx: 1; --dy: -1; }
   .rejilla span:nth-child(9) { --dx: -1; --dy: -1; }
-  .rejilla:hover span:nth-child(odd):not(:nth-child(5)) {
-    transform: translate(calc(var(--dx) * 0.4375rem), calc(var(--dy) * 0.4375rem)) scale(1.5);
-  }
-  .rejilla:hover span:nth-child(5) {
-    transform: scale(2.1);
-  }
-  .rejilla:hover span:nth-child(even) {
-    transform: scale(0.55);
-    opacity: 0.55;
+  /* en táctil :hover se queda pegado tras el toque y pedía un segundo tap para recoger los puntos: el hover, solo con puntero */
+  @media (hover: hover) {
+    .rejilla:hover span:nth-child(odd):not(:nth-child(5)) {
+      transform: translate(calc(var(--dx) * 0.4375rem), calc(var(--dy) * 0.4375rem)) scale(1.5);
+    }
+    .rejilla:hover span:nth-child(5) {
+      transform: scale(2.1);
+    }
+    .rejilla:hover span:nth-child(even) {
+      transform: scale(0.55);
+      opacity: 0.55;
+    }
   }
   .rejilla[aria-expanded='true'] span:nth-child(even) {
     opacity: 0;
@@ -605,11 +608,13 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   .rejilla[aria-expanded='true'] span:nth-child(odd) {
     transform: scale(1.6);
   }
-  .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)) {
-    transform: translate(calc(var(--dx) * 0.2rem), calc(var(--dy) * 0.2rem)) scale(2.1);
-  }
-  .rejilla[aria-expanded='true']:hover span:nth-child(5) {
-    transform: scale(2.2);
+  @media (hover: hover) {
+    .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)) {
+      transform: translate(calc(var(--dx) * 0.2rem), calc(var(--dy) * 0.2rem)) scale(2.1);
+    }
+    .rejilla[aria-expanded='true']:hover span:nth-child(5) {
+      transform: scale(2.2);
+    }
   }
 
   .velo {

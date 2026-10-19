@@ -171,6 +171,10 @@ const { hero } = home(langDe(Astro.currentLocale));
     padding-top: calc(var(--spacing) * 24);
     padding-bottom: 0; /* RONDA 16: el pie del árbol ES el pie del hero («para que no se vea el corte»); las raíces nacen justo debajo */
   }
+  /* móvil: Safari/Chrome con la barra inferior visible recortan el pantallazo (svh < lvh): el hero mide lo que se ve y el árbol entero cabe encima de la barra */
+  @media (width < 48rem) {
+    .hero { min-height: 100svh; }
+  }
   /* PRUEBA hero-claro (?hero=blanco|claro): los detalles que eran Rosa niebla pasan a Cacao; con «blanco», el fondo es blanco puro */
   :global(html.hero-claro) .hero {
     --tinta-hero: var(--color-cacao);

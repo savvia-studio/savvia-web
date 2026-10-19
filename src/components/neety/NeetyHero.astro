@@ -204,7 +204,7 @@ const SUB = en ? 'This is not another tool for sending more messages. Neety tell
       </div>
     </section>
   )}
-  {caja && <img class="nh-secciones" src={`${A}/secciones-768.webp`} alt="" width="768" height="2700" decoding="async" />}
+  {caja && <img class="nh-secciones" src={`${A}/secciones-1152.webp`} alt="" width="768" height="2700" decoding="async" />}
 </Main>
 </div>
 
@@ -315,6 +315,8 @@ const SUB = en ? 'This is not another tool for sending more messages. Neety tell
   @container nh (min-width: 48rem) { .nh-hamb { right: 20px; top: 20px; } }
   @container nh (min-width: 64rem) { .nh-hamb { display: none; } }
 
+  /* iOS: sin backdrop-filter en táctil (cada banda es un búfer de fondo a pantalla completa y Safari reinicia la pestaña por memoria); queda el tinte de <b> */
+  @media (pointer: coarse) { .nh-blur i, .nh-blur.on i { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; } }
   /* ── la card y su degradado con muesca ─────────────────────────────── */
   .nh-card { position: relative; isolation: isolate; max-width: 1600px; margin-inline: auto; border-radius: 16px; }
   @container nh (min-width: 48rem) { .nh-card { border-radius: 24px; } }
@@ -436,7 +438,7 @@ const SUB = en ? 'This is not another tool for sending more messages. Neety tell
   .sf-stage { position: absolute; left: 0; top: 0; width: 408px; height: 760px; transform-origin: 0 0; }
   .sf-feed { position: absolute; left: 0; right: 0; top: 0; display: flex; flex-direction: column; gap: 12px; }
   .sf-hueco { height: 340px; width: 100%; flex: none; }
-  .sf-card { display: flex; width: 100%; flex-direction: column; align-items: center; border-radius: 12px; background: rgba(67, 27, 68, 0.1); padding: 4px; will-change: transform, opacity; }
+  .sf-card { display: flex; width: 100%; flex-direction: column; align-items: center; border-radius: 12px; background: rgba(67, 27, 68, 0.1); padding: 4px; }
   @container nh (min-width: 64rem) { .sf-card { -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); will-change: transform, opacity, filter; } }
   .sf-c { position: relative; display: flex; width: 100%; flex-direction: column; border-radius: 10px; background: #fff; font-family: var(--sans); }
   .g3 { gap: 12px; }

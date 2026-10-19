@@ -1005,7 +1005,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   /* ronda 152 · «cogemos un color sólido y se pone el degradado: hay que corregirlo»: la muestra que se coge ES el degradado del hero, con su grano */
   /* RONDA 188 · Eric: «el degradado de la librería, "degradado granular", y que sea el que ponemos luego»: la MISMA imagen horneada del hero (la de tablet,
      la que cae en la home), recortada a la muestra */
-  .sw .blk.grad { background: url('/media/neety-hero/hero-bg-mobile-v5.avif') 50% 62% / cover no-repeat; }
+  .sw .blk.grad { background: url('/media/neety-hero/hero-bg-muestra.webp') 50% 62% / cover no-repeat; }
   .sw .nm { padding: 7px 9px 0; font-size: 12.5px; font-weight: 500; line-height: 1.15; }
   .sw .hx { padding: 3px 9px 8px; font-family: var(--font-mono); font-size: 9.5px; color: rgb(67 27 68 / 0.5); }
   .rampas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
@@ -1146,6 +1146,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     box-shadow: 0 1px 2px rgb(42 14 44 / 0.06), 0 14px 32px -16px rgb(42 14 44 / 0.4);
     opacity: 0;
   }
+  /* táctil: sin backdrop-filter (memoria en iOS); el fondo ya es blanco al 90 % */
+  @media (pointer: coarse) { .estado { -webkit-backdrop-filter: none; backdrop-filter: none; } }
   .e-av, .e-ok, .e-trio i { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; color: #fff; font-style: normal; font-size: 10px; font-weight: 600; letter-spacing: 0.01em; }
   .e-av { background: var(--c, #431b44); transition: background-color 0.3s; }
   .e-trio { display: flex; padding-left: 6px; }

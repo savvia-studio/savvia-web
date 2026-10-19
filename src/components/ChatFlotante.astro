@@ -415,12 +415,16 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
 </script>
 
 <style is:global>
-  .cf { --cf-m: 16px; }
+  .cf { --cf-m: 16px; --cf-g: 20px; }
+  @media (width >= 48rem) { .cf { --cf-g: 32px; } }
+  @media (width >= 64rem) { .cf { --cf-g: 48px; } }
+  /* el borde derecho del icono (22 px centrado en 48) cae sobre el carril derecho: margen del contenedor menos los 13 px de aire del botón */
+  .cf { --cf-r: max(0px, calc((100vw - var(--contenido) - var(--cf-g) * 2) / 2)); --cf-lado: calc(var(--cf-r) + var(--cf-g) - 16px); }
   /* ICONO A SECAS, como los de arriba a la derecha (radio, estación, rejilla): sin círculo ni cristal; Rosa niebla sobre lo oscuro y Cacao sobre lo claro */
   .cf-btn {
     position: fixed;
     z-index: 52;
-    right: max(var(--cf-m), env(safe-area-inset-right));
+    right: var(--cf-lado);
     bottom: max(var(--cf-m), env(safe-area-inset-bottom));
     width: 48px;
     height: 48px;
@@ -444,7 +448,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf-hola {
     position: fixed;
     z-index: 52;
-    right: calc(max(var(--cf-m), env(safe-area-inset-right)) + 48px + 4px);
+    right: calc(var(--cf-lado) + 48px + 4px);
     bottom: max(var(--cf-m), env(safe-area-inset-bottom));
     height: 48px;
     display: flex;

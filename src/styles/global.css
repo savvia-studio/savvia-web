@@ -339,7 +339,7 @@ html {
    lo que se corta son estelas. */
 :root {
   /* RONDA 14 · «el árbol tiene que ser más pequeño»: ~70 % del de la ronda 13 */
-  --roble-h: clamp(8rem, 100lvh - 29rem, 12.5rem);
+  --roble-h: clamp(8rem, 100svh - 29rem, 12.5rem); /* svh: con la barra de Safari el árbol no se corta */
   --roble-w: min(calc(var(--roble-h) * 2.1612), 116vw);
 }
 @media (width >= 48rem) {
