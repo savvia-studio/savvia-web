@@ -310,6 +310,13 @@ import { icono } from '../lib/iconos';
         v.dataset.cargado = '1';
         const so = document.createElement('source'); so.src = v.dataset.src!; so.type = 'video/mp4'; v.appendChild(so); v.load();
       };
+      // RONDA 218 · Safari se quedaba sin memoria: cada vídeo del visor, una vez cargado, no se soltaba nunca. Ahora solo viven el actual y sus dos vecinos, y al cerrar se sueltan todos
+      const soltar = (i: number) => {
+        const v = vid(i);
+        if (!v.dataset.cargado) return;
+        v.pause(); v.querySelectorAll('source').forEach((x) => x.remove()); v.removeAttribute('src'); v.load();
+        delete v.dataset.cargado;
+      };
       const ir = (n: number, animar = true) => {
         n = (n + slides.length) % slides.length;
         const cambia = n !== cur;
@@ -325,10 +332,12 @@ import { icono } from '../lib/iconos';
           } else { v.pause(); }
         });
         carga((n + 1) % slides.length); carga((n - 1 + slides.length) % slides.length);
+        slides.forEach((_, i) => { const d = (i - n + slides.length) % slides.length; if (d > 1 && d < slides.length - 1) soltar(i); });
         const d = slides[n].dataset;
         nombre.textContent = d.n ?? ''; sector.textContent = d.sector ?? '';
         if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
       };
+      vis.addEventListener('close', () => slides.forEach((_, i) => soltar(i)));
       const abre = (i: number) => {
         if (vis.open) return;
         vuelta = document.activeElement as HTMLElement | null;

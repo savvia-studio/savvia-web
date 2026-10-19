@@ -76,6 +76,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       role="img"
       aria-label={en ? "Looping film: what goes into a website (strategy, voice, identity, components…) is stored in Neety's library. Their team asks for a new hero; Claude, Codex and savvia pick pieces from Neety's real library (the hero gradient, the XL H1 headline, the Request a demo button, the spacing, the logo and the pulsing dot) and place them on its home page. Once published on neety.com, the same library is used to change copy, edit illustrations, create landing pages for ads, upload the blog to the CMS, add languages, publish client case studies, update pricing, tune SEO, run A/B tests and review accessibility." : "Película en bucle: lo que entra en una web (estrategia, voz, identidad, componentes…) se guarda en la librería de Neety. Su equipo pide un hero nuevo; Claude, Codex y savvia cogen piezas de la librería real de Neety (el degradado del hero, el titular H1 XL, el botón Solicitar demo, el espaciado, el logotipo y el punto pulsante) y las colocan en su home. Al publicar en neety.com, la misma librería sirve para cambiar textos, editar ilustraciones, crear landings para anuncios, subir el blog al CMS, añadir idiomas, publicar casos de cliente, actualizar precios, ajustar el SEO, hacer tests A/B y revisar la accesibilidad."}
     >
+      <video class="film" data-film data-lang={lang} muted loop playsinline preload="none" aria-hidden="true" tabindex="-1" disablepictureinpicture></video>
       <svg class="mapa" aria-hidden="true" data-mapa></svg>
 
       <!-- LA LIBRERÍA POR DENTRO (r118): la librería REAL de Neety en miniatura (índice + secciones que se recorren con el reloj) y, al lado, la home que se monta con lo que cogen los agentes. Escritorio 1360 × 720; móvil 580 × 800 -->
@@ -228,6 +229,38 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const NS = 'http://www.w3.org/2000/svg';
 
+    // ── MÓVIL: vídeo grabado en lugar de la escena viva. RONDA 218 · Eric: «cuando estoy en la ilustración animada es donde me sale pantalla en negro» (Safari
+    // reinicia la pestaña): la escena viva son ~900 nodos, una réplica de Neety de 1152 × 4050 y cientos de estilos por fotograma. El vídeo (tools/grabar-partitura.cjs,
+    // fotograma a fotograma desde `__partitura.ir(t)`) lo decodifica el hardware. Una estación y un idioma por archivo; el escritorio sigue con la escena viva.
+    // ?grabando=1 (tools/grabar-partitura.cjs): la escena viva también en móvil, para grabarla
+    const grabando = /[?&]grabando=1/.test(location.search);
+    if (grabando) sec.classList.add('grabando');
+    else if (matchMedia('(width < 64rem)').matches) { peliculaMovil(); return; }
+    function peliculaMovil() {
+      const film = cine.querySelector<HTMLVideoElement>('[data-film]')!;
+      [...cine.children].forEach((c) => { if (c !== film) c.remove(); }); // fuera la escena: sin nodos ni imágenes (la réplica de Neety pesa 19 MB decodificada)
+      cine.classList.add('v', 'film-on');
+      const nombre = () => `/media/partitura/partitura-${document.documentElement.dataset.estacion || 'otono'}-${film.dataset.lang === 'en' ? 'en' : 'es'}`;
+      let cargada = '', visible = false;
+      const cargar = () => {
+        const base = nombre();
+        if (base === cargada) return;
+        const t = film.currentTime || 0;
+        cargada = base; film.poster = `${base}.jpg`; film.src = `${base}.mp4`;
+        if (t) film.addEventListener('loadedmetadata', () => { film.currentTime = t; }, { once: true });
+        if (visible && !reducido) film.play().catch(() => {});
+      };
+      new IntersectionObserver((e) => {
+        visible = e[0].isIntersecting;
+        if (visible) { cargar(); if (!reducido) film.play().catch(() => {}); } else film.pause();
+      }, { rootMargin: '40% 0px' }).observe(cine);
+      addEventListener('savvia:estacion', () => { if (visible) cargar(); else cargada = ''; });
+      // el póster es el único fotograma antes de llegar (y con movimiento reducido)
+      film.poster = `${nombre()}.jpg`;
+      // si se cruza el punto de corte (girar una tableta, cambiar el ancho en escritorio), se recarga: son dos motores distintos
+      matchMedia('(width < 64rem)').addEventListener('change', () => location.reload());
+    }
+
     // ── el TIEMPO, en segundos: bucle de 16 s
     // RONDA 188 · `D`: segundos de guion que se añaden tras publicar para que la cámara se quede dentro mientras la home de Neety baja por sus secciones
     // (Eric: «que el scroll sea mayor, que se muestren 3-4 secciones»). Todo lo que viene después (salida de cámara, salidas, bucle) se desplaza D.
@@ -341,7 +374,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     let modo: 'h' | 'v' = mqV.matches ? 'v' : 'h';
     let W = 1600, H = 900, k = 1;
     // la tarjeta de la librería: se dibuja en SW0 × SH0 y se escala KH (ronda 188: un 20 % mayor y 16 más alta, para su pie de «publicado»)
-    const SW0 = 236, SH0 = 176, KH = 1.2, SW = SW0 * KH, SH = SH0 * KH, HOLD = 40;
+    let SW0 = 236, SW = SW0 * 1.2; // ronda 218: en móvil (modo v) la tarjeta se ensancha (330): «la caja de en medio, muy estrecha» frente a las filas de 440
+    const SH0 = 176, KH = 1.2, SH = SH0 * KH, HOLD = 40;
     type Caja = { lado: 'in' | 'out'; i: number; g: SVGGElement; x: number; y: number; w: number; h: number; P: number[]; tabla: number[]; hilo: SVGPathElement; pulso: SVGPathElement; cabeza: SVGCircleElement };
     let cajas: Caja[] = [], ins: Caja[] = [], outs: Caja[] = [];
     let cmsTx: SVGTextElement | null = null; // ronda 203: el aviso del CMS junto a «Subir blog al CMS»
@@ -375,6 +409,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       H = modo === 'h' ? 900 : 840;
       cine.classList.toggle('v', modo === 'v');
       win.classList.toggle('v', modo === 'v');
+      SW0 = modo === 'v' ? 330 : 236; SW = SW0 * KH;
       k = cine.clientWidth / W;
       svg.innerHTML = '';
       svg.setAttribute('viewBox', `0 0 ${cine.clientWidth} ${cine.clientHeight}`);
@@ -617,7 +652,9 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     const salida = (q: number): Kf[] => CONS.filter((c) => c.ag === q).flatMap((c) => [[c.A - 0.85, enCaja('in', c.i), M], [c.A - 0.45, enCaja('in', c.i), Ln]] as Kf[]);
     const fuera = [Of(0.46, -0.25), Of(-0.3, 0.32), Of(-0.3, 0.86), Of(0.3, 1.25)];
     const esq: [number, number][] = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
-    const ESPERA = [Vp(() => lienzo, 0.32, 0.13), Vp(() => lienzo, 0.8, 0.12), Vp(() => lienzo, 0.9, 0.66), Vp(() => composer, 0.96, 0.62)];
+    // móvil (modo v): la ventana es estrecha y la etiqueta del cursor (≈110 u. a la derecha de la flecha) se salía del marco: las esperas, más al centro
+    const segun = (h: Ancla, v: Ancla): Ancla => (t) => (modo === 'v' ? v : h)(t);
+    const ESPERA = [Vp(() => lienzo, 0.32, 0.13), segun(Vp(() => lienzo, 0.8, 0.12), Vp(() => lienzo, 0.52, 0.12)), segun(Vp(() => lienzo, 0.9, 0.66), Vp(() => lienzo, 0.6, 0.66)), segun(Vp(() => composer, 0.96, 0.62), Vp(() => composer, 0.5, 0.62))];
     const intro = (q: number): Kf[] => {
       const e = EDIT.find((x) => x.ag === q)!;
       return [
@@ -911,6 +948,12 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   }
   :global(html[data-paleta='clara']) .cine { --hoja-papel: #fbfbfa; }
   .cine.v { aspect-ratio: 5 / 7; }
+  /* móvil: la escena viva ni se pinta (display none antes de la primera pintura) y el vídeo llena la caja */
+  .film { display: none; }
+  @media (width < 64rem) {
+    .la-partitura:not(.grabando) .cine > :not(.film) { display: none; }
+    .la-partitura:not(.grabando) .film { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  }
   .mapa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .mapa :global(.hilo) { fill: none; stroke: color-mix(in oklab, var(--tinta) 26%, transparent); stroke-width: calc(var(--u) * 1px); }
   .mapa :global(.pulso) { fill: none; stroke-width: calc(var(--u) * 2px); stroke-linecap: round; }
@@ -1053,6 +1096,12 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   .fc-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: rgb(67 27 68 / 0.3); scale: calc(1 + var(--late, 0) * 2); opacity: calc(1 - var(--late, 0)); }
   /* la COPIA que se despega del elemento y viaja con el cursor (translate + scale por el reloj) */
   .app > :global(.gh) { position: absolute; left: 0; top: 0; z-index: 9; margin: 0; pointer-events: none; opacity: 0; transform-origin: 50% 50%; outline: none; filter: drop-shadow(0 16px 20px rgb(36 28 25 / 0.32)); will-change: transform; }
+
+  /* táctil (iPhone al límite de memoria al coger piezas): la copia en vuelo cambia a cada fotograma y `drop-shadow` obliga a repintar su filtro entero cada vez; sombra de caja, que no */
+  @media (pointer: coarse) {
+    .app > :global(.gh) { filter: none; box-shadow: 0 14px 18px -10px rgb(36 28 25 / 0.35); }
+    .cursor svg { filter: none; }
+  }
 
   .lienzo { grid-area: lienzo; position: relative; padding: 14px; min-width: 0; background: color-mix(in oklab, #431b44 6%, #f8f7ec); border-left: 1px solid var(--linea); }
   /* la home vacía: una retícula de puntos que se va con el fondo */

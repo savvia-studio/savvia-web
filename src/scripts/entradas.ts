@@ -64,6 +64,7 @@ if (!reducido && 'IntersectionObserver' in window) {
       copia.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
       copia.querySelectorAll('[data-carril-fila]').forEach((e) => e.removeAttribute('data-carril-fila')); // la copia no es una guía: Carriles la contaba y trazaba una línea doble
       copia.querySelectorAll('video, canvas, iframe').forEach((e) => e.remove());
+      copia.querySelectorAll('[data-cine] img').forEach((e) => e.remove()); // RONDA 218: la réplica de Neety (19 MB decodificada) no se copia al eco
       caja.appendChild(copia);
       s.path.appendChild(caja);
     };
@@ -71,7 +72,8 @@ if (!reducido && 'IntersectionObserver' in window) {
     const pedirEco = () => { clearTimeout(t); t = window.setTimeout(() => { if ((s as any).on) rehacer(); }, 250); };
     // se hace al acercarse la sección (la marca `on` la pone el IntersectionObserver de más abajo) y se rehace si el original cambia de clase o de contenido
     (s as any).eco = rehacer;
-    new MutationObserver(pedirEco).observe(previo, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'aria-pressed', 'aria-expanded', 'hidden', 'data-estado'] });
+    // RONDA 218: lo que pasa DENTRO de la película (data-cine: chips, estados, clases a cada fotograma) no rehace el eco: se rehacía ~4 veces cada 10 s con su réplica de 19 MB y la pestaña de Safari se quedaba sin memoria
+    new MutationObserver((ms) => { if (ms.some((m) => !(m.target as Element).closest?.('[data-cine]') && !((m.target as Node).parentElement?.closest('[data-cine]')))) pedirEco(); }).observe(previo, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'aria-pressed', 'aria-expanded', 'hidden', 'data-estado'] });
   }
   // RONDA 41 · «hay un momento que se ve como geométrica y tiene que ser siempre fluida»: con 33 muestras repartidas por igual, al principio (gota
   // estrecha, w = 12) la cima caía entre 3 o 4 puntos y se veía un PICO poligonal. Ahora las muestras se reparten según la propia campana: se
