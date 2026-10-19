@@ -104,7 +104,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     position: absolute;
     top: calc(100% + var(--spacing) * 4);
     right: calc(var(--spacing) * -2);
-    width: 16rem;
+    width: min(16rem, 100vw - 2.5rem); /* móvil: nunca más ancho que la pantalla */
     padding: calc(var(--spacing) * 3);
     border-radius: calc(var(--spacing) * 3);
     color: #f5f5f7;
@@ -370,7 +370,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     });
     document.addEventListener('visibilitychange', () => { if (!document.hidden && ctx?.state === 'suspended') ctx.resume(); });
 
-    // EL PANEL: se abre al pasar el ratón o al enfocar; Esc lo cierra. En táctil no hay panel: el toque enciende y apaga.
+    // EL PANEL: se abre al pasar el ratón o al enfocar; Esc lo cierra. En táctil: el primer toque abre el panel (y enciende si estaba apagada); con el panel abierto, el icono enciende/apaga y lo cierra; un toque fuera también lo cierra.
     let tAbrir = 0;
     // solo se centra al ABRIRSE (de cerrado a abierto): al pulsar una pieza, su foco disparaba esto otra vez y la lista saltaba a la que sonaba entre el
     // pulsar y el soltar, así que el clic caía fuera y no cambiaba (RONDA 158 · Eric)
@@ -383,7 +383,13 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     caja.addEventListener('focusout', (e) => { if (!caja.contains(e.relatedTarget as Node | null)) abrir(false); });
     addEventListener('keydown', (e) => { if (e.key === 'Escape' && caja.classList.contains('abierto')) { abrir(false); (document.activeElement as HTMLElement | null)?.blur(); } });
 
-    bPlay.addEventListener('click', () => encender(!on));
+    const tactil = !matchMedia('(hover: hover)').matches;
+    if (tactil) addEventListener('pointerdown', (e) => { if (caja.classList.contains('abierto') && !caja.contains(e.target as Node)) abrir(false); }, { passive: true });
+    bPlay.addEventListener('click', () => {
+      if (tactil && !caja.classList.contains('abierto')) { abrir(true); if (!on) encender(true); return; }
+      if (tactil) abrir(false); // segundo toque: enciende/apaga y cierra el panel
+      encender(!on);
+    });
     bSig.addEventListener('click', () => { if (on) sonar(false); });
     tabs.forEach((b) => b.addEventListener('click', () => {
       em = b.dataset.em!;

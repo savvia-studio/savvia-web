@@ -77,8 +77,10 @@ if (!reducido && 'IntersectionObserver' in window) {
   // estrecha, w = 12) la cima caía entre 3 o 4 puntos y se veía un PICO poligonal. Ahora las muestras se reparten según la propia campana: se
   // concentran donde la curva cambia (alrededor de la cima, a la escala de su anchura) y hay 120: el contorno es liso en todo el recorrido.
   const N = 120;
+  // móvil: la sección es estrecha y alta, y la misma campana sale PICUDA: se ensancha ×2 (el ancho de la campana va en % del ancho de la gota)
+  const ancho = () => (innerWidth < 768 ? 2 : 1);
   const dibujar = (gota: HTMLElement, p: number) => {
-    const ee = 1 - Math.pow(1 - p, 2.2), w = 12 + 310 * p * p * p * p;
+    const ee = 1 - Math.pow(1 - p, 2.2), w = (12 + 310 * p * p * p * p) * ancho();
     let d = '0% 100%';
     for (let i = 0; i <= N; i++) {
       const u = (i / N) * 2 - 1; // −1…1
@@ -105,7 +107,7 @@ if (!reducido && 'IntersectionObserver' in window) {
       if (!s.on || s.v <= 0) continue;
       const r = s.path.getBoundingClientRect();
       if (y < r.top || y > r.bottom || x < r.left || x > r.right) continue;
-      const p = s.v, ee = 1 - Math.pow(1 - p, 2.2), w = 12 + 310 * p * p * p * p, t = ((x - r.left) / r.width * 100 - 50) / w;
+      const p = s.v, ee = 1 - Math.pow(1 - p, 2.2), w = (12 + 310 * p * p * p * p) * ancho(), t = ((x - r.left) / r.width * 100 - 50) / w;
       const tope = r.top + (r.height * (100 - (100 * ee) / Math.pow(1 + t * t, 1.5))) / 100;
       if (y >= tope) return s.sec;
     }

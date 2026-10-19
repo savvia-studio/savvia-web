@@ -505,7 +505,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf-panel[hidden] { display: none; }
   @media (width < 40rem) {
     .cf { --cf-m: 8px; }
-    .cf-panel { height: min(86dvh, 46rem); }
+    /* móvil: el panel acaba POR DEBAJO de la barra (logo y iconos, ~56 px + área segura); antes, el 86 % de dvh la pisaba en pantallas bajas (iPhone 13 mini) */
+    .cf-panel { height: min(86dvh, 46rem, calc(100dvh - max(var(--cf-m), env(safe-area-inset-bottom)) - 60px - 5rem - env(safe-area-inset-top))); }
   }
   .cf-cab { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--rule); }
   .cf-caras { display: inline-flex; flex: none; }

@@ -403,6 +403,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
         for (const e of document.elementsFromPoint(x, y)) {
           if (e.closest('[data-nav]') || e === html || e === document.body) continue;
           if (e instanceof HTMLCanvasElement || e instanceof HTMLIFrameElement || e instanceof SVGElement) continue; // no se leen: lo de debajo
+          if (e.closest('.arbol-caja, [data-raices] .caja')) continue; // el roble (halo Y lámina, que van en el color del árbol —claro— aunque estén enmascarados y casi transparentes) y sus raíces no cuentan: lo que lee la barra es el fondo de debajo
           if (!visible(e)) continue;
           if (e instanceof HTMLImageElement || e instanceof HTMLVideoElement) {
             // en perspectiva (las pantallas de la mesa de «Más proyectos», matrix3d): su caja no dice dónde cae cada píxel; este punto no cuenta
