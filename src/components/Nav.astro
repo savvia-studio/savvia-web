@@ -134,6 +134,10 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     btn.setAttribute('aria-expanded', String(si));
     btn.setAttribute('aria-label', si ? t('Cerrar el menú', 'Close the menu') : t('Abrir el menú', 'Open the menu'));
     document.documentElement.classList.toggle('menu-abierto', si);
+    // ronda 230: los iconos y el logotipo cambian de color al compás del fondo de la tarjeta (se dibuja en 1,05 s y se recoge en 0,72 s)
+    document.documentElement.classList.add('menu-cambia');
+    clearTimeout((window as any).__menuCambia);
+    (window as any).__menuCambia = setTimeout(() => document.documentElement.classList.remove('menu-cambia'), 1100);
     // RONDA 40 · la tarjeta se DIBUJA desde el botón (líneas de sus enlaces, luego la pintura rasgada) y al cerrar se recoge hacia él
     const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
     const LINEA = tinta('cacao', 0.55); // Cacao, sobre la tarjeta Rosa niebla
@@ -925,6 +929,20 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   html.menu-abierto [data-radio-play],
   html.menu-abierto [data-estacion-ic] {
     color: var(--color-cacao);
+  }
+  /* ronda 230 · en móvil la tarjeta cubre el logotipo: Cacao mientras está abierta */
+  @media (width < 36rem) {
+    html.menu-abierto .logo-marca {
+      background-color: var(--color-cacao);
+    }
+  }
+  html.menu-cambia [data-rejilla],
+  html.menu-cambia [data-radio-play],
+  html.menu-cambia [data-estacion-ic],
+  html.menu-cambia .logo-marca {
+    transition-property: color, background-color;
+    transition-duration: 0.72s;
+    transition-timing-function: ease;
   }
   html.estudio-sentado [data-nav] {
     opacity: 0;

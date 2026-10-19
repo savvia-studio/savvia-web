@@ -158,6 +158,9 @@ html[data-bloque='cielo'][data-estacion='primavera'] #servicios { --color-salvia
 html[data-bloque='cielo'][data-estacion='verano'] #servicios { --color-salvia: #c2ddee; }
 html[data-bloque='cielo'][data-estacion='otono'] #servicios { --color-salvia: #ccd8e3; }
 html[data-bloque='cielo'][data-estacion='invierno'] #servicios { --color-salvia: #cadcee; }
+/* ronda 230 (Eric: «parece que puedo hacer scroll horizontal»): nada que sobresalga (flora, láminas, píldoras) abre scroll lateral; clip no crea contenedor de scroll (el sticky sigue) */
+html,
+body { overflow-x: clip; }
 html[data-estacion] {
   --color-nogal: color-mix(in oklab, var(--color-cacao) 70%, var(--arbol));
   --color-cobalto: color-mix(in oklab, var(--color-coral) 62%, var(--color-cacao));

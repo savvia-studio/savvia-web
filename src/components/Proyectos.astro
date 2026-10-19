@@ -267,7 +267,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const montadas = new Map<HTMLElement, Montada>();
     // RONDA 160 · «que la pantalla sea como si tuviese más altura, como la veo en mi MacBook Air»: la web se pinta al ancho de un MacBook Air
     // (1710 px, antes 1440) y se reduce: letra más pequeña y cabe más alto de cada sección (a 1440, Neety enseñaba sus pasos cortados).
-    const BASE = () => (innerWidth < 700 ? 1024 : 1710);
+    const BASE = () => 1710; // ronda 230 (Eric: «como pantalla desktop, no el breakpoint tablet»): también en móvil, la web se pinta a ancho de escritorio
     // RONDA 160 · «el lateral de la web no está bien ajustado»: el iframe iba siempre 20 px más ancho (ronda 159) y en Mac, donde la barra se
     // superpone y no ocupa sitio, recortaba 20 px de la derecha de cada web. Ahora se ensancha solo lo que ocupa la barra en ESTE navegador (0 en Mac).
     const BARRA = (() => {
@@ -433,8 +433,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     //   no se ve su rueda), un scroll del visor o un toque. Si se va y no ha deslizado, vuelve a los 4 s fuera (hasta 3 veces).
     const aviso = $('[data-aviso-desliza]'), pantallaD = $('[data-pantalla]');
     if (TACTIL) $('[data-aviso-texto]').textContent = t('desliza dentro con el dedo para ver la web', 'swipe inside to see the site');
+    // ronda 230 (Eric: «ambas pills encima del ordenador, con algo de espacio, en mobile»): la pantalla recorta (overflow), así que en móvil el aviso sale
+    // al <body> y se coloca (fixed) justo encima del monitor
+    const colocaAviso = () => { if (!MOVIL) return; const r = pantallaD.getBoundingClientRect(); aviso.style.left = `${r.left + r.width / 2}px`; aviso.style.top = `${r.top - 16}px`; };
+    if (MOVIL) { aviso.classList.add('fuera'); document.body.append(aviso); }
     let vigilaD = 0, fuera0 = 0, dentro0 = 0, mostradas = 0, deslizado = false;
     const tictacD = () => {
+      colocaAviso();
       if (!sentado) { avisarDesliza(false); return; }
       // ronda 211 (Eric: «lo del desliza que aparezca cuando aparece ya la web»): con la cámara posada Y la pantalla de carga ya fuera (navegar() la retira al cargar la web, o a los 12 s)
       const w = webs[activo];
@@ -797,7 +802,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (er.bottom <= 0 || er.top >= innerHeight) return seguir(null); // la sección no se ve
       let x = pX, y = pY, encima = x >= er.left && x <= er.right && y >= er.top && y <= er.bottom;
       if (encima) { const sobre = document.elementFromPoint(x, y) as HTMLElement | null; if (sobre?.closest('[data-barra], .ui-info, [data-sentarse]')) encima = false; }
-      if (!encima) { const r = $('[data-pantalla]').getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; if (y < 24 || y > innerHeight - 24) return seguir(null); } // anclada al monitor, solo si se ve
+      if (!encima) { const r = $('[data-pantalla]').getBoundingClientRect(); x = r.left + r.width / 2; y = MOVIL ? r.top - 28 : r.top + r.height / 2; /* ronda 230: en móvil la píldora va ENCIMA del monitor (no tapa la pantalla) */ if (y < 24 || y > innerHeight - 24) return seguir(null); } // anclada al monitor, solo si se ve
       escenario.classList.toggle('mira', encima);
       seguir({ clientX: x, clientY: y } as PointerEvent);
     };
@@ -1398,6 +1403,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* ronda 214 (Eric: «pon un icono que se entienda mejor»): un chevrón hacia abajo que se enciende y baja, el gesto universal de «sigue bajando» */
   /* móvil: el monitor mide ~300 px y los cqh dejaban el aviso diminuto: en px, al pie de la pantalla (en el centro taparía la web que hay que deslizar) */
   @media (width < 48rem) {
+    .aviso-desliza.fuera { position: fixed; bottom: auto; z-index: 60; translate: -50% calc(-100% + 6px); }
+    .aviso-desliza.fuera.on { translate: -50% -100%; }
     .aviso-desliza { bottom: 12px; gap: 8px; padding: 5px 16px 5px 5px; font-size: 14px; background: color-mix(in oklab, var(--noche) 78%, transparent); }
     .aviso-desliza .icono { width: 28px; height: 28px; }
   }
