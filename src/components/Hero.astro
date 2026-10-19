@@ -206,6 +206,11 @@ const { hero } = home(langDe(Astro.currentLocale));
   .titular::after {
     flex: 1;
   }
+  /* móvil: «un pelín más arriba» → el hueco libre se reparte 3 : 2 en vez de 2 : 1 */
+  @media (width < 48rem) {
+    .titular::before { flex: 3; }
+    .titular::after { flex: 2; }
+  }
   /* ronda 31: sin sombra en el titular («no la quiero») */
   /* LA LUZ: dos haces oblicuos que entran desde arriba (más fuertes en lo alto), sobre todo el hero, en «screen»; se desplazan con el ratón */
   .luz {
