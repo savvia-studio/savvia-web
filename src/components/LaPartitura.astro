@@ -34,6 +34,9 @@ const ICONO_AGENTE: Record<string, string> = {
   'Your team': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 20v-1a7 7 0 0 1 14 0v1"/><path d="M13 14a5 5 0 0 1 10 0v.5"/><circle cx="8" cy="8" r="4"/><circle cx="18" cy="6" r="3"/></svg>',
   'Tu equipo': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 20v-1a7 7 0 0 1 14 0v1"/><path d="M13 14a5 5 0 0 1 10 0v.5"/><circle cx="8" cy="8" r="4"/><circle cx="18" cy="6" r="3"/></svg>',
 };
+// RONDA 218 · en móvil, ¿escena viva (false) o vídeo grabado (true)? Safari reiniciaba la pestaña con la escena viva; la causa más probable era la copia del eco de la gota
+// (entradas.ts), ya corregida. Se prueba viva (Eric: «hacerlo como en desktop»); si vuelve el negro, `true` (los 8 vídeos están en public/media/partitura/).
+const VIDEO_EN_MOVIL = false;
 const P = partitura;
 const L = P.libreria;
 // el logotipo de Neety, tal cual está en su web (components/Logo.tsx: wordmark en Ciruela #2A0E2C)
@@ -56,7 +59,7 @@ const TABS_V: [string, string][] = en
 const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobile de cada paso de la escala (la librería real: «48 / 32px»)
 ---
 
-<section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube>
+<section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube data-film-movil={VIDEO_EN_MOVIL ? "" : undefined}>
   <div class="wrap section-y">
     <h2 id="partitura-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
     {receta.arnes.split('\n\n').map((t, i) => (
@@ -235,7 +238,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     // ?grabando=1 (tools/grabar-partitura.cjs): la escena viva también en móvil, para grabarla
     const grabando = /[?&]grabando=1/.test(location.search);
     if (grabando) sec.classList.add('grabando');
-    else if (matchMedia('(width < 64rem)').matches) { peliculaMovil(); return; }
+    else if (sec.hasAttribute('data-film-movil') && matchMedia('(width < 64rem)').matches) { peliculaMovil(); return; }
     function peliculaMovil() {
       const film = cine.querySelector<HTMLVideoElement>('[data-film]')!;
       [...cine.children].forEach((c) => { if (c !== film) c.remove(); }); // fuera la escena: sin nodos ni imágenes (la réplica de Neety pesa 19 MB decodificada)
@@ -951,8 +954,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
   /* móvil: la escena viva ni se pinta (display none antes de la primera pintura) y el vídeo llena la caja */
   .film { display: none; }
   @media (width < 64rem) {
-    .la-partitura:not(.grabando) .cine > :not(.film) { display: none; }
-    .la-partitura:not(.grabando) .film { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .la-partitura[data-film-movil]:not(.grabando) .cine > :not(.film) { display: none; }
+    .la-partitura[data-film-movil]:not(.grabando) .film { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   }
   .mapa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .mapa :global(.hilo) { fill: none; stroke: color-mix(in oklab, var(--tinta) 26%, transparent); stroke-width: calc(var(--u) * 1px); }
