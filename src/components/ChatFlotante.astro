@@ -420,6 +420,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   @media (width >= 64rem) { .cf { --cf-g: 48px; } }
   /* el borde derecho del icono (22 px centrado en 48) cae sobre el carril derecho: margen del contenedor menos los 13 px de aire del botón */
   .cf { --cf-r: max(0px, calc((100vw - var(--contenido) - var(--cf-g) * 2) / 2)); --cf-lado: calc(var(--cf-r) + var(--cf-g) - 16px); }
+  /* escritorio: el icono queda en la MISMA COLUMNA que la rejilla del menú (arriba a la derecha), siempre y a cualquier ancho: el margen de la barra son 48 px (12) y la rejilla mide 22 px de ancho, así que su centro está a 59 px del borde; el botón mide 48, de ahí 35 */
+  @media (width >= 64rem) { .cf { --cf-lado: calc(var(--spacing) * 12 - 13px); } }
   /* ICONO A SECAS, como los de arriba a la derecha (radio, estación, rejilla): sin círculo ni cristal; Rosa niebla sobre lo oscuro y Cacao sobre lo claro */
   .cf-btn {
     position: fixed;
