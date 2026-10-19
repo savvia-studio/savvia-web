@@ -267,7 +267,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const montadas = new Map<HTMLElement, Montada>();
     // RONDA 160 · «que la pantalla sea como si tuviese más altura, como la veo en mi MacBook Air»: la web se pinta al ancho de un MacBook Air
     // (1710 px, antes 1440) y se reduce: letra más pequeña y cabe más alto de cada sección (a 1440, Neety enseñaba sus pasos cortados).
-    const BASE = () => 1710; // ronda 230 (Eric: «como pantalla desktop, no el breakpoint tablet»): también en móvil, la web se pinta a ancho de escritorio
+    const BASE_PRUEBA = +(new URLSearchParams(location.search).get('base') || 0); // ronda 230: ?base=1710 para probar en el móvil qué ancho aguanta Safari
+    const BASE = () => (BASE_PRUEBA >= 800 && BASE_PRUEBA <= 1920 ? BASE_PRUEBA : innerWidth < 700 ? 1280 : 1710); // móvil por defecto a 1280: a 1710 Safari se quedó sin memoria
     // RONDA 160 · «el lateral de la web no está bien ajustado»: el iframe iba siempre 20 px más ancho (ronda 159) y en Mac, donde la barra se
     // superpone y no ocupa sitio, recortaba 20 px de la derecha de cada web. Ahora se ensancha solo lo que ocupa la barra en ESTE navegador (0 en Mac).
     const BARRA = (() => {
