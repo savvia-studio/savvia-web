@@ -93,8 +93,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
 </dialog>
 
 <script>
-  // PRUEBA (?barra=oculta, o siempre en localhost; solo móvil): la barra se esconde al bajar y vuelve al subir un poco. Siempre visible en el hero, con el menú, la radio o el chat abiertos.
-  if ((/[?&]barra=oculta/.test(location.search) || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) && matchMedia('(width < 48rem)').matches) {
+  // Solo móvil: la barra se esconde al bajar y vuelve al subir un poco. Siempre visible en el hero, con el menú, la radio o el chat abiertos.
+  if (matchMedia('(width < 48rem)').matches) {
     const html = document.documentElement;
     let ultimo = scrollY, acum = 0, pedido = false;
     const abierto = () => html.classList.contains('menu-abierto') || !!document.querySelector('.radio.abierto, .cf-abierto');
@@ -503,7 +503,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       padding-block: calc(var(--spacing) * 6);
     }
   }
-  /* PRUEBA ?barra=oculta (móvil): se esconde al bajar */
+  /* móvil: la barra se esconde al bajar (script de arriba) */
   :global(html.barra-oculta) .barra-nav {
     translate: 0 -60%;
     opacity: 0;
