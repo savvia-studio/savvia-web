@@ -4350,3 +4350,5 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   pósters nuevos; «Reel · 0:53»); los de la ronda 237 («La mesa»), en `tools/retirados/reel-r237/` (local). `.gitignore`: el material pesado de los reels (proyectos
   HyperFrames, renders, tomas) se queda en local; se versionan los scripts. Juntado con los 6 commits nuevos de Eric (correo de contacto, menú en móvil, pastillas de
   Proyectos, savvia agentic en móvil, aviso «Desliza», web de dentro a 1280 px en móvil).
+- **PUBLICADO (19/10) en https://savvia.studio:** commit `b8121a5` + fusión con lo de Eric (`9be6a94`) → Vercel. Medido EN VIVO: `tools/verify.cjs` (Chrome y WebKit, 1280 y
+  390) consola limpia, 0 respuestas ≥ 400, desborde 0; `reel.mp4` responde 200 (10,6 MB); las pegatinas de Eric y Andoni, sin errores (`tools/r254/dibuja.cjs` en vivo).
