@@ -331,6 +331,8 @@ html.estudio-sentado .marcas {
    100 % del visitante: si tiene la letra más grande, manda la suya. Las media queries no se ven afectadas (miden con el rem inicial). */
 html {
   font-size: clamp(100%, 0.625vw, 200%);
+  /* sin rebote más allá de la web (arriba del hero, abajo del pie); también quita el «tirar para recargar» del móvil */
+  overscroll-behavior-y: none;
 }
 
 /* EL ROBLE (hero + raíces) · RONDA 13: la ACUARELA de Andoni (`tools/recorte-hero.py` → hero-arbol.webp 1260×583 + hero-raices.webp
