@@ -615,6 +615,8 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   /* RONDA 268 · Eric: «el Contáctanos en móvil un poco más abajo»: del 19 % al 13 % de la altura del paisaje (la pista lo sigue) */
   @media (width < 64rem) { [data-pie] { --cb: 0.13; } }
   @media (hover: none) { .pista-contacta { display: block; } }
+  /* RONDA 290 · Eric: «el radio de acción es muy pequeño y a veces no responde»: en táctil, el toque cuenta bastante por fuera de la palabra */
+  @media (hover: none) { .contacta-delante::after { content: ''; position: absolute; inset: -4rem -2.5rem; } }
 .contacta-tras {
     z-index: 0; /* antes que los montes en el DOM: las montañas la tapan */
     clip-path: inset(-40% -10% -10% var(--corte, 50%));
