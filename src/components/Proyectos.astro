@@ -24,6 +24,9 @@ for (const p of P) {
 // ronda 152: la captura de página entera (las webs que no se dejan embeber, para recorrerlas)
 const LARGO: Record<string, boolean> = {};
 const PESADAS = ['arkdev']; // webs que en el móvil tumban Safari (memoria): allí se pintan más pequeñas (1024 px)
+// RONDA 270 · en MÓVIL el monitor enseña un VÍDEO (Screen Studio) en lugar de la web en vivo: el iframe a 1280 px reventaba la memoria de Safari
+const VIDEO: Record<string, boolean> = {};
+for (const p of P) VIDEO[p.slug] = await sharp(`public/media/proyectos/video/${p.slug}.jpg`).metadata().then(() => true).catch(() => false); // existe el póster = existe el vídeo
 for (const p of P) LARGO[p.slug] = await sharp(`public/media/proyectos/${p.slug}-largo.webp`).metadata().then(() => true).catch(() => false);
 const EST = ['primavera', 'verano', 'otono', 'invierno'];
 const nombreEst: Record<string, string> = en ? { primavera: 'Spring', verano: 'Summer', otono: 'Autumn', invierno: 'Winter' } : { primavera: 'Primavera', verano: 'Verano', otono: 'Otoño', invierno: 'Invierno' };
@@ -114,7 +117,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <div class="visor">
             {
               P.map((p, i) => (
-                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-cap-largo={LARGO[p.slug] ? `/media/proyectos/${p.slug}-largo.webp` : undefined} data-tinte={TINTE[p.slug]} data-embed={(p as any).embed === false ? 'no' : 'si'} data-pesada={PESADAS.includes(p.slug) ? '' : undefined} tabindex="-1" role="region" aria-label={en ? `${p.n} website` : `Web de ${p.n}`} hidden={i !== 0}>
+                <div class="web" data-web={i} data-src={p.url} data-cap={`/media/proyectos/${p.slug}.webp`} data-cap-largo={LARGO[p.slug] ? `/media/proyectos/${p.slug}-largo.webp` : undefined} data-video={VIDEO[p.slug] ? `/media/proyectos/video/${p.slug}` : undefined} data-tinte={TINTE[p.slug]} data-embed={(p as any).embed === false ? 'no' : 'si'} data-pesada={PESADAS.includes(p.slug) ? '' : undefined} tabindex="-1" role="region" aria-label={en ? `${p.n} website` : `Web de ${p.n}`} hidden={i !== 0}>
                   <!-- RONDA 19: aquí se monta, al acercarse, el <iframe> con la web REAL (o su captura si la web no se deja embeber) -->
                 </div>
               ))
@@ -321,7 +324,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const listo = () => { m.listo = true; m.cbs.splice(0).forEach((f) => f()); };
       // RONDA 67 · «cuando te sientas, carga un proyecto»: de pie se enseña su CAPTURA (ligera, para que roten); sentado, la web real
       const vivo = sentado || explorando;
-      if (w.dataset.embed === 'no' || !vivo) {
+      if (w.dataset.video && innerWidth < 700) {
+        const v = document.createElement('video');
+        v.src = `${w.dataset.video}.mp4`; v.poster = `${w.dataset.video}.jpg`; v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('aria-label', w.getAttribute('aria-label')!);
+        v.addEventListener('loadeddata', listo, { once: true }); v.play().catch(() => {});
+        m.el = v as any;
+      } else if (w.dataset.embed === 'no' || !vivo) {
         // ronda 152: sentado o explorando de pie, la que no se deja embeber enseña su página ENTERA (Neety: 1440 × 12 144), que se recorre
         const img = new Image(); img.src = (vivo && w.dataset.capLargo) || w.dataset.cap!; img.alt = t(`${w.getAttribute('aria-label')}, completa`, `${w.getAttribute('aria-label')}, full page`); img.decoding = 'async';
         img.complete && img.naturalWidth ? listo() : img.addEventListener('load', listo, { once: true });
@@ -1500,7 +1508,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: none;
   }
   /* la captura y el iframe los crea el JS: sin el ámbito de Astro → :global (como las filas de los carriles, ronda 14) */
-  .web :global(img) {
+  .web :global(img),
+  .web :global(video) {
     display: block;
     width: 100%;
     height: auto;
