@@ -226,7 +226,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </script>
 
 <script>
-  import { jugar } from '../scripts/jugar';
   import { t } from '../scripts/i18n';
   import { crearSonido } from '../scripts/sonido-estudio';
   import { construir } from '../scripts/construir';
@@ -330,7 +329,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
         v.src = `${w.dataset.video}.mp4`; v.poster = `${w.dataset.video}.jpg`; v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('aria-label', w.getAttribute('aria-label')!);
         v.addEventListener('loadeddata', listo, { once: true });
         // RONDA 266 · Eric: «en móvil te tienes que sentar para ver el vídeo»: de pie se queda el póster quieto; solo suena sentado
-        if (sentado) jugar(v); else v.preload = 'metadata';
+        if (sentado) v.play().catch(() => {}); else v.preload = 'metadata';
         m.el = v as any;
       } else if (w.dataset.embed === 'no' || !vivo) {
         // ronda 152: sentado o explorando de pie, la que no se deja embeber enseña su página ENTERA (Neety: 1440 × 12 144), que se recorre
@@ -646,7 +645,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const barra = $('[data-barra]');
     function sentar(si: boolean) {
       if (si === sentado) return;
-      if (si) quitarLinea(true); // el zoom por scroll (si lo lleva una animación) se congela donde está: el viaje de cámara sale de ahí
       // ronda 174 (Eric: «el Escape, cuando has entrado en sentado, que siempre lleve al zoom out del escritorio a todo el ancho»): al levantarte, la
       // página va al final de la pista (la mesa entera, de pie), te hayas sentado desde donde te hayas sentado
       if (!si && !reducido) { const r = pista.getBoundingClientRect(); window.scrollTo({ top: scrollY + r.bottom - innerHeight, behavior: 'instant' as ScrollBehavior }); }
@@ -745,23 +743,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const invita = () => !sentado && pegada() && !soltandose();
     let kNitido = 1;
     const kSentado = (E: DOMRect, sw: number, sh: number) => Math.min((E.width * (E.width < 700 ? 0.92 : 0.52)) / (PANT.w * sw), (E.height * 0.6) / (PANT.h * sh));
-    // RONDA 267 · Eric: «el zoom in/out de esta sección, en móvil, no va del todo fluido»: en el móvil el scroll lo lleva el compositor y un `scroll` + rAF que
-    // escribe el `transform` llega siempre uno o dos fotogramas TARDE (la mesa y su zoom no van al compás del dedo). En táctil, con ViewTimeline, el zoom del
-    // monitor y del titular son animaciones atadas a la pista (muestras de la misma curva, 90 tramos): las mueve el compositor, sin JS por fotograma.
-    // `entrar` sigue para lo demás (fases, fundidos, estreno). Sin ViewTimeline, o al sentarse, el camino de siempre.
-    const LINEA = MOVIL && !reducido && 'ViewTimeline' in window && typeof CSS !== 'undefined' && 'px' in CSS;
-    let animE: Animation | null = null, animT: Animation | null = null;
-    const quitarLinea = (congela: boolean) => {
-      if (!animE && !animT) return;
-      if (congela) { escena.style.transform = getComputedStyle(escena).transform; titulo.style.transform = getComputedStyle(titulo).transform; }
-      animE?.cancel(); animT?.cancel(); animE = animT = null;
-    };
     const entrar = () => {
       pedidoE = false;
       if (reducido || sentado) return;
       const r = pista.getBoundingClientRect(), T = r.height - innerHeight, y = -r.top, f = y / T;
       const clave = Math.min(1, Math.max(0, f));
-      const rehacer = e < 0; // primera vez, tras un resize o al levantarse: hay que volver a medir la línea
       if (Math.abs(clave - e) < 0.0004) return;
       e = clave;
       const E = escenario.getBoundingClientRect(), sw = escena.offsetWidth, sh = escena.offsetHeight;
@@ -769,41 +755,25 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const K = Math.max(E.width / pw, E.height / ph) * 1.03; // a K, la pantalla cubre la ventana
       const kS = Math.min(K, kSentado(E, sw, sh));
       const sm = (x: number) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); };
+      const a = Math.min(1, Math.max(0, f / FA)), c = Math.min(1, Math.max(0, (f - FB) / (FC - FB)));
+      aE = a;
+      let s2: number, m: number;
+      if (c <= 0) { s2 = Math.exp(Math.log(K) + (Math.log(kS) - Math.log(K)) * sm(a)); m = 1; } // A y B: siempre centrado en el monitor
+      else { s2 = Math.exp(Math.log(kS) * (1 - sm(c))); m = kS > 1.001 ? (s2 - 1) / (kS - 1) : 0; } // C: del encuadre de sentado a la mesa
       const cx = (PANT.x + PANT.w / 2) * sw, cy = (PANT.y + PANT.h / 2) * sh;
       const dx = (E.width - sw) / 2 + cx - E.width / 2, dy = (E.height - sh) / 2 + cy - E.height / 2;
-      // la cámara en cada punto f de la pista: escala `s2`, cuánto se centra en el monitor `m`, y A (entrar) y C (levantarse)
-      const pose = (g: number) => {
-        const a = Math.min(1, Math.max(0, g / FA)), c = Math.min(1, Math.max(0, (g - FB) / (FC - FB)));
-        let s2: number, m: number;
-        if (c <= 0) { s2 = Math.exp(Math.log(K) + (Math.log(kS) - Math.log(K)) * sm(a)); m = 1; } // A y B: siempre centrado en el monitor
-        else { s2 = Math.exp(Math.log(kS) * (1 - sm(c))); m = kS > 1.001 ? (s2 - 1) / (kS - 1) : 0; } // C: del encuadre de sentado a la mesa
-        return { a, c, s2, m };
-      };
-      const trEscena = (q: { s2: number; m: number; c: number }) => (q.c >= 1 ? 'none' : `translate(${-dx * q.m}px, ${-dy * q.m}px) scale(${q.s2})`);
-      const trTitulo = (q: { s2: number; m: number }) => `translate(-50%, -50%) translate(${dx * (1 - q.m)}px, ${dy * (1 - q.m)}px) scale(${q.s2 / K})`;
-      const { a, c, s2, m } = pose(f);
-      aE = a;
       const quieta = c >= 1;
       const nf: string = a < 1 ? 'A' : c < 1 ? 'C' : 'D'; // ronda 167: sin B (la pausa en el monitor)
       escena.classList.toggle('entrando', nf === 'A' || nf === 'C');
       escena.style.transformOrigin = `${cx}px ${cy}px`;
-      if (LINEA && (rehacer || !animE)) {
-        try {
-          quitarLinea(false);
-          const N = 90, ke: Keyframe[] = [], kt: Keyframe[] = [];
-          for (let i = 0; i <= N; i++) { const q = pose(i / N); ke.push({ offset: i / N, transform: trEscena(q) }); kt.push({ offset: i / N, transform: trTitulo(q) }); }
-          const tl = new (window as any).ViewTimeline({ subject: pista, axis: 'block' });
-          // f = 0 con el borde de arriba de la pista en el de la ventana (rango «cover» a innerHeight); f = 1 a T = alto − innerHeight más allá
-          const opc: any = { timeline: tl, fill: 'both', easing: 'linear', rangeStart: { rangeName: 'cover', offset: CSS.px(innerHeight) }, rangeEnd: { rangeName: 'cover', offset: CSS.px(r.height) } };
-          animE = escena.animate(ke, opc); animT = titulo.animate(kt, opc);
-        } catch { quitarLinea(false); }
-      }
+      escena.style.transform = quieta ? '' : `translate(${-dx * m}px, ${-dy * m}px) scale(${s2})`;
       // nítido sentado (B): la pantalla se maqueta kS veces mayor y se contra-escala (escala neta 1); en marcha, a 1
       const kn = nf === 'B' ? kS : 1;
       if (Math.abs(kn - kNitido) > 0.001) { kNitido = kn; nitido(kn); }
       // el titular-pantalla: un 1,4 % mayor que la pantalla (pisa el marco negro), encoge con ella y se funde al final de A
       titulo.style.width = `${pw * K * 1.014}px`; titulo.style.height = `${ph * K * 1.014}px`;
-      if (!animE) { escena.style.transform = quieta ? '' : trEscena({ s2, m, c }); titulo.style.transform = trTitulo({ s2, m }); }
+      titulo.style.transform = `translate(-50%, -50%) translate(${dx * (1 - m)}px, ${dy * (1 - m)}px) scale(${s2 / K})`;
+      titulo.style.setProperty('--gr', `${(240 * K) / s2}px`);
       inicio.style.setProperty('--ft', `${(parseFloat(getComputedStyle(tituloH2).fontSize) / (pw * K * 1.014)) * 100}cqw`);
       titulo.classList.remove('vacio');
       // ronda 177 (Eric, captura: el titular a medio fundir flotando sobre la web): primero se va el texto (0,80–0,87) y DESPUÉS el fondo (0,87–0,96):

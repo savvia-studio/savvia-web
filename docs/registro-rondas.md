@@ -4439,10 +4439,8 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   `public/media/equipo/aficiones3d/`) y el reel nuevo. Medido EN VIVO: `/sistema`, el ZIP, los vídeos y los fondos responden 200; `tools/r265-kit/ver.cjs` contra
   savvia.studio (Chrome y WebKit 1280, Chrome 390): 61 descargas en 200, consola limpia, desborde 0; `tools/verify.cjs` de la home limpio en los cuatro.
 
-## RONDA 267 · Eric (20/10/2026) · zoom in/out de Proyectos destacados, en móvil, «no va del todo fluido»
-- Medido (Chrome móvil emulado con CPU ×4 y WebKit iPhone 14): sin trompicones en escritorio-emulado (≈1–2 % de fotogramas >20 ms); el fallo es de iPhone real, donde el
-  scroll va por el compositor y el `transform` escrito en `scroll` + rAF llega 1–2 fotogramas tarde.
-- Hecho (`Proyectos.astro › entrar`): en táctil con `ViewTimeline`, el zoom de la escena y del titular-pantalla son animaciones atadas a la pista (90 muestras de la
-  misma curva; rango `cover` de `innerHeight` a su alto). Verificado: matriz idéntica (≤0,01) al camino JS en WebKit y Chrome; sentarse congela el zoom
-  (`quitarLinea(true)`) y al levantarse se rehace. Sin ViewTimeline o en escritorio, el camino de siempre. Quitado `--gr` (sin uso).
-- Pendiente: que Eric lo pruebe en su iPhone.
+## RONDA 267 · Eric (20/10/2026) · zoom de Proyectos destacados en móvil «no va fluido» — REVERTIDO
+- Se probó mover el zoom con `ViewTimeline` (animación atada al scroll) en táctil. En el iPhone de Eric: movimiento muy raro, trompicones, glitches y letras
+  apareciendo detrás. Revertido; Proyectos.astro vuelve a la versión del commit. NO volver a ViewTimeline para esto.
+- Medido antes: Chrome móvil emulado y WebKit de escritorio no muestran trompicones (≈1–2 % de fotogramas >20 ms); el fallo solo se ve en iPhone real.
+  Siguiente pista, si se retoma: lo que se pinta dentro del monitor (vídeo, iframes) y el peso de las capas, no el JS del scroll.
