@@ -1029,7 +1029,7 @@ import { icono } from '../lib/iconos';
   .barra-voz {
     gap: calc(var(--spacing) * 1);
     padding: 0;
-    margin-left: 0;
+    margin-left: calc(var(--spacing) * -2);
     background: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -1039,6 +1039,8 @@ import { icono } from '../lib/iconos';
   .barra-voz .paso { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); }
   .barra-voz .paso:hover:not(:disabled) { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
   .barra-voz .paso :global(.btn-flecha) { width: 1rem; height: 1rem; }
+  /* RONDA 290 · táctil: sin hover real, el círculo se quedaba pegado tras el toque; fuera, y la flecha pegada a la guía */
+  @media (hover: none) { .barra-voz .paso:hover:not(:disabled) { background: transparent; color: var(--fg2); } }
 
   .flecha-v {
     display: grid;
