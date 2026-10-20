@@ -1262,6 +1262,8 @@ import { icono } from '../lib/iconos';
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);
   }
+  /* en táctil no hay vídeo que anunciar (de pie se queda el póster): fuera el icono */
+  @media (hover: none) { .vid-ic { display: none; } }
   .pieza:hover .vid-ic {
     scale: 1.06;
   }

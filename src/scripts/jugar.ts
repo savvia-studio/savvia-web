@@ -8,12 +8,12 @@ const aVista = (v: HTMLVideoElement) => {
   return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth && getComputedStyle(v).visibility !== 'hidden';
 };
 
-// el botón de play propio (`.jugar-btn`, global.css): sobre los vídeos de tamaño de pieza; los diminutos (el mini del menú) solo esperan el toque
+// el botón de play propio (`.jugar-btn`, global.css): sobre los vídeos de tamaño de pieza; los diminutos (el mini del menú) y los que van dentro de un enlace (las piezas de «Más proyectos»: el toque iría a la web del cliente) solo esperan el toque; sin botón se queda el póster
 const botones = new Map<HTMLVideoElement, HTMLButtonElement>();
 const quitarBoton = (v: HTMLVideoElement) => { botones.get(v)?.remove(); botones.delete(v); };
 const ponerBoton = (v: HTMLVideoElement) => {
   const host = v.parentElement;
-  if (!host || botones.has(v) || v.getBoundingClientRect().width < 160) return;
+  if (!host || v.closest('a') || botones.has(v) || v.getBoundingClientRect().width < 160) return;
   if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'jugar-btn';
