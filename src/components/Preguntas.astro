@@ -104,8 +104,7 @@ import personasEn from '../data/personas.en.json';
     // RONDA 290 · Eric: al escribir, el teclado hacía saltar la página al pie, y al enviar la conversación no se veía
     const verEnMovil = (el: Element | null | undefined) => {
       if (!el) return;
-      const tapa = document.querySelector('.compositor.acoplado') ? (document.querySelector('.compositor.acoplado') as HTMLElement).offsetHeight : 0; // la barra acoplada tapa el borde de abajo
-      const vh = (window.visualViewport?.height ?? innerHeight) - tapa, r = el.getBoundingClientRect();
+      const vh = window.visualViewport?.height ?? innerHeight, r = el.getBoundingClientRect();
       // solo hacia abajo y solo si queda tapado: nunca sube la página
       const d = r.bottom > vh - 24 ? Math.min(r.bottom - (vh - 24), Math.max(0, r.top - 96)) : 0;
       if (d > 4) scrollBy({ top: d, behavior: reducido ? 'auto' : 'smooth' });
@@ -216,59 +215,34 @@ import personasEn from '../data/personas.en.json';
       campo.addEventListener('pointerdown', () => { tocando = false; guardia(1600, 60, 420); }, { passive: true });
       // la causa de fondo: iOS busca solo dónde colocar el campo al salir el teclado y, con esta maquetación, se pasa de sección. Lo evitamos: ANTES de enfocar, el campo se sube
       // a la parte alta de la pantalla (por encima de donde llegará el teclado) y se enfoca con `preventScroll`: así el navegador no tiene nada que desplazar.
-      // CHROME DE iOS (Safari va bien): al salir el teclado, Chrome desplaza la página a su manera (iba al pie y volvía; al enviar, subía al Estudio). Allí el campo se ACOPLA al
-      // borde de abajo, sobre el teclado (position: fixed, siguiendo `visualViewport`): siempre está a la vista, así que el navegador no tiene nada que buscar.
+      // CHROME DE iOS (Safari va bien): al salir el teclado, Chrome desplaza la página a su manera (iba al pie y volvía; al enviar, subía al Estudio). SIN barra pegada al
+      // teclado (a Eric no le gustó): el campo sigue en su sitio, y mientras tiene el foco se le mantiene a un 35 % de la altura visible (siempre sobre el teclado); si el visitante
+      // arrastra, manda él. Al irse el teclado, el campo se queda donde estaba hasta que la ventana vuelve a su tamaño.
       const chromeIOS = /CriOS/.test(navigator.userAgent);
-      const hueco = document.createElement('div');
-      const colocar = () => { const v = window.visualViewport; form.style.bottom = `${v ? Math.max(0, innerHeight - v.height - v.offsetTop) : 0}px`; };
-      const acoplar = () => {
-        if (form.classList.contains('acoplado')) return;
-        hueco.style.height = `${form.offsetHeight}px`; form.before(hueco);
-        congelar(); form.classList.add('acoplado'); colocar();
-      };
-      // Con el campo acoplado, la página se CONGELA (cuerpo fijo en su sitio): Chrome ya no puede desplazarla al pie ni al Estudio mientras hay teclado. Al soltar, vuelve a
-      // su posición exacta; al enviar se quita el foco (el teclado se va) y se enseña la conversación.
-      let yLock = 0, congelada = false, top0 = 0, T = 0, ancla: HTMLElement | null = null, finAncla = 0, rafA = 0;
-      // HIPÓTESIS (Chrome de iOS encoge la ventana con el teclado y las secciones en `lvh` se encogen con ella: el contenido de arriba cambia de alto y la posición queda sobre otra
-      // cosa, el pie): se COMPENSA. Se toma el campo (su hueco) como ancla y, cada fotograma, se desplaza lo que haya cambiado su sitio en pantalla, congelado o no.
-      const mantener = (el: HTMLElement, ms: number) => {
-        ancla = el; top0 = el.getBoundingClientRect().top; finAncla = performance.now() + ms;
-        if (rafA) return;
-        const f = () => {
-          rafA = 0;
-          if (!ancla || (!congelada && performance.now() > finAncla)) return;
-          const d = ancla.getBoundingClientRect().top - top0;
-          if (Math.abs(d) > 0.5 && !tocando) { if (congelada) { T -= d; document.body.style.top = `${T}px`; } else scrollBy({ top: d, behavior: 'instant' }); }
-          rafA = requestAnimationFrame(f);
-        };
-        rafA = requestAnimationFrame(f);
-      };
-      const congelar = () => {
-        if (congelada) return; yLock = scrollY; T = -yLock;
-        const b = document.body.style; b.position = 'fixed'; b.top = `${T}px`; b.left = '0'; b.right = '0'; b.width = '100%';
-        congelada = true; mantener(hueco, 0);
-      };
-      const descongelar = () => {
-        if (!congelada) return; congelada = false;
-        const b = document.body.style; b.position = ''; b.top = ''; b.left = ''; b.right = '';  b.width = '';
-        scrollTo({ top: -T, behavior: 'instant' });
-        mantener(form, 900); // el teclado se va y la ventana vuelve a crecer: el campo no se mueve de su sitio
-      };
-      const soltar = () => { form.classList.remove('acoplado'); form.style.bottom = ''; hueco.remove(); descongelar(); };
       if (chromeIOS) {
+        let activo = false, usuario = false, finBlur = 0, fijo = 0, raf2 = 0;
+        const lazo = () => {
+          raf2 = 0;
+          if (!activo && performance.now() > finBlur) return;
+          if (!usuario && !tocando) {
+            const objetivo = activo ? (window.visualViewport?.height ?? innerHeight) * 0.35 : fijo, d = form.getBoundingClientRect().top - objetivo;
+            if (Math.abs(d) > 1) scrollBy({ top: d, behavior: 'instant' });
+          }
+          raf2 = requestAnimationFrame(lazo);
+        };
+        const arranca = () => { if (!raf2) raf2 = requestAnimationFrame(lazo); };
+        campo.addEventListener('focus', () => { activo = true; usuario = false; arranca(); });
+        campo.addEventListener('blur', () => { activo = false; fijo = form.getBoundingClientRect().top; finBlur = performance.now() + 900; arranca(); });
+        addEventListener('touchmove', () => { if (activo) usuario = true; }, { passive: true });
         form.addEventListener('submit', () => setTimeout(() => campo.blur(), 0), true);
-        window.visualViewport?.addEventListener('resize', colocar); window.visualViewport?.addEventListener('scroll', colocar);
-        campo.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== campo) soltar(); }, 60));
-        form.querySelector('.mandar')?.addEventListener('pointerdown', (e) => e.preventDefault()); // enviar no quita el foco (ni el teclado): la barra no se mueve bajo el dedo
       }
       let movido = false;
       campo.addEventListener('touchstart', () => { movido = false; }, { passive: true });
       campo.addEventListener('touchmove', () => { movido = true; }, { passive: true });
       campo.addEventListener('touchend', (e) => {
-        if (movido || document.activeElement === campo) return;
+        if (chromeIOS || movido || document.activeElement === campo) return;
         e.preventDefault();
-        if (chromeIOS) acoplar();
-        else { const r = campo.getBoundingClientRect(); scrollBy({ top: r.top - innerHeight * 0.22, behavior: 'instant' }); guardia(1600, 60, 420); }
+        { const r = campo.getBoundingClientRect(); scrollBy({ top: r.top - innerHeight * 0.22, behavior: 'instant' }); guardia(1600, 60, 420); }
         campo.focus({ preventScroll: true });
         campo.setSelectionRange(campo.value.length, campo.value.length);
       }, { passive: false });
@@ -537,8 +511,6 @@ import personasEn from '../data/personas.en.json';
   .campo:focus-visible::placeholder {
     opacity: 0.55;
   }
-  /* RONDA 290 · Chrome de iOS: el campo acoplado sobre el teclado */
-  .compositor.acoplado { position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 5); background: var(--bg); box-shadow: 0 -1px 0 var(--rule); }
   .mandar {
     flex: none;
     width: calc(var(--spacing) * 12);
