@@ -27,7 +27,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   · Datos: src/data/brief.json (pasos y reacciones) · src/data/preguntas.json (las respuestas escritas) · src/data/personas.json · api/preguntar.js.
   · PROTOTIPO: aún NO envía nada. Al terminar, el resumen queda en pantalla y se avisa.
 -->
-<div class="cf" data-cf hidden data-cal={pie.cal} data-correo={pie.correo} data-caras={JSON.stringify(CARA)} data-personas={JSON.stringify(personas)}>
+<div class="cf cf-fuera" data-cf hidden data-cal={pie.cal} data-correo={pie.correo} data-caras={JSON.stringify(CARA)} data-personas={JSON.stringify(personas)}>
   <i class="cf-velo" aria-hidden="true"></i>
   <button type="button" class="cf-btn" data-cf-btn aria-expanded="false" aria-controls="cf-panel" aria-label={T.abrir}>
     <span class="cf-ic cf-ic-chat" set:html={ico(chatR)} />
@@ -106,6 +106,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     // ── APARECER / DESAPARECER el botón: nunca en el hero; no con «Pregunta» a la vista, ni con el menú abierto ni sentado
     const html = document.documentElement;
     let abierto = false, preguntasVisible = false, pieCerca = false;
+    let desdeOculto = false; // se abrió estando el botón escondido (p. ej. desde «Contáctanos» del pie): el botón NO asoma ni mientras está abierto ni al cerrar (Eric: «sale por un segundo el icono»)
     // el color del icono: el fondo REAL que tiene debajo (en invierno el hero es claro, en otoño oscuro): el primer elemento con color de fondo sólido
     const luminancia = (c: string) => {
       const m = c.match(/[\d.]+/g); if (!m || m.length < 3) return null;
@@ -125,9 +126,10 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const heroEl = document.querySelector('[data-hero]');
     let raf = 0;
     const refrescarBtn = () => {
-      const lejos = enHero || (heroEl ? heroEl.getBoundingClientRect().bottom < innerHeight * 0.8 : scrollY > innerHeight * 0.9); // RONDA 264 · Eric: «discreto»: nada en el hero; aparece en cuanto asoma la segunda sección (el borde del hero sube del 80 % de la pantalla)
-      const oculto = !lejos || (preguntasVisible && !pieCerca) || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
-      raiz.classList.toggle('cf-fuera', oculto && !abierto);
+      const lejos = enHero || (scrollY > 0 && (heroEl ? heroEl.getBoundingClientRect().bottom < innerHeight * 0.8 : scrollY > innerHeight * 0.9)); // RONDA 264 · Eric: «discreto»: nada en el hero; aparece en cuanto asoma la segunda sección (el borde del hero sube del 80 % de la pantalla)
+      const oculto = !lejos || preguntasVisible || pieCerca || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
+      raiz.classList.toggle('cf-fuera', oculto && (!abierto || desdeOculto));
+      if (!abierto) desdeOculto = false;
       if (!raf) raf = requestAnimationFrame(() => { raf = 0; raiz.classList.toggle('cf-claro', fondoClaro()); });
     };
     addEventListener('scroll', refrescarBtn, { passive: true });
@@ -170,6 +172,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     // ── ABRIR / CERRAR: el panel se dibuja desde el botón, como el menú
     const poner = (si: boolean) => {
       if (si === abierto) return;
+      if (si) desdeOculto = raiz.classList.contains('cf-fuera');
       abierto = si;
       btn.setAttribute('aria-expanded', String(si));
       btn.setAttribute('aria-label', si ? t('Cerrar el chat', 'Close the chat') : t('Abrir el chat', 'Open the chat'));

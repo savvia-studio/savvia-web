@@ -672,9 +672,9 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     color: var(--color-niebla); font-family: var(--font-sans); font-weight: 500; font-size: 12.5px; line-height: 1; white-space: nowrap;
     transform: translate(calc(var(--x, 0px) - 17px), calc(var(--y, 0px) - 17px));
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.15s ease;
   }
-  .cursor-contacto.on .txt { opacity: 1; transition: opacity 0.7s ease 0.5s; }
+  .cursor-contacto.on .txt { opacity: 1; transition: opacity 0.15s ease; } /* ronda 264 · Eric: «hay 1-2 s sin ratón»: el puntero nativo ya está oculto (cursor: none), así que la píldora entra YA (antes 0,5 s de espera + 0,7 s de fundido) */
   .cursor-contacto svg { flex: none; width: 26px; height: 26px; padding: 4.5px; border-radius: 50%; background: var(--color-coral); stroke: #1b1714; stroke-width: 1.6; stroke-linejoin: round; }
   @media (prefers-reduced-motion: reduce) { .cursor-contacto, .cursor-contacto .txt { transition: none; } }
   .capa.hierba {
