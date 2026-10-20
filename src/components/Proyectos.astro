@@ -498,7 +498,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       // ronda 211 (Eric: «lo del desliza que aparezca cuando aparece ya la web»): con la cámara posada Y la pantalla de carga ya fuera (navegar() la retira al cargar la web, o a los 12 s)
       const w = webs[activo];
       if (performance.now() - posado < 900 || !w || w.classList.contains('cargando')) return; // ronda 213: «un pelín antes» (1600 → 900 ms)
-      if (deslizado) { aviso.classList.remove('on'); return; }
+      if (deslizado || (w.dataset.video && innerWidth < 700)) { aviso.classList.remove('on'); return; } // ronda 270: el vídeo del móvil no se recorre: sin «desliza»
       const ahora = performance.now();
       if (pantallaD.matches(':hover')) {
         // ronda 212 (Eric, «no parece la ayuda»: la captura no la enseñaba): te sientas con un CLIC en el monitor, así que el puntero ya está dentro de la pantalla;
