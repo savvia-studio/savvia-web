@@ -25,7 +25,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 <html lang={lang} data-carga={carga ? '1' : '0'}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual" />
     <!-- RONDA 290 · Eric (móvil): al escribir en un campo, el teclado cambia la altura de la ventana y TODOS los `resize` de la web recalculan su maquetación (el Estudio, los
          Proyectos, el pie…): la página saltaba arriba y abajo. Con el dedo, un `resize` que no cambia el ancho mientras hay un campo con foco se descarta antes de que llegue a nadie. -->
     <script is:inline>

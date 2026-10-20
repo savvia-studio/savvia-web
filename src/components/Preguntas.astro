@@ -212,7 +212,7 @@ import personasEn from '../data/personas.en.json';
         }
         raf = requestAnimationFrame(vigila);
       };
-      const guardia = (ms: number, a: number, b: number) => { y0 = scrollY; fin = performance.now() + ms; arriba = a; abajo = b; if (!raf) raf = requestAnimationFrame(vigila); };
+      const guardia = (ms: number, a: number, b: number) => { if (/CriOS/.test(navigator.userAgent)) return; /* allí manda el ancla (más abajo) */ y0 = scrollY; fin = performance.now() + ms; arriba = a; abajo = b; if (!raf) raf = requestAnimationFrame(vigila); };
       campo.addEventListener('pointerdown', () => { tocando = false; guardia(1600, 60, 420); }, { passive: true });
       // la causa de fondo: iOS busca solo dónde colocar el campo al salir el teclado y, con esta maquetación, se pasa de sección. Lo evitamos: ANTES de enfocar, el campo se sube
       // a la parte alta de la pantalla (por encima de donde llegará el teclado) y se enfoca con `preventScroll`: así el navegador no tiene nada que desplazar.
@@ -228,16 +228,31 @@ import personasEn from '../data/personas.en.json';
       };
       // Con el campo acoplado, la página se CONGELA (cuerpo fijo en su sitio): Chrome ya no puede desplazarla al pie ni al Estudio mientras hay teclado. Al soltar, vuelve a
       // su posición exacta; al enviar se quita el foco (el teclado se va) y se enseña la conversación.
-      let yLock = 0, congelada = false;
+      let yLock = 0, congelada = false, top0 = 0, T = 0, ancla: HTMLElement | null = null, finAncla = 0, rafA = 0;
+      // HIPÓTESIS (Chrome de iOS encoge la ventana con el teclado y las secciones en `lvh` se encogen con ella: el contenido de arriba cambia de alto y la posición queda sobre otra
+      // cosa, el pie): se COMPENSA. Se toma el campo (su hueco) como ancla y, cada fotograma, se desplaza lo que haya cambiado su sitio en pantalla, congelado o no.
+      const mantener = (el: HTMLElement, ms: number) => {
+        ancla = el; top0 = el.getBoundingClientRect().top; finAncla = performance.now() + ms;
+        if (rafA) return;
+        const f = () => {
+          rafA = 0;
+          if (!ancla || (!congelada && performance.now() > finAncla)) return;
+          const d = ancla.getBoundingClientRect().top - top0;
+          if (Math.abs(d) > 0.5 && !tocando) { if (congelada) { T -= d; document.body.style.top = `${T}px`; } else scrollBy({ top: d, behavior: 'instant' }); }
+          rafA = requestAnimationFrame(f);
+        };
+        rafA = requestAnimationFrame(f);
+      };
       const congelar = () => {
-        if (congelada) return; congelada = true; yLock = scrollY;
-        const b = document.body.style; b.position = 'fixed'; b.top = `-${yLock}px`; b.left = '0'; b.right = '0'; b.width = '100%';
+        if (congelada) return; yLock = scrollY; T = -yLock;
+        const b = document.body.style; b.position = 'fixed'; b.top = `${T}px`; b.left = '0'; b.right = '0'; b.width = '100%';
+        congelada = true; mantener(hueco, 0);
       };
       const descongelar = () => {
         if (!congelada) return; congelada = false;
-        const b = document.body.style; b.position = ''; b.top = ''; b.left = ''; b.right = ''; b.width = '';
-        scrollTo({ top: yLock, behavior: 'instant' });
-        guardia(2600, 60, 900);
+        const b = document.body.style; b.position = ''; b.top = ''; b.left = ''; b.right = '';  b.width = '';
+        scrollTo({ top: -T, behavior: 'instant' });
+        mantener(form, 900); // el teclado se va y la ventana vuelve a crecer: el campo no se mueve de su sitio
       };
       const soltar = () => { form.classList.remove('acoplado'); form.style.bottom = ''; hueco.remove(); descongelar(); };
       if (chromeIOS) {
@@ -253,8 +268,7 @@ import personasEn from '../data/personas.en.json';
         if (movido || document.activeElement === campo) return;
         e.preventDefault();
         if (chromeIOS) acoplar();
-        else { const r = campo.getBoundingClientRect(); scrollBy({ top: r.top - innerHeight * 0.22, behavior: 'instant' }); }
-        guardia(1600, 60, 420);
+        else { const r = campo.getBoundingClientRect(); scrollBy({ top: r.top - innerHeight * 0.22, behavior: 'instant' }); guardia(1600, 60, 420); }
         campo.focus({ preventScroll: true });
         campo.setSelectionRange(campo.value.length, campo.value.length);
       }, { passive: false });
