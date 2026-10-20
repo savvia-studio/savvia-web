@@ -104,7 +104,8 @@ import personasEn from '../data/personas.en.json';
     // RONDA 290 · Eric: al escribir, el teclado hacía saltar la página al pie, y al enviar la conversación no se veía
     const verEnMovil = (el: Element | null | undefined) => {
       if (!el) return;
-      const vh = window.visualViewport?.height ?? innerHeight, r = el.getBoundingClientRect();
+      const tapa = document.querySelector('.compositor.acoplado') ? (document.querySelector('.compositor.acoplado') as HTMLElement).offsetHeight : 0; // la barra acoplada tapa el borde de abajo
+      const vh = (window.visualViewport?.height ?? innerHeight) - tapa, r = el.getBoundingClientRect();
       // solo hacia abajo y solo si queda tapado: nunca sube la página
       const d = r.bottom > vh - 24 ? Math.min(r.bottom - (vh - 24), Math.max(0, r.top - 96)) : 0;
       if (d > 4) scrollBy({ top: d, behavior: reducido ? 'auto' : 'smooth' });
@@ -205,14 +206,30 @@ import personasEn from '../data/personas.en.json';
       campo.addEventListener('pointerdown', () => { tocando = false; guardia(1600, 60, 420); }, { passive: true });
       // la causa de fondo: iOS busca solo dónde colocar el campo al salir el teclado y, con esta maquetación, se pasa de sección. Lo evitamos: ANTES de enfocar, el campo se sube
       // a la parte alta de la pantalla (por encima de donde llegará el teclado) y se enfoca con `preventScroll`: así el navegador no tiene nada que desplazar.
+      // CHROME DE iOS (Safari va bien): al salir el teclado, Chrome desplaza la página a su manera (iba al pie y volvía; al enviar, subía al Estudio). Allí el campo se ACOPLA al
+      // borde de abajo, sobre el teclado (position: fixed, siguiendo `visualViewport`): siempre está a la vista, así que el navegador no tiene nada que buscar.
+      const chromeIOS = /CriOS/.test(navigator.userAgent);
+      const hueco = document.createElement('div');
+      const colocar = () => { const v = window.visualViewport; form.style.bottom = `${v ? Math.max(0, innerHeight - v.height - v.offsetTop) : 0}px`; };
+      const acoplar = () => {
+        if (form.classList.contains('acoplado')) return;
+        hueco.style.height = `${form.offsetHeight}px`; form.before(hueco);
+        form.classList.add('acoplado'); colocar();
+      };
+      const soltar = () => { form.classList.remove('acoplado'); form.style.bottom = ''; hueco.remove(); };
+      if (chromeIOS) {
+        window.visualViewport?.addEventListener('resize', colocar); window.visualViewport?.addEventListener('scroll', colocar);
+        campo.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== campo) soltar(); }, 60));
+        form.querySelector('.mandar')?.addEventListener('pointerdown', (e) => e.preventDefault()); // enviar no quita el foco (ni el teclado): la barra no se mueve bajo el dedo
+      }
       let movido = false;
       campo.addEventListener('touchstart', () => { movido = false; }, { passive: true });
       campo.addEventListener('touchmove', () => { movido = true; }, { passive: true });
       campo.addEventListener('touchend', (e) => {
         if (movido || document.activeElement === campo) return;
         e.preventDefault();
-        const r = campo.getBoundingClientRect();
-        scrollBy({ top: r.top - innerHeight * 0.22, behavior: 'instant' });
+        if (chromeIOS) acoplar();
+        else { const r = campo.getBoundingClientRect(); scrollBy({ top: r.top - innerHeight * 0.22, behavior: 'instant' }); }
         guardia(1600, 60, 420);
         campo.focus({ preventScroll: true });
         campo.setSelectionRange(campo.value.length, campo.value.length);
@@ -482,6 +499,8 @@ import personasEn from '../data/personas.en.json';
   .campo:focus-visible::placeholder {
     opacity: 0.55;
   }
+  /* RONDA 290 · Chrome de iOS: el campo acoplado sobre el teclado */
+  .compositor.acoplado { position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 5); background: var(--bg); box-shadow: 0 -1px 0 var(--rule); }
   .mandar {
     flex: none;
     width: calc(var(--spacing) * 12);
