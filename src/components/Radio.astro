@@ -38,7 +38,13 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
         <button type="button" role="tab" aria-selected="true" data-em="todas">{en ? 'All' : 'Todas'}</button>
         {EMISORAS.map((e) => <button type="button" role="tab" aria-selected="false" data-em={e.id}>{e.nombre}</button>)}
       </div>
-      <button type="button" class="sig" aria-label={en ? 'Next track' : 'Siguiente pieza'} data-radio-sig><Fragment set:html={icono('skip-next', 'fill')} /></button>
+      <div class="mandos">
+        <button type="button" class="pp" aria-label={en ? 'Turn the music on' : 'Encender la música'} data-radio-pp>
+          <span class="pp-play" aria-hidden="true"><Fragment set:html={icono('play', 'fill')} /></span>
+          <span class="pp-pausa" aria-hidden="true"><Fragment set:html={icono('pause', 'fill')} /></span>
+        </button>
+        <button type="button" class="sig" aria-label={en ? 'Next track' : 'Siguiente pieza'} data-radio-sig><Fragment set:html={icono('skip-next', 'fill')} /></button>
+      </div>
     </div>
     <ol class="pistas" aria-label={en ? 'Tracks' : 'Piezas'}>
       {PISTAS.map((p) => (
@@ -104,7 +110,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     position: absolute;
     top: calc(100% + var(--spacing) * 4);
     right: calc(var(--spacing) * -2);
-    width: min(16rem, 100vw - 2.5rem); /* móvil: nunca más ancho que la pantalla */
+    width: min(19rem, 100vw - 2.5rem); /* móvil: nunca más ancho que la pantalla */
     padding: calc(var(--spacing) * 3);
     border-radius: calc(var(--spacing) * 3);
     color: #f5f5f7;
@@ -119,11 +125,14 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     pointer-events: none;
     transition: opacity 0.3s ease, translate 0.5s var(--ease-out-expo), filter 0.3s ease;
   }
+  /* móvil: el panel se ancla a la pantalla (no al botón) para que nunca se salga por la izquierda */
+  @media (max-width: 640px) { .panel { position: fixed; top: calc(var(--spacing) * 14); left: calc(var(--spacing) * 5); right: calc(var(--spacing) * 5); width: auto; } }
   .radio.abierto .panel { opacity: 1; translate: 0 0; filter: none; pointer-events: auto; }
   .cabeza { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--spacing) * 2); padding: 0 calc(var(--spacing) * 1) calc(var(--spacing) * 2); }
-  .emisoras { display: flex; gap: calc(var(--spacing) * 1); }
+  .emisoras { display: flex; gap: 0; min-width: 0; }
   .emisoras [role='tab'] {
     padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    white-space: nowrap;
     border-radius: var(--radius-full);
     font-size: 0.75rem;
     font-weight: 500;
@@ -137,6 +146,14 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
   .sig { display: grid; place-items: center; width: calc(var(--spacing) * 7); height: calc(var(--spacing) * 7); border-radius: 50%; color: color-mix(in oklab, #f5f5f7 62%, transparent); cursor: pointer; transition: color 0.25s ease, background-color 0.25s ease; }
   .sig :global(svg) { width: 0.9rem; height: 0.9rem; fill: currentColor; }
   .sig:hover { color: #f5f5f7; background: color-mix(in oklab, #f5f5f7 12%, transparent); }
+  /* RONDA 290 · Eric: «¿cómo paro la música en móvil? play / pause dentro de la píldora, también en escritorio»: reproducir/pausar junto a «siguiente» */
+  .mandos { flex: none; display: flex; align-items: center; gap: calc(var(--spacing) * 1); }
+  .pp { display: grid; place-items: center; width: calc(var(--spacing) * 7); height: calc(var(--spacing) * 7); border-radius: 50%; color: #f5f5f7; cursor: pointer; transition: color 0.25s ease, background-color 0.25s ease; }
+  .pp > * { grid-area: 1 / 1; display: grid; place-items: center; }
+  .pp :global(svg) { width: 0.95rem; height: 0.95rem; fill: currentColor; }
+  .pp:hover, .pp:focus-visible { background: color-mix(in oklab, #f5f5f7 12%, transparent); }
+  .pp .pp-pausa, .radio.suena .pp .pp-play { display: none; }
+  .radio.suena .pp .pp-pausa { display: grid; }
   .radio:not(.suena) .sig { opacity: 0.35; pointer-events: none; }
   /* la lista se recorre; una NUBECITA (máscara) desvanece lo que sigue arriba y abajo */
   .pistas { max-height: 13rem; overflow-y: auto; margin: 0; padding: calc(var(--spacing) * 2) 0 calc(var(--spacing) * 4); list-style: none; scrollbar-width: none; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 3), #000 calc(100% - var(--spacing) * 6), transparent); mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--spacing) * 3), #000 calc(100% - var(--spacing) * 6), transparent); }
@@ -184,6 +201,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     type Pista = { id: string; em: string; t: string; ini: number; fin: number };
     const bPlay = caja.querySelector<HTMLButtonElement>('[data-radio-play]')!;
     const bSig = caja.querySelector<HTMLButtonElement>('[data-radio-sig]')!;
+    const bPP = caja.querySelector<HTMLButtonElement>('[data-radio-pp]')!;
     const ahora = caja.querySelector<HTMLElement>('[data-radio-ahora]')!;
     // el ORDEN de la lista, al azar en cada visita (Eric): se barajan los <li> antes de leerlos (Fisher-Yates)
     const ol = caja.querySelector<HTMLElement>('.pistas')!;
@@ -235,6 +253,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       caja.classList.toggle('cede', on && cede);
       caja.dataset.filtro = em;
       bPlay.setAttribute('aria-pressed', String(on));
+      bPP.setAttribute('aria-label', on ? t('Pausar la música', 'Pause the music') : t('Encender la música', 'Turn the music on'));
       bPlay.setAttribute('aria-label', on ? `${t('Apagar la música', 'Turn the music off')}${actual ? ` · ${actual.t}` : ''}` : t('Encender la música', 'Turn the music on'));
       tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.em === em)));
       items.forEach((b) => b.classList.toggle('on', on && !!actual && b.dataset.pista === actual.id));
@@ -390,6 +409,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       if (tactil) abrir(false); // segundo toque: enciende/apaga y cierra el panel
       encender(!on);
     });
+    bPP.addEventListener('click', () => encender(!on)); // el panel se queda abierto
     bSig.addEventListener('click', () => { if (on) sonar(false); });
     tabs.forEach((b) => b.addEventListener('click', () => {
       em = b.dataset.em!;

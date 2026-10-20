@@ -184,6 +184,41 @@ import personasEn from '../data/personas.en.json';
         return v.tipo === 'ninguna' ? v : respaldo;
       } catch { return respaldo; }
     };
+    // RONDA 290 · Eric (grabación de pantalla, iPhone + Chrome): al tocar el campo la página saltaba al pie y volvía; al enviar, subía hasta el Estudio y volvía. Es el teclado
+    // moviendo la ventana mientras la maquetación se recoloca. Con el dedo, durante el momento crítico la página NO puede alejarse de donde estaba: más de `arriba` px por
+    // encima o de `abajo` px por debajo de la posición de partida se corrige al instante (los gestos del propio visitante se respetan).
+    if (matchMedia('(pointer: coarse)').matches) {
+      let tocando = false, fin = 0, y0 = 0, arriba = 0, abajo = 0, raf = 0;
+      addEventListener('touchstart', () => { tocando = true; }, { passive: true });
+      addEventListener('touchend', () => { tocando = false; }, { passive: true });
+      const vigila = () => {
+        raf = 0;
+        if (performance.now() > fin) return;
+        if (!tocando) {
+          const y = scrollY;
+          if (y < y0 - arriba) scrollTo({ top: y0 - arriba, behavior: 'instant' });
+          else if (y > y0 + abajo) scrollTo({ top: y0 + abajo, behavior: 'instant' });
+        }
+        raf = requestAnimationFrame(vigila);
+      };
+      const guardia = (ms: number, a: number, b: number) => { y0 = scrollY; fin = performance.now() + ms; arriba = a; abajo = b; if (!raf) raf = requestAnimationFrame(vigila); };
+      campo.addEventListener('pointerdown', () => { tocando = false; guardia(1600, 60, 420); }, { passive: true });
+      // la causa de fondo: iOS busca solo dónde colocar el campo al salir el teclado y, con esta maquetación, se pasa de sección. Lo evitamos: ANTES de enfocar, el campo se sube
+      // a la parte alta de la pantalla (por encima de donde llegará el teclado) y se enfoca con `preventScroll`: así el navegador no tiene nada que desplazar.
+      let movido = false;
+      campo.addEventListener('touchstart', () => { movido = false; }, { passive: true });
+      campo.addEventListener('touchmove', () => { movido = true; }, { passive: true });
+      campo.addEventListener('touchend', (e) => {
+        if (movido || document.activeElement === campo) return;
+        e.preventDefault();
+        const r = campo.getBoundingClientRect();
+        scrollBy({ top: r.top - innerHeight * 0.22, behavior: 'instant' });
+        guardia(1600, 60, 420);
+        campo.focus({ preventScroll: true });
+        campo.setSelectionRange(campo.value.length, campo.value.length);
+      }, { passive: false });
+      form.addEventListener('submit', () => guardia(2600, 60, 900), true);
+    }
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = campo.value.trim();
