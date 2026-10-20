@@ -121,6 +121,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
 </script>
 
 <script>
+  import { jugar } from '../scripts/jugar';
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
   import { t } from '../scripts/i18n';
@@ -159,7 +160,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     const mini = menu.querySelector<HTMLVideoElement>('[data-reel-mini]');
     if (mini && si) {
       if (!mini.src) mini.src = '/media/reel/reel-mini.mp4';
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) mini.play().catch(() => {});
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) jugar(mini);
     } else mini?.pause();
     if (si) {
       menu.hidden = velo.hidden = false;

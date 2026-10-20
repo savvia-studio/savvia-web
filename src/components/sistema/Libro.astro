@@ -695,6 +695,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
 </Base>
 
 <script>
+  import { jugar } from '../../scripts/jugar';
   import { fijarEstacion, estacionActual, EST, NOCHE } from '../../scripts/estacion';
   import { crearEstela } from '../../scripts/estela';
   // RONDA 154 · el roble de cada estación, pintado por el motor del hero (mismas opciones: la primavera teñida de cerezo, el invierno sin hojas y sin hervor)
@@ -829,7 +830,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   // ronda 266 · los vídeos de Movimiento: suenan (mudos) solo a la vista; con movimiento reducido se quedan en su primer fotograma
   {
     const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target as HTMLVideoElement; if (e.isIntersecting && !quieto) v.play().catch(() => {}); else v.pause(); }), { rootMargin: '10% 0px' });
+    const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target as HTMLVideoElement; if (e.isIntersecting && !quieto) jugar(v); else v.pause(); }), { rootMargin: '10% 0px' });
     document.querySelectorAll<HTMLVideoElement>('[data-mv]').forEach((v) => io.observe(v));
   }
 </script>

@@ -59,9 +59,10 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
 </Tag>
 
 <script>
+  import { jugar } from '../../scripts/jugar';
   // el vídeo: al pasar el cursor (o al enfocar); en táctil, mientras la pieza está a la vista
   const tactil = matchMedia('(hover: none)').matches, reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const tocar = (v: HTMLVideoElement, si: boolean) => { if (si) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!reducido) v.play().catch(() => {}); } else v.pause(); };
+  const tocar = (v: HTMLVideoElement, si: boolean) => { if (si) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!reducido) jugar(v); } else v.pause(); };
   const io = new IntersectionObserver((es) => es.forEach((e) => tocar(e.target.querySelector('video')!, e.isIntersecting)), { threshold: 0.5 });
   // ronda 126: la web sube desde abajo al entrar la pieza en pantalla (y se queda)
   const ve = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('vista'); ve.unobserve(e.target); } }), { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
