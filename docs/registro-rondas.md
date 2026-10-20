@@ -4580,3 +4580,13 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - Pie móvil: «Contáctanos» más abajo (`--cb` 0.19 → 0.13 en <64rem).
 - Móvil (hover: none o <48rem): el toque en una card va a la web; el visor modal solo en escritorio (estaba hablado y no hecho).
 - Cubbo (móvil de la mesa): la pantalla en perspectiva con fondo #121213 en vez de transparente (asomaba 1 px de blanco de la lámina sobre el vídeo).
+
+### Ronda 276 · 2026-10-20 · PUBLICADO: las aficiones de catálogo animadas y los destacados del menú, junto con lo último de Eric
+- **Andoni (textual):** «mira lo que ha publicado Eric y sin romper nada publica lo nuevo».
+- **Hecho:** commit `c2ab3a2` (rondas 264–275: aficiones en ilustración de catálogo animada de serie, iPod, destacados del menú como en el portfolio, motor con
+  `semitono`, scripts) + fusión con 15 commits de Eric (`c4ba25d`: vídeos de proyectos, `jugar()`, mockups móviles, Estudio más pequeño en móvil…). Solo chocó el
+  registro (los dos añadimos al final): se quedan los dos bloques. Fuera del repositorio (`.gitignore`): renders de Blender, material del reel nuevo.
+- **Medido:** antes de subir, `astro check` 0 · build OK · `tools/verify.cjs` local limpio en los cuatro · aficiones y menú sin errores. EN VIVO (https://savvia.studio):
+  `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 (una primera pasada de WebKit pilló un CSS de la versión anterior durante el
+  cambio de despliegue; a los 20 s, limpio) · los destacados del menú rotan (kuanta → arkdev) en Chrome, WebKit y 390.
+- **Pendiente:** el móvil de las aficiones (al tocar, lo tapa la sección siguiente).
