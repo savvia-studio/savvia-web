@@ -471,27 +471,14 @@ import { icono } from '../lib/iconos';
         pz.addEventListener('pointerenter', entra); pz.addEventListener('pointerleave', sale);
         pz.addEventListener('focusin', entra); pz.addEventListener('focusout', sale);
       });
-      // RONDA 268 · Eric (móvil): sin hover, el navegador se pone recto con el SCROLL (mismo gesto que arranca el vídeo): solo la pieza más centrada de las que se ven
-      // al 55 %, así nunca hay dos a la vez. Al salir de esa franja vuelve a su sitio ladeado.
-      if (tactiles.length) {
-        const vistas = new Set<HTMLElement>();
-        let actual: (typeof tactiles)[number] | null = null, raf = 0;
-        const elegir = () => {
-          raf = 0;
-          let mejor: (typeof tactiles)[number] | null = null, d = Infinity;
-          tactiles.forEach((t) => {
-            if (!vistas.has(t.pz)) return;
-            const r = t.pz.getBoundingClientRect(), k = Math.abs(r.top + r.height / 2 - innerHeight / 2);
-            if (k < d) { d = k; mejor = t; }
-          });
-          if (mejor === actual) return;
-          actual?.sale(); actual = mejor; (actual as (typeof tactiles)[number] | null)?.entra();
-        };
-        const pide = () => { if (!raf) raf = requestAnimationFrame(elegir); };
-        const io = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? vistas.add(e.target as HTMLElement) : vistas.delete(e.target as HTMLElement))); pide(); }, { threshold: 0.55 });
-        tactiles.forEach((t) => io.observe(t.pz));
-        addEventListener('scroll', pide, { passive: true });
-      }
+      // RONDA 268 · Eric (móvil): sin hover no hay gesto que lo ponga recto. RONDA 290 · Eric: «en mobile los proyectos tienen que aparecer directamente con el mockup
+      // centrado; la animación de scroll in parece un glitch»: en táctil el navegador nace ya recto y centrado (sin ligarlo al scroll); se vuelve a medir si la pieza cambia de tamaño.
+      tactiles.forEach((t) => {
+        const lam = t.pz.querySelector<HTMLElement>('.lamina')!;
+        t.pz.classList.add('fijo');
+        t.entra();
+        new ResizeObserver(() => t.entra()).observe(lam);
+      });
     }
   }
   // RONDA 19 · el VÍDEO de cada web: al pasar el cursor o enfocar la pieza; en táctil (sin hover), mientras la pieza está a la vista.
@@ -955,7 +942,7 @@ import { icono } from '../lib/iconos';
   }
   .retratos {
     display: grid;
-    width: min(100%, 22rem);
+    width: min(70%, 16rem); /* móvil: más pequeña (Eric); desde 64rem, el 100 % de su columna */
     aspect-ratio: 1 / 1;
     justify-self: center;
   }
@@ -1016,6 +1003,7 @@ import { icono } from '../lib/iconos';
   .quien {
     grid-area: 1 / 1;
     display: grid;
+    align-content: start; /* sin esto, el alto de la cita más larga reparte las filas y separa nombre y cargo */
     gap: calc(var(--spacing) * 1);
     --dq: 300ms;
   }
@@ -1035,7 +1023,7 @@ import { icono } from '../lib/iconos';
   .barra-voz {
     gap: calc(var(--spacing) * 1);
     padding: 0;
-    margin-left: calc(var(--spacing) * -2);
+    margin-left: 0;
     background: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -1569,6 +1557,9 @@ import { icono } from '../lib/iconos';
     scale: var(--hs, 1);
     rotate: 0deg;
   }
+  /* RONDA 290 · táctil: el navegador nace ya recto y centrado, sin transición (ni la de la entrada ni la del scroll) */
+  :global(html.anima) .pieza.fijo .mockup,
+  .pieza.fijo .mockup { transition: none !important; will-change: auto; }
   :global(html.anima) .escena.visto:hover .mesa,
   :global(html.anima) .movil.visto:hover .mesa,
   :global(html.anima) .roble.visto:hover .mesa { scale: 1.06; transition: scale 1.6s var(--ease-out-expo); }

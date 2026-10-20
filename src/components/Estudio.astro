@@ -787,15 +787,15 @@ const [A, E] = estudio.personas;
   /* móvil: la línea, más corta; las aficiones caen DEBAJO de la pareja, centradas (a los lados no caben) */
   @media (width < 64rem) {
     .paseo {
-      --ch: clamp(23rem, 48vw, 26rem); /* ronda 268 · Eric: «Andoni y Eric un poco más grandes en móvil»: de 16 rem (256 px) a 23 rem (368 px), aún ≈ nativo */
+      --ch: clamp(20rem, 42vw, 23rem); /* ronda 290 · Eric: «un poco más pequeños» (y «ANDONI» se cortaba a la izquierda). Ronda 268 · Eric: «Andoni y Eric un poco más grandes en móvil»: de 16 rem (256 px) a 23 rem (368 px), aún ≈ nativo */
       margin-bottom: max(calc(var(--spacing) * 32 + var(--spacing) * 16), calc(36lvh - var(--space-section))); /* sitio para las aficiones, que caen debajo */
     }
     .juntos {
-      --lw: 64px;
-      --lh: 40px;
+      --lw: 44px;
+      --lh: 32px;
     }
     .persona { position: static; }
-    .llamada-q { left: 54%; top: 33%; bottom: auto; translate: 0 -100%; }
+    .llamada-q { left: calc(54% + 12px); top: 33%; bottom: auto; translate: 0 -100%; } /* Eric: punto, línea y nombre, algo más a la derecha */
     .p0 .llamada-q { left: 38%; top: 33%; right: auto; translate: -100% -100%; }
     .aficiones {
       top: calc(100% + var(--spacing) * 4);
