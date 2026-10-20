@@ -246,6 +246,7 @@ const en = langDe(Astro.currentLocale) === 'en';
     // fino al subir y en horizontal, entra afilado y remata en una bolita. Sobre lienzo: un segmento por tramo, cada uno con su grosor y puntas redondas.
     type M = { x: number; y: number; w: number };
     const ctxR = rastro.getContext('2d')!, NIEBLA = `rgb(${rgbDe('niebla', velo!).join(',')})`, PASO = 3; // ronda 132: leído en la carga (en invierno, Cacao sobre la nieve)
+    velo!.style.setProperty('--agua', rgbDe('niebla', velo!).join(' ')); // estela, cuello y satélite del color del trazo (sin amarillo detrás del agua)
     const grueso = () => Math.max(8, Math.min(11.5, Math.min(innerWidth, innerHeight) * 0.0145)); // Eric: «el trazo un poco más fino» (antes 11–16 px)
     const suave = (k: number) => k * k * (3 - 2 * k);
     const pincel = (q: { x: number; y: number }[]): M[] => {
@@ -291,7 +292,7 @@ const en = langDe(Astro.currentLocale) === 'en';
       const enc = (ahora: number) => {
         if (!a0) a0 = ahora;
         const k = Math.min(1, (ahora - a0) / 620), e = cubica(entre(k, 0.16, 1)); // un instante quieta (se ve reconocida) y se recoge
-        pintar(tinta.map((p) => ({ x: p.x + (gx - p.x) * e, y: p.y + (gy - p.y) * e, w: p.w + (12 - p.w) * e * e })), 'rgb(246, 228, 204)');
+        pintar(tinta.map((p) => ({ x: p.x + (gx - p.x) * e, y: p.y + (gy - p.y) * e, w: p.w + (12 - p.w) * e * e })), NIEBLA); // el mismo color del trazo hasta ser agua
         if (k < 1) return void requestAnimationFrame(enc);
         rastro.style.opacity = '0'; velo.classList.add('dibuja'); rota = true; t0 = performance.now(); px = gx; py = gy;
       };
@@ -408,7 +409,8 @@ const en = langDe(Astro.currentLocale) === 'en';
         }
         requestAnimationFrame(pinta);
       };
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(pinta);
+      // primavera y verano: sin partículas en la carga (no tienen sentido); solo otoño (hojas) e invierno (nieve)
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && (est === 'otono' || est === 'invierno')) requestAnimationFrame(pinta);
     }
   }
 </script>
@@ -600,6 +602,9 @@ const en = langDe(Astro.currentLocale) === 'en';
   .gota .estela {
     opacity: 0; /* solo cayendo: el JS la escala y la enciende con la velocidad */
   }
+  :global(html[data-estacion='invierno']) :is(.gota .estela, .cuello, .satelite) {
+    display: none; /* en invierno la gota cae limpia: detrás, transparente (ni estela, ni cuello, ni resto) */
+  }
   .gota {
     position: absolute;
     /* el centro de la cabeza (0,0 del viewBox) cae en el punto del camino: el viewBox va de −34 a 8 en x y de −8 a 8 en y */
@@ -609,7 +614,7 @@ const en = langDe(Astro.currentLocale) === 'en';
     height: 16px;
     transform-origin: 34px 8px;
     overflow: visible;
-    fill: rgba(246, 228, 204, 0.3); /* la estela: agua, no pintura */
+    fill: rgb(var(--agua, 246 228 204) / 0.3); /* la estela: agua, no pintura */
     opacity: 0;
     will-change: transform;
   }
@@ -620,7 +625,7 @@ const en = langDe(Astro.currentLocale) === 'en';
     width: 40px;
     height: 40px;
     overflow: visible;
-    fill: rgba(246, 228, 204, 0.42);
+    fill: rgb(var(--agua, 246 228 204) / 0.42);
     opacity: 0;
     transform-origin: 20px 4px;
   }
@@ -631,7 +636,7 @@ const en = langDe(Astro.currentLocale) === 'en';
     width: 3.4px;
     height: 3.4px;
     border-radius: 50%;
-    background: rgba(250, 238, 222, 0.75);
+    background: rgb(var(--agua, 250 238 222) / 0.75);
     opacity: 0;
   }
   /* al posarse: el rastro y la gota se funden con la savia del suelo */

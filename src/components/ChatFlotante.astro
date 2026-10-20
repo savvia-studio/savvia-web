@@ -76,8 +76,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     try {
       const q = new URLSearchParams(location.search);
       if (q.has('chat')) sessionStorage.setItem('savvia:chat', q.get('chat') === '0' ? '0' : q.get('chat') === 'hero' ? 'hero' : '1');
-      return sessionStorage.getItem('savvia:chat') ?? 'hero';
-    } catch { return new URLSearchParams(location.search).get('chat') ?? 'hero'; }
+      return sessionStorage.getItem('savvia:chat') ?? '1';
+    } catch { return new URLSearchParams(location.search).get('chat') ?? '1'; }
   })();
   const enHero = activo === 'hero'; // ?chat=hero: también visible desde el hero, para decidir si queda o no
   if (raiz && activo !== '0') {
@@ -122,9 +122,10 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       }
       return (luminancia(getComputedStyle(html).backgroundColor) ?? 0) > 0.4;
     };
+    const heroEl = document.querySelector('[data-hero]');
     let raf = 0;
     const refrescarBtn = () => {
-      const lejos = enHero || scrollY > innerHeight * 0.9;
+      const lejos = enHero || (heroEl ? heroEl.getBoundingClientRect().bottom < innerHeight * 0.8 : scrollY > innerHeight * 0.9); // RONDA 264 · Eric: «discreto»: nada en el hero; aparece en cuanto asoma la segunda sección (el borde del hero sube del 80 % de la pantalla)
       const oculto = !lejos || (preguntasVisible && !pieCerca) || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
       raiz.classList.toggle('cf-fuera', oculto && !abierto);
       if (!raf) raf = requestAnimationFrame(() => { raf = 0; raiz.classList.toggle('cf-claro', fondoClaro()); });
@@ -164,7 +165,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
 
     // el velo de fondo no va sobre el hero (el árbol se ve mejor sin desenfoque): mientras el hero ocupa la pantalla, se quita
     const hero = document.querySelector('[data-hero]');
-    if (hero) new IntersectionObserver((es) => raiz.classList.toggle('cf-en-hero', es[0].isIntersecting), { threshold: 0.5 }).observe(hero);
+    if (hero) new IntersectionObserver((es) => { raiz.classList.toggle('cf-en-hero', es[0].isIntersecting); refrescarBtn(); }, { threshold: 0.5 }).observe(hero);
 
     // ── ABRIR / CERRAR: el panel se dibuja desde el botón, como el menú
     const poner = (si: boolean) => {

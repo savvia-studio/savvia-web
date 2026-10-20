@@ -144,7 +144,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     k.style.color = 'var(--color-cacao)';
     // solo la parte visible: fuera el panel de la radio y todo lo que no sea el botón (pesaba y ensanchaba la tarjeta: scroll X y tirones al abrir)
     k.querySelectorAll('.radio > :not(button)').forEach((n) => n.remove());
-    const orig = Array.from(barra.querySelectorAll<HTMLElement>('button, a')), copia = Array.from(k.querySelectorAll<HTMLElement>('button, a'));
+    const orig = Array.from(barra.querySelectorAll<HTMLElement>('button, a')).filter((n) => !n.closest('.radio > :not(button)')), copia = Array.from(k.querySelectorAll<HTMLElement>('button, a'));
     copia.forEach((c, i) => { c.tabIndex = -1; if (c.tagName === 'BUTTON') c.addEventListener('click', (e) => { e.stopPropagation(); orig[i]?.click(); }); });
     menu.prepend(k);
   }
@@ -662,20 +662,18 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     opacity: 0;
     transform: scale(0);
   }
-  .rejilla[aria-expanded='true'] span:nth-child(odd) {
-    transform: scale(1.6);
+  /* ronda 264 · Eric: «igual de finos que cerrado» y «que en open estén así»: los cinco puntos, un poco más GORDOS (×1,35) y con las esquinas
+     más cerca del centro (2 px por eje); el hover, AL REVÉS: se abren hasta su sitio de la rejilla y se afinan (×1) */
+  .rejilla[aria-expanded='true'] span:nth-child(odd):not(:nth-child(5)) {
+    transform: translate(calc(var(--dx) * 0.125rem), calc(var(--dy) * 0.125rem)) scale(1.35);
   }
-  @media (width < 64rem) {
-    .rejilla[aria-expanded='true'] span:nth-child(odd) {
-      transform: scale(1); /* ronda 230: en móvil, puntos finos con la tarjeta abierta */
-    }
+  .rejilla[aria-expanded='true'] span:nth-child(5) {
+    transform: scale(1.35);
   }
   @media (hover: hover) {
-    .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)) {
-      transform: translate(calc(var(--dx) * 0.2rem), calc(var(--dy) * 0.2rem)) scale(2.1);
-    }
+    .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)),
     .rejilla[aria-expanded='true']:hover span:nth-child(5) {
-      transform: scale(2.2);
+      transform: none;
     }
   }
 
@@ -685,10 +683,11 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     inset: 0;
     background: color-mix(in oklab, var(--noche-honda) 62%, transparent); /* ronda 132: siempre el oscuro (en invierno la noche es nieve) */
     opacity: 0;
-    transition: opacity 0.5s var(--ease-out-expo);
+    transition: opacity 0.6s linear; /* ronda 264 · al cerrar se va a la vez que la tarjeta se recoge (0,6 s), no antes */
   }
   .velo.on {
     opacity: 1;
+    transition: opacity 0.5s var(--ease-out-expo);
   }
 
   /* LA TARJETA. Cerrada está recortada a la caja del botón (--b) y es invisible; abierta, el recorte se va a cero:
