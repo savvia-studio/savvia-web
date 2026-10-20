@@ -369,13 +369,45 @@ import { icono } from '../lib/iconos';
         if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
       };
       vis.addEventListener('close', () => slides.forEach((_, i) => soltar(i)));
+      // RONDA 280 · Eric: «cuida mucho ese 1px entre marco y vídeo». Con anchos fraccionarios (cqw, rem, centrado) el borde del vídeo caía a medio píxel y asomaba una
+      // línea. Con el visor abierto, se miden la caja y la lámina y se fijan en píxeles ENTEROS: caja, lámina, marco (posición incluida) y vídeo, con el ratio de cada toma
+      // (los atributos width/height del <video>). El vídeo llena el marco con object-fit: cover, así que el redondeo (< 1 px) se recorta, nunca se ve.
+      const caja = vis.querySelector<HTMLElement>('[data-vis-caja]')!;
+      const ajusta = () => {
+        if (!vis.open) return;
+        caja.style.width = ''; caja.style.marginTop = ''; panel.style.height = '';
+        const VW = vis.clientWidth, VH = vis.clientHeight;
+        let W = Math.floor(caja.getBoundingClientRect().width);
+        if ((VW - W) % 2) W -= 1; // misma paridad que la ventana: el centrado cae en un píxel exacto
+        const mobil = VW < 768;
+        const H = Math.round(W / (mobil ? 0.8 : 1.6));
+        caja.style.width = W + 'px'; panel.style.height = H + 'px';
+        caja.style.alignSelf = 'start';
+        const pie = caja.getBoundingClientRect().height - panel.getBoundingClientRect().height;
+        caja.style.marginTop = Math.max(0, Math.floor((VH - H - pie) / 2)) + 'px';
+        slides.forEach((sl) => {
+          const marco = sl.querySelector<HTMLElement>('.vis-marco')!, v = sl.querySelector<HTMLVideoElement>('video')!;
+          const m = Math.round(parseFloat(getComputedStyle(marco).paddingLeft)) || 4;
+          const esMovil = sl.classList.contains('movil');
+          const rw = esMovil ? 390 : Number(v.getAttribute('width')) || 16, rh = esMovil ? 820 : Number(v.getAttribute('height')) || 10;
+          let ow: number, oh: number, vw: number, vh: number;
+          if (esMovil) {
+            oh = Math.round(H * 0.88); vh = oh - 2 * m; vw = Math.round(vh * rw / rh); ow = vw + 2 * m;
+          } else {
+            ow = Math.round(W * (mobil ? 0.92 : 0.82)); vw = ow - 2 * m; vh = Math.round(vw * rh / rw); oh = vh + 2 * m;
+          }
+          marco.style.cssText = `position:absolute;box-sizing:border-box;width:${ow}px;height:${oh}px;left:${Math.floor((W - ow) / 2)}px;top:${Math.floor((H - oh) / 2)}px`;
+          v.style.cssText = `width:${vw}px;height:${vh}px;object-fit:cover`;
+        });
+      };
+      addEventListener('resize', ajusta);
       const abre = (i: number) => {
         if (vis.open) return;
         vuelta = document.activeElement as HTMLElement | null;
         clearTimeout(cerrando); vis.classList.remove('cierra');
         cur = -1; // al abrir, siempre «cambia»: el vídeo empieza de cero aunque sea el mismo proyecto de la vez anterior
         ir(i, false);
-        vis.showModal(); vis.removeAttribute('aria-hidden');
+        vis.showModal(); vis.removeAttribute('aria-hidden'); ajusta();
         document.documentElement.style.overflow = 'hidden';
       };
       const cierra = () => {
@@ -1636,7 +1668,6 @@ import { icono } from '../lib/iconos';
     width: 100%;
     height: auto;
     border-radius: calc(var(--r-fuera) - var(--marco));
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
     background: var(--vf, #000); /* RONDA 215: el fondo asoma por el hueco de medio píxel del borde: en webs claras, claro (Eric: la línea negra de Neety) */
   }
   /* el móvil, de pie y centrado: el alto manda */

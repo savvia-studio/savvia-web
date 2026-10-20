@@ -144,7 +144,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     contacta.addEventListener('click', (e) => {
       if (!pie.classList.contains('cta-abierto')) { e.preventDefault(); hacerCta(true); return; }
       const chat = (window as any).__chat;
-      if (chat) { e.preventDefault(); hacerCta(false); chat.abrir(); }
+      if (chat) { e.preventDefault(); hacerCta(false); chat.abrir(true); }
     });
     // la píldora-cursor: sigue al puntero (con un poco de retraso) mientras está sobre la palabra; se va con el clic (se abre el chat) y al salir
     const cursorC = pie.querySelector<HTMLElement>('[data-cursor-contacto]');
@@ -595,7 +595,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     opacity: 0; /* ronda 29: sale DESPUÉS de que el paisaje se haya pintado */
     white-space: nowrap;
     pointer-events: none;
-    transition: color 0.5s ease, opacity 1.8s cubic-bezier(0.22, 0.61, 0.36, 1), clip-path 0.9s var(--ease-out-expo);
+    transition: color 0.5s ease, opacity 2.4s cubic-bezier(0.22, 0.61, 0.36, 1), clip-path 0.9s var(--ease-out-expo);
   }
     /* RONDA 268 · Eric (móvil): «poner un mensajito de ayuda: pulsa para contactar»: solo sin ratón (con ratón ya está la píldora-cursor); sobre la palabra, en mono */
   .pista-contacta {
