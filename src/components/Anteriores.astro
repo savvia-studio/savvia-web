@@ -392,6 +392,7 @@ import { icono } from '../lib/iconos';
       vis.addEventListener('cancel', (e) => { e.preventDefault(); cierra(); }); // Esc: con la misma salida suave
       piezas.forEach((pz, i) => pz.addEventListener('click', (e) => {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web como siempre
+        if (matchMedia('(hover: none), (width < 48rem)').matches) return; // RONDA 268 · Eric: en móvil no hay visor: el toque va a la web
         e.preventDefault(); abre(i);
       }));
       vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));
@@ -416,7 +417,9 @@ import { icono } from '../lib/iconos';
   // RONDA 206 · el navegador de mancha y claro, al pasar (o enfocar): centrado, recto y entero. Se mide una vez por entrada: la escala que lo lleva al 88 % del ancho de
   // la pieza y el desplazamiento de su esquina (origen 0 0) para que quede en el centro; solo transformaciones, así que ida y vuelta son la misma curva.
   {
-    if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const conHover = matchMedia('(hover: hover)').matches;
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const tactiles: { pz: HTMLElement; entra: () => void; sale: () => void }[] = [];
       document.querySelectorAll<HTMLElement>('.pieza.mancha, .pieza.claro').forEach((pz) => {
         const mk = pz.querySelector<HTMLElement>('.mockup'), lam = pz.querySelector<HTMLElement>('.lamina');
         if (!mk || !lam) return;
@@ -429,12 +432,34 @@ import { icono } from '../lib/iconos';
           requestAnimationFrame(() => pz.classList.add('centra'));
         };
         const sale = () => pz.classList.remove('centra');
+        if (!conHover) { tactiles.push({ pz, entra, sale }); return; }
         // si se pierde un pointerleave (scroll con el cursor encima, cambio de pestaña), la pieza vuelve a su sitio igualmente
         setInterval(() => { if (pz.classList.contains('centra') && !pz.matches(':hover, :focus-visible')) sale(); }, 250);
         addEventListener('blur', sale);
         pz.addEventListener('pointerenter', entra); pz.addEventListener('pointerleave', sale);
         pz.addEventListener('focusin', entra); pz.addEventListener('focusout', sale);
       });
+      // RONDA 268 · Eric (móvil): sin hover, el navegador se pone recto con el SCROLL (mismo gesto que arranca el vídeo): solo la pieza más centrada de las que se ven
+      // al 55 %, así nunca hay dos a la vez. Al salir de esa franja vuelve a su sitio ladeado.
+      if (tactiles.length) {
+        const vistas = new Set<HTMLElement>();
+        let actual: (typeof tactiles)[number] | null = null, raf = 0;
+        const elegir = () => {
+          raf = 0;
+          let mejor: (typeof tactiles)[number] | null = null, d = Infinity;
+          tactiles.forEach((t) => {
+            if (!vistas.has(t.pz)) return;
+            const r = t.pz.getBoundingClientRect(), k = Math.abs(r.top + r.height / 2 - innerHeight / 2);
+            if (k < d) { d = k; mejor = t; }
+          });
+          if (mejor === actual) return;
+          actual?.sale(); actual = mejor; (actual as (typeof tactiles)[number] | null)?.entra();
+        };
+        const pide = () => { if (!raf) raf = requestAnimationFrame(elegir); };
+        const io = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? vistas.add(e.target as HTMLElement) : vistas.delete(e.target as HTMLElement))); pide(); }, { threshold: 0.55 });
+        tactiles.forEach((t) => io.observe(t.pz));
+        addEventListener('scroll', pide, { passive: true });
+      }
     }
   }
   // RONDA 19 · el VÍDEO de cada web: al pasar el cursor o enfocar la pieza; en táctil (sin hover), mientras la pieza está a la vista.
@@ -1054,6 +1079,16 @@ import { icono } from '../lib/iconos';
   .entrada .nombre > span.oscura { color: var(--color-cacao); text-shadow: none; }
   @media (prefers-reduced-motion: reduce) { .entrada .pal > span { translate: none !important; } }
   .rota { transition: --c1 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c2 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c3 1.4s cubic-bezier(0.65, 0, 0.35, 1); }
+  /* RONDA 268 · Eric (móvil, card a card): «sigue muy alta»: en móvil (< 64rem) todas las piezas de navegador (mancha y claro) van en 1:1, no en el 4:5 de base: sobraba un
+     cuarto vacío debajo. Las que en escritorio son 4:5 (Kymatio, THX) llevan el navegador más arriba (su 23 % de aire estaba medido para el 4:5). */
+  /* y más aire al final: la gota de la sección que llega (24 lvh de alto) le tocaba el nombre de THX */
+  @media (width < 64rem) {
+    #anteriores { padding-bottom: calc(var(--space-section) + var(--spacing) * 24); }
+    .pieza.mancha .lamina,
+    .pieza.claro .lamina { aspect-ratio: 1 / 1; }
+    .pieza[data-slug='kymatio'] .mockup,
+    .pieza[data-slug='thx'] .mockup { top: 12%; }
+  }
   @media (width >= 64rem) {
     .mosaico {
       grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -1319,7 +1354,9 @@ import { icono } from '../lib/iconos';
   /* la pantalla en PERSPECTIVA: caja en % de la lámina y la homografía como matrix3d (sus píxeles, vía --s) */
   .mesa .pantalla.quad {
     transform-origin: 0 0;
-    background: transparent;
+    /* RONDA 268 · Eric (Cubbo): «1 px en blanco arriba, entre el vídeo y el marco»: la caja era transparente y por la fila que el vídeo no cubría asomaba el blanco de la
+       pantalla de la lámina. Fondo en el negro del bisel (como en el monitor, ronda 190) */
+    background: #121213;
     border-radius: 2px;
   }
   .movil .mesa .pantalla.quad {

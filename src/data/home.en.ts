@@ -367,6 +367,7 @@ export const pie = {
   pitch: 'The studio that orchestrates AI, with judgement.',
   contactar: 'Contact us', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Click to book a call with us',
+  pista: 'Tap to book a call', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
   correo: 'ericruizmolero@savvia.studio',
   correoTexto: 'Contact via email',
   cal: '',

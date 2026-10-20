@@ -527,6 +527,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   @media (width >= 64rem) { .cf-panel { bottom: calc(max(4px, env(safe-area-inset-bottom)) + 48px + 12px); right: var(--cf-lado); /* la esquina derecha, a ras del borde derecho del icono (a su eje no: «más a la derecha») */ } }
   @media (width < 40rem) {
     .cf { --cf-m: 8px; }
+    /* móvil: la tarjeta, CENTRADA (no pegada a la derecha) */
+    .cf-panel { left: 0; right: 0; margin-inline: auto; }
     /* móvil: el panel acaba POR DEBAJO de la barra (logo y iconos, ~56 px + área segura); antes, el 86 % de dvh la pisaba en pantallas bajas (iPhone 13 mini) */
     .cf-panel { height: min(86dvh, 46rem, calc(100dvh - max(var(--cf-m), env(safe-area-inset-bottom)) - 60px - 5rem - env(safe-area-inset-top))); }
   }

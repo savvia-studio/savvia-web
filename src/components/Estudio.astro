@@ -787,6 +787,7 @@ const [A, E] = estudio.personas;
   /* móvil: la línea, más corta; las aficiones caen DEBAJO de la pareja, centradas (a los lados no caben) */
   @media (width < 64rem) {
     .paseo {
+      --ch: clamp(23rem, 48vw, 26rem); /* ronda 268 · Eric: «Andoni y Eric un poco más grandes en móvil»: de 16 rem (256 px) a 23 rem (368 px), aún ≈ nativo */
       margin-bottom: max(calc(var(--spacing) * 32 + var(--spacing) * 16), calc(36lvh - var(--space-section))); /* sitio para las aficiones, que caen debajo */
     }
     .juntos {

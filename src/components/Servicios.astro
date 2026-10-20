@@ -216,7 +216,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
   /* ronda 215 · Eric: «hay mucho espacio» entre Más proyectos y Servicios, y entre Servicios y la siguiente: los 272 px de arriba y de abajo (192 + 80) bajan a 144 y 163 en escritorio */
   [data-servicios] > .wrap { padding-top: max(4rem, calc(var(--space-section) * 0.75)); padding-bottom: calc(clamp(90px, 24lvh, 240px) * 0.9); } /* ronda 216: abajo, casi la altura de la gota de Estudio (.sube: clamp(90px, 24lvh, 240px)); antes 163 (0,85 × la sección) */
   /* ── EL BLOQUE ENTRE GUÍAS (ronda 134): las líneas de arriba y abajo son filas de los carriles; el bloque se apoya en ellas */
-  .cuerpo { --hueco: calc(var(--spacing) * 16); position: relative; display: grid; gap: calc(var(--spacing) * 8); align-items: stretch; padding-block: calc(var(--spacing) * 6); }
+  .cuerpo { --hueco: calc(var(--spacing) * 16); position: relative; display: grid; gap: calc(var(--spacing) * 8); align-items: stretch; padding-block: calc(var(--spacing) * 6) calc(var(--spacing) * 12); } /* ronda 268: móvil, la línea de abajo (con sus +) más abajo: 48 px tras la lista (Eric) */
   @media (width >= 64rem) {
     .cuerpo { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--hueco); padding-block: 0; }
   }
@@ -301,7 +301,8 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
       align-items: center;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
-    .nombre { font-family: inherit; font-size: 0.875rem; font-weight: 600; letter-spacing: 0; line-height: 1.2; opacity: 0.8; }
+    /* RONDA 268 · Eric: «probemos estas pill con typo heading»: las píldoras en la letra de titular (Family 400), un poco más grandes porque la serif lee pequeña */
+    .nombre { font-family: var(--font-display); font-size: 1.125rem; font-weight: 400; letter-spacing: -0.01em; line-height: 1.2; opacity: 0.8; }
     .fila.on .opcion { background: var(--fg); color: var(--color-niebla); }
     .d-movil { display: grid; margin-top: calc(var(--spacing) * 4); }
     .d-movil p { grid-area: 1 / 1; color: var(--fg2); text-wrap: pretty; opacity: 0; transition: opacity 0.35s ease; }
