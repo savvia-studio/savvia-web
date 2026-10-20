@@ -4639,3 +4639,5 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   nombre ya no está a la altura del de Andoni, en móvil cada uno mide su propio nombre (`--nombre-pie` por persona) para que sus objetos sigan a 16 px.
 - **Medido:** punto a 58 % · 29 % (escritorio) y 61 % · 29 % (móvil); objetos a 16 px de su nombre en móvil (390 y 320); `tools/verify.cjs` local (Chrome y WebKit,
   1280 y 390) limpio, desborde 0. Nada publicado.
+- **PUBLICADO (20/10) en https://savvia.studio:** commit de la ronda 279 + fusión con el commit nuevo de Eric (el chat de móvil sin saltar al pie al escribir; `0437c1a`).
+  Antes: `astro check` 0, build OK. EN VIVO: `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0; aficiones en móvil sin errores.
