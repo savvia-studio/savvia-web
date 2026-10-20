@@ -4438,3 +4438,121 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   Movimiento y sus scripts), fusionado con 6 commits nuevos de Eric (`d20fcb3`). Fuera del commit, en local: las aficiones en relieve y en 3D (`Estudio.astro`,
   `public/media/equipo/aficiones3d/`) y el reel nuevo. Medido EN VIVO: `/sistema`, el ZIP, los vídeos y los fondos responden 200; `tools/r265-kit/ver.cjs` contra
   savvia.studio (Chrome y WebKit 1280, Chrome 390): 61 descargas en 200, consola limpia, desborde 0; `tools/verify.cjs` de la home limpio en los cuatro.
+
+### Ronda 267 · 2026-10-20 · las aficiones como LÁMINA pintada de catálogo (en local)
+- **Andoni (textual + referencia: lámina retro de objetos pintados a gouache con llamadas numeradas):** «ahora con las ilustraciones quiero hacer algo más cuidado del
+  estilo que te paso en la foto».
+- **Hecho:** · `tools/blender/aficiones.py` con `PINTADO=1`: los mismos seis modelos en EEVEE con materiales de dibujo (Shader to RGB → cuatro bandas constantes: sombra
+  fría honda · sombra · el color · una luz estrecha; el borde de las bandas movido por una «pincelada» de ruido estirado; el brillo, un corte duro en blanco crema) y
+  la paleta retro de la referencia (rojo teja, azul, crema, ocre, acero). Por el camino, formas rehechas (regla 1): AirPods de una pieza (cabeza en judía + palito
+  fundidos por remallado: separados parecían piruletas), azada con la hoja perpendicular al mango (en su plano parecía una bandera), costuras del balón más finas.
+  Fallo propio: la paleta se dio en sRGB y Blender la leyó como lineal (todo lavado) → `_lin()`. · `tools/blender/aficiones-lamina.cjs`: recorte cuadrado y grano de papel
+  dentro del dibujo → `public/media/equipo/lamina/*.webp` (9–22 KB). · `Estudio.astro` `?equipo=lamina`: cada objeto con su línea fina y su número + nombre en mono
+  (1–3 Andoni, 4–6 Eric, en espejo); entra desenfocado, la línea se traza y el número aparece.
+- **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` (Chrome y WebKit 1280, Chrome 390): sin errores, desborde 0.
+- **Pendiente:** móvil (el fallo de siempre: al tocar, lo tapa la sección siguiente); elegir entre lámina, 3D y relieve. Nada publicado.
+- **A media ronda (Andoni):** «tiene que ser un estilo como más pintado». Probado: (1) las bandas fundidas (`EASE`) + pincelada más fuerte + Kuwahara en el compositor
+  sobre el render pintado → sigue pareciendo vector (las bandas planas no dan trazos al filtro); (2) Kuwahara en dos pasadas + saturación sobre los renders REALISTAS
+  de Cycles (`tools/blender/pintar-render.py` → `out/aficiones-gouache/`) → aerógrafo liso, sigue siendo un render. Conclusión (regla 1): la referencia es gouache
+  pintado a mano; un filtro sobre un render no llega. Propuesta: generar cada objeto con ImageGen usando la referencia como estilo (como los favicons «tenue») →
+  prompts en `tools/r267-lamina/prompts.txt`; la lámina de la web ya está montada y solo cambia la imagen.
+- **A media ronda (Andoni):** «la imagen que me has pasado me gusta, se ven muy realistas, podemos trasladarlos de esa manera» (la de Kuwahara sobre los renders realistas)
+  · «pruebo yo a generarlos por mi lado con ese estilo». Hecho: los seis renders realistas de Cycles (rehechos con las formas nuevas: AirPods de una pieza, azada con
+  la hoja perpendicular, costuras finas) pintados con `tools/blender/pintar-render.py` (Kuwahara anisótropo en dos pasadas + saturación) y recortados con bordes
+  fundidos (`aficiones-recorte.cjs <origen> <destino>`, ahora con argumentos) → `public/media/equipo/lamina/` (13–18 KB): la lámina `?equipo=lamina` los usa.
+  Medido: `tools/r264/variantes.cjs` (Chrome y WebKit 1280, Chrome 390 con `chrome 390`): sin errores, desborde 0. Nada publicado.
+- **A media ronda (Andoni, `~/Desktop/savvia-objetos-catalogo.zip`):** «probemos estas ilustraciones» (seis objetos de catálogo a gouache generados por él con image_gen
+  sobre la referencia: baloncesto, mando DualSense, café en taza roja, AirPods Pro, pelota de tenis, azada; PNG 1254 transparentes; prompts en `fuentes.json`).
+  Hecho: copiadas a `tools/r267-lamina/catalogo/`; `tools/r267-lamina/colocar.cjs` las recorta a su caja y las centra con el mismo margen → `public/media/equipo/lamina/`
+  (Eric · «Deporte» = la pelota de tenis). Las de Blender pintadas, en el scratchpad de la sesión. Medido: `tools/r264/variantes.cjs` (Chrome y WebKit 1280, Chrome
+  390): sin errores, desborde 0; bordes limpios sobre el Cacao. Nada publicado.
+- **A media ronda (Andoni):** «que salgan más pequeñas las ilustraciones y los nombres fuera» → objetos a 60–80 px (antes 84–112), línea más corta, y solo el número
+  (como en la referencia); los nombres siguen para lectores de pantalla. Medido: `tools/r264/variantes.cjs` (Chrome y WebKit 1280): sin errores, desborde 0.
+
+### Ronda 268 · 2026-10-20 · comparar los estilos de las aficiones (artefacto) y la lámina sin números (en local)
+- **Andoni (textual):** «haz un artefacto con todos los estilos que hemos ido probando para que podamos decidir. Fuera los números en esta opción».
+- **Hecho:** · `?equipo=lamina`: fuera números y líneas; solo la ilustración (los nombres, para lectores). Fallo propio cazado al capturar: sin la fila de número y
+  línea, la imagen encogía dentro de su flex (salían diminutas y faltaba la azada) → `flex: none`. · `tools/r268-comparar/capturar.cjs`: Andoni y Eric con las
+  aficiones abiertas, recortados a la pareja, para cada estilo vivo (pegatinas, relieve, 3D, lámina con las tres tandas de imágenes: catálogo, render pintado y
+  bandas), más las capturas de la ronda 264 (cuaderno, a sus pies, ficha). Artefacto «Aficiones de Eric y Andoni» (privado):
+  https://claude.ai/artifact/CaZYuVAiXkw1YJwHhHpYjN — nueve estilos en orden, con ronda y estado (en la web · probada · la más reciente).
+- **Pendiente:** elegir; el móvil (al tocar, lo tapa la sección siguiente). Nada publicado en la web.
+
+### Ronda 269 · 2026-10-20 · las aficiones con el motor del roble y el artefacto reducido a tres (en local)
+- **Andoni (textual):** «deja únicamente ilustraciones de vinilo y las ilustraciones de catálogo. Añade una nueva con el estilo del árbol del hero con dithering y distorsión».
+- **Hecho:** `Estudio.astro` `?equipo=arbol`: cada ilustración de catálogo en un lienzo del MOTOR DEL ROBLE (`estela.ts`, como los óleos de los dolores: radial desde
+  el centro, `soplo` = hervor, sin luz, `intensidad: 0` = sus colores), sobre la noche de la estación: se dibuja y se pinta en 1,7 s, se hunde en el fondo y se
+  deshace en semitono por los cantos. Lienzo creado la primera vez que se abre (como mucho seis contextos WebGL); sin WebGL, la ilustración tal cual. Artefacto
+  (versión 2, el mismo enlace, ya compartido por enlace): solo vinilo, catálogo y catálogo con el motor del roble.
+- **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` (Chrome y WebKit 1280): sin errores, desborde 0.
+- **Pendiente:** elegir; el móvil. Nada publicado en la web.
+- **A media ronda (Andoni):** «¿podemos verlos animados en el artefacto?» → `tools/r268-comparar/grabar.cjs`: cada estilo grabado de la web local (vídeo de Playwright en
+  Chrome; se pasa por Andoni y luego por Eric; recortado a la pareja, 8,5 s, 114–177 KB) y puesto en el artefacto en bucle y mudo (versión 3, mismo enlace).
+- **A media ronda (Andoni):** «pero que se vean en buena calidad, se ven pixeladas» → el vídeo de Playwright y el screencast de Chrome graban a 1× (comprobado: el screencast
+  da 1280 × 720 aunque se fuerce DPR 2). `tools/r268-comparar/grabar-hd.cjs`: CÁMARA LENTA (animaciones CSS/WAAPI con `Animation.setPlaybackRate`, reloj de JS escalado) y
+  capturas reales a DPR 2 montadas a velocidad normal → 1400 × 880, CRF 18 (0,4–0,65 MB). El motor del roble salta fotogramas si su reloj avanza menos de 30 ms: para
+  él, cámara lenta de 2,5× (`LENTO=2.5`, ~27 fps); el resto a 8× (87–100 fps). Artefacto, versión 4 (mismo enlace).
+- **A media ronda (Andoni, `~/Desktop/savvia-objetos-arbol.zip`):** «probemos estos también, con el estilo del árbol» (los seis objetos generados por él a partir del roble
+  de otoño del hero: manchas otoñales, semitono y estelas). Hecho: `tools/r269-roble/objetos/` → `colocar.cjs <origen> <destino>` (ahora con argumentos) →
+  `public/media/equipo/roble/`; `?equipo=roble` (la disposición de la lámina con esas imágenes). Fallo propio cazado: salían también las del catálogo (la regla
+  de `.lam` solo se escondía en otras opciones) → ocultas. Grabado en alta calidad y añadido al artefacto (versión 5): vinilo, catálogo, catálogo con el motor
+  del roble y estilo del roble. Medido: `tools/r264/variantes.cjs` (Chrome y WebKit 1280): sin errores, desborde 0.
+
+### Ronda 270 · 2026-10-20 · semitono sutil en las dos opciones del roble (en local)
+- **Andoni (textual):** «a las últimas ponles dittering sutil y a las que están antes un dittering más sutil».
+- **Hecho:** · `estela.ts`: opción nueva `semitono` (0–1, uniform `st`, por defecto 1: el resto de la web no cambia) que escala cuánto se deshacen los cantos en
+  puntos. · `?equipo=arbol` (catálogo con el motor del roble): `semitono: 0.12` (probado 0,3: aún se leía la retícula). · `?equipo=roble`: `tools/r269-roble/tramar.cjs`
+  hornea en las imágenes el semitono del roble (retícula a 45°, celda de 11 px a 360 ≈ 2,6 px en pantalla, radio por cobertura) a fuerza 0,55 en los cantos y una
+  trama ordenada finísima (Bayer 4×4, ±2 niveles) en el color. Vídeos y carteles del artefacto rehechos (versión 6).
+- **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` (Chrome y WebKit 1280): sin errores, desborde 0. Nada publicado en la web.
+- **A media ronda (Andoni):** «a las últimas le falta más dithering y que salgan pintándose» → `?equipo=roble` pasa por el MOTOR del roble (como `arbol`) con
+  `semitono: 0.6` y sus imágenes limpias (fuera el horneado de `tramar.cjs`): se dibujan (líneas) y se pintan desde el centro, y se deshacen en puntos por los
+  cantos. Con más margen (`MARGEN=1.3` en `colocar.cjs`) y caja algo mayor (84–112 px). Las rayitas horizontales finas que quedan en los cantos son los destellos
+  del motor (los del roble). Vídeo y cartel del artefacto rehechos (versión 7). Medido: `astro check` 0 · `tools/r264/variantes.cjs` (Chrome y WebKit 1280) limpio.
+
+### Ronda 272 · 2026-10-20 · las aficiones: ilustración de catálogo, de serie (en local)
+- **Andoni (textual + `~/Desktop/savvia-todos-los-objetos.zip`, 9 objetos de catálogo):** «vamos a dejar solo los de ilustración clásica y vamos a hacer algunos ajustes:
+  1. los objetos más pequeños · 2. añadir una pelota de fútbol donde Eric al lado de la de tenis y hacerlas proporcionales a sus tamaños reales · 3. cambiar los AirPods
+  por los auriculares de cable · 4. cambiar mando de Play por teclado».
+- **Hecho:** · `tools/r272-catalogo/` (los PNG) + `colocar.cjs`: teclado en el sitio del mando, auriculares de cable en el de los AirPods y, en «Deporte», el balón de
+  fútbol (Mikasa) y la pelota de tenis juntos a escala real (22 cm · 6,7 cm), apoyados en el mismo suelo → `public/media/equipo/lamina/`. · `Estudio.astro`: el catálogo
+  es la versión DE SERIE (sin parámetro; las pegatinas, con `?equipo=pegatinas` o cualquier otro valor; el resto de pruebas siguen con su parámetro) y los objetos,
+  más pequeños (48–62 px, antes 60–80). · Artefacto (versión 8): solo la elegida, animada.
+- **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` (Chrome y WebKit 1280): sin errores, desborde 0.
+- **Pendiente:** el móvil (al tocar, lo tapa la sección siguiente); publicar. Nada publicado.
+- **A media ronda (Andoni):** «el teclado se ve muy pequeño en comparación» → apaisado, en su cuadrado quedaba bajito: la imagen del teclado va más ancha (76–98 px,
+  el resto 48–62) para que pese como el balón y la taza. Medido: `tools/r264/variantes.cjs` limpio; vídeo del artefacto rehecho (versión 9).
+- **A media ronda (Andoni):** «el balón de baloncesto igual debería ser como el de fútbol de grande» → a escala real con el de fútbol (24 cm frente a 22). Fallo propio
+  cazado: `cuadrado()` de `colocar.cjs` usaba `resize(fit: contain)`, que AMPLIABA el objeto hasta llenar: los márgenes no hacían nada → ahora `extend` (relleno
+  transparente sin escalar). Medido en los archivos: baloncesto 272 px de diámetro, fútbol 250 (de 360). Vídeo del artefacto rehecho (versión 10).
+- **A media ronda (Andoni):** «el espaciado entre objetos a izquierda y derecha tiene que ser el mismo» → cada imagen RECORTADA a su dibujo (sin aire) y su ancho
+  en la web a escala (`src/data/lamina-medidas.json`, lo escribe `colocar.cjs`): la separación la pone el `gap` (20 px). Medido (`tools/r268-comparar/medir-gaps.cjs`):
+  huecos 20 · 20 px en Andoni y 20 · 20 en Eric (antes, distintos por el aire de cada cuadrado). Vídeo del artefacto rehecho (versión 11).
+
+### Ronda 273 · 2026-10-20 · Eric: la pelota de tenis sola, azada y auriculares nuevos (en local)
+- **Andoni (textual + `~/Desktop/savvia-auriculares-y-azada.zip`):** «en el caso de Eric vamos a dejar solo la pelota de tenis más grande como antes y vamos a sustituir los
+  otros 2 por estos que te paso» (azada-cultivar: la azada en la tierra con un brote; auriculares-ipod: los de cable).
+- **Hecho:** `tools/r272-catalogo/colocar.cjs`: fuera el balón de fútbol y la composición a escala; «Deporte» = la pelota de tenis sola, a tamaño de objeto; azada y
+  auriculares, los nuevos (PNG en `tools/r272-catalogo/`). Medidas regeneradas.
+- **Medido:** `tools/r268-comparar/medir-gaps.cjs`: huecos 20 · 20 px en los dos · `tools/r264/variantes.cjs` (Chrome y WebKit 1280): sin errores, desborde 0.
+  Artefacto, versión 12. Nada publicado.
+
+### Ronda 274 · 2026-10-20 · el menú: destacados que rotan en lugar del reel (en local)
+- **Andoni (textual):** «ponmelo ya en local para poder verlo» (el catálogo ya es la versión de serie: http://localhost:4332/?carga=0#estudio) · «en local también
+  quiero que en vez del reel me dejes proyectos destacados que van rotando».
+- **Hecho (`Nav.astro`; el anterior en el scratchpad):** en la caja del reel, las cubiertas de los destacados de `proyectos.ts` (Kuanta · Arkdev · Neety · Remerge),
+  una cada 3,2 s con fundido y un acercamiento lento, mientras el menú está abierto; la píldora dice «Destacados · <nombre>», unos puntos marcan cuál es, y la
+  tarjeta lleva a ese caso (`/proyectos/<slug>`). Con movimiento reducido, quieta en la primera. El reproductor del reel queda en el código, sin uso.
+- **Medido:** `astro check` 0 errores · `tools/r268-comparar/menu-destacados.cjs` (Chrome y WebKit 1280, Chrome 390): /proyectos/kuanta → /proyectos/arkdev a los 3,4 s,
+  consola limpia, desborde 0. Nada publicado.
+
+### Ronda 275 · 2026-10-20 · aficiones animadas, iPod, y los destacados del menú como en el portfolio (en local)
+- **Andoni (textual + imagen del iPod):** «la pelota de tenis como la de baloncesto de grande, la azada un poco más grande» · «los proyectos que se vean como en el
+  portfolio con su gradiente y su marco» · «sustituye los auriculares por esta» · «¿podemos animar cada elemento sutilmente con algo temático de lo que representan?».
+- **Hecho:** · `colocar.cjs`: el iPod con sus auriculares (`tools/r272-catalogo/ipod.webp`) en «Música»; la pelota de tenis con el mismo margen que el baloncesto.
+  `Estudio.astro`: azada ×1,25 e iPod ×1,15. · ANIMACIONES (con la lista abierta, tras la entrada, en bucle; fuera con movimiento reducido): el baloncesto bota
+  (aplastándose), la pelota de tenis bota girando, el teclado se hunde a golpes de tecla, el café echa vapor (tres hilos), la azada cava (gira desde la hoja) y
+  del iPod salen notas mientras se mece. · `Nav.astro`: cada destacado del menú, como su pieza del portfolio: el DEGRADADO de su marca (`colores`, en oklab) y
+  la ventana de CRISTAL con la web dentro (Remerge, en un marco alto de móvil); al entrar, la ventana sube un poco.
+- **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` y `tools/r268-comparar/menu-destacados.cjs` (Chrome y WebKit 1280, Chrome 390): sin errores, desborde 0.
+  Artefacto, versión 13. Nada publicado.

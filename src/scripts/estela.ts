@@ -13,7 +13,7 @@ import { rgbDe } from './tinta';
 const VS = 'attribute vec2 a;varying vec2 v;void main(){v=vec2(a.x*.5+.5,.5-a.y*.5);gl_Position=vec4(a,0.,1.);}';
 const FS = [
   'precision highp float;',
-  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek,ni,pa;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;varying vec2 v;',
+  'uniform sampler2D T;uniform vec2 R,O;uniform float ti,gr,dpr,soplo,lz,dir,gt,gota,mk,ev,rad,pai,lx,ek,ni,pa,st;uniform vec2 M,EO;uniform vec3 fo;uniform vec4 est,estB;varying vec2 v;',
   'float h(float p){return fract(sin(p*127.1)*43758.5453);}',
   'float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
   'float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}',
@@ -97,6 +97,8 @@ const FS = [
   // ronda 133: en invierno, casi sin semitono en los cantos: la rama se lee como trazo, no como puntos
   // RONDA 178 · `ni` (op.nitido): las raíces de invierno, sin puntos en los cantos ni deshacerse hacia fuera
   '  canto*=1.-max(inv*.75,ni);',
+  // RONDA 270 · `st` (op.semitono, 0–1): cuánto se deshacen los cantos en puntos (las aficiones lo quieren sutil); 1 = como siempre
+  '  canto*=st;',
   // RONDA 180 · Eric: la mancha de suelo de las raíces salía como una banda recta de puntos bajo la línea: `pa` (px CSS, op.limpioArriba) deja
   // los primeros píxeles sin semitono, con fundido; abajo, las puntas siguen deshaciéndose en puntos
   '  canto*=pa>0.?smoothstep(pa*.55,pa,px.y):1.;',
@@ -159,7 +161,7 @@ export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: n
 // Safari (WebKit) no libera enseguida los contextos de los lienzos retirados al cambiar de estación y llega a su tope: ahí se sigue durmiendo lo lejano.
 const LIMITE = typeof navigator !== 'undefined' && /Apple/.test(navigator.vendor) ? 0 : 12;
 let vivos = 0;
-export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean; nitido?: boolean; limpioArriba?: number }): Estela | null {
+export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { origen: [number, number]; dir: 1 | -1; soplo?: boolean; gota?: boolean; manual?: boolean; sinLuz?: boolean; radial?: boolean; paisaje?: boolean; estaciones?: number[][]; origenEstacion?: [number, number]; intensidad?: number; hd?: boolean; nitido?: boolean; limpioArriba?: number; semitono?: number }): Estela | null {
   const ctx = { premultipliedAlpha: true, alpha: true, antialias: false };
   const gl2 = cv.getContext('webgl2', ctx) as WebGL2RenderingContext | null;
   const gl = (gl2 ?? cv.getContext('webgl', ctx)) as WebGLRenderingContext | null;
@@ -198,7 +200,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.uniform2f(uO, oV[0], oV[1]);
     gl.uniform1f(U('dir'), op.dir);
     gl.uniform1f(U('soplo'), vivo ? 1 : 0);
-    gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1); gl.uniform1f(U('ni'), op.nitido ? 1 : 0); gl.uniform1f(U('pa'), op.limpioArriba ?? 0);
+    gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1); gl.uniform1f(U('ni'), op.nitido ? 1 : 0); gl.uniform1f(U('pa'), op.limpioArriba ?? 0); gl.uniform1f(U('st'), op.semitono ?? 1);
     gl.uniform1f(U('gota'), op.gota ? 1 : 0);
     return true;
   };

@@ -3,6 +3,11 @@ import { home } from '../data/idioma';
 import { langDe, ruta } from '../lib/i18n';
 import Radio from "./Radio.astro"; // RONDA 156 · Eric: fuera el (+) flotante (Mando.astro, en tools/retirados); la radio, en la barra
 import { icono, ICONO_ESTACION } from '../lib/iconos';
+import { proyectos as OBRAS } from '../data/proyectos';
+// RONDA 274 · Andoni: «en vez del reel, proyectos destacados que van rotando»: los destacados del portfolio, en el orden de proyectos.ts
+const DESTACADOS = OBRAS.filter((o) => o.destacado).map((o) => ({ slug: o.slug, nombre: o.nombre, colores: o.colores, movil: o.slug === 'remerge' }));
+// ronda 275 · «que se vean como en el portfolio, con su gradiente y su marco»: el degradado de la marca del cliente (Pieza.astro › .g-marca) y la ventana de
+// cristal con la web dentro (Pieza.astro › .mockup); la web móvil (Remerge), en un marco alto
 const lang = langDe(Astro.currentLocale);
 const en = lang === 'en';
 const { nav, pie } = home(lang);
@@ -64,12 +69,17 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
           {nav.mas.links.map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}</li>)}
         </ul>
       </div>
-      <!-- RONDA 60 / 130 · el REEL vuelve, montado de nuevo con Kuanta y Arkdev (tools/r130 en la carpeta de la rama musical): miniatura en bucle y muda;
-           al pulsarla, el reproductor grande se pinta desde ella -->
-      <button type="button" class="reel" data-reel aria-label={en ? `Watch the project reel (${nav.reel.duracion})` : `Ver el reel de proyectos (${nav.reel.duracion})`}>
-        <video muted loop playsinline preload="none" poster="/media/reel/reel-mini.jpg" data-reel-mini></video>
-        <span class="reel-pie"><Fragment set:html={icono('play', 'fill')} />{nav.reel.label} · {nav.reel.duracion}</span>
-      </button>
+      <!-- RONDA 274 · Andoni: «en vez del reel, proyectos destacados que van rotando»: la tarjeta del reel enseña las cubiertas de los destacados, una tras otra
+           (relevo con fundido y un acercamiento lento); el nombre cambia con ella y la tarjeta lleva a ese caso. El reel queda en el código, sin usar. -->
+      <a href={ruta(lang, `/proyectos/${DESTACADOS[0].slug}`)} class="reel destacados" data-destacados aria-label={en ? `Featured project: ${DESTACADOS[0].nombre}` : `Proyecto destacado: ${DESTACADOS[0].nombre}`}>
+        {DESTACADOS.map((d, i) => (
+          <span class={`dst${i === 0 ? ' on' : ''}${d.movil ? ' movil' : ''}`} style={`--c1:${d.colores[0]};--c2:${d.colores[1]};--c3:${d.colores[2]}`} data-slug={d.slug} data-nombre={d.nombre} data-href={ruta(lang, `/proyectos/${d.slug}`)}>
+            <span class="dst-marco"><img src={`/media/obra/${d.slug}/cubierta.jpg`} alt="" width={d.movil ? 780 : 1920} height={d.movil ? 1688 : 1080} loading="lazy" decoding="async" /></span>
+          </span>
+        ))}
+        <span class="reel-pie"><span class="dst-rot">{en ? 'Featured' : 'Destacados'}</span><span class="dst-n" data-dst-nombre>{DESTACADOS[0].nombre}</span></span>
+        <span class="dst-puntos" aria-hidden="true">{DESTACADOS.map((_, i) => <i class={i === 0 ? 'on' : ''}></i>)}</span>
+      </a>
     </div>
   </nav>
 </div>
@@ -148,6 +158,26 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     copia.forEach((c, i) => { c.tabIndex = -1; if (c.tagName === 'BUTTON') c.addEventListener('click', (e) => { e.stopPropagation(); orig[i]?.click(); }); });
     menu.prepend(k);
   }
+  // RONDA 274 · los destacados del menú: cada 3,2 s el siguiente (solo con el menú abierto; con movimiento reducido, quietos en el primero)
+  const dst = menu.querySelector<HTMLAnchorElement>('[data-destacados]');
+  let dstReloj = 0, dstI = 0;
+  const dstPoner = (i: number) => {
+    if (!dst) return;
+    const imgs = [...dst.querySelectorAll<HTMLElement>('.dst')], puntos = [...dst.querySelectorAll('.dst-puntos i')];
+    dstI = (i + imgs.length) % imgs.length;
+    imgs.forEach((im, k) => im.classList.toggle('on', k === dstI)); puntos.forEach((p, k) => p.classList.toggle('on', k === dstI));
+    const im = imgs[dstI]; dst.href = im.dataset.href!;
+    dst.setAttribute('aria-label', t('Proyecto destacado: ', 'Featured project: ') + im.dataset.nombre);
+    const n = dst.querySelector<HTMLElement>('[data-dst-nombre]')!;
+    n.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.16,1,.3,1)' });
+    n.textContent = im.dataset.nombre!;
+  };
+  const rotarDestacados = (si: boolean) => {
+    clearInterval(dstReloj); dstReloj = 0;
+    if (!dst) return;
+    dst.querySelectorAll<HTMLImageElement>('.dst img').forEach((im) => (im.loading = 'eager'));
+    if (si && !matchMedia('(prefers-reduced-motion: reduce)').matches) dstReloj = window.setInterval(() => dstPoner(dstI + 1), 3200);
+  };
   function poner(si: boolean, devolverFoco = false) {
     abierto = si;
     btn.setAttribute('aria-expanded', String(si));
@@ -156,6 +186,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     // RONDA 40 · la tarjeta se DIBUJA desde el botón (líneas de sus enlaces, luego la pintura rasgada) y al cerrar se recoge hacia él
     const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
     const LINEA = tinta('cacao', 0.55); // Cacao, sobre la tarjeta Rosa niebla
+    rotarDestacados(si);
     const mini = menu.querySelector<HTMLVideoElement>('[data-reel-mini]');
     if (mini && si) {
       if (!mini.src) mini.src = '/media/reel/reel-mini.mp4';
@@ -789,6 +820,30 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     height: 12px;
     fill: var(--color-coral);
   }
+  /* RONDA 274 · los destacados que rotan (en la caja del reel) */
+  .destacados { container-type: size; }
+  .destacados .dst { position: absolute; inset: 0; opacity: 0; transition: opacity 0.9s var(--ease-out-expo); isolation: isolate; }
+  .destacados .dst.on { opacity: 1; }
+  /* el degradado de la marca, como en el portfolio */
+  .destacados .dst::before { content: ''; position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3), transparent 70%), var(--c1); }
+  /* la ventana de cristal con la web: centrada, algo por encima de la píldora; sube y se asienta al entrar */
+  .dst-marco { position: absolute; left: 50%; top: 12%; width: 74%; padding: 2px; border-radius: 5px; overflow: hidden; translate: -50% 6%;
+    background: color-mix(in srgb, #fff 20%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.6); backdrop-filter: blur(14px) saturate(1.6);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.32), 0 0 0 1px rgb(0 0 0 / 0.08), 0 18px 34px -16px rgb(20 12 6 / 0.55);
+    transition: translate 1.2s var(--ease-out-expo); }
+  .dst.on .dst-marco { translate: -50% 0; }
+  .dst-marco img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 0; border-radius: 3px; }
+  .dst.movil .dst-marco { top: 8%; width: 24%; border-radius: 9px; }
+  .dst.movil .dst-marco img { aspect-ratio: 9 / 19.5; border-radius: 7px; }
+  .destacados .reel-pie { gap: calc(var(--spacing) * 2); }
+  .dst-rot { color: color-mix(in oklab, var(--color-niebla) 60%, transparent); }
+  .dst-rot::after { content: '·'; margin-left: calc(var(--spacing) * 2); }
+  .dst-n { display: inline-block; }
+  .dst-puntos { position: absolute; right: calc(var(--spacing) * 3); bottom: calc(var(--spacing) * 3); display: flex; gap: 5px; }
+  .dst-puntos i { width: 5px; height: 5px; border-radius: 50%; background: color-mix(in oklab, var(--color-niebla) 45%, transparent); transition: background 0.4s ease; }
+  .dst-puntos i.on { background: var(--color-niebla); }
+  @media (prefers-reduced-motion: reduce) { .destacados .dst, .dst-marco { transition: none; } }
   @media (width < 48rem) {
     .resto {
       flex-direction: column;
