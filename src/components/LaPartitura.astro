@@ -271,13 +271,10 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         visible = e[0].isIntersecting;
         if (visible) { cargar(); if (!reducido) jugar(film); } else film.pause();
       }, { rootMargin: '40% 0px' }).observe(cine);
-      // RONDA 266 · Eric (iPhone 13, Safari): «no me cargan los vídeos»: el primer fotograma del vídeo está VACÍO (la escena empieza en blanco) y Safari lo pone
-      // en lugar del póster en cuanto carga; si no llega a reproducirse (modo de bajo consumo de iOS, que veta el autoplay aunque sea mudo) se queda en blanco.
-      //   · Si no se reproduce, el primer toque o gesto en la página lo arranca (iOS lo permite dentro de un gesto): `jugar`.
-      //   · Con movimiento reducido (no se reproduce nunca) se para en un fotograma con la escena montada, no en el 0.
-      // (el gesto de respaldo lo pone `jugar`, compartido con el resto de vídeos de la web)
+      // RONDA 266 · Eric (iPhone 13, Safari): «no me cargan los vídeos»: si iOS veta el autoplay (modo de bajo consumo) el vídeo se queda parado en su póster y
+      // `jugar` (scripts/jugar.ts) pone el botón de play y arranca con el primer toque. Eric: «el thumbnail tiene que ser el primer frame»: los ocho pósters
+      // (`partitura-<estación>-<idioma>.jpg`) son el fotograma 0 de su vídeo (ffmpeg -frames:v 1), así que al arrancar no hay salto.
       film.addEventListener('canplay', () => { if (visible && !reducido && film.paused) jugar(film); });
-      if (reducido) film.addEventListener('loadedmetadata', () => { film.currentTime = 5; });
       // RONDA 232 · al cambiar de estación con la película a la vista, la nueva se carga en un segundo vídeo, se pone en el mismo instante y, cuando ya
       // tiene imagen, se DESCUBRE encima con el canto rasgado desde abajo (como el árbol del hero); luego se retira la vieja. Antes: póster y salto.
       let relevo = 0;
