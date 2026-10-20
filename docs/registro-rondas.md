@@ -4619,3 +4619,6 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **Causa:** la estela del paseo (rondas 12–43): desde la ronda 144 ya no hay paseo, pero con movimiento reducido el código pintaba la hierba entera a sus pies
   (en las capturas de medida, hechas con movimiento reducido, se veía; y la vería cualquiera con esa preferencia). **Hecho:** no se pinta y los dos lienzos van ocultos.
 - **Medido:** lienzos `display: none` con y sin movimiento reducido · `tools/verify.cjs` local (Chrome y WebKit, 1280 y 390) limpio.
+- **PUBLICADO (20/10) en https://savvia.studio:** commit de las rondas 277–278 + fusión con 2 commits de Eric (flechas de testimonios y zona de toque de «Contáctanos»;
+  `3fddae6`). Antes: `astro check` 0, build OK, `verify.cjs` local limpio. EN VIVO: `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0;
+  en móvil (`movil.cjs` contra savvia.studio) los objetos bajo cada nombre, Andoni desde x 44 y Eric hasta x 346 (a 24 px de los carriles), sin errores.
