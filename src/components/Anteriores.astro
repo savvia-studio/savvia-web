@@ -495,8 +495,11 @@ import { icono } from '../lib/iconos';
       // RONDA 265 · Eric: «en móvil, que esté intercalado, no solo arriba reseñas y abajo logos»: en móvil las dos celdas reparten citas y logotipos alternando
       // (la de arriba empieza por reseña, la de abajo por logotipo), como en escritorio
       const movilR = matchMedia('(width < 48rem)').matches;
+      // RONDA 266 · Eric: «sigue arriba reseña y abajo logo; que no sea solo así»: además, en cada visita se sortea qué tipo abre cada celda (a veces arriba
+      // logotipo y abajo reseña, a veces las dos con reseña o las dos con logotipo)
+      const abre = cajas.map(() => Math.random() < 0.5);
       while (citas.length || marcas.length) cajas.slice(0, movilR ? 2 : cajas.length).forEach((_, c) => {
-        const logo = (reparto[c].length % 2 === 0) === (c % 2 === 1);
+        const logo = (reparto[c].length % 2 === 0) === abre[c];
         const it = (logo && marcas.length) || !citas.length ? marcas.shift() : citas.shift();
         if (it) reparto[c].push(it);
       });

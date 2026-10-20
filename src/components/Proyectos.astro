@@ -327,7 +327,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (w.dataset.video && innerWidth < 700) {
         const v = document.createElement('video');
         v.src = `${w.dataset.video}.mp4`; v.poster = `${w.dataset.video}.jpg`; v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('aria-label', w.getAttribute('aria-label')!);
-        v.addEventListener('loadeddata', listo, { once: true }); v.play().catch(() => {});
+        v.addEventListener('loadeddata', listo, { once: true });
+        // RONDA 266 · Eric: «en móvil te tienes que sentar para ver el vídeo»: de pie se queda el póster quieto; solo suena sentado
+        if (sentado) v.play().catch(() => {}); else v.preload = 'metadata';
         m.el = v as any;
       } else if (w.dataset.embed === 'no' || !vivo) {
         // ronda 152: sentado o explorando de pie, la que no se deja embeber enseña su página ENTERA (Neety: 1440 × 12 144), que se recorre
