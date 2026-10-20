@@ -162,7 +162,7 @@ export const proyectos = {
       n: 'Kuanta',
       cat: 'AI and quantum computing',
       d: 'A sphere of points that compresses into its logo: the product, explained without a single word.',
-      url: 'https://multiverse-home.vercel.app/',
+      url: 'https://multiversecomputing.treseiscero.app/',
       dominio: 'savvia.studio',
       estacion: 'invierno',
       hechos: [

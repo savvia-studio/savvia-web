@@ -219,7 +219,7 @@ export const proyectos = {
       d: 'Una esfera de puntos que se comprime hasta ser su logotipo: el producto, explicado sin una palabra.',
       // RONDA 135 · Andoni: «tienen que tener su página real en la vista en detalle; de momento la real»: sentado, el iframe con la web de Multiverse
       // (sin x-frame-options ni CSP frame-ancestors, medido con curl). `dominio`: lo que se rotula en la pantalla de carga (la marca blanca no enseña el suyo).
-      url: 'https://multiverse-home.vercel.app/',
+      url: 'https://multiversecomputing.treseiscero.app/',
       dominio: 'savvia.studio',
       estacion: 'invierno',
       hechos: [
