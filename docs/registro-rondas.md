@@ -4352,3 +4352,85 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   Proyectos, savvia agentic en móvil, aviso «Desliza», web de dentro a 1280 px en móvil).
 - **PUBLICADO (19/10) en https://savvia.studio:** commit `b8121a5` + fusión con lo de Eric (`9be6a94`) → Vercel. Medido EN VIVO: `tools/verify.cjs` (Chrome y WebKit, 1280 y
   390) consola limpia, 0 respuestas ≥ 400, desborde 0; `reel.mp4` responde 200 (10,6 MB); las pegatinas de Eric y Andoni, sin errores (`tools/r254/dibuja.cjs` en vivo).
+
+### Ronda 264 · 2026-10-20 · tres direcciones para las aficiones de Eric y Andoni, a prueba (en local)
+- **Andoni (textual):** «vamos con las stickers, no sé si me convencen, es como que no me pegan en la home. ¿Qué direcciones me propones?» → «veamos las 3 en local para comparar».
+- **Diagnóstico:** el problema es el MATERIAL (vinilo brillante, troquel, caída ladeada con rebote) en una home de acuarela, papel rasgado y trama; además
+  rebotes y etiquetas torcidas están en «Rechazado». Regla dura 1: es la forma, no el detalle.
+- **Hecho (`Estudio.astro`; la de la ronda 262 sigue de serie):** conmutador `?equipo=a|b|c`.
+  · **A · cuaderno de campo:** bajo el nombre, sin caer ni girar: se abre una AGUADA de acuarela en el color de la estación (filtro de papel mojado
+    `#aguada-eq`: turbulencia + desplazamiento + borde que encharca), encima se DIBUJA el objeto a tinta clara (el `dibujar` de la ronda 258, con su gesto) y
+    después se escribe su nombre a mano (Caveat). Primer intento: la aguada salía como un posavasos oscuro y redondo → elipse, más clara y más abierta.
+  · **B · a sus pies:** lo mismo, pequeño y en fila sobre el suelo, a cada lado de la pareja, con sombra en la hierba (el paseo ya no existe desde la r144:
+    se lleva a los pies).
+  · **C · ficha mínima:** una línea en mono por afición con un punto en el color de la estación, tecleada.
+- **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` (Chrome y WebKit 1280, Chrome 390): 0 errores de consola, desborde 0 en las cuatro.
+  **Fallo encontrado (también en las pegatinas publicadas):** en móvil, al tocar, las aficiones caen debajo de la pareja y las tapa la sección siguiente:
+  no se ve nada. Se arregla al elegir dirección.
+- Nada publicado.
+
+### Ronda 265 · 2026-10-20 · aficiones en relieve y en 3D, y un reel nuevo con el guion de la web (en local)
+- **Andoni (textual):** «Ilustraciones no me gusta ninguna de las opciones que me has planteado, podemos hacer 2 opciones: ilustraciones que parecen un relieve en el
+  fondo como integrado. Y iconos 3D realistas con su color y todo.» · «El reel hacer algo más original que cuente un poco lo que contamos en la web. Con el guion de la
+  web y luego buscar otras canciones que peguen más.»
+- **Hecho · aficiones (`Estudio.astro`; fuera las tres de la ronda 264; las pegatinas siguen de serie):**
+  · `?equipo=relieve`: el dibujo a línea (sin rellenos) y el nombre a mano, en el color de la noche de la estación; lo delatan su filo de luz arriba a la
+    izquierda, su sombra abajo a la derecha y una sombra caída (`#relieve-eq`): troquelado en la pared. Se graba trazo a trazo.
+  · `?equipo=3d`: los seis objetos modelados y renderizados en Blender (`tools/blender/aficiones.py`, Cycles, AgX Punchy, captador de sombra; balón de baloncesto
+    con costuras, mando de remallado por vóxeles, taza esmaltada con café y crema, balón de fútbol = icosaedro truncado inflado, azada de fresno y acero, AirPods)
+    → `tools/blender/aficiones-recorte.cjs` (recorte cuadrado con bordes fundidos) → `public/media/equipo/aficiones3d/*.webp` (15–19 KB). Salen de la pared
+    desenfocados y se enfocan; nombre en mono. Descartados: los emoji 3D de Microsoft (MIT), estilo plastilina, no realistas.
+- **Hecho · reel (`tools/r265-reel/`, HyperFrames):** «la savia»: la web cuenta que la savia da vida (el roble se pinta desde una gota) y el reel lo hace con cada
+  dolor: una web de PLANTILLA (genérica · «AI slop» morado · rota) recibe la gota y desde el impacto se pinta, con el papel rasgado, la web de verdad (Kuanta ·
+  Playground · Neety) mientras el dolor deja paso a la respuesta. Guion de la home en su orden: «Elevamos tu web con IA.» → «¿Te suena alguno?» → tres dolores →
+  «savvia agentic: tu web conectada con la IA.» → proyectos destacados con las cuatro estaciones del hero de fondo (9 cortes a pulso) → «Trabajamos de tres formas
+  contigo.» con End-to-end / Colaboración / Consultoría encendiendo lo que incluye cada una → Eric y Andoni → «La savvia de tu web.», logotipo y savvia.studio.
+  `node build.cjs <bpm> <primer-pulso> <cancion.mp3>` lo cuadra con cualquier canción. 41,7 s con «Second Nature».
+- **Música:** candidatas sin IA y con licencia comercial: Audionautix (Jason Shaw, CC BY 4.0, atribución): Second Nature (107,7 BPM, la elegida para el primer
+  corte), Acoustic Shuffle (117,5), Cool Steel Breeze (136), Walk In The Park (161,5); medidas con librosa; en `tools/r265-reel/musica/`. Pixabay descartado (no se
+  puede comprobar qué es IA); FMA, casi todo NC; Epidemic Sound no deja descargar con la cuenta actual.
+- **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` (Chrome y WebKit 1280): pegatinas, relieve y 3D sin errores, desborde 0 · `hyperframes check`: 0 errores
+  de motion y layout; avisos de contraste solo en las plantillas (grises a propósito).
+- **Pendiente:** elegir aficiones y canción; móvil: al tocar, las aficiones las tapa la sección siguiente (las tres opciones y las pegatinas publicadas); el crédito de la
+  música (CC BY) si se publica. Nada publicado.
+- **A media ronda (Andoni):** «monta el reel también con Acoustic Shuffle para comparar» → `node build.cjs 117.5 1.556 AcousticShuffle.mp3`: 38,9 s (todo un 9 % más
+  rápido, a 117,5 BPM). `tools/r265-reel/reel-savia-acoustic-shuffle.mp4` (1600 px, −16 LUFS) junto a `reel-savia.mp4` (Second Nature). OJO: `hf/index.html` queda
+  cuadrado con Acoustic Shuffle; para volver, `node build.cjs 107.7 0.998 SecondNature.mp3`.
+
+### Ronda 266 · 2026-10-20 · el brandbook sin isotipo y PÚBLICO: descargas de logotipo, favicons, Telegram, LinkedIn y X (en local)
+- **Andoni (textual):** «tenemos que actualizar el brandbook con savvia como está ahora, sin isotipo» · «en el brandbook quiero añadir todos los favicon para descargar
+  con sus opciones para Telegram y crear también opciones para LinkedIn, Twitter y generar los fondos para estos 2 últimos, que serían el footer de cada estación
+  sin el Contáctanos» · «¿en el fondo de Twitter y LinkedIn se puede añadir un gif?» · «al final quiero que el brandbook sea bastante público y cualquiera que
+  necesite algo pueda descargarlo o usarlo» · «asegúrate de usar como favicon, Telegram, LinkedIn, Twitter los que te pasé en su momento de tenue».
+- **Hecho (`src/components/sistema/Libro.astro`; el anterior en el scratchpad de la sesión):** Logotipo = solo la palabra «savvia» (texto, lockups, reglas: «una
+  palabra» y tamaño mínimo); fuera «el isotipo solo» y la galería del isotipo de las rondas 153–155. Sección nueva **Descargas** (en el índice, tras Aplicaciones):
+  «Descargar todo» (ZIP, 9 MB), el logotipo en seis tintas (blanco, Cacao y la de cada estación) en SVG y PNG de 2400 px, y por estación: favicon (16 · 32 · 48 · 64
+  · 180 · 192 · 512 y .ico), Telegram (1024), avatar de LinkedIn y X (400), fondo de X (1500 × 500) y de LinkedIn (1584 × 396). Favicons, Telegram y avatares, los
+  de «luz tenue» de Andoni (`~/Desktop/savvia-favicons-telegram-luz-tenue`). Fondos: el paisaje del pie de cada estación capturado sin texto ni «Contáctanos»
+  (`tools/r265-kit/fondos.cjs`); `tools/r265-kit/kit.cjs` genera el resto en `public/descargas/`.
+- **GIF:** no. La portada de X y la de LinkedIn solo admiten imagen fija (un GIF se queda en el primer fotograma). Telegram sí admite un vídeo corto de perfil.
+- **Medido:** `astro check` 0 errores · `tools/r265-kit/ver.cjs` (Chrome y WebKit 1280, Chrome 390): 0 isotipos en Logotipo y Construcción, 61 descargas que
+  responden 200, consola limpia, 0 respuestas ≥ 400, desborde 0.
+- **Pendiente:** la carga de la home sigue dibujando el isotipo (el brandbook lo menciona en Movimiento); las fuentes no van en el kit (licencia). Nada publicado.
+- **A media ronda (Andoni):** «¿los fondos admiten gifs, y tenemos contemplados tamaños de los fondos de Twitter y LinkedIn?» (no: solo imagen fija; sí: X 1500 × 500 y
+  LinkedIn 1584 × 396) · «el icono en redes tapa el título de la estación» · «en invierno sobre blanco no se ve el contorno» → el avatar se ancla al fondo por
+  `container-type` (asoma la mitad, como en X y LinkedIn) y el nombre va a su derecha; filo de 1 px (`--rule`) en el fondo y en el aro del avatar.
+  Medido: `tools/r265-kit/ver.cjs` sin cambios (61 descargas en 200, consola limpia, desborde 0) y captura en el panel.
+- **A media ronda (Andoni):** «pon las imágenes de fondo con un estado más final, donde ya se vean más hojas cayendo, nieve, flores, hierba» · «en logotipo para
+  descargar, mira los contrastes de colores» · «corrige las aplicaciones porque algunas se ven raras».
+  · Fondos: el pie de cada estación capturado tras 2 minutos (`node tools/r265-kit/fondos.cjs 120`, las cuatro a la vez): hojas posadas, prado nevado, flores.
+    Fallo propio cazado: salían montones en el aire con forma de «Contáctanos»: era `[data-tiempo]` (ronda 228, el tiempo que se posa SOBRE la palabra); se
+    oculta en la captura junto a la palabra y su copia iluminada.
+  · Logotipo: las tintas de estación pasan al tono claro de cada una sobre su noche (otoño #ECBF8F 8,6:1 · primavera #F4C7D5 9,1:1 · verano #CFE6A4 10,3:1;
+    antes 3,5 · 5,3 · 4,2); invierno, tinta sobre blanco (12,4:1).
+  · Aplicaciones: la tarjeta de visita, anverso y reverso uno junto al otro (el reverso se lee entero, el nombre en una línea; antes lo tapaba el anverso) y
+    el logotipo del anverso más grande; el chat, con la vista previa del enlace en claro y con filo, la respuesta en un marrón que se distingue y aire sobre
+    el pie (en móvil, sin proporción fija: ya no se corta).
+  · Medido: `tools/r265-kit/ver.cjs` (Chrome y WebKit 1280, Chrome 390): 61 descargas en 200, consola limpia, desborde 0. Nada publicado.
+- **A media ronda (Andoni):** «Aplicaciones: fuera las tarjetas de visita, pon otra» → el PERFIL EN REDES (estilo LinkedIn) con el fondo y el avatar de otoño del kit, nombre,
+  bio y «Seguir»; el texto de la sección lo cuenta. · «la parte de motion, hacer los motion más realistas a lo que tenemos en la web» → fuera los dibujos en CSS de la
+  ronda 155: cinco efectos GRABADOS de la web real (`tools/r266-motion/grabar.cjs`: vídeo de Playwright en Chrome, recortado con ffmpeg a 720 px, 35–650 KB):
+  el roble que se dibuja y se pinta, el cambio de estación, la gota entre secciones, la savia que llena el CTA y el tiempo del pie. Se reproducen solo a la vista
+  y con movimiento reducido se quedan quietos; la curva sigue como diagrama. Fallo propio cazado: la barra de Agentation salía en los vídeos (sus hijos se fuerzan
+  visibles: se oculta con opacidad).
+  Medido: `tools/r265-kit/ver.cjs` (Chrome y WebKit 1280, Chrome 390): 61 descargas en 200, consola limpia, 0 ≥ 400, desborde 0. Nada publicado.

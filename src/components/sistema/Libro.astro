@@ -41,7 +41,7 @@ import Guia from './Guia.astro';
 import Catalogo from './Catalogo.astro';
 const GRUPOS = [
   ['Empezar', [['usar', 'Cómo usar este sistema'], ['mapa', 'Sitemap'], ['recibir', 'Recibir el proyecto'], ['conectar', 'Trabajar con Claude'], ['contenido', 'Cambiar contenido'], ['secciones', 'Añadir una sección'], ['paginas', 'Añadir una página'], ['pedir', 'Pedir cambios']]],
-  ['Diseño', [['logotipo', 'Logotipo'], ['construccion', 'Construcción'], ['color', 'Color y estaciones'], ['tipografia', 'Tipografía'], ['espaciado', 'Espaciado y retícula'], ['radios', 'Radios y sombras'], ['voz', 'Voz'], ['iconografia', 'Iconografía'], ['materia', 'Movimiento'], ['aplicaciones', 'Aplicaciones']]],
+  ['Diseño', [['logotipo', 'Logotipo'], ['construccion', 'Construcción'], ['color', 'Color y estaciones'], ['tipografia', 'Tipografía'], ['espaciado', 'Espaciado y retícula'], ['radios', 'Radios y sombras'], ['voz', 'Voz'], ['iconografia', 'Iconografía'], ['materia', 'Movimiento'], ['aplicaciones', 'Aplicaciones'], ['descargas', 'Descargas']]],
   ['Desarrollo', [['stack', 'Stack'], ['componentes', 'Componentes'], ['catalogo', 'Catálogo de secciones'], ['piezas', 'Cómo se hacen las piezas'], ['herramientas', 'Herramientas y skills'], ['mantenimiento', 'Mantenimiento técnico']]],
 ] as const;
 
@@ -70,7 +70,7 @@ const PIEZAS: [string, string, string][] = [
   ['Las webs de los proyectos', 'La web real de cada cliente.', 'Grabadas en Chrome real con Playwright (tools/grabar-paso.cjs: scroll exacto por fotograma, 30 fps, mp4 h264) y capturas a 1710 px. Kuanta y Arkdev, en marca blanca: se cambian textos y logotipos interceptando la web al grabar.'],
   ['El reel', 'Las grabaciones de las webs.', 'Compuesto en HyperFrames (HTML que se renderiza a vídeo): cinco webs que se construyen en su pantalla, firmas de cada una y el cierre; música de Pixabay con los cortes al pulso.'],
   ['Flora, óleos y fotos', 'Láminas de Andoni y fotos con licencia.', 'Recortadas con tools/recorte.py y sharp (alfa por distancia al blanco, sin halo) y, las que se mueven, pintadas con el mismo motor del roble.'],
-  ['Isotipo y logotipo', 'El dibujo de Andoni y «savvia» en Family.', 'El isotipo se ajustó a curvas de Bézier (tools/r154/isotipo-bezier.cjs) para animar su construcción; la palabra se pasó a contornos con fontTools.'],
+  ['Logotipo', '«savvia» en Family (el isotipo dejó de usarse en la ronda 156).', 'El isotipo se ajustó a curvas de Bézier (tools/r154/isotipo-bezier.cjs) para animar su construcción; la palabra se pasó a contornos con fontTools.'],
   ['Sonidos', 'Grabaciones de Pixabay (efectos) y la radio (HoliznaCC0).', 'Recortadas en bucles y normalizadas con ffmpeg (loudnorm a dos pasadas). Licencias en tools/fuentes-sonido.md.'],
 ];
 const HERRAMIENTAS: Fila[] = [
@@ -221,28 +221,28 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
           <h2 id="h-logotipo" class="font-display text-h2">Logotipo</h2>
           {/* RONDA 153 · «en el brandbook hay que poner el logo nuevo con todos los colores, su construcción, la construcción del isotipo» */}
-          <p class="cuerpo">El logotipo son dos piezas: el isotipo —una gota que da la vuelta— y la palabra «savvia» en Family, la letra de los titulares, siempre en minúscula. Juntos, en una sola línea; el isotipo, solo, donde no cabe la palabra (avatares, la carga). El favicon no lleva isotipo: es el fondo de la estación con el roble en pequeño (abajo).</p>
+          {/* RONDA 265 · Andoni: «actualizar el brandbook con savvia como está ahora, sin isotipo»: la marca es solo la palabra (en la web, desde la ronda 156) */}
+          <p class="cuerpo">El logotipo es la palabra «savvia» en Family, la letra de los titulares, siempre en minúscula, también a principio de frase. No lleva isotipo: la palabra sola, en una línea. El favicon tampoco: es el fondo de la estación con el roble en pequeño (abajo).</p>
           <div class="fila f2">
-            <figure class="placa oscura grande"><span class="lockup" role="img" aria-label="savvia sobre Cacao"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Sobre Cacao · Blanco</figcaption></figure>
-            <figure class="placa clara grande"><span class="lockup" role="img" aria-label="savvia sobre blanco"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Sobre blanco · Cacao</figcaption></figure>
+            <figure class="placa oscura grande"><span class="lockup" role="img" aria-label="savvia sobre Cacao"><span class="logo-masc"></span></span><figcaption class="detail">Sobre Cacao · Blanco</figcaption></figure>
+            <figure class="placa clara grande"><span class="lockup" role="img" aria-label="savvia sobre blanco"><span class="logo-masc"></span></span><figcaption class="detail">Sobre blanco · Cacao</figcaption></figure>
           </div>
           <p class="detail detail-caps rotulo-bb">Con cada estación</p>
           <div class="lockups-est">
             {estaciones.map((e) => (
               <>
-                <figure class="placa est" style={`background:${e.colores[0][2]};color:${e.id === 'invierno' ? '#22303E' : '#F5F5F7'}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[0][1]}`}><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">{e.n} · {e.colores[0][1]}</figcaption></figure>
-                <figure class="placa est" style={`background:${e.colores[3][2]};color:${e.id === 'invierno' ? '#22303E' : e.colores[0][2]}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[3][1]}`}><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">{e.colores[3][1]}</figcaption></figure>
+                <figure class="placa est" style={`background:${e.colores[0][2]};color:${e.id === 'invierno' ? '#22303E' : '#F5F5F7'}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[0][1]}`}><span class="logo-masc"></span></span><figcaption class="detail">{e.n} · {e.colores[0][1]}</figcaption></figure>
+                <figure class="placa est" style={`background:${e.colores[3][2]};color:${e.id === 'invierno' ? '#22303E' : e.colores[0][2]}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[3][1]}`}><span class="logo-masc"></span></span><figcaption class="detail">{e.colores[3][1]}</figcaption></figure>
               </>
             ))}
           </div>
-          <div class="fila f3">
-            <figure class="placa oscura sm"><span class="iso-masc solo" role="img" aria-label="El isotipo solo"></span><figcaption class="detail">El isotipo solo</figcaption></figure>
+          <div class="fila f2">
             <figure class="placa clara sm fav-par"><img class="fav-png" src="/favicon-otono.png?v=205" alt="Favicon de otoño" width="64" height="64" /><figcaption class="detail">Favicon · el de la estación</figcaption></figure>
-            <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label="savvia en pequeño"><span class="iso-masc"></span><span class="logo-masc"></span></span><figcaption class="detail">Tamaño mínimo · 24 px de alto</figcaption></figure>
+            <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label="savvia en pequeño"><span class="logo-masc"></span></span><figcaption class="detail">Tamaño mínimo · 24 px de alto</figcaption></figure>
           </div>
           <ul class="reglas">
-            <li><b>Un solo dibujo</b> el isotipo es el mismo en todos los tamaños (el de 24 px): barra, carga y aplicaciones.</li>
-            <li><b>Proporción áurea</b> el anillo del isotipo mide la altura de x de la palabra × φ (1,618); entre isotipo y palabra, el anillo ÷ φ² (0,382); el centro del anillo, en el centro de la altura de x.</li>
+            <li><b>Una palabra</b> «savvia», en minúscula y en una sola línea; nunca se parte ni se acompaña de un símbolo.</li>
+            <li><b>Tamaño mínimo</b> 24 px de alto en pantalla; por debajo, la palabra en texto vivo (Family).</li>
             <li><b>Aire</b> alrededor, como mínimo, la altura de x de la palabra.</li>
             <li><b>Sí</b> macizo, en el blanco o en la tinta de la estación, sobre fondo liso. <b>No</b> se estira, no se gira, no lleva sombra ni degradado.</li>
           </ul>
@@ -282,65 +282,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             <figcaption class="detail leyenda"><span><i class="lg-a"></i>ancla</span><span><i class="lg-c"></i>manejador</span><span><i class="lg-g"></i>líneas de la letra</span></figcaption>
           </figure>
 
-          {/* RONDA 153 · «la construcción del isotipo más de este estilo (casabien.com/proyectos/identidad-visual-taqta), acompañándolo de imágenes»: una
-               retícula editorial de piezas a sangre, oscuras y claras, pegadas: el diagrama de construcción, la secuencia REAL de la carga (la gota lo dibuja;
-               fotogramas de la propia web), el trazo, el remate, el roble, las aplicaciones y las frases del significado entre medias */}
-          <h3 class="font-display text-h3 sub-bb">El isotipo</h3>
-          <div class="iso-galeria">
-            <figure class="pz pz-osc pz-ancha construccion iso-cons" data-construccion>
-              <svg class="iso-diag" viewBox="-4 -4 72 72" aria-hidden="true" data-morfo-svg data-bezier={JSON.stringify(isoBezier.anclas)}>
-                <circle class="g-circ" cx="32" cy="32" r="26" />
-                <path class="iso-morfo" data-morfo d="" />
-                <g class="esq" data-esqueleto></g>
-                <path class="g-cursor" data-cursor d="M0 0 L0 4.4 L1.15 3.3 L2 5.1 L2.75 4.75 L1.9 3 L3.4 3 Z" />
-              </svg>
-              <figcaption class="detail pz-pie">Construcción · de un círculo perfecto, ancla a ancla: engorda al bajar, se afina al subir y remata en la gota</figcaption>
-            </figure>
-            <div class="pz pz-texto">
-              <p class="cuerpo">Su forma circular recoge la mirada integral de nuestra etapa como treseiscero y la convierte en un gesto orgánico, abierto y en movimiento. El trazo caligráfico expresa el criterio humano que da forma a cada proyecto; su remate sugiere la savia que alimenta lo que está por crecer.</p>
-            </div>
-            <figure class="pz pz-osc pz-sec">
-              <div class="sec-tira">{[1, 2, 3, 4, 5].map((k) => <img src={`/media/brandbook/carga-${k}.webp`} alt="" width="640" height="640" loading="lazy" decoding="async" />)}</div>
-              <figcaption class="detail pz-pie">La carga · la gota lo dibuja de una sola vez y se descuelga de la bolita</figcaption>
-            </figure>
-            <p class="pz pz-frase font-display">Representa un proceso vivo: nutrirse, interpretar, transformar y volver a empezar.</p>
-            <figure class="pz pz-cla pz-trazo">
-              <svg viewBox="3 3 58 58" aria-hidden="true"><path class="tz-iso" d="M19.79 9.04 L19.50 9.20 L19.21 9.36 L18.93 9.53 L18.64 9.69 L18.36 9.87 L18.08 10.04 L17.80 10.22 L17.53 10.40 L17.25 10.59 L16.98 10.78 L16.71 10.97 L16.45 11.17 L16.18 11.36 L15.92 11.57 L15.66 11.77 L15.41 11.98 L15.15 12.20 L14.90 12.41 L14.66 12.63 L14.41 12.85 L14.17 13.08 L13.93 13.31 L13.69 13.54 L13.46 13.77 L13.23 14.01 L13.00 14.25 L12.78 14.49 L12.56 14.74 L12.34 14.99 L12.12 15.24 L11.91 15.49 L11.70 15.75 L11.50 16.01 L11.30 16.27 L11.10 16.53 L10.90 16.80 L10.71 17.07 L10.53 17.34 L10.34 17.62 L10.16 17.89 L9.98 18.17 L9.81 18.45 L9.64 18.74 L9.47 19.02 L9.31 19.31 L9.15 19.60 L8.99 19.89 L8.84 20.18 L8.69 20.48 L8.55 20.78 L8.41 21.08 L8.27 21.38 L8.14 21.68 L8.01 21.98 L7.88 22.29 L7.76 22.60 L7.64 22.91 L7.53 23.22 L7.42 23.53 L7.31 23.84 L7.21 24.16 L7.11 24.47 L7.02 24.79 L6.93 25.11 L6.84 25.43 L6.76 25.75 L6.69 26.07 L6.61 26.39 L6.54 26.71 L6.48 27.04 L6.42 27.36 L6.36 27.69 L6.31 28.02 L6.26 28.34 L6.21 28.67 L6.17 29.00 L6.14 29.33 L6.11 29.66 L6.08 29.99 L6.05 30.32 L6.04 30.65 L6.02 30.98 L6.01 31.31 L6.00 31.64 L6.00 31.97 L6.00 32.30 L6.01 32.63 L6.02 32.96 L6.03 33.29 L6.05 33.62 L6.07 33.95 L6.10 34.28 L6.13 34.61 L6.17 34.94 L6.21 35.27 L6.25 35.59 L6.30 35.92 L6.35 36.25 L6.41 36.57 L6.47 36.90 L6.53 37.22 L6.60 37.55 L6.67 37.87 L6.75 38.19 L6.83 38.51 L6.91 38.83 L7.00 39.15 L7.09 39.47 L7.19 39.78 L7.29 40.10 L7.40 40.41 L7.51 40.72 L7.62 41.03 L7.74 41.34 L7.86 41.65 L7.98 41.96 L8.11 42.26 L8.24 42.56 L8.38 42.86 L8.52 43.16 L8.66 43.46 L8.81 43.76 L8.96 44.05 L9.12 44.34 L9.28 44.63 L9.44 44.92 L9.60 45.21 L9.77 45.49 L9.95 45.77 L10.12 46.05 L10.30 46.33 L10.49 46.60 L10.68 46.88 L10.87 47.15 L11.06 47.41 L11.26 47.68 L11.46 47.94 L11.66 48.20 L11.87 48.46 L12.08 48.71 L12.30 48.96 L12.51 49.21 L12.73 49.46 L12.96 49.70 L13.18 49.94 L13.41 50.18 L13.65 50.42 L13.88 50.65 L14.12 50.88 L14.36 51.10 L14.61 51.33 L14.85 51.55 L15.10 51.76 L15.36 51.98 L15.61 52.19 L15.87 52.39 L16.13 52.60 L16.39 52.80 L16.66 52.99 L16.93 53.19 L17.20 53.38 L17.47 53.56 L17.75 53.75 L18.02 53.92 L18.30 54.10 L18.59 54.27 L18.87 54.44 L19.16 54.61 L19.45 54.77 L19.74 54.93 L20.03 55.08 L20.32 55.23 L20.62 55.38 L20.92 55.52 L21.22 55.66 L21.52 55.79 L21.82 55.93 L22.13 56.05 L22.43 56.18 L22.74 56.30 L23.05 56.41 L23.36 56.52 L23.68 56.63 L23.99 56.74 L24.31 56.84 L24.62 56.93 L24.94 57.02 L25.26 57.11 L25.58 57.19 L25.90 57.27 L26.22 57.35 L26.54 57.42 L26.87 57.49 L27.19 57.55 L27.52 57.61 L27.84 57.67 L28.17 57.72 L28.50 57.76 L28.82 57.81 L29.15 57.84 L29.48 57.88 L29.81 57.91 L30.14 57.93 L30.47 57.96 L30.80 57.97 L31.13 57.99 L31.46 57.99 L31.79 58.00 L32.12 58.00 L32.45 58.00 L32.78 57.99 L33.11 57.98 L33.44 57.96 L33.77 57.94 L34.10 57.91 L34.43 57.89 L34.76 57.85 L35.09 57.82 L35.42 57.77 L35.75 57.73 L36.07 57.68 L36.40 57.63 L36.73 57.57 L37.05 57.50 L37.37 57.44 L37.70 57.37 L38.02 57.29 L38.34 57.22 L38.66 57.13 L38.98 57.05 L39.30 56.95 L39.61 56.86 L39.93 56.76 L40.24 56.66 L40.56 56.55 L40.87 56.44 L41.18 56.33 L41.49 56.21 L41.79 56.08 L42.10 55.96 L42.40 55.83 L42.71 55.69 L43.01 55.56 L43.30 55.41 L43.60 55.27 L43.90 55.12 L44.19 54.97 L44.48 54.81 L44.77 54.65 L45.06 54.48 L45.34 54.32 L45.62 54.14 L45.90 53.97 L46.18 53.79 L46.46 53.61 L46.73 53.42 L47.00 53.23 L47.27 53.04 L47.54 52.85 L47.80 52.65 L48.06 52.44 L48.32 52.24 L48.58 52.03 L48.83 51.82 L49.08 51.60 L49.33 51.38 L49.57 51.16 L49.82 50.94 L50.06 50.71 L50.29 50.48 L50.53 50.24 L50.76 50.01 L50.98 49.77 L51.21 49.52 L51.43 49.28 L51.65 49.03 L51.86 48.78 L52.07 48.52 L52.28 48.27 L52.49 48.01 L52.69 47.75 L52.89 47.48 L53.08 47.21 L53.28 46.94 L53.46 46.67 L53.65 46.40 L53.83 46.12 L54.01 45.84 L54.18 45.56 L54.35 45.28 L54.52 44.99 L54.68 44.71 L54.84 44.42 L55.00 44.13 L55.15 43.83 L55.30 43.54 L55.44 43.24 L55.59 42.94 L55.72 42.64 L55.86 42.34 L55.99 42.03 L56.11 41.73 L56.23 41.42 L56.35 41.11 L56.47 40.80 L56.58 40.49 L56.68 40.18 L56.78 39.86 L56.88 39.55 L56.97 39.23 L57.06 38.91 L57.15 38.59 L57.23 38.27 L57.31 37.95 L57.38 37.63 L57.45 37.30 L57.52 36.98 L57.58 36.66 L57.64 36.33 L57.69 36.00 L57.74 35.68 L57.78 35.35 L57.82 35.02 L57.86 34.69 L57.89 34.36 L57.92 34.03 L57.94 33.70 L57.96 33.37 L57.98 33.04 L57.99 32.71 L58.00 32.38 L58.00 32.05 L58.00 31.72 L57.99 31.39 L57.98 31.06 L57.97 30.73 L57.95 30.40 L57.93 30.07 L57.90 29.74 L57.87 29.41 L57.84 29.08 L57.80 28.75 L57.75 28.43 L57.71 28.10 L57.65 27.77 L57.60 27.45 L57.54 27.12 L57.47 26.80 L57.41 26.47 L57.33 26.15 L57.26 25.83 L57.18 25.51 L57.09 25.19 L57.00 24.87 L56.91 24.55 L56.81 24.24 L56.71 23.92 L56.61 23.61 L56.50 23.30 L56.39 22.99 L56.27 22.68 L56.15 22.37 L56.03 22.06 L55.90 21.76 L55.77 21.45 L55.63 21.15 L55.49 20.85 L55.35 20.56 L55.20 20.26 L55.05 19.97 L54.89 19.67 L54.73 19.38 L54.57 19.10 L54.41 18.81 L54.24 18.53 L54.06 18.24 L53.89 17.96 L53.71 17.69 L53.52 17.41 L53.34 17.14 L53.14 16.87 L52.95 16.60 L52.75 16.34 L52.55 16.07 L52.35 15.81 L52.14 15.56 L51.93 15.30 L51.72 15.05 L51.50 14.80 L51.28 14.55 L51.05 14.31 L50.83 14.07 L50.60 13.83 L50.37 13.60 L50.13 13.36 L49.89 13.14 L49.65 12.91 L49.41 12.69 L49.16 12.47 L48.91 12.25 L48.66 12.04 L48.40 11.83 L48.14 11.62 L47.88 11.42 L47.62 11.22 L47.36 11.02 L47.09 10.83 L46.82 10.64 L46.54 10.45 L46.27 10.27 L45.99 10.09 L45.71 9.91 L45.43 9.74 L45.15 9.57 L44.86 9.40 L44.57 9.24 L44.28 9.08 L43.99 8.93 L43.69 8.78 L43.40 8.63 L43.21 8.54 L43.01 8.44 L42.82 8.34 L42.63 8.24 L42.44 8.14 L42.25 8.03 L42.06 7.91 L41.88 7.80 L41.69 7.68 L41.50 7.56 L41.31 7.44 L41.12 7.31 L40.93 7.19 L40.74 7.06 L40.55 6.93 L40.35 6.80 L40.16 6.67 L39.96 6.54 L39.76 6.41 L39.55 6.28 L39.35 6.15 L39.13 6.02 L38.92 5.89 L38.70 5.76 L38.48 5.64 L38.26 5.52 L38.03 5.40 L37.79 5.28 L37.55 5.17 L37.31 5.06 L37.06 4.95 L36.81 4.85 L36.55 4.76 L36.28 4.67 L36.01 4.59 L35.73 4.52 L35.45 4.45 L35.17 4.40 L34.87 4.35 L34.58 4.31 L34.27 4.29 L33.97 4.27 L33.66 4.27 L33.34 4.28 L33.02 4.30 L32.70 4.34 L32.38 4.39 L32.05 4.45 L31.73 4.54 L31.47 4.61 L30.92 4.83 L30.41 5.13 L29.94 5.48 L29.53 5.89 L29.16 6.36 L28.87 6.87 L28.64 7.41 L28.48 7.98 L28.40 8.56 L28.40 9.15 L28.47 9.73 L28.62 10.30 L28.85 10.84 L29.14 11.36 L29.49 11.82 L29.91 12.24 L30.37 12.60 L30.88 12.90 L31.42 13.13 L31.99 13.28 L32.57 13.36 L33.16 13.37 L33.74 13.29 L34.31 13.14 L34.43 13.09 L34.49 13.06 L34.55 13.03 L34.62 12.99 L34.69 12.94 L34.76 12.89 L34.84 12.84 L34.93 12.79 L35.02 12.73 L35.12 12.68 L35.22 12.62 L35.33 12.56 L35.44 12.50 L35.56 12.44 L35.68 12.38 L35.81 12.32 L35.94 12.26 L36.08 12.20 L36.23 12.14 L36.37 12.09 L36.53 12.04 L36.68 11.99 L36.84 11.94 L37.00 11.89 L37.17 11.85 L37.34 11.81 L37.51 11.77 L37.69 11.74 L37.86 11.71 L38.04 11.69 L38.22 11.67 L38.41 11.65 L38.59 11.64 L38.77 11.63 L38.96 11.63 L39.14 11.63 L39.33 11.63 L39.51 11.64 L39.70 11.66 L39.88 11.68 L40.07 11.71 L40.25 11.74 L40.43 11.78 L40.61 11.83 L40.79 11.88 L40.96 11.93 L41.14 12.00 L41.31 12.07 L41.47 12.14 L41.64 12.23 L41.89 12.35 L42.14 12.48 L42.39 12.61 L42.64 12.74 L42.88 12.88 L43.12 13.02 L43.36 13.16 L43.60 13.31 L43.84 13.46 L44.07 13.61 L44.31 13.76 L44.54 13.92 L44.77 14.08 L44.99 14.25 L45.22 14.41 L45.44 14.58 L45.66 14.76 L45.88 14.93 L46.10 15.11 L46.31 15.29 L46.52 15.47 L46.73 15.66 L46.94 15.85 L47.14 16.04 L47.34 16.23 L47.54 16.43 L47.74 16.63 L47.93 16.83 L48.12 17.03 L48.31 17.24 L48.50 17.45 L48.68 17.66 L48.86 17.87 L49.04 18.09 L49.22 18.30 L49.39 18.52 L49.56 18.75 L49.73 18.97 L49.89 19.20 L50.05 19.43 L50.21 19.66 L50.37 19.89 L50.52 20.12 L50.67 20.36 L50.82 20.60 L50.96 20.84 L51.10 21.08 L51.24 21.32 L51.37 21.57 L51.50 21.82 L51.63 22.07 L51.75 22.32 L51.88 22.57 L51.99 22.82 L52.11 23.08 L52.22 23.33 L52.33 23.59 L52.43 23.85 L52.54 24.11 L52.64 24.37 L52.73 24.64 L52.82 24.90 L52.91 25.17 L53.00 25.43 L53.08 25.70 L53.16 25.97 L53.23 26.24 L53.30 26.51 L53.37 26.78 L53.44 27.05 L53.50 27.32 L53.56 27.60 L53.61 27.87 L53.66 28.15 L53.71 28.42 L53.75 28.70 L53.79 28.98 L53.83 29.25 L53.86 29.53 L53.89 29.81 L53.92 30.09 L53.94 30.37 L53.96 30.65 L53.97 30.93 L53.99 31.20 L53.99 31.48 L54.00 31.76 L54.00 32.04 L54.00 32.32 L53.99 32.60 L53.98 32.88 L53.97 33.16 L53.95 33.44 L53.93 33.72 L53.91 34.00 L53.88 34.28 L53.85 34.56 L53.82 34.83 L53.78 35.11 L53.74 35.39 L53.69 35.66 L53.64 35.94 L53.59 36.21 L53.54 36.49 L53.48 36.76 L53.42 37.03 L53.35 37.31 L53.28 37.58 L53.21 37.85 L53.13 38.12 L53.05 38.38 L52.97 38.65 L52.88 38.92 L52.79 39.18 L52.70 39.45 L52.60 39.71 L52.51 39.97 L52.40 40.23 L52.30 40.49 L52.19 40.75 L52.07 41.00 L51.96 41.26 L51.84 41.51 L51.72 41.76 L51.59 42.01 L51.46 42.26 L51.33 42.51 L51.19 42.75 L51.06 43.00 L50.91 43.24 L50.77 43.48 L50.62 43.71 L50.47 43.95 L50.32 44.18 L50.16 44.42 L50.00 44.65 L49.84 44.87 L49.68 45.10 L49.51 45.32 L49.34 45.54 L49.16 45.76 L48.99 45.98 L48.81 46.20 L48.63 46.41 L48.44 46.62 L48.25 46.83 L48.06 47.03 L47.87 47.24 L47.68 47.44 L47.48 47.63 L47.28 47.83 L47.08 48.02 L46.87 48.21 L46.66 48.40 L46.45 48.59 L46.24 48.77 L46.03 48.95 L45.81 49.12 L45.59 49.30 L45.37 49.47 L45.15 49.64 L44.92 49.80 L44.69 49.97 L44.47 50.13 L44.23 50.28 L44.00 50.44 L43.77 50.59 L43.53 50.74 L43.29 50.88 L43.05 51.03 L42.80 51.16 L42.56 51.30 L42.31 51.43 L42.07 51.56 L41.82 51.69 L41.57 51.81 L41.31 51.93 L41.06 52.05 L40.80 52.16 L40.55 52.27 L40.29 52.38 L40.03 52.48 L39.77 52.58 L39.50 52.68 L39.24 52.77 L38.98 52.86 L38.71 52.95 L38.44 53.04 L38.17 53.12 L37.91 53.19 L37.64 53.27 L37.36 53.34 L37.09 53.40 L36.82 53.47 L36.55 53.52 L36.27 53.58 L36.00 53.63 L35.72 53.68 L35.45 53.73 L35.17 53.77 L34.89 53.81 L34.62 53.84 L34.34 53.88 L34.06 53.90 L33.78 53.93 L33.50 53.95 L33.22 53.97 L32.94 53.98 L32.66 53.99 L32.38 54.00 L32.10 54.00 L31.82 54.00 L31.54 54.00 L31.27 53.99 L30.99 53.98 L30.71 53.96 L30.43 53.94 L30.15 53.92 L29.87 53.89 L29.59 53.86 L29.31 53.83 L29.04 53.79 L28.76 53.75 L28.49 53.70 L28.21 53.65 L27.94 53.59 L27.67 53.52 L27.40 53.45 L27.13 53.38 L26.86 53.29 L26.60 53.19 L26.34 53.09 L26.08 52.98 L25.83 52.85 L25.58 52.71 L25.34 52.56 L25.11 52.39 L24.88 52.21 L24.67 52.01 L24.46 51.79 L24.26 51.56 L24.08 51.31 L23.90 51.04 L23.74 50.75 L23.59 50.45 L23.46 50.13 L23.33 49.80 L23.23 49.46 L23.13 49.10 L23.05 48.74 L22.97 48.37 L22.91 48.00 L22.86 47.62 L22.81 47.25 L22.77 46.89 L22.74 46.53 L22.71 46.18 L22.68 45.84 L22.64 45.51 L22.61 45.20 L22.57 44.91 L22.52 44.63 L22.47 44.37 L22.41 44.12 L22.34 43.89 L22.27 43.68 L22.18 43.48 L22.09 43.30 L21.99 43.13 L21.88 42.96 L21.77 42.81 L21.65 42.66 L21.53 42.51 L21.41 42.36 L21.29 42.22 L21.16 42.07 L21.03 41.94 L20.90 41.81 L20.75 41.69 L20.59 41.57 L20.42 41.47 L20.24 41.37 L20.04 41.28 L19.83 41.20 L19.61 41.12 L19.37 41.05 L19.12 40.99 L18.85 40.92 L18.58 40.86 L18.30 40.80 L18.01 40.73 L17.72 40.67 L17.43 40.59 L17.14 40.51 L16.85 40.42 L16.57 40.32 L16.30 40.21 L16.04 40.09 L15.79 39.96 L15.56 39.82 L15.35 39.66 L15.15 39.49 L14.97 39.31 L14.81 39.12 L14.67 38.92 L14.56 38.72 L14.46 38.50 L14.38 38.28 L14.31 38.05 L14.26 37.81 L14.23 37.57 L14.21 37.33 L14.21 37.09 L14.21 36.84 L14.22 36.60 L14.25 36.35 L14.27 36.11 L14.31 35.86 L14.34 35.62 L14.38 35.38 L14.43 35.14 L14.47 34.90 L14.51 34.67 L14.56 34.43 L14.60 34.20 L14.64 33.97 L14.68 33.75 L14.72 33.52 L14.76 33.30 L14.79 33.07 L14.83 32.85 L14.86 32.63 L14.88 32.41 L14.91 32.20 L14.94 31.98 L14.96 31.76 L14.98 31.55 L15.00 31.33 L15.02 31.11 L15.03 30.90 L15.05 30.68 L15.07 30.47 L15.09 30.25 L15.11 30.04 L15.13 29.82 L15.15 29.61 L15.17 29.39 L15.18 29.17 L15.20 28.96 L15.21 28.74 L15.22 28.52 L15.23 28.30 L15.24 28.07 L15.24 27.85 L15.24 27.62 L15.25 27.39 L15.24 27.16 L15.24 26.93 L15.24 26.70 L15.23 26.46 L15.22 26.22 L15.22 25.98 L15.21 25.73 L15.20 25.48 L15.19 25.23 L15.18 24.98 L15.18 24.73 L15.17 24.47 L15.17 24.21 L15.17 23.94 L15.17 23.68 L15.17 23.41 L15.17 23.15 L15.18 22.88 L15.20 22.60 L15.22 22.33 L15.24 22.06 L15.27 21.79 L15.30 21.51 L15.33 21.24 L15.37 20.95 L15.40 20.67 L15.43 20.38 L15.47 20.09 L15.51 19.80 L15.55 19.50 L15.59 19.20 L15.64 18.90 L15.69 18.60 L15.75 18.30 L15.81 17.99 L15.88 17.69 L15.95 17.38 L16.03 17.08 L16.11 16.77 L16.20 16.46 L16.29 16.16 L16.39 15.85 L16.50 15.55 L16.61 15.25 L16.73 14.94 L16.85 14.64 L16.98 14.34 L17.11 14.04 L17.25 13.74 L17.40 13.44 L17.55 13.14 L17.70 12.85 L17.86 12.55 L18.03 12.26 L18.20 11.97 L18.38 11.67 L18.56 11.38 L18.75 11.10 L18.94 10.81 L19.14 10.52 L19.34 10.24 L19.55 9.96 L19.76 9.68 L19.98 9.40Z" /><path class="tz-flecha" d="M9 22 C 6 32 8 42 14 48" /><path class="tz-flecha" d="M57 40 C 59 30 57 20 50 13" /></svg>
-              <figcaption class="detail pz-pie">El trazo · grueso al bajar, fino al subir: una pluma</figcaption>
-            </figure>
-            <figure class="pz pz-osc pz-remate">
-              <svg viewBox="22 0 22 22" aria-hidden="true"><path class="rm-iso" d="M19.79 9.04 L19.50 9.20 L19.21 9.36 L18.93 9.53 L18.64 9.69 L18.36 9.87 L18.08 10.04 L17.80 10.22 L17.53 10.40 L17.25 10.59 L16.98 10.78 L16.71 10.97 L16.45 11.17 L16.18 11.36 L15.92 11.57 L15.66 11.77 L15.41 11.98 L15.15 12.20 L14.90 12.41 L14.66 12.63 L14.41 12.85 L14.17 13.08 L13.93 13.31 L13.69 13.54 L13.46 13.77 L13.23 14.01 L13.00 14.25 L12.78 14.49 L12.56 14.74 L12.34 14.99 L12.12 15.24 L11.91 15.49 L11.70 15.75 L11.50 16.01 L11.30 16.27 L11.10 16.53 L10.90 16.80 L10.71 17.07 L10.53 17.34 L10.34 17.62 L10.16 17.89 L9.98 18.17 L9.81 18.45 L9.64 18.74 L9.47 19.02 L9.31 19.31 L9.15 19.60 L8.99 19.89 L8.84 20.18 L8.69 20.48 L8.55 20.78 L8.41 21.08 L8.27 21.38 L8.14 21.68 L8.01 21.98 L7.88 22.29 L7.76 22.60 L7.64 22.91 L7.53 23.22 L7.42 23.53 L7.31 23.84 L7.21 24.16 L7.11 24.47 L7.02 24.79 L6.93 25.11 L6.84 25.43 L6.76 25.75 L6.69 26.07 L6.61 26.39 L6.54 26.71 L6.48 27.04 L6.42 27.36 L6.36 27.69 L6.31 28.02 L6.26 28.34 L6.21 28.67 L6.17 29.00 L6.14 29.33 L6.11 29.66 L6.08 29.99 L6.05 30.32 L6.04 30.65 L6.02 30.98 L6.01 31.31 L6.00 31.64 L6.00 31.97 L6.00 32.30 L6.01 32.63 L6.02 32.96 L6.03 33.29 L6.05 33.62 L6.07 33.95 L6.10 34.28 L6.13 34.61 L6.17 34.94 L6.21 35.27 L6.25 35.59 L6.30 35.92 L6.35 36.25 L6.41 36.57 L6.47 36.90 L6.53 37.22 L6.60 37.55 L6.67 37.87 L6.75 38.19 L6.83 38.51 L6.91 38.83 L7.00 39.15 L7.09 39.47 L7.19 39.78 L7.29 40.10 L7.40 40.41 L7.51 40.72 L7.62 41.03 L7.74 41.34 L7.86 41.65 L7.98 41.96 L8.11 42.26 L8.24 42.56 L8.38 42.86 L8.52 43.16 L8.66 43.46 L8.81 43.76 L8.96 44.05 L9.12 44.34 L9.28 44.63 L9.44 44.92 L9.60 45.21 L9.77 45.49 L9.95 45.77 L10.12 46.05 L10.30 46.33 L10.49 46.60 L10.68 46.88 L10.87 47.15 L11.06 47.41 L11.26 47.68 L11.46 47.94 L11.66 48.20 L11.87 48.46 L12.08 48.71 L12.30 48.96 L12.51 49.21 L12.73 49.46 L12.96 49.70 L13.18 49.94 L13.41 50.18 L13.65 50.42 L13.88 50.65 L14.12 50.88 L14.36 51.10 L14.61 51.33 L14.85 51.55 L15.10 51.76 L15.36 51.98 L15.61 52.19 L15.87 52.39 L16.13 52.60 L16.39 52.80 L16.66 52.99 L16.93 53.19 L17.20 53.38 L17.47 53.56 L17.75 53.75 L18.02 53.92 L18.30 54.10 L18.59 54.27 L18.87 54.44 L19.16 54.61 L19.45 54.77 L19.74 54.93 L20.03 55.08 L20.32 55.23 L20.62 55.38 L20.92 55.52 L21.22 55.66 L21.52 55.79 L21.82 55.93 L22.13 56.05 L22.43 56.18 L22.74 56.30 L23.05 56.41 L23.36 56.52 L23.68 56.63 L23.99 56.74 L24.31 56.84 L24.62 56.93 L24.94 57.02 L25.26 57.11 L25.58 57.19 L25.90 57.27 L26.22 57.35 L26.54 57.42 L26.87 57.49 L27.19 57.55 L27.52 57.61 L27.84 57.67 L28.17 57.72 L28.50 57.76 L28.82 57.81 L29.15 57.84 L29.48 57.88 L29.81 57.91 L30.14 57.93 L30.47 57.96 L30.80 57.97 L31.13 57.99 L31.46 57.99 L31.79 58.00 L32.12 58.00 L32.45 58.00 L32.78 57.99 L33.11 57.98 L33.44 57.96 L33.77 57.94 L34.10 57.91 L34.43 57.89 L34.76 57.85 L35.09 57.82 L35.42 57.77 L35.75 57.73 L36.07 57.68 L36.40 57.63 L36.73 57.57 L37.05 57.50 L37.37 57.44 L37.70 57.37 L38.02 57.29 L38.34 57.22 L38.66 57.13 L38.98 57.05 L39.30 56.95 L39.61 56.86 L39.93 56.76 L40.24 56.66 L40.56 56.55 L40.87 56.44 L41.18 56.33 L41.49 56.21 L41.79 56.08 L42.10 55.96 L42.40 55.83 L42.71 55.69 L43.01 55.56 L43.30 55.41 L43.60 55.27 L43.90 55.12 L44.19 54.97 L44.48 54.81 L44.77 54.65 L45.06 54.48 L45.34 54.32 L45.62 54.14 L45.90 53.97 L46.18 53.79 L46.46 53.61 L46.73 53.42 L47.00 53.23 L47.27 53.04 L47.54 52.85 L47.80 52.65 L48.06 52.44 L48.32 52.24 L48.58 52.03 L48.83 51.82 L49.08 51.60 L49.33 51.38 L49.57 51.16 L49.82 50.94 L50.06 50.71 L50.29 50.48 L50.53 50.24 L50.76 50.01 L50.98 49.77 L51.21 49.52 L51.43 49.28 L51.65 49.03 L51.86 48.78 L52.07 48.52 L52.28 48.27 L52.49 48.01 L52.69 47.75 L52.89 47.48 L53.08 47.21 L53.28 46.94 L53.46 46.67 L53.65 46.40 L53.83 46.12 L54.01 45.84 L54.18 45.56 L54.35 45.28 L54.52 44.99 L54.68 44.71 L54.84 44.42 L55.00 44.13 L55.15 43.83 L55.30 43.54 L55.44 43.24 L55.59 42.94 L55.72 42.64 L55.86 42.34 L55.99 42.03 L56.11 41.73 L56.23 41.42 L56.35 41.11 L56.47 40.80 L56.58 40.49 L56.68 40.18 L56.78 39.86 L56.88 39.55 L56.97 39.23 L57.06 38.91 L57.15 38.59 L57.23 38.27 L57.31 37.95 L57.38 37.63 L57.45 37.30 L57.52 36.98 L57.58 36.66 L57.64 36.33 L57.69 36.00 L57.74 35.68 L57.78 35.35 L57.82 35.02 L57.86 34.69 L57.89 34.36 L57.92 34.03 L57.94 33.70 L57.96 33.37 L57.98 33.04 L57.99 32.71 L58.00 32.38 L58.00 32.05 L58.00 31.72 L57.99 31.39 L57.98 31.06 L57.97 30.73 L57.95 30.40 L57.93 30.07 L57.90 29.74 L57.87 29.41 L57.84 29.08 L57.80 28.75 L57.75 28.43 L57.71 28.10 L57.65 27.77 L57.60 27.45 L57.54 27.12 L57.47 26.80 L57.41 26.47 L57.33 26.15 L57.26 25.83 L57.18 25.51 L57.09 25.19 L57.00 24.87 L56.91 24.55 L56.81 24.24 L56.71 23.92 L56.61 23.61 L56.50 23.30 L56.39 22.99 L56.27 22.68 L56.15 22.37 L56.03 22.06 L55.90 21.76 L55.77 21.45 L55.63 21.15 L55.49 20.85 L55.35 20.56 L55.20 20.26 L55.05 19.97 L54.89 19.67 L54.73 19.38 L54.57 19.10 L54.41 18.81 L54.24 18.53 L54.06 18.24 L53.89 17.96 L53.71 17.69 L53.52 17.41 L53.34 17.14 L53.14 16.87 L52.95 16.60 L52.75 16.34 L52.55 16.07 L52.35 15.81 L52.14 15.56 L51.93 15.30 L51.72 15.05 L51.50 14.80 L51.28 14.55 L51.05 14.31 L50.83 14.07 L50.60 13.83 L50.37 13.60 L50.13 13.36 L49.89 13.14 L49.65 12.91 L49.41 12.69 L49.16 12.47 L48.91 12.25 L48.66 12.04 L48.40 11.83 L48.14 11.62 L47.88 11.42 L47.62 11.22 L47.36 11.02 L47.09 10.83 L46.82 10.64 L46.54 10.45 L46.27 10.27 L45.99 10.09 L45.71 9.91 L45.43 9.74 L45.15 9.57 L44.86 9.40 L44.57 9.24 L44.28 9.08 L43.99 8.93 L43.69 8.78 L43.40 8.63 L43.21 8.54 L43.01 8.44 L42.82 8.34 L42.63 8.24 L42.44 8.14 L42.25 8.03 L42.06 7.91 L41.88 7.80 L41.69 7.68 L41.50 7.56 L41.31 7.44 L41.12 7.31 L40.93 7.19 L40.74 7.06 L40.55 6.93 L40.35 6.80 L40.16 6.67 L39.96 6.54 L39.76 6.41 L39.55 6.28 L39.35 6.15 L39.13 6.02 L38.92 5.89 L38.70 5.76 L38.48 5.64 L38.26 5.52 L38.03 5.40 L37.79 5.28 L37.55 5.17 L37.31 5.06 L37.06 4.95 L36.81 4.85 L36.55 4.76 L36.28 4.67 L36.01 4.59 L35.73 4.52 L35.45 4.45 L35.17 4.40 L34.87 4.35 L34.58 4.31 L34.27 4.29 L33.97 4.27 L33.66 4.27 L33.34 4.28 L33.02 4.30 L32.70 4.34 L32.38 4.39 L32.05 4.45 L31.73 4.54 L31.47 4.61 L30.92 4.83 L30.41 5.13 L29.94 5.48 L29.53 5.89 L29.16 6.36 L28.87 6.87 L28.64 7.41 L28.48 7.98 L28.40 8.56 L28.40 9.15 L28.47 9.73 L28.62 10.30 L28.85 10.84 L29.14 11.36 L29.49 11.82 L29.91 12.24 L30.37 12.60 L30.88 12.90 L31.42 13.13 L31.99 13.28 L32.57 13.36 L33.16 13.37 L33.74 13.29 L34.31 13.14 L34.43 13.09 L34.49 13.06 L34.55 13.03 L34.62 12.99 L34.69 12.94 L34.76 12.89 L34.84 12.84 L34.93 12.79 L35.02 12.73 L35.12 12.68 L35.22 12.62 L35.33 12.56 L35.44 12.50 L35.56 12.44 L35.68 12.38 L35.81 12.32 L35.94 12.26 L36.08 12.20 L36.23 12.14 L36.37 12.09 L36.53 12.04 L36.68 11.99 L36.84 11.94 L37.00 11.89 L37.17 11.85 L37.34 11.81 L37.51 11.77 L37.69 11.74 L37.86 11.71 L38.04 11.69 L38.22 11.67 L38.41 11.65 L38.59 11.64 L38.77 11.63 L38.96 11.63 L39.14 11.63 L39.33 11.63 L39.51 11.64 L39.70 11.66 L39.88 11.68 L40.07 11.71 L40.25 11.74 L40.43 11.78 L40.61 11.83 L40.79 11.88 L40.96 11.93 L41.14 12.00 L41.31 12.07 L41.47 12.14 L41.64 12.23 L41.89 12.35 L42.14 12.48 L42.39 12.61 L42.64 12.74 L42.88 12.88 L43.12 13.02 L43.36 13.16 L43.60 13.31 L43.84 13.46 L44.07 13.61 L44.31 13.76 L44.54 13.92 L44.77 14.08 L44.99 14.25 L45.22 14.41 L45.44 14.58 L45.66 14.76 L45.88 14.93 L46.10 15.11 L46.31 15.29 L46.52 15.47 L46.73 15.66 L46.94 15.85 L47.14 16.04 L47.34 16.23 L47.54 16.43 L47.74 16.63 L47.93 16.83 L48.12 17.03 L48.31 17.24 L48.50 17.45 L48.68 17.66 L48.86 17.87 L49.04 18.09 L49.22 18.30 L49.39 18.52 L49.56 18.75 L49.73 18.97 L49.89 19.20 L50.05 19.43 L50.21 19.66 L50.37 19.89 L50.52 20.12 L50.67 20.36 L50.82 20.60 L50.96 20.84 L51.10 21.08 L51.24 21.32 L51.37 21.57 L51.50 21.82 L51.63 22.07 L51.75 22.32 L51.88 22.57 L51.99 22.82 L52.11 23.08 L52.22 23.33 L52.33 23.59 L52.43 23.85 L52.54 24.11 L52.64 24.37 L52.73 24.64 L52.82 24.90 L52.91 25.17 L53.00 25.43 L53.08 25.70 L53.16 25.97 L53.23 26.24 L53.30 26.51 L53.37 26.78 L53.44 27.05 L53.50 27.32 L53.56 27.60 L53.61 27.87 L53.66 28.15 L53.71 28.42 L53.75 28.70 L53.79 28.98 L53.83 29.25 L53.86 29.53 L53.89 29.81 L53.92 30.09 L53.94 30.37 L53.96 30.65 L53.97 30.93 L53.99 31.20 L53.99 31.48 L54.00 31.76 L54.00 32.04 L54.00 32.32 L53.99 32.60 L53.98 32.88 L53.97 33.16 L53.95 33.44 L53.93 33.72 L53.91 34.00 L53.88 34.28 L53.85 34.56 L53.82 34.83 L53.78 35.11 L53.74 35.39 L53.69 35.66 L53.64 35.94 L53.59 36.21 L53.54 36.49 L53.48 36.76 L53.42 37.03 L53.35 37.31 L53.28 37.58 L53.21 37.85 L53.13 38.12 L53.05 38.38 L52.97 38.65 L52.88 38.92 L52.79 39.18 L52.70 39.45 L52.60 39.71 L52.51 39.97 L52.40 40.23 L52.30 40.49 L52.19 40.75 L52.07 41.00 L51.96 41.26 L51.84 41.51 L51.72 41.76 L51.59 42.01 L51.46 42.26 L51.33 42.51 L51.19 42.75 L51.06 43.00 L50.91 43.24 L50.77 43.48 L50.62 43.71 L50.47 43.95 L50.32 44.18 L50.16 44.42 L50.00 44.65 L49.84 44.87 L49.68 45.10 L49.51 45.32 L49.34 45.54 L49.16 45.76 L48.99 45.98 L48.81 46.20 L48.63 46.41 L48.44 46.62 L48.25 46.83 L48.06 47.03 L47.87 47.24 L47.68 47.44 L47.48 47.63 L47.28 47.83 L47.08 48.02 L46.87 48.21 L46.66 48.40 L46.45 48.59 L46.24 48.77 L46.03 48.95 L45.81 49.12 L45.59 49.30 L45.37 49.47 L45.15 49.64 L44.92 49.80 L44.69 49.97 L44.47 50.13 L44.23 50.28 L44.00 50.44 L43.77 50.59 L43.53 50.74 L43.29 50.88 L43.05 51.03 L42.80 51.16 L42.56 51.30 L42.31 51.43 L42.07 51.56 L41.82 51.69 L41.57 51.81 L41.31 51.93 L41.06 52.05 L40.80 52.16 L40.55 52.27 L40.29 52.38 L40.03 52.48 L39.77 52.58 L39.50 52.68 L39.24 52.77 L38.98 52.86 L38.71 52.95 L38.44 53.04 L38.17 53.12 L37.91 53.19 L37.64 53.27 L37.36 53.34 L37.09 53.40 L36.82 53.47 L36.55 53.52 L36.27 53.58 L36.00 53.63 L35.72 53.68 L35.45 53.73 L35.17 53.77 L34.89 53.81 L34.62 53.84 L34.34 53.88 L34.06 53.90 L33.78 53.93 L33.50 53.95 L33.22 53.97 L32.94 53.98 L32.66 53.99 L32.38 54.00 L32.10 54.00 L31.82 54.00 L31.54 54.00 L31.27 53.99 L30.99 53.98 L30.71 53.96 L30.43 53.94 L30.15 53.92 L29.87 53.89 L29.59 53.86 L29.31 53.83 L29.04 53.79 L28.76 53.75 L28.49 53.70 L28.21 53.65 L27.94 53.59 L27.67 53.52 L27.40 53.45 L27.13 53.38 L26.86 53.29 L26.60 53.19 L26.34 53.09 L26.08 52.98 L25.83 52.85 L25.58 52.71 L25.34 52.56 L25.11 52.39 L24.88 52.21 L24.67 52.01 L24.46 51.79 L24.26 51.56 L24.08 51.31 L23.90 51.04 L23.74 50.75 L23.59 50.45 L23.46 50.13 L23.33 49.80 L23.23 49.46 L23.13 49.10 L23.05 48.74 L22.97 48.37 L22.91 48.00 L22.86 47.62 L22.81 47.25 L22.77 46.89 L22.74 46.53 L22.71 46.18 L22.68 45.84 L22.64 45.51 L22.61 45.20 L22.57 44.91 L22.52 44.63 L22.47 44.37 L22.41 44.12 L22.34 43.89 L22.27 43.68 L22.18 43.48 L22.09 43.30 L21.99 43.13 L21.88 42.96 L21.77 42.81 L21.65 42.66 L21.53 42.51 L21.41 42.36 L21.29 42.22 L21.16 42.07 L21.03 41.94 L20.90 41.81 L20.75 41.69 L20.59 41.57 L20.42 41.47 L20.24 41.37 L20.04 41.28 L19.83 41.20 L19.61 41.12 L19.37 41.05 L19.12 40.99 L18.85 40.92 L18.58 40.86 L18.30 40.80 L18.01 40.73 L17.72 40.67 L17.43 40.59 L17.14 40.51 L16.85 40.42 L16.57 40.32 L16.30 40.21 L16.04 40.09 L15.79 39.96 L15.56 39.82 L15.35 39.66 L15.15 39.49 L14.97 39.31 L14.81 39.12 L14.67 38.92 L14.56 38.72 L14.46 38.50 L14.38 38.28 L14.31 38.05 L14.26 37.81 L14.23 37.57 L14.21 37.33 L14.21 37.09 L14.21 36.84 L14.22 36.60 L14.25 36.35 L14.27 36.11 L14.31 35.86 L14.34 35.62 L14.38 35.38 L14.43 35.14 L14.47 34.90 L14.51 34.67 L14.56 34.43 L14.60 34.20 L14.64 33.97 L14.68 33.75 L14.72 33.52 L14.76 33.30 L14.79 33.07 L14.83 32.85 L14.86 32.63 L14.88 32.41 L14.91 32.20 L14.94 31.98 L14.96 31.76 L14.98 31.55 L15.00 31.33 L15.02 31.11 L15.03 30.90 L15.05 30.68 L15.07 30.47 L15.09 30.25 L15.11 30.04 L15.13 29.82 L15.15 29.61 L15.17 29.39 L15.18 29.17 L15.20 28.96 L15.21 28.74 L15.22 28.52 L15.23 28.30 L15.24 28.07 L15.24 27.85 L15.24 27.62 L15.25 27.39 L15.24 27.16 L15.24 26.93 L15.24 26.70 L15.23 26.46 L15.22 26.22 L15.22 25.98 L15.21 25.73 L15.20 25.48 L15.19 25.23 L15.18 24.98 L15.18 24.73 L15.17 24.47 L15.17 24.21 L15.17 23.94 L15.17 23.68 L15.17 23.41 L15.17 23.15 L15.18 22.88 L15.20 22.60 L15.22 22.33 L15.24 22.06 L15.27 21.79 L15.30 21.51 L15.33 21.24 L15.37 20.95 L15.40 20.67 L15.43 20.38 L15.47 20.09 L15.51 19.80 L15.55 19.50 L15.59 19.20 L15.64 18.90 L15.69 18.60 L15.75 18.30 L15.81 17.99 L15.88 17.69 L15.95 17.38 L16.03 17.08 L16.11 16.77 L16.20 16.46 L16.29 16.16 L16.39 15.85 L16.50 15.55 L16.61 15.25 L16.73 14.94 L16.85 14.64 L16.98 14.34 L17.11 14.04 L17.25 13.74 L17.40 13.44 L17.55 13.14 L17.70 12.85 L17.86 12.55 L18.03 12.26 L18.20 11.97 L18.38 11.67 L18.56 11.38 L18.75 11.10 L18.94 10.81 L19.14 10.52 L19.34 10.24 L19.55 9.96 L19.76 9.68 L19.98 9.40Z" /><circle class="rm-guia" cx="32.9" cy="8.8" r="4.6" /></svg>
-              <figcaption class="detail pz-pie">El remate · la savia que alimenta lo que está por crecer</figcaption>
-            </figure>
-            {/* RONDA 154 · «la captura la quiero cambiar por imágenes reales de naturaleza que tengan relación con el isotipo» · «en todas, el isotipo encima»:
-                 el brote de helecho que se enrosca (el círculo que remata en bola), los anillos del tronco (lo que crece) y la gota que cuelga (la savia).
-                 Ronda 155: los créditos no se ven (fotos: Soc Nang Dương y Wal_, licencia Pexels; la gota, de Andoni), las tres a la misma altura y el isotipo centrado */}
-            <figure class="pz pz-foto pz-helecho">
-              <img src="/media/brandbook/foto-helecho.webp" alt="Brote de helecho enroscado sobre fondo oscuro" width="2400" height="1600" loading="lazy" decoding="async" />
-              <span class="iso-sobre iso-masc" aria-hidden="true"></span>
-              <figcaption class="detail pz-pie">El brote · se enrosca en círculo y remata en una bola</figcaption>
-            </figure>
-            <figure class="pz pz-foto pz-anillos">
-              <img src="/media/brandbook/foto-anillos.webp" alt="Anillos de crecimiento en un tronco cortado" width="1600" height="1066" loading="lazy" decoding="async" />
-              <span class="iso-sobre iso-masc" aria-hidden="true"></span>
-              <figcaption class="detail pz-pie">Los anillos · lo que la savia hace crecer, vuelta a vuelta</figcaption>
-            </figure>
-            <figure class="pz pz-foto pz-gota">
-              <img src="/media/brandbook/foto-gota.webp" alt="Gota de agua colgando de la punta de una hoja" width="1037" height="1280" loading="lazy" decoding="async" />
-              <span class="iso-sobre iso-masc" aria-hidden="true"></span>
-              <figcaption class="detail pz-pie">La gota · a punto de caer</figcaption>
-            </figure>
-            <figure class="pz pz-cla pz-app">
-              <div class="mk-pestana"><img class="mk-fav" src="/favicon-otono.png?v=205" alt="" width="16" height="16" /><span class="mk-tit">savvia — Elevamos tu web con IA</span><span class="mk-x">×</span></div>
-              <div class="mk-icono"><img src="/apple-touch-icon-otono.png?v=205" alt="" width="180" height="180" /></div>
-              <figcaption class="detail pz-pie">Aplicaciones · pestaña e icono</figcaption>
-            </figure>
-            <figure class="pz pz-osc pz-tarjeta">
-              <div class="mk-tarjeta"><span class="lockup"><span class="iso-masc"></span><span class="logo-masc"></span></span><span class="detail mk-dato">hola@savvia.studio</span></div>
-              <figcaption class="detail pz-pie">Aplicaciones · tarjeta</figcaption>
-            </figure>
-            <p class="pz pz-frase pz-frase-2 font-display">Como las estaciones, nuestra manera de trabajar tiene distintos ritmos. Observamos, desarrollamos, damos forma y aprendemos de lo que hacemos. El ciclo se repite, pero nunca regresamos exactamente al mismo lugar.</p>
-          </div>
+          {/* RONDA 265 · fuera la galería del isotipo (rondas 153–155): construcción, carga, trazo, remate, fotos, pestaña y tarjeta (las dos últimas ya están en Aplicaciones) */}
         </section>
 
         {/* 03 · COLOR Y ESTACIONES */}
@@ -508,15 +450,15 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
           <h2 id="h-materia" class="font-display text-h2">Movimiento</h2>
           <p class="cuerpo">Todo lo que se mueve en savvia se mueve como algo vivo: una gota que cae, la savia que corre, algo que brota, crece o cambia con la estación. Llega con curva expo, se posa sin rebote y nunca impide leer. Con movimiento reducido, todo queda quieto y en su sitio.</p>
           {/* RONDA 155 · «en movimiento quitamos textura y solo ponemos movimientos que tengan que ver con naturaleza; los de sonido fuera; hay que ser consistentes» */}
+          {/* RONDA 266 · Andoni: «la parte de motion, hacer los motion más realistas a lo que tenemos en la web»: fuera los dibujos en CSS (ronda 155); cada
+               efecto, GRABADO de la web real (tools/r266-motion/grabar.cjs). Se reproducen al verse; con movimiento reducido, quietos en su primer fotograma.
+               Se queda la curva: es la especificación. */}
           <div class="fila f3 materia">
-            <figure class="placa clara gota-m"><span class="gota-d" aria-hidden="true"></span><figcaption class="detail">La gota · arranca la web y se descuelga del isotipo</figcaption></figure>
-            <figure class="placa campana"><i class="cp" /><figcaption class="detail">Entre secciones · la sección llega como una gota que se ensancha</figcaption></figure>
-            <figure class="placa clara rasgado"><i class="rg" /><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado</figcaption></figure>
-            <figure class="placa clara raices-d"><svg viewBox="0 0 100 75" aria-hidden="true"><path d="M50 6 C 48 20, 54 30, 49 42 S 46 60, 52 72" /><path d="M50 22 C 40 28, 30 30, 20 40" /><path d="M51 30 C 62 36, 72 40, 84 52" /><path d="M49 46 C 40 52, 34 58, 28 70" /><path d="M50 52 C 58 58, 64 64, 70 72" /><circle cx="50" cy="6" r="2.2" /></svg><figcaption class="detail">Las raíces · crecen con el scroll y llevan al texto</figcaption></figure>
-            <figure class="placa clara liquido-d"><span class="liq">Pasa por aquí</span><figcaption class="detail">La savia · llena desde donde entra el cursor</figcaption></figure>
-            <figure class="placa clara hoja-d"><span class="hj" aria-hidden="true"><Fragment set:html={icono('leaf', 'fill')} /></span><figcaption class="detail">El tiempo · cae lo de cada estación y se posa</figcaption></figure>
-            <figure class="placa clara estacion-d"><span class="est-cic" aria-hidden="true">{([['primavera', '#FF8FB8'], ['verano', '#8DB84A'], ['otono', '#FF616B'], ['invierno', '#4F8AD6']] as const).map(([e, c]) => <i style={`--c:${c}`}><Fragment set:html={icono(ICONO_ESTACION[e], 'fill')} /></i>)}</span><figcaption class="detail">Las estaciones · el acento cambia con el año</figcaption></figure>
-            <figure class="placa clara brota-d"><svg class="br" viewBox="0 0 60 60" aria-hidden="true"><path class="tallo" d="M30 56 C 30 46, 31 38, 30 28" /><path class="h1" d="M30 34 C 22 34, 15 28, 14 20 C 22 20, 29 25, 30 34 Z" /><path class="h2" d="M30 29 C 37 28, 44 22, 46 14 C 37 14, 31 20, 30 29 Z" /><path class="suelo" d="M14 56 H 46" /></svg><figcaption class="detail">Brotar · lo nuevo aparece desde su origen, como un brote</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/roble.mp4" muted loop playsinline preload="metadata" aria-label="El roble" data-mv></video><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado, desde la base</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/estacion.mp4" muted loop playsinline preload="metadata" aria-label="La estación" data-mv></video><figcaption class="detail">La estación · la nueva se pinta encima desde el tronco</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/secciones.mp4" muted loop playsinline preload="metadata" aria-label="Entre secciones" data-mv></video><figcaption class="detail">Entre secciones · la que llega asoma como una gota que se ensancha</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/cta.mp4" muted loop playsinline preload="metadata" aria-label="La savia" data-mv></video><figcaption class="detail">La savia · llena el botón desde donde entra el cursor</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/tiempo.mp4" muted loop playsinline preload="metadata" aria-label="El tiempo" data-mv></video><figcaption class="detail">El tiempo · cae lo de cada estación y se posa en el prado</figcaption></figure>
             <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">La caída · ease-out expo (0,16 1 0,3 1), sin rebote</figcaption></figure>
           </div>
           <ul class="reglas">
@@ -528,14 +470,22 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
         {/* 08 · APLICACIONES */}
         <section id="aplicaciones" class="seccion" aria-labelledby="h-aplicaciones">
           <h2 id="h-aplicaciones" class="font-display text-h2">Aplicaciones</h2>
-          <p class="cuerpo">La marca fuera de la web: la tarjeta de visita, lo que se comparte y la pestaña del navegador.</p>
+          <p class="cuerpo">La marca fuera de la web: el perfil en redes, lo que se comparte y la pestaña del navegador.</p>
           {/* RONDA 155 · «aplicaciones también, más bonito»: escenas en lugar de muestras sueltas */}
           <div class="apl">
-            <figure class="apl-p apl-tarjetas">
-              <div class="tv-sombra" aria-hidden="true"></div>
-              <div class="tarjeta-v dorso" aria-hidden="true"><span class="font-display tv-n">Eric y Andoni</span><span class="detail">hola@savvia.studio</span><span class="detail">savvia.studio</span></div>
-              <div class="tarjeta-v cara" aria-hidden="true"><span class="lockup tv-lock"><span class="iso-masc"></span><span class="logo-masc"></span></span></div>
-              <figcaption class="detail apl-pie">Tarjeta de visita · 85 × 55 mm, anverso y reverso</figcaption>
+{/* RONDA 266 · Andoni: «fuera las tarjetas de visita, pon otra»: el PERFIL en redes, con el fondo y el avatar del kit de descargas */}
+            <figure class="apl-p apl-perfil">
+              <div class="perfil" aria-hidden="true">
+                <img class="pf-fondo" src="/descargas/savvia-fondo-linkedin-otono.jpg" alt="" width="1584" height="396" loading="lazy" decoding="async" />
+                <img class="pf-avatar" src="/descargas/savvia-avatar-otono-400.png" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                <div class="pf-cuerpo">
+                  <p class="pf-n">savvia</p>
+                  <p class="pf-bio">El estudio web que orquesta la IA. Desarrollo agéntico, a medida.</p>
+                  <p class="pf-meta">Donostia · savvia.studio</p>
+                  <span class="pf-boton">Seguir</span>
+                </div>
+              </div>
+              <figcaption class="detail apl-pie">Perfil en redes · fondo y avatar de la estación</figcaption>
             </figure>
             <figure class="apl-p apl-chat">
               <div class="chat" aria-hidden="true">
@@ -563,6 +513,49 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
               <figcaption class="detail apl-pie">El navegador · el favicon en la pestaña</figcaption>
             </figure>
           </div>
+        </section>
+
+
+        {/* RONDA 265 · DESCARGAS. Andoni: «en el brandbook quiero añadir todos los favicon para descargar con sus opciones para Telegram y crear también
+             opciones para LinkedIn, Twitter y generar los fondos para estos 2 últimos, que serían el footer de cada estación sin el Contáctanos» · «el brandbook
+             bastante público: cualquiera que necesite algo pueda descargarlo o usarlo». Los archivos, en public/descargas/ (tools/r265-kit/: fondos.cjs captura
+             el paisaje del pie de cada estación; kit.cjs genera el resto y el ZIP se rehace con `zip`). */}
+        <section id="descargas" class="seccion" aria-labelledby="h-descargas">
+          <h2 id="h-descargas" class="font-display text-h2">Descargas</h2>
+          <p class="cuerpo">Todo lo de la marca, para quien lo necesite: el logotipo, los iconos y los fondos para redes, uno por estación. Descárgalo entero o pieza a pieza.</p>
+          <p class="mt-8"><a class="btn btn-primary" href="/descargas/savvia-kit.zip" download>Descargar todo · ZIP, 9 MB</a></p>
+          <h3 class="font-display text-h3 sub-bb">Logotipo</h3>
+          <div class="dl-logos">
+            {[['blanco', 'Blanco', '#3B231B', '#F5F5F7'], ['cacao', 'Cacao', '#F5F5F7', '#3B231B'], ['otono', 'Otoño', '#3B231B', '#ECBF8F'], ['invierno', 'Invierno', '#F5F5F7', '#22303E'], ['primavera', 'Primavera', '#3A2932', '#F4C7D5'], ['verano', 'Verano', '#1B3125', '#CFE6A4']].map(([id, n, fondo, tinta]) => (
+              <figure class="dl-logo" style={`background:${fondo};color:${tinta}`}>
+                <span class="logo-masc" role="img" aria-label={`savvia en ${n}`}></span>
+                <figcaption class="detail"><span>{n}</span><a href={`/descargas/savvia-logotipo-${id}.svg`} download>SVG</a><a href={`/descargas/savvia-logotipo-${id}.png`} download>PNG</a></figcaption>
+              </figure>
+            ))}
+          </div>
+          <h3 class="font-display text-h3 sub-bb">Iconos y redes, por estación</h3>
+          <div class="dl-est">
+            {[['otono', 'Otoño'], ['invierno', 'Invierno'], ['primavera', 'Primavera'], ['verano', 'Verano']].map(([e, n]) => (
+              <article class="dl-e">
+                <img class="dl-fondo" src={`/descargas/savvia-fondo-x-${e}.jpg`} alt={`Fondo de ${n}: el paisaje del pie`} width="1500" height="500" loading="lazy" decoding="async" />
+                <img class="dl-avatar" src={`/descargas/savvia-avatar-${e}-400.png`} alt={`Avatar de ${n}`} width="400" height="400" loading="lazy" decoding="async" />
+                <p class="font-display dl-n">{n}</p>
+                <ul class="dl-lista detail">
+                  <li><span>Favicon</span>{[16, 32, 48, 64, 180, 192, 512].map((t) => <a href={`/descargas/savvia-favicon-${e}-${t}.png`} download>{t}</a>)}<a href={`/descargas/savvia-favicon-${e}.ico`} download>ICO</a></li>
+                  <li><span>Telegram</span><a href={`/descargas/savvia-telegram-${e}.png`} download>1024</a></li>
+                  <li><span>Avatar LinkedIn · X</span><a href={`/descargas/savvia-avatar-${e}-400.png`} download>400</a></li>
+                  <li><span>Fondo X</span><a href={`/descargas/savvia-fondo-x-${e}.jpg`} download>1500 × 500</a></li>
+                  <li><span>Fondo LinkedIn</span><a href={`/descargas/savvia-fondo-linkedin-${e}.jpg`} download>1584 × 396</a></li>
+                </ul>
+              </article>
+            ))}
+          </div>
+          <ul class="reglas">
+            <li><b>Avatar</b> el roble de la estación sobre su noche, con la luz tenue y la copa recogida para que el círculo de Telegram, LinkedIn y X no la corte. En Telegram, súbelo tal cual: sin ampliar.</li>
+            <li><b>Fondos</b> el paisaje del pie de cada estación, sin texto: en X y en LinkedIn la foto de perfil tapa la esquina de abajo a la izquierda, y ahí no hay nada que se pierda.</li>
+            <li><b>Imagen fija</b> la portada de X y la de LinkedIn no admiten GIF ni vídeo: un GIF se queda en su primer fotograma. Telegram sí admite un vídeo corto como foto de perfil.</li>
+            <li><b>Las fuentes no se reparten</b> Family y la letra de texto se usan con licencia: para escribir como savvia, pídenoslas.</li>
+          </ul>
         </section>
 
         <p class="detail detail-caps grupo-rotulo" id="g-desarrollo">Desarrollo</p>
@@ -833,6 +826,12 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
     let ultimo = 0;
     svg.closest('figure')?.addEventListener('pointerenter', () => { if (performance.now() - ultimo < 9000) return; ultimo = performance.now(); pintar(0); tocar(); });
   });
+  // ronda 266 · los vídeos de Movimiento: suenan (mudos) solo a la vista; con movimiento reducido se quedan en su primer fotograma
+  {
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target as HTMLVideoElement; if (e.isIntersecting && !quieto) v.play().catch(() => {}); else v.pause(); }), { rootMargin: '10% 0px' });
+    document.querySelectorAll<HTMLVideoElement>('[data-mv]').forEach((v) => io.observe(v));
+  }
 </script>
 
 <style>
@@ -1262,17 +1261,19 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .apl-p { position: relative; margin: 0; border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
   .apl-pie { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.6; }
   .apl-tarjetas { grid-column: span 7; aspect-ratio: 7 / 5; background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: #3B231B; }
-  .apl-tarjetas .tarjeta-v { grid-area: 1 / 1; width: 54%; box-shadow: 0 1px 1px rgb(48 32 24 / 0.15), 0 14px 24px -12px rgb(48 32 24 / 0.45), 0 40px 60px -30px rgb(48 32 24 / 0.35); }
-  .apl-tarjetas .dorso { rotate: -9deg; translate: -14% -10%; background: #F5F5F7; color: #3B231B; }
-  .apl-tarjetas .cara { rotate: 6deg; translate: 14% 12%; background: #3B231B; color: #F5F5F7; display: grid; place-items: center; gap: 0.343em; font-size: clamp(1rem, 2.6vw, 1.9rem); }
-  .apl-tarjetas .tv-lock { font-size: clamp(1rem, 2.4vw, 1.8rem); translate: 0 -0.12em; }
+  .apl-tarjetas .tarjeta-v { grid-area: 1 / 1; width: 44%; box-shadow: 0 1px 1px rgb(48 32 24 / 0.15), 0 14px 24px -12px rgb(48 32 24 / 0.45), 0 40px 60px -30px rgb(48 32 24 / 0.35); }
+  /* ronda 266 · «algunas se ven raras»: las dos caras se separan (el reverso se lee: su texto arriba a la izquierda, donde no lo tapa el anverso) */
+  .apl-tarjetas .tarjeta-v.dorso { rotate: -6deg; translate: -54% -6%; background: #F5F5F7; color: #3B231B; place-items: start; align-content: start; }
+  .apl-tarjetas .cara { rotate: 4deg; translate: 54% 8%; background: #3B231B; color: #F5F5F7; display: grid; place-items: center; gap: 0.343em; font-size: clamp(1rem, 2.6vw, 1.9rem); }
+  .apl-tarjetas .tv-lock { font-size: clamp(1.3rem, 3.2vw, 2.5rem); translate: 0 -0.08em; }
   .tv-sombra { display: none; }
   .apl-chat { grid-column: span 5; aspect-ratio: 5 / 5; background: #3B231B; color: #F5F5F7; }
-  .chat { display: grid; gap: 8px; width: 78%; font-size: 0.9375rem; line-height: 1.35; }
+  .chat { display: grid; gap: 8px; width: 78%; font-size: 0.9375rem; line-height: 1.35; margin-bottom: calc(var(--spacing) * 10); }
   .burbuja { margin: 0; max-width: 86%; padding: 10px 14px; border-radius: 18px; }
   .burbuja.yo { justify-self: end; background: #F5F5F7; color: #3B231B; border-bottom-right-radius: 4px; }
-  .burbuja.otro { justify-self: start; background: rgb(245 245 247 / 0.14); border-bottom-left-radius: 4px; }
-  .burbuja.enlace { padding: 0; overflow: hidden; display: grid; max-width: 90%; }
+  .burbuja.otro { justify-self: start; background: #5a3a2e; color: #F5F5F7; border-bottom-left-radius: 4px; }
+  .burbuja.enlace { padding: 0; overflow: hidden; display: grid; max-width: 90%; background: #F5F5F7; color: #3B231B; box-shadow: 0 0 0 1px rgb(245 245 247 / 0.5); }
+  .burbuja.enlace img { border-bottom: 1px solid rgb(48 32 24 / 0.12); }
   .burbuja.enlace img { display: block; width: 100%; height: auto; }
   .en-t { padding: 10px 14px 0; font-weight: 500; font-size: 0.875rem; }
   .en-d { padding: 2px 14px 12px; font-size: 0.75rem; opacity: 0.6; }
@@ -1295,8 +1296,9 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .v-dir span { display: block; width: 46%; margin: 0 auto; padding: 4px 12px; border-radius: 999px; background: #ece8ea; font-size: 0.75rem; text-align: center; color: rgb(48 32 24 / 0.7); }
   .v-pag { display: block; width: 100%; height: auto; }
   @media (width < 48rem) {
-    .apl-tarjetas, .apl-chat, .apl-nav { grid-column: 1 / -1; }
+    .apl-tarjetas, .apl-perfil, .apl-chat, .apl-nav { grid-column: 1 / -1; }
     .apl-nav { aspect-ratio: 4 / 3; }
+    .apl-chat { aspect-ratio: auto; padding: calc(var(--spacing) * 10) 0 calc(var(--spacing) * 6); }
     .ventana { width: 90%; }
     .v-tab:not(.on), .v-mas { display: none; }
   }
@@ -1319,7 +1321,8 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .tarjeta-v.cara { background: #302018; color: #eadde7; }
   .tarjeta-v.cara .logo-masc { width: 50%; }
   .tarjeta-v.dorso { background: #eadde7; color: #302018; place-items: end start; align-content: end; gap: 4px; padding: 9%; }
-  .tv-n { font-size: 1.375rem; line-height: 1.1; margin-bottom: 6px; }
+  .tv-n { font-size: clamp(0.85rem, 1.9vw, 1.375rem); line-height: 1.1; margin-bottom: 6px; white-space: nowrap; }
+  .tarjeta-v.dorso .detail { font-size: clamp(0.6rem, 1.2vw, 0.8125rem); }
   /* ronda 152 · la iconografía */
   .iconos-bb ul { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--spacing) * 6) calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 6); }
   .iconos-bb li { display: grid; justify-items: center; gap: calc(var(--spacing) * 2); color: var(--fg); }
@@ -1481,4 +1484,37 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .rd-c { width: 5rem; height: 5rem; border-radius: 50%; }
   .rd-cristal { display: block; width: 12rem; height: 3rem; border-radius: var(--radius-full); background: color-mix(in oklab, #302018 58%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, #eadde7 16%, transparent), 0 12px 32px -12px rgb(0 0 0 / 0.4); }
   .rd-halo { display: block; width: 10rem; height: 6rem; border-radius: var(--radius-lg); background: #121213; box-shadow: 0 0 48px 6px color-mix(in oklab, var(--color-coral) 55%, transparent), 0 0 120px 24px color-mix(in oklab, var(--color-coral) 22%, transparent); }
+  /* ronda 265 · descargas */
+  .dl-logos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 6); }
+  .dl-logo { margin: 0; aspect-ratio: 4 / 3; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4) calc(var(--spacing) * 4); border-radius: var(--radius-lg, 8px); }
+  .dl-logo .logo-masc { width: 62%; height: auto; aspect-ratio: 2373 / 707; }
+  .dl-logo { box-shadow: inset 0 0 0 1px var(--rule); }
+  .dl-logo figcaption { display: flex; gap: calc(var(--spacing) * 4); width: 100%; }
+  .dl-logo figcaption span { margin-right: auto; opacity: .8; }
+  .dl-logo a, .dl-lista a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .dl-est { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); }
+  .dl-e { position: relative; container-type: inline-size; }
+  .dl-fondo { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 1px var(--rule); } /* invierno es casi blanco: el filo lo separa de la página */
+  .dl-avatar { position: absolute; left: 4cqi; top: calc(100cqi / 3 - 11cqi); width: 22cqi; height: auto; border-radius: 50%; box-shadow: 0 0 0 3px var(--bg, #3b231b), 0 0 0 4px var(--rule); }
+  /* el nombre, a la derecha del avatar (que asoma bajo el fondo como en X y LinkedIn): no lo tapa */
+  .dl-n { margin: calc(var(--spacing) * 3) 0 0 30cqi; min-height: 13cqi; font-size: var(--text-h3); }
+  .dl-lista { margin-top: calc(var(--spacing) * 3); display: grid; gap: calc(var(--spacing) * 2); }
+  .dl-lista li { display: flex; gap: calc(var(--spacing) * 3); border-top: 1px solid var(--rule); padding-top: calc(var(--spacing) * 2); }
+  .dl-lista li span { margin-right: auto; color: var(--fg2); }
+  @media (width < 48rem) { .dl-logos { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dl-est { grid-template-columns: 1fr; } }
+  /* ronda 266 · el perfil en redes (sustituye a la tarjeta de visita) */
+  .apl-perfil { grid-column: span 7; aspect-ratio: 7 / 5; background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: #3B231B; }
+  .perfil { position: relative; width: 82%; margin-bottom: calc(var(--spacing) * 8); border-radius: 10px; overflow: hidden; background: #fff; container-type: inline-size;
+    box-shadow: 0 1px 1px rgb(48 32 24 / 0.12), 0 24px 48px -24px rgb(48 32 24 / 0.45); }
+  .pf-fondo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 1; object-fit: cover; }
+  .pf-avatar { position: absolute; left: 5cqi; top: calc(25cqi - 11cqi); width: 22cqi; height: auto; border-radius: 50%; box-shadow: 0 0 0 0.9cqi #fff; }
+  .pf-cuerpo { position: relative; padding: 13cqi 5cqi 5cqi; display: grid; gap: 1cqi; }
+  .pf-n { font-family: var(--font-display, Georgia, serif); font-size: 6cqi; line-height: 1; }
+  .pf-bio { font-size: 2.9cqi; line-height: 1.35; color: rgb(48 32 24 / 0.85); max-width: 36em; }
+  .pf-meta { font-size: 2.4cqi; color: rgb(48 32 24 / 0.55); }
+  .pf-boton { position: absolute; right: 5cqi; top: 4cqi; padding: 1.4cqi 4cqi; border-radius: 999px; background: #3B231B; color: #F5F5F7; font-size: 2.6cqi; font-weight: 500; }
+  /* ronda 266 · los efectos grabados de la web */
+  .placa.mv { padding: 0; overflow: hidden; display: grid; grid-template-rows: 1fr auto; background: #2a1a13; }
+  .mv-v { display: block; width: 100%; height: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .placa.mv figcaption { position: static; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); color: rgb(245 245 247 / 0.75); }
 </style>
