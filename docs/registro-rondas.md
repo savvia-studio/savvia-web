@@ -4590,3 +4590,32 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0 (una primera pasada de WebKit pilló un CSS de la versión anterior durante el
   cambio de despliegue; a los 20 s, limpio) · los destacados del menú rotan (kuanta → arkdev) en Chrome, WebKit y 390.
 - **Pendiente:** el móvil de las aficiones (al tocar, lo tapa la sección siguiente).
+
+### Ronda 277 · 2026-10-20 · las aficiones en móvil, al lado de cada uno (en local)
+- **Andoni (textual):** «en mobile los iconos salen raro, revísalo y que salgan al lado de cada uno aunque sean más pequeños».
+- **Reproducido** (`tools/r268-comparar/movil.cjs`, tocando con el dedo, Chrome y WebKit a 390): caían DEBAJO de la pareja y la sección siguiente los tapaba, y los de
+  Eric salían en el lado de Andoni (la regla de escritorio de la lámina pisaba la de móvil). Las pruebas tocaban otro `[data-quien]` (los testimonios usan el mismo
+  atributo): ahora se toca `[data-equipo] .pN .llamada-q`.
+- **Hecho (`Estudio.astro`, solo < 64 rem):** columna corta al lado de cada uno a la altura del pecho (Andoni a su izquierda, Eric a su derecha), objetos a 34 px de
+  base (≈ 26–49 px) con 12 px entre ellos; vapor y notas a escala; sin el hueco de abajo.
+- **Medido:** móvil: Andoni x 59–109, Eric x 273–320, todos entre y 380 y 510 (dentro de la pareja, 262–582) · escritorio sin cambios (huecos 20 · 20) ·
+  `tools/verify.cjs` local (Chrome y WebKit, 1280 y 390) limpio. Nada publicado.
+- **A media ronda (Andoni):** «mejor más debajo de cada nombre y más pegado a las guías» → en móvil la columna arranca justo bajo el nombre (33 % + 12 px) y se pega
+  al CARRIL de su lado: Andoni alineado a la izquierda en el carril izquierdo, Eric a la derecha en el derecho (`--guia`, distancia del borde de la pareja al del
+  paseo, la mide el JS con un ResizeObserver; con unidades de contenedor no cuadraba). Medido a 390: Andoni x = 20 (el carril), Eric hasta x = 370 (el carril).
+  `tools/verify.cjs` local limpio; escritorio sin cambios.
+- **A media ronda (Andoni):** «más debajo de cada nombre y a 16 px de las guías» → la columna arranca 48 px bajo la línea del nombre (33 % + 48 px) y queda a 16 px
+  del carril de su lado. Medido a 390: Andoni x = 36 (carril 20 + 16), Eric hasta x = 354 (carril 370 − 16); `tools/verify.cjs` local limpio.
+- **A media ronda (Andoni):** «más arriba, a 16 px de nuestros nombres y a 24 px de las guías» → el JS mide también dónde acaba el texto del nombre (`--nombre-pie`) y
+  la columna arranca 16 px más abajo; a 24 px del carril. Medido a 390 con movimiento reducido (sin el bote): 16 px del nombre en los dos y 24 px del carril;
+  `tools/verify.cjs` local limpio.
+- **A media ronda (Andoni):** «¿en pantallas de menos de 390 px cómo se vería?» → medido a 375, 360 y 320 (con dedo y sin el bote): a 375 y 360 bien; a 320 (iPhone SE)
+  los objetos pisaban los brazos y «ANDONI» se cortaba por la izquierda. Por debajo de 360: objetos a 26 px de base y a 12 px del carril, y la línea del nombre de
+  Andoni más corta (la de Eric se queda: corta, «ERIC» caía sobre su hombro). Medido a 320: ningún objeto pisa a nadie, «ANDONI» de x 24 a 80 y «ERIC» de 239 a
+  271 (pantalla 320). `tools/verify.cjs` local limpio.
+
+### Ronda 278 · 2026-10-20 · fuera la hierba del Estudio · PUBLICADO con las aficiones en móvil
+- **Andoni (textual):** «¿por qué en mobile se ve hierba?» · «después de quitar eso revisa si Eric ha publicado algo y sube ya».
+- **Causa:** la estela del paseo (rondas 12–43): desde la ronda 144 ya no hay paseo, pero con movimiento reducido el código pintaba la hierba entera a sus pies
+  (en las capturas de medida, hechas con movimiento reducido, se veía; y la vería cualquiera con esa preferencia). **Hecho:** no se pinta y los dos lienzos van ocultos.
+- **Medido:** lienzos `display: none` con y sin movimiento reducido · `tools/verify.cjs` local (Chrome y WebKit, 1280 y 390) limpio.

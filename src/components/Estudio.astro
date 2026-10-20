@@ -152,6 +152,11 @@ const [A, E] = estudio.personas;
     // RONDA 272 · Andoni: «vamos a dejar solo los de ilustración clásica»: el catálogo es la versión de serie (las pegatinas, con ?equipo=pegatinas)
     const EQ = (() => { try { return new URLSearchParams(location.search).get('equipo') ?? 'lamina'; } catch { return 'lamina'; } })();
     if (['relieve', '3d', 'lamina', 'arbol', 'roble'].includes(EQ)) raiz.dataset.eq = EQ;
+    // ronda 277 · en móvil las aficiones van pegadas a los carriles: --guia = distancia del borde de la pareja al borde del paseo (que es el del wrap)
+    const guia = () => { const pr = paseo.getBoundingClientRect(), jr = juntos.getBoundingClientRect(); juntos.style.setProperty('--guia', `${Math.max(0, Math.round(pr.left - jr.left))}px`);
+      // y --nombre-pie: dónde acaba el nombre (su caja de texto), desde arriba de la pareja: la columna arranca 16 px más abajo
+      const n = juntos.querySelector<HTMLElement>('.p0 .nombre'); if (n) { const r = document.createRange(); r.selectNodeContents(n); const b = r.getBoundingClientRect(); juntos.style.setProperty('--nombre-pie', `${Math.round(b.bottom - jr.top)}px`); } };
+    new ResizeObserver(guia).observe(paseo); guia();
     const caer = (i: number) => {
       const ul = listas[i], nombre = quienes[i].querySelector<HTMLElement>('.nombre')!;
       ul.getAnimations({ subtree: true }).forEach((an) => an.cancel());
@@ -467,7 +472,8 @@ const [A, E] = estudio.personas;
     const brisa = (ahora: number) => { reloj = 0; if (!viendo || reducido) return; pintarVerde(xaU, xeU, ahora / 1000); reloj = requestAnimationFrame(brisa); };
     new IntersectionObserver((en) => { viendo = en[0].isIntersecting; if (viendo && !reloj) reloj = requestAnimationFrame(brisa); }).observe(cv);
     sembrar();
-    if (reducido) { raiz.classList.add('llegaron'); pintarVerde(1e6, -1e6); }
+    // ronda 278 · sin paseo (r144) no hay estela: con movimiento reducido se pintaba la hierba entera a sus pies (y en móvil se veía). Ya no se pinta.
+    if (reducido) { raiz.classList.add('llegaron'); }
     // RONDA 144 · Eric: «esta entrada no me convence (hay tomas en las que no somos muy fieles): que aparezcamos los dos directamente». Sin paseo: al
     // asomar la fila, la foto de los dos sube un poco y sale del desenfoque (0,9 s); el paseo de las rondas 11–141 queda en el código, sin usarse.
     const DIRECTO = true;
@@ -599,6 +605,7 @@ const [A, E] = estudio.personas;
   /* ronda 191 · en dos columnas, sin aire extra debajo del paseo */
   .estudio-grid .paseo { margin-bottom: 0; }
   .verde {
+    display: none; /* ronda 278 · la estela del paseo (rondas 12–43) ya no se usa desde la 144 */
     position: absolute;
     inset: 0;
     width: 100%;
@@ -968,4 +975,26 @@ const [A, E] = estudio.personas;
   [data-eq='lamina'] .notas i:nth-child(1) { left: 2px; } [data-eq='lamina'] .notas i:nth-child(2) { left: 14px; animation-delay: 2s; } [data-eq='lamina'] .notas i:nth-child(3) { left: 24px; animation-delay: 2.8s; }
   @keyframes nota { 0% { opacity: 0; transform: translate(0, 4px) rotate(-8deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(6px, -18px) rotate(10deg); } }
   @media (prefers-reduced-motion: reduce) { [data-eq='lamina'] .aficiones.abierta .lam { animation: none !important; } [data-eq='lamina'] .tema { display: none !important; } }
+  /* RONDA 277 · Andoni: «en móvil los iconos salen raros: que salgan al lado de cada uno aunque sean más pequeños». Antes caían debajo de la pareja (y la sección
+     siguiente los tapaba) y los de Eric salían en el lado de Andoni. Ahora, en una columna corta y pequeña al lado de cada uno, a la altura del pecho:
+     Andoni a su izquierda, Eric a su derecha (la pareja ocupa del 29 % al 71 % de la foto) */
+  @media (width < 64rem) {
+    /* ronda 277 (2.ª) · «mejor más debajo de cada nombre y más pegado a las guías»: bajo el nombre, alineadas con el carril de su lado (la pareja va
+       centrada en el contenedor: el carril cae a (100 % − ancho del wrap) / 2 de su borde) */
+    [data-eq='lamina'] .aficiones { top: calc(var(--nombre-pie, 33%) + 16px); bottom: auto; /* ronda 277 (4.ª) · «a 16 px de nuestros nombres y a 24 px de las guías» */ translate: none; gap: calc(var(--spacing) * 3); }
+    [data-eq='lamina'] .p0 .aficiones { left: calc(var(--guia, 17px) + 24px); right: auto; align-items: flex-start; }
+    [data-eq='lamina'] .p1 .aficiones { right: calc(var(--guia, 17px) + 24px); left: auto; align-items: flex-end; }
+    [data-eq='lamina'] .aficiones li:nth-child(n), [data-eq='lamina'] .p0 .aficiones li:nth-child(n), [data-eq='lamina'] .p1 .aficiones li:nth-child(n) { margin: 0; }
+    [data-eq='lamina'] .lam { --u: 34px; }
+    [data-eq='lamina'] .vapor, [data-eq='lamina'] .notas { transform: scale(.7); transform-origin: 50% 100%; }
+    .paseo:has([data-eq]) { margin-bottom: calc(var(--spacing) * 12); } /* --guia (px, desde el borde de la pareja hasta el carril) la pone el JS */
+  }
+  /* RONDA 277 (5.ª) · por debajo de 360 px (iPhone SE, 320): los objetos pisaban los brazos y «ANDONI» se cortaba por la izquierda → objetos más pequeños, a 12 px
+     del carril, y la línea de los nombres más corta */
+  @media (width < 360px) {
+    [data-eq='lamina'] .lam { --u: 26px; }
+    [data-eq='lamina'] .p0 .aficiones { left: calc(var(--guia, 17px) + 12px); }
+    [data-eq='lamina'] .p1 .aficiones { right: calc(var(--guia, 17px) + 12px); }
+    .juntos .p0 { --lw: 26px; } /* solo la de Andoni: la de Eric, corta, dejaba «ERIC» sobre su hombro */
+  }
 </style>
