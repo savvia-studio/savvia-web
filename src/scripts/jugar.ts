@@ -8,8 +8,24 @@ const aVista = (v: HTMLVideoElement) => {
   return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth && getComputedStyle(v).visibility !== 'hidden';
 };
 
+// el botón de play propio (`.jugar-btn`, global.css): sobre los vídeos de tamaño de pieza; los diminutos (el mini del menú) solo esperan el toque
+const botones = new Map<HTMLVideoElement, HTMLButtonElement>();
+const quitarBoton = (v: HTMLVideoElement) => { botones.get(v)?.remove(); botones.delete(v); };
+const ponerBoton = (v: HTMLVideoElement) => {
+  const host = v.parentElement;
+  if (!host || botones.has(v) || v.getBoundingClientRect().width < 160) return;
+  if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'jugar-btn';
+  b.setAttribute('aria-label', document.documentElement.lang === 'en' ? 'Play video' : 'Reproducir vídeo');
+  b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.8v16.4a1 1 0 0 0 1.5.86l13.6-8.2a1 1 0 0 0 0-1.72L7.5 2.94A1 1 0 0 0 6 3.8Z"/></svg>';
+  b.addEventListener('click', (e) => { e.stopPropagation(); v.play().catch(() => {}); });
+  v.addEventListener('playing', () => quitarBoton(v), { once: true });
+  host.append(b); botones.set(v, b);
+};
+
 const gesto = () => {
-  const lista = [...pendientes]; console.log('EVT gesto lista=' + lista.map(([v, q]) => v.paused + '/' + q() + '/' + v.isConnected).join());
+  const lista = [...pendientes];
   pendientes.clear();
   ['touchend', 'click', 'keydown'].forEach((e) => removeEventListener(e, gesto));
   lista.forEach(([v, quiere]) => { if (v.isConnected && v.paused && quiere()) v.play().catch(() => {}); });
@@ -19,8 +35,9 @@ export function jugar(v: HTMLVideoElement, quiere: () => boolean = () => aVista(
   const p = v.play();
   if (!p) return;
   p.catch((err) => {
-    console.log('EVT rechazo ' + err?.name); if (err?.name !== 'NotAllowedError') return;
+    if (err?.name !== 'NotAllowedError') return;
     if (!pendientes.size) ['touchend', 'click', 'keydown'].forEach((e) => addEventListener(e, gesto, { passive: true }));
     pendientes.set(v, quiere);
+    ponerBoton(v);
   });
 }
