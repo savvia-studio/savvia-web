@@ -904,8 +904,9 @@ html[data-estacion='otono'] .surface-dark {
   --btn-bano: color-mix(in oklab, var(--arbol), #000 40%);
 }
 
-/* RONDA 266 · el BOTÓN DE PLAY propio (`scripts/jugar.ts`): cuando iOS veta el autoplay (modo de bajo consumo) el vídeo se queda quieto y este círculo de cristal
-   (velo Cacao + desenfoque + filo, como el (+) y los botones) invita a tocarlo; se va solo en cuanto el vídeo arranca. */
+/* RONDA 266 · el BOTÓN DE PLAY propio (`scripts/jugar.ts`): cuando iOS veta el autoplay (modo de bajo consumo) el vídeo se queda en su póster y este disco
+   lo invita a arrancar; se va solo en cuanto el vídeo se mueve. Eric: «mejor diseño y más minimalista»: un disco liso en la tinta de la ESTACIÓN (`--noche-honda`) con el triángulo en Rosa niebla
+   y un filo de 1 px en el tono claro de la estación (`--color-salvia`); sin cristal ni sombra. */
 .jugar-btn {
   position: absolute;
   inset: 0;
@@ -913,23 +914,21 @@ html[data-estacion='otono'] .surface-dark {
   z-index: 5;
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   padding: 0;
   border: 0;
   border-radius: 9999px;
-  background: color-mix(in oklab, #302018 80%, transparent); /* sobre lo claro (savvia agentic) el 52 % se quedaba en un gris lavado */
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, #f5f5f7 22%, transparent);
+  background: var(--noche-honda, #302018); /* la tinta de la estación (otoño marrón, primavera ciruela, verano bosque, invierno pizarra) */
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-salvia, #f5f5f7) 40%, transparent);
   color: #f5f5f7;
   cursor: pointer;
   pointer-events: auto; /* hay contenedores de vídeo con pointer-events: none (el .cine de savvia agentic) */
   -webkit-tap-highlight-color: transparent;
-  animation: jugar-entra 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  transition: transform 0.25s ease;
+  animation: jugar-entra 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.2s ease;
 }
-.jugar-btn:active { transform: scale(0.94); }
-.jugar-btn svg { width: 22px; height: 22px; margin-left: 3px; fill: currentColor; }
-@keyframes jugar-entra { from { opacity: 0; scale: 0.8; } to { opacity: 1; scale: 1; } }
+.jugar-btn:active { transform: scale(0.92); }
+.jugar-btn svg { width: 16px; height: 16px; margin-left: 2px; fill: currentColor; }
+@keyframes jugar-entra { from { opacity: 0; scale: 0.9; } to { opacity: 1; scale: 1; } }
 @media (prefers-reduced-motion: reduce) { .jugar-btn { animation: none; } }
