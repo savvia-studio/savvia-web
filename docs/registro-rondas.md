@@ -4434,3 +4434,7 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   y con movimiento reducido se quedan quietos; la curva sigue como diagrama. Fallo propio cazado: la barra de Agentation salía en los vídeos (sus hijos se fuerzan
   visibles: se oculta con opacidad).
   Medido: `tools/r265-kit/ver.cjs` (Chrome y WebKit 1280, Chrome 390): 61 descargas en 200, consola limpia, 0 ≥ 400, desborde 0. Nada publicado.
+- **PUBLICADO (20/10) en https://savvia.studio** (Andoni: «publica solo esto»): SOLO el brandbook (commit `8fe2ded`: `Libro.astro`, `public/descargas/`, los vídeos de
+  Movimiento y sus scripts), fusionado con 6 commits nuevos de Eric (`d20fcb3`). Fuera del commit, en local: las aficiones en relieve y en 3D (`Estudio.astro`,
+  `public/media/equipo/aficiones3d/`) y el reel nuevo. Medido EN VIVO: `/sistema`, el ZIP, los vídeos y los fondos responden 200; `tools/r265-kit/ver.cjs` contra
+  savvia.studio (Chrome y WebKit 1280, Chrome 390): 61 descargas en 200, consola limpia, desborde 0; `tools/verify.cjs` de la home limpio en los cuatro.

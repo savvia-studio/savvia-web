@@ -7,7 +7,7 @@ const S = '/private/tmp/claude-501/-Users-andonimart-Desktop-savvia-savvia-web/c
     const p = await (await b.newContext({ viewport: { width: W, height: W < 600 ? 844 : 720 }, deviceScaleFactor: 2, userAgent })).newPage();
     const err = [], malos = []; p.on('pageerror', (e) => err.push(e.message)); p.on('console', (m) => m.type() === 'error' && err.push(m.text()));
     p.on('response', (r) => r.status() >= 400 && malos.push(r.status() + ' ' + r.url()));
-    await p.goto('http://localhost:4332/sistema?carga=0', { waitUntil: 'load' }); await p.waitForTimeout(1500);
+    await p.goto((process.env.BASE || 'http://localhost:4332') + '/sistema?carga=0', { waitUntil: 'load' }); await p.waitForTimeout(1500);
     for (const id of ['logotipo', 'descargas', 'aplicaciones', 'materia']) {
       await p.evaluate((i) => document.getElementById(i).scrollIntoView(), id); await p.waitForTimeout(1500);
       await p.screenshot({ path: S + `r265-bb-${nom}-${W}-${id}.png`, fullPage: false });
