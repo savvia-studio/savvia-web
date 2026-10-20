@@ -727,8 +727,11 @@ import { icono } from '../lib/iconos';
         if (!matchMedia('(width >= 64rem)').matches) { pila.style.height = ''; return; }
         pila.style.height = `${citas[n].offsetHeight}px`;
       };
+      // RONDA 290 · Eric (móvil): «las flechas tienen que ser flexibles»: la caja del nombre y el cargo mide lo que el activo (los cargos largos ocupan dos líneas)
+      const quienes = voz.querySelector<HTMLElement>('.quienes');
+      const ajustarQuien = (n: number) => { if (quienes && grupos[1][n]) quienes.style.height = `${grupos[1][n].offsetHeight}px`; };
       const mostrar = (n: number) => {
-        ajustarPila(n);
+        ajustarPila(n); ajustarQuien(n);
         grupos.forEach((g) => g.forEach((el, i) => { el.classList.toggle('on', i === n); if (el.hasAttribute('aria-hidden')) el.setAttribute('aria-hidden', String(i !== n)); }));
         voz.classList.add('vista');
       };
@@ -741,7 +744,7 @@ import { icono } from '../lib/iconos';
       };
       // la primera vez, al asomar: el retrato se dibuja y la cita sube con él
       new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { pintarRetrato(0); o.disconnect(); } }, { threshold: 0.35 }).observe(voz);
-      addEventListener('resize', () => ajustarPila(k));
+      addEventListener('resize', () => { ajustarPila(k); ajustarQuien(k); });
       addEventListener('resize', () => { const img = fuentes[k], cv = lienzos[frente]; if (motorCv || !img.naturalWidth || innerWidth === anchoR) return; anchoR = innerWidth; gen++; const P = preparar(img, cv); if (P) pintar(cv, P, 1); });
       const programar = () => { clearTimeout(reloj); if (visible && !quieto && !reducido) reloj = window.setTimeout(() => { poner(k + 1); programar(); }, 9000); };
       voz.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => b.addEventListener('click', () => { poner(k + Number(b.dataset.paso)); programar(); }));
@@ -942,7 +945,7 @@ import { icono } from '../lib/iconos';
   }
   .retratos {
     display: grid;
-    width: min(70%, 16rem); /* móvil: más pequeña (Eric); desde 64rem, el 100 % de su columna */
+    width: min(80%, 18rem); /* móvil: más pequeña (Eric), un pelín más grande en la ronda 290; desde 64rem, el 100 % de su columna */
     aspect-ratio: 1 / 1;
     justify-self: center;
   }
@@ -1002,6 +1005,7 @@ import { icono } from '../lib/iconos';
   .quienes { display: grid; min-width: 0; }
   .quien {
     grid-area: 1 / 1;
+    align-self: start; /* su alto propio: el JS mide el activo para fijar la caja */
     display: grid;
     align-content: start; /* sin esto, el alto de la cita más larga reparte las filas y separa nombre y cargo */
     gap: calc(var(--spacing) * 1);
@@ -1020,6 +1024,8 @@ import { icono } from '../lib/iconos';
   /* RONDA 144 (3.ª) · «los botones de cambiar de testimonio, debajo del nombre, y solo las flechas: sin número, sin la caja que lo rodea» */
   .pie-voz { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 8); }
   .pie-voz .autor { margin-top: 0; }
+  /* RONDA 290 · Eric (móvil): nombre y cargo más cerca de la reseña, y las flechas más arriba, cerca del nombre */
+  @media (width < 64rem) { .pie-voz { margin-top: calc(var(--spacing) * 4); gap: calc(var(--spacing) * 4); } }
   .barra-voz {
     gap: calc(var(--spacing) * 1);
     padding: 0;
