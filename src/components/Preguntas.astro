@@ -102,13 +102,12 @@ import personasEn from '../data/personas.en.json';
     // móvil: la charla no tiene scroll propio (CSS): la página se mueve SOLO lo justo para que lo último quede a la vista, medido contra la parte visible
     // de verdad (`visualViewport`: con el teclado de iOS/Chrome abierto es más baja que `innerHeight`); escritorio: scroll de la charla
     // RONDA 290 · Eric: al escribir, el teclado hacía saltar la página al pie, y al enviar la conversación no se veía
-    const verEnMovil = (el: Element | null | undefined, instantaneo = false) => {
+    const verEnMovil = (el: Element | null | undefined) => {
       if (!el) return;
       const vh = window.visualViewport?.height ?? innerHeight, r = el.getBoundingClientRect();
-      let d = 0;
-      if (r.bottom > vh - 24) d = Math.min(r.bottom - (vh - 24), Math.max(0, r.top - 96));
-      else if (r.top < 80) d = r.top - 96;
-      if (Math.abs(d) > 4) scrollBy({ top: d, behavior: reducido || instantaneo ? 'auto' : 'smooth' });
+      // solo hacia abajo y solo si queda tapado: nunca sube la página
+      const d = r.bottom > vh - 24 ? Math.min(r.bottom - (vh - 24), Math.max(0, r.top - 96)) : 0;
+      if (d > 4) scrollBy({ top: d, behavior: reducido ? 'auto' : 'smooth' });
     };
     const bajar = () => {
       const behavior = reducido ? 'auto' : 'smooth';
@@ -185,14 +184,6 @@ import personasEn from '../data/personas.en.json';
         return v.tipo === 'ninguna' ? v : respaldo;
       } catch { return respaldo; }
     };
-    // RONDA 290 · al enfocar el campo en móvil (se abre el teclado y el navegador a veces salta al pie), se recoloca el campo a la vista cuando el teclado se ha posado
-    if (matchMedia('(pointer: coarse)').matches) {
-      let enfocado = false;
-      const ver = () => { if (enfocado) verEnMovil(form, true); };
-      campo.addEventListener('focus', () => { enfocado = true; [150, 400, 800].forEach((ms) => setTimeout(ver, ms)); });
-      campo.addEventListener('blur', () => { enfocado = false; });
-      window.visualViewport?.addEventListener('resize', ver);
-    }
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = campo.value.trim();

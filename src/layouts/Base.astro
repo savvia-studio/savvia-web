@@ -26,6 +26,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- RONDA 290 · Eric (móvil): al escribir en un campo, el teclado cambia la altura de la ventana y TODOS los `resize` de la web recalculan su maquetación (el Estudio, los
+         Proyectos, el pie…): la página saltaba arriba y abajo. Con el dedo, un `resize` que no cambia el ancho mientras hay un campo con foco se descarta antes de que llegue a nadie. -->
+    <script is:inline>
+      (function () {
+        if (!matchMedia('(pointer: coarse)').matches) return;
+        var w = innerWidth;
+        addEventListener('resize', function (e) {
+          var a = document.activeElement;
+          if (innerWidth === w && a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) e.stopImmediatePropagation();
+          else w = innerWidth;
+        }, true);
+      })();
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
