@@ -155,7 +155,8 @@ const [A, E] = estudio.personas;
     // ronda 277 · en móvil las aficiones van pegadas a los carriles: --guia = distancia del borde de la pareja al borde del paseo (que es el del wrap)
     const guia = () => { const pr = paseo.getBoundingClientRect(), jr = juntos.getBoundingClientRect(); juntos.style.setProperty('--guia', `${Math.max(0, Math.round(pr.left - jr.left))}px`);
       // y --nombre-pie: dónde acaba el nombre (su caja de texto), desde arriba de la pareja: la columna arranca 16 px más abajo
-      const n = juntos.querySelector<HTMLElement>('.p0 .nombre'); if (n) { const r = document.createRange(); r.selectNodeContents(n); const b = r.getBoundingClientRect(); juntos.style.setProperty('--nombre-pie', `${Math.round(b.bottom - jr.top)}px`); } };
+      // ronda 279: cada uno, el suyo (la etiqueta de Eric va más alta)
+      juntos.querySelectorAll<HTMLElement>('.persona').forEach((pe) => { const n = pe.querySelector<HTMLElement>('.nombre'); if (!n) return; const r = document.createRange(); r.selectNodeContents(n); const b = r.getBoundingClientRect(); pe.style.setProperty('--nombre-pie', `${Math.round(b.bottom - jr.top)}px`); }); };
     new ResizeObserver(guia).observe(paseo); guia();
     const caer = (i: number) => {
       const ul = listas[i], nombre = quienes[i].querySelector<HTMLElement>('.nombre')!;
@@ -997,4 +998,8 @@ const [A, E] = estudio.personas;
     [data-eq='lamina'] .p1 .aficiones { right: calc(var(--guia, 17px) + 12px); }
     .juntos .p0 { --lw: 26px; } /* solo la de Andoni: la de Eric, corta, dejaba «ERIC» sobre su hombro */
   }
+  /* RONDA 279 · Andoni: «el tag de Eric, sacarlo un poco más a la derecha y un poco más arriba, en móvil y en escritorio» · «junto con la línea y el punto que lo
+     une a Eric»: la llamada entera (punto, línea y nombre) se desplaza; el punto sigue sobre él (su pecho va del 50 % al 66 % de la foto) */
+  .juntos .p1 { left: 58%; top: 29%; }
+  @media (width < 64rem) { .juntos .p1 .llamada-q { left: calc(58% + 12px); top: 29%; } }
 </style>
