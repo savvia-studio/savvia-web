@@ -492,13 +492,14 @@ import { icono } from '../lib/iconos';
       const citas = barajar(todos.filter((it) => it.classList.contains('cita')));
       const marcas = barajar(todos.filter((it) => !it.classList.contains('cita')));
       const reparto: HTMLElement[][] = cajas.map(() => []);
-      while (citas.length || marcas.length) cajas.forEach((_, c) => {
+      // RONDA 265 · Eric: «en móvil, que esté intercalado, no solo arriba reseñas y abajo logos»: en móvil las dos celdas reparten citas y logotipos alternando
+      // (la de arriba empieza por reseña, la de abajo por logotipo), como en escritorio
+      const movilR = matchMedia('(width < 48rem)').matches;
+      while (citas.length || marcas.length) cajas.slice(0, movilR ? 2 : cajas.length).forEach((_, c) => {
         const logo = (reparto[c].length % 2 === 0) === (c % 2 === 1);
         const it = (logo && marcas.length) || !citas.length ? marcas.shift() : citas.shift();
         if (it) reparto[c].push(it);
       });
-      // RONDA 264 · Eric: «en móvil, 2 cuadrados: arriba carrusel de reseñas, abajo de logos»: por debajo de 48rem solo quedan dos celdas (citas / logotipos)
-      if (matchMedia('(width < 48rem)').matches) { reparto.forEach((l) => l.length = 0); reparto[0].push(...todos.filter((it) => it.classList.contains('cita')).sort(() => Math.random() - 0.5)); reparto[1].push(...todos.filter((it) => !it.classList.contains('cita')).sort(() => Math.random() - 0.5)); }
       reparto.forEach((lista, c) => lista.forEach((it, k) => { it.classList.toggle('on', k === 0); it.setAttribute('aria-hidden', k === 0 ? 'false' : 'true'); cajas[c].appendChild(it); }));
     }
     if (rejilla) {
