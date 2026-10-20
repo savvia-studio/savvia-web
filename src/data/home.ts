@@ -234,7 +234,7 @@ export const proyectos = {
       n: 'Playground IEP',
       cat: 'Educación especial',
       d: 'IA con base científica para educación especial, contada con pegatinas que se pueden coger.',
-      url: 'https://playground-iep-two.vercel.app/home-v5.html',
+      url: 'https://playgroundiep.treseiscero.app/home-v2', dominio: 'playgroundiep.com', // ronda 230: la home v2
       estacion: 'primavera',
       hechos: [
         ['Trabajo', 'Home · diseño y desarrollo agéntico'],

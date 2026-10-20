@@ -497,11 +497,17 @@ import { icono } from '../lib/iconos';
         const it = (logo && marcas.length) || !citas.length ? marcas.shift() : citas.shift();
         if (it) reparto[c].push(it);
       });
+      // RONDA 264 · Eric: «en móvil, 2 cuadrados: arriba carrusel de reseñas, abajo de logos»: por debajo de 48rem solo quedan dos celdas (citas / logotipos)
+      if (matchMedia('(width < 48rem)').matches) { reparto.forEach((l) => l.length = 0); reparto[0].push(...todos.filter((it) => it.classList.contains('cita')).sort(() => Math.random() - 0.5)); reparto[1].push(...todos.filter((it) => !it.classList.contains('cita')).sort(() => Math.random() - 0.5)); }
       reparto.forEach((lista, c) => lista.forEach((it, k) => { it.classList.toggle('on', k === 0); it.setAttribute('aria-hidden', k === 0 ? 'false' : 'true'); cajas[c].appendChild(it); }));
+    }
+    if (rejilla) {
+      const dos = rejilla.querySelectorAll<HTMLElement>('[data-celda]')[1], medir = () => rejilla.style.setProperty('--medio', `${dos.offsetTop}px`);
+      new ResizeObserver(medir).observe(rejilla); medir();
     }
     if (rejilla) new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { rejilla.classList.add('trazada'); o.disconnect(); } }, { threshold: 0.3 }).observe(rejilla);
     if (rejilla && !reducido) {
-      const celdas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')].map((el) => ({ items: [...el.querySelectorAll<HTMLElement>('[data-item]')], k: 0 }));
+      const celdas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')].map((el) => ({ items: [...el.querySelectorAll<HTMLElement>('[data-item]')], k: 0 })).filter((c) => c.items.length);
       let relojes: number[] = [];
       const girar = (c: (typeof celdas)[number]) => {
         c.items[c.k].classList.remove('on'); c.items[c.k].classList.add('sale'); c.items[c.k].setAttribute('aria-hidden', 'true');
@@ -511,7 +517,25 @@ import { icono } from '../lib/iconos';
       new IntersectionObserver((e) => {
         relojes.forEach(clearTimeout); relojes = [];
         if (!e[0].isIntersecting) return;
-        celdas.forEach((c, i) => { const t = window.setTimeout(function tic() { girar(c); relojes[i] = window.setTimeout(tic, 9000); }, 5000 + i * 1500); relojes[i] = t; });
+        const movil = matchMedia('(width < 48rem)').matches;
+        const armar = (c: (typeof celdas)[number], i: number, espera: number) => { relojes[i] = window.setTimeout(function tic() { girar(c); relojes[i] = window.setTimeout(tic, i === 0 ? 7000 : 3500); }, espera); };
+        // RONDA 264 · Eric: «en desktop, aleatorio y más tranquilo; al hacer scroll in cambia solo uno»: UN reloj para toda la cuadrícula; cada 2,5–4 s cambia una celda
+        // al azar (nunca la misma dos veces seguidas), así nunca cambian dos a la vez y cada celda sale cada ~30 s. El primer cambio, a los 1,8 s de verla.
+        let ultima = -1;
+        const una = () => { let i; do i = Math.floor(Math.random() * celdas.length); while (i === ultima && celdas.length > 1); ultima = i; girar(celdas[i]); };
+        const tic = () => { una(); relojes[0] = window.setTimeout(tic, 2500 + Math.random() * 1500); };
+        if (movil) {
+          // móvil: dos cuadrados (reseñas / logotipos), cada uno a su ritmo; la primera cambia enseguida
+          celdas.forEach((c, i) => armar(c, i, 5000 + i * 1500));
+          relojes.push(window.setTimeout(() => { if (celdas[0].k === 0) girar(celdas[0]); }, 1800));
+        } else relojes[0] = window.setTimeout(tic, 1800);
+        // RONDA 264 · Eric: «si haces tap sobre el cuadrado pasa a la siguiente»: tocar una celda avanza (en móvil, reinicia además su reloj)
+        rejilla.onclick = (ev) => {
+          const i = celdas.findIndex((c) => c.items[0].parentElement?.contains(ev.target as Node));
+          if (i < 0) return;
+          girar(celdas[i]); ultima = i;
+          if (matchMedia('(width < 48rem)').matches) { clearTimeout(relojes[i]); armar(celdas[i], i, i === 0 ? 7000 : 3500); }
+        };
       }, { threshold: 0.2 }).observe(rejilla);
     }
     const voz = document.querySelector<HTMLElement>('[data-voz]');
@@ -733,7 +757,33 @@ import { icono } from '../lib/iconos';
     --cruz: color-mix(in oklab, var(--fg) 55%, transparent);
   }
   .guias { display: none; }
+  /* ronda 264 · móvil: dos cuadrados (reseñas arriba, logotipos abajo); el resto de celdas se quedan sin contenido y se ocultan */
+  @media (width < 48rem) {
+    .cuadricula .celda:nth-of-type(n + 3) { display: none; }
+    /* los «+» solo en los extremos de las líneas (columnas 0 y 3); el del medio, a la altura real de la 2.ª celda (`--medio`, por JS) */
+    .guias { display: block; position: absolute; inset: 0; pointer-events: none; }
+    .gh, .gv, .gx[style*="--c:1"], .gx[style*="--c:2"] { display: none; }
+    .gx {
+      position: absolute;
+      top: calc(var(--r) * 50%);
+      left: calc(var(--c) * 100% / 3);
+      width: 9px;
+      height: 9px;
+      translate: -4px -4px;
+      background:
+        linear-gradient(var(--cruz), var(--cruz)) 50% 0 / 1px 100% no-repeat,
+        linear-gradient(var(--cruz), var(--cruz)) 0 50% / 100% 1px no-repeat;
+      opacity: 0;
+      transition: opacity 0.6s ease 0.6s;
+    }
+    .gx[style*="--r:1"] { top: var(--medio, 50%); }
+    .cuadricula.trazada .gx { opacity: 1; }
+    .cuadricula .celda:nth-of-type(2) { border-bottom: 1px solid var(--linea); }
+  }
   .celda {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
     position: relative;
     display: grid;
     min-height: calc(var(--spacing) * 64);

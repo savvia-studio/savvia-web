@@ -129,15 +129,30 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   const menu = document.querySelector<HTMLElement>('[data-menu]')!;
   const velo = document.querySelector<HTMLElement>('[data-velo]')!;
   let abierto = false;
+  // ronda 230 · «superpuestos, no animación de color»: la tarjeta pasa POR ENCIMA de la barra (html.menu-visible) y lleva dentro una copia en Cacao de la barra
+  // entera (logotipo en móvil + iconos). La copia comparte el recorte con que la tarjeta se dibuja y se recoge, así que el icono es oscuro exactamente donde
+  // hay tarjeta y recupera su color natural en cuanto el recorte lo deja al descubierto, sin interpolar color. Los clics de la copia pasan a los originales.
+  const barra = document.querySelector<HTMLElement>('[data-nav]')!;
+  function capaCacao() {
+    menu.querySelector('.capa-cacao')?.remove();
+    const k = barra.cloneNode(true) as HTMLElement;
+    k.classList.add('capa-cacao');
+    k.removeAttribute('data-nav');
+    k.setAttribute('data-capa', '');
+    k.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
+    k.querySelectorAll('[data-rejilla]').forEach((n) => { n.removeAttribute('data-rejilla'); n.setAttribute('aria-expanded', 'true'); });
+    k.style.color = 'var(--color-cacao)';
+    // solo la parte visible: fuera el panel de la radio y todo lo que no sea el botón (pesaba y ensanchaba la tarjeta: scroll X y tirones al abrir)
+    k.querySelectorAll('.radio > :not(button)').forEach((n) => n.remove());
+    const orig = Array.from(barra.querySelectorAll<HTMLElement>('button, a')).filter((n) => !n.closest('.radio > :not(button)')), copia = Array.from(k.querySelectorAll<HTMLElement>('button, a'));
+    copia.forEach((c, i) => { c.tabIndex = -1; if (c.tagName === 'BUTTON') c.addEventListener('click', (e) => { e.stopPropagation(); orig[i]?.click(); }); });
+    menu.prepend(k);
+  }
   function poner(si: boolean, devolverFoco = false) {
     abierto = si;
     btn.setAttribute('aria-expanded', String(si));
     btn.setAttribute('aria-label', si ? t('Cerrar el menú', 'Close the menu') : t('Abrir el menú', 'Open the menu'));
     document.documentElement.classList.toggle('menu-abierto', si);
-    // ronda 230: los iconos y el logotipo cambian de color al compás del fondo de la tarjeta (se dibuja en 1,05 s y se recoge en 0,72 s)
-    document.documentElement.classList.add('menu-cambia');
-    clearTimeout((window as any).__menuCambia);
-    (window as any).__menuCambia = setTimeout(() => document.documentElement.classList.remove('menu-cambia'), 1100);
     // RONDA 40 · la tarjeta se DIBUJA desde el botón (líneas de sus enlaces, luego la pintura rasgada) y al cerrar se recoge hacia él
     const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
     const LINEA = tinta('cacao', 0.55); // Cacao, sobre la tarjeta Rosa niebla
@@ -148,12 +163,14 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     } else mini?.pause();
     if (si) {
       menu.hidden = velo.hidden = false;
+      document.documentElement.classList.add('menu-visible');
+      capaCacao();
       menu.classList.add('on');
       requestAnimationFrame(() => velo.classList.add('on'));
       dibujar(menu, { estacion: true, abrir: true, origen, color: LINEA }); // ronda 45: como el cambio de estación del árbol
     } else {
       velo.classList.remove('on');
-      dibujar(menu, { estacion: true, abrir: false, origen, color: LINEA, alTerminar: () => { if (!abierto) { menu.classList.remove('on'); menu.hidden = velo.hidden = true; } } });
+      dibujar(menu, { estacion: true, abrir: false, origen, color: LINEA, alTerminar: () => { if (!abierto) { menu.classList.remove('on'); menu.hidden = velo.hidden = true; document.documentElement.classList.remove('menu-visible'); menu.querySelector('.capa-cacao')?.remove(); } } });
       if (devolverFoco) btn.focus({ preventScroll: true });
     }
   }
@@ -645,15 +662,18 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     opacity: 0;
     transform: scale(0);
   }
-  .rejilla[aria-expanded='true'] span:nth-child(odd) {
-    transform: scale(1.6);
+  /* ronda 264 · Eric: «igual de finos que cerrado» y «que en open estén así»: los cinco puntos, un poco más GORDOS (×1,35) y con las esquinas
+     más cerca del centro (2 px por eje); el hover, AL REVÉS: se abren hasta su sitio de la rejilla y se afinan (×1) */
+  .rejilla[aria-expanded='true'] span:nth-child(odd):not(:nth-child(5)) {
+    transform: translate(calc(var(--dx) * 0.125rem), calc(var(--dy) * 0.125rem)) scale(1.35);
+  }
+  .rejilla[aria-expanded='true'] span:nth-child(5) {
+    transform: scale(1.35);
   }
   @media (hover: hover) {
-    .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)) {
-      transform: translate(calc(var(--dx) * 0.2rem), calc(var(--dy) * 0.2rem)) scale(2.1);
-    }
+    .rejilla[aria-expanded='true']:hover span:nth-child(odd):not(:nth-child(5)),
     .rejilla[aria-expanded='true']:hover span:nth-child(5) {
-      transform: scale(2.2);
+      transform: none;
     }
   }
 
@@ -663,10 +683,11 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     inset: 0;
     background: color-mix(in oklab, var(--noche-honda) 62%, transparent); /* ronda 132: siempre el oscuro (en invierno la noche es nieve) */
     opacity: 0;
-    transition: opacity 0.5s var(--ease-out-expo);
+    transition: opacity 0.6s linear; /* ronda 264 · al cerrar se va a la vez que la tarjeta se recoge (0,6 s), no antes */
   }
   .velo.on {
     opacity: 1;
+    transition: opacity 0.5s var(--ease-out-expo);
   }
 
   /* LA TARJETA. Cerrada está recortada a la caja del botón (--b) y es invisible; abierta, el recorte se va a cero:
@@ -682,7 +703,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     width: min(34rem, 100vw - var(--m) * 2);
     max-height: calc(100dvh - var(--m) * 2);
     overflow-y: auto;
-    padding: calc(var(--spacing) * 24) calc(var(--spacing) * 6) calc(var(--spacing) * 8);
+    padding: calc(var(--spacing) * 28) calc(var(--spacing) * 6) calc(var(--spacing) * 8); /* ronda 230: más aire arriba en móvil (96 → 112 px) */
     border-radius: var(--r);
     opacity: 0; /* ronda 40: ya no crece recortada desde el botón: se DIBUJA (máscara rasgada + líneas, src/scripts/dibujar.ts) */
   }
@@ -925,24 +946,18 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   html.menu-abierto [data-nav] {
     color: var(--color-niebla);
   }
-  html.menu-abierto [data-rejilla],
-  html.menu-abierto [data-radio-play],
-  html.menu-abierto [data-estacion-ic] {
-    color: var(--color-cacao);
+  /* ronda 230 · mientras la tarjeta se ve (abierta o recogiéndose), va por encima de la barra; la copia en Cacao vive dentro de ella */
+  html.menu-visible [data-nav] {
+    z-index: 49;
   }
-  /* ronda 230 · en móvil la tarjeta cubre el logotipo: Cacao mientras está abierta */
-  @media (width < 36rem) {
-    html.menu-abierto .logo-marca {
-      background-color: var(--color-cacao);
+  .capa-cacao {
+    overflow: clip;
+    contain: paint;
+  }
+  @media (width >= 36rem) {
+    .capa-cacao .marca {
+      visibility: hidden; /* en pantallas anchas la tarjeta no llega al logotipo */
     }
-  }
-  html.menu-cambia [data-rejilla],
-  html.menu-cambia [data-radio-play],
-  html.menu-cambia [data-estacion-ic],
-  html.menu-cambia .logo-marca {
-    transition-property: color, background-color;
-    transition-duration: 0.72s;
-    transition-timing-function: ease;
   }
   html.estudio-sentado [data-nav] {
     opacity: 0;

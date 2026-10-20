@@ -29,7 +29,7 @@ function pintarComoEstacion(el: HTMLElement, op: Op) {
     el.style.setProperty('-webkit-mask', capa(s)); el.style.setProperty('mask', capa(s));
     poner(filo, `${capa(s + 26)}, ${capa(s)}`); // el anillo (~11 px de ancho): el círculo algo mayor MENOS el de la pintura
   };
-  const T = op.abrir ? 1050 : 720;
+  const T = op.abrir ? 1050 : 600; // ronda 264 · al cerrar, más corto y SIN arranque lento (antes 720 ms con k²: el recorte tarda en tocar la pieza y parece que espera)
   pintar(op.abrir ? 0 : 1);
   let t0 = 0, vivo = true, raf = 0;
   const fin = () => { vivo = false; cancelAnimationFrame(raf); filo.remove(); el.style.removeProperty('-webkit-mask'); el.style.removeProperty('mask'); vivos.delete(el); };
@@ -38,7 +38,7 @@ function pintarComoEstacion(el: HTMLElement, op: Op) {
     if (!vivo) return;
     if (!t0) t0 = ahora;
     const k = Math.min(1, (ahora - t0) / T);
-    const e = op.abrir ? 1 - Math.pow(1 - k, 2.4) : 1 - k * k; // abrir: sale rápido y se asienta; cerrar: se recoge hacia el origen
+    const e = op.abrir ? 1 - Math.pow(1 - k, 2.4) : Math.pow(1 - k, 1.7); // abrir: sale rápido y se asienta; cerrar: se recoge hacia el origen
     pintar(e);
     filo.style.opacity = String(0.75 * (op.abrir ? Math.pow(1 - k, 0.7) : Math.pow(1 - k, 0.4) * Math.min(1, k * 6)));
     if (k < 1) raf = requestAnimationFrame(paso); else { fin(); op.alTerminar?.(); }
