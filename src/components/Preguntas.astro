@@ -214,10 +214,24 @@ import personasEn from '../data/personas.en.json';
       const acoplar = () => {
         if (form.classList.contains('acoplado')) return;
         hueco.style.height = `${form.offsetHeight}px`; form.before(hueco);
-        form.classList.add('acoplado'); colocar();
+        congelar(); form.classList.add('acoplado'); colocar();
       };
-      const soltar = () => { form.classList.remove('acoplado'); form.style.bottom = ''; hueco.remove(); };
+      // Con el campo acoplado, la página se CONGELA (cuerpo fijo en su sitio): Chrome ya no puede desplazarla al pie ni al Estudio mientras hay teclado. Al soltar, vuelve a
+      // su posición exacta; al enviar se quita el foco (el teclado se va) y se enseña la conversación.
+      let yLock = 0, congelada = false;
+      const congelar = () => {
+        if (congelada) return; congelada = true; yLock = scrollY;
+        const b = document.body.style; b.position = 'fixed'; b.top = `-${yLock}px`; b.left = '0'; b.right = '0'; b.width = '100%';
+      };
+      const descongelar = () => {
+        if (!congelada) return; congelada = false;
+        const b = document.body.style; b.position = ''; b.top = ''; b.left = ''; b.right = ''; b.width = '';
+        scrollTo({ top: yLock, behavior: 'instant' });
+        guardia(2600, 60, 900);
+      };
+      const soltar = () => { form.classList.remove('acoplado'); form.style.bottom = ''; hueco.remove(); descongelar(); };
       if (chromeIOS) {
+        form.addEventListener('submit', () => setTimeout(() => campo.blur(), 0), true);
         window.visualViewport?.addEventListener('resize', colocar); window.visualViewport?.addEventListener('scroll', colocar);
         campo.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== campo) soltar(); }, 60));
         form.querySelector('.mandar')?.addEventListener('pointerdown', (e) => e.preventDefault()); // enviar no quita el foco (ni el teclado): la barra no se mueve bajo el dedo
