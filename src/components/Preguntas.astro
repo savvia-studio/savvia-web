@@ -99,7 +99,12 @@ import personasEn from '../data/personas.en.json';
     charla.addEventListener('scroll', bordes, { passive: true });
     new MutationObserver(bordes).observe(charla, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden'] });
     addEventListener('resize', bordes); bordes();
-    const bajar = () => charla.scrollTo({ top: charla.scrollHeight, behavior: reducido ? 'auto' : 'smooth' });
+    // móvil: la charla no tiene scroll propio (CSS): la página se mueve lo justo para que se vea lo último; escritorio: scroll de la charla
+    const bajar = () => {
+      const behavior = reducido ? 'auto' : 'smooth';
+      if (matchMedia('(width < 64rem)').matches) (charla.querySelector<HTMLElement>('[data-escribiendo]:not([hidden])') ?? charla.lastElementChild)?.scrollIntoView({ block: 'nearest', behavior });
+      else charla.scrollTo({ top: charla.scrollHeight, behavior });
+    };
     // una pregunta → su burbuja; «está escribiendo…» con la cara de quien contesta; y la respuesta
     // `pendiente`: si la respuesta aún se está buscando (pregunta libre), la pregunta ya está en pantalla y «está escribiendo…» espera a que llegue
     const conversar = (ex: HTMLElement, quien: number, alFinal?: () => void, pendiente?: Promise<unknown>) => {
@@ -247,6 +252,10 @@ import personasEn from '../data/personas.en.json';
   .charla.hay-mas { --fb: calc(var(--spacing) * 6); }
   .charla::-webkit-scrollbar {
     display: none;
+  }
+  /* RONDA 268 · Eric (móvil): «scroll sobre scroll: priorizar el scroll de la página». Sin caja con scroll propio: la conversación crece con la página */
+  @media (width < 64rem) {
+    .charla { max-height: none; overflow: visible; overscroll-behavior: auto; -webkit-mask-image: none; mask-image: none; }
   }
   .intercambio {
     display: flex;

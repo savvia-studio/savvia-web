@@ -327,7 +327,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (w.dataset.video && innerWidth < 700) {
         const v = document.createElement('video');
         v.src = `${w.dataset.video}.mp4`; v.poster = `${w.dataset.video}.jpg`; v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('aria-label', w.getAttribute('aria-label')!);
-        v.addEventListener('loadeddata', listo, { once: true }); v.play().catch(() => {});
+        v.addEventListener('loadeddata', listo, { once: true });
+        // RONDA 266 · Eric: «en móvil te tienes que sentar para ver el vídeo»: de pie se queda el póster quieto; solo suena sentado
+        if (sentado) v.play().catch(() => {}); else v.preload = 'metadata';
         m.el = v as any;
       } else if (w.dataset.embed === 'no' || !vivo) {
         // ronda 152: sentado o explorando de pie, la que no se deja embeber enseña su página ENTERA (Neety: 1440 × 12 144), que se recorre
@@ -731,10 +733,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // ronda 171: también de pie (D): toda la sección lleva el cursor-silla (el botón fijo de la silla ya no se ve)
     // ronda 172 (Eric: «si ya aparece la siguiente sección, que el ratón no te deje sentarte»): con la pista soltándose (su borde de abajo dentro de la
     // ventana) no hay silla ni clic
-    const soltandose = () => pista.getBoundingClientRect().bottom < innerHeight - 1;
+    // RONDA 266 · Eric: «el toca para sentarte, a veces toco y no va, en móvil»: en móvil `innerHeight` cambia al recoger/sacar la barra del navegador y el
+    // borde de la pista no cuadraba al píxel (top 1,5 · bottom 1 px por debajo): el toque se descartaba. Margen de 24 px en táctil.
+    const margen = MOVIL ? 24 : 1;
+    const soltandose = () => pista.getBoundingClientRect().bottom < innerHeight - margen;
     // ronda 173 (Eric, captura del titular-pantalla: «aquí también deberíamos poder sentarnos, haciendo zoom out hasta el sentado»): vale en toda la
     // pista pegada, también en A con el titular a pantalla completa (la cámara se aleja hasta el encuadre de sentado y el titular se funde)
-    const pegada = () => pista.getBoundingClientRect().top <= 1;
+    const pegada = () => pista.getBoundingClientRect().top <= margen;
     const invita = () => !sentado && pegada() && !soltandose();
     let kNitido = 1;
     const kSentado = (E: DOMRect, sw: number, sh: number) => Math.min((E.width * (E.width < 700 ? 0.92 : 0.52)) / (PANT.w * sw), (E.height * 0.6) / (PANT.h * sh));
@@ -775,10 +780,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
       // nunca hay titular encima de la web a medias
       const fx = (x0: number, x1: number) => 1 - Math.min(1, Math.max(0, (a - x0) / (x1 - x0)));
       titulo.style.opacity = '1';
-      titulo.style.setProperty('--tt', String(fx(0.8, 0.87)));
-      titulo.style.setProperty('--tf', String(fx(0.87, 0.96)));
-      titulo.style.visibility = a >= 0.97 ? 'hidden' : 'visible';
-      if (a > 0.965 && !estrenado) estrenar();
+      // ronda 284 (Eric, móvil: «ahí, con la píldora, es cuando hay que pasar de las letras al vídeo de los ratones»): en móvil el titular aguanta el primer tramo del zoom y se va hacia la mitad
+      const [t0, t1, f1, fin] = MOVIL ? [0.4, 0.48, 0.6, 0.62] : [0.8, 0.87, 0.96, 0.97];
+      titulo.style.setProperty('--tt', String(fx(t0, t1)));
+      titulo.style.setProperty('--tf', String(fx(t1, f1)));
+      titulo.style.visibility = a >= fin ? 'hidden' : 'visible';
+      if (a > fin - 0.005 && !estrenado) estrenar();
       escenario.classList.toggle('dentro', nf === 'D');
       escenario.classList.toggle('asiento', nf === 'B');
       if (nf !== fase) {
@@ -861,7 +868,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (er.bottom <= 0 || er.top >= innerHeight) return seguir(null); // la sección no se ve
       let x = pX, y = pY, encima = x >= er.left && x <= er.right && y >= er.top && y <= er.bottom;
       if (encima) { const sobre = document.elementFromPoint(x, y) as HTMLElement | null; if (sobre?.closest('[data-barra], .ui-info, [data-sentarse]')) encima = false; }
-      if (!encima) { const r = $('[data-pantalla]').getBoundingClientRect(); x = r.left + r.width / 2; y = MOVIL ? r.top - 44 : r.top + r.height / 2; /* ronda 230: en móvil la píldora va ENCIMA del monitor (no tapa la pantalla) */ if (y < 24 || y > innerHeight - 24) return seguir(null); } // anclada al monitor, solo si se ve
+      if (!encima) { const r = $('[data-pantalla]').getBoundingClientRect(); x = r.left + r.width / 2; y = MOVIL ? Math.min(r.bottom + 44, innerHeight - 72) : r.top + r.height / 2; /* ronda 230: en móvil la píldora no tapa la pantalla; ronda 284 (Eric: «debajo, en la parte baja de la pantalla»): DEBAJO del monitor, sin salirse de la parte baja de la ventana */ if (y < 24 || y > innerHeight - 24) return seguir(null); } // anclada al monitor, solo si se ve
       escenario.classList.toggle('mira', encima);
       seguir({ clientX: x, clientY: y } as PointerEvent);
     };
@@ -877,8 +884,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (enMonitor(ev.clientX, ev.clientY)) explorar(true);
     }, { passive: true });
     // ronda 161: en B el clic (o el toque: `click` no salta al arrastrar para hacer scroll) te SIENTA, con el viaje de cámara
-    escenario.addEventListener('click', (ev) => {
-      if (!invita()) return;
+    // RONDA 266 · Eric: «en esa sección, prácticamente donde toques te haga sentarte»: en táctil el toque vale en TODA la sección (no solo en el escenario) y
+    // mientras el escenario ocupe la pantalla (sin exigir el borde exacto de la pista); el selector, la ficha, los botones y los enlaces siguen a lo suyo
+    const tocaSentar = () => !sentado && (MOVIL ? (() => { const r = escenario.getBoundingClientRect(); return r.top < innerHeight * 0.4 && r.bottom > innerHeight * 0.6; })() : invita());
+    (MOVIL ? raiz : escenario).addEventListener('click', (ev) => {
+      if (!tocaSentar()) return;
       if ((ev.target as HTMLElement).closest('[data-barra], .ui-info, button, a')) return; // el selector y la ficha hacen lo suyo
       seguir(null); escenario.classList.remove('mira');
       cargar(); sentar(true);

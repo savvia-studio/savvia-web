@@ -213,6 +213,7 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
 </section>
 
 <script>
+  import { jugar } from '../scripts/jugar';
   import { tecla, clic, teclear, papel, posar, tocar } from '../scripts/sonidos';
   import { t as tr } from '../scripts/i18n';
   import { revelar } from '../scripts/revelar';
@@ -246,8 +247,17 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
       cine.classList.add('v', 'film-on');
       const nombre = () => `/media/partitura/partitura-${document.documentElement.dataset.estacion || 'otono'}-${film.dataset.lang === 'en' ? 'en' : 'es'}`;
       // HEVC donde el aparato lo decodifica (Safari/iOS, por hardware): misma nitidez con menos MB; H.264 como respaldo
-      const hevc = film.canPlayType('video/mp4; codecs="hvc1.1.6.L123.B0"') !== '';
+      // RONDA 266 · Eric: «no me cargan los vídeos de savvia agentic en móvil»: Chrome/Android y los navegadores embebidos dicen «probably» a HEVC y luego no lo
+      // decodifican (queda en blanco, sin ni el póster). HEVC solo en Safari/iOS; en cualquier otro, H.264; y si el HEVC da error, cae a H.264 sin recargar.
+      const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (/Safari/.test(navigator.userAgent) && !/Chrome|Chromium|Android|CriOS|FxiOS|Edg/.test(navigator.userAgent));
+      let hevc = apple && film.canPlayType('video/mp4; codecs="hvc1.1.6.L123.B0"') !== '';
       const archivo = () => `${nombre()}${hevc ? '-hevc' : ''}.mp4`;
+      const alRespaldo = (v: HTMLVideoElement) => v.addEventListener('error', () => {
+        if (!hevc) return;
+        hevc = false; const t = v.currentTime || 0; v.src = archivo();
+        v.addEventListener('loadedmetadata', () => { v.currentTime = t; jugar(v); }, { once: true });
+      }, { once: true });
+      alRespaldo(film);
       let cargada = '', visible = false;
       const cargar = () => {
         const base = nombre();
@@ -255,12 +265,16 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         const t = film.currentTime || 0;
         cargada = base; film.poster = `${base}.jpg`; film.src = archivo();
         if (t) film.addEventListener('loadedmetadata', () => { film.currentTime = t; }, { once: true });
-        if (visible && !reducido) film.play().catch(() => {});
+        if (visible && !reducido) jugar(film);
       };
       new IntersectionObserver((e) => {
         visible = e[0].isIntersecting;
-        if (visible) { cargar(); if (!reducido) film.play().catch(() => {}); } else film.pause();
+        if (visible) { cargar(); if (!reducido) jugar(film); } else film.pause();
       }, { rootMargin: '40% 0px' }).observe(cine);
+      // RONDA 266 · Eric (iPhone 13, Safari): «no me cargan los vídeos»: si iOS veta el autoplay (modo de bajo consumo) el vídeo se queda parado en su póster y
+      // `jugar` (scripts/jugar.ts) pone el botón de play y arranca con el primer toque. Eric: «el thumbnail tiene que ser el primer frame»: los ocho pósters
+      // (`partitura-<estación>-<idioma>.jpg`) son el fotograma 0 de su vídeo (ffmpeg -frames:v 1), así que al arrancar no hay salto.
+      film.addEventListener('canplay', () => { if (visible && !reducido && film.paused) jugar(film); });
       // RONDA 232 · al cambiar de estación con la película a la vista, la nueva se carga en un segundo vídeo, se pone en el mismo instante y, cuando ya
       // tiene imagen, se DESCUBRE encima con el canto rasgado desde abajo (como el árbol del hero); luego se retira la vieja. Antes: póster y salto.
       let relevo = 0;
@@ -272,11 +286,11 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
         nueva.removeAttribute('poster'); nueva.preload = 'auto'; nueva.muted = true;
         nueva.style.zIndex = '1'; nueva.style.visibility = 'hidden';
         vieja.after(nueva);
-        nueva.src = archivo();
+        alRespaldo(nueva); nueva.src = archivo();
         nueva.addEventListener('loadedmetadata', () => { nueva.currentTime = (vieja.currentTime || 0) % (nueva.duration || 1e9); }, { once: true });
         nueva.addEventListener('seeked', () => {
           if (id !== relevo) return nueva.remove();
-          nueva.play().catch(() => {});
+          jugar(nueva);
           nueva.style.visibility = '';
           film = nueva;
           revelar(nueva, { ox: 0.5, oy: 1, fin: () => { vieja.pause(); vieja.removeAttribute('src'); vieja.load(); vieja.remove(); nueva.style.zIndex = ''; } });

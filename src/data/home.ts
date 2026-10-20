@@ -219,7 +219,7 @@ export const proyectos = {
       d: 'Una esfera de puntos que se comprime hasta ser su logotipo: el producto, explicado sin una palabra.',
       // RONDA 135 · Andoni: «tienen que tener su página real en la vista en detalle; de momento la real»: sentado, el iframe con la web de Multiverse
       // (sin x-frame-options ni CSP frame-ancestors, medido con curl). `dominio`: lo que se rotula en la pantalla de carga (la marca blanca no enseña el suyo).
-      url: 'https://multiverse-home.vercel.app/',
+      url: 'https://multiversecomputing.treseiscero.app/',
       dominio: 'savvia.studio',
       estacion: 'invierno',
       hechos: [
@@ -607,6 +607,7 @@ export const pie = {
   pitch: 'El estudio que orquesta la IA, con criterio.', // ronda 24: «lo dejamos solo en esto»; ronda 48: sin «tu web» (ya lo dice el titular del pie)
   contactar: 'Contáctanos', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Haz clic para agendar una reunión con nosotros',
+  pista: 'Toca para agendar una llamada', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
   correo: 'ericruizmolero@savvia.studio', // dirección real (solo en mailto); lo que se LEE en la web es `correoTexto`
   correoTexto: 'Contactar vía email',
   cal: '', // ronda 65: «Contáctanos» llevará a un cal.com (falta el enlace); mientras, al correo

@@ -170,14 +170,15 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     if (hero) new IntersectionObserver((es) => { raiz.classList.toggle('cf-en-hero', es[0].isIntersecting); refrescarBtn(); }, { threshold: 0.5 }).observe(hero);
 
     // ── ABRIR / CERRAR: el panel se dibuja desde el botón, como el menú
-    const poner = (si: boolean) => {
+    const poner = (si: boolean, centrado = false) => {
       if (si === abierto) return;
+      if (si) raiz.classList.toggle('cf-centrado', centrado); // desde «Contáctanos» del pie, el modal sale centrado en escritorio
       if (si) desdeOculto = raiz.classList.contains('cf-fuera');
       abierto = si;
       btn.setAttribute('aria-expanded', String(si));
       btn.setAttribute('aria-label', si ? t('Cerrar el chat', 'Close the chat') : t('Abrir el chat', 'Open the chat'));
       raiz.classList.toggle('cf-abierto', si);
-      const rb = btn.getBoundingClientRect(), origen: [number, number] = [rb.left + rb.width / 2, rb.top + rb.height / 2];
+      const rb = btn.getBoundingClientRect(), origen: [number, number] = raiz.classList.contains('cf-centrado') && innerWidth >= 1024 ? [innerWidth / 2, innerHeight / 2] : [rb.left + rb.width / 2, rb.top + rb.height / 2];
       const linea = tinta('cacao', 0.55);
       if (si) {
         panel.hidden = false;
@@ -416,7 +417,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       await libre(txt);
     });
     // atajos para probar: window.__chat.abrir()
-    (window as any).__chat = { abrir: () => poner(true), cerrar: () => poner(false), estado: () => ({ ocupado, espera: esperaTexto && esperaTexto.id, paso, idx, ruta }) };
+    (window as any).__chat = { abrir: (centrado = false) => poner(true, centrado), cerrar: () => poner(false), estado: () => ({ ocupado, espera: esperaTexto && esperaTexto.id, paso, idx, ruta }) };
   }
 </script>
 
@@ -521,12 +522,15 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   }
   .cf-panel.on { opacity: 1; }
   /* el contorno de la caja: en invierno el panel y la página son del mismo blanco; un filo de 1 px, en el color de la estación, los separa */
+  @media (width >= 64rem) { .cf-centrado .cf-panel { inset: 0; margin: auto; width: min(36rem, 100vw - var(--cf-m) * 2); } }
   .cf-panel::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 24%, transparent); pointer-events: none; }
   .cf-panel[hidden] { display: none; }
   /* escritorio: con el icono más bajo (4 px), el panel baja: 12 px sobre la caja del botón (antes 24 → «mucho espacio»; sin hueco → «muy pegado»); el chevron queda a ~27 px del borde del panel */
   @media (width >= 64rem) { .cf-panel { bottom: calc(max(4px, env(safe-area-inset-bottom)) + 48px + 12px); right: var(--cf-lado); /* la esquina derecha, a ras del borde derecho del icono (a su eje no: «más a la derecha») */ } }
   @media (width < 40rem) {
     .cf { --cf-m: 8px; }
+    /* móvil: la tarjeta, CENTRADA (no pegada a la derecha) */
+    .cf-panel { left: 0; right: 0; margin-inline: auto; }
     /* móvil: el panel acaba POR DEBAJO de la barra (logo y iconos, ~56 px + área segura); antes, el 86 % de dvh la pisaba en pantallas bajas (iPhone 13 mini) */
     .cf-panel { height: min(86dvh, 46rem, calc(100dvh - max(var(--cf-m), env(safe-area-inset-bottom)) - 60px - 5rem - env(safe-area-inset-top))); }
   }

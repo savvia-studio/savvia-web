@@ -292,6 +292,7 @@ import { icono } from '../lib/iconos';
 </section>
 
 <script>
+  import { jugar } from '../scripts/jugar';
   import { crearEstela } from '../scripts/estela';
   import { rasgarCopia, estaVisible } from '../scripts/revelar';
   import { EST, estacionActual } from '../scripts/estacion';
@@ -358,7 +359,7 @@ import { icono } from '../lib/iconos';
           if (on) {
             // cada vez que se abre una card o se llega a un proyecto, su vídeo EMPIEZA DE CERO (Eric); al irse se para
             carga(i); if (cambia) v.currentTime = 0;
-            v.play().catch(() => {});
+            jugar(v);
           } else { v.pause(); }
         });
         carga((n + 1) % slides.length); carga((n - 1 + slides.length) % slides.length);
@@ -368,13 +369,45 @@ import { icono } from '../lib/iconos';
         if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
       };
       vis.addEventListener('close', () => slides.forEach((_, i) => soltar(i)));
+      // RONDA 280 · Eric: «cuida mucho ese 1px entre marco y vídeo». Con anchos fraccionarios (cqw, rem, centrado) el borde del vídeo caía a medio píxel y asomaba una
+      // línea. Con el visor abierto, se miden la caja y la lámina y se fijan en píxeles ENTEROS: caja, lámina, marco (posición incluida) y vídeo, con el ratio de cada toma
+      // (los atributos width/height del <video>). El vídeo llena el marco con object-fit: cover, así que el redondeo (< 1 px) se recorta, nunca se ve.
+      const caja = vis.querySelector<HTMLElement>('[data-vis-caja]')!;
+      const ajusta = () => {
+        if (!vis.open) return;
+        caja.style.width = ''; caja.style.marginTop = ''; panel.style.height = '';
+        const VW = vis.clientWidth, VH = vis.clientHeight;
+        let W = Math.floor(caja.getBoundingClientRect().width);
+        if ((VW - W) % 2) W -= 1; // misma paridad que la ventana: el centrado cae en un píxel exacto
+        const mobil = VW < 768;
+        const H = Math.round(W / (mobil ? 0.8 : 1.6));
+        caja.style.width = W + 'px'; panel.style.height = H + 'px';
+        caja.style.alignSelf = 'start';
+        const pie = caja.getBoundingClientRect().height - panel.getBoundingClientRect().height;
+        caja.style.marginTop = Math.max(0, Math.floor((VH - H - pie) / 2)) + 'px';
+        slides.forEach((sl) => {
+          const marco = sl.querySelector<HTMLElement>('.vis-marco')!, v = sl.querySelector<HTMLVideoElement>('video')!;
+          const m = Math.round(parseFloat(getComputedStyle(marco).paddingLeft)) || 4;
+          const esMovil = sl.classList.contains('movil');
+          const rw = esMovil ? 390 : Number(v.getAttribute('width')) || 16, rh = esMovil ? 820 : Number(v.getAttribute('height')) || 10;
+          let ow: number, oh: number, vw: number, vh: number;
+          if (esMovil) {
+            oh = Math.round(H * 0.88); vh = oh - 2 * m; vw = Math.round(vh * rw / rh); ow = vw + 2 * m;
+          } else {
+            ow = Math.round(W * (mobil ? 0.92 : 0.82)); vw = ow - 2 * m; vh = Math.round(vw * rh / rw); oh = vh + 2 * m;
+          }
+          marco.style.cssText = `position:absolute;box-sizing:border-box;width:${ow}px;height:${oh}px;left:${Math.floor((W - ow) / 2)}px;top:${Math.floor((H - oh) / 2)}px`;
+          v.style.cssText = `width:${vw}px;height:${vh}px;object-fit:cover`;
+        });
+      };
+      addEventListener('resize', ajusta);
       const abre = (i: number) => {
         if (vis.open) return;
         vuelta = document.activeElement as HTMLElement | null;
         clearTimeout(cerrando); vis.classList.remove('cierra');
         cur = -1; // al abrir, siempre «cambia»: el vídeo empieza de cero aunque sea el mismo proyecto de la vez anterior
         ir(i, false);
-        vis.showModal(); vis.removeAttribute('aria-hidden');
+        vis.showModal(); vis.removeAttribute('aria-hidden'); ajusta();
         document.documentElement.style.overflow = 'hidden';
       };
       const cierra = () => {
@@ -391,6 +424,7 @@ import { icono } from '../lib/iconos';
       vis.addEventListener('cancel', (e) => { e.preventDefault(); cierra(); }); // Esc: con la misma salida suave
       piezas.forEach((pz, i) => pz.addEventListener('click', (e) => {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web como siempre
+        if (matchMedia('(hover: none), (width < 48rem)').matches) return; // RONDA 268 · Eric: en móvil no hay visor: el toque va a la web
         e.preventDefault(); abre(i);
       }));
       vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));
@@ -415,7 +449,9 @@ import { icono } from '../lib/iconos';
   // RONDA 206 · el navegador de mancha y claro, al pasar (o enfocar): centrado, recto y entero. Se mide una vez por entrada: la escala que lo lleva al 88 % del ancho de
   // la pieza y el desplazamiento de su esquina (origen 0 0) para que quede en el centro; solo transformaciones, así que ida y vuelta son la misma curva.
   {
-    if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const conHover = matchMedia('(hover: hover)').matches;
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const tactiles: { pz: HTMLElement; entra: () => void; sale: () => void }[] = [];
       document.querySelectorAll<HTMLElement>('.pieza.mancha, .pieza.claro').forEach((pz) => {
         const mk = pz.querySelector<HTMLElement>('.mockup'), lam = pz.querySelector<HTMLElement>('.lamina');
         if (!mk || !lam) return;
@@ -428,11 +464,20 @@ import { icono } from '../lib/iconos';
           requestAnimationFrame(() => pz.classList.add('centra'));
         };
         const sale = () => pz.classList.remove('centra');
+        if (!conHover) { tactiles.push({ pz, entra, sale }); return; }
         // si se pierde un pointerleave (scroll con el cursor encima, cambio de pestaña), la pieza vuelve a su sitio igualmente
         setInterval(() => { if (pz.classList.contains('centra') && !pz.matches(':hover, :focus-visible')) sale(); }, 250);
         addEventListener('blur', sale);
         pz.addEventListener('pointerenter', entra); pz.addEventListener('pointerleave', sale);
         pz.addEventListener('focusin', entra); pz.addEventListener('focusout', sale);
+      });
+      // RONDA 268 · Eric (móvil): sin hover no hay gesto que lo ponga recto. RONDA 290 · Eric: «en mobile los proyectos tienen que aparecer directamente con el mockup
+      // centrado; la animación de scroll in parece un glitch»: en táctil el navegador nace ya recto y centrado (sin ligarlo al scroll); se vuelve a medir si la pieza cambia de tamaño.
+      tactiles.forEach((t) => {
+        const lam = t.pz.querySelector<HTMLElement>('.lamina')!;
+        t.pz.classList.add('fijo');
+        t.entra();
+        new ResizeObserver(() => t.entra()).observe(lam);
       });
     }
   }
@@ -454,7 +499,7 @@ import { icono } from '../lib/iconos';
       // que es su primer fotograma (el hero), siempre
       const parar = () => { activo = false; activos.delete(comprueba); v.pause(); if (jugado) { jugado = false; v.load(); } };
       const comprueba = () => { if (activo && conRaton && !pieza.matches(':hover, :focus-visible')) parar(); };
-      const tocar = (si: boolean) => { if (si) { activo = true; v.play().catch(() => {}); if (conRaton) { activos.add(comprueba); vigilar(); } } else parar(); };
+      const tocar = (si: boolean) => { if (si) { activo = true; jugar(v); if (conRaton) { activos.add(comprueba); vigilar(); } } else parar(); };
       v.addEventListener('playing', () => { jugado = true; pieza.classList.add('suena'); if (!activo) parar(); });
       v.addEventListener('timeupdate', () => { if (!activo && v.currentTime > 0.05) parar(); });
       v.addEventListener('pause', () => pieza.classList.remove('suena'));
@@ -462,7 +507,7 @@ import { icono } from '../lib/iconos';
       document.addEventListener('visibilitychange', () => { if (document.hidden && !v.hasAttribute('data-siempre')) parar(); });
       addEventListener('blur', () => { if (!v.hasAttribute('data-siempre')) parar(); });
       // RONDA 204 · Eric: Home of Ambrose (`data-siempre`) suena siempre en bucle mientras está a la vista, «para que se vea que es vídeo»; el resto, al pasar
-      if (v.hasAttribute('data-siempre')) new IntersectionObserver((e) => { if (e[0].isIntersecting) { activo = true; v.play().catch(() => {}); } else parar(); }, { threshold: 0.35 }).observe(pieza);
+      if (v.hasAttribute('data-siempre')) new IntersectionObserver((e) => { if (e[0].isIntersecting) { activo = true; jugar(v); } else parar(); }, { threshold: 0.35 }).observe(pieza);
       else if (conRaton) {
         pieza.addEventListener('pointerenter', () => tocar(true));
         pieza.addEventListener('pointerleave', () => tocar(false));
@@ -492,13 +537,17 @@ import { icono } from '../lib/iconos';
       const citas = barajar(todos.filter((it) => it.classList.contains('cita')));
       const marcas = barajar(todos.filter((it) => !it.classList.contains('cita')));
       const reparto: HTMLElement[][] = cajas.map(() => []);
-      while (citas.length || marcas.length) cajas.forEach((_, c) => {
-        const logo = (reparto[c].length % 2 === 0) === (c % 2 === 1);
+      // RONDA 265 · Eric: «en móvil, que esté intercalado, no solo arriba reseñas y abajo logos»: en móvil las dos celdas reparten citas y logotipos alternando
+      // (la de arriba empieza por reseña, la de abajo por logotipo), como en escritorio
+      const movilR = matchMedia('(width < 48rem)').matches;
+      // RONDA 266 · Eric: «sigue arriba reseña y abajo logo; que no sea solo así»: además, en cada visita se sortea qué tipo abre cada celda (a veces arriba
+      // logotipo y abajo reseña, a veces las dos con reseña o las dos con logotipo)
+      const abre = cajas.map(() => Math.random() < 0.5);
+      while (citas.length || marcas.length) cajas.slice(0, movilR ? 2 : cajas.length).forEach((_, c) => {
+        const logo = (reparto[c].length % 2 === 0) === abre[c];
         const it = (logo && marcas.length) || !citas.length ? marcas.shift() : citas.shift();
         if (it) reparto[c].push(it);
       });
-      // RONDA 264 · Eric: «en móvil, 2 cuadrados: arriba carrusel de reseñas, abajo de logos»: por debajo de 48rem solo quedan dos celdas (citas / logotipos)
-      if (matchMedia('(width < 48rem)').matches) { reparto.forEach((l) => l.length = 0); reparto[0].push(...todos.filter((it) => it.classList.contains('cita')).sort(() => Math.random() - 0.5)); reparto[1].push(...todos.filter((it) => !it.classList.contains('cita')).sort(() => Math.random() - 0.5)); }
       reparto.forEach((lista, c) => lista.forEach((it, k) => { it.classList.toggle('on', k === 0); it.setAttribute('aria-hidden', k === 0 ? 'false' : 'true'); cajas[c].appendChild(it); }));
     }
     if (rejilla) {
@@ -893,7 +942,7 @@ import { icono } from '../lib/iconos';
   }
   .retratos {
     display: grid;
-    width: min(100%, 22rem);
+    width: min(70%, 16rem); /* móvil: más pequeña (Eric); desde 64rem, el 100 % de su columna */
     aspect-ratio: 1 / 1;
     justify-self: center;
   }
@@ -954,6 +1003,7 @@ import { icono } from '../lib/iconos';
   .quien {
     grid-area: 1 / 1;
     display: grid;
+    align-content: start; /* sin esto, el alto de la cita más larga reparte las filas y separa nombre y cargo */
     gap: calc(var(--spacing) * 1);
     --dq: 300ms;
   }
@@ -973,7 +1023,7 @@ import { icono } from '../lib/iconos';
   .barra-voz {
     gap: calc(var(--spacing) * 1);
     padding: 0;
-    margin-left: calc(var(--spacing) * -2);
+    margin-left: 0;
     background: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -1049,6 +1099,16 @@ import { icono } from '../lib/iconos';
   .entrada .nombre > span.oscura { color: var(--color-cacao); text-shadow: none; }
   @media (prefers-reduced-motion: reduce) { .entrada .pal > span { translate: none !important; } }
   .rota { transition: --c1 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c2 1.4s cubic-bezier(0.65, 0, 0.35, 1), --c3 1.4s cubic-bezier(0.65, 0, 0.35, 1); }
+  /* RONDA 268 · Eric (móvil, card a card): «sigue muy alta»: en móvil (< 64rem) todas las piezas de navegador (mancha y claro) van en 1:1, no en el 4:5 de base: sobraba un
+     cuarto vacío debajo. Las que en escritorio son 4:5 (Kymatio, THX) llevan el navegador más arriba (su 23 % de aire estaba medido para el 4:5). */
+  /* y más aire al final: la gota de la sección que llega (24 lvh de alto) le tocaba el nombre de THX */
+  @media (width < 64rem) {
+    #anteriores { padding-bottom: calc(var(--space-section) + var(--spacing) * 24); }
+    .pieza.mancha .lamina,
+    .pieza.claro .lamina { aspect-ratio: 1 / 1; }
+    .pieza[data-slug='kymatio'] .mockup,
+    .pieza[data-slug='thx'] .mockup { top: 12%; }
+  }
   @media (width >= 64rem) {
     .mosaico {
       grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -1190,6 +1250,8 @@ import { icono } from '../lib/iconos';
     width: calc(var(--spacing) * 4);
     height: calc(var(--spacing) * 4);
   }
+  /* en táctil no hay vídeo que anunciar (de pie se queda el póster): fuera el icono */
+  @media (hover: none) { .vid-ic { display: none; } }
   .pieza:hover .vid-ic {
     scale: 1.06;
   }
@@ -1314,7 +1376,9 @@ import { icono } from '../lib/iconos';
   /* la pantalla en PERSPECTIVA: caja en % de la lámina y la homografía como matrix3d (sus píxeles, vía --s) */
   .mesa .pantalla.quad {
     transform-origin: 0 0;
-    background: transparent;
+    /* RONDA 268 · Eric (Cubbo): «1 px en blanco arriba, entre el vídeo y el marco»: la caja era transparente y por la fila que el vídeo no cubría asomaba el blanco de la
+       pantalla de la lámina. Fondo en el negro del bisel (como en el monitor, ronda 190) */
+    background: #121213;
     border-radius: 2px;
   }
   .movil .mesa .pantalla.quad {
@@ -1493,6 +1557,9 @@ import { icono } from '../lib/iconos';
     scale: var(--hs, 1);
     rotate: 0deg;
   }
+  /* RONDA 290 · táctil: el navegador nace ya recto y centrado, sin transición (ni la de la entrada ni la del scroll) */
+  :global(html.anima) .pieza.fijo .mockup,
+  .pieza.fijo .mockup { transition: none !important; will-change: auto; }
   :global(html.anima) .escena.visto:hover .mesa,
   :global(html.anima) .movil.visto:hover .mesa,
   :global(html.anima) .roble.visto:hover .mesa { scale: 1.06; transition: scale 1.6s var(--ease-out-expo); }
@@ -1594,7 +1661,6 @@ import { icono } from '../lib/iconos';
     width: 100%;
     height: auto;
     border-radius: calc(var(--r-fuera) - var(--marco));
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
     background: var(--vf, #000); /* RONDA 215: el fondo asoma por el hueco de medio píxel del borde: en webs claras, claro (Eric: la línea negra de Neety) */
   }
   /* el móvil, de pie y centrado: el alto manda */

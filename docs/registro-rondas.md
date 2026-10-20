@@ -4556,3 +4556,27 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   la ventana de CRISTAL con la web dentro (Remerge, en un marco alto de móvil); al entrar, la ventana sube un poco.
 - **Medido:** `astro check` 0 errores · `tools/r264/variantes.cjs` y `tools/r268-comparar/menu-destacados.cjs` (Chrome y WebKit 1280, Chrome 390): sin errores, desborde 0.
   Artefacto, versión 13. Nada publicado.
+
+## RONDA 267 · Eric (20/10/2026) · zoom de Proyectos destacados en móvil «no va fluido» — REVERTIDO
+- Se probó mover el zoom con `ViewTimeline` (animación atada al scroll) en táctil. En el iPhone de Eric: movimiento muy raro, trompicones, glitches y letras
+  apareciendo detrás. Revertido; Proyectos.astro vuelve a la versión del commit. NO volver a ViewTimeline para esto.
+- Medido antes: Chrome móvil emulado y WebKit de escritorio no muestran trompicones (≈1–2 % de fotogramas >20 ms); el fallo solo se ve en iPhone real.
+  Siguiente pista, si se retoma: lo que se pinta dentro del monitor (vídeo, iframes) y el peso de las capas, no el JS del scroll.
+
+## RONDA 268 · Eric (20/10/2026) · «Más proyectos» en móvil, card a card
+- Wisable: la card pasaba de 4:5 con el navegador colocado para 1:1 (sobraba un cuarto vacío). Ahora usa su `--ratio` (1:1) también en móvil. Resto de cards, pendientes de revisar una a una.
+- Hablado, sin hacer: solo un vídeo a la vez en táctil (el más centrado); el visor modal solo en escritorio; en móvil el toque va a la web. En bajo consumo de iOS ya funciona el play propio (`jugar.ts`, ronda 266).
+- Kymatio: 1:1 en móvil y navegador a `top: 12%` (en escritorio vuelve a 4:5 y su `--top`).
+- Móvil (táctil, sin hover): el navegador de las piezas `mancha`/`claro` se pone recto con el scroll (`centra`), solo la más centrada de las visibles al 55 %; reutiliza la medición del hover. Pendiente: probar en iPhone y la regla de «un solo vídeo a la vez».
+- Transcend: 1:1 en móvil (su `--ratio`), como Wisable.
+- Todas las piezas mancha/claro en 1:1 en móvil (<64rem); Kymatio y THX (4:5 en escritorio) con el navegador a top 12%. Sustituye las reglas sueltas de Wisable/Kymatio/Transcend.
+- Móvil: +96 px de padding-bottom en #anteriores (la gota de Servicios tocaba el nombre de THX).
+- Servicios (<64rem): las píldoras con la tipografía de titular (Family 400, 18 px) en vez de Areal 600; a prueba.
+- Servicios móvil: la línea de abajo con los + a 48 px de la lista (padding-bottom de .cuerpo 24→48; escritorio sigue en 0).
+- Estudio móvil: Eric y Andoni más grandes (`--ch` 16 rem → 23 rem en <64rem; escritorio igual).
+- Preguntas móvil (<64rem): la conversación sin scroll interno (crece con la página; `bajar()` hace `scrollIntoView nearest`). Escritorio igual.
+- Pie móvil (<1024): «Contáctanos» al 78 % del ancho de las líneas (antes 100 %), centrado.
+- Pie móvil: pista mono «Toca para agendar una llamada» sobre «Contáctanos» (solo `hover: none`; `pie.pista` en home.ts/home.en.ts; `--cf` = tamaño de la palabra, puesto por `ajustarContacta`).
+- Pie móvil: «Contáctanos» más abajo (`--cb` 0.19 → 0.13 en <64rem).
+- Móvil (hover: none o <48rem): el toque en una card va a la web; el visor modal solo en escritorio (estaba hablado y no hecho).
+- Cubbo (móvil de la mesa): la pantalla en perspectiva con fondo #121213 en vez de transparente (asomaba 1 px de blanco de la lámina sobre el vídeo).

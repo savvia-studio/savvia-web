@@ -162,7 +162,7 @@ export const proyectos = {
       n: 'Kuanta',
       cat: 'AI and quantum computing',
       d: 'A sphere of points that compresses into its logo: the product, explained without a single word.',
-      url: 'https://multiverse-home.vercel.app/',
+      url: 'https://multiversecomputing.treseiscero.app/',
       dominio: 'savvia.studio',
       estacion: 'invierno',
       hechos: [
@@ -367,6 +367,7 @@ export const pie = {
   pitch: 'The studio that orchestrates AI, with judgement.',
   contactar: 'Contact us', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Click to book a call with us',
+  pista: 'Tap to book a call', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
   correo: 'ericruizmolero@savvia.studio',
   correoTexto: 'Contact via email',
   cal: '',

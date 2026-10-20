@@ -115,6 +115,7 @@ const piezas = experimentos
 </dialog>
 
 <script>
+  import { jugar } from '../../scripts/jugar';
   import { experimentos, mundo as MUNDO } from '../../data/lab';
   const sec = document.querySelector<HTMLElement>('[data-lab]')!;
   const mundo = sec.querySelector<HTMLElement>('[data-mundo]')!;
@@ -436,7 +437,7 @@ const piezas = experimentos
     (ents) => ents.forEach((en) => {
       const p = en.target as HTMLElement, v = p.querySelector('video')!;
       p.dataset.visto = en.isIntersecting ? '1' : '';
-      if (seVe && en.isIntersecting && (!reducido || p.classList.contains('quiere'))) { cargar(v); v.play().catch(() => {}); }
+      if (seVe && en.isIntersecting && (!reducido || p.classList.contains('quiere'))) { cargar(v); jugar(v); }
       else v.pause();
     }),
     { rootMargin: '80px', threshold: 0.1 },
@@ -447,7 +448,7 @@ const piezas = experimentos
     p.querySelector('[data-ver]')!.addEventListener('click', () => {
       p.classList.add('quiere');
       cargar(v);
-      if (v.paused) v.play().catch(() => {});
+      if (v.paused) jugar(v);
       else { v.pause(); p.classList.remove('quiere'); }
     });
   });
@@ -456,7 +457,7 @@ const piezas = experimentos
     els.forEach((p) => {
       const v = p.querySelector('video');
       if (!v) return;
-      if (seVe && p.dataset.visto && (!reducido || p.classList.contains('quiere'))) { cargar(v); v.play().catch(() => {}); }
+      if (seVe && p.dataset.visto && (!reducido || p.classList.contains('quiere'))) { cargar(v); jugar(v); }
       else v.pause();
     });
     if (visible) despertar();
@@ -478,7 +479,7 @@ const piezas = experimentos
     lv.src = `/media/lab/${e.slug}.mp4`;
     lv.style.aspectRatio = String(e.ar);
     lupa.showModal();
-    if (!reducido) lv.play().catch(() => {});
+    if (!reducido) jugar(lv);
   }
   lupa.querySelector('[data-lupa-cerrar]')!.addEventListener('click', () => lupa.close());
   lupa.addEventListener('click', (ev) => { if (ev.target === lupa) lupa.close(); });

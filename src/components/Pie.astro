@@ -65,6 +65,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
             <span class="contacta-luz" aria-hidden="true" data-contacta-luz>{pie.contactar}</span>
           </a>
         )}
+        {i === 2 && <span class="pista-contacta detail" aria-hidden="true">{pie.pista}</span>}
       </>
     ))}
   </div>
@@ -97,13 +98,15 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     // texto en Family y escalarlo al ancho del contenido
     const contacta = pie.querySelector<HTMLElement>('[data-contacta]')!, contenido = pie.querySelector<HTMLElement>('.contenido')!;
     const ajustarContacta = () => {
-      const w = contenido.clientWidth - 2 * parseFloat(getComputedStyle(contenido).paddingLeft);
+      // RONDA 268 · Eric: «igual más pequeño el Contáctanos en móvil»: por debajo de 64 rem, al 78 % del ancho de las líneas (centrado)
+      const w = (contenido.clientWidth - 2 * parseFloat(getComputedStyle(contenido).paddingLeft)) * (innerWidth < 1024 ? 0.78 : 1);
       const c = document.createElement('canvas').getContext('2d')!;
       c.font = `100px ${getComputedStyle(contacta).fontFamily}`;
       const tw = c.measureText(contacta.querySelector('[data-contacta-txt]')!.textContent!.trim()).width || 1;
       contacta.style.fontSize = `${(100 * w) / tw}px`;
       // el lienzo mide con la fuente de respaldo si Family aún no está: se corrige con el ancho REAL del elemento
       const real = contacta.getBoundingClientRect().width; if (real > 0) contacta.style.fontSize = `${parseFloat(contacta.style.fontSize) * (w / real) * 0.99}px`;
+      pie.style.setProperty('--cf', contacta.style.fontSize); // para la pista de móvil, que va justo encima de la palabra
     };
     document.fonts.ready.then(ajustarContacta); addEventListener('resize', ajustarContacta);
     // (ronda 65: fuera el formulario: «Contáctanos» es un botón que llevará a cal.com; hoy, al correo)
@@ -141,7 +144,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     contacta.addEventListener('click', (e) => {
       if (!pie.classList.contains('cta-abierto')) { e.preventDefault(); hacerCta(true); return; }
       const chat = (window as any).__chat;
-      if (chat) { e.preventDefault(); hacerCta(false); chat.abrir(); }
+      if (chat) { e.preventDefault(); hacerCta(false); chat.abrir(true); }
     });
     // la píldora-cursor: sigue al puntero (con un poco de retraso) mientras está sobre la palabra; se va con el clic (se abre el chat) y al salir
     const cursorC = pie.querySelector<HTMLElement>('[data-cursor-contacto]');
@@ -581,7 +584,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   .contacta {
     position: absolute;
     left: 50%;
-    bottom: calc(var(--alto) * 0.19);
+    bottom: calc(var(--alto) * var(--cb, 0.19));
     translate: -50% 0;
     width: max-content;
     font-family: var(--font-display);
@@ -592,9 +595,27 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     opacity: 0; /* ronda 29: sale DESPUÉS de que el paisaje se haya pintado */
     white-space: nowrap;
     pointer-events: none;
-    transition: color 0.5s ease, opacity 1.8s cubic-bezier(0.22, 0.61, 0.36, 1), clip-path 0.9s var(--ease-out-expo);
+    transition: color 0.5s ease, opacity 2.4s cubic-bezier(0.22, 0.61, 0.36, 1), clip-path 0.9s var(--ease-out-expo);
   }
-  .contacta-tras {
+    /* RONDA 268 · Eric (móvil): «poner un mensajito de ayuda: pulsa para contactar»: solo sin ratón (con ratón ya está la píldora-cursor); sobre la palabra, en mono */
+  .pista-contacta {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--alto) * var(--cb, 0.19) + var(--cf, 3rem) * 0.9);
+    translate: -50% 0;
+    z-index: 5;
+    white-space: nowrap;
+    color: var(--color-niebla);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease 2s;
+  }
+  .pintado .pista-contacta { opacity: 0.7; }
+  /* RONDA 268 · Eric: «el Contáctanos en móvil un poco más abajo»: del 19 % al 13 % de la altura del paisaje (la pista lo sigue) */
+  @media (width < 64rem) { [data-pie] { --cb: 0.13; } }
+  @media (hover: none) { .pista-contacta { display: block; } }
+.contacta-tras {
     z-index: 0; /* antes que los montes en el DOM: las montañas la tapan */
     clip-path: inset(-40% -10% -10% var(--corte, 50%));
   }
