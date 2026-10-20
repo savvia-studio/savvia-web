@@ -4622,3 +4622,11 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **PUBLICADO (20/10) en https://savvia.studio:** commit de las rondas 277–278 + fusión con 2 commits de Eric (flechas de testimonios y zona de toque de «Contáctanos»;
   `3fddae6`). Antes: `astro check` 0, build OK, `verify.cjs` local limpio. EN VIVO: `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0;
   en móvil (`movil.cjs` contra savvia.studio) los objetos bajo cada nombre, Andoni desde x 44 y Eric hasta x 346 (a 24 px de los carriles), sin errores.
+
+
+### Ronda 290 · 2026-10-20 · móvil: testimonios, contacto, servicios y chat · PUBLICADO
+- **Eric/Andoni (textual, resumen):** testimonios más compactos y con flechas flexibles y área de toque de 44 px · arrastrar para cambiar de testimonio · «Contáctanos» abre a la primera
+  y con zona de toque ampliada · Estudio: Andoni y Eric más pequeños y etiquetas sin cortar · píldoras de Servicios sticky arriba (top 0, sobre el menú, con nubecita) ·
+  el vídeo del monitor no se desliza sentado · Preguntas: la página no baja sola al preguntar · chat: la IA contesta también en el brief, claves de precio («horquilla») y enlace
+  «Respuesta rápida con IA» dentro del bocadillo · card de «Contáctanos» del pie más alta.
+- **Hecho:** `Anteriores`, `Estudio`, `Pie`, `Servicios`, `Proyectos`, `Preguntas`, `ChatFlotante`, `api/preguntar.js`, `preguntas*.json`. `astro check` y `astro build` en verde.

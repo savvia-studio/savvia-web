@@ -63,7 +63,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
 
   type Opcion = { t: string; r?: string; ruta?: string };
   type Paso = { q: string; tipo: string; opciones?: Opcion[]; ph?: string; r?: string };
-  type Cta = { t: string; h: string };
+  type Cta = { t: string; h: string; enlace?: boolean };
   const brief = t(briefEs, briefEn);
   const fichasJson = t(fichasEs, fichasEn);
   const fichas = fichasJson as { q: string; a: string; claves: string[]; ctas?: Cta[] }[];
@@ -235,15 +235,22 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
         const t = resolver(textos[i]);
         await pensar(Math.min(1500, 450 + t.length * 9));
         const f = filaBot();
-        f.append(el('p', 'cf-b', t));
+        const burbuja = el('p', 'cf-b', t);
+        f.append(burbuja);
         lista.append(f); bajar();
-        if (ctas && i === textos.length - 1) { lista.append(botones(ctas)); bajar(); }
+        if (ctas && i === textos.length - 1) {
+          // RONDA 290 · Eric: el enlace «Respuesta rápida con IA…» va DENTRO del bocadillo de la respuesta, bajo el texto; los botones, fuera
+          const dentro = ctas.filter((x) => x.enlace), fuera = ctas.filter((x) => !x.enlace);
+          if (dentro.length) { const c = botones(dentro); c.className = 'cf-en-burbuja'; burbuja.append(c); }
+          if (fuera.length) lista.append(botones(fuera));
+          bajar();
+        }
       }
     };
     const botones = (ctas: Cta[]) => {
       const c = el('div', 'cf-ctas');
       ctas.forEach((x, k) => {
-        const a = el('a', k === 0 ? 'cf-cta cf-cta-1' : 'cf-cta', resolver(x.t));
+        const a = el('a', x.enlace ? 'cf-por-correo' : k === 0 ? 'cf-cta cf-cta-1' : 'cf-cta', resolver(x.t));
         a.href = x.h === 'cal' ? cal || `mailto:${correo}` : resolver(x.h);
         if (/^https?:/.test(a.href)) { a.target = '_blank'; a.rel = 'noopener'; }
         if (a.href.startsWith('mailto:')) a.dataset.copiar = a.href.slice(7).split('?')[0];
@@ -386,8 +393,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       await Promise.all([api, esperar(700)]);
       escribiendo.remove();
       if (v.tipo === 'escrita') { const f = fichas[v.i!]; await bot([f.a], f.ctas); }
-      else if (v.tipo === 'ia' || v.tipo === 'fuera') await bot([v.texto!], v.tipo === 'ia' ? [{ t: t('Respuesta rápida con IA, confirmársela a Eric y Andoni', 'Quick AI answer: have Eric and Andoni confirm it'), h: `mailto:${correo}?subject=${encodeURIComponent(t('Una pregunta', 'A question'))}&body=${encodeURIComponent(q)}` }] : undefined);
-      else await bot([t('Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.', "We haven't written that one yet. Send it to us and we'll answer you ourselves, usually the same day.")], [{ t: t('Mandársela por correo', 'Send it by email'), h: `mailto:${correo}?subject=${encodeURIComponent(t('Una pregunta', 'A question'))}&body=${encodeURIComponent(q)}` }]);
+      else if (v.tipo === 'ia' || v.tipo === 'fuera') await bot([v.texto!], v.tipo === 'ia' ? [{ t: t('Respuesta rápida con IA, confirmársela a Eric y Andoni', 'Quick AI answer: have Eric and Andoni confirm it'), h: `mailto:${correo}?subject=${encodeURIComponent(t('Una pregunta', 'A question'))}&body=${encodeURIComponent(q)}`, enlace: true }] : undefined);
+      else await bot([t('Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.', "We haven't written that one yet. Send it to us and we'll answer you ourselves, usually the same day.")], [{ t: t('Mandársela por correo', 'Send it by email'), h: `mailto:${correo}?subject=${encodeURIComponent(t('Una pregunta', 'A question'))}&body=${encodeURIComponent(q)}`, enlace: true }]);
       await reofrecer();
       ocupado = false;
     };
@@ -404,6 +411,15 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       if (!txt || ocupado) return campo.focus();
       if (esperaTexto) {
         const e2 = esperaTexto;
+        // RONDA 290 · Eric: «en el formulario multi-step conecta la IA también por si preguntan cosas»: si en un paso de texto lo escrito es una PREGUNTA, la contesta el chat
+        // (escritas + IA) y el paso se retoma; no se toma por respuesta del brief
+        const esPregunta = (e2.tipo === 'texto' || e2.tipo === 'opcional') && (/[?¿]/.test(txt) || /^(c[oó]mo|cu[aá]nt|qu[eé]|por qu[eé]|cu[aá]l|qui[eé]n|d[oó]nde|cu[aá]ndo|puedo|pod[eé]is|hac[eé]is|ten[eé]is|incluye|how|what|why|which|who|where|when|can|do you|does|is |are )/i.test(txt));
+        if (esPregunta) {
+          esperaTexto = null; campo.value = '';
+          await libre(txt);
+          if (!esperaTexto) { esperaTexto = e2; ponerCampo(campo.placeholder, true); }
+          return;
+        }
         if (e2.tipo === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(txt)) { ocupado = true; tu(txt); campo.value = ''; quien = 1 - quien; await bot([t('Parece que falta algo en ese email. ¿Me lo escribes otra vez?', 'Something seems to be missing from that email. Could you type it again?')]); ocupado = false; return; }
         ocupado = true; esperaTexto = null; campo.value = ''; tu(txt);
         quitarOpciones(); ponerCampo(t('Escribe una pregunta…', 'Write a question…'));
@@ -522,7 +538,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   }
   .cf-panel.on { opacity: 1; }
   /* el contorno de la caja: en invierno el panel y la página son del mismo blanco; un filo de 1 px, en el color de la estación, los separa */
-  @media (width >= 64rem) { .cf-centrado .cf-panel { inset: 0; margin: auto; width: min(36rem, 100vw - var(--cf-m) * 2); } }
+  /* RONDA 290 · Eric: «el Contáctanos del pie puede abrir una card que ocupe más altura»: centrada, casi toda la altura de la pantalla (antes tope de 46 rem) */
+  @media (width >= 64rem) { .cf-centrado .cf-panel { inset: 0; margin: auto; width: min(36rem, 100vw - var(--cf-m) * 2); height: min(60rem, 100dvh - 8rem); } }
   .cf-panel::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 24%, transparent); pointer-events: none; }
   .cf-panel[hidden] { display: none; }
   /* escritorio: con el icono más bajo (4 px), el panel baja: 12 px sobre la caja del botón (antes 24 → «mucho espacio»; sin hueco → «muy pegado»); el chevron queda a ~27 px del borde del panel */
@@ -533,6 +550,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     .cf-panel { left: 0; right: 0; margin-inline: auto; }
     /* móvil: el panel acaba POR DEBAJO de la barra (logo y iconos, ~56 px + área segura); antes, el 86 % de dvh la pisaba en pantallas bajas (iPhone 13 mini) */
     .cf-panel { height: min(86dvh, 46rem, calc(100dvh - max(var(--cf-m), env(safe-area-inset-bottom)) - 60px - 5rem - env(safe-area-inset-top))); }
+    .cf-centrado .cf-panel { height: min(90dvh, 60rem, calc(100dvh - max(var(--cf-m), env(safe-area-inset-bottom)) - 60px - 3rem - env(safe-area-inset-top))); }
   }
   .cf-cab { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--rule); }
   .cf-caras { display: inline-flex; flex: none; }
@@ -580,6 +598,10 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf-cta { padding: 8px 14px; border-radius: 999px; font-size: var(--text-aux); font-weight: 500; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 30%, transparent); transition: background-color 0.3s ease, box-shadow 0.3s ease; }
   .cf-cta-1 { background: var(--color-cacao); color: var(--color-niebla); box-shadow: none; }
   .cf-cta:hover, .cf-cta:focus-visible { box-shadow: inset 0 0 0 1px var(--color-cacao); }
+  /* RONDA 290 · Eric: la «Respuesta rápida con IA, confirmársela…» es un ENLACE subrayado bajo la burbuja, como en el chat de Preguntas (no una píldora) */
+  .cf-en-burbuja { display: block; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .cf-por-correo { display: block; font-size: var(--text-aux); font-weight: 500; color: var(--fg2); text-decoration: underline; text-underline-offset: 0.2em; transition: color 0.3s ease; }
+  .cf-por-correo:hover, .cf-por-correo:focus-visible { color: var(--fg); }
   .cf-cta-1:hover, .cf-cta-1:focus-visible { background: color-mix(in oklab, var(--color-cacao) 82%, var(--color-niebla)); }
   .cf-resumen { display: grid; gap: 0; padding: 14px 16px; }
   .cf-rt { margin: 0 0 4px; font-weight: 600; }

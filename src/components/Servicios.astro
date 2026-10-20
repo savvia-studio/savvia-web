@@ -391,6 +391,15 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
   .flecha { display: block; width: 100%; height: 100%; overflow: visible; transform-origin: 2px 2px; filter: drop-shadow(0 2px 3px color-mix(in oklab, var(--color-cacao) 28%, transparent)); }
   .flecha path { fill: var(--color-cacao); stroke: var(--color-niebla); stroke-width: 1.3; stroke-linejoin: round; }
 
+  /* RONDA 290 · Andoni: «las formas de colaborar tienen que acompañarte en scroll las opciones; si no, es difícil leer lo que incluye y luego cambiar»: en móvil las
+     píldoras (solo ellas, arriba del todo, top 0) se quedan fijas mientras pasa la tarjeta. Flex en columna (no grid) para que el contenedor del sticky sea todo el bloque. */
+  @media (width < 64rem) {
+    .cuerpo { display: flex; flex-direction: column; }
+    .izq { display: contents; } /* selector y descripción pasan a ser hijos del bloque: así el sticky de las píldoras dura todo el bloque */
+    /* z 58: por encima de la barra del menú (55) · la «nubecita»: un velo del color del fondo bajo las píldoras para que la info pase por debajo suavemente */
+    .selector { position: sticky; top: 0; z-index: 58; padding-block: max(calc(var(--spacing) * 3), env(safe-area-inset-top)) calc(var(--spacing) * 3); margin-block: calc(var(--spacing) * -3) 0; background: var(--bg); }
+    .selector::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: calc(var(--spacing) * 8); background: linear-gradient(var(--bg), transparent); pointer-events: none; }
+  }
   @media (width < 64rem) {
     .tarjeta { padding-block: calc(var(--spacing) * 6) 0; }
     .cols { grid-template-columns: 1fr; }

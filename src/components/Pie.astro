@@ -129,7 +129,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
       [contacta, tras].forEach((e) => { e.style.setProperty('--ax', ax); e.style.setProperty('--ay', ay); e.style.setProperty('--ab', ab); }); // las dos mitades: la misma luz, en el mismo sitio
     };
     document.fonts.ready.then(() => requestAnimationFrame(partir)); addEventListener('resize', () => requestAnimationFrame(partir));
-    // RONDA 67 · el CTA: al pasar (o enfocar) la palabra entera se convierte en el CTA de cristal; con el dedo, el primer toque la convierte y el segundo va
+    // RONDA 67 · el CTA: al pasar (o enfocar) la palabra entera se convierte en el CTA de cristal; con el dedo, el toque abre directamente (ronda 290)
     const hacerCta = (si: boolean) => pie.classList.toggle('cta-abierto', si);
     // RONDA 76 · Eric: «la interacción parpadea». Al abrirse, la palabra se recoge (scale 0,66) y su recorte cambia: el borde se iba de debajo del puntero,
     // saltaba el `pointerleave`, se cerraba, volvía a crecer bajo el puntero… Ahora se cierra solo cuando el puntero sale de la caja que tenía la palabra
@@ -142,7 +142,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     contacta.addEventListener('blur', () => hacerCta(false));
     // RONDA 228 · Eric: «el clic abre el chat modal»: ya no va al correo (queda de respaldo sin JS); con el dedo, el primer toque lo enciende y el segundo abre
     contacta.addEventListener('click', (e) => {
-      if (!pie.classList.contains('cta-abierto')) { e.preventDefault(); hacerCta(true); return; }
+      // RONDA 290 · Eric: «toco en Contáctanos y a la primera no va, tengo que tocar 2 veces»: el primer toque ya abre (se acabó el «primero enciende, luego abre»)
       const chat = (window as any).__chat;
       if (chat) { e.preventDefault(); hacerCta(false); chat.abrir(true); }
     });

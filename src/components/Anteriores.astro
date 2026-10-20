@@ -748,6 +748,16 @@ import { icono } from '../lib/iconos';
       addEventListener('resize', () => { const img = fuentes[k], cv = lienzos[frente]; if (motorCv || !img.naturalWidth || innerWidth === anchoR) return; anchoR = innerWidth; gen++; const P = preparar(img, cv); if (P) pintar(cv, P, 1); });
       const programar = () => { clearTimeout(reloj); if (visible && !quieto && !reducido) reloj = window.setTimeout(() => { poner(k + 1); programar(); }, 9000); };
       voz.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => b.addEventListener('click', () => { poner(k + Number(b.dataset.paso)); programar(); }));
+      // RONDA 290 · Eric: «que se pueda deslizar (drag) el movimiento, que no solo sean las flechas; en escritorio también»: arrastre horizontal (dedo o ratón) sobre el
+      // testimonio = anterior / siguiente. El gesto vertical sigue siendo scroll (touch-action: pan-y).
+      let g0: { x: number; y: number; id: number } | null = null;
+      voz.addEventListener('pointerdown', (e) => { if ((e.target as HTMLElement).closest('button, a') || (e.pointerType === 'mouse' && e.button !== 0)) return; g0 = { x: e.clientX, y: e.clientY, id: e.pointerId }; });
+      const fin = (e: PointerEvent) => {
+        if (!g0 || e.pointerId !== g0.id) return;
+        const dx = e.clientX - g0.x, dy = e.clientY - g0.y; g0 = null;
+        if (e.type === 'pointerup' && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) { poner(k + (dx < 0 ? 1 : -1)); programar(); }
+      };
+      voz.addEventListener('pointerup', fin); voz.addEventListener('pointercancel', fin);
       voz.addEventListener('pointerenter', () => { quieto = true; programar(); });
       voz.addEventListener('pointerleave', () => { quieto = false; programar(); });
       new IntersectionObserver((e) => { visible = e[0].isIntersecting; programar(); }, { threshold: 0.3 }).observe(voz);
@@ -940,6 +950,9 @@ import { icono } from '../lib/iconos';
   .voz {
     display: grid;
     gap: calc(var(--spacing) * 8);
+    touch-action: pan-y; /* el arrastre horizontal cambia de testimonio (JS); el vertical, scroll */
+    -webkit-user-select: none;
+    user-select: none;
     align-items: center;
     margin-block: calc(var(--spacing) * 8);
   }
