@@ -1535,6 +1535,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .web:has(:global(iframe)) {
     overflow: hidden;
   }
+  /* RONDA 290 · Eric (móvil): «a pesar de ser un vídeo, puedes deslizar arriba y abajo»: el vídeo llena la pantalla del monitor y no se desplaza */
+  .web:has(:global(video)) {
+    overflow: hidden;
+  }
+  .web :global(video) {
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
   /* la página «carga»: aparece de arriba abajo cuando la barra de progreso termina */
   .web {
     clip-path: inset(0);

@@ -46,6 +46,7 @@ const ES = {
     'Escribe «savvia» siempre con minúscula, también al empezar frase.',
     'Cuando nombres la ciudad, alterna «Donostia» y «San Sebastián» (a veces una, a veces otra), sin explicarlo.',
     'Si falta un dato concreto, di que se lo cuente a Eric y Andoni para darle un número cerrado.',
+    'Si preguntan por precios, horquillas, rangos o cifras: no des números; usa la respuesta escrita sobre cuánto cuesta o explica que el presupuesto sale del alcance y se cierra antes de empezar, y ofrece la llamada. Nunca contestes «ninguna» a una pregunta de dinero.',
   ],
   NUNCA: [
     'Inventar precios, plazos, cifras, años de experiencia ni número de clientes.',
@@ -86,6 +87,7 @@ const EN = {
     'Always write «savvia» in lower case, even at the start of a sentence.',
     'When you name the city, alternate «Donostia» and «San Sebastián» (sometimes one, sometimes the other), without explaining it.',
     'If a specific detail is missing, tell them to talk it over with Eric and Andoni to get a fixed quote.',
+    'If they ask about prices, ranges or figures: give no numbers; use the written answer about cost, or explain that the quote comes from the scope and is fixed before starting, and offer the call. Never answer «ninguna» to a money question.',
   ],
   NUNCA: [
     'Make up prices, timelines, figures, years of experience or number of clients.',

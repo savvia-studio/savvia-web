@@ -99,11 +99,12 @@ import personasEn from '../data/personas.en.json';
     charla.addEventListener('scroll', bordes, { passive: true });
     new MutationObserver(bordes).observe(charla, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'hidden'] });
     addEventListener('resize', bordes); bordes();
-    // móvil: la charla no tiene scroll propio (CSS): la página se mueve lo justo para que se vea lo último; escritorio: scroll de la charla
+    // móvil: la charla no tiene scroll propio (CSS): la página NO se mueve sola (ronda 290); escritorio: scroll de la charla
     const bajar = () => {
       const behavior = reducido ? 'auto' : 'smooth';
-      if (matchMedia('(width < 64rem)').matches) (charla.querySelector<HTMLElement>('[data-escribiendo]:not([hidden])') ?? charla.lastElementChild)?.scrollIntoView({ block: 'nearest', behavior });
-      else charla.scrollTo({ top: charla.scrollHeight, behavior });
+      // RONDA 290 · Eric (móvil): «al escribir una pregunta hace como un scroll down al footer, eso que no pase»: en móvil la página ya no se mueve sola
+      if (matchMedia('(width < 64rem)').matches) return;
+      charla.scrollTo({ top: charla.scrollHeight, behavior });
     };
     // una pregunta → su burbuja; «está escribiendo…» con la cara de quien contesta; y la respuesta
     // `pendiente`: si la respuesta aún se está buscando (pregunta libre), la pregunta ya está en pantalla y «está escribiendo…» espera a que llegue

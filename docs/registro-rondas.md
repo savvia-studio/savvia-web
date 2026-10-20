@@ -4619,3 +4619,10 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **Causa:** la estela del paseo (rondas 12–43): desde la ronda 144 ya no hay paseo, pero con movimiento reducido el código pintaba la hierba entera a sus pies
   (en las capturas de medida, hechas con movimiento reducido, se veía; y la vería cualquiera con esa preferencia). **Hecho:** no se pinta y los dos lienzos van ocultos.
 - **Medido:** lienzos `display: none` con y sin movimiento reducido · `tools/verify.cjs` local (Chrome y WebKit, 1280 y 390) limpio.
+
+### Ronda 290 · 2026-10-20 · móvil: testimonios, contacto, servicios y chat · PUBLICADO
+- **Eric/Andoni (textual, resumen):** testimonios más compactos y con flechas flexibles y área de toque de 44 px · arrastrar para cambiar de testimonio · «Contáctanos» abre a la primera
+  y con zona de toque ampliada · Estudio: Andoni y Eric más pequeños y etiquetas sin cortar · píldoras de Servicios sticky arriba (top 0, sobre el menú, con nubecita) ·
+  el vídeo del monitor no se desliza sentado · Preguntas: la página no baja sola al preguntar · chat: la IA contesta también en el brief, claves de precio («horquilla») y enlace
+  «Respuesta rápida con IA» dentro del bocadillo · card de «Contáctanos» del pie más alta.
+- **Hecho:** `Anteriores`, `Estudio`, `Pie`, `Servicios`, `Proyectos`, `Preguntas`, `ChatFlotante`, `api/preguntar.js`, `preguntas*.json`. `astro check` y `astro build` en verde.
