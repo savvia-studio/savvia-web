@@ -142,6 +142,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     k.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
     k.querySelectorAll('[data-rejilla]').forEach((n) => { n.removeAttribute('data-rejilla'); n.setAttribute('aria-expanded', 'true'); });
     k.style.color = 'var(--color-cacao)';
+    // solo la parte visible: fuera el panel de la radio y todo lo que no sea el botón (pesaba y ensanchaba la tarjeta: scroll X y tirones al abrir)
+    k.querySelectorAll('.radio > :not(button)').forEach((n) => n.remove());
     const orig = Array.from(barra.querySelectorAll<HTMLElement>('button, a')), copia = Array.from(k.querySelectorAll<HTMLElement>('button, a'));
     copia.forEach((c, i) => { c.tabIndex = -1; if (c.tagName === 'BUTTON') c.addEventListener('click', (e) => { e.stopPropagation(); orig[i]?.click(); }); });
     menu.prepend(k);
@@ -948,6 +950,10 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   /* ronda 230 · mientras la tarjeta se ve (abierta o recogiéndose), va por encima de la barra; la copia en Cacao vive dentro de ella */
   html.menu-visible [data-nav] {
     z-index: 49;
+  }
+  .capa-cacao {
+    overflow: clip;
+    contain: paint;
   }
   @media (width >= 36rem) {
     .capa-cacao .marca {
