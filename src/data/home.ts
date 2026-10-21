@@ -608,7 +608,7 @@ export const pie = {
   contactar: 'Contáctanos', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Haz clic para agendar una reunión con nosotros',
   pista: 'Toca para agendar una llamada', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
-  correo: 'ericruizmolero@savvia.studio', // dirección real (solo en mailto); lo que se LEE en la web es `correoTexto`
+  correo: 'hola@savvia.studio', // dirección real (solo en mailto); lo que se LEE en la web es `correoTexto`
   correoTexto: 'Contactar vía email',
   cal: '', // ronda 65: «Contáctanos» llevará a un cal.com (falta el enlace); mientras, al correo
   desde: 'desde 2020', // ronda 156 (Eric): sin «Donostia» en la web

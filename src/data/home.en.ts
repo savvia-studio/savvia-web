@@ -368,7 +368,7 @@ export const pie = {
   contactar: 'Contact us', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Click to book a call with us',
   pista: 'Tap to book a call', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
-  correo: 'ericruizmolero@savvia.studio',
+  correo: 'hola@savvia.studio',
   correoTexto: 'Contact via email',
   cal: '',
   desde: 'since 2020',
