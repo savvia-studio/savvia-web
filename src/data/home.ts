@@ -325,7 +325,7 @@ export const proyectos = {
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/surepayroll.png', n: 'SurePayroll', escala: 1.35 },
       { tipo: 'cita', q: 'Llevamos un año colaborando en SurePayroll y los resultados han sido muy buenos: nos han ayudado a hacer crecer la relación con el cliente.', n: 'Brian Farrell', r: 'Fundador y director, Farco Studio' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/profounders-capital.png', n: 'PROFounders Capital', escala: 1.4 },
-      { tipo: 'cita', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.', n: 'Danny Saltaren', r: 'Nos descubrió y nos impulsó en nuestros inicios' },
+      { tipo: 'cita', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios. Sin duda, volveremos a trabajar juntos.', n: 'Danny Saltaren', r: 'Nos descubrió y nos impulsó en nuestros inicios' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/junipero.png', n: 'Junipero', escala: 1.25 },
       { tipo: 'cita', q: 'Cercanos, humanos y capaces de entender de verdad tu proyecto. Más que un proveedor, son parte de tu equipo.', n: 'Unai Arambarri', r: 'Fundador y CEO, Neety' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/neety.png', n: 'Neety', escala: 1.3 },
@@ -355,7 +355,7 @@ export const proyectos = {
       { tipo: 'cita', q: 'Captaron nuestra esencia a la perfección y superaron todas las expectativas en tiempo récord.', n: 'Santos J. Díaz Pastor', r: 'Asociado de inversión, Impact Bridge Asset Management SGIIC' },
       { tipo: 'cita', q: 'Muy satisfechos con su trabajo y su compromiso de principio a fin. Seguiremos colaborando en futuros proyectos.', n: 'Emilio Rodríguez', r: 'Socio director, Lyra' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/lyra.png', n: 'Lyra', escala: 1.1 },
-      { tipo: 'cita', q: 'Trabajar con Eric y Andoni fue fácil, rápido y de mucha calidad. Les cuento lo que necesito y sé que lo resolverán sin idas y venidas. Comunicación excelente y precios claros.', n: 'JJ Velaz', r: 'Nuestro mentor de negocio desde el principio' },
+      { tipo: 'cita', q: 'Trabajar con Eric y Andoni fue fácil, rápido y de mucha calidad. Comunicación excelente y precios claros.', n: 'JJ Velaz', r: 'Nuestro mentor de negocio desde el principio' },
     ],
     [
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/isotrol.png', n: 'Isotrol', escala: 1.15 },
