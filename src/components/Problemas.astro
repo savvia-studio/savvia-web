@@ -2,6 +2,8 @@
 import { home } from '../data/idioma';
 import { langDe } from '../lib/i18n';
 const { problemas } = home(langDe(Astro.currentLocale));
+// RONDA 292 · reunión con JL: el manifiesto vive DENTRO de la sección blanca de savvia agentic (`incrustada`): sin fondo propio, mismo efecto cortina
+const { incrustada = false } = Astro.props;
 // RONDA 186 · la sección 2 como MANIFIESTO (sustituye a Dolores.astro, que queda guardado). Texto de la sesión de narrativa del 21-sep (Drive con José
 // Luis). Se ENTINTA LETRA A LETRA, en orden de lectura, atado al scroll (sin fijar nada): de la entrada de la sección a que el final del texto llega a
 // media pantalla. Cada palabra va en una pieza que no se parte; la marca ([[…]]) entera. Sin JS o con movimiento reducido: todo a plena tinta.
@@ -14,7 +16,7 @@ const partir = (p: string): Trozo[] =>
   });
 ---
 
-<section id="problemas" class="problemas surface-dark" aria-label={problemas.aria} data-problemas data-sin-fila>
+<div id="problemas" class:list={['problemas', incrustada ? 'incrustada' : 'surface-dark']} role="group" aria-label={problemas.aria} data-problemas data-sin-fila>
   <div class="wrap">
     <div class="texto text-h2">
       {problemas.parrafos.map((p) => (
@@ -25,7 +27,7 @@ const partir = (p: string): Trozo[] =>
       ))}
     </div>
   </div>
-</section>
+</div>
 
 <style>
   .problemas {
@@ -35,6 +37,12 @@ const partir = (p: string): Trozo[] =>
     background-image: radial-gradient(var(--tierra-mancha) at 50% calc(-1 * var(--raices-h)), var(--tierra-paradas));
     background-repeat: no-repeat;
   }
+  /* dentro de savvia agentic (fondo claro): sin la mancha de tierra y con el aire justo antes de la ilustración */
+  .problemas.incrustada {
+    background-image: none;
+    padding-block: 0 clamp(1rem, 0.5rem + 3lvh, 2rem);
+  }
+  .incrustada :global(.wrap) { padding-inline: 0; max-width: none; }
   .texto {
     max-width: 14em; /* en em del propio texto: ~28 caracteres por línea (ronda 186: «más estrecho») */
     margin-inline: auto;

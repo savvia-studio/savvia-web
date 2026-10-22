@@ -57,14 +57,13 @@ const TABS_V: [string, string][] = en
   ? [['color', 'Colour'], ['tipo', 'Typography'], ['botones', 'Buttons'], ['esp', 'Spacing'], ['comp', 'Components']]
   : [['color', 'Color'], ['tipo', 'Tipografía'], ['botones', 'Botones'], ['esp', 'Espaciado'], ['comp', 'Componentes']];
 const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobile de cada paso de la escala (la librería real: «48 / 32px»)
+import Problemas from './Problemas.astro';
 ---
 
-<section id="la-savvia" class="surface-light la-partitura relative" aria-labelledby="partitura-h" data-partitura data-sube data-film-movil={VIDEO_EN_MOVIL ? "" : undefined}>
-  <div class="wrap section-y">
-    <h2 id="partitura-h" class="text-h1 max-w-[14ch]" data-entra>{receta.titulo}</h2>
-    {receta.arnes.split('\n\n').map((t, i) => (
-      <p class:list={['text-sub max-w-[34ch] text-fg2', i === 0 ? 'mt-6 lg:mt-8' : 'mt-4']} data-enfoca>{t}</p>
-    ))}
+<section id="la-savvia" class="surface-light la-partitura relative" aria-label={receta.titulo} data-partitura data-sube data-film-movil={VIDEO_EN_MOVIL ? "" : undefined}>
+  <div class="wrap section-y cierre">
+    <!-- RONDA 292 · JL: el manifiesto abre la sección; fuera el titular «savvia agentic» y su explicación (la ilustración se explica sola) -->
+    <Problemas incrustada />
 
     <div
       class="cine"
@@ -975,6 +974,14 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
 </script>
 
 <style>
+  /* RONDA 292 · Eric: «arriba un poco menos de espacio»: la ilustración va seguida del grid (misma superficie), así que su aire de abajo es menor que el de una sección suelta */
+  .cierre { padding-top: clamp(3rem, 2rem + 6lvh, 7rem); padding-bottom: clamp(4rem, 2.5rem + 8lvh, 9rem); } /* y arriba lo mismo: «aquí un poco menos de espacio» */
+
+  /* ronda 292 · móvil: menos aire entre el manifiesto y la ilustración, y bajo su pie */
+  @media (width < 48rem) {
+    .la-partitura .cine { margin-top: calc(var(--spacing) * 6); }
+    .la-partitura .cierre { padding-bottom: calc(var(--spacing) * 8); }
+  }
   .la-partitura { overflow-x: clip; }
   .cine {
     --tinta: var(--fg);
@@ -1373,7 +1380,8 @@ const ESP_M = [4, 6, 12, 16, 18, 24, 32, 48, 64, 80, 96, 112]; // el valor mobil
     gap: calc(var(--spacing) * 6);
   }
   /* aire bajo el pie: la ola de Proyectos (hasta 240 px por delante de su borde) lo tapaba en móvil */
-  .nota { margin-bottom: calc(var(--spacing) * 40); }
+  /* ronda 292 · ya no le sigue la ola de Proyectos: en móvil, 48 px (antes 160; con 16 quedaba pegado) */
+  .nota { margin-bottom: calc(var(--spacing) * 12); }
   @media (min-width: 64rem) { .nota { margin-bottom: calc(var(--spacing) * 16); } }
   .nota .fig { flex: none; }
   .nota .txt { max-width: 60ch; text-wrap: balance; }

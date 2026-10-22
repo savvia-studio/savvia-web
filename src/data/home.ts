@@ -206,7 +206,7 @@ export const proyectos = {
   pregunta: '¿Qué ha hecho esta gente?',
   // RONDA 44 · «lo que has puesto para finalizar la segunda sección va como titular de los destacados y se mete en el ordenador; el titular, todo en la
   // misma tipografía»: el puente deja de ser una sección y es el titular-pantalla de Proyectos, en Family (sin logotipo ni mono)
-  titulo: 'Proyectos destacados con desarrollo agéntico.', // ronda 65 (Andoni); antes «Para eso está savvia agentic.»
+  titulo: 'savvia', // ronda 292 (Eric, reunión con JL): el titular-pantalla es la portada del reel; antes «Proyectos destacados con desarrollo agéntico.»
   // Los cuatro proyectos hechos con desarrollo agéntico (los de la web anterior, ronda 28). Cada uno trae SU estación:
   // al cambiar de proyecto cambia el paisaje de la ventana y el ambiente sonoro.
   // `d` y `dato` salen de la propia web de cada cliente y del registro de rondas; PENDIENTES de visto bueno.
@@ -314,6 +314,7 @@ export const proyectos = {
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/thx.png', n: 'THX' },
       { tipo: 'cita', q: 'Un proyecto complejo, con varios idiomas y una migración de contenido extensa, llevado con una precisión sólida.', n: 'Guilherme Escobar', r: 'Global Marketing Director, Remerge' },
       { tipo: 'marca', rotulo: 'Hemos colaborado con', logo: '/media/logos/cuadricula/universidad-de-mondragon.png', n: 'Universidad de Mondragón', escala: 1.6 },
+      { tipo: 'cita', q: 'Habla con Eric y Andoni cuando necesites rediseñar tu web. Un gran trabajo y un gran proceso de documentación, diseño, desarrollo y entrega. Calidad, cercanía y rapidez.', n: 'José Luis Antúnez', r: 'Nuestro mentor en estrategia y narrativa' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/naterra.png', n: 'Naterra', escala: 1.25 },
     ],
     [
@@ -324,6 +325,7 @@ export const proyectos = {
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/surepayroll.png', n: 'SurePayroll', escala: 1.35 },
       { tipo: 'cita', q: 'Llevamos un año colaborando en SurePayroll y los resultados han sido muy buenos: nos han ayudado a hacer crecer la relación con el cliente.', n: 'Brian Farrell', r: 'Fundador y director, Farco Studio' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/profounders-capital.png', n: 'PROFounders Capital', escala: 1.4 },
+      { tipo: 'cita', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Sin duda, volveremos a trabajar juntos.', n: 'Danny Saltaren', r: 'Nos descubrió y nos impulsó en nuestros inicios' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/junipero.png', n: 'Junipero', escala: 1.25 },
       { tipo: 'cita', q: 'Cercanos, humanos y capaces de entender de verdad tu proyecto. Más que un proveedor, son parte de tu equipo.', n: 'Unai Arambarri', r: 'Fundador y CEO, Neety' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/neety.png', n: 'Neety', escala: 1.3 },
@@ -335,6 +337,7 @@ export const proyectos = {
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/transcend-network.png', n: 'Transcend Network', escala: 1.25 },
       { tipo: 'cita', q: 'Un colaborador clave en la digitalización de nuestra herramienta: la terminamos a tiempo y con la calidad que buscábamos.', n: 'Ainara Martínez Rivera', r: 'Coordinadora de investigación, Universidad de Mondragón' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/impact-bridge.png', n: 'Impact Bridge', escala: 1.2 },
+      { tipo: 'cita', q: 'Ha sido un placer trabajar con ellos. Su dedicación, su rapidez y su proactividad lo ponen muy fácil. Los recomiendo sin dudarlo.', n: 'Alberto Arenaza', r: 'Nos abrió la puerta a proyectos internacionales' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/valuat.png', n: 'Valuat', escala: 1.15 },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/wisable.png', n: 'Wisable', escala: 1.15 },
     ],
@@ -352,6 +355,7 @@ export const proyectos = {
       { tipo: 'cita', q: 'Captaron nuestra esencia a la perfección y superaron todas las expectativas en tiempo récord.', n: 'Santos J. Díaz Pastor', r: 'Asociado de inversión, Impact Bridge Asset Management SGIIC' },
       { tipo: 'cita', q: 'Muy satisfechos con su trabajo y su compromiso de principio a fin. Seguiremos colaborando en futuros proyectos.', n: 'Emilio Rodríguez', r: 'Socio director, Lyra' },
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/lyra.png', n: 'Lyra', escala: 1.1 },
+      { tipo: 'cita', q: 'Trabajar con Eric y Andoni fue fácil, rápido y de mucha calidad. Les cuento lo que necesito y sé que lo resolverán sin idas y venidas. Comunicación excelente y precios claros.', n: 'JJ Velaz', r: 'Nuestro mentor de negocio desde el principio' },
     ],
     [
       { tipo: 'marca', rotulo: 'Hemos trabajado con', logo: '/media/logos/cuadricula/isotrol.png', n: 'Isotrol', escala: 1.15 },

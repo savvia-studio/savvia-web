@@ -9,7 +9,6 @@ import Raices from '../components/Raices.astro';
 import LaSavvia from '../components/LaSavvia.astro'; // ronda 53: guardada (la sustituye LaReceta)
 import LaReceta from '../components/LaReceta.astro'; // ronda 125: guardada (la sustituye LaPartitura, savvia agentic)
 import LaPartitura from '../components/LaPartitura.astro';
-import Problemas from '../components/Problemas.astro'; // ronda 186: la sección 2 como manifiesto (Dolores queda guardado)
 import Proyectos from '../components/Proyectos.astro';
 import Anteriores from '../components/Anteriores.astro';
 import Servicios from '../components/Servicios.astro';
@@ -30,10 +29,9 @@ import Pie from '../components/Pie.astro';
     <Raices />
     <!-- RONDA 65 · la sección 2 elegida es la A2; `data-s2` se queda porque el CSS del titular generado cuelga de él -->
     <script is:inline>document.documentElement.dataset.s2 = 'a2';</script>
-    <!-- RONDA 186 · Eric: «un manifiesto con los tres problemas que presenta savvia agentic, luego la ilustración animada y luego proyectos destacados» -->
-    <Problemas />
-    <LaPartitura />
+    <!-- RONDA 292 · reunión con JL: hero › mockup (con el reel en bucle) › savvia agentic (manifiesto + ilustración) › grid de logos y testimonios › proyectos -->
     <Proyectos />
+    <LaPartitura />
     <Anteriores />
     <Servicios />
     <Estudio />

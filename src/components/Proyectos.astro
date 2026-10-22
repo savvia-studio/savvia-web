@@ -50,7 +50,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   `transform: scale`): se ven sus animaciones. Solo se monta la del proyecto activo; la que no se deja embeber (Neety) enseña su captura.
   La silla: el centro de su respaldo cae en (58,7 % · 81 %).
 -->
-<section id="proyectos" class="surface-dark" aria-label={proyectos.pregunta} data-estudio data-sube data-sube-eco>
+<section id="proyectos" class="surface-dark" aria-label={proyectos.pregunta} data-estudio data-sin-fila>
   <div class="pista" data-pista>
     <div class="pegado">
       <div class="escenario" data-escenario>
@@ -123,6 +123,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
               ))
             }
             </div>
+            <!-- RONDA 292 · reunión con JL: de pie, la pantalla enseña el REEL en bucle (sin sonido); al sentarte, los proyectos como siempre -->
+            <video class="reel-loop" muted loop playsinline preload="none" poster="/media/reel/reel.jpg" aria-hidden="true" tabindex="-1" disablepictureinpicture data-reel-loop></video>
           </div>
           <!-- La llamada: un punto en la silla, una línea y la palabra. Todo ello es el botón. -->
           <button type="button" class="llamada" data-sentarse>
@@ -367,6 +369,27 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // ── RONDA 159 · LA BARRA DE SCROLL DE SAVVIA: sale mientras la web del monitor se mueve y se apaga 0,9 s después. La captura larga (Neety) se
     // mide en su contenedor; un iframe es de otro dominio y no deja leer su scroll: la barra solo sale si la web lo cuenta con postMessage
     // ({ tipo: 'savvia-scroll', p: 0–1, vista: alto visible / alto total }); entonces su barra nativa se esconde. Las que no lo cuentan, la suya.
+    // RONDA 292 · el reel en bucle: se descarga al acercarse y solo corre con la escena a la vista y de pie
+    {
+      const reel = $('[data-reel-loop]') as HTMLVideoElement;
+      let visto = false;
+      // RONDA 292 · Eric: «que el vídeo salga cuando el frame ya se vea por pantalla»: arranca y queda DEBAJO del titular-pantalla cuando éste empieza a irse (a > 0,6), para que esté listo cuando su fondo se funde («que entre antes»)
+      const marcha = () => {
+        const va = visto && listo && !sentado && !explorando && !document.hidden && !reducido;
+        reel.classList.toggle('listo', listo && !reducido);
+        if (va) reel.play().catch(() => {}); else reel.pause();
+      };
+      let listo = false;
+      raiz.addEventListener('reel', () => { listo = true; marcha(); });
+      new IntersectionObserver((e) => {
+        visto = e.some((x) => x.isIntersecting);
+        if (visto && !reel.src) reel.src = '/media/reel/reel.mp4';
+        marcha();
+      }, { rootMargin: '300px 0px' }).observe(raiz);
+      document.addEventListener('visibilitychange', marcha);
+      new MutationObserver(marcha).observe(raiz, { attributes: true, attributeFilter: ['class'] });
+      new MutationObserver(marcha).observe(escenario, { attributes: true, attributeFilter: ['class'] });
+    }
     const cargar = () => {
       if (cargado) return;
       cargado = true;
@@ -743,6 +766,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const invita = () => !sentado && pegada() && !soltandose();
     let kNitido = 1;
     const kSentado = (E: DOMRect, sw: number, sh: number) => Math.min((E.width * (E.width < 700 ? 0.92 : 0.52)) / (PANT.w * sw), (E.height * 0.6) / (PANT.h * sh));
+    let reelAviso = false;
     const entrar = () => {
       pedidoE = false;
       if (reducido || sentado) return;
@@ -781,11 +805,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const fx = (x0: number, x1: number) => 1 - Math.min(1, Math.max(0, (a - x0) / (x1 - x0)));
       titulo.style.opacity = '1';
       // ronda 284 (Eric, móvil: «ahí, con la píldora, es cuando hay que pasar de las letras al vídeo de los ratones»): en móvil el titular aguanta el primer tramo del zoom y se va hacia la mitad
-      const [t0, t1, f1, fin] = MOVIL ? [0.4, 0.48, 0.6, 0.62] : [0.8, 0.87, 0.96, 0.97];
+      const [t0, t1, f1, fin] = MOVIL ? [0.4, 0.48, 0.6, 0.62] : [0.3, 0.37, 0.5, 0.51]; // ronda 292 (Eric: «aquí ya puede entrar el vídeo… antes todavía más»): en escritorio, el titular se va a los 0,30–0,51 del zoom (antes 0,80–0,97)
       titulo.style.setProperty('--tt', String(fx(t0, t1)));
       titulo.style.setProperty('--tf', String(fx(t1, f1)));
       titulo.style.visibility = a >= fin ? 'hidden' : 'visible';
       if (a > fin - 0.005 && !estrenado) estrenar();
+      if (a > (MOVIL ? 0.3 : 0.15) && !reelAviso) { reelAviso = true; raiz.dispatchEvent(new Event('reel')); }
       escenario.classList.toggle('dentro', nf === 'D');
       escenario.classList.toggle('asiento', nf === 'B');
       if (nf !== fase) {
@@ -902,6 +927,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </script>
 
 <style>
+  /* RONDA 292 · el mockup va ahora justo tras las raíces: su tierra seguía bajo el escenario (opaco, pegado) y se cortaba en el borde. La mancha va en una capa
+     por ENCIMA del escenario, atada al borde de la sección (se va con el scroll, sin tapar nada) y con el mismo centro que la de las raíces */
+  #proyectos { position: relative; }
+  #proyectos::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: calc(var(--raices-h) * 1.75);
+    z-index: 5;
+    pointer-events: none;
+    background: radial-gradient(var(--tierra-mancha) at 50% calc(-1 * var(--raices-h)), var(--tierra-paradas)) no-repeat;
+  }
   /* La pista: una pantalla pegada + 250 lvh de recorrido: 120 para ALEJARSE de la pantalla (entrada), 25 de descanso, 90 para volver a
      METERSE en ella (salida, ronda 14) y 15 con la pantalla ya a sangre en Cacao. Misma unidad que el alto del pegado (lvh). */
   .pista {
@@ -1274,6 +1313,21 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   /* RONDA 46 · «el menú de la web se queda detrás de la barra de navegación»: la web es un iframe de otro dominio y se desplaza DENTRO de sí
      misma: nunca puede pasar por debajo de la barra, solo quedar tapada. La web empieza bajo la barra, como en un Safari de verdad. */
+  .reel-loop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 3;
+    pointer-events: none;
+    background: #121213;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+  }
+  .reel-loop:global(.listo) { opacity: 1; }
+  [data-estudio].sentado .reel-loop:global(.listo),
+  .escenario.explora .reel-loop:global(.listo) { opacity: 0; }
   .visor {
     position: absolute;
     inset: 0; /* ronda 66: sin navegador, la web ocupa la pantalla entera */

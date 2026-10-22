@@ -590,6 +590,7 @@ const [A, E] = estudio.personas;
   /* ronda 191 · Eric: «cada sección, arriba y abajo, el mismo espacio hasta su línea»: el aire extra (para la gota de la sección siguiente, que sube
      hasta ~240 px) se reparte por igual arriba y abajo: el contenido queda centrado entre las dos líneas */
   #estudio { padding-block: calc(var(--space-section) + clamp(4rem, 2rem + 7lvh, 7.5rem)); padding-top: max(5rem, calc(var(--space-section) * 0.85)); } /* ronda 215: menos aire arriba (Eric: «hay mucho espacio») */
+  @media (width < 48rem) { #estudio { padding-top: 2.5rem; } } /* ronda 292 · móvil: el titular sube (y sin la línea horizontal sobre la sección) */
   .estudio-grid { display: grid; gap: calc(var(--spacing) * 16); align-items: center; }
   .lado-texto { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
   @media (width >= 64rem) {

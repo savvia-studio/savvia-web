@@ -106,7 +106,9 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   // Solo móvil: la barra se comporta como una barra ESTÁTICA de la página que, al subir, se vuelve «sticky»: baja con el contenido píxel a píxel
   // (--barra-o = px escondidos, de 0 a su alto) y reaparece con el mismo gesto al subir. Al parar el dedo a medias, termina de salir o de volver.
   // Siempre visible arriba del todo, con el menú, la radio o el chat abiertos.
-  if (matchMedia('(width < 48rem)').matches) {
+  // RONDA 292 · Eric (móvil): «el navbar lo mantenemos, que no se vaya al hacer scroll hacia abajo»: la barra se queda siempre; `true` devuelve el comportamiento de antes
+  const BARRA_SE_ESCONDE = false;
+  if (BARRA_SE_ESCONDE && matchMedia('(width < 48rem)').matches) {
     const html = document.documentElement;
     const barra = document.querySelector<HTMLElement>('.barra-nav');
     let ultimo = scrollY, o = 0, pedido = false, parar = 0;

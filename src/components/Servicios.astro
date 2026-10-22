@@ -215,6 +215,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
      sube ~240 px) se reparten por igual: línea de arriba → titular = línea de abajo del bloque → fin de la sección */
   /* ronda 215 · Eric: «hay mucho espacio» entre Más proyectos y Servicios, y entre Servicios y la siguiente: los 272 px de arriba y de abajo (192 + 80) bajan a 144 y 163 en escritorio */
   [data-servicios] > .wrap { padding-top: max(4rem, calc(var(--space-section) * 0.75)); padding-bottom: calc(clamp(90px, 24lvh, 240px) * 0.9); } /* ronda 216: abajo, casi la altura de la gota de Estudio (.sube: clamp(90px, 24lvh, 240px)); antes 163 (0,85 × la sección) */
+  @media (width < 48rem) { [data-servicios] > .wrap { padding-top: 1.5rem; } } /* ronda 292 · móvil: «el titular un poco más arriba» */
   /* ── EL BLOQUE ENTRE GUÍAS (ronda 134): las líneas de arriba y abajo son filas de los carriles; el bloque se apoya en ellas */
   .cuerpo { --hueco: calc(var(--spacing) * 16); position: relative; display: grid; gap: calc(var(--spacing) * 8); align-items: stretch; padding-block: calc(var(--spacing) * 6) calc(var(--spacing) * 12); } /* ronda 268: móvil, la línea de abajo (con sus +) más abajo: 48 px tras la lista (Eric) */
   @media (width >= 64rem) {

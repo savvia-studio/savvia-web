@@ -31,6 +31,8 @@ import { proyectos as OBRA } from '../data/proyectos';
 const claro = (hex: string) => { const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5; };
 const A = proyectos.anteriores;
 const CELDAS = proyectos.celdas, T = proyectos.testimonios;
+// RONDA 292 · el slider de los 4 mentores con retrato fuera del mosaico (probado dentro y vuelto a quitar; irá a cada caso de estudio); `true` lo devuelve
+const VOZ_EN_MOSAICO = false;
 // RONDA 76 · «los logos, más grandes y proporcionales cada uno a su logo»: mismo PESO ÓPTICO para todos (área constante): ancho ∝ √proporción,
 // alto ∝ 1/√proporción, con la proporción leída del archivo (viewBox del SVG o cabecera del PNG) al compilar.
 import sharp from 'sharp';
@@ -71,9 +73,9 @@ const SITIO: Sitio[] = [
   { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4.5, m: [10, 23, 116] },
   { col: '2 / span 4', ratio: '4 / 5', baja: 0, tipo: 'movil', zoom: 2.3, cy: 0.47, espejo: true }, // ronda 206: Cubbo, el móvil de la mesa en ESPEJO y con la cámara más abierta (el de Neety, en cuadro cerrado)
   { col: '8 / span 4', ratio: '1 / 1', baja: 24, tipo: 'claro', g: 'g-marca', giro: 0, m: [7, 11, 132], fondo: '/media/anteriores/fondos/mas-transcend.webp' },
-  { col: '1 / span 3', ratio: '1 / 1', baja: 0, tipo: 'mancha', g: 'g-marca', giro: -2.5, m: [6, 17, 118] },
-  { col: '5 / span 4', ratio: '3 / 4', baja: 0, tipo: 'movil', zoom: 2.5, cy: 0.5 }, // el móvil sobre la mesa; sin grabación en móvil, la de escritorio recortada
-  { col: '10 / span 3', ratio: '4 / 5', baja: 32, tipo: 'mancha', g: 'g-marca', giro: 4, m: [9, 20, 118] },
+  { col: '1 / span 3', ratio: '1 / 1', baja: 8, tipo: 'mancha', g: 'g-marca', giro: -2.5, m: [6, 17, 118] },
+  { col: '5 / span 4', ratio: '3 / 4', baja: 8, tipo: 'movil', zoom: 2.5, cy: 0.5 }, // el móvil sobre la mesa; sin grabación en móvil, la de escritorio recortada
+  { col: '10 / span 3', ratio: '4 / 5', baja: 40, tipo: 'mancha', g: 'g-marca', giro: 4, m: [9, 20, 118] },
 ];
 // RONDA 42 · «los testimonios no van antes de nuestros proyectos, van entre medias, y que puedas cambiar de testimonio con unas flechas muy sutiles»:
 // una fila entera en medio del mosaico (tras la primera fila de proyectos), centrada; el nombre de quien habla entre dos flechas finas.
@@ -112,10 +114,35 @@ import { flecha } from '../lib/flecha';
 import { icono } from '../lib/iconos';
 ---
 
-<section id="anteriores" class="surface-light section-y" aria-labelledby="ant-h" data-sube data-sin-fila>
+<section id="anteriores" class="surface-light section-y anteriores" aria-labelledby="ant-h" data-sin-fila>
   <div class="wrap">
     <!-- RONDA 189 · Eric: «después del mockup deberíamos poner el grid de reviews y demás»: la cuadrícula (citas, logotipos y cifras) abre la
          sección, justo tras Proyectos destacados; antes iba tras la primera fila del mosaico -->
+    <!-- RONDA 24 · «ver todos los proyectos a la derecha del titular pegado a la línea derecha, con una animación más fluida, como que se rellena de
+         naranja, y la flecha más minimalista» -->
+    <!-- RONDA 190 · «quita el titular "Más proyectos"» + «deja el espacio que ocupaba en blanco»: el titular sigue ocupando su sitio,
+         invisible (aria-labelledby lo sigue leyendo aunque esté oculto) -->
+    <div class="cabecera flex flex-wrap items-end justify-between gap-6 hidden">
+      <h2 id="ant-h" class="text-h1 max-w-[12ch] mt-24 lg:mt-32 invisible">{proyectos.titulo2}</h2>
+    </div>
+    <div class="mosaico">
+      <!-- RONDA 191 · Eric: «aquí a la izquierda quitamos lo de destacados y ponemos Home of Ambrose con otro gradiente y el vídeo»: fuera la pieza de
+           entrada que rotaba (rondas 77–191); su sitio (columnas 1–3, cuadrada) lo ocupa Home of Ambrose como una pieza más (SITIO[0]) -->
+      {
+        A.map((c, i) => {
+          const s = SITIO[i];
+          // escena: la lámina se amplía `zoom` veces y se coloca para que el centro de la pantalla caiga en (50 %, cy) de la pieza
+          const Z = s.zoom ?? 3;
+          const clave = s.espejo ? 'movil-espejo' : s.tipo;
+          const quad = s.tipo === 'movil' || s.tipo === 'roble' ? escenaQuad(clave) : null;
+          const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
+          const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
+          // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
+          const video = `<video class="vid" muted loop playsinline preload="none" data-poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
+          return (
+            <>
+            {/* RONDA 292 · Eric: «tras savvia agentic los 5 proyectos, luego el grid y luego 3 proyectos más»: la cuadrícula ocupa una fila entera del mosaico, entre el 5.º y el 6.º */}
+            {i === 5 && (
     <div class="cuadricula-arriba">
     <div class="banda cuadricula" data-banda data-cuadricula>
           <span class="guias" aria-hidden="true">
@@ -130,6 +157,7 @@ import { icono } from '../lib/iconos';
                   {it.tipo === 'cita' && (
                     <>
                       <p class="cq">“{it.q}”</p>
+                      {/* RONDA 292 · las 4 citas con retrato (`retrato` en home.ts) entran en la cuadrícula SIN la ilustración: Eric, «las ilustraciones aquí quedan mal, las dejamos para los case studies» */}
                       <p class="cn">{it.n}</p>
                       <p class="cr">{it.r}</p>
                     </>
@@ -157,30 +185,8 @@ import { icono } from '../lib/iconos';
           ))}
         </div>
     </div>
-    <!-- RONDA 24 · «ver todos los proyectos a la derecha del titular pegado a la línea derecha, con una animación más fluida, como que se rellena de
-         naranja, y la flecha más minimalista» -->
-    <!-- RONDA 190 · «quita el titular "Más proyectos"» + «deja el espacio que ocupaba en blanco»: el titular sigue ocupando su sitio,
-         invisible (aria-labelledby lo sigue leyendo aunque esté oculto) -->
-    <div class="cabecera flex flex-wrap items-end justify-between gap-6">
-      <h2 id="ant-h" class="text-h1 max-w-[12ch] mt-24 lg:mt-32 invisible">{proyectos.titulo2}</h2>
-    </div>
-    <div class="mosaico mt-24 lg:mt-32">
-      <!-- RONDA 191 · Eric: «aquí a la izquierda quitamos lo de destacados y ponemos Home of Ambrose con otro gradiente y el vídeo»: fuera la pieza de
-           entrada que rotaba (rondas 77–191); su sitio (columnas 1–3, cuadrada) lo ocupa Home of Ambrose como una pieza más (SITIO[0]) -->
-      {
-        A.map((c, i) => {
-          const s = SITIO[i];
-          // escena: la lámina se amplía `zoom` veces y se coloca para que el centro de la pantalla caiga en (50 %, cy) de la pieza
-          const Z = s.zoom ?? 3;
-          const clave = s.espejo ? 'movil-espejo' : s.tipo;
-          const quad = s.tipo === 'movil' || s.tipo === 'roble' ? escenaQuad(clave) : null;
-          const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
-          const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
-          // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
-          const video = `<video class="vid" muted loop playsinline preload="none" data-poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
-          return (
-            <>
-            {i === 5 && (
+            )}
+            {VOZ_EN_MOSAICO && i === 5 && (
               <figure class="banda voz" data-banda data-voz>
                 <!-- RONDA 67 · «a los retratos, el estilo dithering, que se mimeticen más con el fondo; el cambio, animado con el estilo de savvia»: cada retrato
                      se pinta como TRAMA DE PUNTOS en el color del texto (lienzo 2D; la imagen es solo la fuente) y el relevo es el pintado rasgado de savvia -->
@@ -790,6 +796,12 @@ import { icono } from '../lib/iconos';
 </script>
 
 <style>
+  /* RONDA 292 · la sección anterior (savvia agentic) ya es clara y deja su aire abajo: sin segundo relleno arriba */
+  /* el aire sobre el mosaico va de PADDING de la sección: como margen, se colapsaba hacia fuera y dejaba ver el Cacao del fondo entre secciones */
+  .anteriores { padding-top: calc(var(--spacing) * 12); } /* ronda 292: «menos aire» tras el pie de savvia agentic */
+  @media (width >= 48rem) { .anteriores { padding-top: calc(var(--spacing) * 16); } }
+  @media (width < 48rem) { .anteriores { padding-bottom: calc(var(--spacing) * 12); } } /* ronda 292 · móvil: menos aire antes de Servicios */
+
   /* RONDA 77 · fuera «Todos los proyectos» de la cabecera (Andoni); la pieza de entrada lleva a /proyectos */
   /* RONDA 76 · fuera el cilindro (Eric: «no me convence; en la cuadrícula las cruces no encajan mientras gira»; guardado en tools/retirados/cilindro.r75.txt) */
   #anteriores {
@@ -813,7 +825,7 @@ import { icono } from '../lib/iconos';
   /* ── LA CUADRÍCULA · RONDA 67 · «que los contornos salgan de las propias líneas guía de la web; más sutiles; el contenido más pequeño, con más aire;
      y que roten mucho más tranquilos»: las líneas son las de los carriles (horizontales a todo el ancho, verticales finas, cruces «+» en los cruces; los
      bordes de fuera coinciden con los carriles, que son los bordes del contenido) y se TRAZAN al llegar */
-  .banda { grid-column: 1 / -1; }
+  .banda, .cuadricula-arriba { grid-column: 1 / -1; }
   .cuadricula {
     position: relative;
     display: grid;
@@ -1142,7 +1154,7 @@ import { icono } from '../lib/iconos';
     .mosaico {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       align-items: start;
-      row-gap: calc(var(--spacing) * 48); /* ronda 67: «más aire entre todo el contenido verticalmente» (antes 32) */
+      row-gap: calc(var(--spacing) * 36); /* ronda 292: 144 px entre filas (antes 192; «aquí menos aire»); el aire extra entre la 2.ª y la 3.ª va en `baja`; ronda 67: «más aire entre todo el contenido verticalmente» (antes 32) */
     }
     .pieza {
       grid-column: var(--col);
