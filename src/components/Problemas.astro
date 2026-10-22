@@ -43,6 +43,7 @@ const partir = (p: string): Trozo[] =>
     padding-block: 0 clamp(1rem, 0.5rem + 3lvh, 2rem);
   }
   .incrustada :global(.wrap) { padding-inline: 0; max-width: none; }
+  @media (width >= 48rem) { .problemas.incrustada { padding-bottom: clamp(3rem, 2rem + 6lvh, 6rem); } } /* escritorio: «que respire todo un poco más» (móvil, como estaba) */
   .texto {
     max-width: 14em; /* en em del propio texto: ~28 caracteres por línea (ronda 186: «más estrecho») */
     margin-inline: auto;

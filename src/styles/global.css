@@ -932,3 +932,18 @@ html[data-estacion='otono'] .surface-dark {
 .jugar-btn svg { width: 16px; height: 16px; margin-left: 2px; fill: currentColor; }
 @keyframes jugar-entra { from { opacity: 0; scale: 0.9; } to { opacity: 1; scale: 1; } }
 @media (prefers-reduced-motion: reduce) { .jugar-btn { animation: none; } }
+
+/* RONDA 292 · PRUEBA (Eric, móvil): la banda inferior de Safari a veces se queda con el color de la última sección (el beige de Servicios). Una franja fija
+   de 3 px con el color principal (--noche, el mismo del theme-color de la estación) pegada al borde de abajo, para que Safari la tome siempre. Para quitarla:
+   borrar este bloque. */
+@media (width < 48rem) {
+  html::after {
+    content: '';
+    position: fixed;
+    inset: auto 0 0 0;
+    height: 3px;
+    background: var(--noche);
+    pointer-events: none;
+    z-index: 30;
+  }
+}

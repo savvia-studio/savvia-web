@@ -975,13 +975,14 @@ import Problemas from './Problemas.astro';
 
 <style>
   /* RONDA 292 · Eric: «arriba un poco menos de espacio»: la ilustración va seguida del grid (misma superficie), así que su aire de abajo es menor que el de una sección suelta */
-  .cierre { padding-top: clamp(3rem, 2rem + 6lvh, 7rem); padding-bottom: clamp(4rem, 2.5rem + 8lvh, 9rem); } /* y arriba lo mismo: «aquí un poco menos de espacio» */
+  .cierre { padding-top: clamp(3rem, 2rem + 6lvh, 7rem); padding-bottom: clamp(6rem, 3rem + 10lvh, 12rem); } /* escritorio: más aire tras la ilustración (el móvil lo pisa abajo) */ /* y arriba lo mismo: «aquí un poco menos de espacio» */
 
   /* ronda 292 · móvil: menos aire entre el manifiesto y la ilustración, y bajo su pie */
   @media (width < 48rem) {
     .la-partitura .cine { margin-top: calc(var(--spacing) * 6); }
     .la-partitura .cierre { padding-bottom: calc(var(--spacing) * 8); }
   }
+  @media (width >= 48rem) { .la-partitura .cine { margin-top: calc(var(--spacing) * 24); } } /* escritorio: más aire entre el manifiesto y la ilustración */
   .la-partitura { overflow-x: clip; }
   .cine {
     --tinta: var(--fg);
