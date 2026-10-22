@@ -4652,3 +4652,146 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   (prohibido) → `<span class="sr-only">`. Originales de imágenes en el scratchpad de la sesión.
 - **Pendiente:** contraste del selector de Proyectos en otoño (2,0:1, texto #a98463 sobre #ecbf8f) · `<track>` de los vídeos · cabeceras de seguridad y de caché en `vercel.json`
   (`/media/*` va con `max-age=0, must-revalidate`) · CSS que bloquea el render (~200 ms) · 25 animaciones no compuestas (`.hero .luz`, ficha de Proyectos, burbujas).
+
+### Firma de correo · 2026-10-22 · en /sistema › Descargas (en local)
+- **Andoni (textual):** «¿podemos crear una firma para el correo de savvia?» · «algo simple estilo la captura» (una rúbrica a rotulador, nombre y web) · «el trazo empieza en
+  la A y termina en la z» · «añádelas en sistema, donde descargas» · «dejemos solo el trazo, más estilo el ejemplo, y pon en sistema cómo se vería en un correo de verdad».
+- **Hecho:** `public/descargas/savvia-firma-{andoni,eric}.png` (362 × 180, ~9 KB): el roble en un solo trazo de rotulador, uno distinto para cada uno (Andoni: copa ancha con un bucle; Eric: óvalo con una espiral y subrayado), algo inclinado (suelo → tronco → copa → bucle → tronco →
+  cola que sube), generado con `tools/firma/firma-arbol.cjs`. Debajo, solo el nombre y savvia.studio (Helvetica 15 px, Cacao). El trazo, a 76 px de ancho («más pequeño»; a 109–110 px iba de la A a la z).
+  `Libro.astro › #descargas`: «Firma de correo», las dos firmas con «Copiar firma» (portapapeles en HTML
+  con la imagen publicada; si el navegador no deja, copia la selección) y un CORREO DE EJEMPLO (cabecera De · Para · Asunto, texto y la firma al pie). Probados y descartados:
+  el roble del hero detrás del trazo, el trazo a pluma ancha y los logotipos.
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /sistema (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0 · «Copiar firma» → «Copiada».
+- **Pendiente:** publicar (la imagen tiene que estar en savvia.studio para verse en los correos).
+
+### Portfolio, casos de estudio y favicon · 2026-10-22 · reunión con Eric (en local)
+- **Andoni y Eric (notas de la reunión del 22/10):** portfolio «con un scroll vertical continuo y filtros flotantes, eliminando los destacados superiores» ·
+  casos «simplificar los títulos principales, sustituir viñetas por comas en las etiquetas y prescindir de contrastes excesivos o escalas tipográficas
+  secundarias; las tipografías, con texto de prueba si las tenemos con licencia; rediseñar la zona inferior de navegación» · Andoni: «el favicon, que solo
+  sea el árbol, para que sea más reconocible, sin fondo».
+- **Hecho:**
+  · `views/Portfolio.astro`: fuera el slider de destacados (marcado, datos y script). La rejilla va seguida, de 12 en 12 al bajar (IntersectionObserver a
+    600 px del final; sin páginas ni `?p=`). El buscador y «Filtros» flotan abajo en una píldora de cristal (sticky dentro de la sección) y los filtros se
+    abren ENCIMA, en una columna que se desplaza si no cabe; Escape o pulsar fuera los cierran. La cuenta va junto al titular.
+  · Etiquetas con comas (`obra/Pieza.astro` y la ficha del caso).
+  · `views/Caso.astro`: el titular es solo el nombre (la frase ya está en la entradilla); fuera el contraste sobre la superficie y la escala tipográfica (se
+    quedan la paleta, las muestras de tipografía y el espaciado); abajo, «Siguiente proyecto» con su nombre grande y su pieza, y «Anterior · nombre» en una línea.
+  · Favicon: el roble de cada estación IGUAL que en el hero (Andoni: «en colores y todo tiene que ser igual»): `tools/favicon-arbol/capturar.cjs` fotografía el
+    lienzo del hero ya pintado (`?estacion=…&carga=0`, fotograma congelado) sobre negro y sobre blanco y saca el alfa por diferencia; 64 y 32 px, `?v=220`.
+    Antes se probaron la lámina recortada a su masa y la lámina en crudo (sin el color del motor). El icono de iPhone sigue
+    con su fondo (iOS pinta de negro lo transparente). Los anteriores, en `tools/retirados/favicon-r291/`.
+- **A media ronda (Andoni):** «el favicon se ve muy pequeño, tiene que ser más reconocible» · «el portfolio no lo has hecho bien: trasladar la estructura de cómo
+  presentamos los proyectos en la home» · «los filtros, los que teníamos en treseiscero.com/portfolio, pero flotantes y a nuestro estilo» · «y todos los proyectos de ese portfolio».
+- **Hecho:**
+  · DATOS: `tools/portfolio-tsc/extraer.cjs` lee en vivo el CMS de treseiscero.com/portfolio (41 proyectos con país, tecnología, servicios y categorías; Finsweet carga
+    las listas anidadas en el navegador) → `src/data/portfolio-tsc.json`; `medios.cjs` baja cada captura a `public/media/portfolio/<slug>.webp` (1280 px, 1,5 MB en
+    total) y mide tres colores para su degradado. Delante, los tres agénticos con caso (Kuanta, Arkdev, Neety): 44.
+  · `views/Portfolio.astro`: el MOSAICO de «Más proyectos» de la home (12 columnas, ocho sitios en filas de 3 · 2 · 3 con anchos, proporciones y escalones
+    distintos; la segunda de cada vuelta, la mesa con la web en el monitor) y su pie (nombre en Family y sector debajo; `Pieza.astro › pieCasa`). Al filtrar, el
+    mosaico se recompone con lo que queda. Nombres, sectores y colores de la home cuando el proyecto está allí; si tiene caso, enlaza a su caso; si no, a su web.
+    Vídeo al pasar en los 16 grabados; los demás, su captura.
+  · FILTROS de treseiscero (país · tecnología · servicio · categoría), traducidos y con recuento, en el panel flotante; se combinan entre sí y con el buscador.
+  · (Andoni: «los filtros sin el buscador» · «divididos como teníamos en treseiscero»): fuera el buscador; la barra flotante lleva CUATRO DESPLEGABLES —País ·
+    Tecnología · Servicio · Categoría—, cada uno con su rótulo y lo elegido (un punto Coral si filtra), y «Quitar filtros» cuando hay alguno; cada lista se abre
+    encima de su botón, una a la vez (Escape o pulsar fuera la cierran). En móvil, los cuatro en una tarjeta de 2 × 2. Probado: España + Finanzas → Adaral,
+    Invopop, Ikon (Chrome 1280 y 390, WebKit 1280).
+  · (Andoni: «los filtros abajo, más minimalistas; los proyectos con más aire; al hacer hover, la animación de la home; intercalar mockups; si es más vertical,
+    móvil, y si es más horizontal, escritorio; y que carguen como en la home, también al filtrar»):
+    - `components/obra/PiezaCasa.astro` + `scripts/pieza-casa.ts`: la pieza de «Más proyectos» (marcado, CSS y gestos de Anteriores.astro): fondo de marca,
+      navegador de cristal que asoma ladeado y al pasar se pone recto, centrado y entero (y suena su vídeo), la mesa con la web en el monitor, el móvil sobre
+      la mesa y el teléfono de pie; ENTRADA: la lámina se descubre de abajo arriba y su contenido sube después. Cada pieza lleva sus cuatro formas y el mosaico
+      le dice cuál enseñar según su sitio (verticales → móvil; anchas → escritorio); al filtrar, cambian de sitio y de forma y vuelven a entrar.
+    - Capturas en móvil de 36 webs (`tools/portfolio-tsc/movil.cjs`: Chrome con emulación de iPhone, avisos de cookies fuera). Sin captura (Kuanta y Arkdev,
+      marca blanca; crececoncasavo.com y homeplus.casavo.com no resuelven; gow.delivery no carga; transcend-network.com con error de SSL; endoaula.com da 404 en
+      móvil), siempre en escritorio.
+    - Más aire: 192 px entre filas, como la home. Filtros: una píldora fina con los cuatro nombres; lo elegido sustituye al nombre con un punto Coral; «Quitar».
+  · (Andoni: «quitamos "Todos los proyectos": con el titular de arriba es suficiente; el número de proyectos, en otro lado sutil» · «el marco del móvil, cuando no
+    es mockup, como el de desktop»): fuera el h2 y su filete; el número va al final de la barra de filtros, pequeño y apagado («44», o «4/44» al filtrar); el
+    teléfono de pie lleva la ventana de cristal del navegador (marco de 3 px, velo y filo de luz) en lugar del cuerpo negro.
+  · (Andoni: «al hacer hover a veces el gradiente se corta por las esquinas» · «¿cómo diferenciamos los que tienen caso de estudio de los que no?»): la capa del
+    degradado sobra un 25 % por cada lado (al girar 8° y crecer ×1,15, una pieza 3:4 necesita ×1,18 para no enseñar esquinas) y las manchas se recolocan en
+    ella; con CASO, una píldora de cristal «Caso de estudio» arriba a la izquierda (al pasar, se aclara); SIN caso, una flecha ↗ junto al nombre (abre su web).
+  · (Andoni: «que los filtros se abran y cierren más smooth: la savvia es muy fluida, no podemos tener animaciones toscas»): la lista ya no aparece con `hidden`
+    (el cierre era de golpe): crece desde su botón (sube, se enfoca y se descubre de abajo arriba, 0,7 s) y las opciones llegan escalonadas (22 ms cada una);
+    al cerrar, al revés (0,55 s); cerrada es inerte. «Quitar» entra y sale ensanchándose. Sin animación con movimiento reducido.
+  · (Andoni: «que la barrita te siga cuando haces hover en los diferentes filtros, y cuando clicas para desplegar uno, lo mismo»): una píldora tenue que se
+    DESLIZA (posición y tamaño, 0,55 s, curva de la casa) hasta el filtro bajo el puntero y se queda en el que está abierto; al salir de la barra vuelve a él (o se
+    apaga). Dentro de cada lista, otra que sigue a la opción y descansa en la elegida. Medida respecto a su caja (los botones van dentro de su .desp).
+  · CASOS DE ESTUDIO (Andoni: «1. el fondo del hero sin redondeos, que encaje en la cuadrícula · 2. los detalles, en 5 · 3. los colores como
+    brand.dropbox.com/color · 4. la tipo como /typography · 5. motion como /motion · 6. iconografía, si el proyecto la tiene, como /iconography · 7. el siguiente
+    proyecto con una flecha; fuera el anterior» · «y que el footer entre con la animación bien, como en la home»), en `views/Caso.astro`:
+    - Carátula sin radio. Detalles: los 5 primeros del mosaico (si la última fila queda a medias, pasa a ancha o a pareja).
+    - COLOR: tarjetas apiladas que se pisan (ancho según el uso medido); la que se pasa sube con su nombre, su valor y su %, y arrastra a sus vecinas.
+    - TIPOGRAFÍA: cartas en los colores claros de su paleta con la muestra (la tinta de su web) y un rótulo en píldora; la primera, grande; la tercera, el
+      titular aplicado recortado de su web.
+    - MOVIMIENTO: su grabación en un lienzo con guías y una línea de tiempo con pistas en su paleta; el cabezal sigue al vídeo y se arrastra (o flechas)
+      para recorrerlo; tiempo y ms por fotograma en mono. La frase, de su técnica si habla de movimiento.
+    - ICONOGRAFÍA: rejilla de celdas con filetes si el caso trae `iconos` (campo nuevo en `proyectos.ts`; hoy ninguno lo tiene).
+    - SIGUIENTE: el nombre con la FLECHA DE LA CASA (lib/flecha.ts: el chevrón que se dibuja líquido al pasar; Andoni: «que siga la estética del resto, no te
+      inventes una nueva» tras un primer círculo con flecha), escalada sin `non-scaling-stroke` para que su trazo no se rompa en puntos; fuera «Anterior».
+    - El PIE: el margen de abajo de «Siguiente proyecto» se salía de <main> (márgenes que colapsan) y dejaba el fondo oscuro de la página encima del pie: la
+      gota de la transición líquida subía sobre marrón y no se veía. `.caso { display: flow-root }`.
+  · CASOS, 2.ª vuelta (Andoni: «los colores con la animación de dropbox, analiza bien la animación · la typo más animada · más ejemplos de movimiento · detalles solo 3 · el siguiente proyecto sin subrayado y la flecha mucho más orgánica · un comentario de Eric o mío al final · fuera sección a sección · iconos en Por dentro» + «en cómo la construimos fuera números · un progreso de lo leído que te siga al scroll»):
+    COLOR, medido en el DOM de brand.dropbox.com/color: cada panel ocupa 4 columnas y se coloca cada 1 (se solapan); el que tocas sube un 50 % de su alto con un giro de −0,03° por cada 1 %; los de la izquierda le siguen en una campana ancha (σ 1,8 col) y los de la derecha en una estrecha (σ 0,6), centrada 0,4 col a la derecha de su canto; 0,4 s cubic-bezier(.15,.5,.05,1); el nombre y el hex solo en el de arriba. La fila deja sitio arriba para que lo que sube no pise la cabecera.
+    TIPOGRAFÍA: las cartas se descubren de abajo arriba, la muestra sale del desenfoque y flota despacio; paralaje con el puntero. (Pillado: el IntersectionObserver no disparaba sobre una carta con su propio clip-path a 100 %: se observa la rejilla entera.)
+    MOVIMIENTO: además del lienzo con su línea de tiempo, hasta cuatro EJEMPLOS más (los vídeos del mosaico que no salen en detalles), que se reproducen a la vista.
+    DETALLES: 3 como máximo. SIGUIENTE PROYECTO: sin subrayado; la flecha de la casa (`flecha()`) se desplaza con un muelle (cubic-bezier(.29,1.59,.1,1), el de Dropbox). Fuera «Anterior».
+    COMENTARIO al final (cara, cita, nombre) — BORRADORES de Nilo sacados de la conclusión de cada caso (Andoni: kuanta, arkdev, playground, neety; Eric: invopop, BOP, cubbo, remerge, isotrol): revisarlos. En inglés sale en castellano.
+    POR DENTRO: icono por herramienta (Simple Icons, CC0, `public/media/iconos/tec/`; glifos de línea para lo que no tiene). Fuera «Sección a sección» y los números de «Cómo la construimos».
+    PROGRESO DE LECTURA: la guía izquierda se llena con lo leído y en su punta «quedan N min» (220 palabras/min).
+    Medido: `astro check` 0 · `tools/verify.cjs` en /proyectos/neety, kuanta, remerge y /en/proyectos/invopop (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0. Iconografía solo si el caso trae `iconos` (ninguno aún).
+  · CASOS, 3.ª vuelta (Andoni: «movimiento, los detalles de motion como una abstracción como hace Dropbox · lo de cuánto queda por leer a la derecha, que salga hacia la derecha, un circulito que se va rellenando con el tiempo que queda · en los casos que aplique, un ejemplo de la librería que creamos para cliente · espaciados más animados y cómo aplican» + «la flecha sigue sin convencerme, debería crearse de manera fluida como el navbar»):
+    MOVIMIENTO EN ABSTRACTO (brand.dropbox.com/motion › Motion Principles, medido: cartas de color plano con dos o tres formas que repiten el gesto): cada detalle se clasifica por lo que cuenta (pestañas, bucle, cuenta, cae, atraca, comprime, traza, gira, filtra, releva) y se dibuja en CSS con los dos colores de su paleta que más contrastan con la carta; hasta cuatro, de gestos distintos; solo se mueven a la vista. Fuera los vídeos de esas cartas.
+    PROGRESO: a la derecha, en la guía, abajo: píldora «quedan N min» + un círculo que se llena; entra desde la derecha y se va por la derecha.
+    LA LIBRERÍA: solo donde hay una publicada (hoy Neety; zernio.treseiscero.app/library es otra cosa). Recorrido grabado (`public/media/obra/neety/libreria.mp4`, 2,1 MB: Cambiar contenido → Color → Botones → Componentes) en un navegador, y «Ver la librería». Campo `libreria` en proyectos.ts.
+    ESPACIADO APLICADO: un esquema de su página a escala (1440 → la columna) con SU contenedor, SU aire entre secciones, SU relleno y SU hueco más usados; cada medida se enciende por turnos en coral con su rótulo, y a la vez su cifra o su fila en la lista; al pasar por una fila se enciende la suya.
+    FLECHA de «Siguiente proyecto»: el filtro gooey de la rejilla de la barra (goo-nav) a su escala: al pasar, las alas se recogen en el vértice, la gota se hincha y vuelven a brotar de ella (0,95 s); sin muelle.
+    Pillados: el IntersectionObserver no dispara sobre un elemento que se recorta a sí mismo con clip-path al 100 % (cartas de tipografía y librería): se recorta un hijo o se observa el padre. Y dos choques de clases con estilos ya existentes (`.panel`, `.hueco`): renombradas.
+    Medido: `astro check` 0 · `tools/verify.cjs` en /proyectos/neety, kuanta, remerge y /en/proyectos/invopop (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0.
+  · CASOS, 4.ª vuelta (Andoni: «en motion, después del principal, 3 detalles en una fila que no se repitan tanto entre case studies · la librería, una representación, y si quieres verla entera vas a ella · los gradientes de los detalles, lo más parecidos a los del hero · los sonidos, si la web los tiene, que se pueda ver un ejemplo»):
+    MOVIMIENTO: tres cartas en fila. El reparto se hace con los nueve casos a la vez (`src/lib/gestos.ts`): cada caso se queda con los tres gestos menos usados que le cuadran; cuatro gestos nuevos (escribe, ola, órbita, péndulo). Resultado: ningún gesto sale más de tres veces en toda la web.
+    LIBRERÍA: fuera el vídeo grabado (y sus archivos). Ahora una representación en HTML con su contenido real, leído de neety.treseiscero.app/library: índice, prompts de «Cambiar contenido», paleta, titulares, botones (con su hover: el texto rueda y el punto se hace flecha) y escala de espaciado; pasa sola de una sección a otra con el índice siguiéndola. «Ver la librería entera ↗». Datos en `proyectos.ts › libreria`.
+    DEGRADADOS: los detalles sobre placa usan el MISMO fondo de la carátula (base colores[0] + las dos manchas de colores[1] y [2]); la placa ya solo decide si van sobre fondo de marca.
+    SONIDO (solo Arkdev, el único con sonido): sus dos sonidos copiados de su código (clic: tres ondas cuadradas 2.100 · 1.650 · 320 Hz; al pasar: 1.400 Hz, 8 ms; paso bajo 4.200 Hz) que se tocan desde el caso, con su forma de onda calculada, sus tonos en una línea de tiempo y un cabezal que la recorre 25× más lento. Datos en `proyectos.ts › sonidos`.
+    Medido: `astro check` 0 · `tools/verify.cjs` en neety, arkdev, kuanta y /en/proyectos/invopop (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0.
+  · FAVICON: el árbol del hero recortado a su masa (copa y tronco) y casi a sangre en el cuadrado, un punto más contrastado (`capturar.cjs --recortar`); `?v=221`.
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /, /proyectos, /en/proyectos y /proyectos/neety (Chrome y WebKit, 1280 y 390): consola limpia, 0 ≥ 400, desborde 0.
+- **Pendiente:** qué cambio de «gradientes» se pidió en la reunión; reseña y foto de cada caso (Eric); Patch Bay como nombre de Zernio.
+
+## Quantus y Patchbay · 2026-10-22
+- **Andoni (textual):** «mira lo que ha actualizado Eric y tráelo a local y luego tenemos que actualizar Kuanta y Arkdev porque los he rehecho para que no tengan nada de clientes: https://quantus-demo.vercel.app/ y https://patchbay-web.vercel.app/».
+- **Eric:** tres commits de origin/main traídos con fast-forward (más aire entre secciones en escritorio, citas recortadas, una franja de 3 px a prueba para la barra de Safari en iOS). No tocaban ningún archivo de lo que había sin commitear.
+- **Interpretación:** Kuanta pasa a ser **Quantus** y Arkdev, **Patchbay**: conceptos propios, sin marca blanca. Cambian nombre y slug (`/proyectos/quantus`, `/proyectos/patchbay`), y el caso se rehace con las webs nuevas.
+- **Hecho:**
+  · Nombre, slug y enlaces en todo `src` (proyectos, inglés, home y su iframe del monitor, espaciado, construir, sistema, portfolio). Carpetas `public/media/obra/{quantus,patchbay}` y `public/media/proyectos/{quantus,patchbay}.webp` (git mv). Los dos casos ganan `url` y `dominio`, así que enseñan «Ver la web».
+  · Medios regrabados de las webs nuevas con `tools/r188/grabar.cjs` (cámara lenta, CRF 18) y una lista propia, `tools/r292/lista.json` (las tomas de las rondas 154 y 188, con las alturas de Patchbay corregidas y el tensor de Quantus, que ahora vive en el pie). Monitor de la home con `tools/r292/monitor.cjs`; muestras de tipo (`tools/r64-tipos.cjs`), ejemplo aplicado (`tools/r153/aplicado.cjs`, recortado para quitar el canto de la esfera), escala (`tools/r153/escala.cjs`) y espaciado (`tools/r188/espacios.cjs` → `src/data/espaciado.json`).
+  · Quantus, con los datos de su propia sección «The part that is not fiction»: 24 rondas (antes 26), un único HTML escrito a mano de unos 440 KB, 15 ilustraciones, 87 herramientas de medida y el hilo principal de 40,1 s a 26,4 s (fotogramas de más de 20 ms del 2,5 % al 0,9 %).
+  · Patchbay: el sonido de su web ha cambiado (ruido en banda estrecha + un seno corto que cae, «nada de ondas cuadradas, que sonaba a petardeo»): el caso lo reproduce con el mismo código, capa a capa, y lo dibuja. HTML de 2.962 líneas (234 KB), en Vercel; H3 27 px, detalle 12,5 px y botón de 40 px.
+- **Medido:** `astro check` 0 · `tools/verify.cjs` en /, /proyectos, /proyectos/quantus, /proyectos/patchbay y /en/proyectos/patchbay (Chrome y WebKit, 1280 y 390): limpio, 0 ≥ 400, desborde 0.
+- **Pendiente:** el reel sigue montado con las tomas antiguas (Kuanta y Arkdev); las direcciones viejas /proyectos/kuanta y /proyectos/arkdev ya no existen (¿redirigir?); los textos de los dos casos siguen siendo los de antes, revisados contra las webs nuevas (cuadran), salvo lo dicho; no publicado.
+- **A media ronda (Andoni):** «la librería, reproducirla mínimamente en el caso, que sea navegable, resumida, y si quieres verla entera un botón claro; el titular de la librería tiene a la derecha una explicación muy larga, la quitamos» · «el reel lo rehacemos más adelante» · «en el mockup de la home las webs son navegables; la de Quantus y Patchbay no, has puesto una captura».
+  · Librería: el índice es RESUMIDO (las cinco secciones que se reproducen) y son pestañas de verdad (clic, flechas, `aria-selected`); pasa sola hasta que la tocas; en móvil, una tira con scroll lateral que centra la activa. Fuera la explicación del titular. Debajo, el CTA de la casa «Ver la librería entera ↗» y «Aquí, resumida: cinco de sus secciones».
+  · Home: `api/embebible.js` solo contestaba por `*.treseiscero.app` y a las dos demos de Vercel les decía que no → captura. Ahora acepta `quantus-demo.vercel.app` y `patchbay-web.vercel.app`, y el monitor no pregunta por ellas (en local `/api` va a producción: si no, seguiría saliendo la captura hasta publicar); la captura queda de red a los 15 s. Medido: sentado, los cuatro proyectos montan su iframe.
+  · Los vídeos del monitor en MÓVIL (`public/media/proyectos/video/`) eran las grabaciones de Screen Studio de las webs del cliente (la de «Kuanta» enseñaba la marca de Multiverse): regrabados de las dos webs nuevas a 1280 × 698, página entera a velocidad constante (opción nueva «lineal» en `tools/r188/grabar.cjs`; lista `tools/r292/monitor-movil.json`), 2,8 y 2,2 MB. Fuera kuanta.* y arkdev.*.
+- **A media ronda (Andoni):** «la librería, ¿por qué la metemos en ese marco? ¿puede ir como si fuese una librería de verdad?» → fuera el navegador (puntos y dirección) y la sombra: la librería va tal cual, sobre su papel, con su cabecera (marca, etiqueta «Librería · Sistema de diseño» y su titular) y debajo su índice y la sección; los títulos de sección, en palo como los suyos. En móvil, la pestaña activa ya no se descoloca al enfocarla con el teclado. Medido: verify en /proyectos/neety (Chrome y WebKit, 1280 y 390) limpio.
+- **A media ronda (Andoni):** «¿cómo trasladamos la librería al case study para que al cliente le quede claro que eso es lo que le entregamos?» → propuesta aceptada («dale»):
+  · El titular pasa a «Lo que entregamos», con una línea: «Con la web, Neety se quedó con esto: su sistema de diseño y la guía para cambiarla con Claude.»
+  · EL ALBARÁN: cuatro piezas en fila (La web · El código · La librería · La guía para Claude), sacadas de su propia librería («Recibir el proyecto»: repositorio de GitHub con código, assets, documentación y la librería; `CLAUDE.md` y `docs/decisiones.md`); la librería marcada en coral, «Aquí abajo, resumida ↓». Datos en `proyectos.ts › libreria.entrega` (con inglés).
+  · LA ENTREGA EN USO: en «Cambiar contenido», cada prompt se APLICA a una miniatura del hero de Neety (titular, menú y botón reales; pulsar otra vez lo deshace); si nadie la toca, aplica sola el primero a los 1,6 s y se queda 7 s en esa sección. Datos en `libreria.prompts[].efecto` y `libreria.web`.
+  · Pillado: las secciones de la librería tenían `pointer-events: none` (de cuando solo se animaban) y no se podía pulsar nada dentro; ahora la activa sí.
+  · Medido: los tres prompts cambian su parte (Chrome y WebKit 1280, Chrome 390) · verify en /proyectos/neety y /en/proyectos/neety (Chrome y WebKit, 1280 y 390) limpio.
+- **A media ronda (Andoni):** «me gusta más, pero la librería que presentamos me sigue sin convencer» → diagnóstico: era una RÉPLICA (nuestras fuentes, cinco pestañas, texto pequeño sobre beige) y perdía lo que la vende (su tipografía, sus componentes de verdad, su volumen). Propuesta aceptada («dale»): la de verdad.
+  · La librería de Neety, en un iframe a todo el ancho de la retícula (su CSP deja `https://savvia.studio` y `http://localhost:*`), navegable y con su scroll; alto `clamp(32rem, 80dvh, 52rem)` (72dvh en móvil). Encima, accesos en píldora (Cambiar contenido · Color · Tipografía · Botones · Componentes) que saltan a esa sección dentro de ella (solo cambia el #ancla). Se monta a 600 px de entrar en pantalla; hasta entonces, y si no carga en 15 s, su primera pantalla capturada (`public/media/obra/neety/libreria{,-movil}.webp`).
+  · Se quedan «Lo que entregamos», el albarán («Aquí abajo, la de verdad ↓») y «Ver la librería entera» («Es la de verdad: navégala aquí o ábrela entera»). Fuera la réplica: su marcado, sus estilos, su código (pestañas y prompts que se aplicaban) y sus datos (`libreria` queda en url, capturas, accesos y entrega).
+  · Pillados: al limpiar se fueron también los estilos del albarán (repuestos); el iframe lo crea el script y no llevaba el ámbito de Astro, así que salía a 300 × 150 (→ `:global(iframe)`).
+  · Medido: carga y salto a «Botones» en Chrome 1280 y 390 y WebKit 1280 · verify en /proyectos/neety, /en/proyectos/neety y /proyectos/quantus (Chrome y WebKit, 1280 y 390) limpio.
+- **A media ronda (Andoni):** «esto me gusta más; ¿podemos poner la librería dentro de algo que la integre más con nuestra web, algo chulo y original?» → tres direcciones; elige la 2, **«El libro de la marca»**.
+  · La librería se entrega como un LIBRO: cerrado, la tapa en los colores de Neety (`libreria.tapa`: berenjena, crema, naranja), con lomo, su titular y una etiqueta de papel «Entregado con la web · savvia»; va centrado. Al asomar (70 % a la vista, 0,9 s) se abre: la tapa gira sobre el lomo HACIA ATRÁS en perspectiva (rotateY 104°, 1,7 s) y queda en el cuarto izquierdo enseñando la guarda con el ex libris («Este libro es de Neety»), mientras el libro se desplaza a su sitio. La página, con el canto de las hojas, es la librería real: a 1120 px reducida a la página (para que salga su índice lateral, que aparece desde 1024 px). También se abre al pulsar la tapa o un acceso. Sin JS, abierto; con movimiento reducido, se abre sin animación. En móvil la tapa se levanta hacia arriba (bisagra arriba) y se va.
+  · Pillado: otra colisión de clases (`.hoja`, de la tipografía, convertía la página en una rejilla de anchura 0 y el iframe salía vacío): `.pagina-lib`.
+  · Medido: abierto y cargado en Chrome 1280 y 390 y WebKit 1280 (iframe 1120 px × 0,80) · verify en /proyectos/neety y /en/proyectos/neety (Chrome y WebKit, 1280 y 390) limpio.
+- **A media ronda (Andoni):** «me gusta; ¿podemos hacer el libro más realista y que se pueda abrir y cerrar?»
+  · Un solo número manda, `--a` (0 cerrado · 1 abierto): el giro de la tapa, el desplazamiento del libro y la sombra que la tapa deja en la página.
+  · Se abre y se cierra: con clic (o Intro) en la tapa, ARRASTRÁNDOLA (sigue al ratón o al dedo y al soltar se queda abierta o cerrada según por dónde vaya; en el móvil, hacia arriba) y con «Cerrar el libro / Abrir el libro» al final de los accesos. La primera vez se abre solo al asomar, salvo que ya lo hayas tocado. Cerrado, al pasar, la tapa se levanta un pelo.
+  · Materia: tapa de cartón de 6 px (cara de fuera y de dentro separadas y el canto y el lomo en 3D), tela con su trama, lomo con la bisagra hundida, titular y marca gofrados, guarda con el ex libris y el canto de las hojas a la derecha y abajo.
+  · Medido (Chrome 1280 y 390, WebKit 1280): arrastre a medias (`--a` 0,43 / 0,59), al soltar abierto; el botón lo cierra; un clic en la tapa lo abre y la librería carga · verify en /proyectos/neety y /en/proyectos/neety (Chrome y WebKit, 1280 y 390) limpio.
+- **A media ronda (Andoni):** «se abre al revés: se tiene que abrir hacia fuera, no hacia dentro» → la tapa gira HACIA QUIEN MIRA (rotateY −180°) y queda tumbada a la izquierda como página (la guarda con el ex libris): un pliego de dos páginas iguales; cerrado, el libro va centrado (−25 %). La librería va en la página derecha, a su anchura (su maqueta estrecha, sin reducir). En móvil la tapa se levanta hacia ti (rotateX positivo). Medido: arrastre, botón y clic en Chrome 1280 y 390 y WebKit 1280 · verify en /proyectos/neety y /en/proyectos/neety limpio.

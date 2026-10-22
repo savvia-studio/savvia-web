@@ -2,7 +2,7 @@
 // con cuántos caracteres usa cada uno; y los botones (enlaces con fondo, sin «saltar al contenido»). → tools/r153/estilos.json
 const { chromium, launchOpts, userAgent } = require('/Users/andonimart/Desktop/savvia/savvia_inspo/scripts/pw.cjs');
 const fs = require('fs');
-const webs = { kuanta: 'file:///Users/andonimart/Desktop/Claude%20Code/multiverse-home/dist/index.html', arkdev: 'https://zernio.treseiscero.app/', playground: 'https://playgroundiep.com/', neety: 'https://neety.treseiscero.app/home', invopop: 'https://invopop.com/', 'business-online-payroll': 'https://businessonlinepayroll.com/', cubbo: 'https://cubbo.com/', remerge: 'https://remerge.io/', isotrol: 'https://isotrol.com/' };
+const webs = { quantus: 'https://quantus-demo.vercel.app/', patchbay: 'https://patchbay-web.vercel.app/', kuanta: 'file:///Users/andonimart/Desktop/Claude%20Code/multiverse-home/dist/index.html', arkdev: 'https://zernio.treseiscero.app/', playground: 'https://playgroundiep.com/', neety: 'https://neety.treseiscero.app/home', invopop: 'https://invopop.com/', 'business-online-payroll': 'https://businessonlinepayroll.com/', cubbo: 'https://cubbo.com/', remerge: 'https://remerge.io/', isotrol: 'https://isotrol.com/' };
 const lista = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(webs);
 (async () => {
   const f = 'tools/r153/estilos.json';

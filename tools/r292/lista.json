@@ -1,0 +1,298 @@
+{
+ "quantus": [
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6500,
+   "espera": 600,
+   "hold": 0,
+   "dur": 7,
+   "sinFijos": "botones"
+  },
+  {
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-esfera",
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6000,
+   "espera": 800,
+   "accion": "bajar",
+   "dy": 2000,
+   "dur": 6,
+   "ida": true,
+   "hold": 0.8,
+   "crf": 24
+  },
+  {
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-plano",
+   "y": 10400,
+   "arriba": 0,
+   "espera": 1500,
+   "caja": [
+    230,
+    40,
+    760,
+    760
+   ],
+   "salto": 10700,
+   "desde": 0.4,
+   "hold": 0,
+   "dur": 3.2,
+   "holdFin": 1.6,
+   "ancho": 1400
+  },
+  {
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-matriz",
+   "y": 6400,
+   "arriba": 0,
+   "espera": 1000,
+   "accion": "bajar",
+   "dy": 1600,
+   "dur": 6,
+   "ida": true,
+   "hold": 0.8
+  },
+  {
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-tarjetas",
+   "y": 3244,
+   "arriba": 0,
+   "espera": 1500,
+   "caja": [
+    120,
+    160,
+    1680,
+    720
+   ],
+   "accion": "pasar",
+   "sobre": "#for article, #for .card, #for li",
+   "dur": 8,
+   "hold": 0.6
+  },
+  {
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-pila",
+   "foto": true,
+   "y": 15570,
+   "arriba": 0,
+   "espera": 3000,
+   "caja": [
+    300,
+    40,
+    1320,
+    940
+   ]
+  },
+  {
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "c-casos",
+   "foto": true,
+   "y": 16633,
+   "arriba": 0,
+   "espera": 2500,
+   "caja": [
+    0,
+    0,
+    1920,
+    1080
+   ]
+  },
+  {
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "nombre": "x-tensor",
+   "y": 22010,
+   "arriba": 120,
+   "espera": 1500,
+   "dur": 8,
+   "hold": 0
+  },
+  {
+   "nombre": "portada",
+   "vp": [
+    1440,
+    810
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 1500,
+   "espera": 300,
+   "cast": true,
+   "sinFijos": false,
+   "hold": 0,
+   "dur": 6,
+   "holdFin": 0
+  }
+ ],
+ "patchbay": [
+  {
+   "nombre": "cubierta",
+   "cast": true,
+   "vp": [
+    1920,
+    1080
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 7000,
+   "espera": 600,
+   "hold": 0,
+   "dur": 7,
+   "sinFijos": "botones"
+  },
+  {
+   "nombre": "x-terminal",
+   "y": 350,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 4500,
+   "espera": 200,
+   "caja": [
+    200,
+    320,
+    1040,
+    585
+   ],
+   "formato": [
+    16,
+    9
+   ],
+   "dur": 7,
+   "hold": 0
+  },
+  {
+   "nombre": "x-canales",
+   "y": 1496,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    40,
+    200,
+    1360,
+    680
+   ],
+   "formato": [
+    2,
+    1
+   ],
+   "accion": "pulsar",
+   "textos": [
+    "Instagram",
+    "TikTok",
+    "LinkedIn",
+    "YouTube",
+    "Reddit"
+   ],
+   "dur": 9,
+   "hold": 0.6,
+   "ancho": 2400
+  },
+  {
+   "nombre": "c-atraca",
+   "foto": true,
+   "texto": "Every channel docks",
+   "sube": 2,
+   "arriba": 200,
+   "espera": 2500,
+   "margen": 48
+  },
+  {
+   "nombre": "c-clientes",
+   "foto": true,
+   "texto": "Take their word",
+   "sube": 2,
+   "arriba": 80,
+   "espera": 2500,
+   "caja": [
+    0,
+    0,
+    1440,
+    900
+   ]
+  },
+  {
+   "nombre": "x-pasos",
+   "y": 6530,
+   "arriba": 0,
+   "espera": 800,
+   "caja": [
+    100,
+    140,
+    1240,
+    470
+   ],
+   "dur": 8,
+   "hold": 0
+  },
+  {
+   "nombre": "x-muelle",
+   "y": 4020,
+   "arriba": 0,
+   "espera": 1000,
+   "caja": [
+    100,
+    50,
+    700,
+    525
+   ],
+   "formato": [
+    4,
+    3
+   ],
+   "dur": 10
+  },
+  {
+   "nombre": "portada",
+   "vp": [
+    1440,
+    810
+   ],
+   "y": 0,
+   "arriba": 0,
+   "recorrer": false,
+   "espera0": 1500,
+   "espera": 300,
+   "cast": true,
+   "sinFijos": false,
+   "hold": 0,
+   "dur": 6,
+   "holdFin": 0
+  }
+ ]
+}

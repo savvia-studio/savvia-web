@@ -1,0 +1,298 @@
+---
+// OCTUBRE 2026 · LA PIEZA DE LA HOME, PARA EL PORTFOLIO. Andoni: «los proyectos, con más aire; al hacer hover, la animación de la home (como está publicado);
+// intercalar con mockups; si es más vertical, móvil, y si es más horizontal, escritorio; y que carguen como en la home, también al filtrar».
+// Es la pieza de «Más proyectos» (Anteriores.astro): el mismo marcado, las mismas clases y el mismo CSS (copiado de allí: fondo de marca, navegador de cristal que
+// asoma ladeado y al pasar se pone recto y entero, la mesa con la web en el monitor, el móvil sobre la mesa, el teléfono de pie, el icono de vídeo, el pie con
+// nombre y sector, y la ENTRADA: la lámina se descubre de abajo arriba y su contenido sube después).
+// Diferencia: la FORMA no es fija. Cada pieza lleva sus cuatro formas (navegador · mesa · móvil en la mesa · teléfono) y el mosaico le dice cuál enseñar según
+// el sitio que le toca (las verticales, en móvil; las anchas, en escritorio): al filtrar cambia de sitio y de forma. Solo se descargan las imágenes de la visible.
+export type ObraCasa = {
+  slug: string; nombre: string; sector: string; href: string; colores: [string, string, string];
+  video?: { src: string; poster: string }; // grabación de escritorio (suena al pasar)
+  videoMovil?: { src: string; poster: string }; // grabación en móvil
+  captura: string; // captura de escritorio (si no hay vídeo)
+  movil?: string; // captura en móvil (sin ella, nunca va en teléfono)
+};
+interface Props { o: ObraCasa; i: number }
+const { o, i } = Astro.props;
+const en = Astro.currentLocale === 'en';
+const fuera = /^https?:/.test(o.href); // sin caso de estudio: enlaza a su web (y lo dice la flecha ↗); con caso, la etiqueta «Caso de estudio»
+// el fondo de su web, claro u oscuro: decide el cristal del navegador y la tinta
+const claro = (hex: string) => { const [r, g, b] = [1, 3, 5].map((k) => parseInt(hex.slice(k, k + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5; };
+const esClaro = claro(o.colores[0]);
+// la pantalla del monitor y la del móvil de la mesa (medidas en las láminas; Anteriores.astro › PANT y QUAD)
+const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 };
+const LAM = { w: 1672, h: 941 };
+const Q: [number, number][] = [[964, 183], [1205, 178], [1195, 714], [943, 705]];
+function quad() {
+  const x0 = Math.min(Q[0][0], Q[3][0]), y0 = Math.min(Q[0][1], Q[1][1]), x1 = Math.max(Q[1][0], Q[2][0]), y1 = Math.max(Q[2][1], Q[3][1]);
+  const W = x1 - x0, H = y1 - y0;
+  const n = Q.map(([x, y]) => [(x - x0) / W, (y - y0) / H] as [number, number]);
+  const [[a0, b0], [a1, b1], [a2, b2], [a3, b3]] = n;
+  const dx1 = a1 - a2, dx2 = a3 - a2, dx3 = a0 - a1 + a2 - a3, dy1 = b1 - b2, dy2 = b3 - b2, dy3 = b0 - b1 + b2 - b3;
+  const det = dx1 * dy2 - dx2 * dy1, g = (dx3 * dy2 - dx2 * dy3) / det, h = (dx1 * dy3 - dx3 * dy1) / det;
+  const m = { a: a1 - a0 + g * a1, b: a3 - a0 + h * a3, c: a0, d: b1 - b0 + g * b1, e: b3 - b0 + h * b3, f: b0, g, h };
+  const r = (v: number) => +v.toFixed(6);
+  const matriz = `matrix3d(${r(m.a)}, ${r((m.d * H) / W)}, 0, calc(${r(m.g / W)} / var(--s)), ${r((m.b * W) / H)}, ${r(m.e)}, 0, calc(${r(m.h / H)} / var(--s)), 0, 0, 1, 0, calc(${r(m.c * W)} * var(--s)), calc(${r(m.f * H)} * var(--s)), 0, 1)`;
+  return { x0, y0, W, H, cx: (x0 + x1) / 2 / LAM.w, cy: (y0 + y1) / 2 / LAM.h, matriz };
+}
+const q = quad();
+const ZE = 2.88, ZM = 2.4; // ampliación de la mesa (monitor) y de la del móvil
+const leftE = 50 - (PANT.x + PANT.w / 2) * ZE * 100, pyE = PANT.y + PANT.h / 2;
+const leftM = 50 - q.cx * ZM * 100, pyM = q.cy;
+const EST = ['primavera', 'verano', 'otono', 'invierno'];
+// el medio de escritorio y el de móvil (vídeo si hay grabación; si no, la captura)
+const etiqueta = en ? `Walkthrough of the ${o.nombre} website` : `Recorrido por la web de ${o.nombre}`;
+const medio = (v?: { src: string; poster: string }, img?: string, movil = false) =>
+  v
+    ? `<video class="vid" muted loop playsinline preload="none" data-poster="${v.poster}" width="${movil ? 390 : 960}" height="${movil ? 844 : 600}" aria-label="${etiqueta}" data-vid><source src="${v.src}" type="video/mp4" /></video>`
+    : `<img class="vid" data-img="${img}" alt="${etiqueta}" width="${movil ? 390 : 1280}" height="${movil ? 844 : 830}" decoding="async" />`;
+const escritorio = medio(o.video, o.captura);
+const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '';
+---
+
+<a
+  class={`pieza navegador ${esClaro ? 'claro tinta-oscura' : 'mancha'}`}
+  href={o.href}
+  target={fuera ? '_blank' : undefined}
+  rel={fuera ? 'noopener' : undefined}
+  data-pieza
+  data-pieza-casa
+  data-slug={o.slug}
+  data-claro={esClaro ? '' : undefined}
+  data-con-movil={enMovil ? '' : undefined}
+  style={`--i:${(i % 3) + 1};--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]}`}
+>
+  <div class="lamina g-marca">
+    <!-- las cuatro formas; el mosaico enseña una (data-forma en la pieza) -->
+    <div class="mockup f-nav"><Fragment set:html={escritorio} /></div>
+    <div class="mesa f-escena" style={`--z:${ZE};--left:${leftE.toFixed(2)};--cy:0.5;--py:${pyE}`}>
+      {EST.map((e) => <img class="foto foto-e" data-e={e} data-img={`/media/estudio/${e}.webp`} alt="" width="1672" height="941" decoding="async" />)}
+      <span class="pantalla"><Fragment set:html={escritorio} /></span>
+    </div>
+    {enMovil && (
+      <>
+        <div class="mesa f-movil" style={`--z:${ZM};--left:${leftM.toFixed(2)};--cy:0.5;--py:${pyM}`} data-mesa-quad>
+          {EST.map((e) => <img class="foto foto-e" data-e={e} data-img={`/media/anteriores/mesa-movil-${e}.webp`} alt="" width="1672" height="941" decoding="async" />)}
+          <span class="pantalla quad" style={`left:${((q.x0 / LAM.w) * 100).toFixed(3)}%;top:${((q.y0 / LAM.h) * 100).toFixed(3)}%;width:${((q.W / LAM.w) * 100).toFixed(3)}%;height:${((q.H / LAM.h) * 100).toFixed(3)}%;transform:${q.matriz}`}><Fragment set:html={enMovil} /></span>
+        </div>
+        <div class="tel-m f-tel"><span class="tel-pant"><Fragment set:html={enMovil} /></span></div>
+      </>
+    )}
+    {!fuera && <span class="caso-et">{en ? 'Case study' : 'Caso de estudio'}</span>}
+    {(o.video || o.videoMovil) && <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>}
+  </div>
+  <div class="pie pie-pieza mt-4">
+    <h3 class="nombre-pie font-display">{o.nombre}{fuera && <svg class="sale" viewBox="0 0 16 16" aria-label={en ? '(opens their website)' : '(abre su web)'}><path d="M5 11l6-6M6 5h5v5" /></svg>}</h3>
+    {o.sector && <p class="detail text-fg2">{o.sector}</p>}
+  </div>
+</a>
+
+<style>
+  /* ── lo de Anteriores.astro (rondas 18–290), tal cual */
+  .pieza { display: block; min-width: 0; color: inherit; }
+  .lamina {
+    position: relative;
+    aspect-ratio: var(--ratio, 4 / 5);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    isolation: isolate;
+    container-type: size;
+    -webkit-mask-image: linear-gradient(#000, #000);
+    mask-image: linear-gradient(#000, #000);
+  }
+  /* (Andoni: «al hacer hover a veces el gradiente se corta por las esquinas»: al girar 8° y crecer un 15 %, una capa del tamaño justo dejaba las esquinas al
+     descubierto en las piezas altas —para cubrir una 3:4 girada hacen falta ×1,18—. La capa sobra un 25 % por cada lado y las manchas se recolocan en ella) */
+  .lamina::before {
+    content: '';
+    position: absolute;
+    inset: -25%;
+    z-index: -2;
+    background: radial-gradient(46.7% 40% at 64.7% 31.3% in oklab, var(--c2), transparent 72%), radial-gradient(36.7% 36.7% at 22% 80.7% in oklab, var(--c3), transparent 70%), var(--c1);
+    transition: transform 1.6s var(--ease-out-expo);
+  }
+  .pieza:hover .lamina::before { transform: scale(1.15) rotate(8deg); }
+  /* en la mesa (monitor o móvil), sin el fondo de marca: la foto lo cubre */
+  .pieza:is(.escena, .movil) .lamina::before { display: none; }
+  .pieza:focus-visible { outline: 2px solid var(--color-cacao); outline-offset: calc(var(--spacing) * 1); }
+
+  /* las formas: solo la de su sitio */
+  .f-nav, .f-escena, .f-movil, .f-tel { display: none; }
+  .navegador .f-nav { display: flex; }
+  .escena .f-escena, .movil .f-movil { display: block; }
+  .tel .f-tel { display: block; }
+
+  /* ── el NAVEGADOR de cristal, que asoma ladeado; el sitio dice dónde (--mx, --top, --mw) */
+  .mockup {
+    --ease-suave: cubic-bezier(0.32, 0.72, 0, 1);
+    --r-fuera: 6px;
+    --marco: 3px;
+    position: absolute;
+    flex-direction: column;
+    left: var(--mx, 14%);
+    top: var(--top, 34%);
+    width: var(--mw, 118%);
+    rotate: var(--giro, -6deg);
+    transform-origin: 0 0;
+    padding: var(--marco);
+    border-radius: var(--r-fuera);
+    overflow: hidden;
+    background: color-mix(in srgb, #fff 20%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.5), 0 0 0 1px rgb(0 0 0 / 0.08), 0 32px 60px -22px rgb(20 12 6 / 0.55);
+    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
+  }
+  .claro .mockup {
+    background: color-mix(in srgb, #302018 7%, transparent);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5), 0 0 0 1px rgb(48 32 24 / 0.1), 0 24px 48px -20px rgb(48 32 24 / 0.35);
+  }
+  .mockup :global(.vid) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: 50% 0;
+    border-radius: calc(var(--r-fuera) - var(--marco));
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
+  }
+
+  /* ── la MESA: la lámina del estudio ampliada, con la web dentro del monitor o del móvil (en unidades de la pieza) */
+  .mesa {
+    position: absolute;
+    width: calc(var(--z) * 100cqw);
+    aspect-ratio: 16 / 9;
+    left: calc(var(--left) * 1cqw);
+    top: calc(var(--cy) * 100cqh - var(--py) * var(--z) * 56.25cqw);
+    transition: scale 1.6s var(--ease-out-expo);
+    transform-origin: 50% var(--py);
+  }
+  .mesa .foto { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .mesa .foto-e { display: none; }
+  .mesa .foto-e[data-e='otono'] { display: block; }
+  :global(html[data-estacion='primavera']) .mesa .foto-e[data-e='primavera'],
+  :global(html[data-estacion='verano']) .mesa .foto-e[data-e='verano'],
+  :global(html[data-estacion='invierno']) .mesa .foto-e[data-e='invierno'] { display: block; }
+  :global(html:is([data-estacion='primavera'], [data-estacion='verano'], [data-estacion='invierno'])) .mesa .foto-e[data-e='otono'] { display: none; }
+  .mesa .pantalla {
+    position: absolute;
+    z-index: 2;
+    left: 39.03%;
+    top: 36.96%;
+    width: 21.78%;
+    height: 21.04%;
+    overflow: hidden;
+    background: #121213;
+    box-shadow: 0 0 0 2px #121213;
+  }
+  .mesa .pantalla :global(.vid) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+  .mesa .pantalla.quad { transform-origin: 0 0; border-radius: 12.5% / 5.8%; box-shadow: none; }
+  .escena:hover .mesa, .movil:hover .mesa, .escena:focus-visible .mesa, .movil:focus-visible .mesa { scale: 1.06; }
+
+  /* ── el TELÉFONO de pie, algo ladeado. Andoni: «el marco del móvil, cuando no es mockup, como el marco de desktop»: la misma ventana de cristal que el
+     navegador (marco fino igual por los cuatro lados, velo claro con desenfoque del fondo, filo de luz), no el cuerpo negro de un teléfono */
+  .tel-m {
+    --r-fuera: 8px;
+    --marco: 3px;
+    position: absolute;
+    left: 50%;
+    top: 14%;
+    width: 40%;
+    aspect-ratio: 390 / 844;
+    translate: -50% 0;
+    rotate: var(--giro, -4deg);
+    padding: var(--marco);
+    border-radius: var(--r-fuera);
+    background: color-mix(in srgb, #fff 20%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.5), 0 0 0 1px rgb(0 0 0 / 0.08), 0 32px 60px -22px rgb(20 12 6 / 0.55);
+    transition: translate 0.9s var(--ease-out-expo), rotate 0.9s var(--ease-out-expo);
+  }
+  .claro .tel-m {
+    background: color-mix(in srgb, #302018 7%, transparent);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5), 0 0 0 1px rgb(48 32 24 / 0.1), 0 24px 48px -20px rgb(48 32 24 / 0.35);
+  }
+  .tel-pant { display: block; width: 100%; height: 100%; overflow: hidden; border-radius: calc(var(--r-fuera) - var(--marco)); background: #fbfbfa; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12); }
+  .tel-pant :global(.vid) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+  .pieza:hover .tel-m { translate: -50% -3%; rotate: 0deg; }
+
+  /* ── el icono de vídeo; al sonar se retira */
+  .vid-ic {
+    position: absolute;
+    z-index: 3;
+    right: calc(var(--spacing) * 3);
+    bottom: calc(var(--spacing) * 3);
+    display: inline-flex;
+    padding: calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #1a1210 55%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--color-niebla);
+    transition: opacity 0.4s ease, scale 0.5s var(--ease-out-expo), filter 0.4s ease;
+  }
+  .vid-ic svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+  @media (hover: none) { .vid-ic { display: none; } }
+  .pieza:hover .vid-ic { scale: 1.06; }
+  .pieza.suena .vid-ic { opacity: 0; filter: blur(4px); }
+
+  /* ── CASO DE ESTUDIO: una píldora de cristal arriba a la izquierda (la misma cápsula que el icono de vídeo); al pasar, se aclara */
+  .caso-et {
+    position: absolute;
+    z-index: 3;
+    left: calc(var(--spacing) * 3);
+    top: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #1a1210 55%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--color-niebla);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+  .pieza:hover .caso-et, .pieza:focus-visible .caso-et { background: var(--color-niebla); color: var(--color-cacao); }
+  /* sin caso: la flecha ↗ junto al nombre (sale a su web); al pasar, se desplaza */
+  .nombre-pie .sale { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.25em; vertical-align: 0.12em; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: 0.5; transition: translate 0.5s var(--ease-out-expo), opacity 0.3s ease; }
+  .pieza:hover .nombre-pie .sale { translate: 0.08em -0.08em; opacity: 1; }
+  /* ── el pie: nombre a la izquierda y sector a la derecha */
+  .pie-pieza { display: flex; align-items: baseline; justify-content: space-between; gap: calc(var(--spacing) * 4); flex-wrap: wrap; }
+  .nombre-pie { font-size: clamp(1.25rem, 1rem + 0.6vw, 1.625rem); line-height: 1.15; letter-spacing: -0.01em; color: var(--fg); }
+  .pie-pieza .detail { text-align: right; }
+
+  /* ── ENTRADA: la lámina se descubre de abajo arriba; su contenido llega un poco después. `.visto` lo pone el JS al asomar (y otra vez al filtrar) */
+  :global(html.anima) .pieza .lamina { clip-path: inset(100% 0 0 0 round var(--radius-lg)); }
+  :global(html.anima) .pieza :is(.mockup, .tel-m) { translate: 0 22%; }
+  :global(html.anima) .pieza .tel-m { translate: -50% 22%; }
+  :global(html.anima) .pieza .mesa { translate: 0 6%; scale: 1.12; }
+  :global(html.anima) .pieza .pie { opacity: 0; }
+  :global(html.anima) .pieza.visto .lamina {
+    clip-path: inset(0 0 0 0 round var(--radius-lg));
+    transition: clip-path 1.2s var(--ease-out-expo) calc(var(--i) * 110ms);
+  }
+  :global(html.anima) .pieza.visto :is(.mockup, .mesa) {
+    translate: 0 0;
+    scale: 1;
+    transition: translate 1.4s var(--ease-out-expo) calc(0.12s + var(--i) * 110ms), scale 1.8s var(--ease-out-expo) calc(var(--i) * 110ms), rotate 0.9s var(--ease-out-expo);
+  }
+  :global(html.anima) .pieza.visto .tel-m {
+    translate: -50% 0;
+    transition: translate 1.4s var(--ease-out-expo) calc(0.12s + var(--i) * 110ms), rotate 0.9s var(--ease-out-expo);
+  }
+  :global(html.anima) .pieza.visto:hover .tel-m { translate: -50% -3%; rotate: 0deg; }
+  :global(html.anima) .pieza.visto .pie { opacity: 1; transition: opacity 0.9s ease calc(0.55s + var(--i) * 110ms); }
+  /* al pasar: el navegador se pone recto, centrado y entero (el JS mide cuánto: --hx, --hy, --hs); ida y vuelta con la misma curva */
+  :global(html.anima) .pieza.interactivo .mockup,
+  .pieza.interactivo .mockup { transition: translate 0.8s var(--ease-suave), scale 0.8s var(--ease-suave), rotate 0.8s var(--ease-suave); will-change: translate, scale, rotate; }
+  :global(html.anima) .pieza.interactivo.centra .mockup,
+  .pieza.interactivo.centra .mockup { translate: var(--hx, 0px) var(--hy, 0px); scale: var(--hs, 1); rotate: 0deg; }
+  :global(html.anima) .escena.visto:hover .mesa,
+  :global(html.anima) .movil.visto:hover .mesa { scale: 1.06; transition: scale 1.6s var(--ease-out-expo); }
+  @media (prefers-reduced-motion: reduce) {
+    .mockup, .mesa, .tel-m, .lamina::before { transition: none; }
+  }
+</style>

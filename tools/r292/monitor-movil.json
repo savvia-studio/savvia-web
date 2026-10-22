@@ -1,0 +1,46 @@
+{
+ "quantus": [
+  {
+   "nombre": "monitor-movil",
+   "cast": true,
+   "vp": [
+    1280,
+    698
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 6000,
+   "espera": 800,
+   "accion": "bajar",
+   "dy": 16950,
+   "dur": 40,
+   "hold": 1.2,
+   "holdFin": 1.2,
+   "crf": 31,
+   "lineal": true
+  }
+ ],
+ "patchbay": [
+  {
+   "nombre": "monitor-movil",
+   "cast": true,
+   "vp": [
+    1280,
+    698
+   ],
+   "recorrer": false,
+   "y": 0,
+   "arriba": 0,
+   "espera0": 4500,
+   "espera": 800,
+   "accion": "bajar",
+   "dy": 10198,
+   "dur": 36,
+   "hold": 1.2,
+   "holdFin": 1.2,
+   "crf": 28,
+   "lineal": true
+  }
+ ]
+}

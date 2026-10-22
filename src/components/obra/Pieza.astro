@@ -19,9 +19,10 @@ interface Props {
   sube?: boolean; // ronda 130: solo la rejilla de «Todos los proyectos»: navegador recto, cortado por abajo, que sube al entrar
   href?: string; // ronda 191: el slider de /proyectos enlaza también webs sin caso (se abren en su web)
   fondo?: string; // ronda 206: fondo generado (artefacto «Fondos de proyectos») en lugar del degradado de marca
+  pieCasa?: boolean; // octubre 2026: el pie de «Más proyectos» de la home (nombre en Family y sector debajo de la pieza; la imagen, limpia)
   grande?: boolean; // ronda 154: la CARÁTULA del caso de estudio: la misma pieza a todo el ancho y alta, sin nombre ni pie, con el vídeo a la vista
 }
-const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false, grande = false, href, fondo } = Astro.props;
+const { p, tipo, est = 'otono', zoom = 3, cy = 0.58, giro = -6, transicion = false, sube = false, grande = false, pieCasa = false, href, fondo } = Astro.props;
 const lang = langDe(Astro.currentLocale);
 const destino = ruta(lang, href ?? `/proyectos/${p.slug}`), fuera = /^https?:/.test(destino);
 const [c1, c2, c3] = p.colores;
@@ -52,10 +53,11 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
         </div>
       )
     }
-    {!grande && <h3 class="nombre font-display">{p.nombre}</h3>}
-    {!grande && <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>}
+    {!grande && !pieCasa && <h3 class="nombre font-display">{p.nombre}</h3>}
+    {!grande && video.src && <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>}
   </div>
-  {!grande && <p class="pie detail text-fg2">{p.sector && <span class="text-fg">{p.sector}</span>}{p.sector && p.servicios.length > 0 && ' · '}{p.servicios.slice(0, 3).map((s) => servicio(lang, s)).join(', ')}</p>}
+  {pieCasa && <div class="pie pie-casa"><h3 class="nombre-pie font-display">{p.nombre}</h3>{p.sector && <p class="detail text-fg2">{p.sector}</p>}</div>}
+  {!grande && !pieCasa && <p class="pie detail text-fg2">{p.sector && <span class="text-fg">{p.sector}</span>}{p.sector && p.servicios.length > 0 && ', '}{p.servicios.slice(0, 3).map((s) => servicio(lang, s)).join(', ')}</p>}
 </Tag>
 
 <script>
@@ -143,6 +145,10 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   .pie {
     margin-top: calc(var(--spacing) * 4);
   }
+  /* el pie de «Más proyectos» (Anteriores.astro, ronda 162): nombre a la izquierda y sector a la derecha, en la misma línea base */
+  .pie-casa { display: flex; align-items: baseline; justify-content: space-between; gap: calc(var(--spacing) * 4); flex-wrap: wrap; }
+  .nombre-pie { font-size: clamp(1.25rem, 1rem + 0.6vw, 1.625rem); line-height: 1.15; letter-spacing: -0.01em; color: var(--fg); }
+  .pie-casa .detail { text-align: right; }
   /* el icono de vídeo, abajo a la derecha; se retira mientras suena */
   .vid-ic {
     position: absolute;

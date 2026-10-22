@@ -23,7 +23,7 @@ for (const p of P) {
 }
 // ronda 152: la captura de página entera (las webs que no se dejan embeber, para recorrerlas)
 const LARGO: Record<string, boolean> = {};
-const PESADAS = ['arkdev']; // webs que en el móvil tumban Safari (memoria): allí se pintan más pequeñas (1024 px)
+const PESADAS = ['patchbay']; // webs que en el móvil tumban Safari (memoria): allí se pintan más pequeñas (1024 px)
 // RONDA 270 · en MÓVIL el monitor enseña un VÍDEO (Screen Studio) en lugar de la web en vivo: el iframe a 1280 px reventaba la memoria de Safari
 const VIDEO: Record<string, boolean> = {};
 for (const p of P) VIDEO[p.slug] = await sharp(`public/media/proyectos/video/${p.slug}.jpg`).metadata().then(() => true).catch(() => false); // existe el póster = existe el vídeo
@@ -303,7 +303,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     })();
     function ajustar() {
       montadas.forEach((m, w) => {
-        // RONDA 264 · las pesadas (arkdev) en móvil se pintan a 1024 px: menos píxeles y menos memoria, y siguen en vivo
+        // RONDA 264 · las pesadas (patchbay) en móvil se pintan a 1024 px: menos píxeles y menos memoria, y siguen en vivo
         const B = w.dataset.pesada !== undefined && innerWidth < 700 && !BASE_PRUEBA ? 1024 : BASE();
         if (!(m.el instanceof HTMLIFrameElement) || w.hidden || !w.clientWidth) return;
         const k = w.clientWidth / B;
@@ -313,7 +313,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
     const veredictos = new Map<string, Promise<boolean>>();
     // sin respuesta (p. ej. astro dev, sin /api) = se intenta el iframe, con su plazo de 15 s; solo un «no» explícito del servidor manda a la captura
+    // octubre 2026 · Quantus y Patchbay son demos NUESTRAS en Vercel (sin x-frame-options ni frame-ancestors, medido el 22/10): no se pregunta; si un día
+    // no cargan, el plazo de 15 s enseña la captura igual
+    const DEMOS = ['quantus-demo.vercel.app', 'patchbay-web.vercel.app'];
     const embebible = (url: string) => {
+      try { if (DEMOS.includes(new URL(url).hostname)) return Promise.resolve(true); } catch {}
       if (!veredictos.has(url)) {
         const c = new AbortController(); const t = setTimeout(() => c.abort(), 8000);
         veredictos.set(url, fetch(`/api/embebible?url=${encodeURIComponent(url)}`, { signal: c.signal }).then((r) => r.json()).then((j) => j.ok !== false).catch(() => true).finally(() => clearTimeout(t)));

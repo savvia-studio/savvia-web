@@ -5,7 +5,7 @@
 const { chromium, launchOpts, userAgent } = require('/Users/andonimart/Desktop/savvia/savvia_inspo/scripts/pw.cjs');
 const B = require('/Users/andonimart/Desktop/savvia/savvia-web/tools/r126/blanca.cjs');
 const fs = require('fs'), path = require('path');
-const webs = [ // las mismas de la escala tipográfica (tools/r153/escala.cjs); Invopop no: invopop.com ya no es la web entregada
+const webs = [ ['quantus', 'https://quantus-demo.vercel.app/'], ['patchbay', 'https://patchbay-web.vercel.app/'], // octubre 2026 · las mismas de la escala tipográfica (tools/r153/escala.cjs); Invopop no: invopop.com ya no es la web entregada
   ['kuanta', 'file:///Users/andonimart/Desktop/Claude%20Code/multiverse-home/dist/index.html'],
   ['arkdev', 'https://zernio.treseiscero.app/', 'arkdev'],
   ['playground', 'https://playgroundiep.com/'],

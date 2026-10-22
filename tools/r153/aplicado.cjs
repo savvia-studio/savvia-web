@@ -2,9 +2,9 @@
 // Sin avisos de cookies. → public/media/obra/<slug>/aplicado.webp (y una copia en tools/r153/shots)
 const { chromium, launchOpts, userAgent } = require('/Users/andonimart/Desktop/savvia/savvia_inspo/scripts/pw.cjs');
 const sharp = require('/Users/andonimart/Desktop/savvia/savvia-web-main/node_modules/sharp');
-const webs = { kuanta: 'file:///Users/andonimart/Desktop/Claude%20Code/multiverse-home/dist/index.html', arkdev: 'https://zernio.treseiscero.app/', playground: 'https://playgroundiep.com/', neety: 'https://neety.treseiscero.app/home', invopop: 'https://invopop.com/', 'business-online-payroll': 'https://businessonlinepayroll.com/', cubbo: 'https://cubbo.com/', remerge: 'https://remerge.io/', isotrol: 'https://isotrol.com/' };
+const webs = { quantus: 'https://quantus-demo.vercel.app/', patchbay: 'https://patchbay-web.vercel.app/', kuanta: 'file:///Users/andonimart/Desktop/Claude%20Code/multiverse-home/dist/index.html', arkdev: 'https://zernio.treseiscero.app/', playground: 'https://playgroundiep.com/', neety: 'https://neety.treseiscero.app/home', invopop: 'https://invopop.com/', 'business-online-payroll': 'https://businessonlinepayroll.com/', cubbo: 'https://cubbo.com/', remerge: 'https://remerge.io/', isotrol: 'https://isotrol.com/' };
 // ajustes por web: el texto exacto del botón cuando el automático no lo encuentra, y el margen de arriba
-const ajustes = { playground: { btn: 'Create Free Account', p: 'AI tools for IEP', centrar: true }, arkdev: { arriba: 14 }, neety: { btn: 'Solicitar demo', n: 1 } };
+const ajustes = { playground: { btn: 'Create Free Account', p: 'AI tools for IEP', centrar: true }, arkdev: { arriba: 14 }, patchbay: { arriba: 14 }, neety: { btn: 'Solicitar demo', n: 1 } };
 // business-online-payroll: su hero no tiene texto ni botón junto al titular (va sobre la foto): sin ejemplo aplicado
 const lista = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(webs);
 (async () => {

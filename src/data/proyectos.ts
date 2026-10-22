@@ -13,8 +13,8 @@ export type Apartado = { titulo: string; texto: string[] };
 // RONDA 152 · «que cada caso muestre cómo la hemos construido y los detalles más relevantes, y que cada imagen represente bien lo que se dice»:
 // cada DETALLE es una pieza concreta de la web (un componente, una interacción, un efecto) con su vídeo DE CERCA, grabado en la web real
 // (tools/r152/detalle.cjs, a densidad 2) o cortado de la grabación archivada de la web entregada (tools/r152/archivo.sh), y el texto que cuenta
-// cómo está hecha. El PROCESO son los pasos de la construcción. Fuentes de los hechos: los registros de cada proyecto (ver arriba) y, para Kuanta,
-// Arkdev, Neety y Playground, sus documentos de proceso (multiverse-home/docs/proceso-y-receta.md, savvia_inspo/work/r31/makingof-B.md,
+// cómo está hecha. El PROCESO son los pasos de la construcción. Fuentes de los hechos: los registros de cada proyecto (ver arriba) y, para Quantus,
+// Patchbay, Neety y Playground, sus documentos de proceso (multiverse-home/docs/proceso-y-receta.md, savvia_inspo/work/r31/makingof-B.md,
 // playground-iep/CLAUDE.md), leídos el 09/10/2026.
 export type Detalle = { titulo: string; texto: string; medio: Medio; prop?: string; pie?: string };
 // RONDA 153 · Andoni: «la parte de detalles, que se presente más con imágenes (referencia: casabien.com/proyectos/rebranding-identidad-hannun);
@@ -55,6 +55,7 @@ export type Proyecto = {
   aplicado?: boolean; // ronda 153: hay recorte de su hero (public/media/obra/<slug>/aplicado.webp, tools/r153/aplicado.cjs)
   nota?: string; // ronda 153: aviso sobre las grabaciones
   conclusion?: string[]; // ronda 153: el cierre del caso
+  comentario?: { quien: 'andoni' | 'eric'; texto: string }; // octubre 2026: lo que ha sido el proyecto, dicho por uno de los dos (BORRADORES de Nilo a partir de la conclusión: revisar)
   apartados: Apartado[]; // diseño, movimiento, contenido…
   tecnica?: string[]; // por dentro
   descartado?: string[]; // lo que se probó y cayó
@@ -67,6 +68,20 @@ export type Proyecto = {
   escritorio?: Medio; // ronda 131: si la portada es móvil, su web en escritorio para la rejilla del portfolio
   cubierta?: Medio; // ronda 154: la toma GRANDE de la carátula del caso (1920 px, tools/r154/grabar.cjs y archivo.sh); si falta, la portada
   galeria?: Medio[]; // ronda 152: sin uso en el caso (lo sustituyen los detalles)
+  // octubre 2026: los SONIDOS de su web, si los tiene, copiados de su código (Web Audio): un bus con su volumen y un paso bajo, y sus capas: «ruido»
+  // (ruido blanco por un paso banda: f Hz, q; ataque de 0,5 ms y caída exponencial en dur s) y «seno» (de f a fin Hz en 44 ms; ataque y caída). Cada golpe
+  // varía un pelo de tono (±4 % el ruido, ±3 % el seno), como en su web. El caso deja tocarlos y dibuja su forma de onda.
+  sonidos?: { tipo: 'clic' | 'pasar'; vol: number; corte: number; capas: ({ c: 'ruido'; f: number; q: number; pico: number; dur: number } | { c: 'seno'; f: number; fin: number; pico: number; ataque: number; dur: number })[] }[];
+  // octubre 2026: la librería que entregamos al cliente, si está publicada. El caso la REPRESENTA (no la graba) con su propio contenido, leído de la librería:
+  // su índice, prompts de «Trabajar con Claude», su paleta, sus titulares, su botón y su escala de espaciado; y enlaza a la entera
+  libreria?: {
+    url: string;
+    captura: string; capturaMovil: string; // su primera pantalla (lo que se ve mientras carga, y si no carga)
+    accesos: { n: string; nEn: string; ancla: string }[]; // los atajos a sus secciones (sus #id)
+    tapa: { marca: string; titulo: string; tituloEn: string; fondo: string; tinta: string; acento: string }; // el libro: su tapa, en los colores de su marca
+    entrega: { n: string; d: string; nEn: string; dEn: string }[]; // lo que se llevó el cliente (de su librería: «Recibir el proyecto»)
+  };
+  iconos?: { n: string; src: string }[]; // octubre 2026: su iconografía, si la tiene (el caso la enseña en rejilla, a la manera de brand.dropbox.com)
 };
 
 export const SERVICIOS = ['Diseño web', 'Desarrollo agéntico', 'Webflow', 'CMS', 'Multidioma', 'Migración', 'Animación'];
@@ -80,14 +95,18 @@ const x = (slug: string, n: string, titulo: string, texto: string, prop = '16 / 
 
 export const proyectos: Proyecto[] = [
   {
-    slug: 'kuanta', // ronda 126: Multiverse Computing no llegó a publicar la web → marca blanca «Kuanta» (nombre, logotipo y productos cambiados)
-    nombre: 'Kuanta',
+    // octubre 2026: Andoni rehízo la home de Multiverse Computing (que no llegó a publicarla; ronda 126: «Kuanta», en marca blanca) como CONCEPTO propio,
+    // sin nada del cliente: Quantus. Medios y medidas, de quantus-demo.vercel.app
+    slug: 'quantus',
+    nombre: 'Quantus',
+    url: 'https://quantus-demo.vercel.app',
+    dominio: 'quantus-demo.vercel.app',
     sector: 'IA y computación cuántica',
     destacado: true,
     servicios: ['Diseño web', 'Desarrollo agéntico', 'Animación'],
     stack: ['HTML y CSS a medida', 'GSAP + ScrollTrigger', 'Lenis', 'Canvas 2D', 'Vercel'],
     resumen: 'Una esfera de puntos que se comprime hasta ser su logotipo: el producto, explicado sin una palabra.',
-    entradilla: 'Kuanta comprime modelos de IA para que corran con mucho menos cálculo y la misma inteligencia. Su home tenía que demostrarlo, no solo decirlo.',
+    entradilla: 'Quantus comprime modelos de IA para que corran con mucho menos cálculo y la misma inteligencia. Su home tenía que demostrarlo, no solo decirlo.',
     contexto: [
       'La página presenta todo su catálogo: compresión de modelos, seguridad, orquestación, su modelo más grande y la plataforma para desplegarlos.',
       'Cada idea técnica tiene su imagen: una esfera que se comprime, una matriz que conserva un tercio de sus datos, un modelo que viaja de la nube al dispositivo sin desaparecer.',
@@ -119,10 +138,10 @@ export const proyectos: Proyecto[] = [
     ],
     apartados: [],
     tecnica: [
-      'Un solo archivo fuente de 3.188 líneas que un script propio compila en un index.html autocontenido de unos 670 KB',
+      'Un único HTML escrito a mano, autocontenido, de unos 440 KB',
       'La esfera, el perfilador y el tensor, en Canvas 2D; las ilustraciones, SVG en línea',
       'Todo bucle se pausa fuera de pantalla y Lenis manda en el reloj de GSAP',
-      'Hilo principal −30 % en escritorio y −32 % en móvil tras medir; fotogramas de más de 20 ms por debajo del 2 %',
+      'La ronda contra los tirones del scroll bajó el trabajo del hilo principal de 40,1 s a 26,4 s, y los fotogramas de más de 20 ms, del 2,5 % al 0,9 %',
       'Movimiento reducido respetado: sin bucles, con el logotipo ya formado',
       'Publicada en Vercel con caché inmutable para los recursos',
     ],
@@ -136,29 +155,30 @@ export const proyectos: Proyecto[] = [
       { v: '11', t: 'secciones' },
       { v: '15', t: 'ilustraciones isométricas' },
       { v: '512', t: 'cubos en el tensor del pie' },
-      { v: '26', t: 'rondas de diseño' },
+      { v: '24', t: 'rondas de diseño' },
+      { v: '87', t: 'herramientas de medida escritas' },
     ],
     proceso: [
-      { n: 'Dirección', d: '26 rondas de diseño en cinco días, con las notas de revisión dejadas sobre la propia página. Cada decisión rechazada pasó a una lista de 73 reglas que no vuelven.' },
+      { n: 'Dirección', d: '24 rondas de diseño, con las notas de revisión dejadas sobre la propia página. Cada decisión rechazada pasó a una lista de 73 reglas que no vuelven.' },
       { n: 'Sistema', d: 'Recortado a lo imprescindible: dos fuentes, un solo rojo, solo tema oscuro y dos radios (había ocho). Titulares equilibrados con text-wrap y alturas en lvh y dvh.' },
       { n: 'Ilustración', d: 'Quince ilustraciones isométricas generadas por código con un script propio: se dibujan a línea y luego se rellenan, como un plano que se construye.' },
       { n: 'Movimiento', d: 'GSAP y ScrollTrigger con Lenis al mando del reloj. Nada rebota: lo que cae, cae con gravedad y se asienta.' },
       { n: 'Medición', d: 'Antes de optimizar, se midió con la rueda real y en pares intercalados. Tres optimizaciones «obvias» empeoraban el resultado y se descartaron.' },
     ],
     detalles: [
-      x('kuanta', 'esfera', 'La esfera que se comprime', 'El producto, explicado sin una palabra: unos 3.000 puntos atados al scroll se comprimen hasta formar el isotipo mientras las lecturas bajan del 100 % al 5 %. En Canvas 2D, pintados por lotes (16 tintes × 40 alfas, un solo trazo por grupo) para que no pese.'),
-      x('kuanta', 'tarjetas', 'Cuatro casos, cuatro dibujos', 'Cada caso de uso tiene su ilustración isométrica. Al pasar el cursor, el dibujo se rehace: primero el contorno, después el color. Las cuatro salen del mismo generador de ilustraciones.', '7 / 3'),
-      x('kuanta', 'matriz', 'Del tensor a cuatro sitios', 'Una sección fijada: la matriz de 4096 × 4096 se perfila, se descartan dos tercios de sus correlaciones y lo que queda se descompone en una cadena de cinco tensores. Después, un solo modelo viaja de la nube al dispositivo: se mide su caja en la escena que sale y en la que entra para que aterrice en el mismo píxel.'),
-      x('kuanta', 'pila', 'La pila que cae', 'Los productos caen como bloques con gravedad (2.400 px/s², medio segundo, una décima entre filas) y lo de debajo cede 3,2 px al recibirlos antes de volver a su sitio.'),
-      x('kuanta', 'tensor', 'El tensor del pie', 'Un tensor de 8 × 8 × 8 cubos gira y un plano rojo marca exactamente 210 de ellos, los del logotipo, que se ordenan hasta formarlo. Un ciclo de 12 segundos sin salto, en canvas: el cubo 3D en CSS que lo precedió no se componía bien en Safari.'),
+      x('quantus', 'esfera', 'La esfera que se comprime', 'El producto, explicado sin una palabra: unos 3.000 puntos atados al scroll se comprimen hasta formar el isotipo mientras las lecturas bajan del 100 % al 5 %. En Canvas 2D, pintados por lotes (16 tintes × 40 alfas, un solo trazo por grupo) para que no pese.'),
+      x('quantus', 'tarjetas', 'Cuatro casos, cuatro dibujos', 'Cada caso de uso tiene su ilustración isométrica. Al pasar el cursor, el dibujo se rehace: primero el contorno, después el color. Las cuatro salen del mismo generador de ilustraciones.', '7 / 3'),
+      x('quantus', 'matriz', 'Del tensor a cuatro sitios', 'Una sección fijada: la matriz de 4096 × 4096 se perfila, se descartan dos tercios de sus correlaciones y lo que queda se descompone en una cadena de cinco tensores. Después, un solo modelo viaja de la nube al dispositivo: se mide su caja en la escena que sale y en la que entra para que aterrice en el mismo píxel.'),
+      x('quantus', 'pila', 'La pila que cae', 'Los productos caen como bloques con gravedad (2.400 px/s², medio segundo, una décima entre filas) y lo de debajo cede 3,2 px al recibirlos antes de volver a su sitio.'),
+      x('quantus', 'tensor', 'El tensor del pie', 'Un tensor de 8 × 8 × 8 cubos gira y un plano rojo marca exactamente 210 de ellos, los del logotipo, que se ordenan hasta formarlo. Un ciclo de 12 segundos sin salto, en canvas: el cubo 3D en CSS que lo precedió no se componía bien en Safari.'),
     ],
     // ronda 153 · el mosaico de «Los detalles», la escala medida (tools/r153/estilos.cjs, en dist/index.html a 1440 px) y la conclusión
     mosaico: [
-      { f: 'ancha', p: [pz('kuanta', 'x-esfera', 'La esfera que se comprime', '3.000 puntos atados al scroll forman el isotipo mientras el tamaño baja del 100 % al 5 %.')] },
-      { f: 'par57', p: [pz('kuanta', 'x-plano', 'Un plano que se construye', 'Cada sitio donde corre el modelo es una ilustración isométrica que se traza a línea y después se rellena.', { prop: '1 / 1' }), pz('kuanta', 'x-matriz', 'Del tensor a cuatro sitios', 'La matriz de 4096 × 4096 pierde dos tercios y se queda en un modelo que cabe en cualquier sitio.', { placa: 3 })] },
-      { f: 'sangre', p: [pz('kuanta', 'x-tarjetas', 'Cuatro casos, cuatro dibujos', 'Al pasar el cursor, cada ilustración se rehace: primero el contorno, después el color.', { prop: '1680 / 720' })] },
-      { f: 'par', p: [pz('kuanta', 'x-pila', 'La pila', 'Los productos caen con gravedad al entrar y lo de debajo cede 3,2 px al recibirlos.', { placa: 2, prop: '1320 / 940', foto: true }), pz('kuanta', 'c-casos', 'Quién usa IA comprimida', 'Diez industrias en una rejilla de filetes, con el rótulo en JetBrains Mono y el texto en Schibsted Grotesk.', { placa: 3, foto: true })] },
-      { f: 'ancha', p: [pz('kuanta', 'x-tensor', 'El tensor del pie', '512 cubos giran y un plano rojo marca los 210 que forman el logotipo.')] },
+      { f: 'ancha', p: [pz('quantus', 'x-esfera', 'La esfera que se comprime', '3.000 puntos atados al scroll forman el isotipo mientras el tamaño baja del 100 % al 5 %.')] },
+      { f: 'par57', p: [pz('quantus', 'x-plano', 'Un plano que se construye', 'Cada sitio donde corre el modelo es una ilustración isométrica que se traza a línea y después se rellena.', { prop: '1 / 1' }), pz('quantus', 'x-matriz', 'Del tensor a cuatro sitios', 'La matriz de 4096 × 4096 pierde dos tercios y se queda en un modelo que cabe en cualquier sitio.', { placa: 3 })] },
+      { f: 'sangre', p: [pz('quantus', 'x-tarjetas', 'Cuatro casos, cuatro dibujos', 'Al pasar el cursor, cada ilustración se rehace: primero el contorno, después el color.', { prop: '1680 / 720' })] },
+      { f: 'par', p: [pz('quantus', 'x-pila', 'La pila', 'Los productos caen con gravedad al entrar y lo de debajo cede 3,2 px al recibirlos.', { placa: 2, prop: '1320 / 940', foto: true }), pz('quantus', 'c-casos', 'Quién usa IA comprimida', 'Diez industrias en una rejilla de filetes, con el rótulo en JetBrains Mono y el texto en Schibsted Grotesk.', { placa: 3, foto: true })] },
+      { f: 'ancha', p: [pz('quantus', 'x-tensor', 'El tensor del pie', '512 cubos giran y un plano rojo marca los 210 que forman el logotipo.')] },
     ],
     escala: [
       { n: 'H1', fam: 'Schibsted Grotesk', px: 97.9, lh: 94, peso: 500, ls: '−0,04 em' },
@@ -168,26 +188,31 @@ export const proyectos: Proyecto[] = [
       { n: 'Detalle', fam: 'JetBrains Mono', px: 12, lh: 18, peso: 400 },
     ],
     boton: { fam: 'Schibsted Grotesk', px: 15, peso: 500, radio: 6, alto: 40, fondo: '#F01438', tinta: '#FFFFFF' },
-    medido: 'Medido en la web entregada, a 1440 px',
+    medido: 'Medido en la web, a 1440 px',
     aplicado: true,
+    comentario: { quien: 'andoni', texto: 'Quantus fue el proyecto en el que más aprendimos a decir que no: veinticuatro rondas y setenta y tres reglas de lo que no vuelve. Lo que queda es una página que explica un producto difícil sin pedir nada a quien la lee.' },
     conclusion: [
       'Una sola página explica el catálogo entero sin pedir conocimientos técnicos: cada idea tiene su imagen, y la esfera del hero resume el producto antes de leer nada.',
-      'Se cerró en 26 rondas de diseño, con 73 reglas de lo que no vuelve, y se midió antes de optimizar: el hilo principal bajó un 30 % en escritorio y un 32 % en móvil.',
+      'Se cerró en 24 rondas de diseño, con 73 reglas de lo que no vuelve, y se midió antes de optimizar: el trabajo del hilo principal bajó de 40,1 s a 26,4 s.',
     ],
     color: '#15181c',
     colores: ['#15181c', '#f01438', '#3a3e44'],
-    portada: m('kuanta', 'portada'),
-    cubierta: m('kuanta', 'cubierta'),
+    portada: m('quantus', 'portada'),
+    cubierta: m('quantus', 'cubierta'),
   },
   {
-    slug: 'arkdev', // ronda 126: Zernio en marca blanca (antes «Amarra»)
-    nombre: 'Arkdev',
+    // octubre 2026: Andoni rehízo la web de Zernio (ronda 126: «Arkdev», en marca blanca; antes «Amarra») como CONCEPTO propio, sin nada del cliente:
+    // Patchbay. Medios y medidas, de patchbay-web.vercel.app
+    slug: 'patchbay',
+    nombre: 'Patchbay',
+    url: 'https://patchbay-web.vercel.app',
+    dominio: 'patchbay-web.vercel.app',
     sector: 'Software para desarrolladores',
     destacado: true,
     servicios: ['Diseño web', 'Desarrollo agéntico', 'Animación'],
-    stack: ['HTML a medida', 'React 18', 'CSS', 'Web Audio', 'Cloudflare'],
+    stack: ['HTML a medida', 'React 18', 'CSS', 'Web Audio', 'Vercel'],
     resumen: 'Una API de redes y mensajería para 23 canales, presentada como un muelle donde atraca cada uno.',
-    entradilla: 'Arkdev conecta un producto con 23 canales de redes sociales, mensajería y anuncios a través de una sola API. Ellos se ocupan de las apps de desarrollador, los permisos y las revisiones de cada plataforma.',
+    entradilla: 'Patchbay conecta un producto con 23 canales de redes sociales, mensajería y anuncios a través de una sola API. Ellos se ocupan de las apps de desarrollador, los permisos y las revisiones de cada plataforma.',
     contexto: [
       'La web habla a quien programa y a los agentes de IA que ya integran APIs: el código es protagonista desde el primer pantallazo y el ejemplo se escribe solo.',
       'La idea que la ordena es un muelle: cada canal atraca en la misma API, con las mismas herramientas y la misma forma de datos.',
@@ -215,11 +240,17 @@ export const proyectos: Proyecto[] = [
       { n: 'Instrument Sans', uso: 'Titulares · 600' },
       { n: 'JetBrains Mono', uso: 'Código y rótulos' },
     ],
+    sonidos: [
+      // patchbay-web.vercel.app › blip(): «un clic es un transitorio, no un tono: ruido en banda estrecha arriba para el golpe y un seno corto que solo le
+      // da apoyo. Nada de ondas cuadradas, que es lo que sonaba a petardeo» (las de la versión anterior)
+      { tipo: 'clic', vol: 0.45, corte: 9000, capas: [{ c: 'ruido', f: 3400, q: 2.2, pico: 0.3, dur: 0.009 }, { c: 'seno', f: 260, fin: 187, pico: 0.1, ataque: 0.003, dur: 0.022 }] },
+      { tipo: 'pasar', vol: 0.2, corte: 6000, capas: [{ c: 'ruido', f: 4200, q: 2.6, pico: 0.16, dur: 0.006 }, { c: 'seno', f: 340, fin: 245, pico: 0.04, ataque: 0.003, dur: 0.014 }] },
+    ],
     apartados: [
-      { titulo: 'Sonido', texto: ['Sintetizado en el navegador, sin archivos: un clic son tres ondas cuadradas muy cortas (2.100, 1.650 y 320 Hz) filtradas a 4.200 Hz; al pasar el cursor, una sola de 8 ms, casi inaudible. Se puede apagar y se recuerda.'] },
+      { titulo: 'Sonido', texto: ['Sintetizado en el navegador, sin archivos: un clic es un golpe de ruido en banda estrecha alrededor de 3.400 Hz (9 ms) con un seno de 260 Hz que cae y le da cuerpo; al pasar el cursor, lo mismo más agudo y más corto. Cada golpe varía un poco de tono. Se puede apagar y se recuerda.'] },
     ],
     tecnica: [
-      'Un único HTML de 2.992 líneas (258 KB), con React 18 en el navegador',
+      'Un único HTML de 2.962 líneas (234 KB), con React 18 en el navegador',
       'Movimiento en CSS: 26 animaciones propias, sin librerías, sin canvas ni WebGL',
       'Sonido sintetizado con Web Audio',
       'Calculadora de precios con un deslizador logarítmico de 1 a 10.000 cuentas',
@@ -238,35 +269,36 @@ export const proyectos: Proyecto[] = [
       { n: 'Comparar en la página', d: 'El hero se construyó en dos variantes, «Código» y «Esquema», que se compararon en la propia web antes de elegir.' },
     ],
     detalles: [
-      x('arkdev', 'terminal', 'La intro y el terminal', 'La marca se llena de bermellón de abajo arriba mientras un contador va de 000 a 100 en 1,9 segundos. Después, el terminal se escribe solo, una línea cada 190 ms: conectar, publicar y responder, cada paso con su ✓ y su «200 OK».'),
-      x('arkdev', 'canales', 'Veintitrés fichas técnicas', 'Una pestaña por canal y, en cada una, lo que admite de verdad: formatos, límites de vídeo y de texto, y el recorrido de una publicación (en cola, publicando, publicada).', '2 / 1'),
-      x('arkdev', 'muelle', 'El muelle', 'Una cápsula de 180 px y un arco de radio 730 px con las 23 teselas, a 15,65° cada una. Cada 2,4 segundos avanza una y encaja en 0,9 s con una curva que arranca seca y se posa; las vecinas, a escala 0,79. Las pieles alternan blanco, tinta y bermellón.', '4 / 3'),
-      x('arkdev', 'pasos', 'En marcha en minutos', 'Tres pasos cronometrados (30 segundos, 2 minutos y 1 minuto): la clave de API se genera a la vista y los canales se conectan uno a uno, con su estado.'),
+      x('patchbay', 'terminal', 'La intro y el terminal', 'La marca se llena de bermellón de abajo arriba mientras un contador va de 000 a 100 en 1,9 segundos. Después, el terminal se escribe solo, una línea cada 190 ms: conectar, publicar y responder, cada paso con su ✓ y su «200 OK».'),
+      x('patchbay', 'canales', 'Veintitrés fichas técnicas', 'Una pestaña por canal y, en cada una, lo que admite de verdad: formatos, límites de vídeo y de texto, y el recorrido de una publicación (en cola, publicando, publicada).', '2 / 1'),
+      x('patchbay', 'muelle', 'El muelle', 'Una cápsula de 180 px y un arco de radio 730 px con las 23 teselas, a 15,65° cada una. Cada 2,4 segundos avanza una y encaja en 0,9 s con una curva que arranca seca y se posa; las vecinas, a escala 0,79. Las pieles alternan blanco, tinta y bermellón.', '4 / 3'),
+      x('patchbay', 'pasos', 'En marcha en minutos', 'Tres pasos cronometrados (30 segundos, 2 minutos y 1 minuto): la clave de API se genera a la vista y los canales se conectan uno a uno, con su estado.'),
     ],
     mosaico: [
-      { f: 'ancha', p: [pz('arkdev', 'x-terminal', 'La intro y el terminal', 'La marca se llena de bermellón y el ejemplo se escribe solo, una línea cada 190 ms.')] },
-      { f: 'par75', p: [pz('arkdev', 'x-muelle', 'El muelle', 'Los 23 canales en un arco; cada 2,4 segundos uno atraca en la API.', { placa: 1, prop: '4 / 3' }), pz('arkdev', 'c-atraca', 'Cada canal atraca', 'El muelle y su titular: las mismas herramientas y la misma forma de datos para cualquier agente.', { prop: '1 / 1', pos: '0% 50%', foto: true })] },
-      { f: 'sangre', p: [pz('arkdev', 'x-canales', 'Veintitrés fichas técnicas', 'Una pestaña por canal, con lo que admite de verdad: formatos, límites y estados.', { prop: '2 / 1' })] },
-      { f: 'par57', p: [pz('arkdev', 'c-clientes', 'Clientes', 'Un caso destacado que rota y las reseñas, con nombre y empresa.', { prop: '1 / 1', pos: '50% 60%', foto: true }), pz('arkdev', 'x-pasos', 'En marcha en minutos', 'Tres pasos cronometrados: la clave se genera a la vista y los canales se conectan.', { placa: 2, prop: '1240 / 470' })] },
+      { f: 'ancha', p: [pz('patchbay', 'x-terminal', 'La intro y el terminal', 'La marca se llena de bermellón y el ejemplo se escribe solo, una línea cada 190 ms.')] },
+      { f: 'par75', p: [pz('patchbay', 'x-muelle', 'El muelle', 'Los 23 canales en un arco; cada 2,4 segundos uno atraca en la API.', { placa: 1, prop: '4 / 3' }), pz('patchbay', 'c-atraca', 'Cada canal atraca', 'El muelle y su titular: las mismas herramientas y la misma forma de datos para cualquier agente.', { prop: '1 / 1', pos: '0% 50%', foto: true })] },
+      { f: 'sangre', p: [pz('patchbay', 'x-canales', 'Veintitrés fichas técnicas', 'Una pestaña por canal, con lo que admite de verdad: formatos, límites y estados.', { prop: '2 / 1' })] },
+      { f: 'par57', p: [pz('patchbay', 'c-clientes', 'Clientes', 'Un caso destacado que rota y las reseñas, con nombre y empresa.', { prop: '1 / 1', pos: '50% 60%', foto: true }), pz('patchbay', 'x-pasos', 'En marcha en minutos', 'Tres pasos cronometrados: la clave se genera a la vista y los canales se conectan.', { placa: 2, prop: '1240 / 470' })] },
     ],
     escala: [
       { n: 'H1', fam: 'Instrument Sans', px: 68, lh: 66.6, peso: 600, ls: '−0,04 em' },
       { n: 'H2', fam: 'Instrument Sans', px: 44, lh: 47.5, peso: 600, ls: '−0,032 em' },
-      { n: 'H3', fam: 'Instrument Sans', px: 19, lh: 'normal', peso: 600 },
+      { n: 'H3', fam: 'Instrument Sans', px: 27, lh: 30.2, peso: 600, ls: '−0,03 em' },
       { n: 'Texto', fam: 'Instrument Sans', px: 19.5, lh: 30.2, peso: 400 },
-      { n: 'Detalle', fam: 'JetBrains Mono', px: 11, lh: 'normal', peso: 400, ls: '0,1 em · mayúsculas' },
+      { n: 'Detalle', fam: 'JetBrains Mono', px: 12.5, lh: 'normal', peso: 400 },
     ],
-    boton: { fam: 'Instrument Sans', px: 14, peso: 600, radio: 10, alto: 38, fondo: '#EB3514', tinta: '#FFFFFF' },
-    medido: 'Medido en la web entregada, a 1440 px',
+    boton: { fam: 'Instrument Sans', px: 14, peso: 600, radio: 10, alto: 40, fondo: '#EB3514', tinta: '#FFFFFF' },
+    medido: 'Medido en la web, a 1440 px',
     aplicado: true,
+    comentario: { quien: 'andoni', texto: 'Queríamos que quien programa viera el producto funcionando antes de leer una línea. Meterlo todo en un único HTML, con el movimiento en CSS y el sonido en el navegador, fue la parte más divertida.' },
     conclusion: [
       'Veintitrés integraciones se leen como una sola: el muelle ordena la página y cada canal tiene su ficha con lo que admite de verdad. Quien programa ve el ejemplo funcionando desde el primer pantallazo.',
-      'Todo cabe en un único HTML de 258 KB, con el movimiento en CSS y el sonido sintetizado en el navegador, sin librerías de animación.',
+      'Todo cabe en un único HTML de 234 KB, con el movimiento en CSS y el sonido sintetizado en el navegador, sin librerías de animación.',
     ],
     color: '#f8f4ee',
     colores: ['#f8f4ee', '#e8542b', '#998a82'],
-    portada: m('arkdev', 'portada'),
-    cubierta: m('arkdev', 'cubierta'),
+    portada: m('patchbay', 'portada'),
+    cubierta: m('patchbay', 'cubierta'),
   },
   {
     slug: 'playground',
@@ -363,6 +395,7 @@ export const proyectos: Proyecto[] = [
     ],
     medido: 'Medido en playgroundiep.com, a 1440 px',
     aplicado: true,
+    comentario: { quien: 'andoni', texto: 'Empezamos en Webflow y acabamos rehaciendo la home en código propio para que su equipo cree páginas nuevas con IA. La vara de medir fue que pesara menos de la mitad y no diera tirones en ningún tamaño.' },
     conclusion: [
       'Primero, una web en Webflow con CMS y animaciones a medida. Después, la home rehecha en código propio, sin dependencias externas, para que su equipo cree páginas nuevas con IA.',
       'Pesa 1,91 MB (antes 4,67), no da fotogramas lentos al bajar en escritorio y se comprobó en 17 tamaños de pantalla, en Chrome y WebKit.',
@@ -451,6 +484,25 @@ export const proyectos: Proyecto[] = [
     boton: { fam: 'Bricolage Grotesque', px: 14, peso: 500, radio: 999, alto: 36, fondo: '#431B44', tinta: '#FFFFFF', nota: 'Ciruela al 75 %' },
     medido: 'Medido en la web entregada (neety.treseiscero.app), a 1440 px',
     aplicado: true,
+    libreria: {
+      url: 'https://neety.treseiscero.app/library',
+      captura: '/media/obra/neety/libreria.webp', capturaMovil: '/media/obra/neety/libreria-movil.webp',
+      tapa: { marca: 'neety', titulo: 'El sistema de diseño de Neety, y cómo mantener la web', tituloEn: 'Neety’s design system, and how to maintain the website', fondo: '#431B44', tinta: '#F8F7EC', acento: '#FE8238' },
+      accesos: [
+        { n: 'Cambiar contenido', nEn: 'Changing content', ancla: 'contenido' },
+        { n: 'Color', nEn: 'Colour', ancla: 'color' },
+        { n: 'Tipografía', nEn: 'Typography', ancla: 'tipografia' },
+        { n: 'Botones', nEn: 'Buttons', ancla: 'botones' },
+        { n: 'Componentes', nEn: 'Components', ancla: 'componentes' },
+      ],
+      entrega: [
+        { n: 'La web', d: 'Publicada y suya: Next.js, con el blog y el equipo en Sanity.', nEn: 'The website', dEn: 'Live and theirs: Next.js, with the blog and the team in Sanity.' },
+        { n: 'El código', d: 'Un repositorio de GitHub con el código, los assets y la documentación.', nEn: 'The code', dEn: 'A GitHub repository with the code, the assets and the documentation.' },
+        { n: 'La librería', d: 'Su sistema de diseño y la guía viva para mantener la web, generados desde el código.', nEn: 'The library', dEn: 'Its design system and a living guide to maintain the site, generated from the code.' },
+        { n: 'La guía para Claude', d: 'CLAUDE.md con las convenciones y docs/decisiones.md con el porqué de cada decisión.', nEn: 'The guide for Claude', dEn: 'CLAUDE.md with the conventions and docs/decisiones.md with the reason behind every decision.' },
+      ],
+    },
+    comentario: { quien: 'andoni', texto: 'Con Neety entregamos algo más que una web: una librería que sale del propio código para que su equipo la siga cambiando con Claude. Es la forma de trabajar que queremos para todos los proyectos.' },
     conclusion: [
       'La web enseña el producto antes de explicarlo: el feed de señales abre la página y cada sección lo desmonta hasta la acción, con el naranja reservado para la señal.',
       'Con ella se entregó una librería viva, generada desde el propio código, con sus fundamentos, sus componentes, el mapa de la web en español e inglés y una guía para que su equipo la cambie con Claude.',
@@ -513,6 +565,7 @@ export const proyectos: Proyecto[] = [
       { f: 'par', p: [pz('invopop', 'x-impuestos', 'Una herramienta fiscal completa', 'Los pasos del producto en un carrusel: sincronizar ventas, validar, calcular impuestos y cumplir.', { placa: 3, prop: '1674 / 1080' }), pz('invopop', 'x-paises', 'Cobertura por países', 'Una rejilla que se filtra por tipo de factura y por región, sin recargar.', { placa: 2, prop: '1674 / 1080' })] },
     ],
     nota: 'Grabado en la web tal como se entregó, en Webflow. Hoy invopop.com es otra web.',
+    comentario: { quien: 'eric', texto: 'Lo mejor de Invopop no se ve: el equipo escribe en Notion y la web se actualiza sola, en dos idiomas. Más de cien fichas que ya no dependen de nosotros.' },
     conclusion: [
       'El contenido por país ya no pasa por la web: el equipo lo edita en Notion y WhaleSync lo sincroniza campo a campo con el CMS de Webflow, en inglés y en español.',
       'Más de cien fichas con referencias cruzadas alimentan la cobertura, las guías y el mapa.',
@@ -577,6 +630,7 @@ export const proyectos: Proyecto[] = [
     ],
     boton: { fam: 'Untitled Sans', px: 16, peso: 500, radio: 8, alto: 58, fondo: '#F0764B', tinta: '#FFFFFF' },
     medido: 'Medido en businessonlinepayroll.com, a 1440 px',
+    comentario: { quien: 'eric', texto: 'Un solo sistema para veintiún bancos, cada uno con su marca. Lo hicimos dentro del equipo de Farco Studio y nos obligó a pensar el CMS antes que las pantallas.' },
     conclusion: [
       'Un sistema de CMS crea el microsite de cada banco sin rehacer nada: sus colores son variables conectadas a su ficha y sus páginas salen de colecciones compartidas.',
       'Veintiún bancos socios, cada uno con su marca, sobre una sola arquitectura. Se hizo dentro del equipo de desarrollo Webflow de Farco Studio, para SurePayroll.',
@@ -645,6 +699,7 @@ export const proyectos: Proyecto[] = [
     boton: { fam: 'DM Sans', px: 16, peso: 600, radio: 6, alto: 39, fondo: '#0741DD', tinta: '#FFFFFF' },
     medido: 'Medido en cubbo.com, a 1440 px',
     aplicado: true,
+    comentario: { quien: 'eric', texto: 'El reto era juntar México y Brasil en un solo proyecto sin perder posicionamiento. Con la localización y las redirecciones bien hechas, el equipo ya trabaja sobre una sola web.' },
     conclusion: [
       'México y Brasil viven ahora en un solo proyecto de Webflow, con localización es-MX y pt-BR, el contenido de los dos países migrado y redirecciones 301 para no perder posicionamiento.',
       'Los formularios de ventas llegan a HubSpot y avisan al equipo en Slack.',
@@ -715,6 +770,7 @@ export const proyectos: Proyecto[] = [
     ],
     medido: 'Medido en remerge.io, a 1440 px',
     aplicado: true,
+    comentario: { quien: 'eric', texto: 'Migrar de Craft a Webflow en cuatro idiomas y en dos meses salió porque reconstruimos la arquitectura desde su código. La IA aceleró; la revisión, idioma a idioma, la hicimos a mano.' },
     conclusion: [
       'La web pasó de Craft CMS a Webflow en dos meses, en cuatro idiomas: más de treinta páginas y 350 fichas de CMS, sin que nada se moviera de su sitio.',
       'Su arquitectura se reconstruyó desde el código original, con componentes pensados para que marketing los reutilice. La IA aceleró la migración; la revisión, en los cuatro idiomas, se hizo a mano.',
@@ -778,6 +834,7 @@ export const proyectos: Proyecto[] = [
     boton: { fam: 'Aspekta', px: 16, peso: 600, radio: 6, alto: 36, fondo: '#1A1AFF', tinta: '#FFFFFF' },
     medido: 'Medido en isotrol.com, a 1440 px',
     aplicado: true,
+    comentario: { quien: 'eric', texto: 'Isotrol pedía sobriedad: fotografía grande, cifras claras y su impacto en un mapa. Dejamos el CMS y los idiomas montados para que su equipo lo lleve solo.' },
     conclusion: [
       'Una empresa técnica con presencia en todo el mundo, contada en una web sobria: fotografía a sangre, cifras que se leen de lejos y su impacto en un mapa.',
       'El CMS y la localización de Webflow quedaron montados para que su equipo mantenga el contenido.',

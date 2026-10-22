@@ -99,10 +99,10 @@ async function grabar(b, slug, d) {
   const lanzar = async () => {
     await p.waitForTimeout(hold / K);
     if (d.accion === 'bajar') {
-      await p.evaluate(([dy, D]) => new Promise((ok) => { const a = scrollY, z = a + dy, t1 = performance.now(), L = window.__lenis || window.lenis;
-        const paso = (t) => { const k = Math.min(1, (t - t1) / D), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2, yy = a + (z - a) * e;
+      await p.evaluate(([dy, D, lin]) => new Promise((ok) => { const a = scrollY, z = a + dy, t1 = performance.now(), L = window.__lenis || window.lenis;
+        const paso = (t) => { const k = Math.min(1, (t - t1) / D), e = lin ? k : k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2, yy = a + (z - a) * e;
           if (L?.scrollTo) L.scrollTo(yy, { immediate: true, force: true }); else document.scrollingElement.scrollTop = yy; if (k < 1) requestAnimationFrame(paso); else ok(); };
-        requestAnimationFrame(paso); }), [(d.dy ?? 600) * Z, dur]);
+        requestAnimationFrame(paso); }), [(d.dy ?? 600) * Z, dur, !!d.lineal]); // «lineal»: a velocidad constante (los recorridos de página entera)
     } else if (d.accion === 'pasar' || d.accion === 'pulsar') {
       const objs = d.textos ? (await Promise.all(d.textos.map((t) => p.getByText(t, { exact: d.exacto !== false }).first().elementHandle({ timeout: 2000 }).catch(() => null)))).filter(Boolean) : (await Promise.all((await p.$$(d.sobre)).map(async (o) => { const r = await o.boundingBox(); return r && r.width > 0 && r.y > 0 && r.y < vh ? o : null; }))).filter(Boolean).slice(0, d.max || 8);
       const pausa = Math.max(500, dur / Math.max(1, objs.length)) / K;

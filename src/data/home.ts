@@ -13,7 +13,7 @@ export const nav = {
     { label: 'Lab', href: '/lab' },
     { label: 'Manifiesto', href: '/manifiesto' },
   ] as { label: string; href: string }[],
-  reel: { label: 'Reel', duracion: '0:53' }, // ronda 263: el reel cinético · ronda 130: el reel vuelve, montado con Kuanta y Arkdev (marca blanca)
+  reel: { label: 'Reel', duracion: '0:53' }, // ronda 263: el reel cinético · ronda 130: el reel vuelve, montado con Quantus y Patchbay (marca blanca)
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete): el correo (de `pie.correo`) y el handbook (sin `href` saldría como «pronto»)
   mas: { titulo: 'Más', links: [{ label: 'Sistema', href: '/sistema' }, { label: 'Método', href: '/metodo' }] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
 };
@@ -212,20 +212,19 @@ export const proyectos = {
   // `d` y `dato` salen de la propia web de cada cliente y del registro de rondas; PENDIENTES de visto bueno.
   nuevos: [
     {
-      slug: 'kuanta', // ronda 126: Multiverse Computing → marca blanca «Kuanta» (no llegaron a publicar la web): captura con su nombre y logotipo cambiados, sin iframe
+      slug: 'quantus', // octubre 2026: Andoni rehízo la web de Multiverse (antes «Kuanta», en marca blanca) como CONCEPTO propio, sin nada del cliente: Quantus
       paleta: ['#15181C', '#F01438', '#3A3E44', '#C0C3C5'], // medida sobre la captura. PROVISIONAL: confirmar con el CSS de cada web
-      n: 'Kuanta',
+      n: 'Quantus',
       cat: 'IA y computación cuántica',
       d: 'Una esfera de puntos que se comprime hasta ser su logotipo: el producto, explicado sin una palabra.',
-      // RONDA 135 · Andoni: «tienen que tener su página real en la vista en detalle; de momento la real»: sentado, el iframe con la web de Multiverse
-      // (sin x-frame-options ni CSP frame-ancestors, medido con curl). `dominio`: lo que se rotula en la pantalla de carga (la marca blanca no enseña el suyo).
-      url: 'https://multiversecomputing.treseiscero.app/',
-      dominio: 'savvia.studio',
+      // sentado, el iframe con la web (sin x-frame-options ni CSP frame-ancestors, medido el 22/10/2026)
+      url: 'https://quantus-demo.vercel.app/',
+      dominio: 'quantus-demo.vercel.app',
       estacion: 'invierno',
       hechos: [
         ['Trabajo', 'Home · diseño y desarrollo agéntico'],
         ['Tipografía', 'Schibsted Grotesk'],
-        ['Un dato', '23 rondas documentadas'],
+        ['Un dato', '24 rondas documentadas'],
       ],
     },
     {
@@ -257,14 +256,14 @@ export const proyectos = {
       ],
     },
     {
-      slug: 'arkdev', // ronda 126: Zernio → marca blanca «Arkdev» (antes «Amarra» en sus casos): captura con su nombre y logotipo cambiados, sin iframe
+      slug: 'patchbay', // octubre 2026: Andoni rehízo la web de Zernio (antes «Arkdev», en marca blanca) como CONCEPTO propio, sin nada del cliente: Patchbay
       paleta: ['#F8F4EE', '#603B32', '#998A82', '#251A17'], // medida sobre la captura. PROVISIONAL: confirmar con el CSS de cada web
-      n: 'Arkdev',
+      n: 'Patchbay',
       cat: 'API para desarrolladores',
       d: 'Una API de redes y mensajería para 23 canales, presentada como un muelle donde atraca cada uno.',
-      // RONDA 135 · sentado, la web real de Zernio (sin x-frame-options ni frame-ancestors, medido con curl)
-      url: 'https://zernio.treseiscero.app/',
-      dominio: 'savvia.studio',
+      // sentado, el iframe con la web (sin x-frame-options ni frame-ancestors, medido el 22/10/2026)
+      url: 'https://patchbay-web.vercel.app/',
+      dominio: 'patchbay-web.vercel.app',
       estacion: 'verano',
       hechos: [
         ['Trabajo', 'Home · diseño y desarrollo agéntico'],

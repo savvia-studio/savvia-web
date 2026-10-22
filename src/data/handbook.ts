@@ -74,10 +74,10 @@ export const handbook = {
   pista: 'Pasa el ratón: salen webs que hemos hecho',
   // la estela de la portada: webs reales (public/media/obra → public/media/handbook/estela, 520 px; Remerge, en móvil)
   estela: [
-    ['kuanta-portada', 'Kuanta'], ['arkdev-portada', 'Arkdev'], ['playground-portada', 'Playground IEP'], ['neety-portada', 'Neety'],
+    ['quantus-portada', 'Quantus'], ['patchbay-portada', 'Patchbay'], ['playground-portada', 'Playground IEP'], ['neety-portada', 'Neety'],
     ['invopop-portada', 'Invopop'], ['cubbo-portada', 'Cubbo'], ['remerge-portada', 'Remerge'], ['isotrol-portada', 'Isotrol'],
-    ['kuanta-g2', 'Kuanta'], ['business-online-payroll-portada', 'Business Online Payroll'], ['playground-g2', 'Playground IEP'],
-    ['arkdev-g3', 'Arkdev'], ['neety-g1', 'Neety'], ['cubbo-g2', 'Cubbo'], ['invopop-g2', 'Invopop'],
+    ['quantus-g2', 'Quantus'], ['business-online-payroll-portada', 'Business Online Payroll'], ['playground-g2', 'Playground IEP'],
+    ['patchbay-g3', 'Patchbay'], ['neety-g1', 'Neety'], ['cubbo-g2', 'Cubbo'], ['invopop-g2', 'Invopop'],
   ] as [string, string][],
 };
 
@@ -151,7 +151,7 @@ export const capitulos: Capitulo[] = [
         bloques: [
           // de: home.ts › proyectos.titulo y proyectos.ts (los cuatro destacados, con su vídeo real)
           { tipo: 'p', texto: 'No presumimos de años ni de número de clientes: preferimos enseñarte lo hecho. Estos son los proyectos destacados con desarrollo agéntico.' },
-          { tipo: 'obra', slugs: ['kuanta', 'arkdev', 'playground', 'neety'] },
+          { tipo: 'obra', slugs: ['quantus', 'patchbay', 'playground', 'neety'] },
           { tipo: 'enlace', label: 'Ver el portfolio', href: '/proyectos' },
         ],
       },

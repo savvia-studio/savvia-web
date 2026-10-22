@@ -3,6 +3,8 @@
 const { chromium, launchOpts, userAgent } = require('/Users/andonimart/Desktop/savvia/savvia_inspo/scripts/pw.cjs');
 const fs = require('fs');
 const webs = [
+  ['quantus', 'https://quantus-demo.vercel.app/'],
+  ['patchbay', 'https://patchbay-web.vercel.app/'],
   ['kuanta', 'file:///Users/andonimart/Desktop/Claude%20Code/multiverse-home/dist/index.html'],
   ['arkdev', 'https://zernio.treseiscero.app/'],
   ['playground', 'https://playgroundiep.com/'],

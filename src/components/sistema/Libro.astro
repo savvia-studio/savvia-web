@@ -67,7 +67,7 @@ const PIEZAS: [string, string, string][] = [
   ['El roble del hero', 'Cuatro acuarelas de Andoni, una por estación.', 'Se recortan con Python (tools/r66-robles.py: alfa, partidas por la línea de suelo en árbol y raíces, alineadas por el tronco) y las pinta en vivo el motor estela.ts: dibujo a líneas, pintura con canto rasgado, semitono y hervor. Antes hubo un roble 3D modelado por script en Blender 5.2 con Cycles (tools/blender/roble.py): quedó de molde y se retiró.'],
   ['La mesa de Proyectos', 'Cuatro láminas de Andoni a 7680 × 4320, una por estación.', 'Se sacan a 1600, 2560 y 5120 px; la pantalla del monitor se midió por inundación en las cuatro. Encima, el mockup de arriba.'],
   ['Eric y Andoni', 'Las poses de los dos en 3D: 12 por serie más la foto de los dos juntos.', 'tools/r141-equipo/montar.cjs ajusta escala y sitio de cada pose por solape con la foto y las monta en tiras webp; Estudio.astro las reproduce: la llegada y, al pasar, el gesto de cada uno a 11 fps con fundidos hacia la foto.'],
-  ['Las webs de los proyectos', 'La web real de cada cliente.', 'Grabadas en Chrome real con Playwright (tools/grabar-paso.cjs: scroll exacto por fotograma, 30 fps, mp4 h264) y capturas a 1710 px. Kuanta y Arkdev, en marca blanca: se cambian textos y logotipos interceptando la web al grabar.'],
+  ['Las webs de los proyectos', 'La web real de cada cliente.', 'Grabadas en Chrome real con Playwright (tools/grabar-paso.cjs: scroll exacto por fotograma, 30 fps, mp4 h264) y capturas a 1710 px. Quantus y Patchbay, en marca blanca: se cambian textos y logotipos interceptando la web al grabar.'],
   ['El reel', 'Las grabaciones de las webs.', 'Compuesto en HyperFrames (HTML que se renderiza a vídeo): cinco webs que se construyen en su pantalla, firmas de cada una y el cierre; música de Pixabay con los cortes al pulso.'],
   ['Flora, óleos y fotos', 'Láminas de Andoni y fotos con licencia.', 'Recortadas con tools/recorte.py y sharp (alfa por distancia al blanco, sin halo) y, las que se mueven, pintadas con el mismo motor del roble.'],
   ['Logotipo', '«savvia» en Family (el isotipo dejó de usarse en la ronda 156).', 'El isotipo se ajustó a curvas de Bézier (tools/r154/isotipo-bezier.cjs) para animar su construcción; la palabra se pasó a contornos con fontTools.'],
@@ -587,7 +587,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
             <div class="placa oscura demos">
               <div class="barra-cristal" role="group" aria-label="Ejemplo de barra">
                 <button type="button" class="paso" aria-label="Anterior"><Fragment set:html={flecha('izq')} /></button>
-                <p class="cual"><span class="n">02/04</span><span>Arkdev</span></p>
+                <p class="cual"><span class="n">02/04</span><span>Patchbay</span></p>
                 <button type="button" class="paso" aria-label="Siguiente"><Fragment set:html={flecha()} /></button>
               </div>
               <div class="barra-cristal" role="group" aria-label="Ejemplo de paginación">
@@ -628,7 +628,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
                 <div class="md-escena">
                   <img src="/media/estudio/otono-m.webp" alt="La mesa del estudio en otoño" width="1600" height="900" loading="lazy" />
                   <i class="md-halo" aria-hidden="true"></i>
-                  <div class="md-pantalla"><img src="/media/proyectos/kuanta.webp" alt="La web de Kuanta dentro del monitor" loading="lazy" /></div>
+                  <div class="md-pantalla"><img src="/media/proyectos/quantus.webp" alt="La web de Quantus dentro del monitor" loading="lazy" /></div>
                   <i class="md-caja" aria-hidden="true"><span class="detail">39,03 · 36,96 · 21,78 × 21,04 %</span></i>
                 </div>
                 <figcaption class="detail pie-p">Montado</figcaption>
@@ -638,7 +638,7 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
                   <span class="md-capa c1"><img src="/media/estudio/otono-m.webp" alt="" loading="lazy" /><b class="detail">1 · lámina</b></span>
                   <span class="md-capa c2"><i></i><b class="detail">2 · luz</b></span>
                   <span class="md-capa c3"><i></i><b class="detail">3 · pantalla</b></span>
-                  <span class="md-capa c4"><img src="/media/proyectos/kuanta.webp" alt="" loading="lazy" /><b class="detail">4 · web</b></span>
+                  <span class="md-capa c4"><img src="/media/proyectos/quantus.webp" alt="" loading="lazy" /><b class="detail">4 · web</b></span>
                 </div>
                 <figcaption class="detail pie-p">Despiece</figcaption>
               </figure>

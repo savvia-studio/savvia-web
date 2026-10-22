@@ -157,18 +157,18 @@ export const proyectos = {
   titulo: 'savvia', // round 292: the screen title is the reel's title card; was «Featured projects built with agentic development.»
   nuevos: [
     {
-      slug: 'kuanta',
+      slug: 'quantus',
       paleta: ['#15181C', '#F01438', '#3A3E44', '#C0C3C5'],
-      n: 'Kuanta',
+      n: 'Quantus',
       cat: 'AI and quantum computing',
       d: 'A sphere of points that compresses into its logo: the product, explained without a single word.',
-      url: 'https://multiversecomputing.treseiscero.app/',
-      dominio: 'savvia.studio',
+      url: 'https://quantus-demo.vercel.app/',
+      dominio: 'quantus-demo.vercel.app',
       estacion: 'invierno',
       hechos: [
         ['Work', 'Home · agentic design and development'],
         ['Typeface', 'Schibsted Grotesk'],
-        ['A number', '23 documented rounds'],
+        ['A number', '24 documented rounds'],
       ],
     },
     {
@@ -198,13 +198,13 @@ export const proyectos = {
       ],
     },
     {
-      slug: 'arkdev',
+      slug: 'patchbay',
       paleta: ['#F8F4EE', '#603B32', '#998A82', '#251A17'],
-      n: 'Arkdev',
+      n: 'Patchbay',
       cat: 'API for developers',
       d: 'A social and messaging API for 23 channels, presented as a harbour where each one docks.',
-      url: 'https://zernio.treseiscero.app/',
-      dominio: 'savvia.studio',
+      url: 'https://patchbay-web.vercel.app/',
+      dominio: 'patchbay-web.vercel.app',
       estacion: 'verano',
       hechos: [
         ['Work', 'Home · agentic design and development'],

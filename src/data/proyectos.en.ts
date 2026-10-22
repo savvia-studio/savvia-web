@@ -23,8 +23,8 @@ const NESC: Record<string, string> = { Texto: 'Text', Detalle: 'Detail', Entradi
 const escalaEn = (p: Proyecto) =>
   p.escala?.map((e) => ({ ...e, n: NESC[e.n] ?? e.n, ls: e.ls?.replace(/,/g, '.').replace('mayúsculas', 'uppercase') }));
 
-const kuanta = base('kuanta');
-const arkdev = base('arkdev');
+const quantus = base('quantus');
+const patchbay = base('patchbay');
 const playground = base('playground');
 const neety = base('neety');
 const invopop = base('invopop');
@@ -34,17 +34,17 @@ const remerge = base('remerge');
 const isotrol = base('isotrol');
 
 export const proyectosEn: Record<string, Partial<Proyecto>> = {
-  kuanta: {
+  quantus: {
     sector: 'AI and quantum computing',
     resumen: 'A sphere of dots that compresses into its own logo: the product, explained without a single word.',
-    entradilla: 'Kuanta compresses AI models so they run on far less compute with the same intelligence. Its home page had to prove it, not just say it.',
+    entradilla: 'Quantus compresses AI models so they run on far less compute with the same intelligence. Its home page had to prove it, not just say it.',
     contexto: [
       'The page presents their whole catalogue: model compression, security, orchestration, their largest model and the platform to deploy them.',
       'Every technical idea has its own image: a sphere that compresses, a matrix that keeps a third of its data, a model that travels from the cloud to the device without disappearing.',
     ],
     reto: 'Explain model compression to the person who signs off the compute bill, with technical evidence and without losing anyone along the way. All on a single dark, serious page with the brand red as the only accent.',
     frase: 'Less compute, the same intelligence.',
-    secciones: tx(kuanta.secciones, [
+    secciones: tx(quantus.secciones, [
       { n: 'Hero', d: 'A sphere of around 3,000 dots compresses with the scroll until it becomes the isotype, while the readouts fall: from 100% to 5% of the size, with 97.4% of the accuracy.' },
       { n: 'Who uses compressed AI', d: 'Four use cases, each with its own isometric illustration, which redraws itself when the cursor passes over it.' },
       { n: 'The model', d: 'A ranking of 178 models in which theirs climbs to 13th place, just once, on entering.' },
@@ -57,13 +57,13 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       { n: 'Validated in production', d: 'Four customer measurements that take turns when clicked.' },
       { n: 'Company', d: 'Three illustrations of their story and news that rotate.' },
     ]),
-    paleta: tx(kuanta.paleta, [{ n: 'Background' }, { n: 'Elevated background' }, { n: 'Ink' }, { n: 'Brand red' }]),
-    tipos: tx(kuanta.tipos, [{ uso: 'Headlines and text · 400, 500 and 600' }, { uso: 'Data, specifications and labels' }]),
+    paleta: tx(quantus.paleta, [{ n: 'Background' }, { n: 'Elevated background' }, { n: 'Ink' }, { n: 'Brand red' }]),
+    tipos: tx(quantus.tipos, [{ uso: 'Headlines and text · 400, 500 and 600' }, { uso: 'Data, specifications and labels' }]),
     tecnica: [
-      'A single 3,188-line source file that a custom script compiles into a self-contained index.html of around 670 KB',
+      'A single hand-written, self-contained HTML file of around 440 KB',
       'The sphere, the profiler and the tensor in Canvas 2D; the illustrations as inline SVG',
       'Every loop pauses off-screen and Lenis drives GSAP’s clock',
-      'Main thread −30% on desktop and −32% on mobile after measuring; frames over 20 ms below 2%',
+      'The round against scroll jank cut main-thread work from 40.1 s to 26.4 s, and frames over 20 ms from 2.5% to 0.9%',
       'Reduced motion respected: no loops, with the logo already formed',
       'Published on Vercel with immutable caching for assets',
     ],
@@ -73,52 +73,53 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       'The light theme: the page is dark from start to finish',
       'Removing the header blur to gain speed: measured, it made things worse (3.32 → 3.63 s)',
     ],
-    cifras: tx(kuanta.cifras, [
+    cifras: tx(quantus.cifras, [
       { t: 'sections' },
       { t: 'isometric illustrations' },
       { t: 'cubes in the footer tensor' },
       { t: 'design rounds' },
+      { t: 'measuring tools written' },
     ]),
-    proceso: tx(kuanta.proceso, [
-      { n: 'Direction', d: '26 design rounds in five days, with review notes left on the page itself. Every rejected decision went onto a list of 73 rules that don’t come back.' },
+    proceso: tx(quantus.proceso, [
+      { n: 'Direction', d: '24 design rounds, with review notes left on the page itself. Every rejected decision went onto a list of 73 rules that don’t come back.' },
       { n: 'System', d: 'Trimmed to the essentials: two typefaces, a single red, dark theme only and two radii (there had been eight). Balanced headlines with text-wrap and heights in lvh and dvh.' },
       { n: 'Illustration', d: 'Fifteen isometric illustrations generated in code with a custom script: they are drawn in line and then filled, like a plan being built.' },
       { n: 'Motion', d: 'GSAP and ScrollTrigger with Lenis in charge of the clock. Nothing bounces: what falls, falls with gravity and settles.' },
       { n: 'Measuring', d: 'Before optimising, we measured with a real wheel and in interleaved pairs. Three “obvious” optimisations made the result worse and were dropped.' },
     ]),
-    detalles: tx(kuanta.detalles, [
+    detalles: tx(quantus.detalles, [
       { titulo: 'The sphere that compresses', texto: 'The product, explained without a single word: around 3,000 dots tied to the scroll compress into the isotype while the readouts drop from 100% to 5%. In Canvas 2D, painted in batches (16 tints × 40 alphas, a single stroke per group) so it stays light.' },
       { titulo: 'Four cases, four drawings', texto: 'Each use case has its own isometric illustration. When the cursor passes over it, the drawing redraws itself: outline first, colour after. All four come from the same illustration generator.' },
       { titulo: 'From tensor to four places', texto: 'A pinned section: the 4096 × 4096 matrix is profiled, two thirds of its correlations are discarded and what remains is broken down into a chain of five tensors. Then a single model travels from the cloud to the device: its box is measured in the outgoing and incoming scenes so it lands on the same pixel.' },
       { titulo: 'The stack that falls', texto: 'The products fall as blocks with gravity (2,400 px/s², half a second, a tenth between rows) and what is underneath gives way 3.2 px as they land before returning to place.' },
       { titulo: 'The footer tensor', texto: 'An 8 × 8 × 8 tensor of cubes rotates and a red plane marks exactly 210 of them, the ones that make up the logo, which arrange themselves until they form it. A 12-second loop with no jump, in canvas: the CSS 3D cube that preceded it didn’t composite well in Safari.' },
     ]),
-    mosaico: tm(kuanta.mosaico, [
+    mosaico: tm(quantus.mosaico, [
       [['The sphere that compresses', '3,000 dots tied to the scroll form the isotype as the size drops from 100% to 5%.']],
       [['A plan being built', 'Every place the model runs is an isometric illustration drawn in line and then filled.'], ['From tensor to four places', 'The 4096 × 4096 matrix loses two thirds and ends up as a model that fits anywhere.']],
       [['Four cases, four drawings', 'When the cursor passes over it, each illustration redraws itself: outline first, colour after.']],
       [['The stack', 'The products fall with gravity on entering and what is underneath gives way 3.2 px as they land.'], ['Who uses compressed AI', 'Ten industries in a grid of rules, with the label in JetBrains Mono and the text in Schibsted Grotesk.']],
       [['The footer tensor', '512 cubes rotate and a red plane marks the 210 that form the logo.']],
     ]),
-    escala: escalaEn(kuanta),
-    medido: 'Measured on the delivered site, at 1440 px',
+    escala: escalaEn(quantus),
+    medido: 'Measured on the site, at 1440 px',
     conclusion: [
       'A single page explains the entire catalogue without requiring technical knowledge: every idea has its image, and the hero sphere sums up the product before anything is read.',
-      'It was closed in 26 design rounds, with 73 rules for what doesn’t come back, and it was measured before optimising: the main thread dropped 30% on desktop and 32% on mobile.',
+      'It was closed in 24 design rounds, with 73 rules for what doesn’t come back, and it was measured before optimising: main-thread work dropped from 40.1 s to 26.4 s.',
     ],
   },
 
-  arkdev: {
+  patchbay: {
     sector: 'Developer software',
     resumen: 'An API for social networks and messaging across 23 channels, presented as a dock where each one moors.',
-    entradilla: 'Arkdev connects a product to 23 social media, messaging and advertising channels through a single API. They take care of the developer apps, permissions and reviews of each platform.',
+    entradilla: 'Patchbay connects a product to 23 social media, messaging and advertising channels through a single API. They take care of the developer apps, permissions and reviews of each platform.',
     contexto: [
       'The site speaks to people who code and to the AI agents that already integrate APIs: code is the protagonist from the first screen and the example writes itself.',
       'The idea that organises it is a dock: every channel moors at the same API, with the same tools and the same data shape.',
     ],
     reto: 'To make 23 different integrations read as one simple thing, and to let a developer see themselves up and running in minutes.',
     frase: 'Every channel moors at the same API.',
-    secciones: tx(arkdev.secciones, [
+    secciones: tx(patchbay.secciones, [
       { n: 'Hero', d: 'The headline and a terminal that writes the example line by line: connect, publish and reply.' },
       { n: 'Live', d: 'Counters for posts and connected accounts, and the official partners.' },
       { n: 'Platforms', d: 'Twenty-three tabs, one per channel, each with its spec sheet.' },
@@ -129,47 +130,47 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       { n: 'Pricing', d: 'Pay as you go, with a calculator from 1 to 10,000 accounts.' },
       { n: 'Questions, security and close', d: 'Six engineering questions, the security block and the final call.' },
     ]),
-    paleta: tx(arkdev.paleta, [{ n: 'Paper' }, { n: 'Ink' }, { n: 'Vermilion (only accent)' }, { n: '“Live” green' }]),
-    tipos: tx(arkdev.tipos, [{ uso: 'Headlines · 600' }, { uso: 'Code and labels' }]),
+    paleta: tx(patchbay.paleta, [{ n: 'Paper' }, { n: 'Ink' }, { n: 'Vermilion (only accent)' }, { n: '“Live” green' }]),
+    tipos: tx(patchbay.tipos, [{ uso: 'Headlines · 600' }, { uso: 'Code and labels' }]),
     apartados: [
-      { titulo: 'Sound', texto: ['Synthesised in the browser, with no files: a click is three very short square waves (2,100, 1,650 and 320 Hz) filtered at 4,200 Hz; on hover, a single 8 ms one, almost inaudible. It can be switched off and the choice is remembered.'] },
+      { titulo: 'Sound', texto: ['Synthesised in the browser, with no files: a click is a burst of narrow-band noise around 3,400 Hz (9 ms) with a 260 Hz sine that falls away and gives it body; on hover, the same, higher and shorter. Each hit varies slightly in pitch. It can be switched off and is remembered.'] },
     ],
     tecnica: [
-      'A single 2,992-line HTML file (258 KB), with React 18 in the browser',
+      'A single 2,962-line HTML file (234 KB), with React 18 in the browser',
       'Motion in CSS: 26 custom animations, no libraries, no canvas or WebGL',
       'Sound synthesised with Web Audio',
       'Pricing calculator with a logarithmic slider from 1 to 10,000 accounts',
       'Light and dark themes, remembered in the browser',
     ],
-    cifras: tx(arkdev.cifras, [
+    cifras: tx(patchbay.cifras, [
       { t: 'channels in one API' },
       { t: 'sections' },
       { v: '2.4 s', t: 'between moorings' },
       { t: 'single accent colour' },
     ]),
-    proceso: tx(arkdev.proceso, [
+    proceso: tx(patchbay.proceso, [
       { n: 'Two readers', d: 'The site speaks to people who code and to the agents that integrate APIs: code leads from the first screen and every section answers an engineering question.' },
       { n: 'System', d: 'Two families (Instrument Sans and JetBrains Mono), a single vermilion accent and a radius scale that makes sense: 6 for chips, 12–16 for panels, 22 for tiles, 40 for the capsule.' },
       { n: 'Two voices', d: 'Every headline has two sentences: the first in ink and the second at 40%. It is the trait that repeats across all the sections.' },
       { n: 'Comparing on the page', d: 'The hero was built in two variants, “Code” and “Diagram”, which were compared on the site itself before choosing.' },
     ]),
-    detalles: tx(arkdev.detalles, [
+    detalles: tx(patchbay.detalles, [
       { titulo: 'The intro and the terminal', texto: 'The mark fills with vermilion from the bottom up while a counter goes from 000 to 100 in 1.9 seconds. Then the terminal writes itself, one line every 190 ms: connect, publish and reply, each step with its ✓ and its “200 OK”.' },
       { titulo: 'Twenty-three spec sheets', texto: 'One tab per channel and, in each, what it truly supports: formats, video and text limits, and the journey of a post (queued, publishing, published).' },
       { titulo: 'The dock', texto: 'A 180 px capsule and an arc with a 730 px radius holding the 23 tiles, 15.65° apart. Every 2.4 seconds one advances and snaps in over 0.9 s with a curve that starts sharp and settles; its neighbours sit at 0.79 scale. The skins alternate white, ink and vermilion.' },
       { titulo: 'Up and running in minutes', texto: 'Three timed steps (30 seconds, 2 minutes and 1 minute): the API key is generated in plain sight and the channels connect one by one, each with its status.' },
     ]),
-    mosaico: tm(arkdev.mosaico, [
+    mosaico: tm(patchbay.mosaico, [
       [['The intro and the terminal', 'The mark fills with vermilion and the example writes itself, one line every 190 ms.']],
       [['The dock', 'The 23 channels in an arc; every 2.4 seconds one moors at the API.'], ['Every channel moors', 'The dock and its headline: the same tools and the same data shape for any agent.']],
       [['Twenty-three spec sheets', 'One tab per channel, with what it truly supports: formats, limits and statuses.']],
       [['Customers', 'A featured case that rotates and the reviews, with name and company.'], ['Up and running in minutes', 'Three timed steps: the key is generated in plain sight and the channels connect.']],
     ]),
-    escala: escalaEn(arkdev),
-    medido: 'Measured on the delivered site, at 1440 px',
+    escala: escalaEn(patchbay),
+    medido: 'Measured on the site, at 1440 px',
     conclusion: [
       'Twenty-three integrations read as one: the dock organises the page and each channel has its sheet with what it truly supports. Anyone who codes sees the example working from the first screen.',
-      'Everything fits in a single 258 KB HTML file, with motion in CSS and sound synthesised in the browser, without animation libraries.',
+      'Everything fits in a single 234 KB HTML file, with motion in CSS and sound synthesised in the browser, without animation libraries.',
     ],
   },
 

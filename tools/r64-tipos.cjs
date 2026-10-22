@@ -3,6 +3,8 @@
 const { chromium, launchOpts, userAgent } = require('/Users/andonimart/Desktop/savvia/savvia_inspo/scripts/pw.cjs');
 const fs = require('fs');
 const T = {
+  quantus: { url: 'https://quantus-demo.vercel.app/', tinta: '#15181c', f: [['Schibsted Grotesk', 500], ['JetBrains Mono', 400]] },
+  patchbay: { url: 'https://patchbay-web.vercel.app/', tinta: '#17130f', f: [['Instrument Sans', 600], ['JetBrains Mono', 400]] },
   multiverse: { url: 'https://multiverse-home.vercel.app/', tinta: '#15181c', f: [['Schibsted Grotesk', 500], ['JetBrains Mono', 400]] },
   amarra: { url: 'https://zernio.treseiscero.app/', tinta: '#17130f', f: [['Instrument Sans', 600], ['JetBrains Mono', 400]] },
   playground: { url: 'https://playground-iep-two.vercel.app/home-v5.html', tinta: '#111d2a', f: [['Politetype', 400], ['Inter', 400]] },

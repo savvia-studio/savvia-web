@@ -23,6 +23,8 @@ import Pie from '../components/Pie.astro';
 import Cta from '../components/Cta.astro';
 import Medio from '../components/obra/Medio.astro';
 import Pieza from '../components/obra/Pieza.astro';
+import { flecha } from '../lib/flecha';
+import { gestosDe } from '../lib/gestos';
 import { type Proyecto } from '../data/proyectos';
 import { proyectoDe, servicio } from '../data/idioma';
 import { langDe, ruta } from '../lib/i18n';
@@ -32,11 +34,11 @@ const lang = langDe(Astro.currentLocale);
 const en = lang === 'en';
 const props = Astro.props as { p: Proyecto; sig: Proyecto; ant: Proyecto };
 // los datos llegan en castellano desde getStaticPaths: se resuelven en el idioma de la página
-const p = proyectoDe(lang, props.p.slug) ?? props.p, sig = proyectoDe(lang, props.sig.slug) ?? props.sig, ant = proyectoDe(lang, props.ant.slug) ?? props.ant;
+const p = proyectoDe(lang, props.p.slug) ?? props.p, sig = proyectoDe(lang, props.sig.slug) ?? props.sig;
 // RONDA 144 (3.ª) · «arriba hay demasiada información: la parte de la derecha, más sutil o reducida»: arriba solo servicios, sector y lugar, en una línea
 // pequeña; las herramientas y las cifras bajan a «Por dentro»
 const ficha = [
-  [en ? 'Services' : 'Servicios', p.servicios.map((x) => servicio(lang, x)).join(' · ')],
+  [en ? 'Services' : 'Servicios', p.servicios.map((x) => servicio(lang, x)).join(', ')],
   [en ? 'Sector' : 'Sector', p.sector ?? ''],
   [en ? 'Location' : 'Lugar', p.ubicacion ?? p.con ?? ''],
 ].filter(([, v]) => v) as [string, string][];
@@ -44,7 +46,6 @@ const cifras = (p.cifras ?? []).map((c) => `${c.v} ${c.t}`);
 const luz = (hex: string) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, gg = (n >> 8) & 255, b = n & 255; return (r * 299 + gg * 587 + b * 114) / 1000 > 150; };
 // el fondo de las muestras tipográficas: el color más claro de su paleta (la tinta de la muestra es la suya)
 const claroMarca = (p.paleta ?? []).map((c) => c.hex).find((h) => luz(h)) ?? '#FFFFFF';
-import { flecha } from '../lib/flecha';
 // RONDA 153 · el contraste WCAG entre dos colores (para «El sistema»: cada color sobre el fondo que más se usa)
 const lum = (hex: string) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const contraste = (a: string, b: string) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
@@ -53,8 +54,35 @@ const coma = (n: number, d = 1) => (en ? n.toFixed(d).replace(/\.0$/, '') : n.to
 const usados = [...(p.paleta ?? [])].sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0));
 const fondo = usados[0];
 const pares = fondo ? usados.slice(1).map((c) => ({ c, r: contraste(c.hex, fondo.hex) })).sort((a, b) => b.r - a.r) : [];
-const maxPx = Math.max(...(p.escala ?? []).map((e) => e.px), 1);
 const aplicado = !!p.aplicado;
+// las tarjetas de tipografía y del movimiento, en colores de SU paleta (los menos usados primero: los acentos; el fondo, el último)
+const acentos = [...usados].reverse();
+const tarjeta = (i: number) => (acentos[i % Math.max(acentos.length, 1)]?.hex ?? p.colores[i % 3]);
+// las de tipografía: la muestra va en la tinta de su web (oscura), así que las cartas son los colores con luz de su paleta (sin el fondo, que es casi
+// blanco); si no hay bastantes, el fondo mismo
+const claros = acentos.filter((c) => c !== usados[0] && lum(c.hex) > 0.18);
+const cartaTipo = (i: number) => (claros.length ? claros[i % claros.length].hex : usados[0]?.hex ?? p.colores[0]);
+// el MOVIMIENTO: su grabación (la toma grande o la portada) y, si el caso lo cuenta, las frases que hablan de cómo se mueve
+const movVideo = (() => { const v = p.cubierta ?? p.portada; return v && v.tipo === 'video' ? v : null; })();
+const RE_MOV = /movimiento|anima|gsap|scrolltrigger|lenis|transici|motion|cae |entra |sube /i;
+const movTexto = [...(p.tecnica ?? []), ...p.apartados.flatMap((x) => x.texto)].filter((t) => RE_MOV.test(t)).slice(0, 1).map((t) => (/[.!?»]$/.test(t.trim()) ? t.trim() : t.trim() + '.'));
+// las pistas de la línea de tiempo (inicio y fin en % del recorrido): la forma de la de Dropbox, en los colores de su paleta
+// POR DENTRO · cada herramienta con su icono (Simple Icons, CC0: public/media/iconos/tec/); las que no tienen logotipo, un glifo de línea de la casa
+const TEC: [RegExp, string][] = [[/next/i, 'nextdotjs'], [/tailwind/i, 'tailwindcss'], [/gsap/i, 'greensock'], [/sanity/i, 'sanity'], [/cloudflare/i, 'cloudflare'], [/vercel/i, 'vercel'], [/figma/i, 'figma'], [/webflow/i, 'webflow'], [/notion/i, 'notion'], [/hubspot/i, 'hubspot'], [/react/i, 'react'], [/^css$/i, 'css3'], [/html/i, 'html5']];
+const GLIFO: [RegExp, string][] = [
+  [/lenis|scroll/i, '<path d="M8 3.5v17M8 3.5 5 6.5M8 3.5l3 3M16 20.5v-17M16 20.5l-3-3M16 20.5l3-3"/>'],
+  [/canvas/i, '<rect x="3.5" y="5.5" width="17" height="13" rx="1.5"/><path d="M7 15c2-4 4-4 5-2s3 2 5-2"/>'],
+  [/audio|sonido/i, '<path d="M3 12h2l2-5 3 10 3-14 3 12 2-3h3"/>'],
+  [/cursor|mcp|claude|ia\b/i, '<path d="M12 3.5v4M12 16.5v4M3.5 12h4M16.5 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>'],
+];
+const ICO_DEF = '<path d="M9 7 4 12l5 5M15 7l5 5-5 5"/>';
+const icoTec = (t: string) => {
+  const s = TEC.find(([r]) => r.test(t))?.[1];
+  if (s) return `<img src="/media/iconos/tec/${s}.svg" alt="" width="18" height="18" loading="lazy" />`;
+  const g = GLIFO.find(([r]) => r.test(t))?.[1] ?? ICO_DEF;
+  return `<svg viewBox="0 0 24 24">${g}</svg>`;
+};
+const MO_PISTAS: [number, number][] = [[0, 18], [8, 46], [30, 92], [52, 74], [64, 100]];
 // RONDA 188 · el ESPACIADO medido en la web (tools/r188/espacios.cjs): los valores que más se usan, para qué, el paso base, el aire entre secciones
 // y el contenedor. Invopop no lo tiene: invopop.com ya no es la web entregada.
 type Esp = { escala: { px: number; n: number; uso: string }[]; base: number | null; seccion: number | null; contenedor: number | null };
@@ -64,10 +92,71 @@ const esp = (espaciado as Record<string, Esp>)[p.slug];
 const usoEsp: Record<string, string> = en ? { relleno: 'padding', margen: 'margin', hueco: 'gap' } : { relleno: 'relleno', margen: 'margen', hueco: 'entre elementos' };
 // el mosaico: el número de cada pieza corre por todas las filas
 let nPieza = 0;
-const filas = (p.mosaico ?? []).map((fila) => ({ ...fila, p: fila.p.map((z) => ({ ...z, i: ++nPieza })) }));
+// OCTUBRE 2026 · Eric y Andoni: «los detalles los dejamos en 5» → luego, en 3. Se cortan por orden; si la última fila queda a medias, cambia de forma (1 → ancha, 2 → pareja)
+const MAX_DETALLES = 3; // Andoni: «en detalles dejamos solo 3» (antes 5)
+const filas = (p.mosaico ?? [])
+  .map((fila) => ({ ...fila, p: fila.p.filter(() => nPieza < MAX_DETALLES && ++nPieza > 0).map((z, k, a) => ({ ...z, i: nPieza - a.length + k + 1 })) }))
+  .filter((fila) => fila.p.length > 0)
+  .map((fila, k, todas) => {
+    const original = (p.mosaico ?? [])[k]?.p.length ?? fila.p.length;
+    if (fila.p.length === original) return fila;
+    return { ...fila, f: (fila.p.length === 1 ? 'ancha' : 'par') as typeof fila.f };
+  });
+
+// MOVIMIENTO EN ABSTRACTO (Andoni: «los detalles de motion, como una abstracción, como hace Dropbox»: brand.dropbox.com/motion › «Motion Principles» son
+// cartas de un color plano con dos o tres formas que repiten el gesto). Cada detalle del caso se clasifica por lo que cuenta (en castellano, del original) y
+// se dibuja su gesto con formas en colores de SU paleta. Tres por caso, repartidos entre todos los casos (src/lib/gestos.ts).
+const piezasL = (p.mosaico ?? []).flatMap((f) => f.p);
+const gestos = gestosDe(p.slug).map(({ i, g }) => ({ z: piezasL[i], g })).filter((x) => x.z);
+// las formas: sobre el color de la carta, los dos de su paleta que más contrastan con él
+const formas = (bg: string) => { const o = (p.paleta ?? []).map((c) => c.hex).filter((h) => h !== bg).sort((a, b) => contraste(b, bg) - contraste(a, bg)); return [o[0] ?? '#fff', o[1] ?? o[0] ?? '#fff']; };
+// el muelle (atraca): seis canales en un arco alrededor de la API
+const ARCO = [-165, -135, -105, -75, -45, -15].map((a) => [Math.cos((a * Math.PI) / 180) * 36, Math.sin((a * Math.PI) / 180) * 36]);
+// EL ESPACIADO APLICADO (Andoni: «mostrarlo de manera más animada y cómo aplica»): un esquema de su página a escala (1440 px de ancho → el de la columna),
+// con el contenedor, dos secciones separadas por SU aire entre secciones, tres tarjetas con SU hueco y SU relleno; cada medida se enciende por turnos
+const masUsado = (uso: string) => (esp?.escala ?? []).filter((e) => e.uso === uso).sort((a, b) => b.n - a.n)[0]?.px;
+const espRel = esp ? (masUsado('relleno') ?? 24) : 24, espHue = esp ? (masUsado('hueco') ?? masUsado('margen') ?? 16) : 16;
+const espSec = esp?.seccion ?? 96, espCont = esp?.contenedor ?? 1280;
+const espTipo = (e: { px: number; uso: string }) => (e.px === espRel && e.uso === 'relleno' ? 'relleno' : e.px === espHue && e.uso !== 'relleno' ? 'hueco' : '');
+// EL SONIDO (Andoni: «si la web lo tiene, que se pueda ver un ejemplo de los sonidos»): sus tonos, tal cual están en su código, y su forma de onda calculada
+// aquí (la suma de las ondas cuadradas con su envolvente, en 32 ms): por columna, el pico de la señal
+const DUR_SON = 0.032;
+type Capa = NonNullable<Proyecto['sonidos']>[number]['capas'][number];
+// la señal, muestreada a 48 kHz: el ruido (pseudoaleatorio con semilla, para que el dibujo sea siempre el mismo) por un paso banda RBJ, y el seno con su caída
+const ondaDe = (capas: Capa[]) => {
+  const SR = 48000, n = Math.round(SR * DUR_SON), x = new Float32Array(n);
+  let sem = 7;
+  const azar = () => ((sem = (sem * 16807) % 2147483647) / 2147483647) * 2 - 1;
+  const env = (t: number, ataque: number, dur: number, pico: number) => (t < 0 || t > dur ? 0 : t < ataque ? (pico * t) / ataque : pico * Math.exp((Math.log(0.0001 / pico) * (t - ataque)) / (dur - ataque)));
+  for (const c of capas) {
+    if (c.c === 'ruido') {
+      const w = (2 * Math.PI * c.f) / SR, al = Math.sin(w) / (2 * c.q), a0 = 1 + al, b0 = al / a0, a1 = (-2 * Math.cos(w)) / a0, a2 = (1 - al) / a0;
+      let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      for (let i = 0; i < n; i++) { const r = azar(), y = b0 * r - b0 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = r; y2 = y1; y1 = y; x[i] += y * env(i / SR, 0.0005, c.dur, c.pico); }
+    } else {
+      let fase = 0;
+      for (let i = 0; i < n; i++) { const t = i / SR, f = c.f * Math.pow(c.fin / c.f, Math.min(1, t / 0.044)); fase += (2 * Math.PI * f) / SR; x[i] += Math.sin(fase) * env(t, c.ataque, c.dur, c.pico); }
+    }
+  }
+  const N = 160, por = Math.ceil(n / N), picos: number[] = [];
+  for (let k = 0; k < N; k++) { let m = 0; for (let i = k * por; i < Math.min(n, (k + 1) * por); i++) m = Math.max(m, Math.abs(x[i])); picos.push(m); }
+  const mx = Math.max(...picos, 1e-6);
+  return picos.map((v) => v / mx);
+};
+const etiquetaCapa = (c: Capa) => {
+  const hz = (v: number) => `${v.toLocaleString(en ? 'en' : 'es')} Hz`, ms = `${Math.round(c.dur * 1000 * 10) / 10} ms`;
+  return c.c === 'ruido' ? `${en ? 'Noise' : 'Ruido'} · ${en ? 'band' : 'banda'} ${hz(c.f)} · ${ms}` : `${en ? 'Sine' : 'Seno'} · ${hz(c.f)} → ${hz(c.fin)} · ${ms}`;
+};
+const sonidos = (p.sonidos ?? []).map((so) => ({ ...so, onda: ondaDe(so.capas) }));
+const textoSonido = p.apartados.find((x) => /sonido|sound/i.test(x.titulo))?.texto[0];
+// LA LIBRERÍA que entregamos (solo donde la hay publicada: hoy, Neety)
+const lib = p.libreria;
+
 // RONDA 188 · Andoni: «este detalle se sale de las guías; tiene que estar dentro y verse sin cortar». Nada va a sangre: la fila «sangre» ocupa las 12
 // columnas, como la ancha, a la proporción real de su vídeo. Y en las parejas y tríos ninguna pieza se recorta: la que no lleva placa se pone ENTERA
 // sobre el color de su web (antes llenaba su hueco y perdía los lados).
+// octubre 2026 · Andoni: «los gradientes de los detalles, lo más parecidos posible a los del hero»: la placa decide SI va sobre fondo de marca, pero el
+// fondo es el MISMO de la carátula (Pieza › g-marca: base colores[0] y las dos manchas de colores[1] y [2])
 const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? p.paleta?.[z.placa]?.hex : f === 'ancha' || f === 'sangre' ? undefined : p.color);
 ---
 
@@ -78,7 +167,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   <main id="contenido" class="caso surface-light" style={`--claro-marca:${claroMarca}`}>
     <header class="wrap cabecera">
       <Cta href={ruta(lang, '/proyectos')} class="volver text-fg2" variante="secundario" tam="sm" flecha="izq">{en ? 'Projects' : 'Proyectos'}</Cta>
-      <h1 class="font-display nombre" data-entra>{p.nombre}{p.frase && <span class="idea">{p.frase}</span>}</h1>
+      <h1 class="font-display nombre" data-entra>{p.nombre}</h1>
     </header>
 
     <section class="wrap rej intro" aria-label={en ? 'The project in one line' : 'El proyecto en una línea'}>
@@ -116,7 +205,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
           <ol class="c23 proceso">
             {p.proceso.map((s, i) => (
               <li data-enfoca>
-                <span class="t-ojo num">{String(i + 1).padStart(2, '0')}</span>
                 <h3 class="t-h">{s.n}</h3>
                 <p class="t-texto">{s.d}</p>
               </li>
@@ -148,7 +236,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
                         alt={en ? `${z.titulo}, on ${p.nombre}'s website` : `${z.titulo}, en la web de ${p.nombre}`}
                         proporcion={fila.f === 'ancha' || fila.f === 'sangre' ? (z.prop ?? '16 / 9') : 'auto'}
                         natural={z.prop ?? '16 / 9'}
-                        placa={dePlaca(z, fila.f)}
+                        placa={dePlaca(z, fila.f) ? p.colores[0] : undefined}
                         pos={z.pos}
                         colores={p.colores}
                       />
@@ -175,128 +263,246 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       ))
     }
 
-    <!-- EL SISTEMA (ronda 153): el COLOR con cuánto se usa (medido), cada uno con su valor y su contraste sobre el fondo principal; la TIPOGRAFÍA
-         con su muestra, su escala real (tamaño, interlineado, peso) y su botón, medidos en la web, y un ejemplo aplicado recortado de la propia web -->
+    <!-- OCTUBRE 2026 · EL SISTEMA, a la manera de brand.dropbox.com (Andoni): el COLOR como tarjetas apiladas que suben al pasar (brand.dropbox.com/color),
+         la TIPOGRAFÍA en tarjetas de su paleta con sus rótulos en píldora (…/typography), el MOVIMIENTO en una línea de tiempo que recorre su grabación
+         (…/motion) y la ICONOGRAFÍA en una rejilla, si el proyecto la tiene (…/iconography) -->
     {
-      (p.paleta || p.tipos || esp) && (
-        <section class="wrap rej bloque sis" aria-labelledby="sis-h">
-          <h2 id="sis-h" class="t-enc enc">{en ? 'The system' : 'El sistema'}</h2>
-          {p.paleta && (
-            <div class="paleta-grande" data-vivo role="img" aria-label={usados.map((c) => `${c.n} ${c.hex} ${coma(c.pct ?? 0)} %`).join(', ')}>
-              {usados.map((c, i) => (
-                <div class={`panel ${luz(c.hex) ? 'sobre-claro' : 'sobre-oscuro'}`} style={`--c:${c.hex};--g:${Math.max(c.pct ?? 0, 14)};--i:${i}`}>
-                  <span class="pn">{c.n}</span>
-                  <span class="pv">{c.hex}<br />{c.pct !== undefined ? (c.pct < 1 ? '< 1 %' : `${coma(c.pct)} %`) : ''}</span>
+      p.paleta && (
+        <section class="wrap bloque sis-bloque" aria-labelledby="color-h">
+          <div class="sis-cab">
+            <h2 id="color-h" class="t-enc">{en ? 'Colour' : 'Color'}</h2>
+            <p class="t-texto text-fg2 sis-entra">{en ? `The palette of ${p.nombre}, by how much it is used on the delivered site. Hover over a colour.` : `La paleta de ${p.nombre}, por lo que se usa en la web entregada. Pasa por encima de cada color.`}</p>
+          </div>
+          <!-- la PALETA de brand.dropbox.com/color, medida en su página: cada color es un panel de cuatro columnas que pisa al anterior y deja ver una;
+               al pasar, el panel bajo el puntero SUBE la mitad de su alto y se ladea (−0,03° por cada 1 % que sube), los de su izquierda suben menos
+               cuanto más lejos (campana ancha) y los de su derecha casi nada (campana estrecha); sigue al puntero sin saltos (0,4 s,
+               cubic-bezier(.15,.5,.05,1)); el nombre y el valor, solo en el que está arriba -->
+          <div class="tonos" data-tonos style={`--n:${usados.length}`} role="list" aria-label={usados.map((c) => `${c.n} ${c.hex}`).join(', ')}>
+            {usados.map((c, i) => (
+              <div class={`tono ${luz(c.hex) ? 'sobre-claro' : 'sobre-oscuro'}`} role="listitem" tabindex="0" style={`--c:${c.hex};--i:${i}`} data-tono>
+                <div class="tono-info">
+                  <span class="tn">{c.n}</span>
+                  <span class="tv">{c.hex}{c.pct !== undefined ? ` · ${c.pct < 1 ? '< 1' : coma(c.pct)} %` : ''}</span>
                 </div>
-              ))}
-            </div>
-          )}
-          <div class="c23 sistema">
-            {p.paleta && fondo && pares.length > 0 && (
-              <div class="color">
-                <p class="t-ojo sub">{en ? 'Contrast on' : 'Contraste sobre'} {fondo.n.toLowerCase()}</p>
-                <ul class="pares-c">
-                  {pares.map(({ c, r }) => (
-                    <li>
-                      <span class="aa" style={`--f:${fondo.hex};--t:${c.hex}`} aria-hidden="true">Aa</span>
-                      <span class="t-texto fuerte">{coma(r, r >= 10 ? 0 : 1)}:1</span>
-                      <span class="t-ojo">{c.n} · {nivel(r)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p class="t-ojo nota">{en ? 'Usage measured on recordings of the delivered site: every pixel counts towards the nearest colour; photos and gradients aside.' : 'Uso medido en las grabaciones de la web entregada: cada píxel cuenta para el color más cercano; fotos y degradados aparte.'}</p>
               </div>
-            )}
-            {p.tipos && (
-              <div class="tipografia">
-                <p class="t-ojo sub">{en ? 'Typography' : 'Tipografía'}</p>
-                <div class={`tipos ${p.tipos.length > 1 ? 'f2' : ''}`}>
-                  {p.tipos.slice(0, 2).map((t, i) => (
-                    <figure class="muestra" data-vivo>
-                      <div class="hoja"><img src={`/media/obra/${p.slug}/tipo-${i + 1}.png`} alt={en ? `${t.n} specimen` : `Muestra de ${t.n}`} loading="lazy" decoding="async" /></div>
-                      <figcaption><span class="t-texto fuerte">{t.n}</span><span class="t-ojo">{t.uso}</span></figcaption>
-                    </figure>
-                  ))}
-                </div>
-                {p.escala && (
-                  <>
-                    <p class="t-ojo sub">{en ? 'Scale' : 'Escala'}</p>
-                    <table class="escala" data-vivo>
-                      <thead class="sr-only"><tr>{en ? <><th>Level</th><th>Family</th><th>Size and line height</th><th>Weight</th><th>Relative size</th></> : <><th>Nivel</th><th>Familia</th><th>Tamaño e interlineado</th><th>Peso</th><th>Tamaño relativo</th></>}</tr></thead>
-                      <tbody>
-                        {p.escala.map((e, i) => (
-                          <tr style={`--w:${(e.px / maxPx) * 100}%;--i:${i}`}>
-                            <th scope="row" class="t-texto fuerte">{e.n}</th>
-                            <td class="t-ojo">{e.fam}</td>
-                            <td class="t-ojo cifra">{coma(e.px)} px / {e.lh === 'normal' ? 'normal' : coma(e.lh)}</td>
-                            <td class="t-ojo cifra">{e.peso}{e.ls ? ` · ${e.ls}` : ''}</td>
-                            <td class="raya" aria-hidden="true"><span /></td>
-                          </tr>
-                        ))}
-                        {p.boton && (
-                          <tr class="fila-boton">
-                            <th scope="row" class="t-texto fuerte">{en ? 'Button' : 'Botón'}</th>
-                            <td class="t-ojo">{p.boton.fam}</td>
-                            <td class="t-ojo cifra">{coma(p.boton.px)} px · {p.boton.alto} px {en ? 'tall' : 'de alto'}</td>
-                            <td class="t-ojo cifra">{p.boton.peso} · {en ? 'radius' : 'radio'} {p.boton.radio >= 999 ? (en ? 'pill' : 'píldora') : `${p.boton.radio} px`}</td>
-                            <td class="muestra-boton" aria-hidden="true">
-                              <span style={`--b:${p.boton.fondo};--bt:${p.boton.tinta};--br:${Math.min(p.boton.radio, 99)}px;--bh:${p.boton.alto}px${p.boton.nota ? ';opacity:.75' : ''}`}>{p.boton.nota ?? p.boton.fondo}</span>
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </>
-                )}
-                {aplicado && (
-                  <figure class="aplicado" data-vivo>
-                    <div class="lamina"><img src={`/media/obra/${p.slug}/aplicado.webp`} alt={en ? `Headline, text and button from ${p.nombre}'s website, in its typography` : `Titular, texto y botón de la web de ${p.nombre}, con su tipografía`} loading="lazy" decoding="async" /></div>
-                    <figcaption class="t-ojo">{en ? 'Applied: headline, text and button, cropped from its site in its own typography.' : 'Aplicado: titular, texto y botón, recortados de su web con su tipografía.'}</figcaption>
-                  </figure>
-                )}
-                {p.medido && <p class="t-ojo nota">{p.medido}.</p>}
-              </div>
-            )}
-            {esp && (
-              <div class="espaciado" data-vivo>
-                <p class="t-ojo sub">{en ? 'Spacing' : 'Espaciado'}</p>
-                <dl class="claves">
-                  <div><dt class="t-ojo">{en ? 'Base step' : 'Paso base'}</dt><dd class="cifra">{esp.base ? `${esp.base} px` : (en ? 'Fluid' : 'Fluido')}</dd></div>
-                  {esp.seccion && <div><dt class="t-ojo">{en ? 'Between sections' : 'Entre secciones'}</dt><dd class="cifra">{esp.seccion} px</dd></div>}
-                  {esp.contenedor && <div><dt class="t-ojo">{en ? 'Container' : 'Contenedor'}</dt><dd class="cifra">{esp.contenedor} px</dd></div>}
-                </dl>
-                <ol class="pasos">
-                  {esp.escala.map((e, i) => (
-                    <li style={`--px:${e.px};--i:${i}`}>
-                      <span class="t-texto fuerte cifra">{e.px}</span>
-                      <span class="caja" aria-hidden="true"><span /></span>
-                      <span class="t-ojo">{usoEsp[e.uso] ?? e.uso} · {e.n} {en ? 'times' : 'veces'}</span>
-                    </li>
-                  ))}
-                </ol>
-                <p class="t-ojo nota">{en
-                  ? `The paddings, margins and gaps that repeat most on the delivered site, at 1440 px and true scale${esp.base ? `; almost all fall on ${esp.base} px steps` : '; fluid sizes (they change with the window width), with no fixed step'}.`
-                  : `Los rellenos, márgenes y huecos que más se repiten en la web entregada, a 1440 px y a escala real${esp.base ? `; casi todos caen en pasos de ${esp.base} px` : '; tamaños fluidos (cambian con el ancho de la ventana), sin un paso fijo'}.`}</p>
-              </div>
+            ))}
+          </div>
+          <p class="t-ojo nota">{en ? 'Usage measured on recordings of the delivered site: every pixel counts towards the nearest colour; photos and gradients aside.' : 'Uso medido en las grabaciones de la web entregada: cada píxel cuenta para el color más cercano; fotos y degradados aparte.'}</p>
+        </section>
+      )
+    }
+    {
+      p.tipos && (
+        <section class="wrap bloque sis-bloque" aria-labelledby="tipo-h">
+          <div class="sis-cab">
+            <h2 id="tipo-h" class="t-enc">{en ? 'Typography' : 'Tipografía'}</h2>
+            {p.medido && <p class="t-texto text-fg2 sis-entra">{p.medido}.</p>}
+          </div>
+          <div class={`tipo-cartas n${Math.min(p.tipos.length, 2) + (aplicado ? 1 : 0)}`} data-vivo>
+            {p.tipos.slice(0, 2).map((t, i) => (
+              <figure class="carta" style={`--fondo:${cartaTipo(i)};--k:${i}`} data-carta>
+                <span class="pildora">{t.uso} · {t.n}</span>
+                <img src={`/media/obra/${p.slug}/tipo-${i + 1}.png`} alt={en ? `${t.n} specimen` : `Muestra de ${t.n}`} loading="lazy" decoding="async" />
+              </figure>
+            ))}
+            {aplicado && (
+              <figure class="carta aplicada" style={`--fondo:${cartaTipo(2)};--k:2`} data-carta>
+                <span class="pildora">{en ? 'Applied' : 'Aplicada'}</span>
+                <img src={`/media/obra/${p.slug}/aplicado.webp`} alt={en ? `Headline, text and button from ${p.nombre}'s website, in its typography` : `Titular, texto y botón de la web de ${p.nombre}, con su tipografía`} loading="lazy" decoding="async" />
+              </figure>
             )}
           </div>
         </section>
       )
     }
+    {
+      esp && (
+        <section class="wrap rej bloque" aria-labelledby="esp-h">
+          <h2 id="esp-h" class="t-enc enc">{en ? 'Spacing' : 'Espaciado'}</h2>
+          <div class="c23 espaciado" data-vivo data-esp>
+            <div class="esq" aria-hidden="true" style={`--C:${espCont};--S:${espSec};--R:${espRel};--G:${espHue}`}>
+              <div class="pag">
+                <i class="m m-cont izq"><span>{espCont} px · {en ? 'container' : 'contenedor'}</span></i><i class="m m-cont der" />
+                <div class="cont">
+                  <div class="sec">
+                    <b class="tit" />
+                    <div class="tarjetas">
+                      <div class="tj"><i class="m m-relleno"><span>{espRel} px · {usoEsp.relleno}</span></i><b /><b /><b class="c" /></div>
+                      <i class="m m-hueco gap-m"><span>{espHue} px · {usoEsp.hueco}</span></i>
+                      <div class="tj"><b /><b /><b class="c" /></div>
+                      <i class="m m-hueco gap-m" />
+                      <div class="tj"><b /><b /><b class="c" /></div>
+                    </div>
+                  </div>
+                  <i class="m m-seccion entre"><span>{espSec} px · {en ? 'between sections' : 'entre secciones'}</span></i>
+                  <div class="sec dos"><div class="txt"><b class="tit" /><b /><b /><b class="c" /></div><b class="img" /></div>
+                </div>
+              </div>
+            </div>
+            <dl class="claves">
+              <div><dt class="t-ojo">{en ? 'Base step' : 'Paso base'}</dt><dd class="cifra">{esp.base ? `${esp.base} px` : (en ? 'Fluid' : 'Fluido')}</dd></div>
+              {esp.seccion && <div data-k="seccion"><dt class="t-ojo">{en ? 'Between sections' : 'Entre secciones'}</dt><dd class="cifra">{esp.seccion} px</dd></div>}
+              {esp.contenedor && <div data-k="cont"><dt class="t-ojo">{en ? 'Container' : 'Contenedor'}</dt><dd class="cifra">{esp.contenedor} px</dd></div>}
+            </dl>
+            <ol class="pasos">
+              {esp.escala.map((e, i) => (
+                <li style={`--px:${e.px};--i:${i}`} data-k={espTipo(e) || undefined}>
+                  <span class="t-texto fuerte cifra">{e.px}</span>
+                  <span class="caja" aria-hidden="true"><span /></span>
+                  <span class="t-ojo">{usoEsp[e.uso] ?? e.uso} · {e.n} {en ? 'times' : 'veces'}</span>
+                </li>
+              ))}
+            </ol>
+            <p class="t-ojo nota">{en
+              ? `The paddings, margins and gaps that repeat most on the delivered site, at 1440 px and true scale${esp.base ? `; almost all fall on ${esp.base} px steps` : '; fluid sizes (they change with the window width), with no fixed step'}.`
+              : `Los rellenos, márgenes y huecos que más se repiten en la web entregada, a 1440 px y a escala real${esp.base ? `; casi todos caen en pasos de ${esp.base} px` : '; tamaños fluidos (cambian con el ancho de la ventana), sin un paso fijo'}.`}</p>
+          </div>
+        </section>
+      )
+    }
+    {
+      movVideo && (
+        <section class="wrap bloque sis-bloque" aria-labelledby="mov-h">
+          <div class="sis-cab">
+            <h2 id="mov-h" class="t-enc">{en ? 'Motion' : 'Movimiento'}</h2>
+            <p class="t-texto text-fg2 sis-entra">{movTexto.length ? movTexto.join(' ') : (en ? `How ${p.nombre} moves, from its own recording. Drag the timeline.` : `Cómo se mueve ${p.nombre}, en su propia grabación. Arrastra la línea de tiempo.`)}</p>
+          </div>
+          <div class="motion" data-motion style={`--c1:${tarjeta(0)};--c2:${tarjeta(1)};--c3:${tarjeta(2)}`}>
+            <div class="mo-lienzo">
+              <video muted loop playsinline preload="none" poster={movVideo.poster} data-src={movVideo.src} aria-label={en ? `Recording of ${p.nombre}'s website` : `Grabación de la web de ${p.nombre}`}></video>
+            </div>
+            <div class="mo-linea" data-mo-linea role="slider" tabindex="0" aria-label={en ? 'Timeline' : 'Línea de tiempo'} aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              {MO_PISTAS.map((pi, k) => <span class="pista" style={`--a:${pi[0]};--b:${pi[1]};--k:${k}`}><i /></span>)}
+              <span class="cabezal" aria-hidden="true"></span>
+            </div>
+            <div class="mo-pie t-ojo"><span data-mo-t>00:00</span> / <span data-mo-d>00:00</span><span class="mo-fps">{en ? 'Frame render time' : 'Tiempo por fotograma'} <b data-mo-fps>16.7 ms</b></span></div>
+          </div>
+          {gestos.length > 0 && (
+            <ul class="mo-ejemplos" style={`--n:${gestos.length}`}>
+              {gestos.map(({ z, g }, k) => {
+                const bg = tarjeta(k), [fa, fb] = formas(bg);
+                return (
+                  <li class="mo-ej" data-vivo data-gesto>
+                    <div class={`abs g-${g}`} style={`--fondo:${bg};--fa:${fa};--fb:${fb}`} aria-hidden="true">
+                      {g === 'bucle' && [0, 1, 2, 3, 4].map((i) => <i style={`--k:${i}`} />)}
+                      {g === 'pestanas' && (<>{[0, 1, 2, 3].map((i) => <i class="tab" style={`--k:${i}`} />)}<b class="ind" /><em class="pan"><u /></em></>)}
+                      {g === 'cuenta' && [0, 1, 2, 3].map((i) => <i style={`--k:${i};--h:${[0.62, 0.9, 0.45, 0.74][i]}`} />)}
+                      {g === 'cae' && [0, 1, 2, 3].map((i) => <i style={`--k:${i}`} />)}
+                      {g === 'atraca' && (<><b class="api" />{ARCO.map(([x, y], i) => <i style={`--k:${i};--x:${x.toFixed(1)}%;--y:${y.toFixed(1)}%`} />)}</>)}
+                      {g === 'comprime' && (<><b class="aro" /><i class="bola" />{[0, 1, 2].map((i) => <em style={`--k:${i}`} />)}</>)}
+                      {g === 'traza' && (<svg viewBox="0 0 120 90"><rect class="t-r" x="24" y="18" width="72" height="54" rx="6" pathLength="1" /><circle class="t-c" cx="60" cy="45" r="14" pathLength="1" /></svg>)}
+                      {g === 'gira' && [0, 1, 2, 3, 4, 5].map((i) => <i style={`--c:${i % 3};--r:${Math.floor(i / 3)}`} />)}
+                      {g === 'filtra' && Array.from({ length: 24 }, (_, i) => <i style={`--c:${i % 6};--r:${Math.floor(i / 6)};--g:${(i * 7) % 3}`} />)}
+                      {g === 'releva' && [0, 1, 2].map((i) => <i style={`--k:${i}`} />)}
+                      {g === 'escribe' && (<>{[0.62, 0.4, 0.7, 0.3, 0.52].map((w, i) => <i style={`--k:${i};--w:${w * 100}%`} />)}<b class="cursor" /></>)}
+                      {g === 'ola' && [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => <i style={`--k:${i}`} />)}
+                      {g === 'orbita' && (<><b class="nucleo" />{[0, 1, 2].map((i) => <i style={`--k:${i};--d:${34 + i * 16}%`} />)}</>)}
+                      {g === 'onda' && [0, 1, 2, 3].map((i) => <i style={`--k:${i}`} />)}
+                    </div>
+                    <h3 class="t-h">{z.titulo}</h3>
+                    <p class="t-texto text-fg2">{z.pie}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      )
+    }
+    {
+      sonidos.length > 0 && (
+        <section class="wrap bloque sis-bloque" aria-labelledby="son-h">
+          <div class="sis-cab">
+            <h2 id="son-h" class="t-enc">{en ? 'Sound' : 'Sonido'}</h2>
+            <p class="t-texto text-fg2 sis-entra">{textoSonido ?? (en ? `${p.nombre}'s sounds, as they are in its code.` : `Los sonidos de ${p.nombre}, tal cual están en su código.`)}</p>
+          </div>
+          <ul class="sonidos" data-vivo>
+            {sonidos.map((so) => (
+              <li>
+                <button type="button" class="son" data-son={JSON.stringify({ v: so.vol, c: so.corte, k: so.capas })} data-son-tipo={so.tipo} aria-label={so.tipo === 'clic' ? (en ? 'Play the click sound' : 'Escuchar el sonido del clic') : (en ? 'Play the hover sound' : 'Escuchar el sonido al pasar el cursor')}>
+                  <span class="son-cab"><span class="son-play" aria-hidden="true" /><span class="t-texto fuerte">{so.tipo === 'clic' ? (en ? 'Click' : 'Clic') : (en ? 'Hover' : 'Al pasar el cursor')}</span><span class="t-ojo son-pista">{so.tipo === 'clic' ? (en ? 'Press' : 'Pulsa') : (en ? 'Hover here' : 'Pasa por aquí')}</span></span>
+                  <svg class="son-onda" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true">
+                    {so.onda.map((v, i) => <rect x={i + 0.15} y={20 - Math.max(v * 18, 0.4)} width="0.7" height={Math.max(v * 36, 0.8)} />)}
+                  </svg>
+                  <span class="son-linea" aria-hidden="true">
+                    {so.capas.map((c) => <span class="son-tono" style={`--a:0;--b:${(c.dur / DUR_SON) * 100}`}><i /><em>{etiquetaCapa(c)}</em></span>)}
+                    <span class="son-cabezal" />
+                  </span>
+                  <span class="t-ojo son-pie">{en ? `Low-pass ${so.corte.toLocaleString('en')} Hz · 32 ms, shown 25× slower` : `Paso bajo a ${so.corte.toLocaleString('es')} Hz · 32 ms, a 25× más lento`}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+    {
+      p.iconos && p.iconos.length > 0 && (
+        <section class="wrap bloque sis-bloque" aria-labelledby="ico-h">
+          <div class="sis-cab">
+            <h2 id="ico-h" class="t-enc">{en ? 'Iconography' : 'Iconografía'}</h2>
+          </div>
+          <ul class="iconos">
+            {p.iconos.map((ic) => <li><img src={ic.src} alt={ic.n} loading="lazy" /><span class="t-ojo">{ic.n}</span></li>)}
+          </ul>
+        </section>
+      )
+    }
 
     {
-      p.secciones && (
-        <section class="wrap rej bloque" aria-labelledby="secc-h">
-          <h2 id="secc-h" class="t-enc enc">{en ? 'The site, section by section' : 'La web, sección a sección'}</h2>
-          <ol class="c23 secciones">
-            {p.secciones.map((s, i) => (
-              <li>
-                <span class="t-ojo num">{String(i + 1).padStart(2, '0')}</span>
-                <span class="t-texto fuerte">{s.n}</span>
-                <span class="t-texto sd">{s.d}</span>
+      lib && (
+        <section class="wrap bloque sis-bloque" aria-labelledby="lib-h">
+          <div class="sis-cab">
+            <h2 id="lib-h" class="t-enc">{en ? 'What we hand over' : 'Lo que entregamos'}</h2>
+            <p class="t-texto text-fg2 sis-entra">{en ? `Along with the site, ${p.nombre} kept all of this: its design system and the guide to change it with Claude.` : `Con la web, ${p.nombre} se quedó con esto: su sistema de diseño y la guía para cambiarla con Claude.`}</p>
+          </div>
+          <!-- LA ENTREGA, como un albarán: las cuatro piezas que se lleva el cliente; la librería (la que se navega debajo) va marcada -->
+          <ol class="entrega" data-vivo>
+            {lib.entrega.map((e, i) => (
+              <li class={e.n === 'La librería' ? 'es-lib' : ''} style={`--k:${i}`}>
+                <span class="t-ojo ent-n">{String(i + 1).padStart(2, '0')}</span>
+                <span class="t-texto fuerte">{en ? e.nEn : e.n}</span>
+                <span class="t-ojo text-fg2">{en ? e.dEn : e.d}</span>
+                {e.n === 'La librería' && <span class="t-ojo ent-aqui">{en ? 'Below, the real one ↓' : 'Aquí abajo, la de verdad ↓'}</span>}
               </li>
             ))}
           </ol>
+          <!-- LA LIBRERÍA DE VERDAD (Andoni: «la que presentamos sigue sin convencer»): la suya, en un iframe (su CSP deja a savvia.studio y a localhost),
+               navegable; encima, accesos a lo que más vende, que saltan a esa sección dentro de ella. Se carga al acercarse; hasta entonces (y si no
+               carga en 15 s) se ve su primera pantalla capturada -->
+          <figure class="libreria" data-vivo data-lib={lib.url}>
+            <div class="lib-accesos" role="group" aria-label={en ? 'Go to a section of the library' : 'Ir a una sección de la librería'}>
+              <span class="t-ojo text-fg2">{en ? 'Go to' : 'Ir a'}</span>
+              {lib.accesos.map((a) => <button type="button" class="lib-acc" data-ancla={a.ancla} aria-pressed="false">{en ? a.nEn : a.n}</button>)}
+              <button type="button" class="lib-cerrar" data-libro-boton aria-expanded="false"><span class="ab">{en ? 'Close the book' : 'Cerrar el libro'}</span><span class="ce">{en ? 'Open the book' : 'Abrir el libro'}</span></button>
+            </div>
+            <!-- EL LIBRO DE LA MARCA (Andoni eligió esta dirección): la librería se entrega como un libro. Cerrado, la tapa en los colores de su marca con la
+                 etiqueta de savvia; al llegar se abre girando sobre el lomo y la página es la librería real. La página ocupa tres cuartos (para que se lea)
+                 y la tapa se abre hacia atrás, en perspectiva, en el cuarto que queda -->
+            <div class="libro" data-libro style={`--t-fondo:${lib.tapa.fondo};--t-tinta:${lib.tapa.tinta};--t-acento:${lib.tapa.acento}`}>
+              <div class="pagina-lib">
+                <span class="hojas d" aria-hidden="true" /><span class="hojas b" aria-hidden="true" />
+                <div class="lib-ventana" data-ventana>
+                  <picture class="lib-cap" aria-hidden="true">
+                    <source media="(width < 48rem)" srcset={lib.capturaMovil} />
+                    <img src={lib.captura} alt="" loading="lazy" decoding="async" />
+                  </picture>
+                </div>
+              </div>
+              <button type="button" class="tapa" data-tapa aria-label={en ? `Open ${p.nombre}'s library` : `Abrir la librería de ${p.nombre}`}>
+                <span class="cara frente" aria-hidden="true">
+                  <span class="t-marca">{lib.tapa.marca}</span>
+                  <span class="t-ojo-l">{en ? 'Library · Design system' : 'Librería · Sistema de diseño'}</span>
+                  <span class="t-tit">{en ? lib.tapa.tituloEn : lib.tapa.titulo}</span>
+                  <span class="etiqueta"><span class="e-ojo">{en ? 'Delivered with the website' : 'Entregado con la web'}</span><i class="e-savvia" /></span>
+                  <span class="t-abrir">{en ? 'Open' : 'Abrir'} ↗</span>
+                </span>
+                <span class="canto l" aria-hidden="true" /><span class="canto r" aria-hidden="true" />
+                <span class="cara dorso" aria-hidden="true"><span class="exlibris"><span class="e-ojo">{en ? 'This book belongs to' : 'Este libro es de'}</span><b>{p.nombre}</b></span></span>
+              </button>
+            </div>
+          </figure>
+          <div class="lib-ir"><Cta href={lib.url} externo>{en ? 'See the whole library' : 'Ver la librería entera'}</Cta><span class="t-ojo text-fg2">{en ? 'It’s the real one: browse it here or open it in full.' : 'Es la de verdad: navégala aquí o ábrela entera.'}</span></div>
         </section>
       )
     }
@@ -304,7 +510,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     <section class="wrap rej bloque" aria-labelledby="dentro-h">
       <h2 id="dentro-h" class="t-enc enc">{en ? 'Under the hood' : 'Por dentro'}</h2>
       <div class="c2">
-        {p.stack && p.stack.length > 0 && (<><p class="t-ojo sub">{en ? 'Tools' : 'Herramientas'}</p><ul class="lista">{p.stack.map((t) => <li class="t-texto">{t}</li>)}</ul></>)}
+        {p.stack && p.stack.length > 0 && (<><p class="t-ojo sub">{en ? 'Tools' : 'Herramientas'}</p><ul class="lista herramientas">{p.stack.map((t) => <li class="t-texto"><span class="h-ic" aria-hidden="true" set:html={icoTec(t)} />{t}</li>)}</ul></>)}
         {p.tecnica && (<><p class="t-ojo sub">{en ? 'How it is built' : 'Cómo está hecha'}</p><ul class="lista">{p.tecnica.map((t) => <li class="t-texto">{t}</li>)}</ul></>)}
       </div>
       <div class="c3">
@@ -343,17 +549,35 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       )
     }
 
-    <div class="wrap"><nav class="pares" aria-label={en ? 'Previous and next project' : 'Proyecto anterior y siguiente'}>
-      <a data-liquido class="par antes" href={ruta(lang, `/proyectos/${ant.slug}`)}>
-        <span class="pd t-ojo"><Fragment set:html={flecha('izq')} />{en ? 'Previous' : 'Anterior'}</span>
-        <span class="pt">{ant.nombre}</span>
-      </a>
-      <a data-liquido class="par despues" href={ruta(lang, `/proyectos/${sig.slug}`)}>
-        <span class="pd t-ojo">{en ? 'Next' : 'Siguiente'}<Fragment set:html={flecha()} /></span>
-        <span class="pt">{sig.nombre}</span>
-      </a>
-    </nav></div>
+    <!-- OCTUBRE 2026 · Eric y Andoni (22/10): «rediseñar la zona inferior de navegación». El SIGUIENTE proyecto, grande: su pieza (degradado de su marca
+         y su web saliendo desde abajo, como en el portfolio) y su nombre; el anterior, una línea discreta debajo. -->
+    <!-- OCTUBRE 2026 · Andoni: «al final, un comentario de Eric o mío sobre lo que ha sido el proyecto» -->
+    {
+      p.comentario && (
+        <section class="wrap bloque comentario" aria-label={en ? 'A word from the studio' : 'Unas palabras del estudio'} data-vivo>
+          <img class="com-cara" src={`/media/equipo/cara-${p.comentario.quien}.webp`} alt="" width="96" height="96" loading="lazy" decoding="async" />
+          <blockquote class="com-texto font-display"><p>«{p.comentario.texto}»</p></blockquote>
+          <p class="t-ojo com-quien">{p.comentario.quien === 'eric' ? 'Eric Ruiz Molero' : 'Andoni Martínez'} · savvia</p>
+        </section>
+      )
+    }
+
+    <nav class="wrap sigue" aria-label={en ? 'Next project' : 'Siguiente proyecto'}>
+      <div class="sigue-txt">
+        <p class="t-ojo">{en ? 'Next project' : 'Siguiente proyecto'}</p>
+        <!-- Andoni: «el siguiente proyecto, con una flecha para que quede claro dónde clicar; quitamos el anterior» -->
+        <a data-liquido class="sigue-n font-display" href={ruta(lang, `/proyectos/${sig.slug}`)}>
+          <span>{sig.nombre}</span>
+          <Fragment set:html={flecha()} />
+        </a>
+        <!-- el filtro «gooey» de la rejilla de la barra (Nav.astro › goo-nav), a la escala de esta flecha: la gota y las alas se funden como líquido -->
+        <svg class="goo-def" aria-hidden="true" width="0" height="0"><filter id="goo-sigue" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="0.45" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -3.5" /></filter></svg>
+        {sig.sector && <p class="t-texto text-fg2">{sig.sector}</p>}
+      </div>
+      <div class="sigue-pieza"><Pieza p={sig} tipo={luz(sig.colores[0]) ? 'claro' : 'mancha'} giro={-4} href={ruta(lang, `/proyectos/${sig.slug}`)} sube /></div>
+    </nav>
   </main>
+  <div class="leido" aria-hidden="true" data-leido><span data-leido-t></span><svg viewBox="0 0 24 24"><circle class="pista-l" cx="12" cy="12" r="9" /><circle class="lleno" cx="12" cy="12" r="9" pathLength="1" /></svg></div>
   <Pie />
 </Base>
 
@@ -361,6 +585,227 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   // lo que se anima al llegar (paleta, muestras, escala, espaciado, piezas del mosaico): una vez, cuando asoma un 25 %
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { threshold: 0.25 });
   document.querySelectorAll('[data-vivo]').forEach((el) => io.observe(el));
+
+  // COLOR · la paleta de brand.dropbox.com/color, con sus números: el panel bajo el puntero sube un 50 % de su alto y se ladea −1,5°; los de la izquierda,
+  // una campana ancha (σ ≈ 1,8 columnas); los de la derecha, una estrecha (σ ≈ 0,6). La distancia se mide desde el canto izquierdo de cada panel hasta el
+  // puntero, con el centro 0,4 columnas a su derecha (sobre su franja visible). Sigue al puntero sin saltos (la transición del CSS hace el resto).
+  document.querySelectorAll<HTMLElement>('[data-tonos]').forEach((fila) => {
+    const tonos = [...fila.querySelectorAll<HTMLElement>('[data-tono]')];
+    const cols = tonos.length + 3;
+    const subir = (x: number | null) => {
+      const col = fila.clientWidth / cols;
+      let mejor = -1, alto = 0;
+      tonos.forEach((t, i) => {
+        let lift = 0;
+        if (x !== null) {
+          const d = x - i * col - col * 0.4;
+          lift = 50 * Math.exp(-((d / (d >= 0 ? col * 1.8 : col * 0.6)) ** 2));
+        }
+        t.style.transform = `translateY(${(-lift).toFixed(3)}%) rotateZ(${(-lift * 0.03).toFixed(4)}deg)`;
+        if (lift > alto) { alto = lift; mejor = i; }
+      });
+      tonos.forEach((t, i) => t.classList.toggle('arriba', i === mejor && alto > 20));
+    };
+    fila.addEventListener('pointermove', (e) => subir(e.clientX - fila.getBoundingClientRect().left));
+    fila.addEventListener('pointerleave', () => subir(null));
+    tonos.forEach((t, i) => {
+      t.addEventListener('focus', () => subir((i + 0.9) * (fila.clientWidth / cols)));
+      t.addEventListener('blur', () => subir(null));
+    });
+  });
+  // TIPOGRAFÍA · la muestra sigue al puntero (paralaje suave dentro de su carta)
+  if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLElement>('[data-carta]').forEach((c) => {
+      c.addEventListener('pointermove', (e) => { const r = c.getBoundingClientRect(); c.style.setProperty('--px', ((e.clientX - r.left) / r.width - 0.5) * 18 + 'px'); c.style.setProperty('--py', ((e.clientY - r.top) / r.height - 0.5) * 14 + 'px'); });
+      c.addEventListener('pointerleave', () => { c.style.setProperty('--px', '0px'); c.style.setProperty('--py', '0px'); });
+    });
+  }
+  // MOVIMIENTO EN ABSTRACTO · cada carta repite su gesto solo mientras se ve
+  {
+    const ioG = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle('corre', e.isIntersecting)), { threshold: 0.15 });
+    document.querySelectorAll('[data-gesto]').forEach((g) => ioG.observe(g));
+  }
+  // EL ESPACIADO APLICADO · las medidas del esquema se encienden por turnos (contenedor → aire entre secciones → relleno → hueco) y con ellas su fila en la
+  // lista; al pasar por una fila, se enciende la suya y el turno se para
+  document.querySelectorAll<HTMLElement>('[data-esp]').forEach((el) => {
+    const orden = ['seccion', 'relleno', 'hueco', 'cont'];
+    let k = 0, t = 0, fijo = false, visible = false;
+    const poner = (q: string) => (el.dataset.on = q);
+    const siguiente = () => { if (!fijo && visible) poner(orden[k++ % orden.length]); };
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      clearInterval(t);
+      if (visible) { siguiente(); t = window.setInterval(siguiente, 2600); }
+    }, { threshold: 0.3 }).observe(el);
+    el.querySelectorAll<HTMLElement>('[data-k]').forEach((row) => {
+      row.addEventListener('pointerenter', () => { fijo = true; poner(row.dataset.k!); });
+      row.addEventListener('pointerleave', () => { fijo = false; });
+    });
+  });
+  // LA LIBRERÍA DE VERDAD · el iframe se monta al acercarse (o al pulsar un acceso); la captura se va cuando carga. Los accesos navegan DENTRO de ella
+  // (cambiar solo el #ancla: va a esa sección sin recargar)
+  document.querySelectorAll<HTMLElement>('[data-lib]').forEach((el) => {
+    const url = el.dataset.lib!, ventana = el.querySelector<HTMLElement>('.lib-ventana')!, accs = [...el.querySelectorAll<HTMLButtonElement>('[data-ancla]')];
+    let f: HTMLIFrameElement | null = null;
+    const montar = (ancla = '') => {
+      // ya montada: solo se mueve si hay un ancla, y por su location (va a esa sección aunque dentro hayas navegado o sea la misma); sin ancla no se toca
+      // (antes, abrir el libro la volvía a cargar sin ancla y la devolvía al principio)
+      if (f) { if (ancla) { try { f.contentWindow?.location.replace(`${url}#${ancla}`); } catch { f.src = `${url}#${ancla}`; } } return; }
+      f = document.createElement('iframe');
+      f.src = `${url}${ancla ? '#' + ancla : ''}`; f.title = el.closest('section')?.querySelector('h2')?.textContent ?? 'Librería'; f.loading = 'eager';
+      f.setAttribute('referrerpolicy', 'no-referrer');
+      const plazo = window.setTimeout(() => el.classList.add('sin-web'), 15000);
+      f.addEventListener('load', () => { clearTimeout(plazo); el.classList.add('cargada'); }, { once: true });
+      ventana.append(f);
+    };
+    accs.forEach((b) => b.addEventListener('click', () => { accs.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); montar(b.dataset.ancla); }));
+    // EL LIBRO: abrir y cerrar (clic, arrastre de la tapa o el botón). La primera vez se abre solo al asomar del todo
+    const libro = el.querySelector<HTMLElement>('[data-libro]'), tapa = el.querySelector<HTMLButtonElement>('[data-tapa]'), boton = el.querySelector<HTMLButtonElement>('[data-libro-boton]');
+    const movil = matchMedia('(width < 48rem)');
+    const fijar = (ab: boolean) => {
+      if (!libro) return;
+      if (ab) montar();
+      libro.classList.toggle('abierto', ab);
+      boton?.setAttribute('aria-expanded', String(ab));
+      tapa?.setAttribute('aria-label', ab ? (en ? 'Close the book' : 'Cerrar el libro') : (en ? 'Open the book' : 'Abrir el libro'));
+    };
+    const en = document.documentElement.lang === 'en';
+    const abrir = () => fijar(true);
+    boton?.addEventListener('click', () => fijar(!libro?.classList.contains('abierto')));
+    accs.forEach((b) => b.addEventListener('click', abrir));
+    if (tapa && libro) {
+      let x0 = 0, y0 = 0, a0 = 0, a = 0, movido = false, activo = false;
+      tapa.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        activo = true; movido = false; x0 = e.clientX; y0 = e.clientY; a0 = a = libro.classList.contains('abierto') ? 1 : 0;
+        tapa.setPointerCapture(e.pointerId);
+      });
+      tapa.addEventListener('pointermove', (e) => {
+        if (!activo) return;
+        const r = libro.getBoundingClientRect();
+        const d = movil.matches ? (y0 - e.clientY) / (r.height * 0.7) : (x0 - e.clientX) / (r.width * 0.55);
+        if (!movido && Math.abs(movil.matches ? y0 - e.clientY : x0 - e.clientX) < 6) return;
+        if (!movido) { movido = true; libro.classList.add('arrastra'); }
+        a = Math.min(1, Math.max(0, a0 + d)); // cerrado: hacia la izquierda (arriba en el móvil) abre; abierto: hacia la derecha (abajo) cierra
+        libro.style.setProperty('--a', a.toFixed(3));
+      });
+      const soltar = () => {
+        if (!activo) return; activo = false;
+        if (!movido) { fijar(!libro.classList.contains('abierto')); return; }
+        libro.classList.remove('arrastra'); libro.style.removeProperty('--a');
+        fijar(a0 ? a > 0.6 : a > 0.4);
+      };
+      tapa.addEventListener('pointerup', soltar);
+      tapa.addEventListener('pointercancel', soltar);
+      tapa.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fijar(!libro.classList.contains('abierto')); } });
+    }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { montar(); io.disconnect(); } }, { rootMargin: '600px 0px' });
+    io.observe(el);
+    if (libro) {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) abrir();
+      else { const io2 = new IntersectionObserver(([e]) => { if (e.isIntersecting) { window.setTimeout(() => { if (!libro.dataset.tocado) abrir(); }, 900); io2.disconnect(); } }, { threshold: 0.7 }); io2.observe(libro); }
+      libro.addEventListener('pointerdown', () => (libro.dataset.tocado = '1'), { once: true });
+    }
+    // la página es estrecha para la maqueta de escritorio de la librería (su índice lateral sale a partir de 1024 px): en escritorio se pinta a 1120 px
+    // y se reduce a la página; en el móvil, su maqueta móvil tal cual
+    const ventana2 = el.querySelector<HTMLElement>('[data-ventana]');
+    const escalar = () => { if (!ventana2 || !f) return; const w = ventana2.clientWidth, k = w >= 640 && w < 1024 ? w / 1120 : 1;
+      f.style.width = `${w / k}px`; f.style.height = `${ventana2.clientHeight / k}px`; f.style.transform = k === 1 ? '' : `scale(${k})`; };
+    if (ventana2) new ResizeObserver(escalar).observe(ventana2);
+    const mo = new MutationObserver(escalar); if (ventana2) mo.observe(ventana2, { childList: true });
+  });
+  // EL SONIDO · el mismo sintetizador de su web (Web Audio): sus capas de ruido filtrado y seno, por su paso bajo; el cabezal recorre los
+  // 32 ms a 25× más lento para que se vea lo que ha sonado
+  {
+    let ctx: AudioContext | null = null, ruido: AudioBuffer | null = null;
+    type Capa = { c: 'ruido'; f: number; q: number; pico: number; dur: number } | { c: 'seno'; f: number; fin: number; pico: number; ataque: number; dur: number };
+    const tocar = (b: HTMLElement) => {
+      const d = JSON.parse(b.dataset.son!) as { v: number; c: number; k: Capa[] };
+      try {
+        ctx ??= new AudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+        const now = ctx.currentTime + 0.01, bus = ctx.createGain(), lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass'; lp.frequency.value = d.c; bus.gain.value = d.v; bus.connect(lp); lp.connect(ctx.destination);
+        for (const c of d.k) {
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.0001, now);
+          if (c.c === 'ruido') {
+            ruido ??= (() => { const n = ctx!.createBuffer(1, Math.round(ctx!.sampleRate * 0.12), ctx!.sampleRate), ch = n.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; return n; })();
+            const src = ctx.createBufferSource(), bp = ctx.createBiquadFilter();
+            src.buffer = ruido; bp.type = 'bandpass'; bp.frequency.value = c.f * (0.96 + Math.random() * 0.08); bp.Q.value = c.q;
+            g.gain.linearRampToValueAtTime(c.pico, now + 0.0005); g.gain.exponentialRampToValueAtTime(0.0001, now + c.dur);
+            src.connect(bp); bp.connect(g); g.connect(bus); src.start(now, Math.random() * 0.05); src.stop(now + c.dur + 0.02);
+          } else {
+            const o = ctx.createOscillator(), f0 = c.f * (0.97 + Math.random() * 0.06);
+            o.type = 'sine'; o.frequency.setValueAtTime(f0, now); o.frequency.exponentialRampToValueAtTime(f0 * (c.fin / c.f), now + 0.044);
+            g.gain.linearRampToValueAtTime(c.pico, now + c.ataque); g.gain.exponentialRampToValueAtTime(0.0001, now + c.dur);
+            o.connect(g); g.connect(bus); o.start(now); o.stop(now + 0.08);
+          }
+        }
+      } catch {}
+      b.classList.remove('suena'); void b.offsetWidth; b.classList.add('suena');
+    };
+    document.querySelectorAll<HTMLElement>('[data-son]').forEach((b) => {
+      b.addEventListener('click', () => tocar(b));
+      if (b.dataset.sonTipo === 'pasar') b.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') tocar(b); });
+    });
+  }
+  // los vídeos de los detalles · suenan mientras están a la vista
+  {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ioEj = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target as HTMLVideoElement; if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src!; if (!reducido) v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.4 });
+    document.querySelectorAll<HTMLVideoElement>('[data-ej]').forEach((v) => ioEj.observe(v));
+  }
+  // EL PROGRESO DE LECTURA · la guía izquierda se llena con lo leído (del principio del caso al final de «Siguiente proyecto») y en su punta, los minutos que
+  // quedan (a 220 palabras por minuto, contadas en el texto del caso)
+  {
+    const l = document.querySelector<HTMLElement>('[data-leido]'), main = document.querySelector<HTMLElement>('main.caso'), tEl = l?.querySelector<HTMLElement>('[data-leido-t]');
+    if (l && main && tEl) {
+      const palabras = (main.innerText.match(/\S+/g) ?? []).length, minutos = palabras / 220;
+      const en = document.documentElement.lang === 'en';
+      let raf = 0;
+      const medir = () => {
+        raf = 0;
+        const guia = main.querySelector<HTMLElement>('.wrap');
+        if (guia) l.style.setProperty('--d', innerWidth - guia.getBoundingClientRect().right + parseFloat(getComputedStyle(guia).paddingRight) + 'px'); // a la guía DERECHA (el canto del contenido)
+        const r = main.getBoundingClientRect(), total = r.height - innerHeight;
+        const p = Math.max(0, Math.min(1, -r.top / Math.max(total, 1)));
+        l.style.setProperty('--p', p.toFixed(4));
+        l.classList.toggle('on', r.top < -innerHeight * 0.3 && r.bottom > innerHeight * 0.6);
+        const quedan = Math.max(0, Math.ceil(minutos * (1 - p)));
+        tEl.textContent = quedan > 0 ? (en ? `${quedan} min left` : `quedan ${quedan} min`) : (en ? 'done' : 'leído');
+      };
+      const pedir = () => { if (!raf) raf = requestAnimationFrame(medir); };
+      addEventListener('scroll', pedir, { passive: true });
+      addEventListener('resize', pedir);
+      medir();
+    }
+  }
+  // MOVIMIENTO · la grabación suena a la vista; el cabezal sigue al vídeo y la línea se arrastra (o se mueve con las flechas) para recorrerlo
+  document.querySelectorAll<HTMLElement>('[data-motion]').forEach((mo) => {
+    const v = mo.querySelector('video')!, linea = mo.querySelector<HTMLElement>('[data-mo-linea]')!;
+    const tEl = mo.querySelector('[data-mo-t]')!, dEl = mo.querySelector('[data-mo-d]')!, fps = mo.querySelector('[data-mo-fps]')!;
+    const mmss = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let arrastra = false, raf = 0, antes = 0;
+    const pintar = (ahora: number) => {
+      if (v.duration) { const t = (v.currentTime / v.duration) * 100; linea.style.setProperty('--t', t.toFixed(2)); linea.setAttribute('aria-valuenow', String(Math.round(t))); tEl.textContent = mmss(v.currentTime); dEl.textContent = mmss(v.duration); }
+      if (antes) fps.textContent = `${Math.min(99, ahora - antes).toFixed(1)} ms`;
+      antes = ahora;
+      raf = requestAnimationFrame(pintar);
+    };
+    const ir = (x: number) => { const r = linea.getBoundingClientRect(); if (v.duration) v.currentTime = Math.max(0, Math.min(0.999, (x - r.left) / r.width)) * v.duration; };
+    new IntersectionObserver((e) => {
+      if (e[0].isIntersecting) { if (!v.src) v.src = v.dataset.src!; if (!reducido && !arrastra) v.play().catch(() => {}); if (!raf) raf = requestAnimationFrame(pintar); }
+      else { v.pause(); cancelAnimationFrame(raf); raf = 0; antes = 0; }
+    }, { threshold: 0.35 }).observe(mo);
+    v.addEventListener('loadedmetadata', () => (dEl.textContent = mmss(v.duration)));
+    linea.addEventListener('pointerdown', (e) => { arrastra = true; linea.setPointerCapture(e.pointerId); v.pause(); ir(e.clientX); });
+    linea.addEventListener('pointermove', (e) => { if (arrastra) ir(e.clientX); });
+    const soltar = () => { if (!arrastra) return; arrastra = false; if (!reducido) v.play().catch(() => {}); };
+    linea.addEventListener('pointerup', soltar); linea.addEventListener('pointercancel', soltar);
+    linea.addEventListener('keydown', (e) => { if (!v.duration || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return; e.preventDefault(); v.currentTime = Math.max(0, Math.min(v.duration - 0.05, v.currentTime + (e.key === 'ArrowRight' ? 0.5 : -0.5))); });
+  });
 </script>
 
 <style>
@@ -390,7 +835,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
-  .idea { display: block; color: color-mix(in oklab, var(--fg) 45%, transparent); }
   /* TRES COLUMNAS (12 → 4 · 4 · 4): el título en la primera; el contenido en la segunda (.c2), la tercera (.c3) o las dos (.c23), arrancando arriba */
   .rej {
     display: grid;
@@ -520,21 +964,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     transition: transform 1s var(--ease-out-expo) calc(var(--i) * 70ms);
   }
   .espaciado.visto .caja span { transform: none; }
-  .pares-c { display: grid; gap: calc(var(--spacing) * 3); grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
-  .pares-c li { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: calc(var(--spacing) * 3); align-items: center; }
-  .aa {
-    grid-row: span 2;
-    display: grid;
-    place-items: center;
-    width: calc(var(--spacing) * 14);
-    aspect-ratio: 1;
-    border-radius: calc(var(--radius-lg) * 0.6);
-    background: var(--f);
-    color: var(--t);
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 12%, transparent);
-  }
   .tipografia > .tipos { margin-bottom: calc(var(--spacing) * 10); }
   .tipos { display: grid; gap: calc(var(--spacing) * 6); }
   .tipos.f2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -561,43 +990,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   }
   .muestra.visto .hoja img { clip-path: inset(0 0 0 0); transform: none; }
   .muestra figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 3); }
-  /* la escala: cada nivel con su medida real y una raya proporcional a su tamaño */
-  .escala { width: 100%; border-collapse: collapse; margin-bottom: calc(var(--spacing) * 10); }
-  .escala tr { border-top: 1px solid var(--rule); }
-  .escala th, .escala td { padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3) calc(var(--spacing) * 3) 0; text-align: left; vertical-align: middle; font-weight: 400; }
-  .escala th { width: 6.5em; }
   .cifra { font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .raya { width: 30%; }
-  .raya span {
-    display: block;
-    height: 2px;
-    width: var(--w);
-    background: var(--fg);
-    transform-origin: left;
-    transform: scaleX(0);
-    transition: transform 1s var(--ease-out-expo) calc(var(--i) * 80ms);
-  }
-  .escala.visto .raya span { transform: none; }
-  .muestra-boton span {
-    display: inline-flex;
-    align-items: center;
-    height: var(--bh);
-    padding-inline: calc(var(--spacing) * 4);
-    border-radius: var(--br);
-    background: var(--b);
-    color: var(--bt);
-    font-size: 0.8125rem;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  @media (width < 48rem) {
-    .escala, .escala tbody { display: block; }
-    .escala tr { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); column-gap: calc(var(--spacing) * 3); padding-block: calc(var(--spacing) * 2); }
-    .escala th, .escala td { padding: 0; width: auto; }
-    .escala td { grid-column: 2; }
-    .escala th { grid-row: span 4; }
-    .raya { padding-top: calc(var(--spacing) * 2) !important; }
-  }
   .aplicado { margin: 0; }
   .lamina { border-radius: var(--radius-lg); overflow: hidden; box-shadow: inset 0 0 0 1px var(--rule); }
   .lamina img { display: block; width: 100%; height: auto; }
@@ -627,45 +1020,471 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .cita figcaption { display: flex; flex-direction: column; gap: 2px; margin-top: calc(var(--spacing) * 5); }
   .con-video { margin-top: calc(var(--spacing) * 5); }
   .con-video svg { width: 0.875rem; height: 0.875rem; fill: currentColor; }
-  /* ── ANTERIOR / SIGUIENTE (ronda 144, 3.ª): una franja a lo ancho, partida en dos, que se llena desde donde entra el cursor */
-  .pares { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: var(--aire); margin-bottom: var(--space-section); border-block: 1px solid var(--rule); }
-  .par {
-    --par-ease: cubic-bezier(0.25, 1, 0.5, 1);
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
+  /* ── SIGUIENTE (octubre 2026): el nombre grande a la izquierda y su pieza a la derecha; el anterior, una línea debajo */
+  .sigue {
     display: grid;
-    gap: calc(var(--spacing) * 3);
-    align-content: start;
-    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 6);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: calc(var(--spacing) * 6);
+    row-gap: calc(var(--spacing) * 8);
+    align-items: end;
+    margin-top: var(--aire);
+    margin-bottom: var(--space-section);
+    padding-top: calc(var(--spacing) * 12);
+    border-top: 1px solid var(--rule);
   }
-  .par.antes { padding-left: calc(var(--spacing) * 3); }
-  .par.despues { padding-right: calc(var(--spacing) * 3); border-left: 1px solid var(--rule); }
-  .par::before {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    left: var(--gx, 50%);
-    top: var(--gy, 50%);
-    width: var(--gd, 260%);
-    aspect-ratio: 1;
-    border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%;
-    background: var(--fg);
-    transform: translate(-50%, -50%) scale(0) rotate(0deg);
-    transition: transform 0.8s cubic-bezier(0.33, 1, 0.68, 1);
-    pointer-events: none;
+  .sigue-txt { grid-column: 1 / span 5; display: grid; gap: calc(var(--spacing) * 3); align-self: start; }
+  .sigue-n {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-size: clamp(2.5rem, 1.4rem + 3.4vw, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--fg);
   }
-  .par:hover::before, .par:focus-visible::before { transform: translate(-50%, -50%) scale(1) rotate(24deg); }
-  .despues { text-align: right; justify-items: end; }
-  .pd { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); transition: color 0.45s var(--par-ease); }
-  .pt { font-family: var(--font-display); font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem); line-height: 1.1; color: color-mix(in oklab, var(--fg) 82%, transparent); transition: color 0.45s var(--par-ease); }
-  .par:hover .pd, .par:focus-visible .pd { color: color-mix(in oklab, var(--bg) 72%, transparent); transition-delay: 0.15s; }
-  .par:hover .pt, .par:focus-visible .pt { color: var(--bg); transition-delay: 0.15s; }
-  .par:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  .sigue-n { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.12em; text-decoration-color: transparent; transition: text-decoration-color 0.4s ease; }
+  .sigue-n:hover, .sigue-n:focus-visible { text-decoration-color: currentColor; }
+  .sigue-pieza { grid-column: 6 / -1; --ratio: 16 / 10; }
+  .sigue-ant {
+    grid-column: 1 / -1;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    justify-self: start;
+    color: var(--fg2);
+    transition: color 0.3s ease;
+  }
+  .sigue-ant:hover { color: var(--fg); }
+  .sigue-ant :global(.btn-flecha) { width: 0.875rem; height: 0.875rem; }
+  @media (width < 64rem) {
+    .sigue-txt, .sigue-pieza { grid-column: 1 / -1; }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .panel, .caja span, .hueco :global(.medio), .hoja img, .raya span, .par, .par::before, .pd, .pt { transition: none; }
-    .panel, .caja span, .hueco :global(.medio), .hoja img, .raya span { clip-path: none !important; transform: none !important; scale: 1 !important; }
-    .par::before { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-    .par:hover::before, .par:focus-visible::before { opacity: 1; }
+    .panel, .caja span, .hueco :global(.medio), .hoja img { transition: none; }
+    .panel, .caja span, .hueco :global(.medio), .hoja img { clip-path: none !important; transform: none !important; scale: 1 !important; }
   }
+
+  /* ── OCTUBRE 2026 · Andoni: «que el footer entre con la animación bien, como en la home». El margen de abajo de «Siguiente proyecto» se salía de <main>
+     (márgenes que colapsan) y dejaba ver el fondo oscuro de la página justo encima del pie: la gota de la transición líquida subía sobre marrón y no se veía.
+     `flow-root` mantiene el margen dentro de la superficie clara */
+  .caso { display: flow-root; }
+  /* ── OCTUBRE 2026 · la carátula, sin redondeos: un rectángulo que encaja en la retícula (Andoni) */
+  .portada :global(.pz-grande .lamina) { border-radius: 0; }
+  /* ── EL SISTEMA a la manera de brand.dropbox.com: cada parte con su cabecera (titular a la izquierda, entradilla a la derecha) */
+  .sis-cab { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); row-gap: calc(var(--spacing) * 4); align-items: end; margin-bottom: calc(var(--spacing) * 12); }
+  .sis-cab h2 { grid-column: 1 / span 5; }
+  .sis-entra { grid-column: 8 / -1; max-width: 34rem; }
+  @media (width < 64rem) { .sis-cab h2, .sis-entra { grid-column: 1 / -1; } }
+  /* COLOR (brand.dropbox.com/color, medido): una retícula de N + 3 columnas; cada panel ocupa 4 desde la suya, de modo que el siguiente lo pisa y de cada
+     uno se ve una franja; los paneles miden más que la fila y lo de abajo queda recortado. El JS los sube (translateY en % de su alto y un giro leve) */
+  .tonos {
+    --alto: clamp(9rem, 16vw, 13rem);
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(calc(var(--n) + 3), minmax(0, 1fr));
+    height: calc(var(--alto) * 0.42);
+    margin-top: calc(var(--alto) * 0.62 + var(--spacing) * 6); /* lo que sube el panel (la mitad de su alto) no pisa la cabecera */
+    clip-path: inset(-300% 0 0 0);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tono {
+    grid-row: 1;
+    grid-column: calc(var(--i) + 1) / span 4;
+    align-self: start;
+    height: var(--alto);
+    padding: calc(var(--spacing) * 4) calc(var(--spacing) * 5);
+    border-radius: 20px 20px 0 0;
+    background: var(--c);
+    transform-origin: 0 100%;
+    transition: transform 0.4s cubic-bezier(0.15, 0.5, 0.05, 1);
+    outline: none;
+  }
+  .tono.sobre-oscuro { color: #f5f5f7; }
+  .tono.sobre-claro { color: #241c19; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06); }
+  .tono-info { display: grid; gap: 2px; opacity: 0; transition: opacity 0.15s ease-in-out; }
+  .tono.arriba .tono-info { opacity: 1; }
+  .tn { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.2; white-space: nowrap; }
+  .tv { font-size: var(--text-aux); font-variant-numeric: tabular-nums; opacity: 0.8; white-space: nowrap; }
+  @media (hover: none) { .tono-info { opacity: 1; } .tono:not(:last-child) .tv { display: none; } }
+  /* TIPOGRAFÍA (brand.dropbox.com/typography): cartas en colores de su paleta con la muestra y su rótulo en píldora; la primera, grande */
+  .tipo-cartas { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); }
+  .carta { position: relative; margin: 0; display: grid; place-items: center; overflow: hidden; border-radius: calc(var(--spacing) * 2); background: var(--fondo); padding: calc(var(--spacing) * 16) calc(var(--spacing) * 8) calc(var(--spacing) * 8); }
+  /* Andoni: «la parte de typo, algo más animada»: cada carta entra descubriéndose de abajo arriba (escalonadas), la muestra sube desde el desenfoque y la
+     píldora llega después; quietas, la muestra flota muy despacio y sigue al puntero (paralaje, --px/--py del JS) */
+  .carta img { width: 100%; height: auto; max-height: 100%; object-fit: contain; translate: var(--px, 0) var(--py, 0); transition: translate 0.9s var(--ease-out-expo), scale 1.2s var(--ease-out-expo); }
+  .carta:hover img { scale: 1.04; }
+  :global(html.anima) .carta { clip-path: inset(100% 0 0 0 round calc(var(--spacing) * 2)); }
+  :global(html.anima) .carta img { opacity: 0; filter: blur(12px); transform: translateY(14%); }
+  :global(html.anima) .carta .pildora { opacity: 0; transform: translateX(-12px); }
+  :global(html.anima) .tipo-cartas.visto .carta { clip-path: inset(0 0 0 0 round calc(var(--spacing) * 2)); transition: clip-path 1.2s var(--ease-out-expo) calc(var(--k, 0) * 140ms); }
+  :global(html.anima) .tipo-cartas.visto .carta img { opacity: 1; filter: none; transform: none; transition: opacity 0.9s ease calc(0.25s + var(--k, 0) * 140ms), filter 1.1s ease calc(0.25s + var(--k, 0) * 140ms), transform 1.4s var(--ease-out-expo) calc(0.25s + var(--k, 0) * 140ms), translate 0.9s var(--ease-out-expo), scale 1.2s var(--ease-out-expo); animation: flota 7s ease-in-out calc(1.6s + var(--k, 0) * 0.9s) infinite alternate; }
+  :global(html.anima) .tipo-cartas.visto .carta .pildora { opacity: 1; transform: none; transition: opacity 0.6s ease calc(0.7s + var(--k, 0) * 140ms), transform 0.9s var(--ease-out-expo) calc(0.7s + var(--k, 0) * 140ms); }
+  @keyframes flota { from { transform: translateY(0); } to { transform: translateY(-1.6%); } }
+  .carta.aplicada { padding: calc(var(--spacing) * 16) 0 0 calc(var(--spacing) * 8); place-items: end; }
+  .carta.aplicada img { border-radius: calc(var(--spacing) * 2) 0 0 0; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08); }
+  .pildora {
+    position: absolute;
+    left: calc(var(--spacing) * 5);
+    top: calc(var(--spacing) * 5);
+    z-index: 1;
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3.5);
+    border-radius: var(--radius-full);
+    background: rgb(255 255 255 / 0.82);
+    color: #241c19;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+  .n3 .carta:nth-child(1) { grid-column: 1 / span 7; grid-row: span 2; aspect-ratio: 4 / 4.2; }
+  .n3 .carta:nth-child(2), .n3 .carta:nth-child(3) { grid-column: 8 / -1; }
+  .n2 .carta { grid-column: span 6; aspect-ratio: 4 / 3; }
+  .n1 .carta { grid-column: 1 / -1; aspect-ratio: 16 / 7; }
+  @media (width < 64rem) { .tipo-cartas .carta { grid-column: 1 / -1 !important; grid-row: auto !important; aspect-ratio: 4 / 3 !important; } }
+  /* MOVIMIENTO (brand.dropbox.com/motion): la grabación en un lienzo con guías y, debajo, una línea de tiempo con pistas en su paleta; el cabezal sigue
+     al vídeo y se arrastra para recorrerlo */
+  .motion { border: 1px solid var(--rule); }
+  .mo-lienzo { position: relative; padding: clamp(1.5rem, 5vw, 4.5rem); background-image: linear-gradient(var(--rule) 1px, transparent 1px), linear-gradient(90deg, var(--rule) 1px, transparent 1px); background-size: calc(100% / 12) calc(100% / 6); background-position: -1px -1px; }
+  .mo-lienzo video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 0; outline: 1px solid color-mix(in oklab, #3a6bff 70%, transparent); outline-offset: 6px; background: var(--c1); }
+  .mo-linea { position: relative; display: grid; gap: 6px; padding: calc(var(--spacing) * 5) 0; border-top: 1px solid var(--rule); cursor: ew-resize; touch-action: none; outline: none; }
+  .mo-linea:focus-visible { box-shadow: inset 0 0 0 2px var(--fg2); }
+  .pista { position: relative; height: 14px; }
+  .pista i { position: absolute; top: 0; bottom: 0; left: calc(var(--a) * 1%); width: calc((var(--b) - var(--a)) * 1%); border-radius: 3px; background: var(--c1); opacity: 0.85; }
+  .pista:nth-child(2n) i { background: var(--c2); }
+  .pista:nth-child(3n) i { background: var(--c3); }
+  .pista i::before, .pista i::after { content: ''; position: absolute; top: 50%; width: 7px; height: 7px; translate: -50% -50%; rotate: 45deg; background: color-mix(in oklab, #3a6bff 55%, white); }
+  .pista i::before { left: 0; }
+  .pista i::after { left: 100%; }
+  .cabezal { position: absolute; top: 0; bottom: 0; left: calc(var(--t, 0) * 1%); width: 1px; background: #3a6bff; pointer-events: none; }
+  .cabezal::before { content: ''; position: absolute; top: 0; left: 50%; translate: -50% 0; border: 6px solid transparent; border-top: 8px solid #3a6bff; }
+  .mo-pie { display: flex; align-items: center; gap: 6px; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); border-top: 1px solid var(--rule); font-family: var(--font-mono, ui-monospace, monospace); }
+  .mo-fps { margin-left: auto; }
+  /* ICONOGRAFÍA (brand.dropbox.com/iconography): una rejilla de celdas con filetes, el icono al centro y su nombre debajo */
+  .iconos { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+  .iconos li { display: grid; place-items: center; gap: calc(var(--spacing) * 3); aspect-ratio: 1; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .iconos img { width: 40%; height: auto; transition: scale 0.6s var(--ease-out-expo); }
+  .iconos li:hover img { scale: 1.12; }
+
+  /* la flecha de la casa (lib/flecha.ts: el chevrón que se dibuja líquido al pasar), a la escala del nombre. Andoni: «al hacer hover no se subraya el texto, y la
+     animación de la flecha mucho más orgánica»: sin subrayado; al pasar, la flecha AVANZA con el muelle de la paleta de Dropbox (se pasa un poco y vuelve) mientras
+     se dibuja, y el nombre la acompaña un pelo */
+  .sigue-n { display: inline-flex; align-items: center; gap: 0.2em; text-decoration: none !important; }
+  /* RONDA (oct.) · Andoni: «la animación de la flecha debería crearse de manera fluida, como el navbar». La rejilla de la barra se funde en una gota con un
+     filtro gooey; aquí lo mismo: al pasar, las alas se RECOGEN en el vértice (la gota se hincha y se las traga, todo una masa por el filtro) y vuelven a
+     BROTAR de ella con una gotita en cada punta que tira del trazo. Sin muelle ni salto: el nombre y la flecha avanzan con ease-out expo. */
+  .goo-def { position: absolute; width: 0; height: 0; }
+  .sigue-n > span { transition: translate 0.9s var(--ease-out-expo); }
+  .sigue-n :global(.btn-flecha) { width: 0.5em; height: 0.5em; stroke-width: 0.9; transition: translate 0.9s var(--ease-out-expo); }
+  .sigue-n :global(.btn-flecha .fl) { filter: url(#goo-sigue); }
+  .sigue-n:is(:hover, :focus-visible) > span { translate: 0.03em 0; }
+  .sigue-n:is(:hover, :focus-visible) :global(.btn-flecha) { translate: 0.16em 0; }
+  .sigue-n:is(:hover, :focus-visible) :global(.btn-flecha .fl-ala) { animation: sg-ala 0.95s cubic-bezier(0.65, 0, 0.35, 1) both !important; }
+  .sigue-n:is(:hover, :focus-visible) :global(.btn-flecha .fl-v) { animation: sg-v 0.95s cubic-bezier(0.65, 0, 0.35, 1) both !important; }
+  .sigue-n:is(:hover, :focus-visible) :global(.btn-flecha .fl-a) { animation: sg-a 0.95s cubic-bezier(0.65, 0, 0.35, 1) both !important; }
+  .sigue-n:is(:hover, :focus-visible) :global(.btn-flecha .fl-b) { animation: sg-b 0.95s cubic-bezier(0.65, 0, 0.35, 1) both !important; }
+  @keyframes sg-ala { 0% { stroke-dashoffset: 0; } 30% { stroke-dashoffset: 1; } 38% { stroke-dashoffset: 1; } 100% { stroke-dashoffset: 0; } }
+  @keyframes sg-v { 0% { opacity: 1; transform: scale(0.45); } 30% { opacity: 1; transform: scale(1.35); } 44% { opacity: 1; transform: scale(1.2); } 100% { opacity: 1; transform: scale(0.47); } }
+  @keyframes sg-a { 0%, 36% { opacity: 0; transform: translate(0, 0) scale(0.9); } 38% { opacity: 1; } 92% { opacity: 1; transform: translate(-4.5px, -4.5px) scale(0.62); } 100% { opacity: 0; transform: translate(-4.5px, -4.5px) scale(0.5); } }
+  @keyframes sg-b { 0%, 36% { opacity: 0; transform: translate(0, 0) scale(0.9); } 38% { opacity: 1; } 92% { opacity: 1; transform: translate(-4.5px, 4.5px) scale(0.62); } 100% { opacity: 0; transform: translate(-4.5px, 4.5px) scale(0.5); } }
+  .sigue-n :global(.btn-flecha path) { vector-effect: none; }
+  /* MOVIMIENTO EN ABSTRACTO (brand.dropbox.com/motion › Motion Principles): cada carta, un color plano de su paleta y dos o tres formas que repiten el gesto
+     del detalle. Las formas, en los dos colores de su paleta que más contrastan con la carta. Solo se mueven a la vista (.corre). */
+  .mo-ejemplos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 12) calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 16); }
+  .mo-ej h3 { margin-top: calc(var(--spacing) * 5); }
+  .mo-ej p { margin-top: calc(var(--spacing) * 2); max-width: 32rem; }
+  @media (width < 48rem) { .mo-ejemplos { grid-template-columns: minmax(0, 1fr); } }
+  .abs { --e: cubic-bezier(0.65, 0, 0.35, 1); position: relative; aspect-ratio: 4 / 3; border-radius: calc(var(--spacing) * 2); background: var(--fondo); overflow: hidden; }
+  .abs > :is(i, b, em) { position: absolute; display: block; }
+  .mo-ej:not(.corre) .abs :is(*, ::before, ::after) { animation-play-state: paused !important; }
+  :global(html.anima) .mo-ej .abs { clip-path: inset(100% 0 0 0 round calc(var(--spacing) * 2)); }
+  :global(html.anima) .mo-ej.visto .abs { clip-path: inset(0 0 0 0 round calc(var(--spacing) * 2)); transition: clip-path 1.2s var(--ease-out-expo); }
+  /* bucle · las tarjetas pasan; la del centro, nítida y en su color */
+  .g-bucle i { width: 22%; height: 30%; top: 35%; left: 129%; border-radius: 999px; background: var(--fb); animation: ab-bucle 7.5s var(--e) infinite; animation-delay: calc(var(--k) * -1.5s); }
+  @keyframes ab-bucle {
+    0% { left: 129%; scale: 0.78; filter: blur(3px); opacity: 0.55; background: var(--fb); }
+    14%, 20% { left: 99%; scale: 0.78; filter: blur(3px); opacity: 0.55; background: var(--fb); }
+    34%, 40% { left: 69%; scale: 0.78; filter: blur(3px); opacity: 0.55; background: var(--fb); }
+    54%, 60% { left: 39%; scale: 1; filter: blur(0); opacity: 1; background: var(--fa); }
+    74%, 80% { left: 9%; scale: 0.78; filter: blur(3px); opacity: 0.55; background: var(--fb); }
+    94%, 100% { left: -21%; scale: 0.78; filter: blur(3px); opacity: 0.55; background: var(--fb); }
+  }
+  /* pestañas · el indicador salta de una a otra y el panel cambia de forma */
+  .g-pestanas .tab { top: 14%; height: 7%; width: 16%; left: calc(14% + var(--k) * 18.5%); border-radius: 999px; background: var(--fb); opacity: 0.4; }
+  .g-pestanas .ind { top: 24%; height: 2.5%; width: 16%; left: 14%; border-radius: 999px; background: var(--fa); animation: ab-ind 6s var(--e) infinite; }
+  .g-pestanas .pan { left: 14%; right: 14.5%; top: 34%; bottom: 16%; border-radius: 6% / 8%; background: color-mix(in oklab, var(--fb) 28%, transparent); }
+  .g-pestanas .pan u { position: absolute; top: 18%; bottom: 18%; left: 10%; width: 30%; border-radius: 999px; background: var(--fa); animation: ab-panel 6s var(--e) infinite; }
+  @keyframes ab-ind { 0%, 20% { left: 14%; } 25%, 45% { left: 32.5%; } 50%, 70% { left: 51%; } 75%, 95% { left: 69.5%; } 100% { left: 14%; } }
+  @keyframes ab-panel {
+    0%, 20% { left: 10%; width: 30%; border-radius: 999px; }
+    25%, 45% { left: 55%; width: 35%; border-radius: 14px; }
+    50%, 70% { left: 10%; width: 80%; border-radius: 8px; }
+    75%, 95% { left: 38%; width: 24%; border-radius: 50%; }
+    100% { left: 10%; width: 30%; border-radius: 999px; }
+  }
+  /* cuenta · las cifras suben hasta su valor, se pasan un pelo y se asientan */
+  .g-cuenta::after { content: ''; position: absolute; left: 16%; right: 16%; bottom: 18%; height: 2px; background: var(--fb); opacity: 0.5; }
+  .g-cuenta i { bottom: 18%; height: 60%; width: 12%; left: calc(22% + var(--k) * 15%); border-radius: 6px 6px 2px 2px; background: var(--fa); transform-origin: bottom; animation: ab-cuenta 4.2s cubic-bezier(0.3, 1.25, 0.5, 1) infinite; animation-delay: calc(var(--k) * 0.12s); }
+  .g-cuenta i:nth-child(2n) { background: var(--fb); }
+  @keyframes ab-cuenta { 0% { scale: 1 0.02; } 30%, 75% { scale: 1 var(--h); } 92%, 100% { scale: 1 0.02; } }
+  /* cae · las piezas caen con gravedad, rebotan y se apilan */
+  .g-cae i { left: 30%; width: 40%; height: 12%; bottom: calc(14% + var(--k) * 13%); border-radius: 8px; background: var(--fa); opacity: 0; animation: ab-cae 5s infinite; animation-delay: calc(var(--k) * 0.35s); }
+  .g-cae i:nth-child(2n) { background: var(--fb); }
+  @keyframes ab-cae {
+    0% { transform: translateY(-900%); opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+    14% { transform: translateY(0); opacity: 1; animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+    18% { transform: translateY(-16%); opacity: 1; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+    22%, 80% { transform: translateY(0); opacity: 1; }
+    92% { transform: translateY(-60%); opacity: 0; }
+    100% { transform: translateY(-900%); opacity: 0; }
+  }
+  /* atraca · los canales esperan en un arco y uno a uno atracan en la API */
+  .g-atraca .api { left: 42%; top: 56%; width: 16%; height: 21%; border-radius: 16%; background: var(--fa); animation: ab-api 1.2s var(--e) 1.15s infinite; }
+  .g-atraca i { --l: calc(46.5% + var(--x)); --t: calc(61.8% + var(--y) * 1.3333); left: var(--l); top: var(--t); width: 7%; aspect-ratio: 1; border-radius: 50%; background: var(--fb); animation: ab-atraca 7.2s var(--e) infinite; animation-delay: calc(var(--k) * 1.2s); }
+  @keyframes ab-atraca { 0%, 6% { left: var(--l); top: var(--t); scale: 1; } 16%, 22% { left: 46.5%; top: 61.8%; scale: 0.7; } 32%, 100% { left: var(--l); top: var(--t); scale: 1; } }
+  @keyframes ab-api { 0%, 100% { scale: 1; } 12% { scale: 1.1; } }
+  /* comprime · la masa se reduce a un punto mientras las lecturas bajan, y vuelve */
+  .g-comprime .aro, .g-comprime .bola { left: 50%; top: 50%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; }
+  .g-comprime .aro { width: 56%; border: 1.5px dashed var(--fb); opacity: 0.6; }
+  .g-comprime .bola { width: 54%; background: var(--fa); animation: ab-comp 5s var(--e) infinite; }
+  .g-comprime em { left: 7%; top: calc(72% + var(--k) * 6%); width: 14%; height: 2.5%; border-radius: 999px; background: var(--fb); transform-origin: left; animation: ab-lect 5s var(--e) infinite; animation-delay: calc(var(--k) * 0.1s); }
+  @keyframes ab-comp { 0%, 12% { scale: 1; } 50%, 70% { scale: 0.12; } 92%, 100% { scale: 1; } }
+  @keyframes ab-lect { 0%, 12% { scale: 1 1; } 50%, 70% { scale: 0.25 1; } 92%, 100% { scale: 1 1; } }
+  /* traza · primero el contorno, después el color */
+  .g-traza svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .g-traza :is(rect, circle) { fill-opacity: 0; stroke-width: 1.4; stroke-dasharray: 1 1; stroke-linecap: round; animation: ab-traza 5s var(--e) infinite; }
+  .g-traza rect { fill: var(--fa); stroke: var(--fa); }
+  .g-traza circle { fill: var(--fb); stroke: var(--fb); animation-delay: 0.35s; }
+  @keyframes ab-traza { 0% { stroke-dashoffset: 1; fill-opacity: 0; } 40% { stroke-dashoffset: 0; fill-opacity: 0; } 55%, 82% { stroke-dashoffset: 0; fill-opacity: 1; } 96%, 100% { stroke-dashoffset: -1; fill-opacity: 0; } }
+  /* gira · las piezas dan la vuelta en ola */
+  .g-gira i { width: 18%; aspect-ratio: 1; left: calc(19% + var(--c) * 22%); top: calc(22% + var(--r) * 32%); border-radius: 14%; background: var(--fa); animation: ab-gira 4.8s var(--e) infinite; animation-delay: calc((var(--c) + var(--r)) * 0.12s); }
+  @keyframes ab-gira {
+    0%, 20% { transform: perspective(400px) rotateY(0); background: var(--fa); }
+    35% { transform: perspective(400px) rotateY(90deg); background: var(--fa); }
+    35.1% { background: var(--fb); }
+    50%, 70% { transform: perspective(400px) rotateY(180deg); background: var(--fb); }
+    85% { transform: perspective(400px) rotateY(270deg); background: var(--fb); }
+    85.1% { background: var(--fa); }
+    100% { transform: perspective(400px) rotateY(360deg); background: var(--fa); }
+  }
+  /* filtra · la rejilla se queda con unos y aparta a los demás, por turnos */
+  .g-filtra i { width: 6%; aspect-ratio: 1; left: calc(17% + var(--c) * 13.2%); top: calc(16% + var(--r) * 19%); border-radius: 50%; background: var(--fa); animation: ab-filtra 6s var(--e) infinite; animation-delay: calc(var(--g) * -2s); }
+  @keyframes ab-filtra { 0%, 26% { scale: 1; opacity: 1; background: var(--fa); } 36%, 90% { scale: 0.45; opacity: 0.35; background: var(--fb); } 100% { scale: 1; opacity: 1; background: var(--fa); } }
+  /* releva · una pantalla sube y se va; la siguiente ocupa su sitio */
+  .g-releva i { left: 22%; width: 56%; height: 52%; top: 24%; border-radius: 6% / 8%; background: var(--fa); opacity: 0; animation: ab-releva 6s var(--e) infinite; animation-delay: calc(var(--k) * -2s); }
+  .g-releva i:nth-child(2) { background: var(--fb); }
+  .g-releva i:nth-child(3) { background: color-mix(in oklab, var(--fa) 55%, var(--fb)); }
+  @keyframes ab-releva {
+    0% { transform: translateY(26%) scale(0.86); opacity: 0; z-index: 1; }
+    12%, 30% { transform: translateY(12%) scale(0.93); opacity: 0.55; z-index: 2; }
+    45%, 63% { transform: none; opacity: 1; z-index: 3; }
+    78% { transform: translateY(-70%) scale(1.02); opacity: 0; z-index: 3; }
+    100% { transform: translateY(26%) scale(0.86); opacity: 0; z-index: 1; }
+  }
+  /* escribe · las líneas aparecen una tras otra, como el código que se escribe solo */
+  .g-escribe i { left: 16%; top: calc(24% + var(--k) * 10%); height: 4.5%; width: var(--w); border-radius: 2px; background: var(--fa); clip-path: inset(0 100% 0 0); animation: ab-escribe 5s steps(14, end) infinite; animation-delay: calc(var(--k) * 0.45s); }
+  .g-escribe i:first-child { background: var(--fb); }
+  .g-escribe .cursor { left: 16%; top: 78%; width: 2.6%; height: 6%; background: var(--fb); animation: ab-cursor 1s steps(1, end) infinite; }
+  @keyframes ab-escribe { 0% { clip-path: inset(0 100% 0 0); opacity: 1; } 9% { clip-path: inset(0 0 0 0); opacity: 1; } 80% { clip-path: inset(0 0 0 0); opacity: 1; } 90%, 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
+  @keyframes ab-cursor { 50% { opacity: 0; } }
+  /* ola · una fila que se levanta en cadena */
+  .g-ola i { bottom: 24%; height: 50%; width: 5%; left: calc(14% + var(--k) * 8.6%); border-radius: 999px; background: var(--fa); transform-origin: bottom; animation: ab-ola 2.6s var(--e) infinite; animation-delay: calc(var(--k) * 0.11s); }
+  .g-ola i:nth-child(2n) { background: var(--fb); }
+  @keyframes ab-ola { 0%, 100% { scale: 1 0.22; } 45% { scale: 1 1; } }
+  /* órbita · un núcleo y lo que gira alrededor, cada uno a su ritmo */
+  .g-orbita .nucleo { left: 50%; top: 50%; width: 16%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: var(--fa); animation: ab-api 2s var(--e) infinite; }
+  .g-orbita i { left: 50%; top: 50%; width: var(--d); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; border: 1px dashed color-mix(in oklab, var(--fb) 45%, transparent); animation: ab-orbita calc(5s + var(--k) * 2.5s) linear infinite; animation-direction: alternate-reverse; }
+  .g-orbita i:nth-of-type(2) { animation-direction: normal; }
+  .g-orbita i::before { content: ''; position: absolute; left: 50%; top: 0; width: calc(26% - var(--k) * 6%); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: var(--fb); }
+  @keyframes ab-orbita { to { rotate: 360deg; } }
+  /* onda · el péndulo: el primero golpea y el último sale, como una respuesta inmediata */
+  .g-onda i { top: 16%; height: 58%; width: 13%; left: calc(24% + var(--k) * 13%); transform-origin: 50% 0; }
+  .g-onda i::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 30%; width: 1.5px; translate: -50% 0; background: color-mix(in oklab, var(--fb) 60%, transparent); }
+  .g-onda i::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; aspect-ratio: 1; border-radius: 50%; background: var(--fa); }
+  .g-onda i:first-child { animation: ab-pend-a 2.2s infinite; }
+  .g-onda i:last-child { animation: ab-pend-b 2.2s infinite; }
+  @keyframes ab-pend-a { 0% { rotate: 30deg; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); } 25%, 75% { rotate: 0deg; animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); } 100% { rotate: 30deg; } }
+  @keyframes ab-pend-b { 0%, 25% { rotate: 0deg; animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); } 50% { rotate: -30deg; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); } 75%, 100% { rotate: 0deg; } }
+  @media (prefers-reduced-motion: reduce) { .abs :is(*, ::before, ::after) { animation: none !important; } .g-cae i, .g-releva i:first-child { opacity: 1; } }
+  /* EL SONIDO: cada sonido, una tarjeta que se toca; su forma de onda (calculada), sus tonos en una línea de tiempo y un cabezal que la recorre al sonar */
+  .sonidos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: calc(var(--spacing) * 6); }
+  .son { all: unset; box-sizing: border-box; display: grid; gap: calc(var(--spacing) * 4); width: 100%; padding: calc(var(--spacing) * 6); border-radius: calc(var(--spacing) * 2); box-shadow: inset 0 0 0 1px var(--rule); cursor: pointer; transition: box-shadow 0.4s ease, background-color 0.4s ease; }
+  .son:hover { background: color-mix(in oklab, var(--fg) 3%, transparent); box-shadow: inset 0 0 0 1px var(--rule-strong, var(--fg2)); }
+  .son:focus-visible { box-shadow: inset 0 0 0 2px var(--fg); }
+  .son-cab { display: flex; align-items: center; gap: calc(var(--spacing) * 3); }
+  .son-pista { margin-left: auto; }
+  .son-play { width: 2rem; height: 2rem; border-radius: 50%; background: var(--fg); position: relative; transition: scale 0.5s var(--ease-out-expo); }
+  .son-play::after { content: ''; position: absolute; left: 54%; top: 50%; translate: -50% -50%; border-left: 8px solid var(--bg, #f5f5f7); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .son:active .son-play { scale: 0.88; }
+  .son-onda { width: 100%; height: clamp(4rem, 8vw, 6rem); fill: color-mix(in oklab, var(--fg) 26%, transparent); }
+  .son.suena .son-onda { animation: son-onda 0.8s linear; }
+  @keyframes son-onda { 0% { fill: var(--color-coral); } 100% { fill: color-mix(in oklab, var(--fg) 26%, transparent); } }
+  .son-linea { position: relative; display: grid; gap: 6px; padding-top: calc(var(--spacing) * 3); border-top: 1px solid var(--rule); }
+  .son-tono { position: relative; height: 22px; }
+  .son-tono i { position: absolute; top: 0; height: 8px; left: calc(var(--a) * 1%); width: max(3px, calc((var(--b) - var(--a)) * 1%)); border-radius: 2px; background: var(--fg); }
+  .son-tono em { position: absolute; top: 11px; left: calc(var(--a) * 1%); font-style: normal; white-space: nowrap; font-size: 0.6875rem; font-variant-numeric: tabular-nums; color: var(--fg2); font-family: var(--font-mono, ui-monospace, monospace); }
+  .son-cabezal { position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: var(--color-coral); opacity: 0; }
+  .son.suena .son-cabezal { animation: son-cab 0.8s linear; }
+  @keyframes son-cab { 0% { left: 0; opacity: 1; } 95% { left: 100%; opacity: 1; } 100% { left: 100%; opacity: 0; } }
+  .son-pie { color: var(--fg2); }
+  /* LA LIBRERÍA: la que entregamos, en su navegador, recorrida */
+  /* EL ALBARÁN de la entrega: cuatro piezas en fila; la librería, marcada (es la que se navega debajo) */
+  .entrega { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--rule); margin-bottom: calc(var(--spacing) * 10); }
+  .entrega li { position: relative; display: grid; align-content: start; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 5) calc(var(--spacing) * 5) calc(var(--spacing) * 6) 0; }
+  .entrega li + li { padding-left: calc(var(--spacing) * 5); border-left: 1px solid var(--rule); }
+  .entrega .ent-n { font-variant-numeric: tabular-nums; color: var(--fg2); }
+  .entrega li.es-lib::before { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 2px; background: var(--color-coral); }
+  .entrega .ent-aqui { color: var(--color-coral); }
+  :global(html.anima) .entrega li { opacity: 0; translate: 0 10px; }
+  :global(html.anima) .entrega.visto li { opacity: 1; translate: 0 0; transition: opacity 0.6s ease calc(var(--k) * 110ms), translate 0.9s var(--ease-out-expo) calc(var(--k) * 110ms); }
+  @media (width < 64rem) { .entrega { grid-template-columns: repeat(2, minmax(0, 1fr)); } .entrega li:nth-child(3) { border-left: 0; padding-left: 0; } }
+  @media (width < 40rem) { .entrega { grid-template-columns: minmax(0, 1fr); } .entrega li + li { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); } }
+  /* LA LIBRERÍA DE VERDAD: los accesos en píldora y, debajo, su web a todo el ancho de la retícula, con su altura, sin marco de navegador */
+  .libreria { margin: 0; }
+  .lib-accesos { display: flex; flex-wrap: wrap; align-items: center; gap: calc(var(--spacing) * 2); margin-bottom: calc(var(--spacing) * 4); }
+  .lib-accesos > span { margin-right: calc(var(--spacing) * 1); }
+  .lib-acc { all: unset; box-sizing: border-box; cursor: pointer; padding: 6px 14px; border-radius: 999px; font-size: 0.875rem; box-shadow: inset 0 0 0 1px var(--rule); transition: box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
+  .lib-acc:hover { box-shadow: inset 0 0 0 1px var(--fg2); }
+  .lib-acc:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .lib-acc[aria-pressed='true'] { background: var(--fg); color: var(--bg, #f5f5f7); box-shadow: none; }
+  .lib-ventana { position: relative; height: clamp(32rem, 80dvh, 52rem); border-radius: 2px 10px 10px 2px; overflow: hidden; background: #f8f7ec; }
+  .lib-ventana :global(iframe) { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 0 0; border: 0; opacity: 0; transition: opacity 0.6s ease; }
+  .libreria.cargada .lib-ventana :global(iframe) { opacity: 1; }
+  .lib-cap img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+  .lib-cap { position: absolute; inset: 0; transition: opacity 0.6s ease 0.2s; }
+  .libreria.cargada .lib-cap { opacity: 0; }
+  .libreria.sin-web .lib-ventana :global(iframe) { display: none; }
+  .libreria.sin-web .lib-cap { opacity: 1; }
+  @media (width < 48rem) { .lib-ventana { height: 72dvh; } }
+  /* EL LIBRO (Andoni: «más realista, y que se pueda abrir y cerrar»). Un solo número manda: --a (0 cerrado · 1 abierto). La tapa gira sobre el lomo
+     HACIA FUERA, hacia quien mira (rotateY(--a × −180°)), y queda tumbada a la izquierda como página (la guarda con el ex libris): un pliego de dos
+     páginas iguales, la derecha con la librería real (Andoni: «se abre al revés, tiene que abrirse hacia fuera»); el libro, centrado cerrado, se desplaza a su sitio; la sombra de la tapa sobre la página se va apagando. Se abre y
+     se cierra con clic, arrastrando la tapa (--a sigue al dedo) o con «Cerrar / Abrir el libro». Materia: tapa de cartón (6 px de grosor: canto y lomo
+     en 3D), tela con su trama, titular gofrado, guarda dentro y el canto de las hojas a la derecha y abajo. Sin JS, abierto. */
+  .libro { --lomo: 50%; --a: 1; --curva: cubic-bezier(0.62, 0, 0.18, 1); position: relative; padding-left: var(--lomo); perspective: 2400px; perspective-origin: 50% 40%; translate: calc(-25% * (1 - var(--a))) 0; transition: translate 1.5s var(--curva); }
+  :global(html.anima) .libro { --a: 0; }
+  :global(html.anima) .libro.abierto { --a: 1; }
+  /* cerrado, al pasar, la tapa se levanta un pelo: invita a abrirla */
+  @media (hover: hover) { :global(html.anima) .libro:not(.abierto):not(.arrastra):has(.tapa:hover) { --a: 0.05; } }
+  .libro.arrastra, .libro.arrastra .tapa, .libro.arrastra .pagina-lib::after { transition: none !important; }
+  .pagina-lib { position: relative; border-radius: 2px 10px 10px 2px; box-shadow: 0 40px 70px -40px rgb(40 20 10 / 0.45), 0 2px 4px rgb(40 20 10 / 0.08); }
+  /* el canto de las hojas: líneas finas de papel a la derecha y abajo */
+  .hojas { position: absolute; z-index: -1; pointer-events: none; }
+  .hojas.d { top: 4px; bottom: 2px; right: -7px; width: 8px; border-radius: 0 4px 4px 0; background: repeating-linear-gradient(90deg, #e3dbcb 0 1px, #fbf8f1 1px 2px); }
+  .hojas.b { left: 4px; right: 2px; bottom: -6px; height: 7px; border-radius: 0 0 4px 4px; background: repeating-linear-gradient(180deg, #e3dbcb 0 1px, #fbf8f1 1px 2px); }
+  /* el pliegue junto al lomo y la sombra que deja la tapa al cerrarse sobre la página */
+  .pagina-lib::before { content: ''; position: absolute; z-index: 2; left: 0; top: 0; bottom: 0; width: 34px; pointer-events: none; background: linear-gradient(90deg, rgb(60 30 20 / 0.22), rgb(60 30 20 / 0.06) 55%, transparent); border-radius: 2px 0 0 2px; }
+  .pagina-lib::after { content: ''; position: absolute; z-index: 2; inset: 0; pointer-events: none; border-radius: inherit; background: linear-gradient(90deg, rgb(30 15 10 / 0.6), rgb(30 15 10 / 0.18) 45%, transparent 85%); opacity: calc(1 - var(--a) * 1.15); transition: opacity 1.5s var(--curva); }
+  .tapa { all: unset; box-sizing: border-box; position: absolute; z-index: 3; top: -10px; bottom: -10px; left: calc(var(--lomo) - 6px); right: -12px; cursor: grab; touch-action: pan-y; transform-origin: 0 50%; transform-style: preserve-3d;
+    transform: rotateY(calc(var(--a) * -180deg)); transition: transform 1.5s var(--curva); }
+  .libro.arrastra .tapa { cursor: grabbing; }
+  .tapa:focus-visible .frente { outline: 2px solid var(--t-acento); outline-offset: 4px; }
+  .cara { position: absolute; inset: 0; border-radius: 3px 12px 12px 3px; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+  /* el grosor del cartón: la cara de fuera 3 px por delante, la de dentro 3 px por detrás, y el canto y el lomo cerrando la caja */
+  .frente { transform: translateZ(3px); display: grid; grid-template-rows: auto auto 1fr auto; gap: calc(var(--spacing) * 3); padding: clamp(1.75rem, 3.5vw, 3rem) clamp(1.5rem, 3vw, 2.75rem) clamp(1.75rem, 3vw, 2.5rem) clamp(2.5rem, 5vw, 4.25rem);
+    color: var(--t-tinta); background: radial-gradient(70% 60% at 85% 10%, color-mix(in oklab, var(--t-acento) 26%, transparent), transparent 70%), radial-gradient(90% 80% at 0% 100%, color-mix(in oklab, black 30%, transparent), transparent 70%), var(--t-fondo);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06), inset 0 -2px 0 rgb(0 0 0 / 0.25), 0 40px 70px -40px rgb(30 10 20 / 0.6); }
+  .dorso { transform: rotateY(180deg) translateZ(3px); }
+  .canto { position: absolute; top: 2px; bottom: 2px; width: 6px; background: linear-gradient(90deg, color-mix(in oklab, var(--t-fondo) 70%, black), color-mix(in oklab, var(--t-fondo) 85%, black)); }
+  .canto.r { right: 0; transform-origin: 100% 50%; transform: translateZ(-3px) rotateY(90deg); border-radius: 2px; }
+  .canto.l { left: 0; transform-origin: 0 50%; transform: translateZ(-3px) rotateY(-90deg); }
+  /* la tela: una trama finísima y el lomo, más oscuro, con la bisagra hundida */
+  .frente::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.16; mix-blend-mode: overlay;
+    background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.5) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgb(0 0 0 / 0.5) 0 1px, transparent 1px 3px); }
+  .frente::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: clamp(1.5rem, 3.5vw, 3rem); background: linear-gradient(90deg, rgb(0 0 0 / 0.42), rgb(0 0 0 / 0.14) 66%, rgb(255 255 255 / 0.1) 74%, rgb(0 0 0 / 0.28) 80%, rgb(255 255 255 / 0.05) 86%, transparent); }
+  .t-marca { position: relative; font-family: var(--font-sans, system-ui); font-weight: 700; font-size: clamp(1.5rem, 1.1rem + 1.3vw, 2.25rem); letter-spacing: -0.04em; text-shadow: 0 -1px 0 rgb(0 0 0 / 0.45), 0 1px 0 rgb(255 255 255 / 0.12); }
+  .t-ojo-l { position: relative; justify-self: start; padding: 5px 12px; border-radius: 999px; background: rgb(255 255 255 / 0.1); font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  /* el titular, gofrado en la tela: luz arriba, sombra abajo */
+  .t-tit { position: relative; align-self: end; max-width: 16ch; font-family: var(--font-sans, system-ui); font-weight: 600; font-size: clamp(1.75rem, 1rem + 2.2vw, 3rem); line-height: 1.05; letter-spacing: -0.035em; text-wrap: balance; text-shadow: 0 -1px 0 rgb(0 0 0 / 0.5), 0 1px 0 rgb(255 255 255 / 0.14); }
+  .etiqueta { position: absolute; right: clamp(1.25rem, 3vw, 2.5rem); bottom: clamp(1.25rem, 3vw, 2.5rem); display: grid; gap: 8px; justify-items: start; padding: 12px 16px 14px; border-radius: 3px; rotate: -2deg; background: #f6f1e8; color: #2b1d17; box-shadow: 0 1px 0 rgb(0 0 0 / 0.08), 0 10px 22px -12px rgb(0 0 0 / 0.5); }
+  .e-ojo { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.625rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+  .e-savvia { display: block; width: 5.5rem; aspect-ratio: 4.2 / 1; background: currentColor; -webkit-mask: url('/savvia-palabra.svg?v=228') left center / contain no-repeat; mask: url('/savvia-palabra.svg?v=228') left center / contain no-repeat; }
+  .t-abrir { position: relative; justify-self: start; font-size: 0.875rem; opacity: 0.7; transition: opacity 0.3s ease, translate 0.6s var(--ease-out-expo); }
+  .tapa:hover .t-abrir { opacity: 1; translate: 4px 0; }
+  /* la cara de dentro: la guarda, con el ex libris; el lomo hundido a la derecha (que es donde queda al abrirse) */
+  .dorso { display: grid; place-items: center; background: repeating-linear-gradient(45deg, color-mix(in oklab, var(--t-acento) 22%, transparent) 0 1px, transparent 1px 12px), var(--t-tinta); box-shadow: inset -30px 0 40px -20px rgb(0 0 0 / 0.22); }
+  .exlibris { display: grid; gap: 6px; justify-items: center; padding: 18px 26px; border-radius: 6px; border: 1px solid color-mix(in oklab, var(--t-fondo) 30%, transparent); color: var(--t-fondo); font-family: var(--font-display); font-size: 1.5rem; }
+  /* «Cerrar / Abrir el libro», al final de los accesos */
+  .lib-cerrar { all: unset; box-sizing: border-box; cursor: pointer; margin-left: auto; font-size: 0.875rem; text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: var(--rule); transition: text-decoration-color 0.3s ease; }
+  .lib-cerrar:hover { text-decoration-color: currentColor; }
+  .lib-cerrar:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+  .lib-cerrar[aria-expanded='false'] .ab, .lib-cerrar[aria-expanded='true'] .ce { display: none; }
+  /* el libro llega: sube un poco y se asienta */
+  :global(html.anima) .libreria .libro { opacity: 0; transform: translateY(40px); }
+  :global(html.anima) .libreria.visto .libro { opacity: 1; transform: none; transition: opacity 0.8s ease, transform 1.2s var(--ease-out-expo), translate 1.5s var(--curva); }
+  @media (width < 48rem) {
+    /* en el móvil no cabe abierto de lado: la tapa se levanta hacia arriba (bisagra arriba) y se aparta; se cierra con «Cerrar el libro» o deslizando */
+    .libro { --lomo: 0%; perspective: 1400px; perspective-origin: 50% 0%; translate: none; }
+    .tapa { left: -6px; right: -6px; top: -6px; bottom: -6px; transform-origin: 50% 0; transform: rotateX(calc(var(--a) * 100deg)); opacity: calc(1.6 - var(--a) * 1.6); transition: transform 1.3s var(--curva), opacity 1.3s var(--curva); }
+    .libro.abierto .tapa { pointer-events: none; }
+    .canto.r, .canto.l { display: none; }
+    .frente { padding: 1.75rem 1.5rem 1.5rem 2.25rem; }
+    .etiqueta { right: 1rem; bottom: 1rem; }
+    .lib-cerrar { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tapa, .libro, .pagina-lib::after { transition: none !important; } }
+  .lib-ir { display: flex; flex-wrap: wrap; align-items: center; gap: calc(var(--spacing) * 4) calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 8); }
+  /* COMENTARIO: la cara, la frase en grande y quién la dice */
+  .comentario { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); row-gap: calc(var(--spacing) * 6); align-items: start; }
+  .com-cara { grid-column: 1 / span 2; width: clamp(4rem, 7vw, 6rem); height: auto; aspect-ratio: 1; border-radius: 50%; object-fit: cover; }
+  .com-texto { grid-column: 3 / -2; margin: 0; font-size: clamp(1.625rem, 1.1rem + 1.6vw, 2.75rem); line-height: 1.18; letter-spacing: -0.01em; text-wrap: balance; }
+  .com-quien { grid-column: 3 / -1; }
+  @media (width < 64rem) { .com-cara, .com-texto, .com-quien { grid-column: 1 / -1; } }
+  /* POR DENTRO: cada herramienta con su icono */
+  .herramientas li { display: flex; align-items: center; gap: calc(var(--spacing) * 3); }
+  .h-ic { flex: none; display: inline-grid; place-items: center; width: 1.125rem; height: 1.125rem; }
+  .h-ic :global(img) { width: 100%; height: 100%; opacity: 0.85; }
+  .h-ic :global(svg) { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
+  /* EL PROGRESO DE LECTURA (Andoni): la guía izquierda de la retícula se llena según lees; en su punta, lo que queda en minutos. Fijo mientras dura el caso */
+  .leido {
+    position: fixed; z-index: 30; right: var(--d, 48px); bottom: max(calc(var(--spacing) * 6), env(safe-area-inset-bottom));
+    display: flex; align-items: center; gap: calc(var(--spacing) * 2); padding: 6px 6px 6px 12px; border-radius: 999px;
+    background: rgb(255 255 255 / 0.86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 0 0 1px var(--rule);
+    pointer-events: none; opacity: 0; translate: calc(100% + var(--d, 48px) + 12px) 0; transition: translate 0.9s var(--ease-out-expo), opacity 0.5s ease;
+  }
+  .leido.on { opacity: 1; translate: 0 0; }
+  .leido span { white-space: nowrap; font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--color-cacao, #3b231b); }
+  .leido svg { width: 22px; height: 22px; rotate: -90deg; }
+  .leido circle { fill: none; stroke-width: 2.6; }
+  .leido .pista-l { stroke: var(--rule); }
+  .leido .lleno { stroke: var(--color-coral); stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: calc(1 - var(--p, 0)); }
+  @media (width < 48rem) { .leido { right: 16px; } }
+  /* EL ESPACIADO APLICADO: su página a escala (1440 → el ancho del esquema) y cada medida que se enciende por turnos en coral, con su fila */
+  .esq { container-type: inline-size; margin-bottom: calc(var(--spacing) * 10); }
+  .pag { --u: calc(100cqw / 1440); position: relative; padding-block: calc(72 * var(--u)); border: 1px solid var(--rule); border-radius: calc(var(--spacing) * 2); background: color-mix(in oklab, var(--fg) 3%, transparent); overflow: hidden; }
+  .cont { position: relative; width: calc(var(--C) * var(--u)); margin-inline: auto; }
+  .cont::before, .cont::after { content: ''; position: absolute; top: calc(-72 * var(--u)); bottom: calc(-72 * var(--u)); width: 0; border-left: 1px dashed color-mix(in oklab, var(--fg) 24%, transparent); }
+  .cont::before { left: 0; } .cont::after { right: 0; }
+  .sec .tit { display: block; height: calc(44 * var(--u)); width: 46%; border-radius: 3px; background: color-mix(in oklab, var(--fg) 20%, transparent); margin-bottom: calc(40 * var(--u)); }
+  .tarjetas { display: flex; }
+  .tj { position: relative; flex: 1; display: grid; align-content: start; gap: calc(12 * var(--u)); min-height: calc(230 * var(--u)); padding: calc(var(--R) * var(--u)); border-radius: calc(12 * var(--u)); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+  .tj b, .txt b { display: block; height: calc(14 * var(--u)); border-radius: 2px; background: color-mix(in oklab, var(--fg) 22%, transparent); }
+  .tj b.c, .txt b.c { width: 60%; }
+  .gap-m { position: relative; flex: 0 0 calc(var(--G) * var(--u)); }
+  .entre { position: relative; display: block; height: calc(var(--S) * var(--u)); }
+  .sec.dos { display: flex; gap: calc(64 * var(--u)); }
+  .txt { flex: 1; display: grid; align-content: start; gap: calc(14 * var(--u)); }
+  .txt b.tit { margin-bottom: calc(10 * var(--u)); width: 80%; height: calc(36 * var(--u)); }
+  .img { flex: 1; height: calc(250 * var(--u)); border-radius: calc(12 * var(--u)); background: color-mix(in oklab, var(--fg) 12%, transparent); }
+  .m-cont { position: absolute; top: 0; bottom: 0; width: calc((100% - var(--C) * var(--u)) / 2); }
+  .m-cont.izq { left: 0; } .m-cont.der { right: 0; }
+  .m-relleno { position: absolute; inset: 0; border-radius: inherit; }
+  .m::before { content: ''; position: absolute; inset: 0; background: color-mix(in oklab, var(--color-coral) 42%, transparent); transform: scale(0); transition: transform 0.8s var(--ease-out-expo); }
+  .m-relleno::before { background: none; border: calc(var(--R) * var(--u)) solid color-mix(in oklab, var(--color-coral) 42%, transparent); border-radius: inherit; transform: scale(1.12); opacity: 0; transition: transform 0.8s var(--ease-out-expo), opacity 0.4s ease; }
+  .gap-m::before { transform: scaleY(0); }
+  .entre::before { transform: scaleY(0); }
+  .m-cont::before { transform: scaleX(0); transform-origin: left; }
+  .m-cont.der::before { transform-origin: right; }
+  .m span { position: absolute; z-index: 2; white-space: nowrap; padding: 2px 8px; border-radius: 999px; font-size: 0.6875rem; font-variant-numeric: tabular-nums; font-family: var(--font-mono, ui-monospace, monospace); background: var(--color-coral); color: #1d1210; opacity: 0; translate: 0 4px; transition: opacity 0.4s ease, translate 0.6s var(--ease-out-expo); }
+  .entre span { left: 50%; top: 50%; translate: -50% -40%; }
+  .gap-m span { left: 50%; top: 100%; translate: -50% 8px; }
+  .m-relleno span { left: 8px; top: 8px; }
+  .m-cont span { left: 6px; bottom: 10px; }
+  .espaciado:is([data-on='seccion']) .m-seccion::before, .espaciado[data-on='hueco'] .m-hueco::before, .espaciado[data-on='cont'] .m-cont::before { transform: none; }
+  .espaciado[data-on='relleno'] .m-relleno::before { transform: none; opacity: 1; }
+  .espaciado[data-on='seccion'] .m-seccion span, .espaciado[data-on='hueco'] .m-hueco span, .espaciado[data-on='relleno'] .m-relleno span, .espaciado[data-on='cont'] .m-cont span { opacity: 1; translate: 0 0; }
+  .espaciado[data-on='seccion'] .entre span { translate: -50% -50%; }
+  .espaciado[data-on='hueco'] .gap-m span { translate: -50% 6px; }
+  .claves [data-k] dd, .pasos li[data-k] .caja span { transition: color 0.5s ease, background-color 0.5s ease; }
+  .espaciado[data-on='seccion'] .claves [data-k='seccion'] dd, .espaciado[data-on='cont'] .claves [data-k='cont'] dd { color: var(--color-coral); }
+  .espaciado[data-on='relleno'] .pasos li[data-k='relleno'] .caja span, .espaciado[data-on='hueco'] .pasos li[data-k='hueco'] .caja span { background: var(--color-coral); }
+  .pasos li[data-k] { cursor: default; }
+  @media (prefers-reduced-motion: reduce) { .tono, .carta img, .sigue-n > span, .sigue-n :global(.btn-flecha), .sigue-n:is(:hover, :focus-visible) :global(.btn-flecha *) { transition: none; animation: none !important; } }
 </style>

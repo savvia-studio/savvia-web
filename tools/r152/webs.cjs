@@ -2,6 +2,9 @@
 module.exports = {
   kuanta: { url: 'https://multiverse-home.vercel.app/', marca: 'kuanta' },
   arkdev: { url: 'https://zernio.treseiscero.app/', marca: 'arkdev' },
+  // octubre 2026: rehechas como conceptos propios, sin nada del cliente (sin marca blanca: ya no hace falta)
+  quantus: { url: 'https://quantus-demo.vercel.app/' },
+  patchbay: { url: 'https://patchbay-web.vercel.app/' },
   playground: { url: 'https://playground-iep-two.vercel.app/home-new' },
   neety: { url: 'https://neety.treseiscero.app/home' },
   invopop: { url: 'https://invopop.com' },
