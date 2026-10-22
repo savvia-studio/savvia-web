@@ -134,6 +134,8 @@ const [A, E] = estudio.personas;
   const raiz = document.querySelector<HTMLElement>('[data-equipo]');
   if (raiz) {
     const paseo = raiz.querySelector<HTMLElement>('[data-paseo]')!, [a, e] = [...raiz.querySelectorAll<HTMLElement>('[data-andador]')];
+    const pideTiras = new IntersectionObserver((en) => { if (!en[0].isIntersecting) return; a.style.backgroundImage = e.style.backgroundImage = 'var(--src)'; pideTiras.disconnect(); }, { rootMargin: '800px 0px' });
+    pideTiras.observe(raiz);
     const juntos = raiz.querySelector<HTMLElement>('[data-juntos]')!, quienes = [...raiz.querySelectorAll<HTMLButtonElement>('[data-quien]')];
     const zonas = [...raiz.querySelectorAll<HTMLElement>('[data-zona]')], listas = [...raiz.querySelectorAll<HTMLElement>('[data-aficiones]')];
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -659,7 +661,7 @@ const [A, E] = estudio.personas;
     top: calc(var(--ch) * var(--top));
     width: calc(var(--ch) * var(--w));
     height: calc(var(--ch) * var(--h));
-    background-image: var(--src);
+    /* background-image: var(--src) lo pone el script al acercarse la sección (las dos tiras pesan ≈450 KB) */
     background-size: 1200% 100%;
     background-repeat: no-repeat;
     /* Regla dura 3: los coloca el JS → por defecto, fuera de la vista */

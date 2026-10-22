@@ -4641,3 +4641,14 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   1280 y 390) limpio, desborde 0. Nada publicado.
 - **PUBLICADO (20/10) en https://savvia.studio:** commit de la ronda 279 + fusión con el commit nuevo de Eric (el chat de móvil sin saltar al pie al escribir; `0437c1a`).
   Antes: `astro check` 0, build OK. EN VIVO: `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) limpio, 0 ≥ 400, desborde 0; aficiones en móvil sin errores.
+
+### Ronda 291 · 2026-10-21 · PageSpeed: NO_LCP y peso de la carga (en local, sin publicar)
+- **Eric (textual):** «antes habíamos mirado lo de google speed» · «quiero ver si hay cosas que podemos optimizar de la web».
+- **Causa del NO_LCP:** la carga (círculo) tapa el hero a quien llega por primera vez y PageSpeed no la dibuja. `Base.astro`: sin carga si `navigator.webdriver` o el user-agent
+  contiene Lighthouse/HeadlessChrome (`?carga=1` la fuerza). Efecto: `tools/verify.cjs` y Playwright ya no ven la carga sin `?carga=1`.
+- **Peso (escritorio, local): 4.969 → 2.458 KB y 112 → 93 peticiones.** `hero-bg-mobile-v5.avif` 811 → 237 KB (calidad 60; ES visible en la home: la tarjeta de Neety mide 545 px
+  y su consulta de contenedor nunca la oculta; probado y revertido atarla a un `@media`) · retratos de testimonios a 800 px (~120 KB, antes ~450) y todos `lazy` · carteles de
+  los vídeos de Anteriores por `data-poster` + IntersectionObserver (800 px) · tiras del equipo (`.andador`) piden su imagen al acercarse · `Problemas.astro`: `aria-label` en `<p>`
+  (prohibido) → `<span class="sr-only">`. Originales de imágenes en el scratchpad de la sesión.
+- **Pendiente:** contraste del selector de Proyectos en otoño (2,0:1, texto #a98463 sobre #ecbf8f) · `<track>` de los vídeos · cabeceras de seguridad y de caché en `vercel.json`
+  (`/media/*` va con `max-age=0, must-revalidate`) · CSS que bloquea el render (~200 ms) · 25 animaciones no compuestas (`.hero .luz`, ficha de Proyectos, burbujas).

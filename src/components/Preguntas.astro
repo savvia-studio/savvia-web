@@ -110,9 +110,7 @@ import personasEn from '../data/personas.en.json';
       if (d > 4) scrollBy({ top: d, behavior: reducido ? 'auto' : 'smooth' });
     };
     const bajar = () => {
-      const behavior = reducido ? 'auto' : 'smooth';
-      if (matchMedia('(width < 64rem)').matches) { verEnMovil(charla.querySelector('[data-escribiendo]:not([hidden])') ?? charla.lastElementChild); return; }
-      charla.scrollTo({ top: charla.scrollHeight, behavior });
+      verEnMovil(charla.querySelector('[data-escribiendo]:not([hidden])') ?? charla.lastElementChild);
     };
     // una pregunta → su burbuja; «está escribiendo…» con la cara de quien contesta; y la respuesta
     // `pendiente`: si la respuesta aún se está buscando (pregunta libre), la pregunta ya está en pantalla y «está escribiendo…» espera a que llegue
@@ -308,9 +306,6 @@ import personasEn from '../data/personas.en.json';
     display: flex;
     flex-direction: column;
     gap: calc(var(--spacing) * 6);
-    max-height: min(34rem, 64lvh);
-    overflow-y: auto;
-    overscroll-behavior: contain;
     scrollbar-width: none;
     padding: calc(var(--spacing) * 2) calc(var(--spacing) * 1) calc(var(--spacing) * 2) 0;
   }
@@ -327,9 +322,7 @@ import personasEn from '../data/personas.en.json';
     display: none;
   }
   /* RONDA 268 · Eric (móvil): «scroll sobre scroll: priorizar el scroll de la página». Sin caja con scroll propio: la conversación crece con la página */
-  @media (width < 64rem) {
-    .charla { max-height: none; overflow: visible; overscroll-behavior: auto; -webkit-mask-image: none; mask-image: none; }
-  }
+  .charla { -webkit-mask-image: none; mask-image: none; }
   .intercambio {
     display: flex;
     flex-direction: column;

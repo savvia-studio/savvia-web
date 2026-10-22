@@ -177,7 +177,7 @@ import { icono } from '../lib/iconos';
           const cx = quad ? quad.cx : PANT.x + PANT.w / 2, py = quad ? quad.cy : PANT.y + PANT.h / 2, left = 50 - cx * Z * 100;
           const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
-          const video = `<video class="vid" muted loop playsinline preload="none" poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
+          const video = `<video class="vid" muted loop playsinline preload="none" data-poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
           return (
             <>
             {i === 5 && (
@@ -185,7 +185,7 @@ import { icono } from '../lib/iconos';
                 <!-- RONDA 67 · «a los retratos, el estilo dithering, que se mimeticen más con el fondo; el cambio, animado con el estilo de savvia»: cada retrato
                      se pinta como TRAMA DE PUNTOS en el color del texto (lienzo 2D; la imagen es solo la fuente) y el relevo es el pintado rasgado de savvia -->
                 <div class="retratos" aria-hidden="true" data-retratos>
-                  {T.map((t, k) => <img class="fuente-r" src={t.retrato} alt="" width="1254" height="1254" loading={k === 0 ? 'eager' : 'lazy'} decoding="async" data-retrato />)}
+                  {T.map((t, k) => <img class="fuente-r" src={t.retrato} alt="" width="800" height="800" loading="lazy" decoding="async" data-retrato />)}
                   <canvas class="retrato-cv" data-rc></canvas>
                   <canvas class="retrato-cv" data-rc></canvas>
                 </div>
@@ -268,7 +268,7 @@ import { icono } from '../lib/iconos';
             return (
               <article class={`vis-slide ${movil ? 'movil' : ''} ${s.fondo ? 'con-fondo' : 'g-marca'}`} data-vis-slide data-n={c.n} data-sector={c.sector ?? ''} aria-hidden="true" style={`--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]};--vf:${claro(c.color[0]) ? '#f6f7fb' : '#000'};${s.fondo ? `--fondo:url('${s.fondo}')` : ''}`}>
                 <div class="vis-marco">
-                  <video class="vis-vid" muted loop playsinline preload="none" poster={`${base}.jpg`} width={w} height={h} data-src={`${base}.mp4`} aria-label={en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}></video>
+                  <video class="vis-vid" muted loop playsinline preload="none" data-poster={`${base}.jpg`} width={w} height={h} data-src={`${base}.mp4`} aria-label={en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}></video>
                 </div>
               </article>
             );
@@ -304,6 +304,9 @@ import { icono } from '../lib/iconos';
     // las cuatro fotos de la mesa, pedidas al acercarse la pieza (si no, la nueva llega vacía bajo la copia que se rasga)
     const cerca = new IntersectionObserver((en) => en.forEach((e) => { if (!e.isIntersecting) return; e.target.querySelectorAll<HTMLImageElement>('.foto-e').forEach((i) => { i.loading = 'eager'; }); cerca.unobserve(e.target); }), { rootMargin: '400px 0px' });
     document.querySelectorAll('.mesa').forEach((m) => cerca.observe(m));
+    // el cartel de cada vídeo (≈15 JPG de 40–120 KB) se pide al acercarse, no al cargar la página: un <video poster> no admite loading=lazy
+    const carteles = new IntersectionObserver((en) => en.forEach((e) => { if (!e.isIntersecting) return; const v = e.target as HTMLVideoElement; if (v.dataset.poster) v.poster = v.dataset.poster; carteles.unobserve(v); }), { rootMargin: '800px 0px' });
+    document.querySelectorAll<HTMLVideoElement>('video[data-poster]').forEach((v) => carteles.observe(v));
     addEventListener('savvia:estacion', () => {
       const viejo = prev; prev = EST[estacionActual()];
       if (viejo === prev) return;

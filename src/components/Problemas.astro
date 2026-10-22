@@ -18,7 +18,8 @@ const partir = (p: string): Trozo[] =>
   <div class="wrap">
     <div class="texto text-h2">
       {problemas.parrafos.map((p) => (
-        <p aria-label={p.replace(/\[\[|\]\]/g, '')}>
+        <p>
+          <span class="sr-only">{p.replace(/\[\[|\]\]/g, '')}</span>
           {partir(p).map((w) => <><span class="w" aria-hidden="true">{[...w.t].map((c) => <span class="c">{c}</span>)}</span>{' '}</>)}
         </p>
       ))}

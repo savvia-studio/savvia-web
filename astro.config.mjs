@@ -191,6 +191,6 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     // ronda 205 · `astro dev` no ejecuta api/: en local la pregunta libre llama a la función de producción (con su clave)
-    server: { proxy: { '/api': { target: 'https://savvia.studio', changeOrigin: true, headers: { Origin: 'https://savvia.studio' } } } },
+    server: { allowedHosts: ['.ts.net'], proxy: { '/api': { target: 'https://savvia.studio', changeOrigin: true, headers: { Origin: 'https://savvia.studio' } } } },
   },
 });
