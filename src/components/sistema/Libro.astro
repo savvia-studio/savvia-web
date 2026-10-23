@@ -265,7 +265,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
             ))}
           </div>
           <div class="fila f2">
-            <figure class="placa clara sm fav-par"><img class="fav-png" src="/favicon-otono.png?v=205" alt="Favicon de otoño" width="64" height="64" /><figcaption class="detail">Favicon · el de la estación</figcaption></figure>
+            <figure class="placa clara sm fav-par"><img class="fav-png" src="/favicon-otono.png?v=225" data-est-src="/favicon-{est}.png?v=225" alt="Favicon de la estación" width="64" height="64" /><figcaption class="detail">Favicon · el de la estación</figcaption></figure>
             <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label="savvia en pequeño"><span class="logo-masc"></span></span><figcaption class="detail">Tamaño mínimo · 24 px de alto</figcaption></figure>
           </div>
           <ul class="reglas">
@@ -280,7 +280,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           <p class="cuerpo">Sin isotipo. Es el fondo principal de la web en la estación que toca, con su roble en pequeño: el mismo árbol del hero, con el pie abajo. Cambia con la estación: si la cambias en la web, la pestaña se funde al icono nuevo en poco más de un segundo.</p>
           <div class="fila f4 fav-est">
             {['otono', 'invierno', 'primavera', 'verano'].map((e) => (
-              <figure class="placa clara sm"><img class="fav-png" src={`/favicon-${e}.png?v=205`} alt={`Favicon de ${e === 'otono' ? 'otoño' : e}`} width="64" height="64" loading="lazy" /><figcaption class="detail">{e === 'otono' ? 'Otoño' : e[0].toUpperCase() + e.slice(1)}</figcaption></figure>
+              <figure class="placa clara sm"><img class="fav-png" src={`/favicon-${e}.png?v=225`} alt={`Favicon de ${e === 'otono' ? 'otoño' : e}`} width="64" height="64" loading="lazy" /><figcaption class="detail">{e === 'otono' ? 'Otoño' : e[0].toUpperCase() + e.slice(1)}</figcaption></figure>
             ))}
           </div>
           <ul class="reglas">
@@ -482,11 +482,11 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                efecto, GRABADO de la web real (tools/r266-motion/grabar.cjs). Se reproducen al verse; con movimiento reducido, quietos en su primer fotograma.
                Se queda la curva: es la especificación. */}
           <div class="fila f3 materia">
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/roble.mp4" muted loop playsinline preload="metadata" aria-label="El roble" data-mv></video><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado, desde la base</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/estacion.mp4" muted loop playsinline preload="metadata" aria-label="La estación" data-mv></video><figcaption class="detail">La estación · la nueva se pinta encima desde el tronco</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/secciones.mp4" muted loop playsinline preload="metadata" aria-label="Entre secciones" data-mv></video><figcaption class="detail">Entre secciones · la que llega asoma como una gota que se ensancha</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/cta.mp4" muted loop playsinline preload="metadata" aria-label="La savia" data-mv></video><figcaption class="detail">La savia · llena el botón desde donde entra el cursor</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/tiempo.mp4" muted loop playsinline preload="metadata" aria-label="El tiempo" data-mv></video><figcaption class="detail">El tiempo · cae lo de cada estación y se posa en el prado</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/roble-otono.mp4" data-est-src="/media/brandbook/movimiento/roble-{est}.mp4" muted loop playsinline preload="metadata" aria-label="El roble" data-mv></video><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado, desde la base</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/estacion-otono.mp4" data-est-src="/media/brandbook/movimiento/estacion-{est}.mp4" muted loop playsinline preload="metadata" aria-label="La estación" data-mv></video><figcaption class="detail">La estación · la nueva se pinta encima desde el tronco</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/secciones-otono.mp4" data-est-src="/media/brandbook/movimiento/secciones-{est}.mp4" muted loop playsinline preload="metadata" aria-label="Entre secciones" data-mv></video><figcaption class="detail">Entre secciones · la que llega asoma como una gota que se ensancha</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/cta-otono.mp4" data-est-src="/media/brandbook/movimiento/cta-{est}.mp4" muted loop playsinline preload="metadata" aria-label="La savia" data-mv></video><figcaption class="detail">La savia · llena el botón desde donde entra el cursor</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/tiempo-otono.mp4" data-est-src="/media/brandbook/movimiento/tiempo-{est}.mp4" muted loop playsinline preload="metadata" aria-label="El tiempo" data-mv></video><figcaption class="detail">El tiempo · cae lo de cada estación y se posa en el prado</figcaption></figure>
             <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">La caída · ease-out expo (0,16 1 0,3 1), sin rebote</figcaption></figure>
           </div>
           <ul class="reglas">
@@ -504,8 +504,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 {/* RONDA 266 · Andoni: «fuera las tarjetas de visita, pon otra»: el PERFIL en redes, con el fondo y el avatar del kit de descargas */}
             <figure class="apl-p apl-perfil">
               <div class="perfil" aria-hidden="true">
-                <img class="pf-fondo" src="/descargas/savvia-fondo-linkedin-otono.jpg" alt="" width="1584" height="396" loading="lazy" decoding="async" />
-                <img class="pf-avatar" src="/descargas/savvia-avatar-otono-400.png" alt="" width="400" height="400" loading="lazy" decoding="async" />
+                <img class="pf-fondo" src="/descargas/savvia-fondo-linkedin-otono.jpg" data-est-src="/descargas/savvia-fondo-linkedin-{est}.jpg" alt="" width="1584" height="396" loading="lazy" decoding="async" />
+                <img class="pf-avatar" src="/descargas/savvia-avatar-otono-400.png" data-est-src="/descargas/savvia-avatar-{est}-400.png" alt="" width="400" height="400" loading="lazy" decoding="async" />
                 <div class="pf-cuerpo">
                   <p class="pf-n">savvia</p>
                   <p class="pf-bio">El estudio web que orquesta la IA. Desarrollo agéntico, a medida.</p>
@@ -531,8 +531,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               <div class="ventana" aria-hidden="true">
                 <div class="v-barra">
                   <span class="v-sem"><i /><i /><i /></span>
-                  <span class="v-tab on"><img class="v-fav" src="/favicon-otono.png?v=205" alt="" width="16" height="16" /><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
-                  <span class="v-tab"><img class="v-fav" src="/favicon-otono.png?v=205" alt="" width="16" height="16" /><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab on"><img class="v-fav" src="/favicon-otono.png?v=225" data-est-src="/favicon-{est}.png?v=225" alt="" width="16" height="16" /><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab"><img class="v-fav" src="/favicon-otono.png?v=225" data-est-src="/favicon-{est}.png?v=225" alt="" width="16" height="16" /><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
                   <span class="v-mas"><Fragment set:html={icono('plus')} /></span>
                 </div>
                 <div class="v-dir"><span>savvia.studio</span></div>
@@ -683,7 +683,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
             <div class="fila f2 monitor-demo">
               <figure class="placa oscura md-montado">
                 <div class="md-escena">
-                  <img src="/media/estudio/otono-m.webp" alt="La mesa del estudio en otoño" width="1600" height="900" loading="lazy" />
+                  <img src="/media/estudio/otono-m.webp" data-est-src="/media/estudio/{est}-m.webp" alt="La mesa del estudio en la estación" width="1600" height="900" loading="lazy" />
                   <i class="md-halo" aria-hidden="true"></i>
                   <div class="md-pantalla"><img src="/media/proyectos/quantus.webp" alt="La web de Quantus dentro del monitor" loading="lazy" /></div>
                   <i class="md-caja" aria-hidden="true"><span class="detail">39,03 · 36,96 · 21,78 × 21,04 %</span></i>
@@ -692,7 +692,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               </figure>
               <figure class="placa oscura md-despiece" aria-label="Las capas del monitor, separadas">
                 <div class="md-pila" aria-hidden="true">
-                  <span class="md-capa c1"><img src="/media/estudio/otono-m.webp" alt="" loading="lazy" /><b class="detail">1 · lámina</b></span>
+                  <span class="md-capa c1"><img src="/media/estudio/otono-m.webp" data-est-src="/media/estudio/{est}-m.webp" alt="" loading="lazy" /><b class="detail">1 · lámina</b></span>
                   <span class="md-capa c2"><i></i><b class="detail">2 · luz</b></span>
                   <span class="md-capa c3"><i></i><b class="detail">3 · pantalla</b></span>
                   <span class="md-capa c4"><img src="/media/proyectos/quantus.webp" alt="" loading="lazy" /><b class="detail">4 · web</b></span>
@@ -755,6 +755,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   import { jugar } from '../../scripts/jugar';
   import { fijarEstacion, estacionActual, EST, NOCHE } from '../../scripts/estacion';
   import { crearEstela } from '../../scripts/estela';
+  // 24/10 · las imágenes que eran de otoño siguen a la estación de la página (data-est-src lleva {est}); al cargar y en cada cambio
+  const ponerImgEst = () => { const e = EST[estacionActual()] ?? 'otono'; document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('[data-est-src]').forEach((i) => { const v = i.dataset.estSrc!.replaceAll('{est}', e); if (i.getAttribute('src') === v) return; const enMarcha = i instanceof HTMLVideoElement && !i.paused; i.src = v; if (enMarcha) (i as HTMLVideoElement).play().catch(() => {}); }); };
+  ponerImgEst(); addEventListener('savvia:estacion', ponerImgEst);
   // Firma de correo · el selector de opciones: cambia las dos firmas, lo que copian y la del correo de ejemplo (se recuerda en este navegador)
   const opc = document.querySelector<HTMLElement>('.dl-opc');
   if (opc) {
@@ -1001,8 +1004,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   @media (width < 48rem) { .fila.f2, .fila.f3 { grid-template-columns: 1fr; } }
   .placa { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; margin: 0; border-radius: var(--radius-lg); overflow: hidden; }
   .placa.sm { aspect-ratio: 1; }
-  .placa.oscura { background: #3B231B; color: #F5F5F7; }
-  .placa.clara { background: #F5F5F7; color: #3B231B; box-shadow: inset 0 0 0 1px var(--rule); }
+  .placa.oscura { background: var(--color-cacao); color: #F5F5F7; }
+  .placa.clara { background: #F5F5F7; color: var(--color-cacao); box-shadow: inset 0 0 0 1px var(--rule); }
   .placa > figcaption, .pie-p { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.65; }
   .fav { width: 30%; height: auto; border-radius: 22%; }
   .reglas { display: grid; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 6); font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); }
@@ -1298,7 +1301,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   @keyframes bb-est { 0% { opacity: 0; scale: 0.6; } 6%, 25% { opacity: 1; scale: 1; } 31%, 100% { opacity: 0; scale: 1.1; } }
 
   /* RONDA 155 · movimiento solo de naturaleza: raíces que crecen, la hoja que cae y se posa, brotar */
-  .raices-d svg { width: 44%; translate: 0 -10%; fill: none; stroke: #3B231B; stroke-width: 1.1; stroke-linecap: round; overflow: visible; }
+  .raices-d svg { width: 44%; translate: 0 -10%; fill: none; stroke: var(--color-cacao); stroke-width: 1.1; stroke-linecap: round; overflow: visible; }
   .raices-d circle { fill: var(--color-coral); stroke: none; }
   .raices-d path { stroke-dasharray: 100; stroke-dashoffset: 100; animation: bb-raiz 4.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
   .raices-d path:nth-of-type(n + 2) { stroke-width: 0.7; animation-delay: 0.5s; }
@@ -1309,7 +1312,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .hoja-d::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 26%; height: 1px; background: var(--rule); }
   @keyframes bb-hoja { 0% { translate: 0 -10%; rotate: -20deg; opacity: 0; } 8% { opacity: 1; } 30% { translate: 34px 22%; rotate: 25deg; } 52% { translate: -18px 40%; rotate: -15deg; } 70%, 92% { translate: 8px 57%; rotate: 78deg; opacity: 1; } 100% { translate: 8px 57%; rotate: 78deg; opacity: 0; } }
   .br { width: 34%; overflow: visible; }
-  .br .tallo, .br .suelo { fill: none; stroke: #3B231B; stroke-width: 1.4; stroke-linecap: round; }
+  .br .tallo, .br .suelo { fill: none; stroke: var(--color-cacao); stroke-width: 1.4; stroke-linecap: round; }
   .br .suelo { stroke: var(--rule); stroke-width: 1; }
   .br .tallo { stroke-dasharray: 30; stroke-dashoffset: 30; animation: bb-tallo 4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
   .br .h1, .br .h2 { fill: #8DB84A; transform-box: fill-box; scale: 0; animation: bb-brota 4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
@@ -1327,7 +1330,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .ic-e figcaption .detail { opacity: 0.6; }
   .ic-e.clara { box-shadow: inset 0 0 0 1px var(--rule); }
   .ic-par { display: grid; grid-template-columns: 5fr 7fr; gap: 6px; margin-top: 6px; }
-  .ic-cons { position: relative; margin: 0; min-height: 18rem; border-radius: 4px; background: #3B231B; color: #F5F5F7; display: grid; place-items: center; overflow: hidden; }
+  .ic-cons { position: relative; margin: 0; min-height: 18rem; border-radius: 4px; background: var(--color-cacao); color: #F5F5F7; display: grid; place-items: center; overflow: hidden; }
   .ic-rej, .ic-cons :global(.ic-gr) { grid-area: 1 / 1; height: 68%; width: auto; aspect-ratio: 1; }
   .ic-cons { padding-bottom: calc(var(--spacing) * 6); }
   .ic-rej line { stroke: rgb(245 245 247 / 0.09); stroke-width: 0.04; }
@@ -1337,9 +1340,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .ic-cons :global(.ic-gr) { fill: none; } .ic-cons :global(.ic-gr path) { stroke-width: 1.5; }
   .ic-cota { position: absolute; left: calc(var(--spacing) * 4); right: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); display: flex; justify-content: space-between; gap: 8px; opacity: 0.6; }
   .ic-ui { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-  .ic-c { position: relative; display: grid; place-items: center; align-content: center; gap: calc(var(--spacing) * 2); border-radius: 4px; background: #F5F5F7; box-shadow: inset 0 0 0 1px var(--rule); color: #3B231B; padding: calc(var(--spacing) * 4) 0; transition: background 0.5s ease; }
+  .ic-c { position: relative; display: grid; place-items: center; align-content: center; gap: calc(var(--spacing) * 2); border-radius: 4px; background: #F5F5F7; box-shadow: inset 0 0 0 1px var(--rule); color: var(--color-cacao); padding: calc(var(--spacing) * 4) 0; transition: background 0.5s ease; }
   .ic-c :global(svg) { width: 1.9rem; height: 1.9rem; }
-  .ic-c .detail { color: color-mix(in oklab, #3B231B 70%, transparent); }
+  .ic-c .detail { color: color-mix(in oklab, var(--color-cacao) 70%, transparent); }
   .ic-c .ic-p { position: absolute; top: calc(var(--spacing) * 2); right: calc(var(--spacing) * 2.5); font-size: 0.6875rem; opacity: 0.6; }
   .ic-c:hover { background: color-mix(in oklab, var(--color-coral) 14%, #F5F5F7); }
   .cat-g ul { gap: 0 !important; border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)) !important; }
@@ -1356,24 +1359,24 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .apl { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 10); }
   .apl-p { position: relative; margin: 0; border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
   .apl-pie { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.6; }
-  .apl-tarjetas { grid-column: span 7; aspect-ratio: 7 / 5; background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: #3B231B; }
+  .apl-tarjetas { grid-column: span 7; aspect-ratio: 7 / 5; background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: var(--color-cacao); }
   .apl-tarjetas .tarjeta-v { grid-area: 1 / 1; width: 44%; box-shadow: 0 1px 1px rgb(48 32 24 / 0.15), 0 14px 24px -12px rgb(48 32 24 / 0.45), 0 40px 60px -30px rgb(48 32 24 / 0.35); }
   /* ronda 266 · «algunas se ven raras»: las dos caras se separan (el reverso se lee: su texto arriba a la izquierda, donde no lo tapa el anverso) */
-  .apl-tarjetas .tarjeta-v.dorso { rotate: -6deg; translate: -54% -6%; background: #F5F5F7; color: #3B231B; place-items: start; align-content: start; }
-  .apl-tarjetas .cara { rotate: 4deg; translate: 54% 8%; background: #3B231B; color: #F5F5F7; display: grid; place-items: center; gap: 0.343em; font-size: clamp(1rem, 2.6vw, 1.9rem); }
+  .apl-tarjetas .tarjeta-v.dorso { rotate: -6deg; translate: -54% -6%; background: #F5F5F7; color: var(--color-cacao); place-items: start; align-content: start; }
+  .apl-tarjetas .cara { rotate: 4deg; translate: 54% 8%; background: var(--color-cacao); color: #F5F5F7; display: grid; place-items: center; gap: 0.343em; font-size: clamp(1rem, 2.6vw, 1.9rem); }
   .apl-tarjetas .tv-lock { font-size: clamp(1.3rem, 3.2vw, 2.5rem); translate: 0 -0.08em; }
   .tv-sombra { display: none; }
-  .apl-chat { grid-column: span 5; aspect-ratio: 5 / 5; background: #3B231B; color: #F5F5F7; }
+  .apl-chat { grid-column: span 5; aspect-ratio: 5 / 5; background: var(--color-cacao); color: #F5F5F7; }
   .chat { display: grid; gap: 8px; width: 78%; font-size: 0.9375rem; line-height: 1.35; margin-bottom: calc(var(--spacing) * 10); }
   .burbuja { margin: 0; max-width: 86%; padding: 10px 14px; border-radius: 18px; }
-  .burbuja.yo { justify-self: end; background: #F5F5F7; color: #3B231B; border-bottom-right-radius: 4px; }
+  .burbuja.yo { justify-self: end; background: #F5F5F7; color: var(--color-cacao); border-bottom-right-radius: 4px; }
   .burbuja.otro { justify-self: start; background: #5a3a2e; color: #F5F5F7; border-bottom-left-radius: 4px; }
-  .burbuja.enlace { padding: 0; overflow: hidden; display: grid; max-width: 90%; background: #F5F5F7; color: #3B231B; box-shadow: 0 0 0 1px rgb(245 245 247 / 0.5); }
+  .burbuja.enlace { padding: 0; overflow: hidden; display: grid; max-width: 90%; background: #F5F5F7; color: var(--color-cacao); box-shadow: 0 0 0 1px rgb(245 245 247 / 0.5); }
   .burbuja.enlace img { border-bottom: 1px solid rgb(48 32 24 / 0.12); }
   .burbuja.enlace img { display: block; width: 100%; height: auto; }
   .en-t { padding: 10px 14px 0; font-weight: 500; font-size: 0.875rem; }
   .en-d { padding: 2px 14px 12px; font-size: 0.75rem; opacity: 0.6; }
-  .apl-nav { grid-column: 1 / -1; aspect-ratio: 21 / 9; background: var(--color-salvia, #ecbf8f); color: #3B231B; }
+  .apl-nav { grid-column: 1 / -1; aspect-ratio: 21 / 9; background: var(--color-salvia, #ecbf8f); color: var(--color-cacao); }
   .apl-nav { place-items: end center; }
   .ventana { width: 64%; border-radius: 12px 12px 0 0; overflow: hidden; background: #F5F5F7; box-shadow: 0 30px 60px -30px rgb(48 32 24 / 0.55), 0 0 0 1px rgb(48 32 24 / 0.08); max-height: 84%; }
   .apl-nav .apl-pie { top: calc(var(--spacing) * 3); bottom: auto; }
@@ -1381,9 +1384,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .v-sem { display: flex; gap: 6px; align-self: center; margin: 0 14px 0 4px; } .v-sem i { width: 10px; height: 10px; border-radius: 50%; background: #c9c2c6; }
   .v-tab { position: relative; display: flex; align-items: center; gap: 8px; flex: 0 1 15rem; min-width: 0; height: 34px; padding: 0 10px 0 12px; border-radius: 10px 10px 0 0; font-size: 0.75rem; color: rgb(48 32 24 / 0.65); }
   .v-tab:not(.on)::before { content: ''; position: absolute; left: 0; top: 9px; bottom: 9px; width: 1px; background: rgb(48 32 24 / 0.18); }
-  .v-tab.on { background: #F5F5F7; color: #3B231B; }
+  .v-tab.on { background: #F5F5F7; color: var(--color-cacao); }
   .v-tab.on + .v-tab::before { display: none; }
-  .v-fav { flex: none; width: 16px; height: 16px; color: #3B231B; }
+  .v-fav { flex: none; width: 16px; height: 16px; color: var(--color-cacao); }
   .v-tit { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .v-tab :global(.v-x) { flex: none; width: 14px; height: 14px; padding: 2px; border-radius: 50%; color: rgb(48 32 24 / 0.6); }
   .v-mas { display: grid; place-items: center; width: 28px; height: 28px; margin: 0 0 3px 4px; color: rgb(48 32 24 / 0.6); }
@@ -1451,21 +1454,21 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .sub-bb { margin-top: calc(var(--spacing) * 16); }
   .iso-cons svg { width: 100%; height: 100%; max-width: none; margin: 0; }
   .iso-cons { padding-bottom: calc(var(--spacing) * 14) !important; }
-  .rejilla-iso line { stroke: color-mix(in oklab, #3B231B 10%, transparent); stroke-width: 0.12; }
-  .iso-relleno { fill: color-mix(in oklab, #3B231B 12%, transparent); }
-  .iso-contorno { fill: none; stroke: #3B231B; stroke-width: 0.22; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+  .rejilla-iso line { stroke: color-mix(in oklab, var(--color-cacao) 10%, transparent); stroke-width: 0.12; }
+  .iso-relleno { fill: color-mix(in oklab, var(--color-cacao) 12%, transparent); }
+  .iso-contorno { fill: none; stroke: var(--color-cacao); stroke-width: 0.22; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
   .construccion.visto .iso-contorno { stroke-dashoffset: 0; transition: stroke-dashoffset 2.6s cubic-bezier(0.16, 1, 0.3, 1); }
   .g-circ, .g-eje { fill: none; stroke: var(--color-coral); stroke-width: 0.18; stroke-dasharray: 0.8 0.8; }
   .g-eje { stroke-dasharray: none; opacity: 0.55; }
-  .g-remate { fill: none; stroke: #3B231B; stroke-width: 0.25; }
-  .g-cota { stroke: #3B231B; stroke-width: 0.25; }
+  .g-remate { fill: none; stroke: var(--color-cacao); stroke-width: 0.25; }
+  .g-cota { stroke: var(--color-cacao); stroke-width: 0.25; }
   .g-apertura { fill: none; stroke: var(--color-coral); stroke-width: 0.6; stroke-linecap: round; }
   .g-punto { fill: var(--color-coral); }
-  .g-txt text { font-family: var(--font-mono); font-size: 2.6px; fill: color-mix(in oklab, #3B231B 70%, transparent); }
-  .g-lineas line { stroke: color-mix(in oklab, #3B231B 30%, transparent); stroke-width: 0.12; }
+  .g-txt text { font-family: var(--font-mono); font-size: 2.6px; fill: color-mix(in oklab, var(--color-cacao) 70%, transparent); }
+  .g-lineas line { stroke: color-mix(in oklab, var(--color-cacao) 30%, transparent); stroke-width: 0.12; }
   .significado { margin-top: calc(var(--spacing) * 12); display: grid; gap: calc(var(--spacing) * 5); max-width: 40rem; }
   .sig-lead { font-size: var(--text-h3); line-height: var(--text-h3--line-height); text-wrap: balance; }
-  .lockups-est .placa { box-shadow: inset 0 0 0 1px color-mix(in oklab, #3B231B 10%, transparent); }
+  .lockups-est .placa { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 10%, transparent); }
   .fav-par { grid-auto-flow: column; gap: calc(var(--spacing) * 4); place-content: center; }
   .fav-m { display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 0.9rem; }
   .fav-png { display: block; width: 4rem; height: 4rem; image-rendering: auto; }
@@ -1473,17 +1476,17 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   @media (width < 48rem) { .fila.f4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .fav-est .placa { aspect-ratio: 1; align-content: center; gap: calc(var(--spacing) * 3); }
   .fav-est .placa figcaption { position: static; }
-  .fav-png { border-radius: 22%; box-shadow: 0 0 0 1px color-mix(in oklab, #3B231B 12%, transparent); } /* el de invierno es nieve sobre claro: el filo lo despega */
+  .fav-png { border-radius: 22%; box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cacao) 12%, transparent); } /* el de invierno es nieve sobre claro: el filo lo despega */
   .mk-icono img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .fav-m.cla { background: #fff; color: #3B231B; box-shadow: 0 0 0 1px var(--rule); }
+  .fav-m.cla { background: #fff; color: var(--color-cacao); box-shadow: 0 0 0 1px var(--rule); }
   .fav-m.osc { background: #202124; color: #F5F5F7; }
   /* ronda 153 · la galería del isotipo (casabien · Taqta): piezas a sangre, pegadas, oscuras y claras */
   .iso-galeria { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 8); }
   .pz { position: relative; margin: 0; overflow: hidden; border-radius: 4px; min-height: 0; }
-  .pz-osc { background: #3B231B; color: #F5F5F7; }
-  .pz-cla { background: #ECECEE; color: #3B231B; }
+  .pz-osc { background: var(--color-cacao); color: #F5F5F7; }
+  .pz-cla { background: #ECECEE; color: var(--color-cacao); }
   .pz-pie { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.6; }
-  .pz-ancha { grid-column: span 4; aspect-ratio: 4 / 3; padding: clamp(1rem, 3vw, 2.5rem) !important; margin: 0 !important; background: #3B231B !important; box-shadow: none !important; }
+  .pz-ancha { grid-column: span 4; aspect-ratio: 4 / 3; padding: clamp(1rem, 3vw, 2.5rem) !important; margin: 0 !important; background: var(--color-cacao) !important; box-shadow: none !important; }
   .pz-sec { grid-column: 1 / -1; padding-bottom: calc(var(--spacing) * 10); }
   .sec-tira { display: grid; grid-template-columns: repeat(5, 1fr); }
   .sec-tira img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-right: 1px solid rgb(245 245 247 / 0.06); }
@@ -1491,11 +1494,11 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .pz-frase-2 { font-size: var(--text-h3); line-height: var(--text-h3--line-height); max-width: 38ch; margin-inline: auto; }
   .pz-trazo, .pz-remate { grid-column: span 3; aspect-ratio: 1; display: grid; place-items: center; }
   .pz-trazo svg, .pz-remate svg { width: 62%; height: auto; overflow: visible; }
-  .tz-iso { fill: #3B231B; }
+  .tz-iso { fill: var(--color-cacao); }
   .tz-flecha { fill: none; stroke: var(--color-coral); stroke-width: 0.5; stroke-linecap: round; marker-end: none; stroke-dasharray: 1 1.2; }
   .rm-iso { fill: #F5F5F7; }
   .rm-guia { fill: none; stroke: var(--color-coral); stroke-width: 0.12; stroke-dasharray: 0.5 0.5; }
-  .pz-foto { background: #3B231B; }
+  .pz-foto { background: var(--color-cacao); }
   .pz-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .pz-foto .pz-pie { color: #F5F5F7; opacity: 0.85; text-shadow: 0 1px 8px rgb(0 0 0 / 0.45); }
   /* las tres a la misma altura: cada una ocupa columnas en proporción a su formato (3:2 · 3:2 · 4:5) */
@@ -1509,27 +1512,27 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .pz-foto .pz-pie { z-index: 1; opacity: 1; }
   .pz-foto::before { content: ''; position: absolute; inset: 55% 0 0; z-index: 1; background: linear-gradient(transparent, rgb(20 12 8 / 0.7)); pointer-events: none; }
   .pz-foto .pz-pie { z-index: 2; }
-  .pz-texto { grid-column: span 2; display: grid; align-content: end; padding: calc(var(--spacing) * 6); background: #ECECEE; color: #3B231B; }
-  .pz-texto .cuerpo { color: #3B231B; font-size: var(--text-aux); line-height: 1.6; }
+  .pz-texto { grid-column: span 2; display: grid; align-content: end; padding: calc(var(--spacing) * 6); background: #ECECEE; color: var(--color-cacao); }
+  .pz-texto .cuerpo { color: var(--color-cacao); font-size: var(--text-aux); line-height: 1.6; }
   .pz-app { grid-column: span 3; aspect-ratio: 4 / 3; display: grid; place-content: center; gap: calc(var(--spacing) * 8); justify-items: center; }
-  .mk-pestana { display: flex; align-items: center; gap: 10px; width: min(22rem, 80%); padding: 10px 14px; border-radius: 10px 10px 0 0; background: #fff; box-shadow: 0 1px 0 rgb(0 0 0 / 0.08), 0 8px 24px -14px rgb(0 0 0 / 0.3); font-size: 13px; color: #3B231B; }
-  .mk-fav { width: 16px; height: 16px; flex: none; color: #3B231B; }
+  .mk-pestana { display: flex; align-items: center; gap: 10px; width: min(22rem, 80%); padding: 10px 14px; border-radius: 10px 10px 0 0; background: #fff; box-shadow: 0 1px 0 rgb(0 0 0 / 0.08), 0 8px 24px -14px rgb(0 0 0 / 0.3); font-size: 13px; color: var(--color-cacao); }
+  .mk-fav { width: 16px; height: 16px; flex: none; color: var(--color-cacao); }
   .mk-tit { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mk-x { opacity: 0.4; }
-  .mk-icono { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 20px; background: #F5F5F7; box-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.35); color: #3B231B; }
+  .mk-icono { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 20px; background: #F5F5F7; box-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.35); color: var(--color-cacao); }
   .mk-icono .iso-masc { width: 62%; }
   .pz-tarjeta { grid-column: span 3; aspect-ratio: 4 / 3; display: grid; place-items: center; background: #2A1A13; }
-  .mk-tarjeta { width: 62%; aspect-ratio: 85 / 55; padding: 7%; display: flex; flex-direction: column; justify-content: space-between; border-radius: 6px; background: #3B231B; color: #F5F5F7; box-shadow: 0 30px 50px -24px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(245 245 247 / 0.06); rotate: -4deg; }
+  .mk-tarjeta { width: 62%; aspect-ratio: 85 / 55; padding: 7%; display: flex; flex-direction: column; justify-content: space-between; border-radius: 6px; background: var(--color-cacao); color: #F5F5F7; box-shadow: 0 30px 50px -24px rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(245 245 247 / 0.06); rotate: -4deg; }
   .mk-tarjeta .lockup { font-size: clamp(1rem, 2.2vw, 1.6rem); }
   .mk-dato { opacity: 0.6; }
   .iso-morfo { fill: #F5F5F7; fill-opacity: 0; stroke: #F5F5F7; stroke-width: 0.35; stroke-linejoin: round; }
   :global(.g-man) { stroke: rgb(245 245 247 / 0.4); stroke-width: 0.1; }
   :global(.g-mpt) { fill: rgb(245 245 247 / 0.7); stroke: none; }
-  :global(.g-ancla) { fill: #3B231B; stroke: #F5F5F7; stroke-width: 0.16; }
+  :global(.g-ancla) { fill: var(--color-cacao); stroke: #F5F5F7; stroke-width: 0.16; }
   :global(.g-ancla.on) { fill: var(--color-coral); stroke: var(--color-coral); }
   :global(.g-man.on) { stroke: var(--color-coral); }
   :global(.g-mpt.on) { fill: var(--color-coral); }
-  .g-cursor { fill: #F5F5F7; stroke: #3B231B; stroke-width: 0.25; stroke-linejoin: round; pointer-events: none; }
+  .g-cursor { fill: #F5F5F7; stroke: var(--color-cacao); stroke-width: 0.25; stroke-linejoin: round; pointer-events: none; }
   .iso-cons .iso-diag .rejilla-iso line { stroke: rgb(245 245 247 / 0.08); }
   .iso-cons .iso-diag .iso-relleno { fill: rgb(245 245 247 / 0.1); }
   .iso-cons .iso-diag .iso-contorno, .iso-cons .iso-diag .g-remate, .iso-cons .iso-diag .g-cota { stroke: #F5F5F7; }
@@ -1551,7 +1554,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .m-ramas::before { content: ''; position: absolute; top: 0; left: calc(100% / 14); right: calc(100% / 14); border-top: 1px solid var(--rule-strong); }
   .m-rama { position: relative; min-width: 0; }
   .m-rama::before { content: ''; position: absolute; left: 50%; top: calc(var(--spacing) * -6); height: calc(var(--spacing) * 6); border-left: 1px solid var(--rule-strong); }
-  .m-pag { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); padding: calc(var(--spacing) * 4); border-radius: var(--radius-lg); background: #F5F5F7; color: #3B231B; box-shadow: inset 0 0 0 1px var(--rule); transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(.16,1,.3,1); }
+  .m-pag { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); padding: calc(var(--spacing) * 4); border-radius: var(--radius-lg); background: #F5F5F7; color: var(--color-cacao); box-shadow: inset 0 0 0 1px var(--rule); transition: box-shadow 0.3s ease, transform 0.3s cubic-bezier(.16,1,.3,1); }
   .m-pag:hover { box-shadow: inset 0 0 0 1px var(--color-coral); transform: translateY(-2px); }
   .m-ruta, .m-nota { opacity: 0.6; overflow-wrap: anywhere; }
   .m-t { font-size: var(--text-lead); line-height: 1.15; }
@@ -1575,7 +1578,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .pe-n, .pe-px { color: var(--fg2); font-variant-numeric: tabular-nums; }
   .pe-px { text-align: right; }
   .rd { gap: calc(var(--spacing) * 4); align-content: center; padding: calc(var(--spacing) * 6); text-align: center; }
-  .rd-m { display: block; width: 7rem; height: 5rem; background: #3B231B; }
+  .rd-m { display: block; width: 7rem; height: 5rem; background: var(--color-cacao); }
   .rd-p { height: 3rem; }
   .rd-c { width: 5rem; height: 5rem; border-radius: 50%; }
   .rd-cristal { display: block; width: 12rem; height: 3rem; border-radius: var(--radius-full); background: color-mix(in oklab, #302018 58%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, #eadde7 16%, transparent), 0 12px 32px -12px rgb(0 0 0 / 0.4); }
@@ -1592,7 +1595,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .dl-opc button { font: inherit; font-size: var(--text-ui, 14px); color: var(--fg); background: none; border: 1px solid var(--rule-strong, var(--rule)); border-radius: 999px; padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4); cursor: pointer; }
   .dl-opc button[aria-checked='true'] { background: var(--fg); color: var(--bg, #fff); border-color: var(--fg); }
   .dl-firmas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 6); }
-  .dl-firma { margin: 0; display: grid; gap: calc(var(--spacing) * 4); padding: calc(var(--spacing) * 8) calc(var(--spacing) * 6) calc(var(--spacing) * 4); background: #fff; color: #3B231B; border-radius: var(--radius-lg, 8px); box-shadow: inset 0 0 0 1px var(--rule); }
+  .dl-firma { margin: 0; display: grid; gap: calc(var(--spacing) * 4); padding: calc(var(--spacing) * 8) calc(var(--spacing) * 6) calc(var(--spacing) * 4); background: #fff; color: var(--color-cacao); border-radius: var(--radius-lg, 8px); box-shadow: inset 0 0 0 1px var(--rule); }
   .dl-firma figcaption { display: flex; align-items: center; gap: calc(var(--spacing) * 4); }
   .dl-firma figcaption span { margin-right: auto; opacity: .8; }
   .dl-copiar { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
@@ -1612,7 +1615,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .dl-est { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); }
   .dl-e { position: relative; container-type: inline-size; }
   .dl-fondo { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 1px var(--rule); } /* invierno es casi blanco: el filo lo separa de la página */
-  .dl-avatar { position: absolute; left: 4cqi; top: calc(100cqi / 3 - 11cqi); width: 22cqi; height: auto; border-radius: 50%; box-shadow: 0 0 0 3px var(--bg, #3b231b), 0 0 0 4px var(--rule); }
+  .dl-avatar { position: absolute; left: 4cqi; top: calc(100cqi / 3 - 11cqi); width: 22cqi; height: auto; border-radius: 50%; box-shadow: 0 0 0 3px var(--bg, var(--color-cacao)), 0 0 0 4px var(--rule); }
   /* el nombre, a la derecha del avatar (que asoma bajo el fondo como en X y LinkedIn): no lo tapa */
   .dl-n { margin: calc(var(--spacing) * 3) 0 0 30cqi; min-height: 13cqi; font-size: var(--text-h3); }
   .dl-lista { margin-top: calc(var(--spacing) * 3); display: grid; gap: calc(var(--spacing) * 2); }
@@ -1620,7 +1623,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .dl-lista li span { margin-right: auto; color: var(--fg2); }
   @media (width < 48rem) { .dl-logos { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dl-est { grid-template-columns: 1fr; } }
   /* ronda 266 · el perfil en redes (sustituye a la tarjeta de visita) */
-  .apl-perfil { grid-column: span 7; aspect-ratio: 7 / 5; background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: #3B231B; }
+  .apl-perfil { grid-column: span 7; aspect-ratio: 7 / 5; background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: var(--color-cacao); }
   .perfil { position: relative; width: 82%; margin-bottom: calc(var(--spacing) * 8); border-radius: 10px; overflow: hidden; background: #fff; container-type: inline-size;
     box-shadow: 0 1px 1px rgb(48 32 24 / 0.12), 0 24px 48px -24px rgb(48 32 24 / 0.45); }
   .pf-fondo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 1; object-fit: cover; }
@@ -1629,9 +1632,14 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .pf-n { font-family: var(--font-display, Georgia, serif); font-size: 6cqi; line-height: 1; }
   .pf-bio { font-size: 2.9cqi; line-height: 1.35; color: rgb(48 32 24 / 0.85); max-width: 36em; }
   .pf-meta { font-size: 2.4cqi; color: rgb(48 32 24 / 0.55); }
-  .pf-boton { position: absolute; right: 5cqi; top: 4cqi; padding: 1.4cqi 4cqi; border-radius: 999px; background: #3B231B; color: #F5F5F7; font-size: 2.6cqi; font-weight: 500; }
+  .pf-boton { position: absolute; right: 5cqi; top: 4cqi; padding: 1.4cqi 4cqi; border-radius: 999px; background: var(--color-cacao); color: #F5F5F7; font-size: 2.6cqi; font-weight: 500; }
   /* ronda 266 · los efectos grabados de la web */
   .placa.mv { padding: 0; overflow: hidden; display: grid; grid-template-rows: 1fr auto; background: #2a1a13; }
   .mv-v { display: block; width: 100%; height: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
   .placa.mv figcaption { position: static; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); color: rgb(245 245 247 / 0.75); }
+  /* 24/10 · Andoni: «en sistema, mira bien lo de las estaciones: hay muchas cosas que deberían cambiar con la estación y no cambian». El Cacao fijo pasa a
+     --color-cacao (la tinta oscura de la estación; en invierno, Pizarra) y el roble de la demo, al de la estación */
+  html[data-estacion='invierno'] .rg { background-image: url('/media/hero/arbol-invierno.webp'); }
+  html[data-estacion='primavera'] .rg { background-image: url('/media/hero/arbol-primavera.webp'); }
+  html[data-estacion='verano'] .rg { background-image: url('/media/hero/arbol-verano.webp'); }
 </style>
