@@ -67,7 +67,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="apple-touch-icon" href="/apple-touch-icon-otono.png?v=217" data-icono-apple />
     <!-- Borrador: no indexar hasta tener licencias de fuentes y visto bueno. -->
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-otono-32.png?v=217" data-icono />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-otono-32.png?v=225" data-icono />
     <meta name="theme-color" content="#3b231b" />
     <Font cssVariable="--font-family-display" preload />
     <Font cssVariable="--font-timeless-sans" preload />
@@ -93,7 +93,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         // iconos se FUNDEN en un lienzo de 64 px (1,2 s, 12 pasos; el href va cambiando a un data: URL) y al acabar queda el PNG de la estación nueva.
         // (Safari ignora los cambios de favicon en caliente: ahí se ve el de la carga.) ?v=217: luz tenue (ronda 216).
         // ronda 205: en la pestaña, la versión PEQUEÑA de 32 px (ahora, la de luz tenue de Andoni)
-        var V = '217', srcIcono = function (est) { return '/favicon-' + est + '-32.png?v=' + V; };
+        var V = '225', srcIcono = function (est) { return '/favicon-' + est + '-32.png?v=' + V; };
         var icono = function (est) {
           var a = document.querySelector('[data-icono]'), b = document.querySelector('[data-icono-apple]');
           if (a) a.setAttribute('href', srcIcono(est));

@@ -159,6 +159,34 @@ const escala = [
 const seDice = ['orquestar', 'criterio', 'elevar', 'desarrollo agéntico', 'a medida', 'de principio a fin', 'documentado', 'fuente de verdad', 'claridad', 'contigo', 'Eric y Andoni']; // ronda 156 (Eric): «Donostia» ya no se dice
 const noSeDice = ['prompt', 'vibe coding', '«lavado de cara»', 'años de experiencia', 'número de clientes', '«pioneros»', 'jerga de generador'];
 const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25" /><path d="M6 10.4 8.7 13 14 7.2" pathLength="1" /></svg>`;
+// FIRMA DE CORREO (22/10/2026). Andoni: «una firma simple» · «dejemos solo el trazo, estilo rotulador» · «el trazo empieza en la A y
+// termina en la z». El trazo mide lo que el nombre a 15 px (ancho), así que va de su primera a su última letra. Imagen: tools/firma/firma-arbol.cjs.
+// Lo que se copia lleva la imagen con su dirección publicada (el correo la descarga al abrirse).
+// 23/10: «estilo la captura»: el roble en gris tenue y una sola línea fina que lo recorre (copa en arcos, bucle, horquilla y el tronco en S). Imagen a 2×: tools/firma/firma-roble.cjs (23/10, 2.ª: «el árbol más pequeño y las líneas más del roble»).
+const FIRMAS = ['Andoni Martínez', 'Eric Ruiz Molero'];
+// 24/10 · «poner diferentes opciones de firma y que puedas elegir cuál sale en el correo de abajo, así elegimos una»: cinco composiciones; el
+// selector cambia las dos firmas, lo que se copia y el correo de ejemplo. Imágenes: tools/firma/firma-opciones.cjs (+ firma-figma.cjs).
+const OPC_FIRMA: { id: string; n: string }[] = [
+  // 24/10, 5.ª · Andoni: «vamos a dejar solo estas opciones» (fuera el logotipo, solo texto, roble de la estación con línea y la gota)
+  { id: 'encima', n: 'Roble encima' }, { id: 'lado', n: 'Roble al lado' }, { id: 'trazos', n: 'Solo los trazos' }, { id: 'trazos-izq', n: 'Trazos a la izquierda' }, { id: 'trazos-der', n: 'Trazos a la derecha' },
+  { id: 'color', n: 'Roble a color' }, { id: 'avatar', n: 'Avatar de la casa' },
+];
+// las que cambian con la estación llevan {est} y {estn}; el selector los cambia por la de hoy (la de la web)
+const img = (base: string, f: string, w: number, h: number, extra = '') => `<img src="${base}/descargas/savvia-firma-${f}.png" width="${w}" height="${h}" alt="savvia" style="display:block;border:0;width:${w}px;height:${h}px;${extra}">`;
+const lin = (t: string, extra = '') => `<tr><td style="font-size:15px;line-height:22px;color:#3B231B;${extra}">${t}</td></tr>`;
+const web = `<a href="https://savvia.studio" style="color:#3B231B;text-decoration:underline;">savvia.studio</a>`;
+const T0 = `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Helvetica,Arial,sans-serif;color:#3B231B;">`;
+const firmaHtml = (nombre: string, base: string, op = 'encima') => {
+  if (op === 'lado') return `${T0}<tr><td style="padding:0 14px 0 0;vertical-align:middle;">${img(base, 'roble', 64, 57)}</td><td style="vertical-align:middle;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lin(nombre)}${lin(web)}</table></td></tr></table>`;
+  if (op === 'trazos') return `${T0}<tr><td style="padding:0 0 8px 0;">${img(base, 'trazos', 75, 47)}</td></tr>${lin(nombre)}${lin(web)}</table>`; // 24/10, 5.ª: más pequeños, con cuerpo e inclinados, como una rúbrica
+  if (op === 'trazos-izq') return `${T0}<tr><td style="padding:0 14px 0 0;vertical-align:middle;">${img(base, 'trazos', 75, 47)}</td><td style="vertical-align:middle;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lin(nombre)}${lin(web)}</table></td></tr></table>`; // 24/10, 7.ª
+  if (op === 'trazos-der') return `${T0}<tr><td style="vertical-align:middle;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lin(nombre)}${lin(web)}</table></td><td style="padding:0 0 0 14px;vertical-align:middle;">${img(base, 'trazos', 75, 47)}</td></tr></table>`;
+  if (op === 'color') return `${T0}<tr><td style="padding:0 0 8px 0;">${img(base, 'mini-{est}', 64, 64)}</td></tr>${lin(nombre)}${lin(web)}</table>`; // 24/10, 5.ª: el roble pequeño de la estación (el del favicon), sin trazos
+  if (op === 'avatar') return `${T0}<tr><td style="padding:0 14px 0 0;vertical-align:middle;">${img(base, 'avatar-{est}', 56, 56)}</td><td style="vertical-align:middle;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lin(nombre, 'font-weight:600;')}${lin(web)}</table></td></tr></table>`;
+  return `${T0}<tr><td style="padding:0 0 8px 0;">${img(base, 'roble', 64, 57)}</td></tr>${lin(nombre)}${lin(web)}</table>`; // 24/10, 6.ª: «roble encima, más pequeño» (antes 96)
+};
+// para el selector: el HTML de cada opción (pintado y para copiar), por persona
+const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((n) => [firmaHtml(n, '', id), firmaHtml(n, 'https://savvia.studio', id)])]));
 ---
 
 <Base title="Sistema — savvia" description="El sistema de savvia: cómo usarlo, la marca y su diseño, y cómo está construida la web, de los tokens a cada componente." carga={false}>
@@ -550,10 +578,39 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
               </article>
             ))}
           </div>
+          <h3 class="font-display text-h3 sub-bb">Firma de correo</h3>
+          <div class="dl-opc" role="radiogroup" aria-label="Opciones de firma" data-firma-ops={JSON.stringify(FIRMA_OPS)}>
+            {OPC_FIRMA.map(({ id, n }, k) => (<button type="button" role="radio" aria-checked={k === 0 ? 'true' : 'false'} data-op={id}>{n}</button>))}
+          </div>
+          <div class="dl-firmas">
+            {FIRMAS.map((nombre, k) => (
+              <figure class="dl-firma" data-k={k}>
+                <div class="dl-papel" set:html={firmaHtml(nombre, '')} />
+                <figcaption class="detail"><span>Gmail · Apple Mail</span><button type="button" class="dl-copiar" data-firma={firmaHtml(nombre, 'https://savvia.studio')} data-texto={`${nombre}\nsavvia.studio`}>Copiar firma</button></figcaption>
+              </figure>
+            ))}
+          </div>
+          <figure class="dl-correo" aria-label="Ejemplo: la firma en un correo">
+            <div class="dc-barra" aria-hidden="true"><i></i><i></i><i></i></div>
+            <dl class="dc-cab">
+              <div><dt>De</dt><dd>Andoni Martínez &lt;hola@savvia.studio&gt;</dd></div>
+              <div><dt>Para</dt><dd>Laura Gómez</dd></div>
+              <div><dt>Asunto</dt><dd>Vuestra web nueva: siguientes pasos</dd></div>
+            </dl>
+            <div class="dc-cuerpo">
+              <p>Hola, Laura:</p>
+              <p>Gracias por la llamada de ayer. Te dejo el resumen: rehacemos la web de principio a fin, con vuestra marca, y os la entregamos documentada para que tu equipo pueda cambiarla con IA sin salirse de ella.</p>
+              <p>La semana que viene te mando la primera dirección de diseño para verla juntos.</p>
+              <p>Un abrazo,</p>
+              <div class="dc-firma" set:html={firmaHtml(FIRMAS[0], '')} />
+            </div>
+            <figcaption class="detail">Ejemplo: así llega la firma al final de un correo.</figcaption>
+          </figure>
           <ul class="reglas">
             <li><b>Avatar</b> el roble de la estación sobre su noche, con la luz tenue y la copa recogida para que el círculo de Telegram, LinkedIn y X no la corte. En Telegram, súbelo tal cual: sin ampliar.</li>
             <li><b>Fondos</b> el paisaje del pie de cada estación, sin texto: en X y en LinkedIn la foto de perfil tapa la esquina de abajo a la izquierda, y ahí no hay nada que se pierda.</li>
             <li><b>Imagen fija</b> la portada de X y la de LinkedIn no admiten GIF ni vídeo: un GIF se queda en su primer fotograma. Telegram sí admite un vídeo corto como foto de perfil.</li>
+            <li><b>Firma</b> pulsa «Copiar firma» y pégala en los ajustes de firma de Gmail o Apple Mail: lleva la imagen enlazada a savvia.studio, así que pesa poco y se ve en cualquier correo.</li>
             <li><b>Las fuentes no se reparten</b> Family y la letra de texto se usan con licencia: para escribir como savvia, pídenoslas.</li>
           </ul>
         </section>
@@ -698,6 +755,44 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   import { jugar } from '../../scripts/jugar';
   import { fijarEstacion, estacionActual, EST, NOCHE } from '../../scripts/estacion';
   import { crearEstela } from '../../scripts/estela';
+  // Firma de correo · el selector de opciones: cambia las dos firmas, lo que copian y la del correo de ejemplo (se recuerda en este navegador)
+  const opc = document.querySelector<HTMLElement>('.dl-opc');
+  if (opc) {
+    const NEST: Record<string, string> = { otono: 'otoño', invierno: 'invierno', primavera: 'primavera', verano: 'verano' };
+    const CRUDO = opc.dataset.firmaOps!;
+    // las opciones que llevan el roble de la estación ({est}) se rehacen con la de ese momento: al cargar y cada vez que la página cambia de estación
+    const deEstacion = (): Record<string, [string, string][]> => { const est = EST[estacionActual()] ?? 'otono'; return JSON.parse(CRUDO.replaceAll('{estn}', NEST[est] ?? 'otoño').replaceAll('{est}', est)); };
+    let OPS = deEstacion(), actual = 'encima';
+    const poner = (id: string) => {
+      if (!OPS[id]) return;
+      actual = id;
+      opc.querySelectorAll<HTMLButtonElement>('[data-op]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.op === id)));
+      document.querySelectorAll<HTMLElement>('.dl-firma').forEach((f) => { const [ver, copiar] = OPS[id][+f.dataset.k!]; f.querySelector('.dl-papel')!.innerHTML = ver; f.querySelector<HTMLElement>('.dl-copiar')!.dataset.firma = copiar; });
+      const dc = document.querySelector('.dc-firma'); if (dc) dc.innerHTML = OPS[id][0][0];
+    };
+    addEventListener('savvia:estacion', () => { OPS = deEstacion(); poner(actual); });
+    opc.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-op]'); if (b) { poner(b.dataset.op!); try { localStorage.setItem('savvia:firma', b.dataset.op!); } catch {} } });
+    let guardada: string | null = new URLSearchParams(location.search).get('firma'); if (!guardada) try { guardada = localStorage.getItem('savvia:firma'); } catch {}
+    if (guardada) poner(guardada);
+  }
+  // Firma de correo: se copia como HTML (con la imagen publicada) y como texto.
+  document.querySelectorAll<HTMLButtonElement>('.dl-copiar').forEach((b) => b.addEventListener('click', async () => {
+    const antes = 'Copiar firma';
+    try {
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([b.dataset.firma!], { type: 'text/html' }),
+        'text/plain': new Blob([b.dataset.texto!], { type: 'text/plain' }),
+      })]);
+      b.textContent = 'Copiada';
+    } catch {
+      // sin permiso de portapapeles: se selecciona la firma pintada y se copia como selección (lleva el HTML y la imagen con su dirección completa)
+      const papel = b.closest('.dl-firma')!.querySelector('.dl-papel')!, r = document.createRange(), sel = getSelection()!;
+      r.selectNodeContents(papel); sel.removeAllRanges(); sel.addRange(r);
+      const ok = document.execCommand('copy'); sel.removeAllRanges();
+      b.textContent = ok ? 'Copiada' : 'Selecciónala y cópiala';
+    }
+    setTimeout(() => (b.textContent = antes), 2200);
+  }));
   // RONDA 154 · el roble de cada estación, pintado por el motor del hero (mismas opciones: la primavera teñida de cerezo, el invierno sin hojas y sin hervor)
   document.querySelectorAll<HTMLElement>('.est-robles .rb').forEach((rb) => {
     const img = rb.querySelector('img')!, cv = rb.querySelector('canvas')!;
@@ -1493,6 +1588,27 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
   .dl-logo figcaption { display: flex; gap: calc(var(--spacing) * 4); width: 100%; }
   .dl-logo figcaption span { margin-right: auto; opacity: .8; }
   .dl-logo a, .dl-lista a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .dl-opc { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 6); }
+  .dl-opc button { font: inherit; font-size: var(--text-ui, 14px); color: var(--fg); background: none; border: 1px solid var(--rule-strong, var(--rule)); border-radius: 999px; padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4); cursor: pointer; }
+  .dl-opc button[aria-checked='true'] { background: var(--fg); color: var(--bg, #fff); border-color: var(--fg); }
+  .dl-firmas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: calc(var(--spacing) * 6); }
+  .dl-firma { margin: 0; display: grid; gap: calc(var(--spacing) * 4); padding: calc(var(--spacing) * 8) calc(var(--spacing) * 6) calc(var(--spacing) * 4); background: #fff; color: #3B231B; border-radius: var(--radius-lg, 8px); box-shadow: inset 0 0 0 1px var(--rule); }
+  .dl-firma figcaption { display: flex; align-items: center; gap: calc(var(--spacing) * 4); }
+  .dl-firma figcaption span { margin-right: auto; opacity: .8; }
+  .dl-copiar { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 47.99rem) { .dl-firmas { grid-template-columns: minmax(0, 1fr); } }
+  .dl-correo { margin: calc(var(--spacing) * 6) 0 0; background: #fff; color: #222; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--rule), 0 24px 48px -24px rgb(0 0 0 / .35); overflow: hidden; font: 14px/1.55 Helvetica, Arial, sans-serif; }
+  .dc-barra { display: flex; gap: 6px; padding: 12px 16px; background: #f3f2f1; border-bottom: 1px solid #e6e3e1; }
+  .dc-barra i { width: 10px; height: 10px; border-radius: 50%; background: #d9d5d2; }
+  .dc-cab { margin: 0; padding: 16px 24px; border-bottom: 1px solid #eeebe9; display: grid; gap: 4px; }
+  .dc-cab div { display: flex; gap: 12px; }
+  .dc-cab dt { width: 3.6rem; color: #8b8380; }
+  .dc-cab dd { margin: 0; }
+  .dc-cab div:last-child dd { font-weight: 600; }
+  .dc-cuerpo { padding: 24px 24px 32px; max-width: 36rem; }
+  .dc-cuerpo p { margin: 0 0 12px; }
+  .dc-firma { margin-top: 16px; }
+  .dl-correo figcaption { padding: 12px 24px; border-top: 1px solid #eeebe9; color: #8b8380; }
   .dl-est { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); }
   .dl-e { position: relative; container-type: inline-size; }
   .dl-fondo { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 1px var(--rule); } /* invierno es casi blanco: el filo lo separa de la página */
