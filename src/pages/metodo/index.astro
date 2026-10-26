@@ -1,4 +1,7 @@
 ---
+// LANZAMIENTO: esta página aún no sale (ver src/lib/lanzamiento.ts); quien llega por la dirección vuelve a la home
+import { RECORTE } from '../../lib/lanzamiento';
+if (RECORTE) return Astro.redirect('/');
 // RONDA 127–128 · /handbook — LA PORTADA PARA NAVEGAR el manual de savvia. Andoni: «algo así https://www.designhandbook.com/en» y, en la 128,
 // «tenemos por un lado para navegarlo (designhandbook.com/en) y luego cada capítulo en detalle» · «las páginas secundarias, todas en light».
 // Cada capítulo vive en /handbook/<slug> (src/pages/handbook/[slug].astro). Contenido: src/data/handbook.ts, solo con hechos.

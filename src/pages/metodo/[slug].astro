@@ -14,8 +14,10 @@ import Lector from '../../components/handbook/Lector.astro';
 import Riel from '../../components/handbook/Riel.astro';
 import Bloques from '../../components/handbook/Bloques.astro';
 import { capitulos, minutos, handbook, type Capitulo } from '../../data/handbook';
+import { RECORTE } from '../../lib/lanzamiento';
 
 export function getStaticPaths() {
+  if (RECORTE) return []; // LANZAMIENTO: el Método aún no sale (src/lib/lanzamiento.ts)
   return capitulos.map((c, i) => ({ params: { slug: c.slug }, props: { c, i } }));
 }
 interface Props { c: Capitulo; i: number }

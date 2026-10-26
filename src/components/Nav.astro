@@ -4,8 +4,9 @@ import { langDe, ruta } from '../lib/i18n';
 import Radio from "./Radio.astro"; // RONDA 156 · Eric: fuera el (+) flotante (Mando.astro, en tools/retirados); la radio, en la barra
 import { icono, ICONO_ESTACION } from '../lib/iconos';
 import { proyectos as OBRAS } from '../data/proyectos';
+import { esPublico } from '../lib/lanzamiento';
 // RONDA 274 · Andoni: «en vez del reel, proyectos destacados que van rotando»: los destacados del portfolio, en el orden de proyectos.ts
-const DESTACADOS = OBRAS.filter((o) => o.destacado).map((o) => ({ slug: o.slug, nombre: o.nombre, colores: o.colores, movil: o.slug === 'remerge' }));
+const DESTACADOS = OBRAS.filter((o) => o.destacado && esPublico(o.slug)).map((o) => ({ slug: o.slug, nombre: o.nombre, colores: o.colores, movil: o.slug === 'remerge' }));
 // ronda 275 · «que se vean como en el portfolio, con su gradiente y su marco»: el degradado de la marca del cliente (Pieza.astro › .g-marca) y la ventana de
 // cristal con la web dentro (Pieza.astro › .mockup); la web móvil (Remerge), en un marco alto
 const lang = langDe(Astro.currentLocale);
@@ -54,19 +55,19 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   <nav aria-label={en ? 'Main' : 'Principal'}>
     <ul class="flex flex-col">
       {
-        nav.links.map((l, i) => (
+        nav.links.filter((l) => l.href).map((l, i) => (
           <li style={`--n:${i}`}>
-            <a href={ruta(lang, l.href)} class="enlace"><span class="font-display text-h2">{l.label}</span></a>
+            {l.href ? <a href={ruta(lang, l.href)} class="enlace"><span class="font-display text-h2">{l.label}</span></a> : <span class="pronto font-display text-h2">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}
           </li>
         ))
       }
     </ul>
-    <div class="resto border-rule mt-6 border-t pt-6" style={`--n:${nav.links.length}`}>
+    <div class="resto border-rule mt-6 border-t pt-6" style={`--n:${nav.links.filter((l) => l.href).length}`}>
       <div class="mas">
         <p class="detail detail-caps text-fg2">{nav.mas.titulo}</p>
         <ul class="text-lead mt-3 flex flex-col gap-1">
           <li><a href={`mailto:${pie.correo}`} data-copiar={pie.correo} class="enlace inline-block">{pie.correoTexto}</a></li>
-          {nav.mas.links.map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}</li>)}
+          {nav.mas.links.filter((l) => l.href).map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}</li>)}
         </ul>
       </div>
       <!-- RONDA 274 · Andoni: «en vez del reel, proyectos destacados que van rotando»: la tarjeta del reel enseña las cubiertas de los destacados, una tras otra

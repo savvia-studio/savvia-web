@@ -1,4 +1,5 @@
 ---
+import sharp from 'sharp';
 // OCTUBRE 2026 · LA PIEZA DE LA HOME, PARA EL PORTFOLIO. Andoni: «los proyectos, con más aire; al hacer hover, la animación de la home (como está publicado);
 // intercalar con mockups; si es más vertical, móvil, y si es más horizontal, escritorio; y que carguen como en la home, también al filtrar».
 // Es la pieza de «Más proyectos» (Anteriores.astro): el mismo marcado, las mismas clases y el mismo CSS (copiado de allí: fondo de marca, navegador de cristal que
@@ -16,14 +17,20 @@ export type ObraCasa = {
 interface Props { o: ObraCasa; i: number }
 const { o, i } = Astro.props;
 const en = Astro.currentLocale === 'en';
-const fuera = /^https?:/.test(o.href); // sin caso de estudio: enlaza a su web (y lo dice la flecha ↗); con caso, la etiqueta «Caso de estudio»
+// sin caso de estudio: enlaza a su web y, en escritorio, el clic abre el VISOR (Visor.astro), como en la home; con caso, lleva al caso.
+// 26/10 · Eric: fuera la píldora «Caso de estudio» y la flecha ↗; al pasar, la LUPA (la de la home) en el sitio del icono de vídeo
+const fuera = /^https?:/.test(o.href);
 // el fondo de su web, claro u oscuro: decide el cristal del navegador y la tinta
 const claro = (hex: string) => { const [r, g, b] = [1, 3, 5].map((k) => parseInt(hex.slice(k, k + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5; };
 const esClaro = claro(o.colores[0]);
 // la pantalla del monitor y la del móvil de la mesa (medidas en las láminas; Anteriores.astro › PANT y QUAD)
 const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 };
 const LAM = { w: 1672, h: 941 };
-const Q: [number, number][] = [[964, 183], [1205, 178], [1195, 714], [943, 705]];
+// 26/10 · Eric: «aquí Cubbo, como en la home, el móvil que tenemos»: el de Anteriores.astro › SITIO[3] (la lámina en ESPEJO, ×2,3, centro al 47 %)
+const COMO_HOME: Record<string, { espejo: boolean; z: number; cy: number }> = { cubbo: { espejo: true, z: 2.3, cy: 0.47 } };
+const home = COMO_HOME[o.slug];
+const Q: [number, number][] = home?.espejo ? [[467, 178], [708, 183], [729, 705], [477, 714]] : [[964, 183], [1205, 178], [1195, 714], [943, 705]];
+const FOTO_M = home?.espejo ? 'mesa-movil-espejo' : 'mesa-movil';
 function quad() {
   const x0 = Math.min(Q[0][0], Q[3][0]), y0 = Math.min(Q[0][1], Q[1][1]), x1 = Math.max(Q[1][0], Q[2][0]), y1 = Math.max(Q[2][1], Q[3][1]);
   const W = x1 - x0, H = y1 - y0;
@@ -37,15 +44,19 @@ function quad() {
   return { x0, y0, W, H, cx: (x0 + x1) / 2 / LAM.w, cy: (y0 + y1) / 2 / LAM.h, matriz };
 }
 const q = quad();
-const ZE = 2.88, ZM = 2.4; // ampliación de la mesa (monitor) y de la del móvil
+const ZE = 2.88, ZM = home?.z ?? 2.4, CYM = home?.cy ?? 0.5; // ampliación de la mesa (monitor) y de la del móvil
 const leftE = 50 - (PANT.x + PANT.w / 2) * ZE * 100, pyE = PANT.y + PANT.h / 2;
 const leftM = 50 - q.cx * ZM * 100, pyM = q.cy;
 const EST = ['primavera', 'verano', 'otono', 'invierno'];
 // el medio de escritorio y el de móvil (vídeo si hay grabación; si no, la captura)
 const etiqueta = en ? `Walkthrough of the ${o.nombre} website` : `Recorrido por la web de ${o.nombre}`;
+// 26/10 · Eric: «en la home THX encaja perfecto con su marco; en proyectos se corta»: el vídeo de escritorio va con SU proporción (la del póster), no
+// forzado a 16:10 y recortado; las capturas siguen a 16:10
+const medida = async (poster: string) => sharp(`public${poster}`).metadata().then((m) => [m.width ?? 960, m.height ?? 600]).catch(() => [960, 600]);
+const [vw, vh] = o.video ? await medida(o.video.poster) : [960, 600];
 const medio = (v?: { src: string; poster: string }, img?: string, movil = false) =>
   v
-    ? `<video class="vid" muted loop playsinline preload="none" data-poster="${v.poster}" width="${movil ? 390 : 960}" height="${movil ? 844 : 600}" aria-label="${etiqueta}" data-vid><source src="${v.src}" type="video/mp4" /></video>`
+    ? `<video class="vid" muted loop playsinline preload="none" data-poster="${v.poster}" width="${movil ? 390 : vw}" height="${movil ? 844 : vh}"${movil ? '' : ` style="--ar:${vw} / ${vh}"`} aria-label="${etiqueta}" data-vid><source src="${v.src}" type="video/mp4" /></video>`
     : `<img class="vid" data-img="${img}" alt="${etiqueta}" width="${movil ? 390 : 1280}" height="${movil ? 844 : 830}" decoding="async" />`;
 const escritorio = medio(o.video, o.captura);
 const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '';
@@ -61,6 +72,7 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
   data-slug={o.slug}
   data-claro={esClaro ? '' : undefined}
   data-con-movil={enMovil ? '' : undefined}
+  data-abre-visor={fuera ? '' : undefined}
   style={`--i:${(i % 3) + 1};--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]}`}
 >
   <div class="lamina g-marca">
@@ -72,18 +84,18 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
     </div>
     {enMovil && (
       <>
-        <div class="mesa f-movil" style={`--z:${ZM};--left:${leftM.toFixed(2)};--cy:0.5;--py:${pyM}`} data-mesa-quad>
-          {EST.map((e) => <img class="foto foto-e" data-e={e} data-img={`/media/anteriores/mesa-movil-${e}.webp`} alt="" width="1672" height="941" decoding="async" />)}
+        <div class="mesa f-movil" style={`--z:${ZM};--left:${leftM.toFixed(2)};--cy:${CYM};--py:${pyM}`} data-mesa-quad>
+          {EST.map((e) => <img class="foto foto-e" data-e={e} data-img={`/media/anteriores/${FOTO_M}-${e}.webp`} alt="" width="1672" height="941" decoding="async" />)}
           <span class="pantalla quad" style={`left:${((q.x0 / LAM.w) * 100).toFixed(3)}%;top:${((q.y0 / LAM.h) * 100).toFixed(3)}%;width:${((q.W / LAM.w) * 100).toFixed(3)}%;height:${((q.H / LAM.h) * 100).toFixed(3)}%;transform:${q.matriz}`}><Fragment set:html={enMovil} /></span>
         </div>
         <div class="tel-m f-tel"><span class="tel-pant"><Fragment set:html={enMovil} /></span></div>
       </>
     )}
-    {!fuera && <span class="caso-et">{en ? 'Case study' : 'Caso de estudio'}</span>}
     {(o.video || o.videoMovil) && <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>}
+    {fuera && <span class="abre-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.4 15.4 20 20M8 10.5h5M10.5 8v5" /></svg></span>}
   </div>
   <div class="pie pie-pieza mt-4">
-    <h3 class="nombre-pie font-display">{o.nombre}{fuera && <svg class="sale" viewBox="0 0 16 16" aria-label={en ? '(opens their website)' : '(abre su web)'}><path d="M5 11l6-6M6 5h5v5" /></svg>}</h3>
+    <h3 class="nombre-pie font-display">{o.nombre}</h3>
     {o.sector && <p class="detail text-fg2">{o.sector}</p>}
   </div>
 </a>
@@ -157,6 +169,10 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
     border-radius: calc(var(--r-fuera) - var(--marco));
     box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
   }
+  /* el vídeo, entero y con su proporción (width/height del póster), como en la home */
+  .mockup :global(video.vid) {
+    aspect-ratio: var(--ar);
+  }
 
   /* ── la MESA: la lámina del estudio ampliada, con la web dentro del monitor o del móvil (en unidades de la pieza) */
   .mesa {
@@ -187,7 +203,8 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
     box-shadow: 0 0 0 2px #121213;
   }
   .mesa .pantalla :global(.vid) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
-  .mesa .pantalla.quad { transform-origin: 0 0; border-radius: 12.5% / 5.8%; box-shadow: none; }
+  /* con el filo de 2 px en el negro del bisel, como en la home (ronda 190): sin él asomaba 1 px del blanco de la pantalla de la lámina entre el marco y el vídeo */
+  .mesa .pantalla.quad { transform-origin: 0 0; border-radius: 12.5% / 5.8%; }
   .escena:hover .mesa, .movil:hover .mesa, .escena:focus-visible .mesa, .movil:focus-visible .mesa { scale: 1.06; }
 
   /* ── el TELÉFONO de pie, algo ladeado. Andoni: «el marco del móvil, cuando no es mockup, como el marco de desktop»: la misma ventana de cristal que el
@@ -238,27 +255,31 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
   .pieza:hover .vid-ic { scale: 1.06; }
   .pieza.suena .vid-ic { opacity: 0; filter: blur(4px); }
 
-  /* ── CASO DE ESTUDIO: una píldora de cristal arriba a la izquierda (la misma cápsula que el icono de vídeo); al pasar, se aclara */
-  .caso-et {
+  /* la LUPA (Anteriores.astro, ronda 215): misma cápsula de cristal que el icono de vídeo y en su mismo sitio; al pasar, el de vídeo se va y entra la lupa,
+     que invita al clic (abre el visor). Solo en las piezas que lo abren */
+  .abre-ic {
     position: absolute;
     z-index: 3;
-    left: calc(var(--spacing) * 3);
-    top: calc(var(--spacing) * 3);
-    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+    right: calc(var(--spacing) * 3);
+    bottom: calc(var(--spacing) * 3);
+    display: inline-flex;
+    padding: calc(var(--spacing) * 2);
     border-radius: var(--radius-full);
     background: color-mix(in oklab, #1a1210 55%, transparent);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     color: var(--color-niebla);
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    transition: background-color 0.4s ease, color 0.4s ease;
+    opacity: 0;
+    scale: 0.7;
+    filter: blur(4px);
+    pointer-events: none;
+    transition: opacity 0.4s ease, scale 0.5s var(--ease-out-expo), filter 0.4s ease;
   }
-  .pieza:hover .caso-et, .pieza:focus-visible .caso-et { background: var(--color-niebla); color: var(--color-cacao); }
-  /* sin caso: la flecha ↗ junto al nombre (sale a su web); al pasar, se desplaza */
-  .nombre-pie .sale { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.25em; vertical-align: 0.12em; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: 0.5; transition: translate 0.5s var(--ease-out-expo), opacity 0.3s ease; }
-  .pieza:hover .nombre-pie .sale { translate: 0.08em -0.08em; opacity: 1; }
+  .abre-ic svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); }
+  @media (hover: hover) and (width >= 48rem) {
+    .pieza:hover .abre-ic, .pieza:focus-visible .abre-ic { opacity: 1; scale: 1; filter: none; }
+    .pieza[data-abre-visor]:hover .vid-ic, .pieza[data-abre-visor]:focus-visible .vid-ic { opacity: 0; filter: blur(4px); }
+  }
   /* ── el pie: nombre a la izquierda y sector a la derecha */
   .pie-pieza { display: flex; align-items: baseline; justify-content: space-between; gap: calc(var(--spacing) * 4); flex-wrap: wrap; }
   .nombre-pie { font-size: clamp(1.25rem, 1rem + 0.6vw, 1.625rem); line-height: 1.15; letter-spacing: -0.01em; color: var(--fg); }

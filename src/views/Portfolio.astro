@@ -8,6 +8,11 @@ import Nav from '../components/Nav.astro';
 import Carriles from '../components/Carriles.astro';
 import Pie from '../components/Pie.astro';
 import PiezaCasa, { type ObraCasa } from '../components/obra/PiezaCasa.astro';
+import Visor from '../components/obra/Visor.astro';
+import Cta from '../components/Cta.astro';
+import Voces from '../components/Voces.astro';
+import Cuadricula from '../components/Cuadricula.astro';
+import { CASOS_LISTOS } from '../lib/lanzamiento';
 import { proyectosDe, servicio } from '../data/idioma';
 import { langDe, ruta } from '../lib/i18n';
 
@@ -21,7 +26,7 @@ import { home } from '../data/idioma';
 const casos = proyectosDe(lang).map((p) => ({ ...p, servicios: p.servicios.map((s) => servicio(lang, s)) }));
 const caso = (slug: string) => casos.find((p) => p.slug === (slug === 'playground-iep' ? 'playground' : slug));
 const casa = Object.fromEntries((home(lang).proyectos.anteriores as { slug: string; n: string; sector?: string; color: string[] }[]).map((a) => [a.slug, a]));
-const NOMBRE: Record<string, string> = { wisable: 'Wisable', cubbo: 'Cubbo', remerge: 'Remerge', surepayroll: 'SurePayroll', qalea: 'Qalea', 'home-of-ambrose': 'Home of Ambrose', gsbindex: 'GSB Index', kymatio: 'Kymatio', isotrol: 'Isotrol', monad: 'Monad', bluence: 'Bluence', 'claudia-be': 'Claudia BE', adaral: 'Adaral', 'business-online-payroll': 'Business Online Payroll', 'numen-games': 'Numen Games', 'managerpro-by-codely': 'ManagerPro by Codely', invopop: 'Invopop', 'endoaula-conecta': 'Endoaula Conecta', lyra: 'Lyra', valuat: 'Valuat', 'casa-for-agents': 'Crece con Casavo', stemdo: 'Stemdo', 'alpine-security': 'Alpine Security', 'homeplus-casavo': 'Home+ Casavo', soundtown: 'Soundtown', endoaula: 'Endoaula', 'gow-delivery': 'GOW Delivery', 'junipero-vc': 'Junípero', 'eleven-lab': 'Eleven Lab', vitalera: 'Vitalera', zrive: 'Zrive', ikon: 'Ikon', 'playground-iep': 'Playground IEP', naterra: 'Naterra', kalma: 'Kalma', kabila: 'Kabila', 'impact-bridge': 'Impact Bridge', 'profounders-capital': 'PROfounders Capital', 'transcend-network': 'Transcend', routal: 'Routal', thx: 'THX' };
+const NOMBRE: Record<string, string> = { greet: 'Greet', 'playground-agentico': 'Playground IEP', 'fiallegas-abogados': 'Fiallegas Abogados', wisable: 'Wisable', cubbo: 'Cubbo', remerge: 'Remerge', surepayroll: 'SurePayroll', qalea: 'Qalea', 'home-of-ambrose': 'Home of Ambrose', gsbindex: 'GSB Index', kymatio: 'Kymatio', isotrol: 'Isotrol', monad: 'Monad', bluence: 'Bluence', 'claudia-be': 'Claudia BE', adaral: 'Adaral', 'business-online-payroll': 'Business Online Payroll', 'numen-games': 'Numen Games', 'managerpro-by-codely': 'ManagerPro by Codely', invopop: 'Invopop', 'endoaula-conecta': 'Endoaula Conecta', lyra: 'Lyra', valuat: 'Valuat', 'casa-for-agents': 'Crece con Casavo', stemdo: 'Stemdo', 'alpine-security': 'Alpine Security', 'homeplus-casavo': 'Home+ Casavo', soundtown: 'Soundtown', endoaula: 'Endoaula', 'gow-delivery': 'GOW Delivery', 'junipero-vc': 'Junípero', 'eleven-lab': 'Eleven Lab', vitalera: 'Vitalera', zrive: 'Zrive', ikon: 'Ikon', 'playground-iep': 'Playground IEP', naterra: 'Naterra', kalma: 'Kalma', kabila: 'Kabila', 'impact-bridge': 'Impact Bridge', 'profounders-capital': 'PROfounders Capital', 'transcend-network': 'Transcend', routal: 'Routal', thx: 'THX' };
 const ES: Record<string, string> = {
   // países
   Spain: 'España', 'United States': 'Estados Unidos', 'United Kingdom': 'Reino Unido', Italy: 'Italia', Germany: 'Alemania',
@@ -29,10 +34,10 @@ const ES: Record<string, string> = {
   'HubSpot Integration': 'Integración con HubSpot', 'Webflow development': 'Desarrollo en Webflow', 'Custom animations/GSAP': 'Animaciones a medida (GSAP)', 'Web design': 'Diseño web',
   'CMS integration': 'CMS', 'Lottie animations': 'Animaciones Lottie', 'UX/UI design': 'Diseño UX/UI', 'WhaleSync integration': 'Integración con WhaleSync',
   'MemberStack integration': 'Integración con Memberstack', 'Branding concept': 'Concepto de marca', 'Make automatization': 'Automatización con Make',
-  'Webflow localization': 'Multidioma', 'Webflow user accounts': 'Cuentas de usuario',
+  'Agentic development': 'Desarrollo agéntico', 'Webflow localization': 'Multidioma', 'Webflow user accounts': 'Cuentas de usuario',
   // categorías
   'Brand Portfolio': 'Portfolio de marca', Consultancy: 'Consultoría', Cybersecurity: 'Ciberseguridad', Delivery: 'Reparto', Eldercare: 'Cuidado de mayores', Finance: 'Finanzas',
-  Healthcare: 'Salud', Logistics: 'Logística', 'Real State': 'Inmobiliario', 'Renewable energy': 'Renovables', 'Social Impact': 'Impacto social', Tech: 'Tecnología', VC: 'Capital riesgo',
+  Healthcare: 'Salud', Legal: 'Legal', Logistics: 'Logística', 'Real State': 'Inmobiliario', 'Renewable energy': 'Renovables', 'Social Impact': 'Impacto social', Tech: 'Tecnología', VC: 'Capital riesgo',
 };
 const t = (x: string) => (en ? x : ES[x] ?? x);
 // categorías que no dicen a qué se dedica el cliente (no sirven de sector bajo la pieza)
@@ -40,27 +45,47 @@ const META = new Set(['Awwwards', 'YCombinator', 'Webflow Enterprise', 'Tech']);
 type Obra = { slug: string; nombre: string; dominio: string; href: string; sector: string; colores: [string, string, string]; portada: { tipo: 'video'; src: string; poster: string }; movil?: string; videoMovil?: { src: string; poster: string };
   pais: string[]; tec: string[]; servicios: string[]; categorias: string[] };
 // los que tienen grabación de su web (public/media/anteriores/video/<slug>.mp4: suena al pasar); los demás, su captura del CMS
-const GRABADOS = new Set(['business-online-payroll', 'claudia-be', 'cubbo', 'eleven-lab', 'home-of-ambrose', 'invopop', 'isotrol', 'kymatio', 'monad', 'naterra', 'remerge', 'routal', 'surepayroll', 'thx', 'transcend-network', 'wisable']);
+const GRABADOS = new Set(['greet', 'playground-agentico', 'fiallegas-abogados', 'gsbindex', 'profounders-capital', 'bluence', 'lyra', 'adaral', 'managerpro-by-codely', 'valuat', 'zrive', 'ikon', 'kabila', 'impact-bridge', 'gow-delivery', 'alpine-security', 'junipero-vc', 'business-online-payroll', 'claudia-be', 'cubbo', 'eleven-lab', 'home-of-ambrose', 'invopop', 'isotrol', 'kymatio', 'monad', 'naterra', 'remerge', 'routal', 'surepayroll', 'thx', 'transcend-network', 'wisable']);
 const conVideo = (slug: string) => GRABADOS.has(slug);
-const MOVIL_GRABADO = new Set(['cubbo', 'remerge']); // con grabación en móvil (<slug>-movil.mp4)
+const MOVIL_GRABADO = new Set(['cubbo', 'remerge', 'claudia-be', 'routal']); // con grabación en móvil (<slug>-movil.mp4)
+// 26/10 · Eric: Greet (greet.video, de los últimos), que no está en el CMS de treseiscero: va detrás de los del CMS (al final: así no mueve de sitio ni de forma a los demás), con su grabación (Screen Studio)
+const EXTRA = [
+  { slug: 'greet', dominio: 'greet.video', pais: ['Germany'], tecnologia: ['Webflow'], servicios: ['Web design', 'Webflow development'], categorias: ['Marketing'],
+    colores: ['#0b3a1f', '#164b2f', '#c8102e'], sector: en ? 'Personalised video' : 'Vídeo personalizado' },
+  // 26/10 · Eric: la home nueva de Playground IEP que hace Andoni con Claude (playgroundiep.treseiscero.app/home-v3); la de Webflow se queda («también es nuestra»)
+  { slug: 'playground-agentico', dominio: 'playgroundiep.com', pais: ['United States'], tecnologia: ['Claude Code'], servicios: ['Web design', 'Agentic development'], categorias: ['EdTech'],
+    colores: ['#efe9fb', '#8b6cf6', '#f6b8d8'], sector: en ? 'Special education' : 'Educación especial' },
+  // 26/10 · Eric: Fiallegas Abogados (Eibar y Donostia), en Webflow; «a mitad de tabla, con pantalla de mesa»
+  { slug: 'fiallegas-abogados', dominio: 'fiallegas-abogados.com', pais: ['Spain'], tecnologia: ['Webflow'], servicios: ['Web design', 'Webflow development'], categorias: ['Legal'],
+    colores: ['#1f2c3f', '#3a4a63', '#c9b79c'], sector: en ? 'Law firm' : 'Despacho de abogados' },
+];
 // las tecnologías del filtro, las de treseiscero (las pilas de los casos agénticos solo cuentan si coinciden)
 const TECS = new Set(TSC.flatMap((d) => d.tecnologia));
-const AGENTICOS = ['quantus', 'patchbay', 'neety'].map((s) => caso(s)!).filter(Boolean).map((c): Obra => ({
-  slug: c.slug, nombre: c.nombre, dominio: c.dominio ?? '', href: ruta(lang, `/proyectos/${c.slug}`), sector: c.sector ?? '', colores: c.colores,
+// 26/10 · Eric: fuera Quantus y Patchbay del portfolio («al final son showcase para la home de desarrollo agéntico»); siguen en la home y en sus casos
+// (Neety no tiene `url` en su ficha: su web es neety.com, como en home.ts › anteriores)
+const AGENTICOS = ['neety'].map((s) => caso(s)!).filter(Boolean).map((c): Obra => ({
+  slug: c.slug, nombre: c.nombre, dominio: c.dominio ?? '', href: CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : c.url ?? `https://${c.dominio ?? (c.slug === 'neety' ? 'neety.com' : c.slug)}`, sector: c.sector ?? '', colores: c.colores,
   portada: { tipo: 'video', src: (c.escritorio ?? c.portada).src, poster: (c.escritorio ?? c.portada).poster ?? '' },
   pais: c.ubicacion ? [c.ubicacion.split(',').pop()!.trim()] : [], tec: (c.stack ?? []).filter((x) => TECS.has(x)), servicios: c.servicios, categorias: c.sector ? [c.sector] : [],
   ...(c.slug === 'neety' ? { movil: '/media/portfolio/neety-movil.webp', videoMovil: { src: '/media/anteriores/video/neety-com-movil.mp4', poster: '/media/anteriores/video/neety-com-movil.jpg' } } : {}),
 }));
-const OBRAS: Obra[] = [
+// 26/10 · Eric: «hay que tener orden»: el ORDEN de la rejilla y lo de cada pieza (forma fija, nombre, sector, colores, fuera) los decide la herramienta
+// «Orden de /proyectos» (claude.ai/artifact/EnYvzyRJn87Axd3SsUfBGP) y se copian a portfolio-orden.json. Lo que no esté en `orden` va al final (así un
+// proyecto nuevo no mueve de sitio, ni de forma, a los demás).
+import ORDEN from '../data/portfolio-orden.json';
+type Ajuste = { forma?: 'navegador' | 'escena' | 'movil'; nav?: [number, number, number, number]; n?: string; s?: string; c?: [string, string, string]; oculto?: boolean };
+const AJUSTES = ORDEN.piezas as unknown as Record<string, Ajuste>;
+const puesto = (slug: string) => { const i = ORDEN.orden.indexOf(slug); return i < 0 ? Infinity : i; };
+const TODAS: Obra[] = [
   ...AGENTICOS,
-  ...TSC.map((d): Obra => {
+  ...[...TSC, ...EXTRA].map((d): Obra => {
     const c = caso(d.slug), h = casa[d.slug];
     const cats = d.categorias.map(t);
-    const sector = h?.sector ?? c?.sector ?? t(d.categorias.find((x) => !META.has(x)) ?? d.categorias[0] ?? '');
+    const sector = h?.sector ?? c?.sector ?? (d as { sector?: string }).sector ?? t(d.categorias.find((x) => !META.has(x)) ?? d.categorias[0] ?? '');
     const video = conVideo(d.slug) ? { src: `/media/anteriores/video/${d.slug}.mp4`, poster: `/media/anteriores/video/${d.slug}.jpg` } : { src: '', poster: `/media/portfolio/${d.slug}.webp` };
     return {
       slug: d.slug, nombre: h?.n ?? c?.nombre ?? NOMBRE[d.slug] ?? d.dominio, dominio: d.dominio,
-      href: c ? ruta(lang, `/proyectos/${c.slug}`) : `https://${d.dominio}`, sector,
+      href: c && CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : `https://${d.dominio}`, sector,
       colores: ((h?.color as [string, string, string]) ?? c?.colores ?? d.colores) as [string, string, string],
       portada: { tipo: 'video', ...video }, pais: d.pais.map(t), tec: d.tecnologia, servicios: d.servicios.map(t), categorias: cats,
       movil: (d as { movil?: boolean }).movil ? `/media/portfolio/${d.slug}-movil.webp` : undefined,
@@ -68,6 +93,9 @@ const OBRAS: Obra[] = [
     };
   }),
 ];
+const OBRAS: Obra[] = TODAS.map((o, n) => ({ o, n })).sort((a, b) => puesto(a.o.slug) - puesto(b.o.slug) || a.n - b.n).map(({ o }) => o)
+  .filter((o) => !AJUSTES[o.slug]?.oculto)
+  .map((o) => { const a = AJUSTES[o.slug]; return a ? { ...o, nombre: a.n ?? o.nombre, sector: a.s ?? o.sector, colores: a.c ?? o.colores } : o; });
 // los cuatro filtros, con su recuento (de más a menos; a igualdad, por nombre)
 const opciones = (f: (o: Obra) => string[]) => {
   const n = new Map<string, number>();
@@ -89,15 +117,15 @@ const casaDe = (o: Obra): ObraCasa => ({
 const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, ...o.servicios, ...o.categorias].filter(Boolean).join(' · ');
 ---
 
-<Base title={en ? 'Projects — savvia' : 'Proyectos — savvia'} description={en ? 'Custom websites, end to end: the projects of savvia, the web studio of Eric and Andoni.' : 'Webs a medida, de principio a fin: los proyectos de savvia, el estudio web de Eric y Andoni.'} carga={false}>
+<Base title={en ? 'savvia projects' : 'Proyectos de savvia'} description={en ? 'Custom websites, end to end: the projects of savvia, the web studio of Eric and Andoni.' : 'Webs a medida, de principio a fin: los proyectos de savvia, el estudio web de Eric y Andoni.'} carga={false}>
   <Nav />
   <Carriles />
   <!-- ronda 129: con JS, el navegador de cada pieza espera bajo su borde y sube al entrar (sin JS, en su sitio). Antes de pintar las piezas. -->
   <script is:inline>document.documentElement.classList.add('pz-js');</script>
   <main id="contenido" class="obras surface-light">
     <header class="wrap cabecera">
-      <h1 class="font-display titular" data-entra>{en ? 'Custom websites, end to end.' : 'Webs a medida, de principio a fin.'}</h1>
-      <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? 'For teams that live off their website. These are some of them.' : 'Para equipos que viven de su web. Estos son algunos de ellos.'}</p>
+      <h1 class="font-display titular" data-entra>{en ? 'Custom websites.' : 'Webs a medida.'}</h1>
+      <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? 'Our featured projects since 2020, both no-code and agentic development.' : 'Nuestros proyectos destacados desde 2020, tanto de no-code como desarrollo agéntico.'}</p>
     </header>
 
     <section class="wrap todos" aria-label={en ? 'All projects' : 'Todos los proyectos'} data-todos data-por-pagina={POR_PAGINA}>
@@ -109,18 +137,8 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       <!-- OCTUBRE 2026 · Eric y Andoni (reunión del 22/10): «el portfolio, con un scroll vertical continuo y filtros flotantes; fuera los destacados de
            arriba». Sin slider ni páginas: todos los proyectos seguidos (se van mostrando al bajar) y el buscador con «Filtros» en una barra que flota
            abajo mientras recorres la rejilla; los filtros se abren encima, en vertical. -->
-      <!-- cada proyecto, dentro de SU degradado (la pieza de «Más proyectos»), no la web a sangre -->
-      <ul class="rejilla mosaico" data-rejilla-obras>
-        {
-          OBRAS.map((o, i) => (
-            <li data-obra data-slug={o.slug} data-servicios={o.servicios.join('|')} data-categoria={o.categorias.join('|')} data-sector={o.sector} data-pais={o.pais.join('|')} data-tec={o.tec.join('|')} data-texto={texto(o)} data-nombre={o.nombre}>
-              <PiezaCasa o={casaDe(o)} i={i} />
-            </li>
-          ))
-        }
-      </ul>
-      <p class="vacio text-fg2" data-vacio hidden>{en ? 'Nothing matches those filters.' : 'Nada con esos filtros.'} <button type="button" class="link" data-limpiar>{en ? 'See all' : 'Ver todos'}</button></p>
-      <div class="mas" data-mas aria-hidden="true"></div>
+      <!-- 26/10 · Eric: «más complejo, como en treseiscero.com/portfolio» y «al filtrar me lleva al footer»: los cuatro filtros vuelven ARRIBA, en cuatro
+           cajas (rótulo pequeño, lo elegido grande y el chevrón), y las listas se abren hacia abajo; la barra flotante de abajo se va -->
       <!-- LOS FILTROS de treseiscero.com/portfolio, DIVIDIDOS como allí (Andoni: «sin el buscador; divididos como teníamos en treseiscero»): cuatro
            desplegables —país · tecnología · servicio · categoría—, cada uno con su rótulo y lo elegido, y «Quitar filtros», en una barra que flota abajo;
            cada lista se abre encima de su botón -->
@@ -133,8 +151,9 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
             return (
               <div class="desp" data-desp={f.k}>
                 <button type="button" class="desp-b" aria-expanded="false" aria-controls={`f-${f.k}`} data-desp-b>
-                  <span class="desp-v" data-desp-v data-todos={f.n}>{f.n}</span>
-                  <svg class="desp-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" /></svg>
+                  <span class="desp-n">{f.n}</span>
+                  <span class="desp-v" data-desp-v data-todos={todos}>{todos}</span>
+                  <svg class="desp-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
                 </button>
                 <div id={`f-${f.k}`} class="desp-menu" role="group" aria-label={f.n} inert data-desp-menu>
                   <span class="mira mira-op" aria-hidden="true" data-mira></span>
@@ -144,12 +163,36 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
               </div>
             );
           })}
-          <button type="button" class="limpiar-f" data-limpiar-f inert>{en ? 'Reset' : 'Quitar'}</button>
-          <!-- Andoni: «quitamos "Todos los proyectos" (con el titular de arriba es suficiente) y el número de proyectos, en otro lado, sutil»: al final de la barra -->
-          <span class="cuenta" aria-live="polite" data-cuenta></span>
+          <!-- Andoni: «el número de proyectos, en otro lado, sutil»: al final, con «Quitar» -->
+          <div class="estado-f">
+            <button type="button" class="limpiar-f" data-limpiar-f aria-label={en ? 'Clear filters' : 'Quitar filtros'} inert><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V5.2c0-.66.54-1.2 1.2-1.2h2.6c.66 0 1.2.54 1.2 1.2V7M6.5 7l.8 11.3c.07.97.88 1.7 1.85 1.7h5.7c.97 0 1.78-.73 1.85-1.7L17.5 7M10.2 10.8v5.6M13.8 10.8v5.6" /></svg></button>
+            <span class="cuenta" aria-live="polite" data-cuenta></span>
+          </div>
         </div>
       </div>
+      <!-- cada proyecto, dentro de SU degradado (la pieza de «Más proyectos»), no la web a sangre -->
+      <ul class="rejilla mosaico" data-rejilla-obras>
+        {
+          OBRAS.map((o, i) => (
+            <li data-obra data-slug={o.slug} data-forma={AJUSTES[o.slug]?.forma} data-nav={AJUSTES[o.slug]?.nav?.join(',')} data-servicios={o.servicios.join('|')} data-categoria={o.categorias.join('|')} data-sector={o.sector} data-pais={o.pais.join('|')} data-tec={o.tec.join('|')} data-texto={texto(o)} data-nombre={o.nombre}>
+              <PiezaCasa o={casaDe(o)} i={i} />
+            </li>
+          ))
+        }
+      </ul>
+      <p class="vacio text-fg2" data-vacio hidden>{en ? 'Nothing matches those filters.' : 'Nada con esos filtros.'} <button type="button" class="link" data-limpiar>{en ? 'See all' : 'Ver todos'}</button></p>
+      <!-- 26/10 · Eric: «a nivel de SEO, ¿una paginación o un botón de cargar más? Así no se hace infinito»: fuera el scroll infinito (no dejaba llegar al
+           pie). Las 44 piezas van en el HTML; con JS se enseñan de 16 en 16 y este botón —un enlace de verdad a ?p=2, que vale sin JS y se comparte— trae
+           la tanda siguiente -->
+      <div class="mas" data-mas hidden><Cta href="?p=2" variante="secundario" flecha="abajo" data-mas-btn>{en ? 'See more projects' : 'Ver más proyectos'}</Cta></div>
     </section>
+    <!-- RONDA 296 · Eric: el slider de los cuatro mentores (descartado de la home), antes del pie: si un filtro deja uno o ningún proyecto, la página no se queda descolgada -->
+    <Voces />
+    <!-- y debajo, la cuadrícula de la home (Eric: «debajo del slider de ilustraciones, el grid»: la ola del pie pasa por debajo de sus líneas) -->
+    <!-- 26/10 · Eric: «que la ola marrón quede por detrás y por delante el grid, con su cambio de color a blanco»: una <section> con su .wrap dentro, que es lo
+         que busca el ECO de la gota del pie (entradas.ts, ronda 216): lo que cubre el marrón se ve en blanco -->
+    <section class="cuad-pie" aria-label={en ? 'Clients and testimonials' : 'Clientes y testimonios'}><div class="wrap"><Cuadricula /></div></section>
+    <Visor obras={OBRAS.map((o) => ({ slug: o.slug, nombre: o.nombre, sector: o.sector, colores: o.colores, video: o.portada.src || undefined, poster: o.portada.poster }))} />
   </main>
   <Pie />
 </Base>
@@ -229,11 +272,11 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   }));
   const desps = [...caja.querySelectorAll<HTMLElement>('[data-desp]')], limpiarF = caja.querySelector<HTMLButtonElement>('[data-limpiar-f]')!;
   const ops = [...caja.querySelectorAll<HTMLButtonElement>('[data-f]')];
-  const mas = caja.querySelector<HTMLElement>('[data-mas]')!, cuenta = caja.querySelector<HTMLElement>('[data-cuenta]')!, vacio = caja.querySelector<HTMLElement>('[data-vacio]')!;
+  const mas = caja.querySelector<HTMLElement>('[data-mas]')!, masBtn = caja.querySelector<HTMLAnchorElement>('[data-mas-btn]')!, cuenta = caja.querySelector<HTMLElement>('[data-cuenta]')!, vacio = caja.querySelector<HTMLElement>('[data-vacio]')!;
   const q = new URLSearchParams(location.search);
   const F = ['pais', 'tec', 'servicio', 'categoria'] as const;
   const filtro: Record<(typeof F)[number], string> = { pais: q.get('pais') || '', tec: q.get('tec') || '', servicio: q.get('servicio') || '', categoria: q.get('categoria') || '' };
-  let busca = '', pagina = 1; // sin buscador (el motor de búsqueda se queda por si vuelve); tandas mostradas
+  let busca = '', pagina = Math.max(1, Number(q.get('p')) || 1); // sin buscador (el motor de búsqueda se queda por si vuelve); tandas mostradas
 
   let quedan = false, reentrar = false; // reentrar: al filtrar, las piezas vuelven a entrar como al llegar
   // el mosaico de «Más proyectos» de la home (Anteriores.astro › SITIO): columna, proporción y cuánto baja cada pieza (en pasos de 4 px); ocho sitios en
@@ -259,14 +302,19 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     pasan.forEach(({ it }) => lista.append(it)); // el orden, por relevancia
     const ya = items.filter((it) => it.dataset.visto === '1').length;
     pasan.slice(0, pagina * POR).forEach(({ it }, i) => { it.hidden = false; const nueva = it.dataset.visto !== '1'; it.dataset.visto = '1'; it.style.setProperty('--i', String(nueva ? Math.max(0, i - ya) % POR : 0)); const st = SITIO[i % SITIO.length], pz = it.querySelector<HTMLElement>('[data-pieza-casa]')!;
+      // 26/10 · Eric: «cada proyecto se muestra de una manera y siempre tiene que ser así» y «tu sistema estaba mejor: ahora no siempre se cumplen los
+      // espacios»: el SITIO del mosaico pone tamaño y colocación (columna, proporción, cuánto baja); el PROYECTO pone su forma —solo tres: navegador,
+      // mesa con la pantalla grande o mesa con el móvil— y su navegador [x, y, ancho, giro] (portfolio-orden.json › piezas), igual filtrando o en cualquier puesto
       it.style.setProperty('--col', st[0]); it.style.setProperty('--ratio', st[1]); it.style.setProperty('--baja', String(st[2]));
-      // el navegador, en su sitio (si una vertical cae en navegador por no tener captura en móvil, asoma desde más arriba)
-      const m = st[4] ?? [10, 23, 116];
-      pz.style.setProperty('--mx', m[0] + '%'); pz.style.setProperty('--top', m[1] + '%'); pz.style.setProperty('--mw', m[2] + '%'); pz.style.setProperty('--giro', (st[5] ?? 0) + 'deg');
+      const sb = SITIO[items.indexOf(it) % SITIO.length]; // respaldo para un proyecto sin pieza propia: la de su puesto sin filtros
+      const forma = ((it.dataset.forma as Forma | undefined) ?? sb[3]) === 'tel' ? 'movil' : ((it.dataset.forma as Forma | undefined) ?? sb[3]);
+      const nav = it.dataset.nav?.split(',').map(Number), m = nav ?? [...(sb[4] ?? [10, 23, 116]), sb[5] ?? 0];
+      pz.style.setProperty('--mx', m[0] + '%'); pz.style.setProperty('--top', m[1] + '%'); pz.style.setProperty('--mw', m[2] + '%'); pz.style.setProperty('--giro', m[3] + 'deg');
       pz.style.setProperty('--i', String((nueva ? i - ya : i) % 3 + 1));
-      formar(pz, st[3]); preparar(pz); entrar(pz, reentrar && !nueva);
+      formar(pz, forma); preparar(pz); entrar(pz, reentrar && !nueva);
     });
     quedan = pasan.length > pagina * POR;
+    mas.hidden = !quedan; masBtn.href = `?${new URLSearchParams({ ...Object.fromEntries(F.filter((k) => filtro[k]).map((k) => [k, filtro[k]])), p: String(pagina + 1) })}`;
     ops.forEach((b) => b.setAttribute('aria-pressed', String(filtro[b.dataset.f as (typeof F)[number]] === b.dataset.v)));
     const nAct = F.filter((k) => filtro[k]).length;
     limpiarF.classList.toggle('on', !!nAct); limpiarF.inert = !nAct;
@@ -276,22 +324,27 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     cuenta.textContent = busca || nAct ? `${pasan.length}/${items.length}` : String(items.length);
     cuenta.setAttribute('aria-label', `${pasan.length} ${pasan.length === 1 ? t('proyecto', 'project') : t('proyectos', 'projects')}`);
     const u = new URL(location.href);
-    ([['q', ''], ...F.map((k) => [k, filtro[k]] as const), ['p', '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
+    ([['q', ''], ...F.map((k) => [k, filtro[k]] as const), ['p', pagina > 1 ? String(pagina) : '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
     history.replaceState(null, '', u);
-    if (mover) caja.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    // Eric: al elegir un filtro, la página sube hasta arriba del todo, siempre en suave
+    if (mover) scrollTo({ top: 0, behavior: 'smooth' });
   };
-  // los desplegables: uno abierto cada vez; cada lista sube encima de su botón y cabe en lo que queda de pantalla por arriba
+  // los desplegables: uno abierto cada vez; cada lista baja de su caja y cabe en lo que queda de pantalla por abajo
   // abrir y cerrar con transición (clases, no `hidden`: el cierre también se anima); cerrada, la lista es inerte
   const abierta = (d: HTMLElement) => d.classList.contains('abierto');
   const cerrarF = () => desps.forEach((d) => { d.classList.remove('abierto'); requestAnimationFrame(() => (window as any).__miraBarra?.()); d.querySelector<HTMLElement>('[data-desp-menu]')!.inert = true; d.querySelector('[data-desp-b]')!.setAttribute('aria-expanded', 'false'); });
+  // la NUBE (Eric): si la lista sigue por abajo (o por arriba), el borde se funde en vez de cortar en seco
+  const nube = (m: HTMLElement) => { m.classList.toggle('sigue-abajo', m.scrollTop + m.clientHeight < m.scrollHeight - 2); m.classList.toggle('sigue-arriba', m.scrollTop > 2); };
+  desps.forEach((d) => { const m = d.querySelector<HTMLElement>('[data-desp-menu]')!; m.addEventListener('scroll', () => nube(m), { passive: true }); });
   desps.forEach((d) => {
     const b = d.querySelector<HTMLButtonElement>('[data-desp-b]')!, m = d.querySelector<HTMLElement>('[data-desp-menu]')!;
     b.addEventListener('click', () => {
       const abrir = !abierta(d);
       cerrarF();
       if (!abrir) return;
-      m.style.maxHeight = `${Math.max(180, Math.min(480, b.getBoundingClientRect().top - 108))}px`;
+      m.style.maxHeight = `${Math.max(180, Math.min(420, innerHeight - b.getBoundingClientRect().bottom - 24))}px`;
       m.inert = false; d.classList.add('abierto'); b.setAttribute('aria-expanded', 'true');
+      nube(m);
     });
   });
   ops.forEach((b) => b.addEventListener('click', () => { filtro[b.dataset.f as (typeof F)[number]] = b.dataset.v!; pagina = 1; cerrarF(); reentrar = true; pintar(true); reentrar = false; }));
@@ -299,7 +352,7 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   caja.querySelector('[data-limpiar]')!.addEventListener('click', limpiar);
   limpiarF.addEventListener('click', limpiar);
   // al acercarse el final de la rejilla, la tanda siguiente
-  new IntersectionObserver(([e]) => { if (e.isIntersecting && quedan) { pagina++; pintar(); } }, { rootMargin: '0px 0px 600px 0px' }).observe(mas);
+  masBtn.addEventListener('click', (e) => { e.preventDefault(); if (!quedan) return; pagina++; pintar(); });
   // LA BARRITA: una píldora que se desliza hasta el filtro (o la opción) bajo el puntero y vuelve al que está abierto (o al elegido) al salir
   const mira = (caja: HTMLElement, sel: string, reposo: () => HTMLElement | null) => {
     const m = caja.querySelector<HTMLElement>(':scope > [data-mira]')!;
@@ -308,8 +361,12 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       const primera = !m.classList.contains('on');
       if (primera) m.classList.add('sin-viaje'); // la primera vez aparece en su sitio, sin venir de la izquierda
       // la posición, respecto a la caja de la barrita (los botones de la barra van dentro de su .desp, que es su offsetParent)
-      const r = el.getBoundingClientRect(), c = caja.getBoundingClientRect();
-      m.style.setProperty('--x', r.left - c.left - caja.clientLeft + caja.scrollLeft + 'px'); m.style.setProperty('--y', r.top - c.top - caja.clientTop + caja.scrollTop + 'px');
+      // dentro de la lista, por offsets: la lista entra desplazada y escalada, y medirla con getBoundingClientRect en plena entrada la dejaba más arriba (Eric)
+      // (y en la barra: los filtros entran con un desplazamiento; los offsets no lo ven, así que la barrita cae en su sitio aunque se mida en plena entrada)
+      let x = 0, y = 0, n: HTMLElement | null = el;
+      while (n && n !== caja) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      if (n === caja) { m.style.setProperty('--x', x + 'px'); m.style.setProperty('--y', y + 'px'); }
+      else { const r = el.getBoundingClientRect(), c = caja.getBoundingClientRect(); m.style.setProperty('--x', r.left - c.left - caja.clientLeft + caja.scrollLeft + 'px'); m.style.setProperty('--y', r.top - c.top - caja.clientTop + caja.scrollTop + 'px'); }
       m.style.setProperty('--w', el.offsetWidth + 'px'); m.style.setProperty('--h', el.offsetHeight + 'px');
       m.classList.add('on');
       if (primera) requestAnimationFrame(() => requestAnimationFrame(() => m.classList.remove('sin-viaje')));
@@ -335,12 +392,16 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
 <style>
   .obras {
     padding-top: calc(var(--spacing) * 32);
+    /* 26/10 · Eric: «cuidado al final de proyectos, la nube»: los filtros (z 20) seguían pegados arriba mientras la gota del pie (z 3) ya subía, y la nube
+       clara quedaba encima del marrón. En su propio plano, la gota del pie lo tapa todo: filtros y nube incluidos */
+    position: relative;
+    z-index: 1;
   }
   /* RONDA 138 · más compacta para que «Todos los proyectos» suba: en escritorio, la entradilla al lado del titular, apoyada en su base */
   @media (width >= 64rem) {
     .obras { padding-top: calc(var(--spacing) * 28); }
     .cabecera { display: flex; align-items: flex-end; justify-content: space-between; gap: calc(var(--spacing) * 12); }
-    .cabecera p { margin-top: 0; max-width: 22rem; padding-bottom: calc(var(--spacing) * 3); }
+    .cabecera p { margin-top: 0; max-width: 31rem; text-wrap: balance; text-align: right; /* en dos líneas y pegado a la guía derecha, en la cruz (Eric) */ padding-bottom: calc(var(--spacing) * 1); } /* 26/10 · Eric: más pegado; su última línea, en la base del titular */
   }
   .titular {
     font-size: clamp(2.5rem, 1rem + 4vw, 5rem); /* RONDA 144 · Eric: «el titular, demasiado grande» (antes hasta 7,5 rem) */
@@ -349,39 +410,71 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     max-width: 14ch;
     text-wrap: balance;
   }
+  /* 26/10 · Eric: «aun así, deja espacio mejor»: el aire de una sección bajo la cuadrícula; la ola del pie sube por él sin pisar las citas */
+  .cuad-pie { padding-bottom: var(--space-section); }
   .todos {
-    padding-top: calc(var(--spacing) * 16);
+    overflow-x: clip; /* el velo de los filtros sale a todo el ancho; clip (no hidden) no rompe el sticky */
+    padding-top: calc(var(--spacing) * 12);
     padding-bottom: var(--space-section, calc(var(--spacing) * 32));
     scroll-margin-top: calc(var(--spacing) * 24);
   }
-  /* OCTUBRE 2026 · LA BARRA FLOTANTE: pegada abajo mientras se recorre la rejilla (sticky dentro de la sección: al acabar, se queda en su sitio).
-     Cristal en el color de la página; los filtros se abren ENCIMA, en una columna. */
+  /* 26/10 · LOS FILTROS, ARRIBA y PEGADOS bajo la barra al bajar (Eric: «el filtraje anterior, más pequeñito, pero con toda la complejidad del actual; y sticky
+     arriba»): la píldora fina de cristal de antes; cada filtro dice su rótulo y lo elegido («País Todos ⌄»); las listas BAJAN; al final, «Quitar» y el recuento. */
+  /* 26/10 · Eric: «al bajar, sticky a 0 arriba, con nubecita del color del fondo detrás» (la nube, en .mandos::after) */
   .flota {
     position: sticky;
-    bottom: calc(var(--spacing) * 6 + env(safe-area-inset-bottom));
+    top: 0;
     z-index: 20;
     display: flex;
-    justify-content: center;
-    margin-top: calc(var(--spacing) * 16);
+    justify-content: center; /* en escritorio, en la misma línea que la barra, entre el logotipo y los iconos */
+    padding-block: calc(var(--spacing) * 3);
+    pointer-events: none;
+  }
+  /* sin sitio en la línea de la barra: se pega justo debajo de ella */
+  @media (width < 80rem) {
+    .flota { top: calc(var(--spacing) * 14); padding-block: calc(var(--spacing) * 2); }
+    .flota::before { top: calc(var(--spacing) * -14); height: calc(100% + var(--spacing) * 26); } /* el velo sube hasta arriba, tras la barra */
+  }
+  /* la nube: un velo a todo el ancho que va del color de la página a transparente (la rejilla pasa por debajo y se desvanece; probado solo alrededor de la
+     píldora y vuelto a esto: «nada, mejor como antes») */
+  .flota::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: -100vw;
+    right: -100vw;
+    height: calc(100% + var(--spacing) * 12);
+    background: linear-gradient(var(--bg, #eadde7) 55%, transparent);
     pointer-events: none;
   }
   .flota > * { pointer-events: auto; }
-  /* OCTUBRE 2026 · Andoni: «los filtros abajo, más minimalistas»: una píldora fina con los cuatro nombres; lo elegido sustituye al nombre (con un punto Coral) */
   .mandos {
+    --lu: calc(var(--spacing) * 12); /* el alto de los filtros y el hueco de la papelera y del recuento (40 px en móvil) */
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
-    gap: 0;
     max-width: 100%;
     padding: calc(var(--spacing) * 1);
+    pointer-events: none;
+  }
+  /* el cristal, en su capa */
+  .mandos::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     border-radius: var(--radius-full);
     background: color-mix(in oklab, var(--bg, #eadde7) 82%, transparent);
     -webkit-backdrop-filter: blur(14px) saturate(1.3);
     backdrop-filter: blur(14px) saturate(1.3);
     box-shadow: inset 0 0 0 1px var(--rule), 0 10px 30px -18px rgb(36 22 16 / 0.35);
   }
+  .mandos { pointer-events: auto; }
   .desp { position: relative; z-index: 1; }
-  .mandos { position: relative; }
-  /* la barrita: se desliza (posición y tamaño) con la curva de la casa */
+  .desp.abierto { z-index: 2; }
+  /* la barrita: se desliza (posición y tamaño) de caja en caja, con la curva de la casa */
   .mira {
     position: absolute;
     z-index: 0;
@@ -398,51 +491,90 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   }
   .mira.on { opacity: 1; }
   .mira.sin-viaje { transition: opacity 0.35s ease; }
+  /* radio de dentro = radio de fuera (20) − margen de la lista (8) */
   .mira-op { border-radius: calc(var(--spacing) * 3); background: color-mix(in oklab, var(--fg) 8%, transparent); }
-  .limpiar-f { position: relative; z-index: 1; }
+  /* Eric (26/10): «el rótulo, en pequeñito, encima de lo elegido», como las cajas de treseiscero.com/portfolio, y SIMETRÍA: los cuatro con el MISMO ancho,
+     el mismo margen a los dos lados, y el chevrón al borde derecho, en la línea de lo elegido */
   .desp-b {
-    display: inline-flex;
-    align-items: center;
-    gap: calc(var(--spacing) * 1.5);
-    height: calc(var(--spacing) * 9);
-    padding-inline: calc(var(--spacing) * 3.5);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: center;
+    column-gap: calc(var(--spacing) * 2);
+    width: 9.5rem;
+    height: var(--lu);
+    padding-inline: calc(var(--spacing) * 4);
     border-radius: var(--radius-full);
-    font-size: 0.875rem;
-    color: var(--fg2);
+    text-align: left;
+    white-space: nowrap;
     cursor: pointer;
-    transition: color 0.3s ease, background-color 0.3s ease;
   }
-  .desp-b:hover, .desp-b[aria-expanded='true'], .desp.activo .desp-b { color: var(--fg); }
-  .desp-v { max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .desp.activo .desp-v::before { content: ''; display: inline-block; width: 5px; height: 5px; margin-right: 6px; vertical-align: 2px; border-radius: 50%; background: var(--color-coral); }
-  .desp-ic { width: 0.625rem; height: 0.625rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; transition: rotate 0.4s var(--ease-out-expo); }
+  .desp-n { grid-area: 1 / 1; font-size: 0.6875rem; line-height: 1.2; color: var(--fg2); }
+  .desp-v { grid-area: 2 / 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 0.9375rem; line-height: 1.35; color: var(--fg); font-weight: 500; }
+  .desp-ic { grid-area: 1 / 2 / 3 / 3; align-self: center; justify-self: end; width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.5; /* más grande y en la mitad de la caja (Eric) */ stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; transition: rotate 0.4s var(--ease-out-expo); }
   .desp-b[aria-expanded='true'] .desp-ic { rotate: 180deg; }
+  @media (width < 48rem) {
+    .mandos { --lu: calc(var(--spacing) * 10); width: 100%; justify-content: space-between; padding-inline: calc(var(--spacing) * 3); } /* el texto, a 16 px del borde */
+    .desp { flex: 1 1 0; min-width: 0; }
+    .desp-b { width: 100%; grid-template-columns: minmax(0, 1fr); padding-inline: calc(var(--spacing) * 1); }
+    .desp-n { font-size: 0.625rem; overflow: hidden; text-overflow: ellipsis; }
+    .desp-ic { display: none; } /* sin sitio: el rótulo de arriba ya dice que es un desplegable */
+    .desp-v { font-size: 0.8125rem; }
+    .desp { position: static; }
+  }
+  /* Safari (no lee scrollbar-color): la misma barra fina, redonda y separada del borde */
+  .desp-menu::-webkit-scrollbar { width: 12px; }
+  .desp-menu::-webkit-scrollbar-track { background: transparent; margin-block: calc(var(--spacing) * 4); }
+  .desp-menu::-webkit-scrollbar-thumb { border: 4px solid transparent; border-radius: 999px; background: color-mix(in srgb, var(--fg) 22%, transparent) padding-box; }
   .desp-menu {
     position: absolute;
-    bottom: calc(100% + var(--spacing) * 3);
+    top: calc(100% + var(--spacing) * 3);
     left: 0;
     min-width: 15rem;
     max-width: min(22rem, 90vw);
     overflow-y: auto;
     overscroll-behavior: contain;
+    /* 26/10 · Eric: «la barra del dropdown, un poco de diseño»: fina, en la tinta de la web y sin carril (la del sistema era gris y gruesa) */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--fg) 22%, transparent) transparent;
     display: grid;
     padding: calc(var(--spacing) * 2);
     border-radius: calc(var(--spacing) * 5);
-    background: color-mix(in oklab, var(--bg, #eadde7) 96%, transparent);
+    background: var(--bg, #eadde7); /* opaca: ahora baja sobre las fotos de la rejilla */
     -webkit-backdrop-filter: blur(20px) saturate(1.4);
     backdrop-filter: blur(20px) saturate(1.4);
-    box-shadow: inset 0 0 0 1px var(--rule), 0 24px 56px -24px rgb(36 22 16 / 0.5);
-    transform-origin: 30% 100%;
-    /* Andoni: «que los filtros se abran y cierren más smooth: la savvia es muy fluida». Cerrada sigue en su sitio, invisible: se abre creciendo desde el
-       botón (sube, se enfoca y se descubre de abajo arriba) y las opciones llegan una tras otra; al cerrar, lo mismo al revés y más deprisa */
+    /* el filo, con outline (se pinta ENCIMA del contenido): con un inset en la sombra, la nube de abajo lo tapaba y el borde parecía cortado (Eric) */
+    outline: 1px solid var(--rule);
+    outline-offset: -1px;
+    box-shadow: 0 24px 56px -24px rgb(36 22 16 / 0.5);
+    transform-origin: 50% 0;
+    /* Andoni: «que los filtros se abran y cierren más smooth: la savvia es muy fluida»: se abre creciendo desde la caja (baja, se enfoca y se descubre
+       de arriba abajo) y las opciones llegan una tras otra; al cerrar, lo mismo al revés y más deprisa */
     visibility: hidden;
     opacity: 0;
-    transform: translateY(calc(var(--spacing) * 2)) scale(0.96);
+    transform: translateY(calc(var(--spacing) * -2)) scale(0.98);
     filter: blur(6px);
-    clip-path: inset(35% 0 0 0 round calc(var(--spacing) * 5));
+    clip-path: inset(0 0 35% 0 round calc(var(--spacing) * 5));
     pointer-events: none;
     transition: opacity 0.4s ease, transform 0.55s var(--ease-out-expo), filter 0.45s ease, clip-path 0.55s var(--ease-out-expo), visibility 0s linear 0.55s;
   }
+  /* la nube: un velo del color de la lista, pegado al borde por el que sigue (sticky dentro de la lista); no tapa los clics */
+  .desp-menu::before, .desp-menu::after {
+    content: '';
+    position: sticky;
+    z-index: 2;
+    display: block;
+    height: calc(var(--spacing) * 12);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  /* 26/10 · Eric: «la nubecita no tiene overflow hidden» y luego «una barrita horizontal más oscura»: la nube (posicionada) se pinta ENCIMA del filo, así
+     que no puede quedarse corta ni recta. Llega al borde por los tres lados (−8 px: el relleno), con las esquinas de la lista (20 px) y un filo
+     TRANSPARENTE de 1 px justo donde el de la lista: la nube se pinta solo por dentro (padding-box) y el filo de la lista se ve entero, sin doblarse */
+  .desp-menu::before, .desp-menu::after { margin-inline: calc(var(--spacing) * -2); border: 1px solid transparent; }
+  .desp-menu::before { top: calc(var(--spacing) * -2); margin-bottom: calc(var(--spacing) * -12); border-bottom: 0; border-radius: calc(var(--spacing) * 5) calc(var(--spacing) * 5) 0 0; background: linear-gradient(var(--bg, #eadde7), transparent) padding-box; }
+  .desp-menu::after { bottom: calc(var(--spacing) * -2); margin-top: calc(var(--spacing) * -12); border-top: 0; border-radius: 0 0 calc(var(--spacing) * 5) calc(var(--spacing) * 5); background: linear-gradient(transparent, var(--bg, #eadde7)) padding-box; }
+  .desp-menu.sigue-arriba::before, .desp-menu.sigue-abajo::after { opacity: 1; }
   .desp.abierto .desp-menu {
     visibility: visible;
     opacity: 1;
@@ -452,7 +584,8 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     pointer-events: auto;
     transition: opacity 0.45s ease, transform 0.7s var(--ease-out-expo), filter 0.5s ease, clip-path 0.7s var(--ease-out-expo), visibility 0s;
   }
-  .desp:last-of-type .desp-menu { left: auto; right: 0; transform-origin: 70% 100%; }
+  .desp:nth-last-of-type(1 of .desp) .desp-menu { left: auto; right: 0; }
+  @media (width < 48rem) { .desp-menu { left: 0 !important; right: 0 !important; max-width: none; } }
   .op {
     display: flex;
     align-items: baseline;
@@ -465,7 +598,7 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     color: color-mix(in oklab, var(--fg) 78%, transparent);
     cursor: pointer;
     opacity: 0;
-    translate: 0 6px;
+    translate: 0 -6px;
     transition: color 0.25s ease, background-color 0.25s ease, opacity 0.2s ease, translate 0.3s ease;
   }
   .desp.abierto .op {
@@ -473,43 +606,34 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     translate: 0 0;
     transition: color 0.25s ease, background-color 0.25s ease, opacity 0.5s ease calc(0.06s + min(var(--k, 0), 12) * 22ms), translate 0.7s var(--ease-out-expo) calc(0.06s + min(var(--k, 0), 12) * 22ms);
   }
-  .op sup { font-family: var(--font-sans); font-size: 0.6875rem; opacity: 0.55; vertical-align: 0; font-variant-numeric: tabular-nums; }
+  /* el recuento, en la línea del nombre (Eric: «no está bien centrado»: el reset de Tailwind sube los <sup> con top: -0.5em) */
+  .op sup { top: 0; align-self: center; line-height: 1; font-family: var(--font-sans); font-size: 0.6875rem; opacity: 0.55; vertical-align: 0; font-variant-numeric: tabular-nums; }
   .op { position: relative; z-index: 1; }
   .op:hover { color: var(--fg); }
   .op[aria-pressed='true'] { color: var(--fg); font-weight: 500; }
+  /* al final de la píldora: la PAPELERA (Eric: «quitar, mejor icono de basurita»; crece al filtrar, en un círculo como la lupa) y el recuento */
+  .estado-f { display: flex; align-items: center; gap: calc(var(--spacing) * 1); }
   .limpiar-f {
-    height: calc(var(--spacing) * 9);
-    padding-inline: calc(var(--spacing) * 3.5);
-    border-radius: var(--radius-full);
-    font-size: 0.875rem;
-    color: var(--fg2);
-    white-space: nowrap;
-    cursor: pointer;
-    transition: color 0.3s ease;
-  }
-  .limpiar-f:hover { color: var(--fg); }
-  .limpiar-f { max-width: 0; padding-inline: 0; opacity: 0; overflow: hidden; transition: max-width 0.6s var(--ease-out-expo), padding 0.6s var(--ease-out-expo), opacity 0.4s ease, color 0.3s ease; }
-  .limpiar-f.on { max-width: 6rem; padding-inline: calc(var(--spacing) * 3.5); opacity: 1; }
-  /* en móvil, los cuatro en la misma píldora, más apretados; la lista, a lo ancho */
-  @media (width < 48rem) {
-    .mandos { width: 100%; justify-content: space-between; }
-    .desp-b { padding-inline: calc(var(--spacing) * 2.5); font-size: 0.8125rem; }
-    .desp-v { max-width: 5.5rem; }
-    .desp { position: static; }
-    .flota .mandos { position: relative; }
-    .desp-menu { left: 0 !important; right: 0 !important; max-width: none; }
-  }
-  @media (prefers-reduced-motion: reduce) { .mira, .desp-menu, .desp.abierto .desp-menu, .op, .desp.abierto .op, .limpiar-f { transition: none !important; filter: none; } }
-  /* el número de proyectos, al final de la barra: pequeño, apagado y en cifras tabulares, tras un filete */
-  .cuenta {
     position: relative;
-    padding-inline: calc(var(--spacing) * 3.5) calc(var(--spacing) * 3);
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    color: color-mix(in oklab, var(--fg2) 75%, transparent);
-    white-space: nowrap;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: var(--lu);
+    max-width: 0;
+    height: var(--lu);
+    border-radius: var(--radius-full);
+    color: var(--fg2);
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0;
+    transition: max-width 0.6s var(--ease-out-expo), opacity 0.4s ease, color 0.3s ease;
   }
-  .cuenta::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 1px; background: var(--rule); }
+  .limpiar-f svg { width: 1.125rem; height: 1.125rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .limpiar-f:hover { color: var(--fg); }
+  .limpiar-f.on { max-width: var(--lu); opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .mira, .desp-menu, .desp.abierto .desp-menu, .op, .desp.abierto .op, .limpiar-f { transition: none !important; filter: none; } }
+  /* 26/10 · Eric: «no sé si mantendría el número; creo que lo quitaría»: el recuento ya no se ve; se queda para lectores de pantalla (aria-live) */
+  .cuenta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   /* OCTUBRE 2026 · EL MOSAICO DE LA HOME («Más proyectos»): retícula de 12, piezas de anchos y proporciones distintas, escalonadas, con aire */
   .mosaico {
     display: grid;
@@ -553,7 +677,8 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   .vacio {
     margin-top: calc(var(--spacing) * 12);
   }
-  .mas { height: 1px; }
+  .mas { display: flex; justify-content: center; margin-top: calc(var(--spacing) * 32); }
+  .mas[hidden] { display: none; }
   :global(::view-transition-group(*)) {
     animation-duration: 0.9s;
   }

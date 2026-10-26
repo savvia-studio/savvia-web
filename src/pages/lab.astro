@@ -1,4 +1,7 @@
 ---
+// LANZAMIENTO: esta página aún no sale (ver src/lib/lanzamiento.ts); quien llega por la dirección vuelve a la home
+import { RECORTE } from '../lib/lanzamiento';
+if (RECORTE) return Astro.redirect('/');
 // RONDA 126 · /lab — EL LABORATORIO. Andoni: «quiero una página de labs donde podamos poner experimentos y se sienta como eso, un laboratorio de
 // experimentos, algo caótico». RONDA 128: «las páginas secundarias, todas en light» y «el lab como esto: matthewvernon.co». RONDA 129: savvia lab,
 // lienzo en bucle infinito con distorsión por velocidad, raíces desde la card de cristal y el fondo que elige el visitante

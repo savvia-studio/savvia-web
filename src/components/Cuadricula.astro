@@ -1,0 +1,278 @@
+---
+// LA CUADRÍCULA de citas, logotipos y cifras que rota (rondas 65–292), sacada de Anteriores.astro en la ronda 296 para usarla también entre los
+// proyectos de /proyectos (Eric: «entre medias de proyectos también podríamos poner el grid de la home que tenemos actualmente»).
+import { home } from '../data/idioma';
+import { langDe } from '../lib/i18n';
+const lang = langDe(Astro.currentLocale), en = lang === 'en';
+const CELDAS = home(lang).proyectos.celdas;
+// RONDA 76 · «los logos, más grandes y proporcionales cada uno a su logo»: mismo PESO ÓPTICO para todos (área constante): ancho ∝ √proporción,
+// alto ∝ 1/√proporción, con la proporción leída del archivo (viewBox del SVG o cabecera del PNG) al compilar.
+import sharp from 'sharp';
+const PROP: Record<string, number> = {};
+for (const url of new Set([...CELDAS.flat().map((it) => it.logo)].filter(Boolean) as string[])) {
+  try { const m = await sharp(`public${url}`).metadata(); PROP[url] = (m.width ?? 3) / (m.height ?? 1); } catch { PROP[url] = 3; }
+}
+const proporcion = (url: string) => PROP[url] ?? 3;
+// RONDA 144 · Andoni: «los logos, que todos tengan siempre el mismo tamaño, coherencia»: la MISMA ALTURA para todos (1,75 rem) y el ancho que dé su
+// proporción; solo si pasa de 8,5 rem (muy apaisado) se encoge para caber
+// RONDA 189 (3.ª) · Eric: «tienen que ser todos consistentes en tamaño; míralos todos»: cada logotipo de la cuadrícula va RECORTADO a su tinta
+// (tools/r189/logos.cjs → public/media/logos/cuadricula/) y se dibuja con la MISMA ÁREA (ancho × alto constante, así un logo cuadrado sale más alto y uno
+// muy apaisado más bajo), corregida un poco por la densidad de tinta (los muy negros pesan más: se encogen; los finos crecen). Datos en logos-cuadricula.json.
+import LOGOS from '../data/logos-cuadricula.json';
+// y la ESCALA a mano de cada uno (Eric la ajustó logo a logo en el artefacto «Tallas de los logos»)
+const talla = (url: string, k = 1) => {
+  const d = (LOGOS as Record<string, { r: number; d: number }>)[url.split('/').pop()!.replace(/\.png$/, '')];
+  const r = d?.r ?? proporcion(url), tinta = d?.d ?? 0.3;
+  const AREA = 10.5, h = Math.min(2.2, Math.sqrt(AREA / r) * Math.pow(0.3 / tinta, 0.2)) * k;
+  return `--lw:${(h * r).toFixed(2)}rem;--lh:${h.toFixed(2)}rem`;
+};
+---
+
+<div class="banda cuadricula" data-banda data-cuadricula>
+      <span class="guias" aria-hidden="true">
+        {[0, 1, 2].map((r) => <i class="gh" style={`--r:${r}`} />)}
+        {[1, 2].map((c) => <i class="gv" style={`--c:${c}`} />)}
+        {[0, 1, 2].flatMap((r) => [0, 1, 2, 3].map((c) => <i class="gx" style={`--r:${r};--c:${c}`} />))}
+      </span>
+      {CELDAS.map((celda, c) => (
+        <div class="celda" style={`--c:${c}`} data-celda>
+          {celda.map((it, k) => (
+            <div class={`item ${it.tipo} ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-item>
+              {it.tipo === 'cita' && (
+                <>
+                  <p class="cq">“{it.q}”</p>
+                  {/* RONDA 292 · las 4 citas con retrato (`retrato` en home.ts) entran en la cuadrícula SIN la ilustración: Eric, «las ilustraciones aquí quedan mal, las dejamos para los case studies» */}
+                  <p class="cn">{it.n}</p>
+                  <p class="cr">{it.r}</p>
+                </>
+              )}
+              {it.tipo === 'marca' && (
+                <>
+                  <p class="cr">{it.rotulo}</p>
+                  {it.texto ? (
+                    <p class="marca-txt"><i class="mk" style={`--logo:url('${it.logo}')`} aria-hidden="true" />{it.texto}</p>
+                  ) : (
+                    <i class="mk grande" role="img" aria-label={it.n} style={`--logo:url('${it.logo}');${talla(it.logo!, it.escala)}`} />
+                  )}
+                </>
+              )}
+              {it.tipo === 'cifra' && (
+                <>
+                  <p class="cr">{it.l === 'desde' ? (en ? 'From' : 'Desde') : ' '}</p>
+                  <p class="cv font-display tabular-nums">{it.v}</p>
+                  {it.l !== 'desde' && <p class="cr">{it.l}</p>}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+
+<script>
+  // RONDA 66 · cada celda releva su contenido; el que se va se desenfoca y sube, el que llega viene de abajo y enfoca. Solo a la vista y sin movimiento reducido.
+  const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll<HTMLElement>('[data-cuadricula]').forEach((rejilla) => {
+    // RONDA 189 · Eric: «que sea todo aleatorio cada vez que entramos»: en cada visita se barajan las citas y los logotipos y se reparten de nuevo por las
+    // celdas, alternando (las celdas impares empiezan por logotipo), antes de que arranque la rotación
+    if (rejilla) {
+      const cajas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')];
+      const todos = cajas.flatMap((c) => [...c.querySelectorAll<HTMLElement>('[data-item]')]);
+      const barajar = <T,>(a: T[]) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+      const citas = barajar(todos.filter((it) => it.classList.contains('cita')));
+      const marcas = barajar(todos.filter((it) => !it.classList.contains('cita')));
+      const reparto: HTMLElement[][] = cajas.map(() => []);
+      // RONDA 265 · Eric: «en móvil, que esté intercalado, no solo arriba reseñas y abajo logos»: en móvil las dos celdas reparten citas y logotipos alternando
+      // (la de arriba empieza por reseña, la de abajo por logotipo), como en escritorio
+      const movilR = matchMedia('(width < 48rem)').matches;
+      // RONDA 266 · Eric: «sigue arriba reseña y abajo logo; que no sea solo así»: además, en cada visita se sortea qué tipo abre cada celda (a veces arriba
+      // logotipo y abajo reseña, a veces las dos con reseña o las dos con logotipo)
+      const abre = cajas.map(() => Math.random() < 0.5);
+      while (citas.length || marcas.length) cajas.slice(0, movilR ? 2 : cajas.length).forEach((_, c) => {
+        const logo = (reparto[c].length % 2 === 0) === abre[c];
+        const it = (logo && marcas.length) || !citas.length ? marcas.shift() : citas.shift();
+        if (it) reparto[c].push(it);
+      });
+      reparto.forEach((lista, c) => lista.forEach((it, k) => { it.classList.toggle('on', k === 0); it.setAttribute('aria-hidden', k === 0 ? 'false' : 'true'); cajas[c].appendChild(it); }));
+    }
+    if (rejilla) {
+      const dos = rejilla.querySelectorAll<HTMLElement>('[data-celda]')[1], medir = () => rejilla.style.setProperty('--medio', `${dos.offsetTop}px`);
+      new ResizeObserver(medir).observe(rejilla); medir();
+    }
+    if (rejilla) new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { rejilla.classList.add('trazada'); o.disconnect(); } }, { threshold: 0.3 }).observe(rejilla);
+    if (rejilla && !reducido) {
+      const celdas = [...rejilla.querySelectorAll<HTMLElement>('[data-celda]')].map((el) => ({ items: [...el.querySelectorAll<HTMLElement>('[data-item]')], k: 0 })).filter((c) => c.items.length);
+      let relojes: number[] = [];
+      const girar = (c: (typeof celdas)[number]) => {
+        c.items[c.k].classList.remove('on'); c.items[c.k].classList.add('sale'); c.items[c.k].setAttribute('aria-hidden', 'true');
+        const viejo = c.items[c.k]; setTimeout(() => viejo.classList.remove('sale'), 1600);
+        c.k = (c.k + 1) % c.items.length; c.items[c.k].classList.add('on'); c.items[c.k].setAttribute('aria-hidden', 'false');
+      };
+      new IntersectionObserver((e) => {
+        relojes.forEach(clearTimeout); relojes = [];
+        if (!e[0].isIntersecting) return;
+        const movil = matchMedia('(width < 48rem)').matches;
+        const armar = (c: (typeof celdas)[number], i: number, espera: number) => { relojes[i] = window.setTimeout(function tic() { girar(c); relojes[i] = window.setTimeout(tic, i === 0 ? 7000 : 3500); }, espera); };
+        // RONDA 264 · Eric: «en desktop, aleatorio y más tranquilo; al hacer scroll in cambia solo uno»: UN reloj para toda la cuadrícula; cada 2,5–4 s cambia una celda
+        // al azar (nunca la misma dos veces seguidas), así nunca cambian dos a la vez y cada celda sale cada ~30 s. El primer cambio, a los 1,8 s de verla.
+        let ultima = -1;
+        const una = () => { let i; do i = Math.floor(Math.random() * celdas.length); while (i === ultima && celdas.length > 1); ultima = i; girar(celdas[i]); };
+        const tic = () => { una(); relojes[0] = window.setTimeout(tic, 2500 + Math.random() * 1500); };
+        if (movil) {
+          // móvil: dos cuadrados (reseñas / logotipos), cada uno a su ritmo; la primera cambia enseguida
+          celdas.forEach((c, i) => armar(c, i, 5000 + i * 1500));
+          relojes.push(window.setTimeout(() => { if (celdas[0].k === 0) girar(celdas[0]); }, 1800));
+        } else relojes[0] = window.setTimeout(tic, 1800);
+        // RONDA 264 · Eric: «si haces tap sobre el cuadrado pasa a la siguiente»: tocar una celda avanza (en móvil, reinicia además su reloj)
+        rejilla.onclick = (ev) => {
+          const i = celdas.findIndex((c) => c.items[0].parentElement?.contains(ev.target as Node));
+          if (i < 0) return;
+          girar(celdas[i]); ultima = i;
+          if (matchMedia('(width < 48rem)').matches) { clearTimeout(relojes[i]); armar(celdas[i], i, i === 0 ? 7000 : 3500); }
+        };
+      }, { threshold: 0.2 }).observe(rejilla);
+    }
+  });
+</script>
+
+<style>
+  /* ── LA CUADRÍCULA · RONDA 67 · «que los contornos salgan de las propias líneas guía de la web; más sutiles; el contenido más pequeño, con más aire;
+     y que roten mucho más tranquilos»: las líneas son las de los carriles (horizontales a todo el ancho, verticales finas, cruces «+» en los cruces; los
+     bordes de fuera coinciden con los carriles, que son los bordes del contenido) y se TRAZAN al llegar */
+  .cuadricula {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    --linea: color-mix(in oklab, var(--fg) 20%, transparent);
+    --cruz: color-mix(in oklab, var(--fg) 55%, transparent);
+  }
+  .guias { display: none; }
+  /* ronda 264 · móvil: dos cuadrados (reseñas arriba, logotipos abajo); el resto de celdas se quedan sin contenido y se ocultan */
+  @media (width < 48rem) {
+    .cuadricula .celda:nth-of-type(n + 3) { display: none; }
+    /* los «+» solo en los extremos de las líneas (columnas 0 y 3); el del medio, a la altura real de la 2.ª celda (`--medio`, por JS) */
+    .guias { display: block; position: absolute; inset: 0; pointer-events: none; }
+    .gh, .gv, .gx[style*="--c:1"], .gx[style*="--c:2"] { display: none; }
+    .gx {
+      position: absolute;
+      top: calc(var(--r) * 50%);
+      left: calc(var(--c) * 100% / 3);
+      width: 9px;
+      height: 9px;
+      translate: -4px -4px;
+      background:
+        linear-gradient(var(--cruz), var(--cruz)) 50% 0 / 1px 100% no-repeat,
+        linear-gradient(var(--cruz), var(--cruz)) 0 50% / 100% 1px no-repeat;
+      opacity: 0;
+      transition: opacity 0.6s ease 0.6s;
+    }
+    .gx[style*="--r:1"] { top: var(--medio, 50%); }
+    .cuadricula.trazada .gx { opacity: 1; }
+    .cuadricula .celda:nth-of-type(2) { border-bottom: 1px solid var(--linea); }
+  }
+  .celda {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    position: relative;
+    display: grid;
+    min-height: calc(var(--spacing) * 64);
+    padding: calc(var(--spacing) * 12) calc(var(--spacing) * 8);
+    border-top: 1px solid var(--linea);
+    overflow: hidden;
+  }
+  .item {
+    grid-area: 1 / 1;
+    align-self: center;
+    justify-self: center;
+    max-width: 22rem;
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    opacity: 0;
+    filter: blur(8px);
+    translate: 0 calc(var(--spacing) * 3);
+    transition: opacity 1.2s ease, filter 1.3s ease, translate 1.5s var(--ease-out-expo);
+    pointer-events: none;
+  }
+  .item.on { opacity: 1; filter: none; translate: 0 0; transition-delay: 0.5s; }
+  .item.sale { translate: 0 calc(var(--spacing) * -3); }
+  .item.marca,
+  .item.cifra { justify-items: center; text-align: center; }
+  @media (width >= 48rem) {
+    .cuadricula { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .celda { border-top: 0; }
+    .guias { display: block; position: absolute; inset: 0; pointer-events: none; }
+    /* horizontales: a todo el ancho de la ventana, como las filas de los carriles */
+    .gh {
+      position: absolute;
+      top: calc(var(--r) * 50%);
+      left: calc(50% - 50vw);
+      width: 100vw;
+      height: 1px;
+      background: var(--linea);
+      transform-origin: 0 50%;
+      transform: scaleX(0);
+      transition: transform 1.6s cubic-bezier(0.65, 0, 0.35, 1) calc(var(--r) * 0.2s);
+    }
+    .gv {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(var(--c) * 100% / 3);
+      width: 1px;
+      background: var(--linea);
+      transform-origin: 50% 0;
+      transform: scaleY(0);
+      transition: transform 1.4s cubic-bezier(0.65, 0, 0.35, 1) calc(0.5s + var(--c) * 0.15s);
+    }
+    .gx {
+      position: absolute;
+      top: calc(var(--r) * 50%);
+      left: calc(var(--c) * 100% / 3);
+      width: 9px;
+      height: 9px;
+      translate: -4px -4px;
+      background:
+        linear-gradient(var(--cruz), var(--cruz)) 50% 0 / 1px 100% no-repeat,
+        linear-gradient(var(--cruz), var(--cruz)) 0 50% / 100% 1px no-repeat;
+      opacity: 0;
+      transition: opacity 0.6s ease calc(1.2s + var(--c) * 0.08s);
+    }
+    .cuadricula.trazada .gh { transform: scaleX(1); }
+    .cuadricula.trazada .gv { transform: scaleY(1); }
+    .cuadricula.trazada .gx { opacity: 1; }
+  }
+  :global(html:not(.anima)) .gh, :global(html:not(.anima)) .gv { transform: none; }
+  :global(html:not(.anima)) .gx { opacity: 1; }
+  .cq { font-size: var(--text-ui); line-height: 1.5; min-height: 4.5em; color: var(--fg); text-wrap: pretty; }
+  .cn, .cr { font-size: var(--text-aux); }
+  .cn { margin-top: calc(var(--spacing) * 2); color: var(--fg); font-weight: 500; }
+  .cr { color: var(--fg2); }
+  .mk {
+    display: block;
+    background: var(--fg);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+  }
+  .mk.grande { width: min(var(--lw), 90%); height: var(--lh); }
+  /* ronda 189 · el 90 % se mide contra la celda (si no, la caja del item encogía con el logo y la `escala` no se notaba) */
+  .item.marca { width: 100%; }
+  .marca-txt {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    font-size: calc(var(--spacing) * 6);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--fg);
+  }
+  .marca-txt .mk { width: 1.4em; height: 0.75em; }
+  .cv { font-size: var(--text-h2); line-height: 1; color: var(--fg); }
+  @media (width >= 48rem) {
+    .cuadricula { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* la persona de cada cita: el nombre en la tipografía de titulares, algo mayor (ronda 189) */
+  .cn { font-family: var(--font-display); font-weight: 400 !important; font-size: var(--text-lead) !important; line-height: 1.15; }
+  @media (prefers-reduced-motion: reduce) { .item { transition: none !important; } }
+</style>

@@ -47,6 +47,10 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
         </div>
       ) : tipo === 'telefono' ? (
         <div class="telefono-m"><video class="vid" muted loop playsinline preload="none" poster={video.poster} data-src={video.src} aria-label={lang === 'en' ? `${p.nombre}'s website` : `La web de ${p.nombre}`} /></div>
+      ) : grande && p.caratulaLogo ? (
+        <div class="logo-car" style={`--tinta-car:${p.caratulaLogo.fill}`}>
+          <svg viewBox={p.caratulaLogo.vb} role="img" aria-label={p.nombre}><g fill={p.caratulaLogo.fill}>{p.caratulaLogo.d.map((d) => <path d={d} />)}</g></svg>
+        </div>
       ) : (
         <div class="mockup">
           <video class="vid" muted loop playsinline preload="none" poster={video.poster} data-src={video.src} aria-label={lang === 'en' ? `${p.nombre}'s website` : `La web de ${p.nombre}`} />
@@ -70,7 +74,8 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   const ve = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('vista'); ve.unobserve(e.target); } }), { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll<HTMLElement>('[data-pieza-obra]:is(.pz-sube, .pz-grande)').forEach((pz) => ve.observe(pz));
   document.querySelectorAll<HTMLElement>('[data-pieza-obra]').forEach((pz) => {
-    const v = pz.querySelector('video')!;
+    const v = pz.querySelector('video');
+    if (!v) return; // carátula con solo el logotipo
     v.addEventListener('playing', () => pz.classList.add('suena'));
     v.addEventListener('pause', () => pz.classList.remove('suena'));
     if (tactil || pz.hasAttribute('data-a-la-vista')) { io.observe(pz); return; }
@@ -360,6 +365,21 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
     height: auto;
   }
   .pz-grande.telefono .lamina { aspect-ratio: 2 / 1; }
+  /* octubre 2026 · carátula con solo el logotipo (Proyecto.caratulaLogo): centrado sobre el fondo de marca y aparece al llegar */
+  .logo-car {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 6);
+    padding-inline: calc(var(--spacing) * 6);
+    text-align: center;
+    transition: opacity 1.2s var(--ease-out-expo), transform 1.6s var(--ease-out-expo);
+  }
+  .logo-car svg { display: block; width: min(34cqw, 26rem); height: auto; }
+  :global(html.pz-js) .pz-grande:not(.vista) .logo-car { opacity: 0; transform: translateY(2cqh); }
   .pz-grande .mockup {
     --ancho: min(80cqw, 74rem);
     left: 0;
@@ -390,6 +410,7 @@ const claroFondo = (() => { const n = parseInt(c1.slice(1), 16); return ((n >> 1
   }
   @media (width < 48rem) {
     .pz-grande .lamina { height: auto; aspect-ratio: 2 / 1; }
+    .logo-car svg { width: 52cqw; }
     .pz-grande .mockup { --ancho: 92cqw; --r-fuera: 7px; --marco: 3px; top: 10cqh; }
     .pz-grande.telefono .lamina { aspect-ratio: 4 / 5; }
     .pz-grande .telefono-m { top: 10cqh; height: 104cqh; }

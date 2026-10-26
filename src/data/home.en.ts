@@ -9,9 +9,9 @@ export const nav = {
     { label: 'Portfolio', href: '/en/proyectos' },
     { label: 'Lab', href: '/lab' },
     { label: 'Manifesto', href: '/en/manifiesto' },
-  ] as { label: string; href: string }[],
+  ] as { label: string; href?: string }[],
   reel: { label: 'Reel', duracion: '0:53' },
-  mas: { titulo: 'More', links: [{ label: 'System', href: '/sistema' }, { label: 'Method', href: '/metodo' }] as { label: string; href: string }[] },
+  mas: { titulo: 'More', links: [{ label: 'System', href: '/sistema' }, { label: 'Method', href: '/metodo' }] as { label: string; href?: string }[] },
 };
 
 export const hero = {
@@ -63,7 +63,7 @@ export const problemas = {
     'AI is the base; the judgement is still ours.',
     'We make your website like a tailored suit, side by side with you.',
     'We cook slowly, pixel by pixel, and hand you the recipe…',
-    '[[savvia agentic]]: your website, connected to AI.',
+    '[[savvia agentic]]: your website connects with AI.',
   ],
 };
 
@@ -177,7 +177,7 @@ export const proyectos = {
       n: 'Playground IEP',
       cat: 'Special education',
       d: 'Science-based AI for special education, told with stickers you can pick up.',
-      url: 'https://playgroundiep.treseiscero.app/home-v2', dominio: 'playgroundiep.com', // ronda 230: la home v2
+      url: 'https://playgroundiep.treseiscero.app/home-v3', dominio: 'playgroundiep.com', // ronda 230: la home v2 · 26/10: la v3 (Andoni, con Claude)
       estacion: 'primavera',
       hechos: [
         ['Work', 'Home · agentic design and development'],

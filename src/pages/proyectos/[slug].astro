@@ -1,9 +1,10 @@
 ---
 import Caso from '../../views/Caso.astro';
+import { esPublico } from '../..//lib/lanzamiento';
 import { proyectos } from '../../data/proyectos';
 
 export function getStaticPaths() {
-  return proyectos.map((p, i) => ({ params: { slug: p.slug }, props: { p, sig: proyectos[(i + 1) % proyectos.length], ant: proyectos[(i - 1 + proyectos.length) % proyectos.length] } }));
+  return proyectos.map((p, i) => ({ params: { slug: p.slug }, props: { p, sig: proyectos[(i + 1) % proyectos.length], ant: proyectos[(i - 1 + proyectos.length) % proyectos.length] } })).filter((r) => esPublico(r.params.slug));
 }
 ---
 

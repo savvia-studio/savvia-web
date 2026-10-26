@@ -398,11 +398,11 @@ export function tiempoEncima({ zona, cv, palabra, espera }: { zona: HTMLElement;
         // los copos van a una capa y se pintan de una vez con una sombra fría (blanco sobre nieve no se vería)
         lx.setTransform(1, 0, 0, 1, 0, 0); lx.clearRect(0, 0, luz.width, luz.height); lx.setTransform(dpr, 0, 0, dpr, 0, 0);
         lx.fillStyle = '#fff';
-        for (const p of parts) { lx.globalAlpha = 0.65 + 0.35 * Math.min(1, p.s / 3.5); lx.beginPath(); lx.arc(p.x, p.y, p.s, 0, 6.283); lx.fill(); }
+        for (const p of parts) { lx.globalAlpha = (0.65 + 0.35 * Math.min(1, p.s / 3.5)) * Math.min(1, Math.max(0, p.y + p.s) / 110); lx.beginPath(); lx.arc(p.x, p.y, p.s, 0, 6.283); lx.fill(); }
         lx.globalAlpha = 1;
         c.save(); c.globalAlpha = fade; c.shadowColor = 'rgba(70,86,116,.45)'; c.shadowBlur = 3 * dpr; c.shadowOffsetY = 1 * dpr; c.drawImage(luz, 0, 0, W, H); c.restore();
       } else if (est === 'otono') {
-        for (const p of parts) { c.globalAlpha = fade; hoja(c, p.x, p.y, p.s, p.a, p.c, 0.85 + 0.15 * Math.sin(p.ph * 3)); }
+        for (const p of parts) { c.globalAlpha = fade * Math.min(1, Math.max(0, p.y + p.s) / 110); hoja(c, p.x, p.y, p.s, p.a, p.c, 0.85 + 0.15 * Math.sin(p.ph * 3)); }
       } else if (est === 'primavera') {
         for (const f of flores) flor(c, f, t);
       }

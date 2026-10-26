@@ -31,6 +31,8 @@ export type Boton = { fam: string; px: number; peso: number; radio: number; alto
 export type Proyecto = {
   slug: string;
   nombre: string;
+  titular?: string; // titular grande bajo el nombre, en la cabecera del caso (si falta, no hay)
+  titulo?: string; // <title> de su página, tal cual (si falta: «Nombre — savvia»)
   dominio?: string;
   url?: string;
   sector?: string;
@@ -66,6 +68,7 @@ export type Proyecto = {
   colores: [string, string, string]; // fondo · secundario · acento de su web (el degradado de su pieza)
   portada: Medio;
   escritorio?: Medio; // ronda 131: si la portada es móvil, su web en escritorio para la rejilla del portfolio
+  caratulaLogo?: { vb: string; fill: string; d: string[] }; // el caso enseña solo su logotipo sobre el fondo de marca, sin la web (el vídeo se muestra más abajo)
   cubierta?: Medio; // ronda 154: la toma GRANDE de la carátula del caso (1920 px, tools/r154/grabar.cjs y archivo.sh); si falta, la portada
   galeria?: Medio[]; // ronda 152: sin uso en el caso (lo sustituyen los detalles)
   // octubre 2026: los SONIDOS de su web, si los tiene, copiados de su código (Web Audio): un bus con su volumen y un paso bajo, y sus capas: «ruido»

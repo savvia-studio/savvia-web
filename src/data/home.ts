@@ -9,13 +9,13 @@ export const nav = {
   // RONDA 131 · Andoni: «menú superior simplemente añadimos el reel, el resto va fuera» (fuera: hora, cuentas y último proyecto)
   links: [
     { label: 'Servicios', href: '/#servicios' }, // ronda 152 · «en el menú ponemos un ancla a servicios»
-    { label: 'Portfolio', href: '/proyectos' },
+    { label: 'Portfolio', href: '/proyectos' }, // LANZAMIENTO: sin href = apagado; ver src/lib/lanzamiento.ts
     { label: 'Lab', href: '/lab' },
     { label: 'Manifiesto', href: '/manifiesto' },
-  ] as { label: string; href: string }[],
+  ] as { label: string; href?: string }[],
   reel: { label: 'Reel', duracion: '0:53' }, // ronda 263: el reel cinético · ronda 130: el reel vuelve, montado con Quantus y Patchbay (marca blanca)
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete): el correo (de `pie.correo`) y el handbook (sin `href` saldría como «pronto»)
-  mas: { titulo: 'Más', links: [{ label: 'Sistema', href: '/sistema' }, { label: 'Método', href: '/metodo' }] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
+  mas: { titulo: 'Más', links: [{ label: 'Sistema', href: '/sistema' }, { label: 'Método', href: '/metodo' }] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href?: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
 };
 
 export const hero = {
@@ -99,7 +99,7 @@ export const problemas = {
     'La IA es la base; el criterio sigue siendo nuestro.',
     'Hacemos tu web como un traje a medida, mano a mano contigo.',
     'Cocinamos a fuego lento, píxel a píxel, y te entregamos la receta…',
-    '[[savvia agentic]]: tu web conectada con la IA.',
+    '[[savvia agentic]]: tu web conecta con la IA.',
   ],
 };
 
@@ -233,7 +233,7 @@ export const proyectos = {
       n: 'Playground IEP',
       cat: 'Educación especial',
       d: 'IA con base científica para educación especial, contada con pegatinas que se pueden coger.',
-      url: 'https://playgroundiep.treseiscero.app/home-v2', dominio: 'playgroundiep.com', // ronda 230: la home v2
+      url: 'https://playgroundiep.treseiscero.app/home-v3', dominio: 'playgroundiep.com', // ronda 230: la home v2 · 26/10: la v3 (Andoni, con Claude)
       estacion: 'primavera',
       hechos: [
         ['Trabajo', 'Home · diseño y desarrollo agéntico'],

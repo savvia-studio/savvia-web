@@ -1,0 +1,269 @@
+---
+// RONDA 296 · Eric: «al final, antes del footer, pondremos el slider que finalmente descartamos de la home, de 4 ilustraciones de mentores» · «para así
+// evitar que, si solo hay un proyecto de filtro o ninguno, la página se quede bastante descolgada». Es el testimonio que rotaba en «Más proyectos»
+// (Anteriores.astro, rondas 66–292, hoy `VOZ_EN_MOSAICO = false`), sacado a su componente: el retrato al carboncillo que se DIBUJA (ronda 68–72),
+// la cita que sube palabra a palabra y nombre y cargo escalonados (ronda 193), flechas debajo del nombre (ronda 144) y arrastre (ronda 290).
+import { home } from '../data/idioma';
+import { langDe } from '../lib/i18n';
+import { flecha } from '../lib/flecha';
+const lang = langDe(Astro.currentLocale), en = lang === 'en';
+const T = home(lang).proyectos.testimonios;
+---
+
+<section class="wrap voces" aria-label={en ? 'Testimonials' : 'Testimonios'}>
+  <figure class="voz" data-voces>
+    <div class="retratos" aria-hidden="true" data-retratos>
+      {T.map((t) => <img class="fuente-r" src={t.retrato} alt="" width="800" height="800" loading="lazy" decoding="async" data-retrato />)}
+      <canvas class="retrato-cv" data-rc></canvas>
+      <canvas class="retrato-cv" data-rc></canvas>
+    </div>
+    <div class="voz-txt">
+      <div class="citas">
+        {T.map((t, k) => <blockquote class={`vq font-display ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-vq>{en ? `“${t.q}”` : `«${t.q}»`}</blockquote>)}
+      </div>
+      <div class="pie-voz">
+        <figcaption class="quienes">
+          {T.map((t, k) => <span class={`quien ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-quien><b>{t.n}</b><span>{t.r}</span></span>)}
+        </figcaption>
+        <div class="barra-cristal barra-voz" role="group" aria-label={en ? 'Testimonials' : 'Testimonios'}>
+          <button type="button" class="paso" aria-label={en ? 'Previous testimonial' : 'Testimonio anterior'} data-paso="-1"><Fragment set:html={flecha('izq')} /></button>
+          <button type="button" class="paso" aria-label={en ? 'Next testimonial' : 'Testimonio siguiente'} data-paso="1"><Fragment set:html={flecha()} /></button>
+        </div>
+      </div>
+    </div>
+  </figure>
+</section>
+
+<script>
+  const voz = document.querySelector<HTMLElement>('[data-voces]');
+  if (voz) {
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const grupos = ['[data-vq]', '[data-quien]'].map((q) => [...voz.querySelectorAll<HTMLElement>(q)]);
+    const fuentes = [...voz.querySelectorAll<HTMLImageElement>('[data-retrato]')], lienzos = [...voz.querySelectorAll<HTMLCanvasElement>('[data-rc]')];
+    let k = 0, quieto = false, visible = false, reloj = 0, frente = 0, gen = 0, anchoR = 0;
+    // el CARBONCILLO en la tinta del texto de la sección (alfa = lo oscuro del trazo), con semitono a 45° y rayas que marcan el orden del dibujo
+    const ruido = (() => {
+      const N = 256, t = new Float32Array(N * N); let h = 1234567;
+      for (let i = 0; i < t.length; i++) { h = (h * 1103515245 + 12345) & 0x7fffffff; t[i] = h / 0x7fffffff; }
+      return (x: number, y: number) => {
+        const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+        const g = (a: number, b: number) => t[((b & 255) << 8) | (a & 255)];
+        return (g(xi, yi) * (1 - sx) + g(xi + 1, yi) * sx) * (1 - sy) + (g(xi, yi + 1) * (1 - sx) + g(xi + 1, yi + 1) * sx) * sy;
+      };
+    })();
+    type Prep = { W: number; H: number; d: Float32Array; t: Float32Array; rgb: number[]; im?: ImageData };
+    const preparar = (img: HTMLImageElement, cv: HTMLCanvasElement): Prep | null => {
+      const dpr = Math.min(1.25, devicePixelRatio || 1), r = cv.getBoundingClientRect(), W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+      if (!W || !img.naturalWidth) return null;
+      cv.width = W; cv.height = H;
+      const o = document.createElement('canvas'); o.width = W; o.height = H; const oc = o.getContext('2d')!;
+      const s = Math.min(W / img.naturalWidth, H / img.naturalHeight); oc.drawImage(img, (W - img.naturalWidth * s) / 2, H - img.naturalHeight * s, img.naturalWidth * s, img.naturalHeight * s);
+      const px = oc.getImageData(0, 0, W, H).data, n = W * H, d = new Float32Array(n), t = new Float32Array(n);
+      const esc = 1 / dpr;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x, a = px[i * 4 + 3] / 255;
+        const osc = 1 - (0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]) / 255;
+        const rx = x / W - 0.5, ry = y / H - 0.46, rr = Math.sqrt(rx * rx + ry * ry * 0.8), borde = rr < 0.36 ? 1 : Math.max(0, 1 - (rr - 0.36) / 0.16);
+        const u = (x + y) * esc * 0.7071, v = (x - y) * esc * 0.7071;
+        const tinta = Math.min(1, Math.pow(osc, 1.05) * a) * borde;
+        const cel = 3.5, fu = (u / cel) % 1, fv = (((v / cel) % 1) + 1) % 1, du = fu - 0.5, dv = fv - 0.5, r = Math.sqrt(du * du + dv * dv) * cel;
+        const R = Math.sqrt(tinta) * cel * 0.58, punto = Math.min(1, Math.max(0, (R - r) / 0.7 + 0.5));
+        const peso = 0.28 + 0.34 * (1 - Math.abs(tinta - 0.5) * 2) + 0.2 * (1 - borde);
+        d[i] = tinta * (1 - peso) + punto * peso * (tinta > 0.02 ? 1 : 0);
+        t[i] = 0.5 * (1 - d[i]) + 0.32 * ruido(u / 46, v / 2.6) + 0.18 * ruido(x * esc / 90, y * esc / 90);
+      }
+      const m = getComputedStyle(voz).color.match(/[\d.]+/g)!.map(Number);
+      return { W, H, d, t, rgb: [m[0], m[1], m[2]] };
+    };
+    const pintar = (cv: HTMLCanvasElement, P: Prep, p: number) => {
+      const c = cv.getContext('2d')!, im = (P.im ??= c.createImageData(P.W, P.H)), o = im.data, [R, G, B] = P.rgb, n = P.W * P.H, lo = p * 1.18 - 0.14;
+      for (let i = 0; i < n; i++) {
+        const di = P.d[i]; if (di < 0.02) continue;
+        const q = (lo - P.t[i]) / 0.14, e = q <= 0 ? 0 : q >= 1 ? 1 : q * q * (3 - 2 * q);
+        if (!e) continue;
+        const j = i * 4; o[j] = R; o[j + 1] = G; o[j + 2] = B; o[j + 3] = 255 * di * 0.8 * e;
+      }
+      c.putImageData(im, 0, 0);
+    };
+    const listo = (img: HTMLImageElement) => (img.complete && img.naturalWidth ? Promise.resolve() : new Promise<void>((r) => img.addEventListener('load', () => r(), { once: true })));
+    // UN reloj por relevo: todo se va junto (0,35 s) y entra escalonado desde el mismo instante (retrato, cita, nombre, cargo)
+    const pintarRetrato = async (n: number) => {
+      const mia = ++gen, img = fuentes[n]; if (img.loading === 'lazy') img.loading = 'eager';
+      await listo(img);
+      if (mia !== gen) return;
+      const SALIDA = !voz.classList.contains('vista') || reducido ? 0 : 350;
+      voz.style.setProperty('--d0', `${SALIDA}ms`);
+      mostrar(n);
+      const nuevo = lienzos[1 - frente], viejo = lienzos[frente];
+      viejo.classList.remove('on');
+      if (SALIDA) await new Promise((r) => setTimeout(r, SALIDA));
+      if (mia !== gen) return;
+      const P = preparar(img, nuevo); if (!P) return;
+      anchoR = innerWidth; frente = 1 - frente;
+      nuevo.style.zIndex = '2'; viejo.style.zIndex = '1';
+      nuevo.classList.add('on');
+      if (reducido) { pintar(nuevo, P, 1); return; }
+      const t0 = performance.now(), DUR = 1600;
+      let impar = false;
+      const paso = (ahora: number) => {
+        if (mia !== gen) return;
+        const p = Math.min(1, (ahora - t0) / DUR);
+        impar = !impar;
+        if (impar || p >= 1) pintar(nuevo, P, 1 - Math.pow(1 - p, 1.5));
+        if (p < 1) requestAnimationFrame(paso);
+      };
+      requestAnimationFrame(paso);
+    };
+    // la cita sube palabra a palabra; nombre y cargo entran cuando va por la mitad (--dq)
+    const citas = grupos[0];
+    citas.forEach((q, i) => {
+      const palabras = (q.textContent || '').trim().split(/\s+/);
+      q.textContent = '';
+      palabras.forEach((w, j) => {
+        const caja = document.createElement('span'), dentro = document.createElement('span');
+        caja.className = 'w'; caja.style.setProperty('--w', String(j)); dentro.textContent = w; caja.append(dentro);
+        q.append(caja, j < palabras.length - 1 ? ' ' : '');
+      });
+      q.classList.add('partida');
+      grupos[1][i]?.style.setProperty('--dq', `${Math.round(Math.min(palabras.length, 40) * 24 * 0.55 + 120)}ms`);
+    });
+    const pila = voz.querySelector<HTMLElement>('.citas'), quienes = voz.querySelector<HTMLElement>('.quienes');
+    const ajustar = (n: number) => {
+      if (pila) pila.style.height = matchMedia('(width >= 64rem)').matches ? `${citas[n].offsetHeight}px` : '';
+      if (quienes && grupos[1][n]) quienes.style.height = `${grupos[1][n].offsetHeight}px`;
+    };
+    const mostrar = (n: number) => {
+      ajustar(n);
+      grupos.forEach((g) => g.forEach((el, i) => { el.classList.toggle('on', i === n); el.setAttribute('aria-hidden', String(i !== n)); }));
+      voz.classList.add('vista');
+    };
+    if (!reducido) { grupos.forEach((g) => g.forEach((el) => el.classList.remove('on'))); voz.classList.add('js'); }
+    const poner = (n: number) => { k = (n + citas.length) % citas.length; pintarRetrato(k); };
+    new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { pintarRetrato(0); o.disconnect(); } }, { threshold: 0.35 }).observe(voz);
+    addEventListener('resize', () => {
+      ajustar(k);
+      const img = fuentes[k], cv = lienzos[frente];
+      if (!img.naturalWidth || innerWidth === anchoR) return;
+      anchoR = innerWidth; gen++; const P = preparar(img, cv); if (P) pintar(cv, P, 1);
+    });
+    const programar = () => { clearTimeout(reloj); if (visible && !quieto && !reducido) reloj = window.setTimeout(() => { poner(k + 1); programar(); }, 9000); };
+    voz.querySelectorAll<HTMLButtonElement>('[data-paso]').forEach((b) => b.addEventListener('click', () => { poner(k + Number(b.dataset.paso)); programar(); }));
+    // arrastre horizontal (dedo o ratón) = anterior / siguiente; el vertical sigue siendo scroll
+    let g0: { x: number; y: number; id: number } | null = null;
+    voz.addEventListener('pointerdown', (e) => { if ((e.target as HTMLElement).closest('button, a') || (e.pointerType === 'mouse' && e.button !== 0)) return; g0 = { x: e.clientX, y: e.clientY, id: e.pointerId }; });
+    const fin = (e: PointerEvent) => {
+      if (!g0 || e.pointerId !== g0.id) return;
+      const dx = e.clientX - g0.x, dy = e.clientY - g0.y; g0 = null;
+      if (e.type === 'pointerup' && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) { poner(k + (dx < 0 ? 1 : -1)); programar(); }
+    };
+    voz.addEventListener('pointerup', fin); voz.addEventListener('pointercancel', fin);
+    voz.addEventListener('pointerenter', () => { quieto = true; programar(); });
+    voz.addEventListener('pointerleave', () => { quieto = false; programar(); });
+    new IntersectionObserver((e) => { visible = e[0].isIntersecting; programar(); }, { threshold: 0.3 }).observe(voz);
+  }
+</script>
+
+<style>
+  .voces { padding-block: calc(var(--spacing) * 24); }
+  .voz {
+    display: grid;
+    gap: calc(var(--spacing) * 8);
+    align-items: center;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+    color: var(--fg);
+    --sube: cubic-bezier(0.22, 1, 0.36, 1);
+    --d0: 0ms;
+  }
+  .retratos {
+    position: relative;
+    display: grid;
+    width: min(80%, 18rem);
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+  }
+  .fuente-r { display: none; }
+  .retrato-cv {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    filter: blur(6px);
+    mix-blend-mode: multiply;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 1, 1), filter 0.35s cubic-bezier(0.4, 0, 1, 1);
+  }
+  .retrato-cv.on { opacity: 1; filter: none; transition: opacity 0.2s ease; }
+  .citas { display: grid; grid-template-rows: minmax(0, 1fr); }
+  @media (width >= 64rem) { .voz.js .citas { transition: height 0.45s var(--sube); } }
+  .vq {
+    grid-area: 1 / 1;
+    align-self: end;
+    font-size: var(--text-h3);
+    line-height: 1.2;
+    text-wrap: pretty;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .vq.on { opacity: 1; }
+  .vq.partida { opacity: 1; transition: none; }
+  .vq.partida :global(.w) { display: inline-block; }
+  .vq.partida :global(.w > span) {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(6px);
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.4, 0, 1, 1), filter 0.3s ease;
+  }
+  .vq.partida.on :global(.w > span) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: opacity 0.7s ease, transform 0.9s var(--sube), filter 0.7s ease;
+    transition-delay: calc(var(--d0) + var(--w) * 24ms);
+  }
+  .pie-voz { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 8); }
+  .quienes { display: grid; min-width: 0; }
+  .quien {
+    grid-area: 1 / 1;
+    align-self: start;
+    display: grid;
+    align-content: start;
+    gap: calc(var(--spacing) * 1);
+    --dq: 300ms;
+  }
+  .quien > * { opacity: 0; transform: translateY(0.5em); filter: blur(4px); transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.4, 0, 1, 1), filter 0.3s ease; }
+  .quien.on > * { opacity: 1; transform: none; filter: none; transition: opacity 0.7s ease, transform 0.9s var(--sube), filter 0.7s ease; transition-delay: calc(var(--d0) + var(--dq)); }
+  .quien.on > span { transition-delay: calc(var(--d0) + var(--dq) + 110ms); }
+  .quien b { font-weight: 500; color: var(--fg); }
+  .quien span { color: var(--fg2); }
+  .voz.js .barra-voz { opacity: 0; transition: opacity 0.8s ease 0.9s; }
+  .voz.js.vista .barra-voz { opacity: 1; }
+  .barra-voz {
+    gap: calc(var(--spacing) * 1);
+    padding: 0;
+    margin-left: calc(var(--spacing) * -2);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    color: var(--fg2);
+  }
+  .barra-voz .paso { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); }
+  .barra-voz .paso:hover:not(:disabled) { background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg); }
+  .barra-voz .paso :global(.btn-flecha) { width: 1rem; height: 1rem; }
+  @media (hover: none) {
+    .barra-voz .paso:hover:not(:disabled) { background: transparent; color: var(--fg2); }
+    .barra-voz { gap: 0; margin-left: calc(var(--spacing) * -3.5); margin-block: calc(var(--spacing) * -1.5); }
+    .barra-voz .paso { width: 2.75rem; height: 2.75rem; }
+  }
+  @media (width < 64rem) { .pie-voz { margin-top: calc(var(--spacing) * 4); } }
+  @media (width >= 64rem) {
+    .voces { padding-block: calc(var(--spacing) * 32); }
+    .voz { grid-template-columns: 5fr 7fr; gap: calc(var(--spacing) * 16); }
+    .retratos { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .retrato-cv, .vq, .quien > *, .vq :global(.w > span) { transition: none !important; }
+  }
+</style>

@@ -60,6 +60,8 @@ if (!reducido && 'IntersectionObserver' in window) {
       const caja = previo!.cloneNode(false) as HTMLElement; // sus atributos (el CSS de su componente cuelga de ellos)
       ['id', 'data-sube', 'aria-labelledby'].forEach((a) => caja.removeAttribute(a));
       caja.className = `sube-eco ${superficie}`; caja.setAttribute('aria-hidden', 'true'); caja.setAttribute('inert', '');
+      // 26/10: sin su clase, la copia pierde el relleno de abajo de la sección (en /proyectos, el aire bajo la cuadrícula) y el eco caía más abajo que el original
+      caja.style.paddingBottom = getComputedStyle(previo!).paddingBottom;
       const copia = fuente.cloneNode(true) as HTMLElement;
       copia.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
       copia.querySelectorAll('[data-carril-fila]').forEach((e) => e.removeAttribute('data-carril-fila')); // la copia no es una guía: Carriles la contaba y trazaba una línea doble
@@ -72,6 +74,7 @@ if (!reducido && 'IntersectionObserver' in window) {
     const pedirEco = () => { clearTimeout(t); t = window.setTimeout(() => { if ((s as any).on) rehacer(); }, 250); };
     // se hace al acercarse la sección (la marca `on` la pone el IntersectionObserver de más abajo) y se rehace si el original cambia de clase o de contenido
     (s as any).eco = rehacer;
+    addEventListener('resize', pedirEco); // el relleno va en vw
     // RONDA 218: lo que pasa DENTRO de la película (data-cine: chips, estados, clases a cada fotograma) no rehace el eco: se rehacía ~4 veces cada 10 s con su réplica de 19 MB y la pestaña de Safari se quedaba sin memoria
     new MutationObserver((ms) => { if (ms.some((m) => !(m.target as Element).closest?.('[data-cine]') && !((m.target as Node).parentElement?.closest('[data-cine]')))) pedirEco(); }).observe(previo, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'aria-pressed', 'aria-expanded', 'hidden', 'data-estado'] });
   }

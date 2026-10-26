@@ -17,6 +17,7 @@
 // UNA ESCALA de texto para todo el caso (.t-ojo · .t-enc · .t-h · .t-lead · .t-texto) y una retícula de TRES columnas: el título de cada bloque en
 // la primera; el contenido en la segunda y la tercera, siempre arrancando arriba (nada empieza en una columna suelta). Menos aire: 64 → 104 px.
 import Base from '../layouts/Base.astro';
+import { esPublico } from '../lib/lanzamiento';
 import Nav from '../components/Nav.astro';
 import Carriles from '../components/Carriles.astro';
 import Pie from '../components/Pie.astro';
@@ -160,14 +161,14 @@ const lib = p.libreria;
 const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? p.paleta?.[z.placa]?.hex : f === 'ancha' || f === 'sangre' ? undefined : p.color);
 ---
 
-<Base title={`${p.nombre} — savvia`} description={p.resumen} carga={false}>
+<Base title={p.titulo ?? `${p.nombre} — savvia`} description={p.resumen} carga={false}>
   <script is:inline>document.documentElement.classList.add('pz-js');</script>
   <Nav />
   <Carriles />
   <main id="contenido" class="caso surface-light" style={`--claro-marca:${claroMarca}`}>
     <header class="wrap cabecera">
-      <Cta href={ruta(lang, '/proyectos')} class="volver text-fg2" variante="secundario" tam="sm" flecha="izq">{en ? 'Projects' : 'Proyectos'}</Cta>
       <h1 class="font-display nombre" data-entra>{p.nombre}</h1>
+      {p.titular && <p class="font-display titular" data-enfoca>{p.titular}</p>}
     </header>
 
     <section class="wrap rej intro" aria-label={en ? 'The project in one line' : 'El proyecto en una línea'}>
@@ -562,7 +563,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       )
     }
 
-    <nav class="wrap sigue" aria-label={en ? 'Next project' : 'Siguiente proyecto'}>
+    {esPublico(sig.slug) && sig.slug !== p.slug && <nav class="wrap sigue" aria-label={en ? 'Next project' : 'Siguiente proyecto'}>
       <div class="sigue-txt">
         <p class="t-ojo">{en ? 'Next project' : 'Siguiente proyecto'}</p>
         <!-- Andoni: «el siguiente proyecto, con una flecha para que quede claro dónde clicar; quitamos el anterior» -->
@@ -575,7 +576,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
         {sig.sector && <p class="t-texto text-fg2">{sig.sector}</p>}
       </div>
       <div class="sigue-pieza"><Pieza p={sig} tipo={luz(sig.colores[0]) ? 'claro' : 'mancha'} giro={-4} href={ruta(lang, `/proyectos/${sig.slug}`)} sube /></div>
-    </nav>
+    </nav>}
   </main>
   <div class="leido" aria-hidden="true" data-leido><span data-leido-t></span><svg viewBox="0 0 24 24"><circle class="pista-l" cx="12" cy="12" r="9" /><circle class="lleno" cx="12" cy="12" r="9" pathLength="1" /></svg></div>
   <Pie />
@@ -827,12 +828,20 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .t-texto { font-size: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem); line-height: 1.55; color: color-mix(in oklab, var(--fg) 76%, transparent); text-wrap: pretty; }
   .fuerte { color: var(--fg); }
   .medida { max-width: 40em; }
-  .volver:hover { color: var(--fg); }
   .nombre {
     margin-top: calc(var(--spacing) * 6);
     font-size: clamp(2.75rem, 1.4rem + 4.4vw, 5.5rem);
     line-height: 1.02;
     letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .titular {
+    margin-top: calc(var(--spacing) * 4);
+    max-width: 22em;
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--fg2);
     text-wrap: balance;
   }
   /* TRES COLUMNAS (12 → 4 · 4 · 4): el título en la primera; el contenido en la segunda (.c2), la tercera (.c3) o las dos (.c23), arrancando arriba */

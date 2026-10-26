@@ -1,0 +1,301 @@
+---
+// 26/10 · EL VISOR DE LA HOME, PARA EL PORTFOLIO. Eric: «todas estas cards tienen que tener el mismo funcionamiento que en la Home: al clicar, si tiene caso de
+// estudio, va al caso; si no, se abre el slider grande como en la home (en escritorio)». Es el visor de «Más proyectos» (Anteriores.astro, rondas 214–280): el
+// mismo marcado, el mismo CSS y el mismo script, copiados de allí (la home no se toca). Diferencias: el slider recorre las tarjetas QUE SE VEN, en el orden del
+// mosaico (al filtrar cambia), y abre cualquier pieza con `data-abre-visor` (las que no llevan a un caso). Sin grabación, enseña la captura.
+import sharp from 'sharp';
+import { flecha } from '../../lib/flecha';
+import { icono } from '../../lib/iconos';
+export type ObraVisor = { slug: string; nombre: string; sector: string; colores: [string, string, string]; video?: string; poster: string };
+interface Props { obras: ObraVisor[] }
+const { obras } = Astro.props;
+const en = Astro.currentLocale === 'en';
+const claro = (hex: string) => { const [r, g, b] = [1, 3, 5].map((k) => parseInt(hex.slice(k, k + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5; };
+// la toma GRANDE (`<base>-grande.mp4/.jpg`) si existe; si no, la de la card. El tamaño del póster fija la proporción antes de cargar
+const tomas = await Promise.all(obras.map(async (o) => {
+  const base = o.video?.replace(/\.mp4$/, '');
+  // como en la home: si el póster grande se lee, hay toma grande
+  const mg = base ? await sharp(`public${base}-grande.jpg`).metadata().catch(() => null) : null;
+  const grande = mg ? `${base}-grande` : base;
+  const poster = grande ? `${grande}.jpg` : o.poster;
+  const m = mg ?? (await sharp(`public${poster}`).metadata().catch(() => null));
+  return { ...o, src: grande ? `${grande}.mp4` : undefined, poster, w: m?.width ?? 960, h: m?.height ?? 600 };
+}));
+---
+
+<dialog class="vis" data-vis aria-label={en ? 'Projects' : 'Proyectos'} aria-hidden="true">
+  <button type="button" class="vis-x barra-cristal" aria-label={en ? 'Close' : 'Cerrar'} data-vis-cerrar><span class="paso"><Fragment set:html={icono('x', 'regular')} /></span></button>
+  <div class="vis-caja" data-vis-caja>
+    <div class="vis-panel" data-vis-panel>
+      {
+        tomas.map((o) => (
+          <article class="vis-slide g-marca" data-vis-slide data-slug={o.slug} data-n={o.nombre} data-sector={o.sector} aria-hidden="true" style={`--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]};--vf:${claro(o.colores[0]) ? '#f6f7fb' : '#000'}`}>
+            <div class="vis-marco">
+              {o.src ? (
+                <video class="vis-vid" muted loop playsinline preload="none" data-poster={o.poster} width={o.w} height={o.h} data-src={o.src} aria-label={en ? `Walkthrough of the ${o.nombre} website` : `Recorrido por la web de ${o.nombre}`} />
+              ) : (
+                <img class="vis-vid" data-img={o.poster} width={o.w} height={o.h} alt={en ? `The ${o.nombre} website` : `La web de ${o.nombre}`} decoding="async" />
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+    <div class="vis-pie">
+      <div class="vis-quien" data-vis-quien>
+        <h3 class="vis-nombre font-display" data-vis-nombre></h3>
+        <p class="detail vis-sector" data-vis-sector></p>
+      </div>
+      <div class="vis-acciones">
+        <div class="barra-cristal" role="group" aria-label={en ? 'Projects' : 'Proyectos'}>
+          <button type="button" class="paso" aria-label={en ? 'Previous project' : 'Proyecto anterior'} data-vis-paso="-1"><Fragment set:html={flecha('izq')} /></button>
+          <button type="button" class="paso" aria-label={en ? 'Next project' : 'Proyecto siguiente'} data-vis-paso="1"><Fragment set:html={flecha()} /></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { jugar } from '../../scripts/jugar';
+  const vis = document.querySelector<HTMLDialogElement>('[data-vis]');
+  if (vis) {
+    const slides = [...vis.querySelectorAll<HTMLElement>('[data-vis-slide]')];
+    const porSlug = new Map(slides.map((s) => [s.dataset.slug!, s]));
+    const quien = vis.querySelector<HTMLElement>('[data-vis-quien]')!, nombre = vis.querySelector<HTMLElement>('[data-vis-nombre]')!, sector = vis.querySelector<HTMLElement>('[data-vis-sector]')!;
+    const panel = vis.querySelector<HTMLElement>('[data-vis-panel]')!, caja = vis.querySelector<HTMLElement>('[data-vis-caja]')!;
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // el recorrido: las tarjetas que se ven ahora, en el orden del mosaico (se fija al abrir)
+    let orden: HTMLElement[] = [], cur = -1, vuelta: HTMLElement | null = null, cerrando = 0;
+    const medio = (s: HTMLElement) => s.querySelector<HTMLVideoElement | HTMLImageElement>('.vis-vid')!;
+    // la fuente se pone la primera vez que hace falta: el visor abre con el póster y no gasta red en todos
+    const carga = (s: HTMLElement) => {
+      const m = medio(s);
+      if (m.dataset.cargado) return;
+      m.dataset.cargado = '1';
+      if (m instanceof HTMLImageElement) { m.src = m.dataset.img!; return; }
+      if (m.dataset.poster) m.poster = m.dataset.poster;
+      const so = document.createElement('source'); so.src = m.dataset.src!; so.type = 'video/mp4'; m.appendChild(so); m.load();
+    };
+    // RONDA 218 · solo viven el actual y sus dos vecinos (Safari se quedaba sin memoria); al cerrar se sueltan todos
+    const soltar = (s: HTMLElement) => {
+      const m = medio(s);
+      if (!(m instanceof HTMLVideoElement) || !m.dataset.cargado) return;
+      m.pause(); m.querySelectorAll('source').forEach((x) => x.remove()); m.removeAttribute('src'); m.load();
+      delete m.dataset.cargado;
+    };
+    const ir = (n: number, animar = true) => {
+      const N = orden.length;
+      n = (n + N) % N;
+      const cambia = n !== cur;
+      cur = n;
+      const on = orden[n], vecinos = new Set([on, orden[(n + 1) % N], orden[(n - 1 + N) % N]]);
+      slides.forEach((sl) => {
+        const es = sl === on, m = medio(sl);
+        sl.classList.toggle('on', es); sl.setAttribute('aria-hidden', es ? 'false' : 'true');
+        if (es) { carga(sl); if (m instanceof HTMLVideoElement) { if (cambia) m.currentTime = 0; jugar(m); } }
+        else if (m instanceof HTMLVideoElement) m.pause();
+        if (!vecinos.has(sl)) soltar(sl);
+      });
+      vecinos.forEach(carga);
+      nombre.textContent = on.dataset.n ?? ''; sector.textContent = on.dataset.sector ?? '';
+      if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    };
+    // RONDA 280 · caja, lámina, marco y vídeo en píxeles ENTEROS (con anchos fraccionarios asomaba una línea de 1 px entre marco y vídeo)
+    const ajusta = () => {
+      if (!vis.open) return;
+      caja.style.width = ''; caja.style.marginTop = ''; panel.style.height = '';
+      const VW = vis.clientWidth, VH = vis.clientHeight;
+      let W = Math.floor(caja.getBoundingClientRect().width);
+      if ((VW - W) % 2) W -= 1;
+      const H = Math.round(W / 1.6);
+      caja.style.width = W + 'px'; panel.style.height = H + 'px';
+      caja.style.alignSelf = 'start';
+      const pie = caja.getBoundingClientRect().height - panel.getBoundingClientRect().height;
+      caja.style.marginTop = Math.max(0, Math.floor((VH - H - pie) / 2)) + 'px';
+      slides.forEach((sl) => {
+        const marco = sl.querySelector<HTMLElement>('.vis-marco')!, m = medio(sl);
+        const g = Math.round(parseFloat(getComputedStyle(marco).paddingLeft)) || 4;
+        const rw = Number(m.getAttribute('width')) || 16, rh = Number(m.getAttribute('height')) || 10;
+        // el ancho del navegador, el de la home (82 %); si la toma es alta (capturas de página entera), el alto manda y no se sale de la lámina
+        let vw = Math.round(W * 0.82) - 2 * g, vh = Math.round((vw * rh) / rw);
+        const tope = Math.round(H * 0.88) - 2 * g;
+        if (vh > tope) { vh = tope; vw = Math.round((vh * rw) / rh); }
+        const ow = vw + 2 * g, oh = vh + 2 * g;
+        marco.style.cssText = `position:absolute;box-sizing:border-box;width:${ow}px;height:${oh}px;left:${Math.floor((W - ow) / 2)}px;top:${Math.floor((H - oh) / 2)}px`;
+        m.style.cssText = `width:${vw}px;height:${vh}px;object-fit:cover;object-position:top`;
+      });
+    };
+    addEventListener('resize', ajusta);
+    const abre = (pz: HTMLElement) => {
+      if (vis.open) return;
+      orden = [...document.querySelectorAll<HTMLElement>('[data-abre-visor]')].filter((p) => !p.closest('[hidden]')).map((p) => porSlug.get(p.dataset.slug!)).filter(Boolean) as HTMLElement[];
+      const i = orden.indexOf(porSlug.get(pz.dataset.slug!)!);
+      if (i < 0) return;
+      vuelta = document.activeElement as HTMLElement | null;
+      clearTimeout(cerrando); vis.classList.remove('cierra');
+      cur = -1; // al abrir, siempre «cambia»: el vídeo empieza de cero
+      ir(i, false);
+      vis.showModal(); vis.removeAttribute('aria-hidden'); ajusta();
+      document.documentElement.style.overflow = 'hidden';
+    };
+    const cierra = () => {
+      if (!vis.open || vis.classList.contains('cierra')) return;
+      vis.classList.add('cierra');
+      cerrando = window.setTimeout(() => vis.close(), reducido ? 0 : 280);
+    };
+    vis.addEventListener('close', () => {
+      vis.classList.remove('cierra'); vis.setAttribute('aria-hidden', 'true');
+      document.documentElement.style.overflow = '';
+      slides.forEach(soltar);
+      vuelta?.focus({ preventScroll: true });
+    });
+    vis.addEventListener('cancel', (e) => { e.preventDefault(); cierra(); });
+    document.addEventListener('click', (e) => {
+      const pz = (e.target as HTMLElement).closest<HTMLElement>('[data-abre-visor]');
+      if (!pz || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web
+      if (matchMedia('(hover: none), (width < 48rem)').matches) return; // RONDA 268 · en móvil no hay visor: el toque va a la web
+      e.preventDefault(); abre(pz);
+    });
+    vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));
+    vis.querySelector('[data-vis-cerrar]')!.addEventListener('click', cierra);
+    vis.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === vis || t.matches('[data-vis-caja]')) cierra(); });
+    vis.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); ir(cur + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); ir(cur - 1); }
+    });
+    let x0 = 0, y0 = 0, seguir = false;
+    panel.addEventListener('pointerdown', (e) => { x0 = e.clientX; y0 = e.clientY; seguir = e.pointerType !== 'mouse'; });
+    panel.addEventListener('pointerup', (e) => {
+      if (!seguir) return;
+      seguir = false;
+      const dx = e.clientX - x0, dy = e.clientY - y0;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) ir(cur + (dx < 0 ? 1 : -1));
+    });
+  }
+</script>
+
+<style>
+  /* ── lo de Anteriores.astro › EL VISOR (rondas 214–280), tal cual */
+  .vis {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #f5f5f7;
+    overflow: hidden;
+  }
+  .vis[open] { display: grid; place-items: center; }
+  .vis::backdrop {
+    background: color-mix(in oklab, var(--color-cacao) 80%, transparent);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    backdrop-filter: blur(22px) saturate(1.2);
+  }
+  .vis[open]::backdrop { animation: vis-velo 0.5s ease both; }
+  .vis.cierra::backdrop { animation: vis-velo 0.28s ease reverse both; }
+  @keyframes vis-velo { from { opacity: 0; } to { opacity: 1; } }
+  .vis-caja {
+    --vw: min(100vw - calc(var(--spacing) * 8), 80rem, (100dvh - calc(var(--spacing) * 36)) * 1.6);
+    width: var(--vw);
+    display: grid;
+    gap: calc(var(--spacing) * 6);
+  }
+  .vis[open] .vis-caja { animation: vis-entra 0.7s var(--ease-out-expo) 0.05s both; }
+  .vis.cierra .vis-caja { animation: vis-sale 0.28s ease-in both; }
+  @keyframes vis-entra { from { opacity: 0; transform: translateY(24px) scale(0.965); } to { opacity: 1; transform: none; } }
+  @keyframes vis-sale { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(10px) scale(0.985); } }
+  .vis-panel {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: var(--radius-lg);
+    container-type: size;
+    -webkit-mask-image: linear-gradient(#000, #000);
+    mask-image: linear-gradient(#000, #000);
+    touch-action: pan-y;
+  }
+  .vis-slide {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.7s ease, visibility 0s linear 0.7s;
+  }
+  .vis-slide.on { opacity: 1; visibility: visible; transition: opacity 0.7s ease; z-index: 1; }
+  .vis-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .vis-slide.g-marca::before {
+    background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3), transparent 70%), var(--c1);
+  }
+  .vis-marco {
+    --r-fuera: 12px;
+    --marco: 4px;
+    width: 82cqw;
+    padding: var(--marco);
+    border-radius: var(--r-fuera);
+    overflow: hidden;
+    background: color-mix(in srgb, #fff 20%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.32),
+      inset 0 1px 0 rgb(255 255 255 / 0.5),
+      0 0 0 1px rgb(0 0 0 / 0.08),
+      0 40px 80px -28px rgb(20 12 6 / 0.6);
+    scale: 0.96;
+    translate: 0 14px;
+    transition: scale 1s var(--ease-out-expo), translate 1s var(--ease-out-expo);
+  }
+  .vis-slide.on .vis-marco { scale: 1; translate: 0 0; transition-delay: 0.12s; }
+  .vis-vid {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: calc(var(--r-fuera) - var(--marco));
+    background: var(--vf, #000);
+  }
+  .vis-pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 6);
+    flex-wrap: wrap;
+  }
+  .vis-quien { display: grid; gap: calc(var(--spacing) * 1); min-width: 0; }
+  .vis-nombre {
+    font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: #f5f5f7;
+  }
+  .vis-sector { color: color-mix(in oklab, #f5f5f7 62%, transparent); }
+  .vis-acciones { display: flex; align-items: center; gap: calc(var(--spacing) * 6); }
+  .vis-x {
+    position: fixed;
+    top: calc(var(--spacing) * 4);
+    right: calc(var(--spacing) * 4);
+    z-index: 2;
+    padding: calc(var(--spacing) * 1);
+    cursor: pointer;
+  }
+  .vis-x :global(svg) { width: 1.25rem; height: 1.25rem; }
+  .vis[open] .vis-x { animation: vis-velo 0.6s ease 0.2s both; }
+  .vis.cierra .vis-x { opacity: 0; transition: opacity 0.2s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    .vis[open]::backdrop, .vis[open] .vis-caja, .vis[open] .vis-x { animation: none; }
+    .vis-slide, .vis-slide.on, .vis-marco { transition: none; }
+  }
+</style>

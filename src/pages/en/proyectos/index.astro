@@ -1,4 +1,7 @@
 ---
+// LANZAMIENTO: esta página aún no sale (ver src/lib/lanzamiento.ts); quien llega por la dirección vuelve a la home
+import { RECORTE } from '../../../lib/lanzamiento';
+if (RECORTE) return Astro.redirect('/en');
 import Portfolio from '../../../views/Portfolio.astro';
 ---
 
