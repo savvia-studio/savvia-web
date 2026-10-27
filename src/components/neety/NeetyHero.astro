@@ -39,9 +39,9 @@ const COMPANIES = [
   { name: 'Fagor Automation', score: 88, logo: `${A}/fagor-automation.avif` },
 ];
 const PEOPLE = [
-  { name: 'Iker Goikoetxea', score: 94, photo: `${A}/jon-96.jpg`, rol: en ? 'Head of procurement · Betsaide' : 'Director de compras · Betsaide', jon: true },
-  { name: 'Ane Larrañaga', score: 91, photo: `${A}/nerea-96.jpg`, rol: en ? 'Head of operations · Arania' : 'Directora de operaciones · Arania' },
-  { name: 'Naroa Iturbe', score: 88, photo: `${A}/ines-96.jpg`, rol: en ? 'Plant manager · Fagor Automation' : 'Directora de planta · Fagor Automation' },
+  { name: 'Iker Goikoetxea', score: 94, photo: `${A}/jon-96.jpg`, rol: en ? 'Head of procurement, Betsaide' : 'Director de compras, Betsaide', jon: true },
+  { name: 'Ane Larrañaga', score: 91, photo: `${A}/nerea-96.jpg`, rol: en ? 'Head of operations, Arania' : 'Directora de operaciones, Arania' },
+  { name: 'Naroa Iturbe', score: 88, photo: `${A}/ines-96.jpg`, rol: en ? 'Plant manager, Fagor Automation' : 'Directora de planta, Fagor Automation' },
 ];
 const ACTIONS = en ? ['Visited your profile', 'Accepted your request', 'You reacted to their post'] : ['Ha visitado tu perfil', 'Ha aceptado tu solicitud', 'Has reaccionado a su post'];
 const MESSAGE = en ? 'Hi Iker, I saw that Betsaide is strengthening its procurement team. I think we can help you prioritise opportunities better. Shall we talk this week?' : 'Hola Iker, he visto que Betsaide está reforzando compras. Creo que podemos ayudaros a priorizar mejor oportunidades. ¿Lo vemos esta semana?';
@@ -178,7 +178,7 @@ const SUB = en ? 'This is not another tool for sending more messages. Neety tell
                   <div class="sf-card"><div class="sf-c g15 preu">
                     <div class="sf-skel g15 preu"><div class="sk-h"><div class="sks s8 r8"></div><div class="skb h35"></div></div><div class="skb h25 ml11" style="width:55%"></div></div>
                     <div class="sf-head"><span class="chip-b"><svg viewBox="0 0 256 256" class="ic16"><path d={IC.calendario[0]} opacity="0.2" /><path d={IC.calendario[1]} /></svg></span><p class="t-md f1">{en ? 'Meeting scheduled' : 'Reunión agendada'}</p><span class="sf-pop fecha"><span>{en ? 'Jun 18' : '18 Jun'}</span></span></div>
-                    <p class="sf-in sub">Iker Goikoetxea · Betsaide · 12:00</p>
+                    <p class="sf-in sub">Iker Goikoetxea, Betsaide, 12:00</p>
                   </div></div>
                   <div class="sf-hueco"></div>
                 </div>

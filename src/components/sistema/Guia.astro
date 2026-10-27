@@ -28,22 +28,22 @@ const MEDIOS: Fila[] = [
   ['public/media/estudio/', 'Las láminas de la mesa, una por estación, a 1600, 2560 y 5120 px.'],
   ['public/media/equipo/', 'Eric y Andoni: tiras de poses, caras y la foto de los dos.'],
   ['public/media/lab/', 'El vídeo y el póster de cada experimento.'],
-  ['public/media/sonido/ · radio/', 'La impresora, los ambientes y las piezas de la radio.'],
+  ['public/media/sonido/, radio/', 'La impresora, los ambientes y las piezas de la radio.'],
   ['public/', 'Logotipo (savvia-palabra.svg), isotipo, favicons por estación, og.jpg (la imagen para compartir).'],
 ];
 
 const CAMPOS: Fila[] = [
   ['slug', 'La dirección: /proyectos/<slug>. No se cambia una vez publicado.'],
-  ['nombre · dominio · url', 'Cómo se llama, qué dominio se enseña y a dónde lleva «Ver la web».'],
-  ['sector · ubicacion · servicios', 'La ficha. Los servicios filtran el listado y tienen que estar en SERVICIOS (Diseño web, Desarrollo agéntico, Webflow, CMS, Multidioma, Migración, Animación).'],
+  ['nombre, dominio, url', 'Cómo se llama, qué dominio se enseña y a dónde lleva «Ver la web».'],
+  ['sector, ubicacion, servicios', 'La ficha. Los servicios filtran el listado y tienen que estar en SERVICIOS (Diseño web, Desarrollo agéntico, Webflow, CMS, Multidioma, Migración, Animación).'],
   ['destacado', 'true lo pone arriba, en el slider de destacados.'],
-  ['resumen · entradilla · contexto · reto', 'La tarjeta del listado y la cabecera del caso.'],
-  ['apartados · tecnica · descartado', 'Diseño, movimiento, contenido; «Por dentro»; lo que se probó y cayó.'],
-  ['paleta · tipos · escala · boton', 'El sistema de SU web, medido en su web.'],
-  ['mosaico · detalles · proceso', '«Los detalles» en imágenes y cómo se construyó, paso a paso.'],
-  ['cifras · cita · conclusion', 'Cifras del proyecto (nunca del proceso), el testimonio y el cierre.'],
-  ['color · colores', 'El fondo de su tarjeta y los tres colores de su degradado.'],
-  ['portada · escritorio · cubierta', 'Los medios: la toma de la rejilla, la de escritorio si la portada es móvil, y la grande de la carátula.'],
+  ['resumen, entradilla, contexto, reto', 'La tarjeta del listado y la cabecera del caso.'],
+  ['apartados, tecnica, descartado', 'Diseño, movimiento, contenido; «Por dentro»; lo que se probó y cayó.'],
+  ['paleta, tipos, escala, boton', 'El sistema de SU web, medido en su web.'],
+  ['mosaico, detalles, proceso', '«Los detalles» en imágenes y cómo se construyó, paso a paso.'],
+  ['cifras, cita, conclusion', 'Cifras del proyecto (nunca del proceso), el testimonio y el cierre.'],
+  ['color, colores', 'El fondo de su tarjeta y los tres colores de su degradado.'],
+  ['portada, escritorio, cubierta', 'Los medios: la toma de la rejilla, la de escritorio si la portada es móvil, y la grande de la carátula.'],
 ];
 
 const GUARDARRAILES: Fila[] = [
@@ -171,7 +171,7 @@ git push</code></pre>
 
     <section id="secciones" class="seccion" aria-labelledby="h-secciones">
       <h2 id="h-secciones" class="font-display text-h2">Añadir una sección</h2>
-      <p class="cuerpo">Cada sección de la home es un componente en <code>src/components/</code> que se coloca, en su orden, en <code>src/pages/index.astro</code>. Hoy: Hero · Raices · Dolores · Proyectos · Anteriores · Servicios · LaPartitura · Estudio · Preguntas, y el Pie fuera de main.</p>
+      <p class="cuerpo">Cada sección de la home es un componente en <code>src/components/</code> que se coloca, en su orden, en <code>src/pages/index.astro</code>. Hoy: Hero, Raices, Dolores, Proyectos, Anteriores, Servicios, LaPartitura, Estudio, Preguntas, y el Pie fuera de main.</p>
       <ol class="pasos">
         <li>
           <h3 class="font-display text-h3">El componente</h3>
@@ -185,7 +185,7 @@ git push</code></pre>
         </li>
         <li>
           <h3 class="font-display text-h3">Los tokens, nunca valores sueltos</h3>
-          <p>Superficie <code>surface-dark</code>, <code>surface-light</code> o <code>surface-warm</code> (Servicios); texto <code>text-fg</code> y <code>text-fg2</code>, filetes <code>border-rule</code>; tamaños <code>text-h1 · h2 · h3 · lead · sub · body · ui · detail</code>; espaciado solo en los pasos de la guía. Los colores cambian solos con la estación.</p>
+          <p>Superficie <code>surface-dark</code>, <code>surface-light</code> o <code>surface-warm</code> (Servicios); texto <code>text-fg</code> y <code>text-fg2</code>, filetes <code>border-rule</code>; tamaños <code>text-h1, h2, h3, lead, sub, body, ui, detail</code>; espaciado solo en los pasos de la guía. Los colores cambian solos con la estación.</p>
         </li>
         <li>
           <h3 class="font-display text-h3">La entrada</h3>

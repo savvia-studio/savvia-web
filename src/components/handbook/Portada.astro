@@ -21,7 +21,7 @@ import { flecha } from '../../lib/flecha';
   <div class="estela" aria-hidden="true" data-estela data-fotos={JSON.stringify(estela)}></div>
   <div class="centro">
     <h1 id="hb-titulo" class="titulo" data-entra>{handbook.titulo}</h1>
-    <p class="sub detail"><span>{handbook.sub}</span><span class="sep"> · </span><span>{handbook.firma}</span></p>
+    <p class="sub detail"><span>{handbook.sub}</span><span class="sep" aria-hidden="true"></span><span>{handbook.firma}</span></p>
   </div>
   <p class="pista detail" aria-hidden="true"><span class="raton"></span>{handbook.pista}</p>
 </section>
@@ -59,7 +59,7 @@ import { flecha } from '../../lib/flecha';
               <span class="f-t">{c.titulo}</span>
               <span class="f-d">{c.frase}</span>
               <span class="f-m detail">
-                {c.secciones.length} {c.secciones.length === 1 ? 'apartado' : 'apartados'} · {minutos(c)} min
+                {c.secciones.length} {c.secciones.length === 1 ? 'apartado' : 'apartados'}, {minutos(c)} min
                 <Fragment set:html={flecha()} />
               </span>
             </a>
@@ -204,6 +204,7 @@ import { flecha } from '../../lib/flecha';
 </script>
 
 <style>
+  .sub .sep { display: inline-block; width: 1.25em; } /* ronda 307, 23.ª: el aire hace de separador (sin «·») */
   /* ── PORTADA: papel, el titular en el centro y nada más. La estela de webs vive detrás del titular. ── */
   .portada {
     position: relative;

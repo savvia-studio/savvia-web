@@ -1,10 +1,4 @@
 ---
-// LANZAMIENTO: esta página aún no sale (ver src/lib/lanzamiento.ts); quien llega por la dirección vuelve a la home
-import { RECORTE } from '../../lib/lanzamiento';
-if (RECORTE) return Astro.redirect('/');
-// RONDA 180 · /sistema — el SISTEMA de savvia, completo como la librería de Neety: empezar, diseño y desarrollo en una sola página.
-// El Método (antes handbook) vive aparte, en /metodo. La puerta de tres tarjetas de la ronda 177, retirada.
-import Libro from '../../components/sistema/Libro.astro';
+// RONDA 307, 24.ª · el Sistema pasa a llamarse Storybook (/storybook): esta dirección, la de antes, lleva allí
+return Astro.redirect('/storybook', 301);
 ---
-
-<Libro />

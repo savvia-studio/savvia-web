@@ -48,7 +48,7 @@ import { flecha } from '../../lib/flecha';
           <h1 class="titulo" data-entra>{c.titulo}</h1>
           <p class="entrada">{c.entrada}</p>
           <p class="ficha detail" data-cromo>
-            <span>{c.secciones.length} apartados</span><span aria-hidden="true">·</span><span>{minutos(c)} min de lectura</span>
+            <span>{c.secciones.length} apartados</span><span>{minutos(c)} min de lectura</span>
           </p>
         </div>
       </div>
@@ -163,7 +163,7 @@ import { flecha } from '../../lib/flecha';
     text-wrap: pretty;
   }
   /* la ficha, en una línea y en voz baja (antes una caja con filete) */
-  .ficha { margin-top: calc(var(--spacing) * 6); display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); color: var(--fg2); opacity: 0.8; }
+  .ficha { margin-top: calc(var(--spacing) * 6); display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2) calc(var(--spacing) * 5); /* ronda 307, 23.ª: el aire hace de separador (sin «·») */ color: var(--fg2); opacity: 0.8; }
   .marco-cab { margin-top: calc(var(--spacing) * 16); }
   .marco-cab .linea { display: block; height: 0; }
   .lamina-cab :global(.lamina) { border-radius: 0; }

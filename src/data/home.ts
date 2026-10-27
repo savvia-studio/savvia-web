@@ -13,9 +13,9 @@ export const nav = {
     { label: 'Lab', href: '/lab' },
     { label: 'Manifiesto', href: '/manifiesto' },
   ] as { label: string; href?: string }[],
-  reel: { label: 'Reel', duracion: '0:53' }, // ronda 263: el reel cinético · ronda 130: el reel vuelve, montado con Quantus y Patchbay (marca blanca)
+  reel: { label: 'Reel', duracion: '1:28' }, // ronda 263: el reel cinético · ronda 130: el reel vuelve, montado con Quantus y Patchbay (marca blanca)
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete): el correo (de `pie.correo`) y el handbook (sin `href` saldría como «pronto»)
-  mas: { titulo: 'Más', links: [{ label: 'Sistema', href: '/sistema' }, { label: 'Método', href: '/metodo' }] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href?: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
+  mas: { titulo: 'Más', links: [{ label: 'Storybook', href: '/storybook' }, { label: 'Método' /* RONDA 307, 25.ª · «Método, próximamente y que no se pueda clicar» (vuelve con href: '/metodo') */ }] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href?: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
 };
 
 export const hero = {
@@ -110,12 +110,12 @@ export const laSavvia = {
   intro: 'No es un documento que se guarda en un cajón: es un sistema. Cada ingrediente decide una parte de la web, y todos se leen igual: tú, tu equipo y la [[IA]].',
   // Los INGREDIENTES del sistema. Todos los valores son REALES: son los de la Savvia de esta misma web (DESIGN.md + AGENTS.md).
   ingredientes: [
-    { id: 'color', n: 'Color', v: 'Cacao · Rosa niebla · Nogal · Coral · Cobalto · Cereza', d: 'Seis colores, cada uno con su papel. El Coral es la acción; cada bloque, un solo acento.' },
-    { id: 'tipo', n: 'Tipografía', v: 'Family · Timeless Sans · Timeless Grotesk', d: 'Tres voces: la editorial, la de lectura y la de los detalles.' },
-    { id: 'espacio', n: 'Espaciado', v: '4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128', d: 'Una sola escala. Ningún hueco se decide a ojo.' },
-    { id: 'piezas', n: 'Componentes', v: 'Botón · enlace · tarjeta · detalle', d: 'Las piezas con las que se monta cualquier página nueva.' },
-    { id: 'voz', n: 'Voz', v: 'orquestar · criterio · a medida · contigo', d: 'Lo que se dice y lo que no. También las palabras son del sistema.' },
-    { id: 'no', n: 'Lo descartado', v: 'Cursivas · paisajes en el hero · un efecto de protagonista', d: 'Cada decisión que cayó, y por qué. Para no volver.' },
+    { id: 'color', n: 'Color', v: 'Cacao, Rosa niebla, Nogal, Coral, Cobalto, Cereza', d: 'Seis colores, cada uno con su papel. El Coral es la acción; cada bloque, un solo acento.' },
+    { id: 'tipo', n: 'Tipografía', v: 'Family, Timeless Sans, Timeless Grotesk', d: 'Tres voces: la editorial, la de lectura y la de los detalles.' },
+    { id: 'espacio', n: 'Espaciado', v: '4, 8, 12, 16, 24, 32, 48, 64, 96, 128', d: 'Una sola escala. Ningún hueco se decide a ojo.' },
+    { id: 'piezas', n: 'Componentes', v: 'Botón, enlace, tarjeta, detalle', d: 'Las piezas con las que se monta cualquier página nueva.' },
+    { id: 'voz', n: 'Voz', v: 'orquestar, criterio, a medida, contigo', d: 'Lo que se dice y lo que no. También las palabras son del sistema.' },
+    { id: 'no', n: 'Lo descartado', v: 'Cursivas, paisajes en el hero, un efecto de protagonista', d: 'Cada decisión que cayó, y por qué. Para no volver.' },
   ],
   puntos: [
     { t: 'Donde se entiende todo.', d: 'Qué es, para quién y por qué es así.' },
@@ -127,13 +127,13 @@ export const laSavvia = {
   doc: {
     archivo: 'savvia.md',
     lineas: [
-      { k: 'h', v: '# savvia · web' },
+      { k: 'h', v: '# savvia, web' },
       { k: 'h', v: '## Color' },
-      { k: 'p', v: 'Cacao #302018 · la base de la página' },
-      { k: 'p', v: 'Coral #F65340 · botones y llamadas a la acción' },
-      { k: 'p', v: 'Cobalto · Cereza · un acento por bloque' },
+      { k: 'p', v: 'Cacao #302018, la base de la página' },
+      { k: 'p', v: 'Coral #F65340, botones y llamadas a la acción' },
+      { k: 'p', v: 'Cobalto, Cereza, un acento por bloque' },
       { k: 'h', v: '## Tipografía' },
-      { k: 'p', v: 'Family 400 · Timeless Sans · Timeless Grotesk' },
+      { k: 'p', v: 'Family 400, Timeless Sans, Timeless Grotesk' },
       { k: 'h', v: '## Rechazado' },
       { k: 'p', v: 'Cursivas. Fondos de paisaje en el hero.' },
       { k: 'p', v: 'Un efecto como protagonista de la página.' },
@@ -163,9 +163,9 @@ export const receta = {
       paso: 'tu marca',
       t: 'DESIGN.md',
       raya: '=-=-=-=-=-=-=-=-=-=-=-=',
-      lineas: ['# Neety · la receta', '> la web se genera de', '  su propio código', '', '## color', 'Naranja Core   #FE8238', 'Azul bebé      #A7C5F9', 'Berenjena      #431B44', 'Ciruela        #2A0E2C', 'Base cálida    #F8F7EC', '', '## tipografía', 'titulares  Bricolage', 'cuerpo     Switzer', 'H1  112 / 64 px · 120%', '', '## espacio', 'xtiny 4 … xxhuge 160', 'sección 96·128·224 px'],
+      lineas: ['# Neety, la receta', '> la web se genera de', '  su propio código', '', '## color', 'Naranja Core   #FE8238', 'Azul bebé      #A7C5F9', 'Berenjena      #431B44', 'Ciruela        #2A0E2C', 'Base cálida    #F8F7EC', '', '## tipografía', 'titulares  Bricolage', 'cuerpo     Switzer', 'H1  112 / 64 px, 120%', '', '## espacio', 'xtiny 4 … xxhuge 160', 'sección 96, 128, 224 px'],
       marcas: [[5, 'circulo'], [12, 'subraya']],
-      digital: { tipo: 'tabla', txt: 'app/globals.css · @theme', filas: [['Naranja Core', '#FE8238', 'bg-naranja'], ['Berenjena', '#431B44', 'text-plum'], ['Base cálida', '#F8F7EC', 'bg-base']], colores: ['#FE8238', '#431B44', '#F8F7EC'] },
+      digital: { tipo: 'tabla', txt: 'app/globals.css, @theme', filas: [['Naranja Core', '#FE8238', 'bg-naranja'], ['Berenjena', '#431B44', 'text-plum'], ['Base cálida', '#F8F7EC', 'bg-base']], colores: ['#FE8238', '#431B44', '#F8F7EC'] },
     },
     {
       paso: 'el arnés',
@@ -173,7 +173,7 @@ export const receta = {
       raya: '·x·x·x·x·x·x·x·x·x·x·x·',
       lineas: ['nada de colores', '   ni fuentes nuevas', '', 'ni un hero distinto:', '   se reutiliza uno', '', 'ni botones inventados', '', 'un cambio por petición', '', 'ni publicar sin', '   mirarla en el preview'],
       marcas: [[0, 'subraya'], [6, 'visto'], [8, 'visto'], [10, 'visto']],
-      digital: { tipo: 'bloqueo', txt: '#FF2E9A no está en la receta', fin: 'usa el token Naranja Core', cab: 'CLAUDE.md · el arnés' },
+      digital: { tipo: 'bloqueo', txt: '#FF2E9A no está en la receta', fin: 'usa el token Naranja Core', cab: 'CLAUDE.md, el arnés' },
     },
     {
       paso: 'tu equipo pide',
@@ -181,7 +181,7 @@ export const receta = {
       raya: "`'. .'`'. .'`'. .'`'. .'`",
       lineas: ['«Añade una sección de', 'testimonios en la home,', 'entre Cómo funciona', 'e Integraciones: tres', 'citas con nombre, cargo', 'y empresa, con el estilo', 'de tarjeta blanca.»'],
       marcas: [[6, 'subraya']],
-      digital: { tipo: 'agente', txt: 'agente · leyendo la receta', pasos: ['lee CLAUDE.md', 'reutiliza la tarjeta blanca', 'la añade en ES y EN', 'la revisa en el preview'], fin: 'sección lista ✓' },
+      digital: { tipo: 'agente', txt: 'agente, leyendo la receta', pasos: ['lee CLAUDE.md', 'reutiliza la tarjeta blanca', 'la añade en ES y EN', 'la revisa en el preview'], fin: 'sección lista ✓' },
     },
     {
       paso: 'queda escrito',
@@ -222,7 +222,7 @@ export const proyectos = {
       dominio: 'quantus-demo.vercel.app',
       estacion: 'invierno',
       hechos: [
-        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
+        ['Trabajo', 'Home, diseño y desarrollo agéntico'],
         ['Tipografía', 'Schibsted Grotesk'],
         ['Un dato', '24 rondas documentadas'],
       ],
@@ -236,8 +236,8 @@ export const proyectos = {
       url: 'https://playgroundiep.treseiscero.app/home-v3', dominio: 'playgroundiep.com', // ronda 230: la home v2 · 26/10: la v3 (Andoni, con Claude)
       estacion: 'primavera',
       hechos: [
-        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
-        ['Un dato', '24 rondas · 4 versiones de la home'],
+        ['Trabajo', 'Home, diseño y desarrollo agéntico'],
+        ['Un dato', '24 rondas, 4 versiones de la home'],
       ],
     },
     {
@@ -251,7 +251,7 @@ export const proyectos = {
       // http://localhost:*` → la web real va en el iframe (neety.com sigue sin dejarse embeber: no cambiar la url).
       estacion: 'otono',
       hechos: [
-        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
+        ['Trabajo', 'Home, diseño y desarrollo agéntico'],
         ['Un dato', '9 secciones'],
       ],
     },
@@ -266,8 +266,8 @@ export const proyectos = {
       dominio: 'patchbay-web.vercel.app',
       estacion: 'verano',
       hechos: [
-        ['Trabajo', 'Home · diseño y desarrollo agéntico'],
-        ['Un dato', '23 canales · 11 secciones'],
+        ['Trabajo', 'Home, diseño y desarrollo agéntico'],
+        ['Un dato', '23 canales, 11 secciones'],
       ],
     },
   ],
@@ -429,13 +429,13 @@ export const servicios = {
 // RONDA 48 · «deja testimonios de texto solo: los vídeos dicen treseiscero todos» → sin vídeos (los archivos, en tools/retirados/voces/). Codely y THX se
 // quedan como voces de texto; la cita de THX, traducida del inglés y sin el nombre del estudio anterior («no se dice»).
 export const voces = [
-  { rota: true, de: 'isotrol', n: 'Inés López-Pita', r: 'Marketing Director · Isotrol', q: 'El servicio, la ejecución, los plazos y la entrega son excelentes, pero lo que de verdad destaca es vuestro conocimiento y la capacidad de mejorar nuestra visión inicial.', video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: 'invopop', n: 'Juan Moliner', r: 'Co-founder · Invopop', q: 'Desde el primer día se integraron con nuestras herramientas. Responden en minutos y suben a producción en horas en vez de días. Superaron nuestras expectativas y volveremos a trabajar con ellos.', video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: '', n: 'Javi Ferrer', r: 'Co-fundador · Codely', q: 'El proyecto ha sido un éxito gracias al increíble trabajo de Andoni y Eric. Compartimos un boceto y, para la siguiente iteración, Andoni lo tenía listo en Figma para que Eric lo desarrollara en Webflow. Una colaboración excelente, ¡muy recomendable!', video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: '', n: 'Thomas Hauer', r: 'Founder · THX', q: 'Me los recomendó un diseñador para crear mi web y estoy encantado de haber seguido el consejo, tanto por la calidad de su trabajo como por cómo colaboraron conmigo. Lo pensaron todo, siempre estuvieron disponibles y me lo pusieron fácil con vídeos cortos y personalizados. Seis estrellas de cinco.', video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: '', n: 'Claudia Bethencourt', r: 'Brand Shaper · Claudia BE', q: 'Metódicos, fiables, y se lanzaron de cabeza a desarrollar todas nuestras ideas. Un trabajo impecable, elogiado incluso por otros desarrolladores.', video: '', poster: '', ar: 16 / 9 },
-  { rota: false, de: '', n: 'Danny Saltaren', r: 'Founder · Minimum Run', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Volveremos a trabajar juntos.', video: '', poster: '', ar: 16 / 9 },
-  { rota: false, de: '', n: 'Félix Gonzalo', r: 'Webflow Developer · Monad', q: 'Eric y Andoni destacan por su talento, su profesionalidad y un flujo de trabajo impecable. Un equipo fiable y comprometido que recomiendo de corazón.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: 'isotrol', n: 'Inés López-Pita', r: 'Marketing Director, Isotrol', q: 'El servicio, la ejecución, los plazos y la entrega son excelentes, pero lo que de verdad destaca es vuestro conocimiento y la capacidad de mejorar nuestra visión inicial.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: 'invopop', n: 'Juan Moliner', r: 'Co-founder, Invopop', q: 'Desde el primer día se integraron con nuestras herramientas. Responden en minutos y suben a producción en horas en vez de días. Superaron nuestras expectativas y volveremos a trabajar con ellos.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Javi Ferrer', r: 'Co-fundador, Codely', q: 'El proyecto ha sido un éxito gracias al increíble trabajo de Andoni y Eric. Compartimos un boceto y, para la siguiente iteración, Andoni lo tenía listo en Figma para que Eric lo desarrollara en Webflow. Una colaboración excelente, ¡muy recomendable!', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Thomas Hauer', r: 'Founder, THX', q: 'Me los recomendó un diseñador para crear mi web y estoy encantado de haber seguido el consejo, tanto por la calidad de su trabajo como por cómo colaboraron conmigo. Lo pensaron todo, siempre estuvieron disponibles y me lo pusieron fácil con vídeos cortos y personalizados. Seis estrellas de cinco.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Claudia Bethencourt', r: 'Brand Shaper, Claudia BE', q: 'Metódicos, fiables, y se lanzaron de cabeza a desarrollar todas nuestras ideas. Un trabajo impecable, elogiado incluso por otros desarrolladores.', video: '', poster: '', ar: 16 / 9 },
+  { rota: false, de: '', n: 'Danny Saltaren', r: 'Founder, Minimum Run', q: 'Valoro su flexibilidad, su atención al detalle y cómo se adaptan a plazos y cambios para mejorar la experiencia y el resultado final. Volveremos a trabajar juntos.', video: '', poster: '', ar: 16 / 9 },
+  { rota: false, de: '', n: 'Félix Gonzalo', r: 'Webflow Developer, Monad', q: 'Eric y Andoni destacan por su talento, su profesionalidad y un flujo de trabajo impecable. Un equipo fiable y comprometido que recomiendo de corazón.', video: '', poster: '', ar: 16 / 9 },
 ];
 
 export const estudio = {
@@ -460,7 +460,7 @@ export const estudio = {
     // foto por px nativo) y el sitio de la celda a la llegada en la foto de 1200 × 1000; `gesto` = 12 fotogramas recortados con su caja en % de la pose final.
     // RONDA 206 · gestos nuevos (animaciones-web-30fps: Andoni, canasta; Eric, pase con el pie bajo), 60 fotogramas a 30 fps (tools/r206/montar.cjs).
     // RONDA 189 · gestos nuevos de Andoni (frames-referencia-v3: Andoni, baloncesto; Eric, fútbol), 16 fotogramas cada uno (tools/r189-equipo/montar.cjs).
-    { n: 'Andoni', falta: 'Frase de 2–3 líneas y rol.', hobbies: ['Baloncesto', 'Videojuegos', 'Café en casa'],
+    { n: 'Andoni', falta: 'Frase de 2 o 3 líneas y rol.', hobbies: ['Baloncesto', 'Videojuegos', 'Café en casa'],
       paseo: {src: '/media/equipo/r141/a-paseo.webp', s: 2.386, celda: 524, alto: 520, izq: -159.013, arriba: -239.287},
       gesto: [{src: '/media/equipo/r206/a-gesto-01.webp', x: 28.871, y: 9.486, w: 22.215, h: 88.066},
       {src: '/media/equipo/r206/a-gesto-02.webp', x: 28.871, y: 9.962, w: 21.818, h: 86.638},
@@ -522,7 +522,7 @@ export const estudio = {
       {src: '/media/equipo/r206/a-gesto-58.webp', x: 28.672, y: 11.152, w: 21.62, h: 85.21},
       {src: '/media/equipo/r206/a-gesto-59.webp', x: 28.672, y: 10.438, w: 22.017, h: 86.638},
       {src: '/media/equipo/r206/a-gesto-60.webp', x: 28.672, y: 9.962, w: 22.215, h: 87.59}] },
-    { n: 'Eric', falta: 'Frase de 2–3 líneas y rol.', hobbies: ['Deporte', 'Naturaleza', 'Música'], // ronda 144 · Eric: «deporte, naturaleza y música» (antes Tenis)
+    { n: 'Eric', falta: 'Frase de 2 o 3 líneas y rol.', hobbies: ['Deporte', 'Naturaleza', 'Música'], // ronda 144 · Eric: «deporte, naturaleza y música» (antes Tenis)
       paseo: {src: '/media/equipo/r141/e-paseo.webp', s: 2.53, celda: 540, alto: 520, izq: 27.567, arriba: -334.178},
       gesto: [{src: '/media/equipo/r206/e-gesto-01.webp', x: 46.127, y: 4.859, w: 26.956, h: 90.179},
       {src: '/media/equipo/r206/e-gesto-02.webp', x: 45.923, y: 4.859, w: 27.16, h: 90.179},
@@ -661,24 +661,24 @@ export const partitura = {
     ] as [string, string[]][],
     paginas: {
       color: { eyebrow: 'Fundamentos', titulo: 'Color', texto: 'Definidos en app/globals.css (bloque @theme). Editar ahí es la única forma de cambiar la paleta; Tailwind genera las utilidades.', etiqueta: 'Paleta de marca', rampas: 'Rampas de opacidad' },
-      tipo: { eyebrow: 'Fundamentos', titulo: 'Tipografía', texto: 'Titulares en Bricolage Grotesque (font-display), cuerpo en Switzer (font-sans).', etiqueta: 'Titulares — 120 % de interlineado' },
+      tipo: { eyebrow: 'Fundamentos', titulo: 'Tipografía', texto: 'Titulares en Bricolage Grotesque (font-display), cuerpo en Switzer (font-sans).', etiqueta: 'Titulares: 120 % de interlineado' },
       botones: { eyebrow: 'Componentes base', titulo: 'Botones (CTA)', texto: 'El CTA real de la web es components/PillCta.tsx: pastilla donde el label rueda hacia arriba en hover.' },
       esp: { eyebrow: 'Fundamentos', titulo: 'Espaciado', texto: 'Escala de tokens de espaciado. La barra muestra el valor desktop; la etiqueta indica desktop / mobile.' },
       comp: { eyebrow: 'Producto', titulo: 'Componentes de la web', texto: 'Todos los componentes reales de la web, en pestañas por página. Cada tarjeta lleva su miniatura real y su ruta.' },
     } as Record<string, { eyebrow: string; titulo: string; texto: string; etiqueta?: string; rampas?: string }>,
-    botonesTarjetas: [['Primary — «Solicitar demo»', 'primary', 'Solicitar demo'], ['Outline — «Saber más»', 'outline', 'Saber más'], ['Primary · big — CTA del footer', 'primary', 'Solicitar demo'], ['Primary · block — menú móvil', 'block', 'Solicitar demo']] as [string, string, string][],
+    botonesTarjetas: [['Primary: «Solicitar demo»', 'primary', 'Solicitar demo'], ['Outline: «Saber más»', 'outline', 'Saber más'], ['Primary, big: CTA del footer', 'primary', 'Solicitar demo'], ['Primary, block: menú móvil', 'block', 'Solicitar demo']] as [string, string, string][],
     tabsComponentes: ['Comunes', 'Home', 'Plataforma', 'Casos de uso', 'Blog', 'Artículo', 'Eventos', 'Academia'],
     fichas: [{ id: 'logo', titulo: 'Logotipo', chips: ['Logotipo', 'Logo', 'components/Logo.tsx'], texto: 'Wordmark de Neety en SVG inline. Props: className (tamaño) y fill (color).' }, { id: 'punto', titulo: 'Punto pulsante', chips: ['Punto pulsante', 'PulsingDot', 'components/PulsingDot.tsx'], texto: 'Punto de marca cuyo halo respira con GSAP. Encabeza el eyebrow de casi todas las secciones.' }],
     picks: [
       { ag: 2, sec: 'color', src: 'base', slot: 'fondo', label: 'Degradado granular', chip: 'Degradado granular' }, // ronda 152: lo que se coge es lo que cae (antes, un color liso que caía como degradado)
-      { ag: 0, sec: 'tipo', src: 'h1xl', slot: 'h1', label: 'H1 · XL', chip: 'Bricolage · H1 XL' },
+      { ag: 0, sec: 'tipo', src: 'h1xl', slot: 'h1', label: 'H1, XL', chip: 'Bricolage, H1 XL' },
       { ag: 1, sec: 'botones', src: 'cta', slot: 'ctas', label: 'Solicitar demo', chip: '<PillCta variant="primary" />' },
-      { ag: 2, sec: 'esp', src: 'large', slot: 'esp', label: 'large · 48', chip: 'espaciado · large 48' },
+      { ag: 2, sec: 'esp', src: 'large', slot: 'esp', label: 'large, 48', chip: 'espaciado, large 48' },
       { ag: 3, sec: 'comp', src: 'logo', slot: 'logo', label: 'Logotipo', chip: '<Logo />' },
       { ag: 1, sec: 'comp', src: 'punto', slot: 'punto', label: 'Punto pulsante', chip: '<PulsingDot />' },
     ] as { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[],
     color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Degradado granular', 'grad']] as [string, string][],
-    tipografia: [['Bricolage Grotesque', 'titulares · H1 XL 112 / 64 · 120 %'], ['Switzer', 'cuerpo · regular 16 · 150 %']] as [string, string][],
+    tipografia: [['Bricolage Grotesque', 'titulares, H1 XL 112 / 64, 120 %'], ['Switzer', 'cuerpo, regular 16, 150 %']] as [string, string][],
     espaciado: [['xtiny', 4], ['tiny', 8], ['xxsmall', 16], ['xsmall', 20], ['small', 24], ['medium', 32], ['large', 48], ['xlarge', 64], ['xxlarge', 80], ['huge', 96], ['xhuge', 112], ['xxhuge', 160]] as [string, number][],
     gradiente: { clase: '.rail-gradient-x', paradas: ['#F8F7EC', '#FE8238', '#431B44', '#A7C5F9', '#FFFFFF'], nota: 'crema → naranja → berenjena → azul → blanco' },
     botones: { ruta: 'components/PillCta.tsx', primario: 'Solicitar demo', contorno: 'Saber más' },

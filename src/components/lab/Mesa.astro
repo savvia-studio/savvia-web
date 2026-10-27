@@ -62,16 +62,10 @@ const piezas = experimentos
   </div>
 
   <div class="hola" data-hola>
-    <header class="cab">
-      <span class="archivo">savvia-lab.md</span>
-      <span class="pill">Texto</span>
-    </header>
+    <!-- RONDA 307, 24.ª · Andoni: «en la tarjeta del centro, únicamente el título savvia lab y el subtítulo» (fuera la cabecera de archivo y el registro) -->
     <div class="hola-c">
       <h1 id="lab-h" class="font-display titular">{lab.titulo}</h1>
       <p class="sub">{lab.sub}</p>
-      <p class="registro">
-        {experimentos.length} experimentos · {experimentos.map((e) => e.nombre).join(' · ')}
-      </p>
     </div>
   </div>
   <p class="pista" aria-hidden="true" data-pista>
@@ -471,7 +465,7 @@ const piezas = experimentos
   function abrir(i: number, p: HTMLElement) {
     const e = experimentos[i];
     desde = p;
-    lupa.querySelector('[data-lupa-cod]')!.textContent = `${e.codigo} · ${e.dominio}`;
+    lupa.querySelector('[data-lupa-cod]')!.textContent = `${e.codigo}, ${e.dominio}`;
     lupa.querySelector('[data-lupa-nombre]')!.textContent = e.nombre;
     lupa.querySelector('[data-lupa-que]')!.textContent = e.que;
     lupa.querySelector<HTMLAnchorElement>('[data-lupa-ir]')!.href = e.url;
@@ -720,7 +714,7 @@ const piezas = experimentos
     pointer-events: none;
   }
   .hola-c {
-    padding: 20px 18px 22px;
+    padding: 52px 24px 56px; /* RONDA 307, 25.ª · «la card del centro, algo más alta» (antes 20 / 22, con la cabecera de archivo encima) */
     text-align: center;
   }
   .titular {
@@ -734,6 +728,7 @@ const piezas = experimentos
     line-height: 1.5;
     opacity: 0.8;
     text-wrap: balance;
+    white-space: pre-line; /* RONDA 307, 26.ª · «en dos líneas» */
   }
   .registro {
     margin-top: 16px;

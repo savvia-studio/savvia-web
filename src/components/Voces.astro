@@ -8,10 +8,12 @@
 // «igual que el de José Luis»: se probó alternar de lado).
 import { home } from '../data/idioma';
 import { langDe } from '../lib/i18n';
-interface Props { k: number }
-const { k } = Astro.props;
+// RONDA 307, 26.ª · también vale para un testimonio que no está en la lista (`dato`): el del final de cada caso de estudio
+type Dato = { n: string; r: string; retrato: string; q: string };
+interface Props { k?: number; dato?: Dato }
+const { k = 0, dato } = Astro.props;
 const lang = langDe(Astro.currentLocale), en = lang === 'en';
-const t = home(lang).proyectos.testimonios[k];
+const t: Dato = dato ?? home(lang).proyectos.testimonios[k];
 ---
 
 <figure class="voz" data-voces>

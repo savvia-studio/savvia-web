@@ -113,7 +113,7 @@ export const capitulos: Capitulo[] = [
         bloques: [
           { tipo: 'p', texto: estudio.texto }, // de: home.ts › estudio.texto
           { tipo: 'p', texto: 'Venimos del pixel-perfect artesanal y hoy trabajamos con IA cada día.' }, // de: manifiesto 02
-          { tipo: 'cita', texto: respuesta(/la hace la IA/), de: 'Preguntas frecuentes · «¿La web la hace la IA?»' }, // de: home.ts › preguntas
+          { tipo: 'cita', texto: respuesta(/la hace la IA/), de: 'Preguntas frecuentes, «¿La web la hace la IA?»' }, // de: home.ts › preguntas
         ],
       },
       {
@@ -190,12 +190,12 @@ export const capitulos: Capitulo[] = [
               ? // de: home.ts › preguntas («¿Cuánto tarda?») y AGENTS.md (cada ronda empieza por la frase de quien la pide)
                 [
                   { tipo: 'p', texto: 'En la práctica: trabajamos a tu ritmo, por rondas cortas. Tú dices qué ves; nosotros lo interpretamos, lo cambiamos y lo medimos.' },
-                  { tipo: 'cita', texto: respuesta(/tarda/), de: 'Preguntas frecuentes · «¿Cuánto tarda?»' },
+                  { tipo: 'cita', texto: respuesta(/tarda/), de: 'Preguntas frecuentes, «¿Cuánto tarda?»' },
                 ]
               : // de: home.ts › preguntas («¿Voy a depender de vosotros?»)
                 [
                   { tipo: 'p', texto: 'En la práctica: al terminar no dependes de nosotros.' },
-                  { tipo: 'cita', texto: respuesta(/depender/), de: 'Preguntas frecuentes · «¿Voy a depender de vosotros?»' },
+                  { tipo: 'cita', texto: respuesta(/depender/), de: 'Preguntas frecuentes, «¿Voy a depender de vosotros?»' },
                 ]) as Bloque[]),
         ],
       })),
@@ -270,7 +270,7 @@ export const capitulos: Capitulo[] = [
               // de: AGENTS.md › Ronda 30 (22/09/2026), punto 3
               { n: 'Ronda 30', fecha: '22/09/2026', quien: 'Andoni', dijo: 'es la card que no cubre todo, es la única que no se ve redondeada', causa: 'La escena del móvil iba ampliada a 1,35: la lámina solo cubría el 76 % del alto de su tarjeta cuadrada.', hecho: 'Ampliación a 1,9.', medido: 'La mesa, a 719 × 405 sobre una tarjeta de 379 × 379: la cubre entera, con la pantalla del móvil centrada.' },
               // de: AGENTS.md › Ronda 59 (25/09/2026), a media ronda
-              { n: 'Ronda 59', fecha: '25/09/2026', quien: 'Andoni', dijo: 'la (x) en la vista focus a veces abre el nav bar: que no ocurra nunca', causa: 'La × estaba donde el botón del menú y el bloqueo duraba solo 1,6 s: un segundo clic caía en el menú.', hecho: 'El botón del menú queda bloqueado hasta que el ratón sale de su zona.', medido: 'La × y tres clics más en el mismo sitio, a 0,3 · 1,7 · 3 s, dos veces seguidas: el menú no se abre nunca (Chrome y WebKit).' },
+              { n: 'Ronda 59', fecha: '25/09/2026', quien: 'Andoni', dijo: 'la (x) en la vista focus a veces abre el nav bar: que no ocurra nunca', causa: 'La × estaba donde el botón del menú y el bloqueo duraba solo 1,6 s: un segundo clic caía en el menú.', hecho: 'El botón del menú queda bloqueado hasta que el ratón sale de su zona.', medido: 'La × y tres clics más en el mismo sitio, a los 0,3 s, 1,7 s y 3 s, dos veces seguidas: el menú no se abre nunca (Chrome y WebKit).' },
             ],
           },
         ],
@@ -320,7 +320,7 @@ export const capitulos: Capitulo[] = [
             filas: laSavvia.ingredientes.map((g) => [
               g.n,
               ({ color: 'tokens', tipo: 'familias', espacio: 'escala', piezas: 'componentes', voz: 'palabras', no: 'lista' } as Record<string, string>)[g.id],
-              g.id === 'color' ? 'Cacao · Rosa niebla · Nogal · Coral · Salvia' : g.v,
+              g.id === 'color' ? 'Cacao, Rosa niebla, Nogal, Coral, Salvia' : g.v,
               g.d,
             ]),
           },
@@ -360,12 +360,12 @@ export const capitulos: Capitulo[] = [
           {
             tipo: 'tipos',
             items: [
-              { n: 'Family', css: 'var(--font-display)', uso: 'Titulares · 400', muestra: 'Elevamos tu web' },
+              { n: 'Family', css: 'var(--font-display)', uso: 'Titulares, 400', muestra: 'Elevamos tu web' },
               { n: 'Timeless Sans', css: 'var(--font-sans)', uso: 'Lectura e interfaz', muestra: 'Frases claras y cortas.' },
-              { n: 'Timeless Grotesk', css: 'var(--font-mono)', uso: 'Números y detalles', muestra: '01 · 04 · 2026' },
+              { n: 'Timeless Grotesk', css: 'var(--font-mono)', uso: 'Números y detalles', muestra: '01/04/2026' },
             ],
           },
-          { tipo: 'p', texto: 'El espacio sale de una sola escala de 4 px: 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128. Ningún hueco se decide a ojo.' },
+          { tipo: 'p', texto: 'El espacio sale de una sola escala de 4 px: 4, 8, 12, 16, 24, 32, 48, 64, 96, 128. Ningún hueco se decide a ojo.' },
         ],
       },
       {
@@ -399,7 +399,7 @@ export const capitulos: Capitulo[] = [
           { tipo: 'chips', items: partitura.sale }, // de: home.ts › partitura.sale (ronda 126)
           // de: home.ts › receta.tiras[2] (una petición real del equipo de Neety y los pasos del agente)
           { tipo: 'peticion', quien: 'El equipo de Neety pide', texto: 'Añade una sección de testimonios en la home, entre Cómo funciona e Integraciones: tres citas con nombre, cargo y empresa, con el estilo de tarjeta blanca.', pasos: ['Lee la receta', 'Reutiliza la tarjeta blanca', 'La añade en español e inglés', 'La revisa en la vista previa'], fin: 'Sección lista' },
-          { tipo: 'cita', texto: respuesta(/equipo puede/), de: 'Preguntas frecuentes · «¿Mi equipo puede tocarla?»' },
+          { tipo: 'cita', texto: respuesta(/equipo puede/), de: 'Preguntas frecuentes, «¿Mi equipo puede tocarla?»' },
         ],
       },
     ],
@@ -432,7 +432,7 @@ export const capitulos: Capitulo[] = [
         id: 'si-ya-tienes-web',
         titulo: 'Si ya tienes web',
         bloques: [
-          { tipo: 'cita', texto: respuesta(/Webflow/), de: 'Preguntas frecuentes · «¿Y si mi web está en Webflow o WordPress?»' }, // de: home.ts › preguntas
+          { tipo: 'cita', texto: respuesta(/Webflow/), de: 'Preguntas frecuentes, «¿Y si mi web está en Webflow o WordPress?»' }, // de: home.ts › preguntas
           { tipo: 'enlace', label: 'Cuéntanos qué necesitas', href: '/metodo/contacto' },
         ],
       },
@@ -460,7 +460,7 @@ export const capitulos: Capitulo[] = [
             mono: [1],
             filas: [
               ['Navegadores', 'Chrome y WebKit', 'Navegadores reales, no simulados, conducidos por una prueba automática.'],
-              ['Pantallas', '1280 × 720 · 390 × 844', 'La misma prueba en escritorio y en móvil.'],
+              ['Pantallas', '1280 × 720 y 390 × 844', 'La misma prueba en escritorio y en móvil.'],
               ['Consola', '0 errores', 'Se lee la consola en cada carga: ni un error ni un aviso.'],
               ['Red', '0 respuestas ≥ 400', 'Se registra cada petición de la página.'],
               ['Maquetación', '0 px de desborde', 'Se compara el ancho de la página con el de la ventana.'],

@@ -37,12 +37,10 @@ import logoRaw from '../../../public/savvia-palabra.svg?raw'; // ronda 145: el l
 // sitemap). Marca y Desarrollo comparten este componente (estilos y scripts) y cada página pinta su parte.
 // RONDA 180 · Eric: «en casa del herrero, cuchillo de palo: nuestro sistema tiene que ser como el de Neety de completo; Sistema, donde detallamos todo
 // de diseño y desarrollo, y por otro lado el método». UNA sola página (/sistema) en tres grupos, como la librería de Neety; el Método vive en /metodo.
-import Guia from './Guia.astro';
 import Catalogo from './Catalogo.astro';
 const GRUPOS = [
-  ['Empezar', [['usar', 'Cómo usar este sistema'], ['mapa', 'Sitemap'], ['recibir', 'Recibir el proyecto'], ['conectar', 'Trabajar con Claude'], ['contenido', 'Cambiar contenido'], ['secciones', 'Añadir una sección'], ['paginas', 'Añadir una página'], ['pedir', 'Pedir cambios']]],
   ['Diseño', [['logotipo', 'Logotipo'], ['construccion', 'Construcción'], ['color', 'Color y estaciones'], ['tipografia', 'Tipografía'], ['espaciado', 'Espaciado y retícula'], ['radios', 'Radios y sombras'], ['voz', 'Voz'], ['iconografia', 'Iconografía'], ['materia', 'Movimiento'], ['aplicaciones', 'Aplicaciones'], ['descargas', 'Descargas']]],
-  ['Desarrollo', [['stack', 'Stack'], ['componentes', 'Componentes'], ['catalogo', 'Catálogo de secciones'], ['piezas', 'Cómo se hacen las piezas'], ['herramientas', 'Herramientas y skills'], ['mantenimiento', 'Mantenimiento técnico']]],
+  ['Desarrollo', [['stack', 'Stack'], ['componentes', 'Componentes'], ['catalogo', 'Catálogo de secciones'], ['herramientas', 'Herramientas y skills']]],
 ] as const;
 
 // RONDA 176 · Eric: «vamos a poner un sitemap en brandbook». El mapa sale de los datos reales (proyectos.ts, handbook.ts): si se añade un caso o un
@@ -86,13 +84,13 @@ const HERRAMIENTAS: Fila[] = [
 const mapa: Rama[] = [
   { t: 'Inicio', ruta: '/', nota: 'La home', hijos: [
     { t: 'Hero', href: '/' }, { t: 'Los problemas', href: '/#problemas' }, { t: 'savvia agentic', href: '/#la-savvia' }, { t: 'Proyectos destacados', href: '/#proyectos' }, { t: 'Más proyectos', href: '/#anteriores' },
-    { t: 'Servicios', href: '/#servicios' }, { t: 'Eric y Andoni', href: '/#estudio' }, { t: 'Preguntas', href: '/#preguntas' }, { t: 'Pie · Contáctanos' },
+    { t: 'Servicios', href: '/#servicios' }, { t: 'Eric y Andoni', href: '/#estudio' }, { t: 'Preguntas', href: '/#preguntas' }, { t: 'Pie: Contáctanos' },
   ] },
   { t: 'Portfolio', ruta: '/proyectos', nota: `${proyectos.length} casos`, hijos: proyectos.map((p) => ({ t: p.nombre, href: `/proyectos/${p.slug}` })) },
   { t: 'Lab', ruta: '/lab', nota: 'Experimentos', hijos: [] },
   { t: 'Manifiesto', ruta: '/manifiesto', nota: 'Tres principios', hijos: [] },
   { t: 'Sistema', ruta: '/sistema', nota: 'Diseño y desarrollo', hijos: GRUPOS.map(([g, xs]) => ({ t: g, href: `#${xs[0][0]}` })) },
-  { t: 'Método', ruta: '/metodo', nota: `${capitulos.length} capítulos`, hijos: capitulos.map((c) => ({ t: `${c.num} · ${c.titulo}`, href: `/metodo/${c.slug}` })) },
+  { t: 'Método', ruta: '/metodo', nota: `${capitulos.length} capítulos`, hijos: capitulos.map((c) => ({ t: `${c.num}. ${c.titulo}`, href: `/metodo/${c.slug}` })) },
   { t: 'Bajo tierra', ruta: '/404', nota: 'Página no encontrada', hijos: [] },
 ];
 const nPaginas = 1 + 1 + proyectos.length + 2 + 2 + capitulos.length + 1; // inicio · portfolio + casos · lab, manifiesto · sistema, método + capítulos · 404
@@ -131,6 +129,10 @@ const base = 0, xAlto = -462;
 const ascend = Math.round(Math.min(...cajas.map((c) => c.y0)));
 const f = (v: number) => v.toFixed(1);
 const dManejos = manejos.map(([a, b]) => `M${f(a[0])} ${f(a[1])}L${f(b[0])} ${f(b[1])}`).join('');
+// RONDA 307, 24.ª · «mejoramos la construcción del logotipo animándolo»: cada pieza lleva su momento según dónde cae en la palabra (de izquierda a derecha):
+// primero se trazan las guías, luego aparecen las anclas como en un editor, salen los manejadores, el contorno se dibuja letra a letra y al final se rellena
+const xMin = Math.min(...cajas.map((c) => c.x0)), xMax = Math.max(...cajas.map((c) => c.x1));
+const tX = (x: number) => ((x - xMin) / Math.max(1, xMax - xMin)).toFixed(3);
 
 const base6_r144 = [
   { n: 'Cacao', hex: '#302018', uso: 'La tinta y la noche. Texto sobre claro, fondos oscuros.', claro: false },
@@ -141,10 +143,10 @@ const base6_r144 = [
   { n: 'Cereza', hex: '#B52C4C', uso: 'Reservado. Aún sin uso.', claro: false },
 ];
 const estaciones = [
-  { id: 'primavera', n: 'Primavera', meses: 'marzo – mayo', noche: '#3A2932', tinta: '#F5F5F7', colores: [['fondo', 'Ciruela', '#3A2932'], ['roble', 'Flor de cerezo', '#D98AA5'], ['savia', 'Cereza viva', '#FF8FB8'], ['bloque', 'Pétalo', '#F4C7D5']], frase: 'Ciruela al anochecer y el roble en flor; la savia es la cereza.' },
-  { id: 'verano', n: 'Verano', meses: 'junio – agosto', noche: '#1B3125', tinta: '#F5F5F7', colores: [['fondo', 'Bosque', '#1B3125'], ['roble', 'Hoja', '#6F9A4E'], ['savia', 'Lima', '#B9E26C'], ['bloque', 'Prado', '#CFE6A4']], frase: 'Bosque de noche y hoja al sol; la savia es la lima.' },
-  { id: 'otono', n: 'Otoño', meses: 'septiembre – noviembre', noche: '#3B231B', tinta: '#F5F5F7', colores: [['fondo', 'Cacao', '#3B231B'], ['roble', 'Cobre', '#C65C2D'], ['savia', 'Coral', '#FF616B'], ['bloque', 'Hoja seca', '#ECBF8F']], frase: 'La casa: Cacao tostado y cobre; la savia es el Coral.' },
-  { id: 'invierno', n: 'Invierno', meses: 'diciembre – febrero', noche: '#F5F5F7', tinta: '#22303E', colores: [['fondo', 'Nieve', '#F5F5F7'], ['roble', 'Roble desnudo', '#7D8BA3'], ['savia', 'Glaciar', '#4F8AD6'], ['bloque', 'Hielo', '#CADCEE'], ['tinta', 'Pizarra', '#22303E']], frase: 'La web se vuelve nieve y el roble, desnudo; la savia es el azul glaciar.' },
+  { id: 'primavera', n: 'Primavera', meses: 'de marzo a mayo', noche: '#3A2932', tinta: '#F5F5F7', colores: [['fondo', 'Ciruela', '#3A2932'], ['roble', 'Flor de cerezo', '#D98AA5'], ['savia', 'Cereza viva', '#FF8FB8'], ['bloque', 'Pétalo', '#F4C7D5']], frase: 'Ciruela al anochecer y el roble en flor; la savia es la cereza.' },
+  { id: 'verano', n: 'Verano', meses: 'de junio a agosto', noche: '#1B3125', tinta: '#F5F5F7', colores: [['fondo', 'Bosque', '#1B3125'], ['roble', 'Hoja', '#6F9A4E'], ['savia', 'Lima', '#B9E26C'], ['bloque', 'Prado', '#CFE6A4']], frase: 'Bosque de noche y hoja al sol; la savia es la lima.' },
+  { id: 'otono', n: 'Otoño', meses: 'de septiembre a noviembre', noche: '#3B231B', tinta: '#F5F5F7', colores: [['fondo', 'Cacao', '#3B231B'], ['roble', 'Cobre', '#C65C2D'], ['savia', 'Coral', '#FF616B'], ['bloque', 'Hoja seca', '#ECBF8F']], frase: 'La casa: Cacao tostado y cobre; la savia es el Coral.' },
+  { id: 'invierno', n: 'Invierno', meses: 'de diciembre a febrero', noche: '#F5F5F7', tinta: '#22303E', colores: [['fondo', 'Nieve', '#F5F5F7'], ['roble', 'Roble desnudo', '#7D8BA3'], ['savia', 'Glaciar', '#4F8AD6'], ['bloque', 'Hielo', '#CADCEE'], ['tinta', 'Pizarra', '#22303E']], frase: 'La web se vuelve nieve y el roble, desnudo; la savia es el azul glaciar.' },
 ];
 const escala = [
   ['H1', 'var(--text-h1)', '44 → 72', 'Family 400', 'display'],
@@ -166,17 +168,15 @@ const check = `<svg class="chk" viewBox="0 0 20 20" aria-hidden="true"><circle c
 const FIRMAS = ['Andoni Martínez', 'Eric Ruiz Molero'];
 // 24/10 · «poner diferentes opciones de firma y que puedas elegir cuál sale en el correo de abajo, así elegimos una»: cinco composiciones; el
 // selector cambia las dos firmas, lo que se copia y el correo de ejemplo. Imágenes: tools/firma/firma-opciones.cjs (+ firma-figma.cjs).
-const OPC_FIRMA: { id: string; n: string }[] = [
-  // 24/10, 5.ª · Andoni: «vamos a dejar solo estas opciones» (fuera el logotipo, solo texto, roble de la estación con línea y la gota)
-  { id: 'encima', n: 'Roble encima' }, { id: 'lado', n: 'Roble al lado' }, { id: 'trazos', n: 'Solo los trazos' }, { id: 'trazos-izq', n: 'Trazos a la izquierda' }, { id: 'trazos-der', n: 'Trazos a la derecha' },
-  { id: 'color', n: 'Roble a color' }, { id: 'avatar', n: 'Avatar de la casa' },
-];
+const OPC_FIRMA: { id: string; n: string }[] = [{ id: 'trazos', n: 'Trazo arriba' }]; // RONDA 307, 24.ª: una sola firma (las demás, en el historial)
 // las que cambian con la estación llevan {est} y {estn}; el selector los cambia por la de hoy (la de la web)
 const img = (base: string, f: string, w: number, h: number, extra = '') => `<img src="${base}/descargas/savvia-firma-${f}.png" width="${w}" height="${h}" alt="savvia" style="display:block;border:0;width:${w}px;height:${h}px;${extra}">`;
 const lin = (t: string, extra = '') => `<tr><td style="font-size:15px;line-height:22px;color:#3B231B;${extra}">${t}</td></tr>`;
 const web = `<a href="https://savvia.studio" style="color:#3B231B;text-decoration:underline;">savvia.studio</a>`;
 const T0 = `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Helvetica,Arial,sans-serif;color:#3B231B;">`;
-const firmaHtml = (nombre: string, base: string, op = 'encima') => {
+const GRIS = '#7A645C';
+const firmaHtml = (nombre: string, base: string, op = 'trazos') => { // RONDA 307, 24.ª · Andoni: «firma, dejamos solo la del trazo arriba»
+  if (op === 'nota') return `${T0}<tr><td style="font-size:15px;line-height:22px;color:#3B231B;"><b style="font-weight:600;">${nombre}</b><span style="color:${GRIS};">, savvia</span></td></tr>${lin('Desarrollo agéntico, Donostia', `font-size:13px;line-height:20px;color:${GRIS};`)}${lin(web)}<tr><td style="padding:14px 0 0 0;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="padding:0 10px 0 0;vertical-align:middle;">${img(base, 'mini-{est}', 40, 40)}</td><td style="vertical-align:middle;font-size:12px;line-height:17px;color:${GRIS};">{nota}</td></tr></table></td></tr></table>`;
   if (op === 'lado') return `${T0}<tr><td style="padding:0 14px 0 0;vertical-align:middle;">${img(base, 'roble', 64, 57)}</td><td style="vertical-align:middle;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lin(nombre)}${lin(web)}</table></td></tr></table>`;
   if (op === 'trazos') return `${T0}<tr><td style="padding:0 0 8px 0;">${img(base, 'trazos', 75, 47)}</td></tr>${lin(nombre)}${lin(web)}</table>`; // 24/10, 5.ª: más pequeños, con cuerpo e inclinados, como una rúbrica
   if (op === 'trazos-izq') return `${T0}<tr><td style="padding:0 14px 0 0;vertical-align:middle;">${img(base, 'trazos', 75, 47)}</td><td style="vertical-align:middle;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lin(nombre)}${lin(web)}</table></td></tr></table>`; // 24/10, 7.ª
@@ -185,17 +185,19 @@ const firmaHtml = (nombre: string, base: string, op = 'encima') => {
   if (op === 'avatar') return `${T0}<tr><td style="padding:0 14px 0 0;vertical-align:middle;">${img(base, 'avatar-{est}', 56, 56)}</td><td style="vertical-align:middle;"><table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lin(nombre, 'font-weight:600;')}${lin(web)}</table></td></tr></table>`;
   return `${T0}<tr><td style="padding:0 0 8px 0;">${img(base, 'roble', 64, 57)}</td></tr>${lin(nombre)}${lin(web)}</table>`; // 24/10, 6.ª: «roble encima, más pequeño» (antes 96)
 };
+// lo que sale pintado en el servidor, ya en otoño (el selector lo cambia a la estación de la página al cargar): así no se pide ninguna imagen con {est}
+const deServidor = (h: string) => h.replaceAll('{est}', 'otono').replaceAll('{estn}', 'otoño').replaceAll('{nota}', '* El roble de nuestra portada, en otoño.<br>Donostia.');
 // para el selector: el HTML de cada opción (pintado y para copiar), por persona
 const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((n) => [firmaHtml(n, '', id), firmaHtml(n, 'https://savvia.studio', id)])]));
 ---
 
-<Base title="Sistema de savvia" description="El sistema de savvia: cómo usarlo, la marca y su diseño, y cómo está construida la web, de los tokens a cada componente." carga={false}>
+<Base title="Storybook de savvia" description="El storybook de savvia: el diseño de la marca y cómo está construida la web, de los tokens a cada componente." carga={false}>
   <Nav />
   <Carriles />
   <main id="contenido" class="libro surface-light">
     <div class="wrap marco-libro">
-      <nav class="indice" aria-label="Secciones del sistema">
-        <p class="detail detail-caps text-fg2"><a href="/sistema">Sistema</a></p>
+      <nav class="indice" aria-label="Secciones del storybook">
+        <p class="detail detail-caps text-fg2"><a href="/storybook">Storybook</a></p>
         {GRUPOS.map(([g, xs]) => (<>
           <p class="detail detail-caps text-fg2 indice-g">{g}</p>
           <ol>
@@ -208,41 +210,14 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 
       <div class="hojas">
         <header class="portada">
-          <h1 class="font-display titular" data-entra>Sistema.</h1>
-          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Todo lo que hace que esta web sea de savvia, de la marca al código: cómo se ve, cómo suena, cómo se mueve y cómo está construida. Escrito para que lo lea tu equipo y cualquier agente. Cómo hacemos los proyectos está en el <a class="link" href="/metodo">Método</a>.</p>
+          <h1 class="font-display titular" data-entra>Storybook.</h1>
+          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>Todo lo que hace que esta web sea de savvia, de la marca al código: cómo se ve, cómo suena, cómo se mueve y cómo está construida. Escrito para que lo lea tu equipo y cualquier agente. Cómo hacemos los proyectos llegará con el Método, próximamente.</p>
           <div class="cubierta">
             <span class="logo-masc" role="img" aria-label="savvia"></span>
-            <span class="detail pie-cub">savvia · desde 2020</span>
+            <span class="detail pie-cub">savvia, desde 2020</span>
           </div>
         </header>
 
-
-        <p class="detail detail-caps grupo-rotulo" id="g-empezar">Empezar</p>
-        <Guia bloque="empezar" />
-        {/* RONDA 176 · MAPA DEL SITIO */}
-        <section id="mapa" class="seccion" aria-labelledby="h-mapa">
-          <h2 id="h-mapa" class="font-display text-h2">Sitemap</h2>
-          <p class="cuerpo">Cómo está hecha la web: {nPaginas} páginas que cuelgan de una sola raíz. El menú lleva a Servicios, Portfolio, Lab y Manifiesto; el Sistema, en pequeño, debajo.</p>
-          <div class="mapa">
-            <p class="m-raiz"><span class="font-display">savvia.studio</span></p>
-            <ol class="m-ramas">
-              {mapa.map((r) => (
-                <li class="m-rama">
-                  <a class="m-pag" href={r.ruta === '/404' ? '/404' : r.ruta}>
-                    <span class="detail m-ruta">{r.ruta}</span>
-                    <span class="font-display m-t">{r.t}</span>
-                    <span class="detail m-nota">{r.nota}</span>
-                  </a>
-                  {r.hijos.length > 0 && (
-                    <ul class="m-hijos">
-                      {r.hijos.map((h) => <li>{h.href ? <a href={h.href}>{h.t}</a> : <span>{h.t}</span>}</li>)}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
 
         <p class="detail detail-caps grupo-rotulo" id="g-diseno">Diseño</p>
         {/* 01 · LOGOTIPO */}
@@ -252,21 +227,21 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           {/* RONDA 265 · Andoni: «actualizar el brandbook con savvia como está ahora, sin isotipo»: la marca es solo la palabra (en la web, desde la ronda 156) */}
           <p class="cuerpo">El logotipo es la palabra «savvia» en Family, la letra de los titulares, siempre en minúscula, también a principio de frase. No lleva isotipo: la palabra sola, en una línea. El favicon tampoco: es el fondo de la estación con el roble en pequeño (abajo).</p>
           <div class="fila f2">
-            <figure class="placa oscura grande"><span class="lockup" role="img" aria-label="savvia sobre Cacao"><span class="logo-masc"></span></span><figcaption class="detail">Sobre Cacao · Blanco</figcaption></figure>
-            <figure class="placa clara grande"><span class="lockup" role="img" aria-label="savvia sobre blanco"><span class="logo-masc"></span></span><figcaption class="detail">Sobre blanco · Cacao</figcaption></figure>
+            <figure class="placa oscura grande"><span class="lockup" role="img" aria-label="savvia sobre Cacao"><span class="logo-masc"></span></span><figcaption class="detail">Sobre Cacao, Blanco</figcaption></figure>
+            <figure class="placa clara grande"><span class="lockup" role="img" aria-label="savvia sobre blanco"><span class="logo-masc"></span></span><figcaption class="detail">Sobre blanco, Cacao</figcaption></figure>
           </div>
           <p class="detail detail-caps rotulo-bb">Con cada estación</p>
           <div class="lockups-est">
             {estaciones.map((e) => (
               <>
-                <figure class="placa est" style={`background:${e.colores[0][2]};color:${e.id === 'invierno' ? '#22303E' : '#F5F5F7'}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[0][1]}`}><span class="logo-masc"></span></span><figcaption class="detail">{e.n} · {e.colores[0][1]}</figcaption></figure>
+                <figure class="placa est" style={`background:${e.colores[0][2]};color:${e.id === 'invierno' ? '#22303E' : '#F5F5F7'}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[0][1]}`}><span class="logo-masc"></span></span><figcaption class="detail">{e.n}, {e.colores[0][1]}</figcaption></figure>
                 <figure class="placa est" style={`background:${e.colores[3][2]};color:${e.id === 'invierno' ? '#22303E' : e.colores[0][2]}`}><span class="lockup" role="img" aria-label={`savvia sobre ${e.colores[3][1]}`}><span class="logo-masc"></span></span><figcaption class="detail">{e.colores[3][1]}</figcaption></figure>
               </>
             ))}
           </div>
           <div class="fila f2">
-            <figure class="placa clara sm fav-par"><img class="fav-png" src="/favicon-otono.png?v=226" data-est-src="/favicon-{est}.png?v=226" alt="Favicon de la estación" width="64" height="64" /><figcaption class="detail">Favicon · el de la estación</figcaption></figure>
-            <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label="savvia en pequeño"><span class="logo-masc"></span></span><figcaption class="detail">Tamaño mínimo · 24 px de alto</figcaption></figure>
+            <figure class="placa clara sm fav-par"><img class="fav-png" src="/favicon-otono.png?v=226" data-est-src="/favicon-{est}.png?v=226" alt="Favicon de la estación" width="64" height="64" /><figcaption class="detail">Favicon, el de la estación</figcaption></figure>
+            <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label="savvia en pequeño"><span class="logo-masc"></span></span><figcaption class="detail">Tamaño mínimo, 24 px de alto</figcaption></figure>
           </div>
           <ul class="reglas">
             <li><b>Una palabra</b> «savvia», en minúscula y en una sola línea; nunca se parte ni se acompaña de un símbolo.</li>
@@ -301,13 +276,13 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                 <line x1="-20" x2="2480" y1={xAlto} y2={xAlto} /><text x="2480" y={xAlto - 14}>altura de x</text>
                 <line x1="-20" x2="2480" y1={ascend} y2={ascend} /><text x="2480" y={ascend - 14}>ascendentes</text>
               </g>
-              <g class="relleno">{trazos.map((d) => <path d={d} />)}</g>
-              <g class="contorno">{trazos.map((d) => <path d={d} pathLength="1" />)}</g>
-              <path class="manejos" d={dManejos} />
-              <g class="controles">{controles.map(([x, y]) => <circle cx={f(x)} cy={f(y)} r="3.2" />)}</g>
-              <g class="anclas">{anclas.map(([x, y]) => <rect x={f(x - 3.6)} y={f(y - 3.6)} width="7.2" height="7.2" />)}</g>
+              <g class="relleno">{trazos.map((d, k) => <path d={d} style={`--t:${tX(cajas[k].x0)}`} />)}</g>
+              <g class="contorno">{trazos.map((d, k) => <path d={d} pathLength="1" style={`--t:${tX(cajas[k].x0)}`} />)}</g>
+              <g class="manejos">{manejos.map(([a, b]) => <line x1={f(a[0])} y1={f(a[1])} x2={f(b[0])} y2={f(b[1])} pathLength="1" style={`--t:${tX((a[0] + b[0]) / 2)}`} />)}</g>
+              <g class="controles">{controles.map(([x, y]) => <circle cx={f(x)} cy={f(y)} r="3.2" style={`--t:${tX(x)};transform-origin:${f(x)}px ${f(y)}px`} />)}</g>
+              <g class="anclas">{anclas.map(([x, y]) => <rect x={f(x - 3.6)} y={f(y - 3.6)} width="7.2" height="7.2" style={`--t:${tX(x)};transform-origin:${f(x)}px ${f(y)}px`} />)}</g>
             </svg>
-            <figcaption class="detail leyenda"><span><i class="lg-a"></i>ancla</span><span><i class="lg-c"></i>manejador</span><span><i class="lg-g"></i>líneas de la letra</span></figcaption>
+            <figcaption class="detail leyenda"><button type="button" class="cons-otra" data-cons-otra>Volver a construir</button><span><i class="lg-a"></i>ancla</span><span><i class="lg-c"></i>manejador</span><span><i class="lg-g"></i>líneas de la letra</span></figcaption>
           </figure>
 
           {/* RONDA 265 · fuera la galería del isotipo (rondas 153–155): construcción, carga, trazo, remate, fotos, pestaña y tarjeta (las dos últimas ya están en Aplicaciones) */}
@@ -316,52 +291,44 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         {/* 03 · COLOR Y ESTACIONES */}
         <section id="color" class="seccion" aria-labelledby="h-color">
           <h2 id="h-color" class="font-display text-h2">Color y estaciones</h2>
-          <p class="cuerpo">Cada estación tiene cinco colores propios, sacados de lo que se ve fuera ese trimestre: el fondo, el roble, la savia (el acento), el bloque claro (y, en invierno, la tinta de pizarra: el fondo es nieve). El texto sobre lo claro va en el propio fondo; el blanco de lo claro es el mismo todo el año. Al bajar, esta página pasa por las cuatro.</p>
-        </section>
-      </div>
-    </div>
-
-    {/* RONDA 144 (3.ª) · «en color y estaciones, que los colores que están cambien con la estación»: UNA escena fija (sticky) durante cuatro pantallas;
-         al bajar, la estación avanza y todo cambia con ella: la noche del fondo, el roble, la paleta (sus muestras leen los colores de la página) y sus
-         valores. La página entera la sigue (fijarEstacion); al salir del tramo vuelve la de hoy. */}
-    <div class="estaciones" data-estaciones style={`--n:${estaciones.length}`}>
-      <div class="escena-est" data-escena-est data-actual="0">
-        <div class="wrap est-dentro">
-          <div class="est-txt">
-            <div class="est-pila">
-              {estaciones.map((e, i) => (
-                <div class={`est-cab ${i === 0 ? 'on' : ''}`} data-cab={i}>
-                  <p class="detail detail-caps">{e.meses}</p>
-                  <h3 class="font-display est-n">{e.n}</h3>
-                  <p class="est-frase">{e.frase}</p>
+          <p class="cuerpo">Cada estación tiene cinco colores propios, sacados de lo que se ve fuera ese trimestre: el fondo, el roble, la savia (el acento), el bloque claro (y, en invierno, la tinta de pizarra: el fondo es nieve). El texto sobre lo claro va en el propio fondo; el blanco de lo claro es el mismo todo el año. Elige una estación en el selector y la página entera la sigue.</p>
+          {/* RONDA 307, 24.ª · Andoni: «el menú lateral no se pierde en las estaciones; las estaciones no se cambian con el scroll, las cambias tú con un selector»: la escena
+               vive dentro de la columna (el índice sigue a la vista) y un selector de cuatro elige la estación (la página entera la sigue) */}
+        <div class="estaciones" data-estaciones style={`--n:${estaciones.length}`}>
+          <div class="escena-est" data-escena-est data-actual="0">
+            <div class="est-dentro">
+              <div class="est-txt">
+                <div class="est-pila">
+                  {estaciones.map((e, i) => (
+                    <div class={`est-cab ${i === 0 ? 'on' : ''}`} data-cab={i}>
+                      <p class="detail detail-caps">{e.meses}</p>
+                      <h3 class="font-display est-n">{e.n}</h3>
+                      <p class="est-frase">{e.frase}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+                <div class="est-puntos" role="radiogroup" aria-label="Estación">{estaciones.map((e, i) => <button type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} class={i === 0 ? 'on' : ''} data-punto={i}>{e.n}</button>)}</div>
+              </div>
+              <div class="est-robles">
+                {estaciones.map((e, i) => <div class={`rb${i === 0 ? ' on' : ''}`} data-roble={i} data-est={e.id}><img src={`/media/hero/arbol-${e.id}.webp`} alt={i === 0 ? 'El roble de la estación' : ''} decoding="async" /><canvas aria-hidden="true"></canvas></div>)}
+              </div>
+              <ul class="est-paleta">
+                {[
+                  ['fondo', 'var(--noche)', 'el fondo'],
+                  ['roble', 'var(--arbol)', 'el roble'],
+                  ['savia', 'var(--color-coral)', 'el acento'],
+                  ['bloque', 'var(--color-salvia)', 'el bloque claro'],
+                  ['tinta', 'var(--color-cacao)', 'el texto sobre lo claro'],
+                ].map(([k, v, u], j) => (
+                  <li style={`--c:${v}`} data-c={j} hidden={!estaciones[0].colores[j]}><i class="est-m" /><span class="est-mn" data-nombre-c={j}>{estaciones[0].colores[j]?.[1]}</span><span class="detail" data-hex-c={j}>{estaciones[0].colores[j]?.[2]}</span><span class="detail est-u">{u}</span></li>
+                ))}
+                <li class="comun" style="--c:#F5F5F7" data-comun><i class="est-m" /><span class="est-mn">Blanco</span><span class="detail">#F5F5F7</span><span class="detail est-u">lo claro, todo el año</span></li>
+              </ul>
             </div>
-            <ol class="est-puntos" aria-hidden="true">{estaciones.map((e, i) => <li class={i === 0 ? 'on' : ''} data-punto={i}>{e.n}</li>)}</ol>
           </div>
-          <div class="est-robles">
-            {estaciones.map((e, i) => <div class={`rb${i === 0 ? ' on' : ''}`} data-roble={i} data-est={e.id}><img src={`/media/hero/arbol-${e.id}.webp`} alt={i === 0 ? 'El roble de la estación' : ''} decoding="async" /><canvas aria-hidden="true"></canvas></div>)}
-          </div>
-          <ul class="est-paleta">
-            {[
-              ['fondo', 'var(--noche)', 'el fondo'],
-              ['roble', 'var(--arbol)', 'el roble'],
-              ['savia', 'var(--color-coral)', 'el acento'],
-              ['bloque', 'var(--color-salvia)', 'el bloque claro'],
-              ['tinta', 'var(--color-cacao)', 'el texto sobre lo claro'],
-            ].map(([k, v, u], j) => (
-              <li style={`--c:${v}`} data-c={j} hidden={!estaciones[0].colores[j]}><i class="est-m" /><span class="est-mn" data-nombre-c={j}>{estaciones[0].colores[j]?.[1]}</span><span class="detail" data-hex-c={j}>{estaciones[0].colores[j]?.[2]}</span><span class="detail est-u">{u}</span></li>
-            ))}
-            <li class="comun" style="--c:#F5F5F7" data-comun><i class="est-m" /><span class="est-mn">Blanco</span><span class="detail">#F5F5F7</span><span class="detail est-u">lo claro · todo el año</span></li>
-          </ul>
         </div>
-      </div>
-    </div>
-    <script type="application/json" data-estaciones-datos set:html={JSON.stringify(estaciones)} />
-
-    <div class="wrap marco-libro">
-      <div class="indice-hueco" aria-hidden="true"></div>
-      <div class="hojas">
+        <script type="application/json" data-estaciones-datos set:html={JSON.stringify(estaciones)} />
+        </section>
         {/* RONDA 153 · «después de pasar las estaciones repetimos los colores en versión resumida: eso fuera» */}
         <section class="seccion sin-borde" aria-label="Reglas del color">
           <ul class="reglas">
@@ -375,16 +342,16 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           <h2 id="h-tipografia" class="font-display text-h2">Tipografía</h2>
           <p class="cuerpo">Tres voces: Family para lo que se dice, Timeless Sans para lo que se lee y Timeless Grotesk para los detalles. Sin mono y sin cursivas, nunca.</p>
           <div class="fila f3 familias">
-            <figure class="placa clara fam"><span class="font-display aa">Aa</span><figcaption><b>Family</b><span class="detail">Titulares · 400</span></figcaption></figure>
-            <figure class="placa clara fam"><span class="aa sans">Aa</span><figcaption><b>Timeless Sans</b><span class="detail">Lectura e interfaz · 300 · 420 · 500</span></figcaption></figure>
-            <figure class="placa clara fam"><span class="aa grot">Aa</span><figcaption><b>Timeless Grotesk</b><span class="detail">Detalles · 300</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="font-display aa">Aa</span><figcaption><b>Family</b><span class="detail">Titulares, 400</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa sans">Aa</span><figcaption><b>Timeless Sans</b><span class="detail">Lectura e interfaz, 300, 420, 500</span></figcaption></figure>
+            <figure class="placa clara fam"><span class="aa grot">Aa</span><figcaption><b>Timeless Grotesk</b><span class="detail">Detalles, 300</span></figcaption></figure>
           </div>
           <ol class="escala">
             {escala.map(([n, v, px, fam, cls]) => (
               <li>
                 <span class="detail e-n">{n}</span>
                 <span class={`e-m ${cls}`} style={`font-size:${v}`}>Elevamos tu web</span>
-                <span class="detail e-d">{px} px · {fam}</span>
+                <span class="detail e-d">{px} px, {fam}</span>
               </li>
             ))}
           </ol>
@@ -400,9 +367,39 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               <li><span class="detail pe-n">{p}</span><i class="pe-b" style={`--p:${p}`} /><span class="detail pe-px">{p * 4} px</span></li>
             ))}
           </ol>
+          {/* RONDA 307, 25.ª · «los espaciados, animados como en los case studies»: el mismo esquema (una página a escala, 1440 px de ancho) con los valores de
+               savvia: 1200 de contenedor, 192 entre secciones (escritorio) y 24 de relleno y de hueco en las tarjetas; cada medida se enciende por turnos
+               (o al pasar por su fila) */}
+          <div class="espaciado esp-sb" data-esp>
+            <div class="esq" aria-hidden="true" style="--C:1200;--S:192;--R:24;--G:24">
+              <div class="pag">
+                <i class="m m-cont izq"><span>1200 px de contenedor</span></i><i class="m m-cont der" />
+                <div class="cont">
+                  <div class="sec">
+                    <b class="tit" />
+                    <div class="tarjetas">
+                      <div class="tj"><i class="m m-relleno"><span>24 px de relleno</span></i><b /><b /><b class="c" /></div>
+                      <i class="m m-hueco gap-m"><span>24 px entre tarjetas</span></i>
+                      <div class="tj"><b /><b /><b class="c" /></div>
+                      <i class="m m-hueco gap-m" />
+                      <div class="tj"><b /><b /><b class="c" /></div>
+                    </div>
+                  </div>
+                  <i class="m m-seccion entre"><span>192 px entre secciones</span></i>
+                  <div class="sec dos"><div class="txt"><b class="tit" /><b /><b /><b class="c" /></div><b class="img" /></div>
+                </div>
+              </div>
+            </div>
+            <ul class="esp-claves">
+              <li data-k="seccion"><span class="detail">Entre secciones</span><b>80 → 192 px</b></li>
+              <li data-k="relleno"><span class="detail">Relleno de tarjeta</span><b>24 px</b></li>
+              <li data-k="hueco"><span class="detail">Entre tarjetas</span><b>24 px</b></li>
+              <li data-k="cont"><span class="detail">Contenedor</span><b>1200 px</b></li>
+            </ul>
+          </div>
           <dl class="dev-filas">
             <div><dt>section-y</dt><dd>El aire de cada sección: de 80 px en móvil a 192 en escritorio (<code class="cod">--space-section</code>). Más que la guía (128) por decisión de Andoni: «hay que dar más aire a cada sección».</dd></div>
-            <div><dt>wrap</dt><dd>El contenedor: 1200 px de contenido con márgenes de 20 · 32 · 48 px; en pantallas de más de 1920 px crece hasta 1440 (<code class="cod">--contenido</code>). Sus bordes son los carriles que se ven en la web.</dd></div>
+            <div><dt>wrap</dt><dd>El contenedor: 1200 px de contenido con márgenes de 20, 32, 48 px; en pantallas de más de 1920 px crece hasta 1440 (<code class="cod">--contenido</code>). Sus bordes son los carriles que se ven en la web.</dd></div>
             <div><dt>grid-12</dt><dd>Doce columnas en escritorio con 24 px de medianil; cuatro en móvil con 16.</dd></div>
             <div><dt>measure</dt><dd>La medida de lectura: 64 caracteres por línea como mucho.</dd></div>
             <div><dt>Alturas</dt><dd>Siempre en <code class="cod">lvh</code> o <code class="cod">dvh</code>, nunca en <code class="cod">vh</code> (en el móvil la barra del navegador las descuadra).</dd></div>
@@ -415,13 +412,13 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           <h2 id="h-radios" class="font-display text-h2">Radios y sombras</h2>
           <p class="cuerpo">Un radio de partida, 8 px, y la píldora para lo que se pulsa. Sin sombras por defecto: solo donde algo flota (el cristal, el monitor encendido).</p>
           <div class="fila f3">
-            <figure class="placa clara sm rd"><i class="rd-m" style="border-radius:var(--radius-lg)" /><figcaption class="detail">8 px · --radius-lg · tarjetas, placas, imágenes</figcaption></figure>
-            <figure class="placa clara sm rd"><i class="rd-m rd-p" style="border-radius:var(--radius-full)" /><figcaption class="detail">Píldora · --radius-full · botones, barras, etiquetas</figcaption></figure>
-            <figure class="placa clara sm rd"><i class="rd-m rd-c" /><figcaption class="detail">Círculo · caras, iconos de estación, el (+)</figcaption></figure>
+            <figure class="placa clara sm rd"><i class="rd-m" style="border-radius:var(--radius-lg)" /><figcaption class="detail">8 px, --radius-lg, tarjetas, placas, imágenes</figcaption></figure>
+            <figure class="placa clara sm rd"><i class="rd-m rd-p" style="border-radius:var(--radius-full)" /><figcaption class="detail">Píldora, --radius-full, botones, barras, etiquetas</figcaption></figure>
+            <figure class="placa clara sm rd"><i class="rd-m rd-c" /><figcaption class="detail">Círculo, caras, iconos de estación, el (+)</figcaption></figure>
           </div>
           <div class="fila f2">
-            <figure class="placa oscura rd"><i class="rd-cristal" /><figcaption class="detail">El cristal · filo claro de 1 px por dentro y una sombra blanda debajo (0 12 32 −12, negro al 40 %)</figcaption></figure>
-            <figure class="placa oscura rd"><i class="rd-halo" /><figcaption class="detail">La luz · el monitor encendido: una sombra exterior en el color de la estación, como desde detrás</figcaption></figure>
+            <figure class="placa oscura rd"><i class="rd-cristal" /><figcaption class="detail">El cristal, filo claro de 1 px por dentro y una sombra blanda debajo (0 12 32 −12, negro al 40 %)</figcaption></figure>
+            <figure class="placa oscura rd"><i class="rd-halo" /><figcaption class="detail">La luz, el monitor encendido: una sombra exterior en el color de la estación, como desde detrás</figcaption></figure>
           </div>
         </section>
         <section id="voz" class="seccion" aria-labelledby="h-voz">
@@ -437,7 +434,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         {/* RONDA 152 · ICONOGRAFÍA: «buscar una iconografía para usar siempre la misma en toda la web; las estaciones, siempre en fill» */}
         <section id="iconografia" class="seccion" aria-labelledby="h-iconografia">
           <h2 id="h-iconografia" class="font-display text-h2">Iconografía</h2>
-          <p class="cuerpo">Una sola familia, Iconoir: rejilla de 24 y trazo de 1,5 con puntas redondas. Las estaciones, siempre rellenas (su propio dibujo, relleno); lo que está encendido, en su versión sólida; la interfaz, en trazo. La flecha de la casa es su flecha de navegación, dibujada a trazo para poder animarla.</p>
+          <p class="cuerpo">Una sola familia, Iconoir: rejilla de 24 y trazo de 1,5 con puntas redondas. Las estaciones, siempre rellenas (su propio dibujo, relleno); lo que está encendido, en su versión sólida; la interfaz, en trazo. La flecha de la casa es su flecha de navegación, dibujada a trazo para poder animarla. Estos son todos los que usa la web.</p>
           {/* RONDA 155 · «iconografía tenemos que ponerlo más bonito»: las estaciones, cada una en su color; la construcción en la rejilla; la interfaz */}
           <div class="ic-est">
             {estaciones.map((e) => (
@@ -454,22 +451,22 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                 <rect class="k" x="3" y="3" width="18" height="18" rx="2" /><circle class="k" cx="12" cy="12" r="10" /><rect class="zona" x="2" y="2" width="20" height="20" />
               </svg>
               <Fragment set:html={ico('leaf').replace('<svg ', '<svg class="ic-gr" ')} />
-              <figcaption class="ic-cota"><span class="detail">24 × 24</span><span class="detail">trazo 1,5 · puntas redondas</span><span class="detail">zona viva 20 px</span></figcaption>
+              <figcaption class="ic-cota"><span class="detail">24 × 24</span><span class="detail">trazo 1,5, puntas redondas</span><span class="detail">zona viva 20 px</span></figcaption>
             </figure>
             <div class="ic-ui">
-              {([['plus', 'regular', 'más'], ['x', 'regular', 'cerrar'], ['caret-left', 'regular', 'anterior'], ['caret-right', 'regular', 'siguiente'], ['speaker-high', 'fill', 'sonido'], ['play', 'fill', 'reproducir'], ['pause', 'fill', 'pausa'], ['video-camera', 'fill', 'vídeo']] as const).map(([n, p, e]) => (
+              {/* RONDA 307, 24.ª · Andoni: «iconografía, dejamos únicamente la utilizada en la web»: los que pinta hoy alguna página (icono() en Nav, Radio, Proyectos, Anteriores y el visor) */}
+              {([['x', 'regular', 'cerrar'], ['caret-up', 'regular', 'subir'], ['caret-down', 'regular', 'bajar'], ['play', 'fill', 'reproducir'], ['pause', 'fill', 'pausa'], ['skip-next', 'fill', 'siguiente pieza'], ['speaker-high', 'fill', 'sonido'], ['speaker-slash', 'fill', 'silencio'], ['video-camera', 'fill', 'vídeo']] as const).map(([n, p, e]) => (
                 <div class="ic-c"><Fragment set:html={icono(n as any, p as any)} /><span class="detail">{e}</span><span class="detail ic-p">{p === 'fill' ? 'sólido' : 'trazo'}</span></div>
               ))}
+              <div class="ic-c"><Fragment set:html={flecha()} /><span class="detail">ir, la flecha de la casa</span><span class="detail ic-p">trazo</span></div>
+              {/* RONDA 307, 25.ª · «el icono del chat de la home no está en ningún lado»: los del chat flotante (ChatFlotante.astro): el bocadillo, dibujado aquí en
+                   la misma rejilla y trazo, y enviar y plegar */}
+              {/* RONDA 307, 26.ª · «falta el icono de poner el sonido en la web»: el de la barra (Radio.astro), cinco barras que bailan con lo que suena */}
+              <div class="ic-c"><span class="ic-ondas" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="detail">música, la radio de la barra</span><span class="detail ic-p">propio</span></div>
+              <div class="ic-c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H11l-4.2 3.2v-3.2H6.5a2 2 0 0 1-2-2z" /></svg><span class="detail">chat</span><span class="detail ic-p">trazo</span></div>
+              <div class="ic-c"><Fragment set:html={icono('caret-right')} /><span class="detail">enviar</span><span class="detail ic-p">trazo</span></div>
+              <div class="ic-c"><Fragment set:html={icono('caret-down')} /><span class="detail">plegar el chat</span><span class="detail ic-p">trazo</span></div>
             </div>
-          </div>
-          <div class="catalogo">
-            {GRUPOS_ICONOS.map(([g, lista]) => (
-              <div class="cat-g">
-                <p class="detail detail-caps">{g}</p>
-                <ul>{lista.map(([n, e]) => <li title={n}><Fragment set:html={ico(n)} /><span class="detail">{e}</span></li>)}</ul>
-              </div>
-            ))}
-            <p class="detail cat-pie">Iconoir tiene más de 1.600 iconos con el mismo dibujo (iconoir.com). Esta es la muestra de los que encajan en savvia; cualquiera de la librería vale, en trazo.</p>
           </div>
         </section>
 
@@ -482,12 +479,27 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                efecto, GRABADO de la web real (tools/r266-motion/grabar.cjs). Se reproducen al verse; con movimiento reducido, quietos en su primer fotograma.
                Se queda la curva: es la especificación. */}
           <div class="fila f3 materia">
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/roble-otono.mp4" data-est-src="/media/brandbook/movimiento/roble-{est}.mp4" muted loop playsinline preload="metadata" aria-label="El roble" data-mv></video><figcaption class="detail">El roble · se dibuja y se pinta con canto rasgado, desde la base</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/estacion-otono.mp4" data-est-src="/media/brandbook/movimiento/estacion-{est}.mp4" muted loop playsinline preload="metadata" aria-label="La estación" data-mv></video><figcaption class="detail">La estación · la nueva se pinta encima desde el tronco</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/secciones-otono.mp4" data-est-src="/media/brandbook/movimiento/secciones-{est}.mp4" muted loop playsinline preload="metadata" aria-label="Entre secciones" data-mv></video><figcaption class="detail">Entre secciones · la que llega asoma como una gota que se ensancha</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/cta-otono.mp4" data-est-src="/media/brandbook/movimiento/cta-{est}.mp4" muted loop playsinline preload="metadata" aria-label="La savia" data-mv></video><figcaption class="detail">La savia · llena el botón desde donde entra el cursor</figcaption></figure>
-            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/tiempo-otono.mp4" data-est-src="/media/brandbook/movimiento/tiempo-{est}.mp4" muted loop playsinline preload="metadata" aria-label="El tiempo" data-mv></video><figcaption class="detail">El tiempo · cae lo de cada estación y se posa en el prado</figcaption></figure>
-            <figure class="placa clara curva"><svg viewBox="0 0 100 60" aria-hidden="true"><path d="M4 56 C 20 8, 40 4, 96 4" /><circle class="bola" r="2.6" /></svg><figcaption class="detail">La caída · ease-out expo (0,16 1 0,3 1), sin rebote</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/roble-otono.mp4" data-est-src="/media/brandbook/movimiento/roble-{est}.mp4" muted loop playsinline preload="metadata" aria-label="El roble" data-mv></video><figcaption class="detail">El roble, se dibuja y se pinta con canto rasgado, desde la base</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/estacion-otono.mp4" data-est-src="/media/brandbook/movimiento/estacion-{est}.mp4" muted loop playsinline preload="metadata" aria-label="La estación" data-mv></video><figcaption class="detail">La estación, la nueva se pinta encima desde el tronco</figcaption></figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/secciones-otono.mp4" data-est-src="/media/brandbook/movimiento/secciones-{est}.mp4" muted loop playsinline preload="metadata" aria-label="Entre secciones" data-mv></video><figcaption class="detail">Entre secciones, la que llega asoma como una gota que se ensancha</figcaption></figure>
+            {/* RONDA 307, 24.ª · «la animación del hover del botón, mejor representada»: el BOTÓN DE VERDAD (el CTA primario de la web, con su líquido de
+                 cta-liquido.ts); un cursor le pasa por encima desde lados distintos y la savia entra y se recoge por donde pasa. Pásale tú el ratón: el
+                 tuyo manda y la demo espera. */}
+            <figure class="placa clara mv-cta" data-cta-demo>
+              <div class="cta-escena">
+                <a class="btn-primary" href="#materia" tabindex="-1" data-cta-boton><span class="btn-tx">Hablemos</span><Fragment set:html={flecha()} /></a>
+                <svg class="cta-cursor" viewBox="0 0 24 24" aria-hidden="true" data-cta-cursor><path d="M5 3l14 8-6.2 1.6L10 19z" /></svg>
+              </div>
+              <figcaption class="detail">La savia, llena el botón desde donde entra el cursor y se recoge por donde sale. Pásale tú el ratón.</figcaption>
+            </figure>
+            <figure class="placa mv"><video class="mv-v" src="/media/brandbook/movimiento/tiempo-otono.mp4" data-est-src="/media/brandbook/movimiento/tiempo-{est}.mp4" muted loop playsinline preload="metadata" aria-label="El tiempo" data-mv></video><figcaption class="detail">El tiempo, cae lo de cada estación y se posa en el prado</figcaption></figure>
+            {/* RONDA 307, 24.ª · «la animación ease-out expo, algo más vistoso»: tres carreras a la vez, con estela, para ver la diferencia de un vistazo */}
+            <figure class="placa oscura velocidades" aria-label="Tres curvas: lineal, ease-out quart y ease-out expo">
+              <div class="vel-pista l"><span class="detail">lineal, nunca</span><i></i><i></i><i></i></div>
+              <div class="vel-pista q"><span class="detail">ease-out quart, la interfaz</span><i></i><i></i><i></i></div>
+              <div class="vel-pista x"><span class="detail">ease-out expo, lo que llega</span><i></i><i></i><i></i></div>
+              <figcaption class="detail">Salen a la vez y llegan a la vez: la expo recorre casi todo al principio y se posa despacio, sin rebote.</figcaption>
+            </figure>
           </div>
           <ul class="reglas">
             <li><b>Curvas</b> ease-out expo (0,16 1 0,3 1) para lo que llega; ease-out quart para la interfaz. Sin rebotes.</li>
@@ -509,36 +521,36 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                 <div class="pf-cuerpo">
                   <p class="pf-n">savvia</p>
                   <p class="pf-bio">El estudio web que orquesta la IA. Desarrollo agéntico, a medida.</p>
-                  <p class="pf-meta">Donostia · savvia.studio</p>
+                  <p class="pf-meta">Donostia, savvia.studio</p>
                   <span class="pf-boton">Seguir</span>
                 </div>
               </div>
-              <figcaption class="detail apl-pie">Perfil en redes · fondo y avatar de la estación</figcaption>
+              <figcaption class="detail apl-pie">Perfil en redes, fondo y avatar de la estación</figcaption>
             </figure>
             <figure class="apl-p apl-chat">
               <div class="chat" aria-hidden="true">
                 <p class="burbuja yo">¿Te paso la web de los que nos van a hacer la nueva?</p>
                 <div class="burbuja yo enlace">
-                  <img src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
-                  <span class="en-t">savvia — Elevamos tu web con IA</span>
+                  <img src="/media/sistema/aplicaciones/og-otono.jpg" data-est-src="/media/sistema/aplicaciones/og-{est}.jpg" alt="" width="1200" height="630" loading="lazy" decoding="async" />
+                  <span class="en-t">savvia: Elevamos tu web con IA</span>
                   <span class="en-d">savvia.studio</span>
                 </div>
                 <p class="burbuja otro">Qué bonita 🌱</p>
               </div>
-              <figcaption class="detail apl-pie">Al compartir · imagen 1200 × 630</figcaption>
+              <figcaption class="detail apl-pie">Al compartir, imagen 1200 × 630</figcaption>
             </figure>
             <figure class="apl-p apl-nav">
               <div class="ventana" aria-hidden="true">
                 <div class="v-barra">
                   <span class="v-sem"><i /><i /><i /></span>
-                  <span class="v-tab on"><img class="v-fav" src="/favicon-otono.png?v=226" data-est-src="/favicon-{est}.png?v=226" alt="" width="16" height="16" /><span class="v-tit">savvia — Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
-                  <span class="v-tab"><img class="v-fav" src="/favicon-otono.png?v=226" data-est-src="/favicon-{est}.png?v=226" alt="" width="16" height="16" /><span class="v-tit">Proyectos · savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab on"><img class="v-fav" src="/favicon-otono.png?v=226" data-est-src="/favicon-{est}.png?v=226" alt="" width="16" height="16" /><span class="v-tit">savvia: Elevamos tu web con IA</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
+                  <span class="v-tab"><img class="v-fav" src="/favicon-otono.png?v=226" data-est-src="/favicon-{est}.png?v=226" alt="" width="16" height="16" /><span class="v-tit">Proyectos, savvia</span><Fragment set:html={icono('x', 'regular', 'v-x')} /></span>
                   <span class="v-mas"><Fragment set:html={icono('plus')} /></span>
                 </div>
                 <div class="v-dir"><span>savvia.studio</span></div>
-                <img class="v-pag" src="/og.jpg?v=155" alt="" width="1200" height="630" loading="lazy" decoding="async" />
+                <img class="v-pag" src="/media/sistema/aplicaciones/og-otono.jpg" data-est-src="/media/sistema/aplicaciones/og-{est}.jpg" alt="" width="1200" height="630" loading="lazy" decoding="async" />
               </div>
-              <figcaption class="detail apl-pie">El navegador · el favicon en la pestaña</figcaption>
+              <figcaption class="detail apl-pie">El navegador, el favicon en la pestaña</figcaption>
             </figure>
           </div>
         </section>
@@ -551,7 +563,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         <section id="descargas" class="seccion" aria-labelledby="h-descargas">
           <h2 id="h-descargas" class="font-display text-h2">Descargas</h2>
           <p class="cuerpo">Todo lo de la marca, para quien lo necesite: el logotipo, los iconos y los fondos para redes, uno por estación. Descárgalo entero o pieza a pieza.</p>
-          <p class="mt-8"><a class="btn btn-primary" href="/descargas/savvia-kit.zip" download>Descargar todo · ZIP, 9 MB</a></p>
+          <p class="mt-8"><a class="btn btn-primary" href="/descargas/savvia-kit.zip" download>Descargar todo, ZIP, 9 MB</a></p>
           <h3 class="font-display text-h3 sub-bb">Logotipo</h3>
           <div class="dl-logos">
             {[['blanco', 'Blanco', '#3B231B', '#F5F5F7'], ['cacao', 'Cacao', '#F5F5F7', '#3B231B'], ['otono', 'Otoño', '#3B231B', '#ECBF8F'], ['invierno', 'Invierno', '#F5F5F7', '#22303E'], ['primavera', 'Primavera', '#3A2932', '#F4C7D5'], ['verano', 'Verano', '#1B3125', '#CFE6A4']].map(([id, n, fondo, tinta]) => (
@@ -571,7 +583,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                 <ul class="dl-lista detail">
                   <li><span>Favicon</span>{[16, 32, 48, 64, 180, 192, 512].map((t) => <a href={`/descargas/savvia-favicon-${e}-${t}.png`} download>{t}</a>)}<a href={`/descargas/savvia-favicon-${e}.ico`} download>ICO</a></li>
                   <li><span>Telegram</span><a href={`/descargas/savvia-telegram-${e}.png`} download>1024</a></li>
-                  <li><span>Avatar LinkedIn · X</span><a href={`/descargas/savvia-avatar-${e}-400.png`} download>400</a></li>
+                  <li><span>Avatar LinkedIn, X</span><a href={`/descargas/savvia-avatar-${e}-400.png`} download>400</a></li>
                   <li><span>Fondo X</span><a href={`/descargas/savvia-fondo-x-${e}.jpg`} download>1500 × 500</a></li>
                   <li><span>Fondo LinkedIn</span><a href={`/descargas/savvia-fondo-linkedin-${e}.jpg`} download>1584 × 396</a></li>
                 </ul>
@@ -579,14 +591,14 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
             ))}
           </div>
           <h3 class="font-display text-h3 sub-bb">Firma de correo</h3>
-          <div class="dl-opc" role="radiogroup" aria-label="Opciones de firma" data-firma-ops={JSON.stringify(FIRMA_OPS)}>
+          <div class="dl-opc" hidden data-firma-ops={JSON.stringify(FIRMA_OPS)}>
             {OPC_FIRMA.map(({ id, n }, k) => (<button type="button" role="radio" aria-checked={k === 0 ? 'true' : 'false'} data-op={id}>{n}</button>))}
           </div>
           <div class="dl-firmas">
             {FIRMAS.map((nombre, k) => (
               <figure class="dl-firma" data-k={k}>
-                <div class="dl-papel" set:html={firmaHtml(nombre, '')} />
-                <figcaption class="detail"><span>Gmail · Apple Mail</span><button type="button" class="dl-copiar" data-firma={firmaHtml(nombre, 'https://savvia.studio')} data-texto={`${nombre}\nsavvia.studio`}>Copiar firma</button></figcaption>
+                <div class="dl-papel" set:html={deServidor(firmaHtml(nombre, ''))} />
+                <figcaption class="detail"><span>Gmail, Apple Mail</span><button type="button" class="dl-copiar" data-firma={deServidor(firmaHtml(nombre, 'https://savvia.studio'))} data-texto={`${nombre}\nsavvia.studio`}>Copiar firma</button></figcaption>
               </figure>
             ))}
           </div>
@@ -602,7 +614,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               <p>Gracias por la llamada de ayer. Te dejo el resumen: rehacemos la web de principio a fin, con vuestra marca, y os la entregamos documentada para que tu equipo pueda cambiarla con IA sin salirse de ella.</p>
               <p>La semana que viene te mando la primera dirección de diseño para verla juntos.</p>
               <p>Un abrazo,</p>
-              <div class="dc-firma" set:html={firmaHtml(FIRMAS[0], '')} />
+              <div class="dc-firma" set:html={deServidor(firmaHtml(FIRMAS[0], ''))} />
             </div>
             <figcaption class="detail">Ejemplo: así llega la firma al final de un correo.</figcaption>
           </figure>
@@ -634,50 +646,22 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               <Cta href="#componentes">Cuéntanos tu proyecto</Cta>
               <Cta href="#componentes" tam="sm">Ver la web</Cta>
               <Cta href="#componentes" variante="secundario">Ver caso de estudio</Cta>
-              <Cta href="#componentes" variante="secundario" flecha="izq">Proyectos</Cta>
             </div>
-            <p class="comp-d detail">Primario: cristal (noche al 58 %, desenfoque 22 px, filo claro 16 %), Timeless Sans 500, sin mayúsculas · Pequeño: 40 px · Secundario: texto y chevrón, sin caja.</p>
+            <p class="comp-d detail">Primario: cristal (noche al 58 %, desenfoque 22 px, filo claro 16 %), Timeless Sans 500, sin mayúsculas, Pequeño: 40 px, Secundario: texto y chevrón, sin caja.</p>
           </div>
 
-          <div class="comp">
-            <h3 class="comp-t">Barra de cristal</h3>
-            <div class="placa oscura demos">
-              <div class="barra-cristal" role="group" aria-label="Ejemplo de barra">
-                <button type="button" class="paso" aria-label="Anterior"><Fragment set:html={flecha('izq')} /></button>
-                <p class="cual"><span class="n">02/04</span><span>Patchbay</span></p>
-                <button type="button" class="paso" aria-label="Siguiente"><Fragment set:html={flecha()} /></button>
-              </div>
-              <div class="barra-cristal" role="group" aria-label="Ejemplo de paginación">
-                <button type="button" class="paso" aria-label="Anterior" disabled><Fragment set:html={flecha('izq')} /></button>
-                <p class="cual"><span class="n">Página</span><span>01/03</span></p>
-                <button type="button" class="paso" aria-label="Siguiente"><Fragment set:html={flecha()} /></button>
-              </div>
-            </div>
-            <p class="comp-d detail">Para pasar de una cosa a otra: los destacados, las páginas del portfolio, los testimonios y los proyectos con la vista sentado. Sobre claro, la misma barra sin velo (filete del color de las reglas).</p>
-          </div>
 
-          <div class="comp">
-            <h3 class="comp-t">Buscador y filtros</h3>
-            <div class="placa clara demos">
-              <div class="buscar-demo" aria-hidden="true">
-                <span class="bd-l"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></svg>Busca un proyecto</span>
-                <span class="bd-f"><svg viewBox="0 0 16 16"><path d="M2 4.5h12M4.5 8h7M7 11.5h2" /></svg>Filtros<b>2</b></span>
-              </div>
-              <div class="chips" aria-hidden="true"><span class="on">Todos</span><span>Diseño web<sup>7</sup></span><span>Webflow<sup>5</sup></span><span>España<sup>2</sup></span></div>
-            </div>
-            <p class="comp-d detail">Una sola barra: se escribe a la izquierda; a la derecha, tras un separador, los filtros con su recuento. Las etiquetas: filete fino; la elegida, llena de tinta.</p>
-          </div>
 
-          <div class="comp">
-            <h3 class="comp-t">Tarjetas anterior y siguiente</h3>
-            <div class="fila f2 pares-demo">
-              <a href="#componentes" data-liquido class="par antes"><span class="pd detail detail-caps"><Fragment set:html={flecha('izq')} />Anterior</span><span class="pt">Playground IEP</span></a>
-              <a href="#componentes" data-liquido class="par despues"><span class="pd detail detail-caps">Siguiente<Fragment set:html={flecha()} /></span><span class="pt">Invopop</span></a>
-            </div>
-            <p class="comp-d detail">Al final de cada capítulo del handbook y de cada caso de estudio. Al pasar se llenan de tinta desde donde entra el cursor.</p>
-          </div>
 
           {/* RONDA 178 · Eric: «en componentes, incluir cómo está hecho el mockup de pantalla de la home» (Proyectos.astro: lámina + pantalla + web) */}
+          {/* RONDA 307, 26.ª · «añadir los nuevos filtros en componentes»: los del portfolio (Eric, 26/10), capturados de la página real (tools/r307-story/filtros.cjs) */}
+          <div class="comp">
+            <h3 class="comp-t">Filtros</h3>
+            <figure class="placa clara filtros-demo">
+              <img src="/media/sistema/componentes/filtros-abierto.webp" alt="Los filtros del portfolio: País, Tecnología, Servicio y Categoría, con Tecnología abierto" width="1248" height="528" loading="lazy" decoding="async" />
+            </figure>
+            <p class="comp-d detail">Cuatro desplegables en una fila a todo el ancho (país, tecnología, servicio y categoría), cada uno con su rótulo pequeño, lo elegido y el chevrón. La lista se abre debajo, en un panel de cristal, con el recuento de cada opción; una barrita sigue al puntero por las opciones. A la derecha, quitar los filtros y cuántos proyectos quedan.</p>
+          </div>
           <div class="comp">
             <h3 class="comp-t">El monitor de Proyectos destacados</h3>
             <div class="fila f2 monitor-demo">
@@ -686,16 +670,16 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                   <img src="/media/estudio/otono-m.webp" data-est-src="/media/estudio/{est}-m.webp" alt="La mesa del estudio en la estación" width="1600" height="900" loading="lazy" />
                   <i class="md-halo" aria-hidden="true"></i>
                   <div class="md-pantalla"><img src="/media/proyectos/quantus.webp" alt="La web de Quantus dentro del monitor" loading="lazy" /></div>
-                  <i class="md-caja" aria-hidden="true"><span class="detail">39,03 · 36,96 · 21,78 × 21,04 %</span></i>
+                  <i class="md-caja" aria-hidden="true"><span class="detail">left 39,03 %, top 36,96 %, 21,78 × 21,04 %</span></i>
                 </div>
                 <figcaption class="detail pie-p">Montado</figcaption>
               </figure>
               <figure class="placa oscura md-despiece" aria-label="Las capas del monitor, separadas">
                 <div class="md-pila" aria-hidden="true">
-                  <span class="md-capa c1"><img src="/media/estudio/otono-m.webp" data-est-src="/media/estudio/{est}-m.webp" alt="" loading="lazy" /><b class="detail">1 · lámina</b></span>
-                  <span class="md-capa c2"><i></i><b class="detail">2 · luz</b></span>
-                  <span class="md-capa c3"><i></i><b class="detail">3 · pantalla</b></span>
-                  <span class="md-capa c4"><img src="/media/proyectos/quantus.webp" alt="" loading="lazy" /><b class="detail">4 · web</b></span>
+                  <span class="md-capa c1"><img src="/media/estudio/otono-m.webp" data-est-src="/media/estudio/{est}-m.webp" alt="" loading="lazy" /><b class="detail">Capa 1: lámina</b></span>
+                  <span class="md-capa c2"><i></i><b class="detail">Capa 2: luz</b></span>
+                  <span class="md-capa c3"><i></i><b class="detail">Capa 3: pantalla</b></span>
+                  <span class="md-capa c4"><img src="/media/proyectos/quantus.webp" alt="" loading="lazy" /><b class="detail">Capa 4: web</b></span>
                 </div>
                 <figcaption class="detail pie-p">Despiece</figcaption>
               </figure>
@@ -703,7 +687,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
             <ol class="md-capas">
               <li><b>Lámina.</b> La mesa de Andoni en la estación de la web, en tres tamaños: 1600 px en móvil, 2560 en escritorio y 5120 al sentarse (solo la visible, cuando la cámara se posa). Todo lo demás se coloca en porcentajes de ella.</li>
               <li><b>Luz.</b> Una caja con el rectángulo y el redondeo del monitor (1,16 % / 2,07 %) cuya <code>box-shadow</code> exterior, en la savia de la estación, asoma por detrás: nunca se pinta bajo su propia caja. Se enciende sentado o al coger la web.</li>
-              <li><b>Pantalla.</b> La caja blanca de la lámina, medida por inundación: <code>left 39,03 % · top 36,96 % · 21,78 × 21,04 %</code>, con un filo de 3 px del negro del bisel (#121213) que tapa el canto claro. Es un contenedor (<code>container-type: size</code>): lo de dentro va en <code>cqh</code> y crece con ella.</li>
+              <li><b>Pantalla.</b> La caja blanca de la lámina, medida por inundación: <code>left 39,03 %, top 36,96 %, 21,78 × 21,04 %</code>, con un filo de 3 px del negro del bisel (#121213) que tapa el canto claro. Es un contenedor (<code>container-type: size</code>): lo de dentro va en <code>cqh</code> y crece con ella.</li>
               <li><b>Web.</b> Se pinta al ancho de un MacBook Air (1710 px; 1024 en móvil) y se reduce con <code>scale(ancho de la pantalla / 1710)</code>. De pie, su captura; sentado, la web real en un <code>&lt;iframe&gt;</code> (solo la del proyecto activo). La que no se deja embeber enseña su página entera en imagen.</li>
             </ol>
             <p class="comp-d detail">Sentado, la cámara amplía la escena ×k, pero la pantalla se maqueta k veces mayor y se contra-escala 1/k: escala neta 1, la web siempre nítida. Encima de la web, según el momento: la construcción del agente, Andoni y Eric (<code>construir.ts</code>), la pantalla de carga y el aviso de deslizar. Código: <code>src/components/Proyectos.astro</code>.</p>
@@ -711,11 +695,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 
           <div class="comp">
             <h3 class="comp-t">Pequeñas piezas</h3>
-            <div class="fila f3">
-              <div class="placa oscura sm">
-                <span class="escuchando"><span class="caras"><img src="/media/equipo/cara-andoni.webp" alt="" width="72" height="72" loading="lazy" /><img src="/media/equipo/cara-eric.webp" alt="" width="72" height="72" loading="lazy" /></span>Escuchando…<i class="nivel"><i></i><i></i><i></i><i></i></i></span>
-                <span class="detail pie-p">Píldora de estado</span>
-              </div>
+            <div class="fila f2">
               <div class="placa clara sm">
                 <span class="checks"><Fragment set:html={check} /><Fragment set:html={check} /><Fragment set:html={check} /></span>
                 <span class="detail pie-p">El check (Servicios)</span>
@@ -731,11 +711,6 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         <Catalogo />
 
         {/* RONDA 178 · CÓMO SE HACEN LAS PIEZAS */}
-        <section id="piezas" class="seccion" aria-labelledby="h-piezas">
-          <h2 id="h-piezas" class="font-display text-h2">Cómo se hacen las piezas</h2>
-          <p class="cuerpo">Lo ilustrado nace a mano (las láminas y las poses de Andoni) y lo lleva a la web un proceso escrito: cada paso es un script en tools/ que se puede repetir.</p>
-          <ol class="dev-piezas">{PIEZAS.map(([t, de, como]) => (<li><h3 class="dp-t">{t}</h3><p class="dp-de detail">{de}</p><p class="dp-como">{como}</p></li>))}</ol>
-        </section>
 
         {/* RONDA 178 · HERRAMIENTAS Y SKILLS */}
         <section id="herramientas" class="seccion" aria-labelledby="h-herramientas">
@@ -744,7 +719,6 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           <dl class="dev-filas">{HERRAMIENTAS.map(([t, d]) => (<div><dt>{t}</dt><dd>{d}</dd></div>))}</dl>
         </section>
 
-        <Guia bloque="mantenimiento" />
       </div>
     </div>
   </main>
@@ -762,10 +736,17 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   const opc = document.querySelector<HTMLElement>('.dl-opc');
   if (opc) {
     const NEST: Record<string, string> = { otono: 'otoño', invierno: 'invierno', primavera: 'primavera', verano: 'verano' };
+    // Nota de campo: el pie de la firma, uno por estación (el roble es el de la portada de esa estación)
+    const NOTA: Record<string, string> = {
+      otono: '* El roble de nuestra portada, en otoño.<br>Donostia.',
+      invierno: '* El roble de nuestra portada, sin hojas.<br>Invierno en Donostia.',
+      primavera: '* El roble de nuestra portada, rebrotando.<br>Primavera en Donostia.',
+      verano: '* El roble de nuestra portada, en verano.<br>Donostia.',
+    };
     const CRUDO = opc.dataset.firmaOps!;
     // las opciones que llevan el roble de la estación ({est}) se rehacen con la de ese momento: al cargar y cada vez que la página cambia de estación
-    const deEstacion = (): Record<string, [string, string][]> => { const est = EST[estacionActual()] ?? 'otono'; return JSON.parse(CRUDO.replaceAll('{estn}', NEST[est] ?? 'otoño').replaceAll('{est}', est)); };
-    let OPS = deEstacion(), actual = 'encima';
+    const deEstacion = (): Record<string, [string, string][]> => { const est = EST[estacionActual()] ?? 'otono'; return JSON.parse(CRUDO.replaceAll('{estn}', NEST[est] ?? 'otoño').replaceAll('{nota}', NOTA[est] ?? NOTA.otono).replaceAll('{est}', est)); };
+    let OPS = deEstacion(), actual = 'trazos';
     const poner = (id: string) => {
       if (!OPS[id]) return;
       actual = id;
@@ -776,7 +757,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     addEventListener('savvia:estacion', () => { OPS = deEstacion(); poner(actual); });
     opc.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-op]'); if (b) { poner(b.dataset.op!); try { localStorage.setItem('savvia:firma', b.dataset.op!); } catch {} } });
     let guardada: string | null = new URLSearchParams(location.search).get('firma'); if (!guardada) try { guardada = localStorage.getItem('savvia:firma'); } catch {}
-    if (guardada) poner(guardada);
+    poner(guardada && OPS[guardada] ? guardada : actual); // la de serie también: lleva {est} y {nota}, que se rellenan aquí
   }
   // Firma de correo: se copia como HTML (con la imagen publicada) y como texto.
   document.querySelectorAll<HTMLButtonElement>('.dl-copiar').forEach((b) => b.addEventListener('click', async () => {
@@ -828,37 +809,36 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) marcar(e.target.id); }, { rootMargin: '-30% 0px -65% 0px' });
   secciones.forEach((s) => io.observe(s));
   // la construcción se dibuja al llegar
-  document.querySelectorAll('[data-construccion]').forEach((cons) => new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { cons.classList.add('visto'); o.disconnect(); } }, { threshold: 0.3 }).observe(cons));
-  // LAS ESTACIONES (ronda 144, 3.ª): el avance por el tramo fijo elige la estación (cuatro cuartos); fuera del tramo, la de hoy
-  const deHoy = estacionActual();
-  const tramo = document.querySelector<HTMLElement>('[data-estaciones]');
+  document.querySelectorAll<HTMLElement>('[data-construccion]').forEach((cons) => {
+    new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { cons.classList.add('visto'); o.disconnect(); } }, { threshold: 0.3 }).observe(cons);
+    // 24.ª · «Volver a construir»: se borra sin transición y se vuelve a montar
+    cons.querySelector('[data-cons-otra]')?.addEventListener('click', () => { cons.classList.add('reinicia'); cons.classList.remove('visto'); void cons.offsetWidth; cons.classList.remove('reinicia'); cons.classList.add('visto'); });
+  });
   const escena = document.querySelector<HTMLElement>('[data-escena-est]');
   const datos = JSON.parse(document.querySelector('[data-estaciones-datos]')?.textContent || '[]') as Record<string, any>[];
   let actual = -2;
   const poner = (i: number) => {
     if (i === actual || !escena) return; actual = i;
-    if (i < 0) { fijarEstacion(deHoy, 'brandbook'); return; }
-    fijarEstacion(EST.indexOf(datos[i].id as any), 'brandbook');
+    if (EST[estacionActual()] !== datos[i].id) fijarEstacion(EST.indexOf(datos[i].id as any), 'brandbook');
     escena.dataset.actual = String(i);
     escena.querySelectorAll<HTMLElement>('[data-cab],[data-punto],[data-roble]').forEach((el) => el.classList.toggle('on', Number(el.dataset.cab ?? el.dataset.punto ?? el.dataset.roble) === i));
+    escena.querySelectorAll<HTMLElement>('[data-punto]').forEach((el) => el.setAttribute('aria-checked', String(+el.dataset.punto! === i)));
     const cs = (datos[i] as any).colores as string[][];
     escena.querySelectorAll<HTMLElement>('[data-c]').forEach((el) => (el.hidden = !cs[+el.dataset.c!]));
     const comun = escena.querySelector<HTMLElement>('[data-comun]'); if (comun) comun.hidden = cs[0][2] === '#F5F5F7'; // en invierno el fondo ya es el blanco: no se repite
-    escena.querySelectorAll<HTMLElement>('[data-hex-c]').forEach((el) => (el.textContent = cs[+el.dataset.hexC!]?.[2] ?? ''));
-    escena.querySelectorAll<HTMLElement>('[data-nombre-c]').forEach((el) => (el.textContent = cs[+el.dataset.nombreC!]?.[1] ?? ''));
+    // 25.ª · el nombre y el valor de cada color se funden (salen, cambian y entran) en vez de saltar
+    const texto = (el: HTMLElement, v: string, k: number) => { if (el.textContent === v) return; const a = el.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(3px)' }], { duration: 260, delay: k * 50, easing: 'ease-in', fill: 'forwards' }); a.onfinish = () => { el.textContent = v; a.cancel(); el.animate([{ opacity: 0, filter: 'blur(3px)' }, { opacity: 1, filter: 'blur(0)' }], { duration: 520, easing: 'cubic-bezier(.16,1,.3,1)' }); }; };
+    escena.querySelectorAll<HTMLElement>('[data-hex-c]').forEach((el) => texto(el, cs[+el.dataset.hexC!]?.[2] ?? '', +el.dataset.hexC!));
+    escena.querySelectorAll<HTMLElement>('[data-nombre-c]').forEach((el) => texto(el, cs[+el.dataset.nombreC!]?.[1] ?? '', +el.dataset.nombreC!));
     escena.classList.toggle('clara', datos[i].id === 'invierno');
   };
-  const medir = () => {
-    if (!tramo) return;
-    const r = tramo.getBoundingClientRect(), recorrido = r.height - innerHeight;
-    const p = -r.top / Math.max(1, recorrido);
-    // fuera del tramo (la escena ya no cubre el centro de la pantalla), la de hoy; dentro, la del cuarto que se recorre
-    poner(r.top > innerHeight * 0.5 || r.bottom < innerHeight * 0.5 ? -1 : Math.min(datos.length - 1, Math.max(0, Math.floor(p * datos.length))));
-  };
-  addEventListener('scroll', medir, { passive: true }); addEventListener('resize', medir); medir();
+  // RONDA 307, 24.ª · la estación la eliges tú con el selector (la página entera la sigue); al entrar, la de la página
+  escena?.querySelectorAll<HTMLButtonElement>('[data-punto]').forEach((b) => b.addEventListener('click', () => poner(+b.dataset.punto!)));
+  { const hoy = datos.findIndex((d) => d.id === document.documentElement.dataset.estacion); poner(hoy < 0 ? 0 : hoy); }
+  addEventListener('savvia:estacion', () => { const k = datos.findIndex((d) => d.id === document.documentElement.dataset.estacion); if (k >= 0 && k !== actual) poner(k); });
   // el índice se aparta mientras la escena de estaciones o el pie ocupan la pantalla
   {
-    const tapan = [document.querySelector('[data-escena-est]'), document.querySelector('body > footer, footer')].filter(Boolean) as Element[];
+    const tapan = [document.querySelector('body > footer, footer')].filter(Boolean) as Element[]; // 24.ª: la escena ya no tapa el índice
     const vis = new Map<Element, boolean>();
     const ioI = new IntersectionObserver((es) => { es.forEach((e) => vis.set(e.target, e.isIntersecting)); document.documentElement.classList.toggle('bb-sin-indice', [...vis.values()].some(Boolean)); }, { rootMargin: '-10% 0px -10% 0px' });
     tapan.forEach((t) => ioI.observe(t));
@@ -931,6 +911,44 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target as HTMLVideoElement; if (e.isIntersecting && !quieto) jugar(v); else v.pause(); }), { rootMargin: '10% 0px' });
     document.querySelectorAll<HTMLVideoElement>('[data-mv]').forEach((v) => io.observe(v));
   }
+  // RONDA 307, 24.ª · la demo del botón: un cursor entra por un lado, la savia nace ahí (las mismas --gx/--gy/--gd de cta-liquido.ts), sale por otro y se
+  // recoge hacia allí; en bucle mientras se ve. Si pasas tú el ratón, manda el tuyo y la demo espera.
+  document.querySelectorAll<HTMLElement>('[data-cta-demo]').forEach((fig) => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const esc = fig.querySelector<HTMLElement>('.cta-escena')!, b = fig.querySelector<HTMLElement>('[data-cta-boton]')!, cur = fig.querySelector<SVGElement>('[data-cta-cursor]')!;
+    const RUTAS = [[[-0.35, 0.5], [0.28, 0.55], [1.35, 0.4]], [[0.85, -0.9], [0.8, 0.4], [0.1, 1.9]], [[0.5, 2], [0.45, 0.6], [-0.4, -0.6]]];
+    let viva = false, tuyo = false, k = 0;
+    const pos = (fx: number, fy: number) => { const eb = esc.getBoundingClientRect(), bb = b.getBoundingClientRect(); return [bb.left - eb.left + fx * bb.width, bb.top - eb.top + fy * bb.height]; };
+    const fijar = (fx: number, fy: number) => { const bb = b.getBoundingClientRect(); const x = Math.min(1, Math.max(0, fx)), y = Math.min(1, Math.max(0, fy)); b.style.setProperty('--gx', (x * 100).toFixed(1) + '%'); b.style.setProperty('--gy', (y * 100).toFixed(1) + '%'); b.style.setProperty('--gd', (Math.hypot(Math.max(x, 1 - x) * bb.width, Math.max(y, 1 - y) * bb.height) * 2.24).toFixed(0) + 'px'); };
+    const ir = (a: number[], c: number[], ms: number) => cur.animate([{ transform: `translate(${a[0]}px, ${a[1]}px)` }, { transform: `translate(${c[0]}px, ${c[1]}px)` }], { duration: ms, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' }).finished;
+    const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const vuelta = async () => {
+      while (viva) {
+        if (tuyo) { await espera(400); continue; }
+        const [de, dentro, fuera] = RUTAS[k++ % RUTAS.length], p0 = pos(de[0], de[1]), p1 = pos(dentro[0], dentro[1]), p2 = pos(fuera[0], fuera[1]);
+        cur.style.opacity = '1';
+        await ir(p0, p1, 900); if (tuyo || !viva) continue;
+        // entra: el borde por donde cruzó (el punto medio entre fuera y dentro, recortado al botón)
+        fijar((de[0] + dentro[0]) / 2, (de[1] + dentro[1]) / 2); b.classList.add('demo-hover');
+        await espera(1500); if (tuyo || !viva) continue;
+        await ir(p1, p2, 800);
+        fijar((dentro[0] + fuera[0]) / 2, (dentro[1] + fuera[1]) / 2); b.classList.remove('demo-hover');
+        cur.style.opacity = '0'; await espera(900);
+      }
+    };
+    esc.addEventListener('pointerenter', () => { tuyo = true; b.classList.remove('demo-hover'); cur.style.opacity = '0'; });
+    esc.addEventListener('pointerleave', () => { tuyo = false; });
+    new IntersectionObserver((es) => { const v = es[0].isIntersecting; if (v && !viva) { viva = true; vuelta(); } else if (!v) { viva = false; b.classList.remove('demo-hover'); cur.style.opacity = '0'; } }, { threshold: 0.4 }).observe(fig);
+  });
+  // RONDA 307, 25.ª · el esquema del espaciado (como en los casos): cada medida se enciende por turnos mientras se ve; al pasar por una fila, esa
+  document.querySelectorAll<HTMLElement>('[data-esp]').forEach((el) => {
+    const orden = ['seccion', 'relleno', 'hueco', 'cont'];
+    let k = 0, t = 0, fijo = false, visible = false;
+    const poner = (q: string) => (el.dataset.on = q);
+    const siguiente = () => { if (!fijo && visible) poner(orden[k++ % orden.length]); };
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; clearInterval(t); if (visible) { siguiente(); t = window.setInterval(siguiente, 2600); } }, { threshold: 0.3 }).observe(el);
+    el.querySelectorAll<HTMLElement>('[data-k]').forEach((row) => { row.addEventListener('pointerenter', () => { fijo = true; poner(row.dataset.k!); }); row.addEventListener('pointerleave', () => { fijo = false; }); });
+  });
 </script>
 
 <style>
@@ -1642,4 +1660,151 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   html[data-estacion='invierno'] .rg { background-image: url('/media/hero/arbol-invierno.webp'); }
   html[data-estacion='primavera'] .rg { background-image: url('/media/hero/arbol-primavera.webp'); }
   html[data-estacion='verano'] .rg { background-image: url('/media/hero/arbol-verano.webp'); }
+  /* RONDA 307, 24.ª · las estaciones, una TARJETA dentro de la columna (antes cuatro pantallas a sangre y fijas): el índice sigue a la vista; el selector, botones */
+  .estaciones { height: auto; margin-top: calc(var(--spacing) * 10); }
+  .escena-est { position: relative; top: auto; height: auto; display: block; padding: clamp(1.5rem, 3vw, 3rem); border-radius: var(--radius-lg); }
+  .est-dentro { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .est-txt { grid-column: 1 / span 6; }
+  .est-robles { grid-column: 7 / span 6; }
+  .est-paleta { grid-column: 1 / -1; }
+  @media (width < 64rem) { .est-txt, .est-robles { grid-column: 1 / -1; } }
+  .est-puntos { flex-wrap: wrap; gap: calc(var(--spacing) * 2); }
+  .est-puntos button { font: inherit; color: inherit; background: none; border: 1px solid color-mix(in oklab, var(--tinta-est) 30%, transparent); border-radius: 999px; padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 4); opacity: 0.75; cursor: pointer; transition: opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
+  .est-puntos button:hover { opacity: 1; }
+  .est-puntos button.on { opacity: 1; background: var(--tinta-est); color: var(--noche); border-color: var(--tinta-est); }
+  /* RONDA 307, 24.ª · MOVIMIENTO: el botón de verdad, con su demo, y las tres velocidades */
+  .mv-cta { display: grid; gap: calc(var(--spacing) * 4); }
+  .cta-escena { position: relative; display: grid; place-items: center; min-height: 11rem; }
+  .cta-escena .btn-primary { pointer-events: auto; }
+  .cta-escena :global(.btn-primary.demo-hover::before) { transform: translate(-50%, -50%) scale(1) rotate(28deg); }
+  .cta-escena :global(.btn-primary.demo-hover) { color: #302018; }
+  .cta-cursor { position: absolute; left: 0; top: 0; width: 22px; height: 22px; fill: #302018; stroke: #fff; stroke-width: 1.4; stroke-linejoin: round; pointer-events: none; opacity: 0; filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.25)); }
+  .velocidades { display: grid; gap: calc(var(--spacing) * 5); padding: calc(var(--spacing) * 6); }
+  .vel-pista { position: relative; display: grid; gap: calc(var(--spacing) * 2); height: 3.25rem; border-bottom: 1px solid color-mix(in oklab, #eadde7 18%, transparent); }
+  .vel-pista .detail { opacity: 0.75; }
+  .vel-pista i { position: absolute; bottom: 8px; left: 0; width: 14px; height: 14px; border-radius: 50%; background: #eadde7; animation: carrera 2.8s var(--c) infinite; }
+  .vel-pista i:nth-of-type(2) { opacity: 0.35; animation-delay: 0.06s; scale: 0.8; }
+  .vel-pista i:nth-of-type(3) { opacity: 0.15; animation-delay: 0.12s; scale: 0.6; }
+  .vel-pista.l { --c: linear; }
+  .vel-pista.q { --c: cubic-bezier(0.25, 1, 0.5, 1); }
+  .vel-pista.x { --c: cubic-bezier(0.16, 1, 0.3, 1); }
+  .vel-pista.x i { background: var(--color-coral); }
+  @keyframes carrera {
+    0% { left: 0; }
+    65% { left: calc(100% - 14px); }
+    88% { left: calc(100% - 14px); opacity: var(--o, 1); }
+    100% { left: calc(100% - 14px); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .vel-pista i { animation: none; left: calc(100% - 14px); } }
+  /* RONDA 307, 24.ª · LA CONSTRUCCIÓN, animada como en un editor de vectores (unos 5 s): las guías se trazan; las anclas aparecen de izquierda a derecha;
+     los manejadores salen de sus anclas; el contorno se dibuja letra a letra; al final la palabra se rellena y lo de dibujo se retira un poco */
+  .construccion .guias line { stroke-dasharray: none; transform-box: fill-box; transform-origin: left; scale: 0 1; }
+  .construccion .guias text { opacity: 0; }
+  .construccion .anclas rect, .construccion .controles circle { scale: 0; opacity: 1; }
+  .construccion .manejos { opacity: 1; }
+  .construccion .manejos line { stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+  .construccion .relleno path { fill: #302018; opacity: 0; }
+  .construccion.visto .guias line { scale: 1 1; transition: scale 1s cubic-bezier(0.65, 0, 0.35, 1); }
+  .construccion.visto .guias text { opacity: 1; transition: opacity 0.6s ease 0.6s; }
+  .construccion.visto .anclas rect { scale: 1; transition: scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.8s + var(--t) * 1.4s); }
+  .construccion.visto .manejos line { stroke-dashoffset: 0; transition: stroke-dashoffset 0.5s ease-out calc(1.4s + var(--t) * 1.4s), opacity 0.8s ease 4.4s; opacity: 0.45; }
+  .construccion.visto .controles circle { scale: 1; transition: scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) calc(1.8s + var(--t) * 1.4s), opacity 0.8s ease 4.4s; opacity: 0.6; }
+  .construccion.visto .contorno path { stroke-dashoffset: 0; transition: stroke-dashoffset 1.3s cubic-bezier(0.65, 0, 0.35, 1) calc(2s + var(--t) * 1.2s); }
+  .construccion.visto .relleno path { opacity: 1; transition: opacity 0.9s ease calc(3.6s + var(--t) * 0.8s); }
+  .construccion.reinicia, .construccion.reinicia * { transition: none !important; }
+  .cons-otra { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin-right: auto; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-color: color-mix(in oklab, currentColor 35%, transparent); cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) {
+    .construccion .guias line { scale: 1 1; } .construccion .guias text, .construccion .relleno path { opacity: 1; }
+    .construccion .anclas rect, .construccion .controles circle { scale: 1; } .construccion .manejos line { stroke-dashoffset: 0; }
+  }
+  .placa.velocidades { aspect-ratio: auto; place-items: stretch; align-content: center; }
+  .placa.velocidades > figcaption, .placa.mv-cta > figcaption { position: static; }
+  .placa.mv-cta { aspect-ratio: auto; place-items: stretch; padding: calc(var(--spacing) * 4); }
+  /* RONDA 307, 25.ª · iconografía: las celdas se adaptan a lo que cabe y el rótulo nunca se sale del recuadro */
+  .ic-ui { grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); }
+  .ic-c { padding: calc(var(--spacing) * 7) calc(var(--spacing) * 3) calc(var(--spacing) * 4); min-width: 0; }
+  .ic-c .detail { text-align: center; line-height: 1.3; text-wrap: balance; overflow-wrap: anywhere; }
+  .ic-c .ic-p { top: calc(var(--spacing) * 2); right: calc(var(--spacing) * 2); }
+  /* RONDA 307, 25.ª · EL ESPACIADO ANIMADO (el esquema de Caso.astro, acotado a .espaciado) */
+  /* EL ESPACIADO APLICADO: su página a escala (1440 → el ancho del esquema) y cada medida que se enciende por turnos en coral, con su fila */
+  .espaciado .esq { container-type: inline-size; margin-bottom: calc(var(--spacing) * 10); }
+  .espaciado .pag { --u: calc(100cqw / 1440); position: relative; padding-block: calc(72 * var(--u)); border: 1px solid var(--rule); border-radius: calc(var(--spacing) * 2); background: color-mix(in oklab, var(--fg) 3%, transparent); overflow: hidden; }
+  .espaciado .cont { position: relative; width: calc(var(--C) * var(--u)); margin-inline: auto; }
+  .espaciado .cont::before, .espaciado .cont::after { content: ''; position: absolute; top: calc(-72 * var(--u)); bottom: calc(-72 * var(--u)); width: 0; border-left: 1px dashed color-mix(in oklab, var(--fg) 24%, transparent); }
+  .espaciado .cont::before { left: 0; } .cont::after { right: 0; }
+  .espaciado .sec .tit { display: block; height: calc(44 * var(--u)); width: 46%; border-radius: 3px; background: color-mix(in oklab, var(--fg) 20%, transparent); margin-bottom: calc(40 * var(--u)); }
+  .espaciado .tarjetas { display: flex; }
+  .espaciado .tj { position: relative; flex: 1; display: grid; align-content: start; gap: calc(12 * var(--u)); min-height: calc(230 * var(--u)); padding: calc(var(--R) * var(--u)); border-radius: calc(12 * var(--u)); background: color-mix(in oklab, var(--fg) 8%, transparent); }
+  .espaciado .tj b, .espaciado .txt b { display: block; height: calc(14 * var(--u)); border-radius: 2px; background: color-mix(in oklab, var(--fg) 22%, transparent); }
+  .espaciado .tj b.c, .espaciado .txt b.c { width: 60%; }
+  .espaciado .gap-m { position: relative; flex: 0 0 calc(var(--G) * var(--u)); }
+  .espaciado .entre { position: relative; display: block; height: calc(var(--S) * var(--u)); }
+  .espaciado .sec.dos { display: flex; gap: calc(64 * var(--u)); }
+  .espaciado .txt { flex: 1; display: grid; align-content: start; gap: calc(14 * var(--u)); }
+  .espaciado .txt b.tit { margin-bottom: calc(10 * var(--u)); width: 80%; height: calc(36 * var(--u)); }
+  .espaciado .img { flex: 1; height: calc(250 * var(--u)); border-radius: calc(12 * var(--u)); background: color-mix(in oklab, var(--fg) 12%, transparent); }
+  .espaciado .m-cont { position: absolute; top: 0; bottom: 0; width: calc((100% - var(--C) * var(--u)) / 2); }
+  .espaciado .m-cont.izq { left: 0; } .m-cont.der { right: 0; }
+  .espaciado .m-relleno { position: absolute; inset: 0; border-radius: inherit; }
+  .espaciado .m::before { content: ''; position: absolute; inset: 0; background: color-mix(in oklab, var(--color-coral) 42%, transparent); transform: scale(0); transition: transform 0.8s var(--ease-out-expo); }
+  .espaciado .m-relleno::before { background: none; border: calc(var(--R) * var(--u)) solid color-mix(in oklab, var(--color-coral) 42%, transparent); border-radius: inherit; transform: scale(1.12); opacity: 0; transition: transform 0.8s var(--ease-out-expo), opacity 0.4s ease; }
+  .espaciado .gap-m::before { transform: scaleY(0); }
+  .espaciado .entre::before { transform: scaleY(0); }
+  .espaciado .m-cont::before { transform: scaleX(0); transform-origin: left; }
+  .espaciado .m-cont.der::before { transform-origin: right; }
+  .espaciado .m span { position: absolute; z-index: 2; white-space: nowrap; padding: 2px 8px; border-radius: 999px; font-size: 0.6875rem; font-variant-numeric: tabular-nums; font-family: var(--font-mono, ui-monospace, monospace); background: var(--color-coral); color: #1d1210; opacity: 0; translate: 0 4px; transition: opacity 0.4s ease, translate 0.6s var(--ease-out-expo); }
+  .espaciado .entre span { left: 50%; top: 50%; translate: -50% -40%; }
+  .espaciado .gap-m span { left: 50%; top: 100%; translate: -50% 8px; }
+  .espaciado .m-relleno span { left: 8px; top: 8px; }
+  .espaciado .m-cont span { left: 6px; bottom: 10px; }
+  .espaciado:is([data-on='seccion']) .m-seccion::before, .espaciado[data-on='hueco'] .m-hueco::before, .espaciado[data-on='cont'] .m-cont::before { transform: none; }
+  .espaciado[data-on='relleno'] .m-relleno::before { transform: none; opacity: 1; }
+  .espaciado[data-on='seccion'] .m-seccion span, .espaciado[data-on='hueco'] .m-hueco span, .espaciado[data-on='relleno'] .m-relleno span, .espaciado[data-on='cont'] .m-cont span { opacity: 1; translate: 0 0; }
+  .espaciado[data-on='seccion'] .entre span { translate: -50% -50%; }
+  .espaciado[data-on='hueco'] .gap-m span { translate: -50% 6px; }
+  .espaciado .claves [data-k] dd, .espaciado .pasos li[data-k] .caja span { transition: color 0.5s ease, background-color 0.5s ease; }
+
+  .esp-sb { margin-top: calc(var(--spacing) * 10); }
+  .esp-claves { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(var(--spacing) * 4); }
+  .esp-claves li { display: grid; gap: 2px; padding-top: calc(var(--spacing) * 3); border-top: 1px solid var(--rule); cursor: default; transition: border-color 0.4s ease; }
+  .esp-claves b { font-weight: 500; font-variant-numeric: tabular-nums; transition: color 0.4s ease; }
+  .espaciado[data-on='seccion'] .esp-claves [data-k='seccion'], .espaciado[data-on='relleno'] .esp-claves [data-k='relleno'], .espaciado[data-on='hueco'] .esp-claves [data-k='hueco'], .espaciado[data-on='cont'] .esp-claves [data-k='cont'] { border-top-color: var(--color-coral); }
+  .espaciado[data-on='seccion'] .esp-claves [data-k='seccion'] b, .espaciado[data-on='relleno'] .esp-claves [data-k='relleno'] b, .espaciado[data-on='hueco'] .esp-claves [data-k='hueco'] b, .espaciado[data-on='cont'] .esp-claves [data-k='cont'] b { color: var(--color-coral); }
+  @media (width < 48rem) { .esp-claves { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* RONDA 307, 25.ª · «el cambio de colores en estaciones, más fluido» → 26.ª «muy lento, que sea más rápido»: 0,7 s: todo cambia a la vez con la misma curva lenta (1,4 s, entrada y salida suaves); las
+     muestras, una tras otra; el roble y el título se funden sin salto */
+  .escena-est { transition: background-color 0.7s cubic-bezier(0.65, 0, 0.35, 1), color 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
+  .est-m { transition: background-color 0.7s cubic-bezier(0.65, 0, 0.35, 1), box-shadow 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
+  .est-paleta li:nth-child(2) .est-m { transition-delay: 30ms; } .est-paleta li:nth-child(3) .est-m { transition-delay: 60ms; }
+  .est-paleta li:nth-child(4) .est-m { transition-delay: 90ms; } .est-paleta li:nth-child(5) .est-m { transition-delay: 120ms; } .est-paleta li:nth-child(6) .est-m { transition-delay: 150ms; }
+  .est-robles .rb { transition: opacity 0.7s cubic-bezier(0.65, 0, 0.35, 1), scale 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s cubic-bezier(0.65, 0, 0.35, 1); }
+  .est-cab { transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1), translate 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+  .est-puntos button { transition: opacity 0.4s ease, background-color 0.6s cubic-bezier(0.65, 0, 0.35, 1), color 0.6s cubic-bezier(0.65, 0, 0.35, 1), border-color 0.6s ease; }
+  /* «movimiento: todas las cards la misma altura» → 26.ª «con el alto de antes»: manda la tarjeta de vídeo (16:9 + su pie); el botón y las carreras se
+     compactan para caber y la fila las iguala */
+  .materia { grid-auto-rows: 1fr; align-items: stretch; }
+  .materia > .placa { height: 100%; aspect-ratio: auto; }
+  .placa.mv-cta { padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); }
+  .cta-escena { min-height: 0; }
+  .placa.velocidades { align-content: space-between; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 4); }
+  .vel-pista { height: 2.4rem; gap: 2px; }
+  .velocidades figcaption { display: none; } /* con el alto de antes no cabe: lo dicen las reglas de debajo */
+  /* RONDA 307, 26.ª · «Aplicaciones: todo se tiene que adaptar a las estaciones»: la imagen al compartir y la página del navegador son las de la estación
+     (public/media/sistema/aplicaciones/og-<estación>.jpg) y los colores de las escenas salen de la noche de la estación (en invierno, la pizarra sobre nieve) */
+  .apl-chat { background: var(--noche); transition: background-color 0.7s ease, color 0.7s ease; }
+  .burbuja.otro { background: color-mix(in oklab, var(--noche), #fff 16%); }
+  .pf-boton { background: var(--noche); }
+  :global(html[data-estacion='invierno']) .apl-chat { color: #22303E; }
+  :global(html[data-estacion='invierno']) .burbuja.otro { background: #22303E; }
+  :global(html[data-estacion='invierno']) .pf-boton { background: #22303E; }
+  /* 26.ª · los filtros, la captura a lo ancho; el icono de la radio, que baila */
+  .placa.filtros-demo { aspect-ratio: auto; padding: 0; background: #F5F5F7; }
+  .filtros-demo img { display: block; width: 100%; height: auto; }
+  .ic-ondas { display: flex; align-items: center; gap: 3px; height: 1.9rem; }
+  .ic-ondas i { width: 3px; height: 62%; border-radius: 1px; background: currentColor; animation: ic-baila 1.1s ease-in-out infinite; }
+  .ic-ondas i:nth-child(1), .ic-ondas i:nth-child(5) { --a: 0.4; animation-delay: -0.3s; }
+  .ic-ondas i:nth-child(2), .ic-ondas i:nth-child(4) { --a: 0.7; animation-delay: -0.6s; }
+  .ic-ondas i:nth-child(3) { --a: 1; }
+  @keyframes ic-baila { 0%, 100% { transform: scaleY(var(--a, 0.6)); } 50% { transform: scaleY(calc(var(--a, 0.6) * 0.45)); } }
+  @media (prefers-reduced-motion: reduce) { .ic-ondas i { animation: none; transform: scaleY(var(--a)); } }
 </style>

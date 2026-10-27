@@ -1,0 +1,22 @@
+const { chromium, launchOpts } = require('/Users/andonimart/Desktop/savvia/savvia_inspo/scripts/pw.cjs');
+(async () => { const b = await chromium.launch(launchOpts); const p = await b.newPage({ viewport: { width: 1440, height: 900 } }); const errs = [];
+p.on('pageerror', (e) => errs.push(e.message)); p.on('response', (r) => r.status() >= 400 && errs.push(r.status() + ' ' + r.url()));
+await p.goto('http://localhost:4332/storybook'); await p.waitForTimeout(800);
+const D = 'tools/r307-story/r25-';
+await p.evaluate(() => document.getElementById('espaciado').scrollIntoView()); await p.waitForTimeout(1800); await p.screenshot({ path: D + 'esp.png' });
+const on = []; for (let k = 0; k < 4; k++) { on.push(await p.evaluate(() => document.querySelector('[data-esp]').dataset.on)); await p.waitForTimeout(2600); }
+await p.evaluate(() => document.getElementById('iconografia').scrollIntoView()); await p.waitForTimeout(600); await p.screenshot({ path: D + 'iconos.png' });
+const fuera = await p.evaluate(() => [...document.querySelectorAll('.ic-c')].filter((c) => [...c.querySelectorAll('.detail')].some((d) => { const a = d.getBoundingClientRect(), r = c.getBoundingClientRect(); return a.left < r.left - 1 || a.right > r.right + 1; })).length);
+await p.evaluate(() => document.querySelector('.materia').scrollIntoView({ block: 'center' })); await p.waitForTimeout(800); await p.screenshot({ path: D + 'mov.png' });
+const altos = await p.evaluate(() => [...document.querySelectorAll('.materia > .placa')].map((e) => Math.round(e.getBoundingClientRect().height)));
+await p.evaluate(() => document.querySelector('[data-escena-est]').scrollIntoView({ block: 'center' })); await p.waitForTimeout(500);
+await p.click('[data-punto="3"]'); await p.waitForTimeout(700); await p.screenshot({ path: D + 'est-mitad.png' }); await p.waitForTimeout(1400); await p.screenshot({ path: D + 'est-fin.png' });
+await p.evaluate(() => document.querySelector('.dl-firmas').scrollIntoView({ block: 'center' })); await p.waitForTimeout(500); await p.screenshot({ path: D + 'firma.png' });
+const comps = await p.evaluate(() => [...document.querySelectorAll('.comp-t')].map((e) => e.textContent));
+await p.goto('http://localhost:4332/'); await p.waitForTimeout(800); await p.click('[data-rejilla]').catch(() => {}); await p.waitForTimeout(900);
+const metodo = await p.evaluate(() => { const e = [...document.querySelectorAll('.pronto')].map((x) => x.textContent.trim()); return { e, enlace: !!document.querySelector('a[href="/metodo"]') }; });
+await p.screenshot({ path: D + 'menu.png' });
+await p.goto('http://localhost:4332/lab'); await p.waitForTimeout(1500); await p.screenshot({ path: D + 'lab.png' });
+const hola = await p.evaluate(() => Math.round(document.querySelector('.hola').getBoundingClientRect().height));
+console.log({ on, iconosFuera: fuera, altosMovimiento: altos, componentes: comps, metodo, altoTarjetaLab: hola, errs });
+await b.close(); })();
