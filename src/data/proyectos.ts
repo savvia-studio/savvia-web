@@ -136,7 +136,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#F01438', pct: 0.8, n: 'Rojo de marca' },
     ],
     tipos: [
-      { n: 'Schibsted Grotesk', uso: 'Titulares y texto · 400, 500 y 600' },
+      { n: 'Schibsted Grotesk', uso: 'Titulares y texto, 400, 500 y 600' },
       { n: 'JetBrains Mono', uso: 'Datos, especificaciones y etiquetas' },
     ],
     apartados: [],
@@ -240,7 +240,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#57C15F', pct: 0, n: 'Verde «en directo»' },
     ],
     tipos: [
-      { n: 'Instrument Sans', uso: 'Titulares · 600' },
+      { n: 'Instrument Sans', uso: 'Titulares, 600' },
       { n: 'JetBrains Mono', uso: 'Código y rótulos' },
     ],
     sonidos: [
@@ -267,7 +267,7 @@ export const proyectos: Proyecto[] = [
     ],
     proceso: [
       { n: 'Dos lectores', d: 'La web habla a quien programa y a los agentes que integran APIs: el código manda desde el primer pantallazo y cada sección responde una pregunta de ingeniería.' },
-      { n: 'Sistema', d: 'Dos familias (Instrument Sans y JetBrains Mono), un solo acento bermellón y una escala de radios con sentido: 6 para chips, 12–16 para paneles, 22 para teselas, 40 para la cápsula.' },
+      { n: 'Sistema', d: 'Dos familias (Instrument Sans y JetBrains Mono), un solo acento bermellón y una escala de radios con sentido: 6 para chips, 12 a 16 para paneles, 22 para teselas, 40 para la cápsula.' },
       { n: 'Dos voces', d: 'Cada titular tiene dos frases: la primera en tinta y la segunda al 40 %. Es el rasgo que se repite en todas las secciones.' },
       { n: 'Comparar en la página', d: 'El hero se construyó en dos variantes, «Código» y «Esquema», que se compararon en la propia web antes de elegir.' },
     ],
@@ -339,7 +339,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#B7791F', pct: 0, n: 'Ámbar (solo en el producto)' },
     ],
     tipos: [
-      { n: 'Politetype', uso: 'Titulares · nunca en negrita' },
+      { n: 'Politetype', uso: 'Titulares, nunca en negrita' },
       { n: 'Inter', uso: 'Lectura e interfaz' },
     ],
     apartados: [],
@@ -442,7 +442,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#F5F7F9', pct: 96.8, n: 'Superficie' },
     ],
     tipos: [
-      { n: 'Bricolage Grotesque', uso: 'Titulares · 500' },
+      { n: 'Bricolage Grotesque', uso: 'Titulares, 500' },
       { n: 'Switzer', uso: 'Interfaz y texto' },
     ],
     apartados: [],
@@ -461,7 +461,7 @@ export const proyectos: Proyecto[] = [
     ],
     proceso: [
       { n: 'El brief', d: 'Veinticinco apartados y un concepto, «inteligencia de señal», con un tono: claridad operativa y elegante. El movimiento, como un radar comercial.' },
-      { n: 'El color con reglas', d: 'La paleta llegó con proporciones (menta 55–65 %, ciruela 20–25 %, azul 10–15 %, naranja 5–10 %) y una regla: si todo es naranja, nada es importante. El naranja, solo para la señal.' },
+      { n: 'El color con reglas', d: 'La paleta llegó con proporciones (menta 55 a 65 %, ciruela 20 a 25 %, azul 10 a 15 %, naranja 5 a 10 %) y una regla: si todo es naranja, nada es importante. El naranja, solo para la señal.' },
       { n: 'La identidad', d: 'Sobre su marca: el degradado azul, naranja y ciruela recortado por una sola máscara con dos muescas que encajan, la que da forma a todo el hero.' },
       { n: 'La librería', d: 'Un manual vivo generado desde el propio código: fundamentos, componentes, el mapa de la web en español e inglés y una guía para que su equipo la cambie con Claude.' },
     ],
@@ -603,7 +603,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#F0764B', pct: 0.2, n: 'Coral' },
     ],
     tipos: [
-      { n: 'Untitled Sans', uso: 'Titulares 500 · texto 400' },
+      { n: 'Untitled Sans', uso: 'Titulares 500, texto 400' },
     ],
     apartados: [
       { titulo: 'El CMS', texto: ['Colecciones para los microsites de cada banco, el formulario de referidos, dos tipos de páginas de agradecimiento, la política de privacidad, las condiciones de uso, los beneficios y las preguntas de precios.', 'El mapa del sitio se construye con referencias y multirreferencias: cada banco tiene su experiencia completa a partir de sus fichas.'] },
@@ -629,7 +629,7 @@ export const proyectos: Proyecto[] = [
       { n: 'H2', fam: 'Untitled Sans', px: 48, lh: 54, peso: 500, ls: '−0,04 em' },
       { n: 'H3', fam: 'Untitled Sans', px: 32, lh: 40, peso: 500, ls: '−0,04 em' },
       { n: 'Texto', fam: 'Untitled Sans', px: 16, lh: 24, peso: 400 },
-      { n: 'Detalle', fam: 'Untitled Sans', px: 16, lh: 24, peso: 400, ls: '0,15 em · mayúsculas' },
+      { n: 'Detalle', fam: 'Untitled Sans', px: 16, lh: 24, peso: 400, ls: '0,15 em, mayúsculas' },
     ],
     boton: { fam: 'Untitled Sans', px: 16, peso: 500, radio: 8, alto: 58, fondo: '#F0764B', tinta: '#FFFFFF' },
     medido: 'Medido en businessonlinepayroll.com, a 1440 px',
@@ -667,7 +667,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#F7F9FC', pct: 1.4, n: 'Niebla' },
     ],
     tipos: [
-      { n: 'Manrope', uso: 'Titulares · 500' },
+      { n: 'Manrope', uso: 'Titulares, 500' },
       { n: 'Inter', uso: 'Texto' },
     ],
     apartados: [
@@ -737,7 +737,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#BBB9A3', pct: 2.7, n: 'Piedra' },
     ],
     tipos: [
-      { n: 'Editorial New', uso: 'Titulares · ultraligera' },
+      { n: 'Editorial New', uso: 'Titulares, ultraligera' },
       { n: 'GT America', uso: 'Texto' },
     ],
     apartados: [
@@ -808,7 +808,7 @@ export const proyectos: Proyecto[] = [
       { hex: '#AAAAAA', pct: 4.9, n: 'Gris' },
     ],
     tipos: [
-      { n: 'Aspekta', uso: 'Titulares 300 · texto 400' },
+      { n: 'Aspekta', uso: 'Titulares 300, texto 400' },
     ],
     apartados: [],
     tecnica: ['Diseño en Figma y desarrollo en Webflow', 'Integración del CMS y localización de Webflow', 'Filtros del CMS con Finsweet y animaciones con GSAP'],
@@ -832,7 +832,7 @@ export const proyectos: Proyecto[] = [
       { n: 'H2', fam: 'Aspekta', px: 48, lh: 57.6, peso: 300, ls: '−0,02 em' },
       { n: 'H3', fam: 'Aspekta', px: 32, lh: 38.4, peso: 300, ls: '−0,025 em' },
       { n: 'Texto', fam: 'Aspekta', px: 20, lh: 30, peso: 400 },
-      { n: 'Detalle', fam: 'Aspekta', px: 14, lh: 16.8, peso: 400, ls: '0,1 em · mayúsculas' },
+      { n: 'Detalle', fam: 'Aspekta', px: 14, lh: 16.8, peso: 400, ls: '0,1 em, mayúsculas' },
     ],
     boton: { fam: 'Aspekta', px: 16, peso: 600, radio: 6, alto: 36, fondo: '#1A1AFF', tinta: '#FFFFFF' },
     medido: 'Medido en isotrol.com, a 1440 px',

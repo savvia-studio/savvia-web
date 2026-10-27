@@ -107,7 +107,7 @@ import Problemas from './Problemas.astro';
               <p class="et">{PG.color.etiqueta}</p>
               <div class="swatches">
                 {L.color.map(([n, hx]) => (
-                  <span class="sw pk" data-src={hx === 'grad' ? 'base' : undefined}><i class={`blk ${hx === 'grad' ? 'grad' : ''}`} style={hx === 'grad' ? undefined : `background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx === 'grad' ? (en ? 'blue → aubergine · grain' : 'azul → berenjena · grano') : hx}</small></span>
+                  <span class="sw pk" data-src={hx === 'grad' ? 'base' : undefined}><i class={`blk ${hx === 'grad' ? 'grad' : ''}`} style={hx === 'grad' ? undefined : `background:${hx}`}></i><b class="nm">{n}</b><small class="hx">{hx === 'grad' ? (en ? 'blue → aubergine, grain' : 'azul → berenjena, grano') : hx}</small></span>
                 ))}
               </div>
               <p class="et et2">{PG.color.rampas}</p>
@@ -123,7 +123,7 @@ import Problemas from './Problemas.astro';
               <p class="tx">{en ? <Fragment>Headings in <b>Bricolage Grotesque</b>, body in <b>Switzer</b>.</Fragment> : <Fragment>Titulares en <b>Bricolage Grotesque</b>, cuerpo en <b>Switzer</b>.</Fragment>}</p>
               <p class="et">{PG.tipo.etiqueta}</p>
               <div class="tps">
-                {[['H1 · XL', 'Desktop 112px · Mobile 64px · 120%', 'xl'], ['H1 · L', 'Desktop 80px · Mobile 48px · 120%', 'l'], ['H1 · M', 'Desktop 64px · Mobile 40px · 120%', 'm'], ['H2', 'Desktop 48px · Mobile 32px · 120%', 'h2']].map(([n, m, c]) => (
+                {[['H1, XL', 'Desktop 112px, Mobile 64px, 120%', 'xl'], ['H1, L', 'Desktop 80px, Mobile 48px, 120%', 'l'], ['H1, M', 'Desktop 64px, Mobile 40px, 120%', 'm'], ['H2', 'Desktop 48px, Mobile 32px, 120%', 'h2']].map(([n, m, c]) => (
                   <span class={`tp tp-${c} pk`} data-src={c === 'xl' ? 'h1xl' : undefined}><b>{n}</b><small>{m}</small></span>
                 ))}
               </div>

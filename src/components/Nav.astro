@@ -57,7 +57,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       {
         nav.links.filter((l) => l.href).map((l, i) => (
           <li style={`--n:${i}`}>
-            {l.href ? <a href={ruta(lang, l.href)} class="enlace"><span class="font-display text-h2">{l.label}</span></a> : <span class="pronto font-display text-h2">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}
+            {l.href ? <a href={ruta(lang, l.href)} class="enlace"><span class="font-display text-h2">{l.label}</span></a> : <span class="pronto font-display text-h2">{l.label} <small>{en ? '(soon)' : '(pronto)'}</small></span>}
           </li>
         ))
       }
@@ -67,27 +67,22 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
         <p class="detail detail-caps text-fg2">{nav.mas.titulo}</p>
         <ul class="text-lead mt-3 flex flex-col gap-1">
           <li><a href={`mailto:${pie.correo}`} data-copiar={pie.correo} class="enlace inline-block">{pie.correoTexto}</a></li>
-          {nav.mas.links.filter((l) => l.href).map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto">{l.label} <small>· {en ? 'soon' : 'pronto'}</small></span>}</li>)}
+          {nav.mas.links.map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
         </ul>
       </div>
-      <!-- RONDA 274 · Andoni: «en vez del reel, proyectos destacados que van rotando»: la tarjeta del reel enseña las cubiertas de los destacados, una tras otra
-           (relevo con fundido y un acercamiento lento); el nombre cambia con ella y la tarjeta lleva a ese caso. El reel queda en el código, sin usar. -->
-      <a href={ruta(lang, `/proyectos/${DESTACADOS[0].slug}`)} class="reel destacados" data-destacados aria-label={en ? `Featured project: ${DESTACADOS[0].nombre}` : `Proyecto destacado: ${DESTACADOS[0].nombre}`}>
-        {DESTACADOS.map((d, i) => (
-          <span class={`dst${i === 0 ? ' on' : ''}${d.movil ? ' movil' : ''}`} style={`--c1:${d.colores[0]};--c2:${d.colores[1]};--c3:${d.colores[2]}`} data-slug={d.slug} data-nombre={d.nombre} data-href={ruta(lang, `/proyectos/${d.slug}`)}>
-            <span class="dst-marco"><img src={`/media/obra/${d.slug}/cubierta.jpg`} alt="" width={d.movil ? 780 : 1920} height={d.movil ? 1688 : 1080} loading="lazy" decoding="async" /></span>
-          </span>
-        ))}
-        <span class="reel-pie"><span class="dst-rot">{en ? 'Featured' : 'Destacados'}</span><span class="dst-n" data-dst-nombre>{DESTACADOS[0].nombre}</span></span>
-        <span class="dst-puntos" aria-hidden="true">{DESTACADOS.map((_, i) => <i class={i === 0 ? 'on' : ''}></i>)}</span>
-      </a>
+      <!-- RONDA 307 (18.ª) · Andoni: «en el menú, donde tenemos proyectos destacados, recuperamos el reel como teníamos antes»: la miniatura en bucle y, al
+           pulsarla, el reel grande con sonido; uno por estación e idioma (scripts/reel.ts). Los destacados que rotaban (ronda 274) quedan en el código, sin usar. -->
+      <button type="button" class="reel" data-reel aria-label={en ? `Watch the project reel (${nav.reel.duracion})` : `Ver el reel de proyectos (${nav.reel.duracion})`}>
+        <video muted loop playsinline preload="none" poster={`/media/reel/reel-mini-otono-${en ? 'en' : 'es'}.jpg`} data-reel-mini></video>
+        <span class="reel-pie"><Fragment set:html={icono('play', 'fill')} />{nav.reel.label}<span class="reel-dur">{nav.reel.duracion}</span></span>
+      </button>
     </div>
   </nav>
 </div>
 
 <dialog class="reel-dlg" aria-label={en ? 'savvia project reel' : 'Reel de proyectos de savvia'} data-reel-dlg>
   <div class="reel-panel surface-dark" data-reel-panel>
-    <video class="reel-video" playsinline preload="none" poster="/media/reel/reel.jpg" data-reel-video></video>
+    <video class="reel-video" playsinline preload="none" poster={`/media/reel/reel-otono-${en ? 'en' : 'es'}.jpg`} data-reel-video></video>
     <div class="reel-mandos">
       <button type="button" class="reel-bt" aria-label={en ? 'Pause' : 'Pausar'} data-reel-play>
         <Fragment set:html={icono('play', 'fill', 'ic-play')} />
@@ -134,6 +129,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
 </script>
 
 <script>
+  import { reelArchivo, seguirEstacion } from '../scripts/reel';
   import { jugar } from '../scripts/jugar';
   import { dibujar } from '../scripts/dibujar';
   import { tinta } from '../scripts/tinta';
@@ -193,7 +189,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     rotarDestacados(si);
     const mini = menu.querySelector<HTMLVideoElement>('[data-reel-mini]');
     if (mini && si) {
-      if (!mini.src) mini.src = '/media/reel/reel-mini.mp4';
+      if (!mini.getAttribute('src')) mini.src = reelArchivo('reel-mini');
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) jugar(mini);
     } else mini?.pause();
     if (si) {
@@ -236,8 +232,10 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   addEventListener('keydown', (e) => e.key === 'Escape' && abierto && !dlg.open && poner(false, true));
   // ── RONDA 60 · EL REEL: la tarjeta oscura (como el reproductor de testimonios) se PINTA desde la miniatura; el menú se recoge a la vez.
   const reelBt = menu.querySelector<HTMLButtonElement>('[data-reel]');
+  { const m = menu.querySelector<HTMLVideoElement>('[data-reel-mini]'); if (m) seguirEstacion(m, 'reel-mini'); }
   const dlg = document.querySelector<HTMLDialogElement>('[data-reel-dlg]')!, panel = dlg.querySelector<HTMLElement>('[data-reel-panel]')!;
   const vid = dlg.querySelector<HTMLVideoElement>('[data-reel-video]')!, hilo = dlg.querySelector<HTMLElement>('[data-reel-hilo]')!;
+  seguirEstacion(vid, 'reel');
   const LINEA_REEL = () => tinta('niebla', 0.5);
   let origenReel: [number, number] = [innerWidth / 2, innerHeight / 2], cerrandoReel = false;
   const estadoReel = () => {
@@ -255,7 +253,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   // RONDA 76 · también lo abre la pieza del reel en «Más proyectos» ([data-abre-reel]): se pinta desde ella
   const abrirReel = (desde: HTMLElement) => {
     const r = desde.getBoundingClientRect(); origenReel = [r.left + r.width / 2, r.top + r.height / 2];
-    if (!vid.src) vid.src = '/media/reel/reel.mp4';
+    if (!vid.getAttribute('src')) vid.src = reelArchivo('reel');
     vid.currentTime = 0; vid.muted = false; estadoReel();
     cerrandoReel = false;
     dlg.showModal(); dlg.classList.add('on');
@@ -842,7 +840,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   .dst.movil .dst-marco img { aspect-ratio: 9 / 19.5; border-radius: 7px; }
   .destacados .reel-pie { gap: calc(var(--spacing) * 2); }
   .dst-rot { color: color-mix(in oklab, var(--color-niebla) 60%, transparent); }
-  .dst-rot::after { content: '·'; margin-left: calc(var(--spacing) * 2); }
+  .dst-rot::after { content: ''; margin-left: calc(var(--spacing) * 2); } /* ronda 307, 23.ª: sin el punto en medio */
+  .reel-dur { margin-left: 0.6em; opacity: 0.7; font-variant-numeric: tabular-nums; } /* ronda 307, 23.ª: la duración, aparte (antes «Reel · 1:28») */
   .dst-n { display: inline-block; }
   .dst-puntos { position: absolute; right: calc(var(--spacing) * 3); bottom: calc(var(--spacing) * 3); display: flex; gap: 5px; }
   .dst-puntos i { width: 5px; height: 5px; border-radius: 50%; background: color-mix(in oklab, var(--color-niebla) 45%, transparent); transition: background 0.4s ease; }

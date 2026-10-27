@@ -58,7 +58,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       { n: 'Company', d: 'Three illustrations of their story and news that rotate.' },
     ]),
     paleta: tx(quantus.paleta, [{ n: 'Background' }, { n: 'Elevated background' }, { n: 'Ink' }, { n: 'Brand red' }]),
-    tipos: tx(quantus.tipos, [{ uso: 'Headlines and text · 400, 500 and 600' }, { uso: 'Data, specifications and labels' }]),
+    tipos: tx(quantus.tipos, [{ uso: 'Headlines and text, 400, 500 and 600' }, { uso: 'Data, specifications and labels' }]),
     tecnica: [
       'A single hand-written, self-contained HTML file of around 440 KB',
       'The sphere, the profiler and the tensor in Canvas 2D; the illustrations as inline SVG',
@@ -131,7 +131,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       { n: 'Questions, security and close', d: 'Six engineering questions, the security block and the final call.' },
     ]),
     paleta: tx(patchbay.paleta, [{ n: 'Paper' }, { n: 'Ink' }, { n: 'Vermilion (only accent)' }, { n: '“Live” green' }]),
-    tipos: tx(patchbay.tipos, [{ uso: 'Headlines · 600' }, { uso: 'Code and labels' }]),
+    tipos: tx(patchbay.tipos, [{ uso: 'Headlines, 600' }, { uso: 'Code and labels' }]),
     apartados: [
       { titulo: 'Sound', texto: ['Synthesised in the browser, with no files: a click is a burst of narrow-band noise around 3,400 Hz (9 ms) with a 260 Hz sine that falls away and gives it body; on hover, the same, higher and shorter. Each hit varies slightly in pitch. It can be switched off and is remembered.'] },
     ],
@@ -150,7 +150,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     ]),
     proceso: tx(patchbay.proceso, [
       { n: 'Two readers', d: 'The site speaks to people who code and to the agents that integrate APIs: code leads from the first screen and every section answers an engineering question.' },
-      { n: 'System', d: 'Two families (Instrument Sans and JetBrains Mono), a single vermilion accent and a radius scale that makes sense: 6 for chips, 12–16 for panels, 22 for tiles, 40 for the capsule.' },
+      { n: 'System', d: 'Two families (Instrument Sans and JetBrains Mono), a single vermilion accent and a radius scale that makes sense: 6 for chips, 12 to 16 for panels, 22 for tiles, 40 for the capsule.' },
       { n: 'Two voices', d: 'Every headline has two sentences: the first in ink and the second at 40%. It is the trait that repeats across all the sections.' },
       { n: 'Comparing on the page', d: 'The hero was built in two variants, “Code” and “Diagram”, which were compared on the site itself before choosing.' },
     ]),
@@ -197,7 +197,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       { n: 'Questions and close', d: 'Eight sticky notes that flip over and a dot grid that the mouse pushes aside.' },
     ]),
     paleta: tx(playground.paleta, [{ n: 'Electric blue (only accent)' }, { n: 'Ink' }, { n: 'Surface' }, { n: 'Green (product only)' }, { n: 'Amber (product only)' }]),
-    tipos: tx(playground.tipos, [{ uso: 'Headlines · never bold' }, { uso: 'Reading and interface' }]),
+    tipos: tx(playground.tipos, [{ uso: 'Headlines, never bold' }, { uso: 'Reading and interface' }]),
     tecnica: [
       'Custom HTML, CSS and JS with a build script that includes partials and versions the assets',
       'Everything local, with no CDN or tracking; GSAP and Lenis for motion',
@@ -274,7 +274,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       { n: 'Demo', d: 'What you’ll see in the demo and the final call.' },
     ]),
     paleta: tx(neety.paleta, [{ n: 'Plum' }, { n: 'Baby blue' }, { n: 'Orange (signal only)' }, { n: 'Mint' }, { n: 'Surface' }]),
-    tipos: tx(neety.tipos, [{ uso: 'Headlines · 500' }, { uso: 'Interface and text' }]),
+    tipos: tx(neety.tipos, [{ uso: 'Headlines, 500' }, { uso: 'Interface and text' }]),
     tecnica: [
       'Next.js 15 with App Router and Tailwind CSS 4',
       'GSAP 3.15 and ScrollTrigger for the feed and the entrances, with no scroll libraries',
@@ -290,7 +290,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     ]),
     proceso: tx(neety.proceso, [
       { n: 'The brief', d: 'Twenty-five sections and one concept, “signal intelligence”, with a tone: operational and elegant clarity. The motion, like a commercial radar.' },
-      { n: 'Colour with rules', d: 'The palette came with proportions (mint 55–65%, plum 20–25%, blue 10–15%, orange 5–10%) and a rule: if everything is orange, nothing is important. Orange, only for the signal.' },
+      { n: 'Colour with rules', d: 'The palette came with proportions (mint 55 to 65%, plum 20 to 25%, blue 10 to 15%, orange 5 to 10%) and a rule: if everything is orange, nothing is important. Orange, only for the signal.' },
       { n: 'The identity', d: 'Built on their brand: the blue, orange and plum gradient cut by a single mask with two notches that interlock, the one that shapes the whole hero.' },
       { n: 'The library', d: 'A living manual generated from the code itself: foundations, components, the site map in Spanish and English and a guide so their team can change it with Claude.' },
     ]),
@@ -368,7 +368,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     reto: 'To have twenty-one different brands live on a single site without any resembling another and without multiplying the work by twenty-one.',
     frase: 'Twenty-one brands, a single architecture.',
     paleta: tx(bop.paleta, [{ n: 'Background' }, { n: 'Ink' }, { n: 'Terracotta' }, { n: 'Midnight blue' }, { n: 'Coral' }]),
-    tipos: tx(bop.tipos, [{ uso: 'Headlines 500 · text 400' }]),
+    tipos: tx(bop.tipos, [{ uso: 'Headlines 500, text 400' }]),
     apartados: [
       { titulo: 'The CMS', texto: ['Collections for each bank’s microsites, the referral form, two types of thank-you pages, the privacy policy, the terms of use, the benefits and the pricing questions.', 'The site map is built with references and multi-references: each bank gets its complete experience from its entries.'] },
     ],
@@ -405,7 +405,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     reto: 'To merge two sites in two languages without losing content, rankings or sales forms, and to redesign it along the way.',
     frase: 'Two sites in one, losing nothing along the way.',
     paleta: tx(cubbo.paleta, [{ n: 'Background' }, { n: 'Cubbo blue' }, { n: 'Navy' }, { n: 'Mist' }]),
-    tipos: tx(cubbo.tipos, [{ uso: 'Headlines · 500' }, { uso: 'Text' }]),
+    tipos: tx(cubbo.tipos, [{ uso: 'Headlines, 500' }, { uso: 'Text' }]),
     apartados: [
       { titulo: 'Under the hood', texto: ['The CMS was structured to migrate every success story and every blog article from Mexico (es-MX) and Brazil (pt-BR), with a 301 redirect plan on Cloudflare and the sales forms connected to HubSpot, which notify the team on Slack.'] },
     ],
@@ -445,7 +445,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     reto: 'One of those migrations where every detail counts: changing platform without anything moving out of place, in four languages and four writing systems.',
     frase: 'AI helps. The checking, by hand.',
     paleta: tx(remerge.paleta, [{ n: 'Lavender' }, { n: 'Lime' }, { n: 'Ink' }, { n: 'Stone' }]),
-    tipos: tx(remerge.tipos, [{ uso: 'Headlines · extra light' }, { uso: 'Text' }]),
+    tipos: tx(remerge.tipos, [{ uso: 'Headlines, extra light' }, { uso: 'Text' }]),
     apartados: [
       { titulo: 'Validation', texto: ['AI sped up the migration, but almost every piece of content had to be checked in all four languages to make sure everything was exactly where it should be.'] },
     ],
@@ -485,7 +485,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     reto: 'To tell the story of a technical company with a worldwide presence clearly, and to let their team maintain the content.',
     frase: 'Their impact, on a map.',
     paleta: tx(isotrol.paleta, [{ n: 'Background' }, { n: 'Navy' }, { n: 'Electric blue' }, { n: 'Grey' }]),
-    tipos: tx(isotrol.tipos, [{ uso: 'Headlines 300 · text 400' }]),
+    tipos: tx(isotrol.tipos, [{ uso: 'Headlines 300, text 400' }]),
     tecnica: ['Design in Figma and development in Webflow', 'CMS integration and Webflow localisation', 'CMS filters with Finsweet and animations with GSAP'],
     cita: {
       ...isotrol.cita!,

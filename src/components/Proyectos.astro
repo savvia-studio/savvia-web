@@ -125,7 +125,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             }
             </div>
             <!-- RONDA 292 · reunión con JL: de pie, la pantalla enseña el REEL en bucle (sin sonido); al sentarte, los proyectos como siempre -->
-            <video class="reel-loop" muted loop playsinline preload="none" poster="/media/reel/reel.jpg" aria-hidden="true" tabindex="-1" disablepictureinpicture data-reel-loop></video>
+            <video class="reel-loop" muted loop playsinline preload="none" poster={`/media/reel/reel-otono-${en ? 'en' : 'es'}.jpg`} aria-hidden="true" tabindex="-1" disablepictureinpicture data-reel-loop></video>
           </div>
           <!-- La llamada: un punto en la silla, una línea y la palabra. Todo ello es el botón. -->
           <button type="button" class="llamada" data-sentarse>
@@ -231,6 +231,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </script>
 
 <script>
+  import { reelArchivo, seguirEstacion } from '../scripts/reel';
   import { t } from '../scripts/i18n';
   import { crearSonido } from '../scripts/sonido-estudio';
   import { construir } from '../scripts/construir';
@@ -379,6 +380,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // RONDA 292 · el reel en bucle: se descarga al acercarse y solo corre con la escena a la vista y de pie
     {
       const reel = $('[data-reel-loop]') as HTMLVideoElement;
+      seguirEstacion(reel, 'reel'); // RONDA 307 (18.ª): el reel de la estación y el idioma
       let visto = false;
       // RONDA 292 · Eric: «que el vídeo salga cuando el frame ya se vea por pantalla»: arranca y queda DEBAJO del titular-pantalla cuando éste empieza a irse (a > 0,6), para que esté listo cuando su fondo se funde («que entre antes»)
       const marcha = () => {
@@ -396,7 +398,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       raiz.addEventListener('reel', () => { listo = true; marcha(); });
       new IntersectionObserver((e) => {
         visto = e.some((x) => x.isIntersecting);
-        if (visto && !reel.src) reel.src = '/media/reel/reel.mp4';
+        if (visto && !reel.getAttribute('src')) reel.src = reelArchivo('reel');
         marcha();
       }, { rootMargin: '300px 0px' }).observe(raiz);
       document.addEventListener('visibilitychange', marcha);

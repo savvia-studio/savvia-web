@@ -39,7 +39,7 @@ const TRAZO: Record<string, string> = {
               <p class="raya" aria-hidden="true">= = = = = = = = = = = = = =</p>
               {
                 receta.tiras.map((t, i) => (
-                  <section class={`bloque ${i % 2 ? 'izq' : 'der'}`} aria-label={`${pad(i)} · ${t.paso}`} data-bloque>
+                  <section class={`bloque ${i % 2 ? 'izq' : 'der'}`} aria-label={`${pad(i)}, ${t.paso}`} data-bloque>
                     <p class="paso"><b>{pad(i)}</b> · {t.paso}</p>
                     <p class="titulo-b">{t.t}</p>
                     <p class="raya" aria-hidden="true">{t.raya}</p>

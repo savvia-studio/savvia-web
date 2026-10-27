@@ -22,7 +22,7 @@ export interface Experimento {
 
 export const lab = {
   titulo: 'savvia lab',
-  sub: 'Lo que probamos antes de saber si funciona. Ábrelos y juega con ellos.',
+  sub: 'Nuestros experimentos.\nÁbrelos y juega con ellos.', // 26.ª: en dos líneas
   ayuda: 'Desliza o arrastra para explorar',
   ayudaTactil: 'Desliza para explorar',
   abrir: 'Abrir en su web',
@@ -36,7 +36,8 @@ export const experimentos: Experimento[] = [
     codigo: 'EXP-001',
     slug: 'gravitas',
     nombre: 'Gravitas',
-    que: 'La web de una empresa que atornilla cada elemento «a 12 N·m». Hasta que pulsas el botón rojo que pide que no lo pulses: todo se descuelga y la página queda bajo los focos.',
+    // RONDA 307, 25.ª · Gravitas ha cambiado: ya no se descuelga la página, ahora es un laberinto de bola (vídeo regrabado: tools/r307-lab/grabar-gravitas.cjs)
+    que: 'La web de una empresa donde nada se mueve sin su aprobación. Salvo la bola: inclinas el tablero con el ratón y la llevas por el laberinto sin que caiga en un agujero, contra el reloj.',
     url: 'https://gravitas-hq.vercel.app/',
     dominio: 'gravitas-hq.vercel.app',
     ar: 16 / 10,

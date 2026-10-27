@@ -4915,6 +4915,474 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - «a mitad de página, al filtrar, a veces se ve el footer un segundo y luego sube» → con menos proyectos la página encogía bajo el scroll y el navegador saltaba al final antes de la subida suave. Al filtrar, la rejilla CONSERVA su alto (`min-height` congelado) mientras sube y se suelta al llegar arriba (`scrollend`, un vigía por fotograma y, como mucho, 2,5 s si alguien interrumpe la subida); con movimiento reducido, sube en el acto. Medido fotograma a fotograma (desde la mitad, filtro «Alemania», 2 proyectos): el pie no asoma en ninguno, a 1280 ni a 390, y la rejilla queda suelta al final.
 - «para que nunca nunca nos quedemos vacíos, el filtrado tiene que ser independiente: si filtras algo y luego vas a otro y filtras otra cosa, se quita el filtro anterior» → UN filtro a la vez: elegir una opción vacía los otros tres desplegables; de una dirección con varios (`?pais=…&tec=…`) vale el primero (orden país · tecnología · servicio · categoría) y la dirección se corrige. Ninguna opción tiene 0 proyectos, así que el estado vacío ya no sale por los filtros (se queda de respaldo). Probado: Alemania (2) → Memberstack (1, País vuelve a «Todos»).
 - «se ve una rayita por la g de Desarrollo agéntico» / «la nubecita deja 1 px de aire abajo» → la nube de las listas (`.desp-menu::before/::after`) tapa ya hasta el borde arriba y abajo y lleva ella el filo de ese lado (tapaba el outline: «ahora no se ve el borde»), en OPACO (`--filo-opaco`: Cacao al 15 % ya mezclado con el fondo) para que no se sume al de debajo. Visto en WebKit a ×3: filo continuo y sin rabos de letras.
+- **PUBLICADO (26/10) en https://savvia.studio** (Andoni: «Si publica esto ya»): commit `2355f42` → Vercel. EN VIVO: la portada pide `favicon-otono-32.png?v=226` y responde 200, idéntico al restaurado; `tools/verify.cjs` (Chrome y WebKit, 1280 y 390) 0 respuestas ≥ 400, desborde 0 (en WebKit, el aviso de siempre de `interactive-widget`). OJO: GitHub avisa de que el repositorio se ha movido a https://github.com/savvia-studio/savvia-web.
+
+### Ronda 296 · 2026-10-26 · la firma «Nota de campo» (en local)
+- **Andoni (textual):** «¿podemos mirar ejemplos de firmas de correo chulas en internet y me propones?» → «Sí, monta la Nota de campo en /sistema en local para verla.»
+- **Referencias:** lo de Google y Dribbble son plantillas de vendedor; las buenas, en Are.na (canal «email signature design»: Chintan F., James Junk, Mindy Nguyen, Index Space y, sobre todo, Companion Platform: una foto del momento con un pie que cambia).
+- **Hecho (`sistema/Libro.astro`):** opción nueva «Nota de campo», la primera y de serie: nombre en 600 + «· savvia», «Desarrollo agéntico · Donostia», savvia.studio y debajo el roble pequeño de la estación (`savvia-firma-mini-<est>.png`, 40 px) con un pie de dos renglones en gris (#7A645C) que cambia con ella («* El roble de nuestra portada, en otoño. / Donostia.» · «sin hojas. / Invierno en Donostia.» · «rebrotando. / Primavera en Donostia.» · «en verano. / Donostia.»). El servidor la pinta ya en otoño (`deServidor`: sin peticiones con `{est}`) y el selector la pasa a la estación de la página al cargar.
+- **Medido (local, Chrome):** las cuatro estaciones cambian roble y pie en las dos firmas y en el correo de ejemplo; consola limpia; las cuatro imágenes responden 200. No publicado.
+
+### Ronda 297 · 2026-10-26 · el reel con transiciones de verdad (en local, borrador)
+- **Andoni (textual):** «me gusta el reel que tenemos ahora en savvia.studio pero no me gusta como mostramos los proyectos destacados» · «¿y el inicio podríamos mejorarlo?» · (con `~/Desktop/1920x1080 (1).mp4`, el vídeo de Okara) «quiero transiciones mucho más pro estilo este vídeo; también es importante mencionar que funciona con cualquier IA».
+- **Referencia medida (Okara, 67 s):** un solo corte en todo el vídeo. Texto que se escribe palabra a palabra (entra en gris, se entinta y la línea se recentra), lo de antes sube a cabecera mientras lo nuevo entra debajo, la cámara se mete en el campo de texto y del botón nace la pantalla siguiente, etiqueta fija (icono + nombre + estado) mientras cambia lo de debajo, fila de logotipos en cascada.
+- **Hecho (`tools/r297-reel/build.cjs`, sobre el cinético publicado; mide los textos en Chrome para recentrarlos):** 51,9 s con «Distant Miles». La gota (grande, cerca) y del impacto el TÚNEL de webs en color · «La IA es la base; el criterio, nuestro.» · «savvia agentic: tu web, conectada con cualquier IA.» + los ocho logotipos de IAs (src/data/ias.ts) · barrido a claro desde los logotipos · la librería sube; la cámara entra en ella y dentro está savvia agentic en acción · la película se encoge en el campo de la petición, el modelo va cambiando (Claude, ChatGPT, Gemini, Copilot, Mistral) y la cámara sigue el texto hasta el botón · del botón nace Neety con su etiqueta: Edita textos · Cambia colores · Mueve secciones (con «hecho ✓», paneles que se empujan) · «Proyectos destacados con desarrollo agéntico.» sube a cabecera y entran Quantus, Patchbay, Neety y Remerge · cada uno se ABRE a pantalla completa desde su tarjeta, tres momentos que suben como paneles y vuelve a su sitio · se juntan y del centro se abre el hero por las estaciones · savvia y savvia.studio. Fuera las marcas viejas (Kuanta, Arkdev, Amarra) del túnel.
+- **Medido:** `hyperframes check` 0 errores, 38/38 textos pasan AA · render sin negros · −14,0 LUFS, pico −2,2 dBFS · `reel-r297-ligero.mp4` 8,6 MB. Pendiente: OK de Andoni; no está en la web.
+- **A media ronda (Andoni):** «el inicio, con fondo plano» · «me gusta lo de las frases que se partían y salían cosas del medio: eso lo compartiría» · «proyectos: solo Quantus, Neety y Patchbay; al hacer clic, que se encajen en un marco como el de la web, que hagas scroll como si fuera una web real y que aparezcan, como en savvia agentic, los ratones de las personas y las IAs tomando decisiones» · «de momento sin música».
+  · **Hecho (`build.cjs`; la primera, en `build.v1.cjs`):** fuera el túnel: la gota sobre Cacao liso. Vuelven las FRASES PARTIDAS del reel publicado, con la interfaz que brota del hueco: «Funciona con [los ocho logotipos] cualquier IA.» · «Tu web, [la librería] en una librería.» (la cámara entra en ella → savvia agentic) · «Pide [la petición, con el modelo que va cambiando] y listo.» · «edita / cambia / mueve [Neety] textos / colores / secciones»: la interfaz se queda y RUEDAN las palabras de los lados. Destacados: Quantus, Neety y Patchbay; al pulsar, la tarjeta se ENCAJA en la ventana de cristal de la web sobre el degradado con sus colores y la web se RECORRE de verdad (`grabar.cjs`: scroll fotograma a fotograma, 1440 × 810, de quantus-demo.vercel.app, neety.treseiscero.app/home y patchbay-web.vercel.app) mientras tres ratones (Claude, Codex, Eric, Andoni, tu equipo) toman decisiones sobre ella («Contraste del rojo · AA ✓», «Titular más directo», «Snippet en TypeScript ✓»…); luego vuelve a su tarjeta. Sin música. 53,7 s.
+  · **Medido:** `hyperframes check` 0 errores · render sin negros · `reel-r297b-ligero.mp4` 5,5 MB. No está en la web.
+- **A media ronda (Andoni):** «los titulares partidos, solo en las opciones de IA (en vertical, de alguna manera original) y en la librería» · «me gustaba cómo escribías pidiéndole a la IA con el zoom, y de ahí cómo ibas modificando con el check» · «en cada proyecto, ¿podemos recrearlo y ver cómo se construye en tiempo real? Reconstruir cada hero con su estilo y animaciones, en vez de con scroll».
+  · **Hecho (`build.cjs` + `heroes.cjs`; la anterior, en `build.v2.cjs`):** frase partida solo en «Funciona con [RUEDA] cualquier IA.» (los ocho logotipos en un tambor vertical en 3D que gira, frena en cada IA y sigue) y en «Tu web, [la librería] en una librería.». Vuelven la petición grande con el zoom que sigue el texto hasta el botón (el modelo cambiando) y Neety con su etiqueta y el «hecho ✓» (edita · cambia · mueve). Los tres destacados ya no son grabaciones: sus HEROES, rehechos en HTML con sus textos, fuentes (Schibsted Grotesk, Bricolage Grotesque, Switzer, Instrument Sans, JetBrains Mono, Roboto Mono, Inter; en `hf/assets/fh/`), colores y medidas tomados de la web (`heroes/medir.cjs`), se MONTAN en directo dentro de la ventana de cristal: retícula → barra → titular palabra a palabra → texto y botones → la pieza viva (la esfera de puntos de Quantus girando, la tarjeta de encaje de Neety con sus filas, el código de Patchbay tecleándose) mientras Claude, Codex, Eric, Andoni y tu equipo deciden («Titular · 98 / 0,96», «<Esfera puntos={600} />», «Más aire en el CTA ✓»…). 58,8 s, sin música.
+  · **Pillado:** los grupos de selectores (`'.b1, .b2'`) solo llevaban el ámbito del hero en el primero (la segunda clase tocaba a los tres a la vez); `.st` chocaba con las capas de Neety (caja blanca en Quantus); los textos de Codex con `<…>` se leían como etiquetas.
+  · **Medido:** `hyperframes check` 0 errores · render sin negros · `reel-r297c-ligero.mp4` 5 MB. No está en la web.
+- **A media ronda (Andoni):** «la librería que sale entre dos palabras, que salga de alguna forma original y con el marco de alrededor más elegante» · «en "edita", el recuadro alrededor del texto, una vez sale el texto» · «los proyectos, como si le estuvieses pidiendo a la IA que te los cree y salen esos heros; el de Neety tiene fallos: no es igual el fondo del gradiente».
+  · **Hecho (`build.cjs` + `heroes.cjs`; los anteriores, en `build.v3.cjs` y `heroes.v3.cjs`):** la librería se DIBUJA: un marco de línea fina se traza solo, dentro se posa un cristal y cada fundamento entra con su muestra (los colores de Neety, «Aa» en Bricolage, «directo · cercano», barras de espaciado, radios de 0 a 14, el botón «Solicitar demo»). En «Edita textos» el recuadro se traza alrededor del titular cuando la web ya se ve, con sus cuatro tiradores. Cada destacado empieza con una PETICIÓN dentro de su ventana, a una IA distinta cada vez (Claude: «Hazme el hero de Quantus: oscuro y con una esfera de puntos» · ChatGPT: «Monta el hero de Neety con su librería» · Gemini: «Crea el hero de Patchbay: una API para todas las redes»), escrita letra a letra; al enviar, «… está construyendo…» abajo, el hero se monta y acaba en «✓ Listo». Neety lleva su fondo REAL (`heroes/fondo-neety.cjs`: la página capturada con los textos, la barra, los botones y la tarjeta escondidos). 61,6 s, sin música.
+  · **Medido:** `hyperframes check`: los avisos que quedan son textos tapados a propósito por la ventana y el gris al 40 % del propio titular de Neety · render sin negros · `reel-r297d-ligero.mp4` 5,4 MB. No está en la web.
+- **A media ronda (Andoni):** «la gota inicial, más pequeña» · «el "edita textos" no me gusta cómo se ve» · «la librería entre los dos textos tiene un sombreado raro que se corta» · «los proyectos, cuando se crean, tienen que mostrar que siguen una librería, unas guías preestablecidas, para que quede sin AI slop».
+  · **Hecho (`build.cjs`; el anterior, en `build.v4.cjs`):** la gota, a algo más de la mitad (y su corona y su onda). La librería, sin la sombra exterior que recortaba el hueco. «Edita textos» ya no es la grabación: es el hero de Neety rehecho; el cursor pulsa dos veces, el titular se selecciona palabra a palabra con su recuadro, sus tiradores y la etiqueta «Titular · H1 · Bricolage 52», se borra desde el final y se escribe el nuevo, «Vende a quien ya te está buscando.» (lo que pedía la petición: «algo más directo»). En los destacados la ventana pasa al 80 % y a su izquierda aparece la LIBRERÍA de cada proyecto (sus guías reales: retícula, componentes, tipografía, color y voz); cada guía se enciende con su check en el momento en que el hero la aplica, y abajo: «Sin plantillas: solo lo que dice su librería.»; la petición lleva la etiqueta «+ librería de Quantus/Neety/Patchbay». 62,5 s, sin música.
+  · **Medido:** `hyperframes check`: sin solapes reales (los avisos que quedan son lo que la ventana tapa a propósito y el gris al 40 % del propio titular de Neety) · render sin negros · `reel-r297e-ligero.mp4` 5,4 MB. No está en la web.
+- **A media ronda (Andoni):** «el resto de pasos, tan guays como el de edita textos» · «a cada proyecto le sale un tag con su nombre: fuera» · «en el inicio con la gota, no sé si tiene sentido que los textos salgan de otra manera».
+  · **Hecho (`build.cjs`; el anterior, en `build.v5.cjs`):** en el INICIO los textos ya no se escriben palabra a palabra: los descubre la ONDA de la gota (máscara en anillo desde el impacto, saliendo del desenfoque, con dos anillos finos que crecen); la segunda frase llega con otra onda que, con el mismo frente, se lleva la primera. «CAMBIA COLORES» sobre el hero de Neety rehecho: del botón se abre la paleta de su librería (Berenjena · Bosque · Medianoche · Naranja Core), el cursor elige Bosque y luego Medianoche y la marca cambia en toda la página (logotipo, titular, botones, enlaces), con la etiqueta `--marca: #…`. «MUEVE SECCIONES»: panel de CAPAS («Capas · home»: Hero · Por qué Neety · De ruido a señal); el cursor coge «De ruido a señal», la arrastra arriba con la línea azul de destino, la suelta y la página se reordena. Fuera la ficha con el nombre de cada proyecto. 62,5 s, sin música.
+  · **Medido:** `hyperframes check` sin errores reales (los avisos que quedan: lo que la ventana tapa a propósito, la etiqueta de color medida cuando ya ha salido del cuadro y el gris al 40 % del titular de Neety) · render sin negros · `reel-r297f-ligero.mp4` 5,5 MB. No está en la web.
+- **A media ronda (Andoni):** «el inicio muy lento, le falta ritmo» · «el chat grande tiene que salir vacío y luego escribir» · «los marcos de los proyectos tienen más espacio por abajo» · «el paso de cambiar colores no me convence; elige colores que vayan bien con Neety» · «el paso de secciones: reutiliza secciones donde quieras y las vas poniendo» →
+  · intro: segunda onda a B(2,9) y todo lo de después adelantado 3,2 tiempos (≈ 60,5 s en total) · el chat se escribe letra a letra desde vacío · marco de los proyectos FH 826 (igual arriba y abajo).
+  · COLORES: el token «Color de marca» de la librería con cuatro opciones que casan con Neety (Berenjena #431B44 · Índigo #2E2F6E · Naranja tostado #A8471A · Ciruela #5B2459); el cursor elige Índigo y luego Naranja tostado y la web entera (hero, botón, marca) se tiñe a la vez; «24 sitios de la web lo usan». Las etiquetas de las vistas, arriba a la derecha (tapaban el titular).
+  · SECCIONES: panel «Secciones · librería» con miniaturas; el cursor arrastra dos secciones a la página y se encajan en la línea azul.
+  · Medido: `hyperframes check` sin errores nuevos (los avisos de solape son los de siempre: texto tapado por la ventana o el panel) · render en borrador sin negros · copia ligera `renders/reel-r297h-ligero.mp4` (5,5 MB).
+- **RENDER FINAL (Andoni: «me gusta, haz el render final»):** `tools/r297-reel/renders/reel-savvia-r297-final.mp4` (1920 × 1080, 30 fps, 60,5 s, calidad `delivery`, 47 MB, sin sonido) + copia ligera `reel-savvia-r297-final-ligero.mp4` (1600 px, 7,8 MB, faststart). Medido: sin negros, hoja de fotogramas revisada, 0 Chrome headless colgados. Pendiente: versión en inglés, música y subirlo a la web (solo con OK).
+- **A media ronda (Andoni, tras el render final):** «en el recuadro grande de la IA pone arriba “pide lo que quieras” y se corta: dejar solo donde escribes» · «el inicio lo sigo viendo lento, poco animado: hay que captar la atención desde el inicio» →
+  · fuera el rótulo de encima del chat grande: solo el campo.
+  · INICIO: la gota ya cae en el fotograma 0 y toca a los 0,62 s (antes, 1,02); cada impacto da un golpe de cámara (escala 1,14 → 1); cada palabra aterriza por su cuenta desde el centro (sube, gira en X y sale del desenfoque); la escena no se queda quieta (empuje lento hasta 1,035–1,04) y por el Cacao suben motas de luz; la segunda onda, a B(2,6), y todo lo de después 0,6 s antes (`B`: base 0,62, desplazamiento 3,5).
+  · Render final de nuevo: 59,9 s, sin negros (`renders/reel-savvia-r297-final.mp4`, 47 MB, y `-ligero`, 7,6 MB). Copia de seguridad del guion anterior: `build.v8.cjs`.
+
+### Ronda 298 · 2026-10-26 · reel «treseiscero se transforma en savvia» (en local)
+- **Andoni (textual):** «mientras Eric da feedback podemos preparar otro reel sencillito para anunciar la transformación de treseiscero a savvia: algo muy sencillo que se vea cómo treseiscero se transforma en savvia».
+- **Dirección «Se funde»** (descartadas: tachar treseiscero con savia, que suena negativo; solo tipografía, que pierde el símbolo): el lockup de treseiscero (su símbolo de cuatro cuartos de círculo rehecho en SVG, medido en `Branding/Logo/Logo Figma.png`, y la palabra en Roxborough, su tipografía, sobre su lavanda con grano) → el nombre se va letra a letra → las cuatro piezas se juntan y se FUNDEN (filtro gooey) en una gota de savia Coral → la gota cae y su onda vuelve el fondo Cacao y descubre el logotipo de savvia → «treseiscero ahora es savvia.» · savvia.studio.
+- **Hecho:** `tools/r298-transforma/build.cjs` → `hf/index.html` (HyperFrames, 1920 × 1080, 30 fps, 8,5 s, sin música).
+- **Medido:** `hyperframes check` 0 errores · render sin negros · `renders/treseiscero-a-savvia.mp4` (2,8 MB) y `-ligero.mp4` (0,8 MB).
+- **Pendiente:** música (o un golpe de sonido en el impacto); versión vertical 9:16 y en inglés si se quiere; texto del post.
+- **A media ronda (Andoni):** «ese treseiscero es el antiguo antiguo: hay que coger el que está en treseiscero.com; y el logo final de savvia es el tipográfico, y lo presentaría con el árbol» →
+  · treseiscero.com hoy (medido en Chrome): «treseiscero» en Satoshi Bold (de su carpeta `Branding/Typo`), blanco, muy apretado, sobre azul noche #022D42 con haces de luz en diagonal. Sin símbolo.
+  · 2.ª versión: la palabra en su azul con sus haces → se caen todas las letras menos la «s» y la «i», que se deslizan a su sitio y cambian de letra (Satoshi → Family) mientras entran «a v v a» (posiciones medidas en Chrome: `medir.cjs` → `medidas.json`) → de «savvia» se descuelga una gota de agua, cae y al tocar se abre el hero de savvia con el árbol de otoño (el haz de treseiscero sigue como el haz de savvia); la palabra sube y se queda sobre el árbol → «treseiscero ahora es savvia.» · savvia.studio. 9 s.
+  · Medido: `hyperframes check` 0 errores · render sin negros · `renders/treseiscero-a-savvia.mp4` (4,6 MB) y `-ligero` (1,1 MB). La 1.ª versión, en `v1/`.
+- **A media ronda (Andoni):** «representar mejor el rayo del hero de treseiscero» → medido en treseiscero.com: el rayo es UNA imagen (`blur.avif`, un cono de luz difuminado), de 2048 px, en −708,8 · −190,4 y girada 4°, sobre #022D42. Se pone esa misma imagen en el mismo sitio (`assets/t360-rayo.avif`) con un vaivén lento (2,5° → 5,5°); fuera los haces imitados. Render sin negros (4,3 MB · ligero 1,2 MB). La 2.ª versión, en `v2/`.
+
+### Ronda 299 · 2026-10-26 · el reel con el feedback de Eric (en local)
+- **Eric (por chat, pegado por Andoni):** «cuando cambiamos colores, que funcionen bien todos; ese marrón no encaja: si vendemos que respeta el sistema de diseño, mostremos eso» · «mueve secciones mejor como Ship Studio: a la izquierda el chat con la IA y a la derecha el canvas cambiándose, no el clic tipo no-code» · «que los punteros sean como en savvia agent» · «el chat, el de Claude; no me siento cómodo mostrando IAs que nunca hemos usado: Claude y ChatGPT» · «al final del vídeo, savvia agent, como una breve intro de su propio vídeo» · «me gustaba mucho el frame de savvia agentic: tu web conectada con IA, y las webs en transición tipo Star Wars» · «el vídeo actual de la web me funciona mejor: integrar cómo entregamos la web y mostrar esos 3 proyectos de forma guay». **Andoni:** «el vídeo anterior presenta mejor y termina peor; este expone mejor los proyectos, pero no fiel a la realidad de savvia agent tal y como lo exponemos debajo».
+- **Hecho (`tools/r297-reel/build.cjs`; el anterior, `build.v9.cjs`):** vuelve el TÚNEL de webs del reel de la web detrás de «savvia agentic: tu web, conectada con la IA.» (se abre con la segunda onda) · la rueda de IAs, solo Claude y ChatGPT (una ficha que gira) · el chat grande, ChatGPT → Claude · Patchbay se pide a Claude · CAMBIA COLORES: solo la paleta de la librería de Neety (Berenjena → Naranja Core → Ciruela), con «Solo la paleta de su librería» · MUEVE SECCIONES como Ship Studio: chat con Claude a la izquierda (la petición, Claude escribe y contesta) y la página de Neety cambiando a la derecha; el puntero de Claude coloca cada sección · PUNTEROS de savvia agent (los de la web, colores medidos en vivo: Claude #FF616B, Codex #AF4A4B, savvia #3B231B con su favicon, Tu equipo #623422; flecha rellena con filo blanco y píldora con icono) en todo el vídeo; en los proyectos deciden Claude, Codex, savvia y Tu equipo · ANTES DEL CIERRE, savvia agentic: vuelve el frame «savvia agentic: tu web, conectada con la IA.» con la ventana de savvia agentic de la web en marcha, y de ahí al hero y savvia.
+- **Medido:** `hyperframes check` sin errores nuevos (los 3 solapes de siempre: texto tapado por la ventana) · render sin negros · 63,9 s · `renders/reel-savvia-r299.mp4` (57 MB) y `-ligero` (8,7 MB).
+- **Pendiente:** que Eric lo vea; subirlo a la web solo con OK.
+
+### Ronda 300 · 2026-10-26 · «Letras vivas»: savvia agentic contado con letras (en local)
+- **Andoni (textual):** «he visto este vídeo [youtube.com/watch?v=p6EBMG8OEBI] y creo que son increíbles las animaciones, cómo juegan con las letras para transicionar. ¿Podemos coger esto y hacer algo parecido pero contando savvia agentic?».
+- **Referencia medida** («What's New in Search», Google, 97 s; bajado con yt-dlp a `tools/r300-letras/ref/`, hojas a 1 y 6 fps): el cursor como personaje (late, cambia de color, escribe; lo recién escrito llega en color) · la frase se vuelve interfaz (el buscador) · cirugía de palabras («understand → do rstand → do and → do anything») · palabras que se balancean sobre su línea base («& shop → for you») · letras que caen dentro de un icono (el carrito) · una palabra quieta mientras se cortan fotos debajo («do anything») · el cierre que se escribe, cambia de color y se recoge en la marca («ask» → G).
+- **Hecho (`tools/r300-letras/build.cjs` → `hf/index.html`; cada letra medida en Chrome con Family):** cursor Coral que late, cambia de color (Coral, Cereza, Nogal) y escribe «Esto es savvia agentic» (la cola en Coral) → cirugía «agentic → agentes» y llegan los punteros de savvia agent (Claude, Codex, savvia, Tu equipo) → «savvia» → «tus» (la «s» se queda) → «tus agentes» se va balanceándose y entra «Tu web, en una librería»; la «ía» sube y es «IA» en Coral, «que cualquier IA sabe leer.» → «Pídeselo.» se encoge dentro del chat de Claude, se escribe la petición, la cámara va al botón y se envía → «edita textos»: «textos» se selecciona, se borra y se escribe «titulares» → «cambia colores»: un deslizador recolorea las letras con la paleta de Neety → «mueve secciones»: las letras de «secciones» caen en una pila de secciones que se reordena → «Webs a medida» → «a medida» quieta mientras se cortan Quantus, Neety y Patchbay debajo → «Solo tienes que» → «pedirlo» se escribe, cambia de color y se recoge en «savvia» · savvia.studio. 40,7 s, sin música.
+- **Medido:** `hyperframes check` 0 errores de composición (solapes falsos: letras inclinadas del chat y la «IA») · render sin negros · `renders/letras-vivas-v1.mp4` (17 MB) y `-ligero` (4 MB).
+- **Pendiente:** música; versión en inglés si se quiere.
+- **A media ronda (Andoni):** «me mola bastante, pero nos falta hacerlo más largo y, por cada cosa que mencionamos, mostrar ejemplos reales, como la librería de Neety, y cómo se construyen pidiendo detalles de ciertas webs» · «la transición de “tus agentes” a “Tu web, en una librería” hay que mejorarla» →
+  · ENTRE LOS GOLPES DE LETRA, LO DE VERDAD, en una ventana de navegador: tras «Tu web, en una librería», la LIBRERÍA DE NEETY (la película de savvia agentic de la web, con los agentes) · tras «edita titulares», el hero de Neety rehecho (`tools/r297-reel/heroes.cjs`) se monta y su titular se selecciona y se reescribe («Vende a quien ya te está buscando.»), con el puntero de Tu equipo · tras «cambia colores», el mismo hero cambia con la paleta de su librería (Naranja Core → Ciruela), con las fichas debajo · tras «mueve secciones», el chat con Claude a un lado y la página de Neety cambiando al otro · tras «a medida», «Pide hasta el último detalle.» y QUANTUS (Claude) y PATCHBAY (ChatGPT) se construyen desde una petición detallada con «+ librería de X», con su librería encendiéndose guía a guía.
+  · La transición «tus agentes» → «Tu web, en una librería», con CIRUGÍA en vez de balanceo: la «t» y la «u» de «tus» son el «Tu», una «e» de «agentes» cae en «web» y el «en» de «agENtes» baja a empezar la segunda línea (`cirugiaN`, a varias filas).
+  · 79 s, sin música. `hyperframes check` sin errores de composición · render sin negros · `renders/letras-vivas-v2.mp4` (43 MB) y `-ligero` (8 MB). La 1.ª versión, en `build.v1.cjs`.
+- **A media ronda (Andoni):** «me sigue gustando más lo que tenemos en la web actualmente; ¿podemos recuperar el que tenemos en la web, sobre todo el inicio, y mezclarlo con este?» →
+  · MEZCLA: el reel de la web (ronda 238, el del menú; re-renderizado a 1920 desde `tools/r238-cinetico/hf` → `renders/web-1920.mp4`) de 0 a 16,47 s, tal cual: la gota, «La IA es la base; el criterio sigue siendo nuestro.», el túnel con «savvia agentic: tu web conectada con la IA.», «Tu web, [la librería] en una librería.», la película de la librería y «Pide [la petición] y listo.» · y en el corte que el propio reel hace a «edita», sigue «Letras vivas» v2 desde «edita textos» (22,9 s): edita titulares en Neety, cambia colores con su paleta, mueve secciones con Claude, «a medida» sobre los proyectos, Quantus y Patchbay construyéndose desde una petición con su librería, y el cierre «pedirlo» → savvia. Corte limpio, sin fundido (el reel de la web corta así en ese punto).
+  · Música: «Distant Miles» (la del reel de la web) seguida de 0 a 72,6 s, fundido de salida de 2,5 s; −15,6 LUFS, pico −3,1 dBFS.
+  · `renders/mezcla-web-letras.mp4` (39 MB) y `-ligero` (9,9 MB); sin negros.
+- **A media ronda (Andoni):** «al final, siempre que sea editar titulares, tú se lo pedirás a la IA y lo hará» · «todos los cursores, como los de savvia agentic» · «que los textos nunca colapsen con un elemento» · «los colores que cambiamos en Neety, con buen contraste y que se vean bien con el fondo» · «a medida: en un marco estilo el del portfolio, batería de detalles de las 3 webs de referencia construyéndose; bien enmarcados, sin cortes y a buena calidad; la segunda parte tiene que mostrar mucho mejor los proyectos» · «y acabamos como empezamos, presentando savvia agentic» →
+  · EDITAR: en el golpe de letra, el puntero de Claude selecciona «textos» y Claude escribe «titulares»; en Neety, la petición va en una caja debajo de la ventana («Haz el titular más directo, con la voz de Neety»), Claude selecciona el titular y lo reescribe, y la caja contesta «✓ Hecho».
+  · CURSORES: todos los de esta parte son los de savvia agentic (Claude, Tu equipo).
+  · COLORES: el token «Color de acción» (botones y marca), con contraste: Naranja Core con el texto en Ciruela (6:1), Ciruela con texto blanco; el titular siempre en su Berenjena.
+  · A MEDIDA: «a medida» sube y debajo, tres PIEZAS de portfolio (el degradado de los colores de su web, el nombre y el navegador entero dentro) con Quantus, Neety y Patchbay construyéndose a la vez; nada recortado, HTML nítido.
+  · PROYECTOS: grandes (la web a ×0,78, entera): la petición arriba, la ventana en medio y su librería debajo en una fila de guías que se encienden; peticiones cortas para que quepan en la caja.
+  · CIERRE: «pedirlo» se recoge en un punto y de ahí se abre el Cacao con el túnel de webs y «savvia agentic: tu web conectada con la IA.» · savvia.studio, como el inicio.
+  · `hyperframes check`: los solapes que marca son de la parte que no entra en la mezcla (chat inclinado, «IA»). Mezcla nueva con el inicio de la web y «Distant Miles»: 76 s, −15,6 LUFS, sin negros. `renders/mezcla-web-letras-v3.mp4` (42 MB) y `-ligero` (10 MB). La versión anterior del guion, `build.v2.cjs`.
+- **A media ronda (Andoni):** «1 · el final, con las webs en una sola línea como lo tenemos al inicio · 2 · en los colores, que los CTAs que cambian de color se vean bien en todos lados · 3 · el titular más corto de Neety, con salto de línea, que si no se solapa con lo de la derecha · 4 · en a medida, mostrar los proyectos como en la home con ese estilo de card y luego ir clicando en cada uno y mostrarlo más en detalle cómo se va construyendo; no importa que sea más largo, pero de cada proyecto mostrar más cosas, no solo el hero» →
+  · 1 · el túnel del cierre, el del inicio (r238): una columna de webs por plano, al 34 %, avanzando.
+  · 2 · el cambio de color es instantáneo (fondo y texto del botón a la vez) con un golpe y un anillo en el botón: Naranja Core con texto Ciruela, Ciruela con texto blanco; el punto del botón, del color del texto. Medido en captura: se lee en los dos.
+  · 3 · «Vende a quien ya te / está buscando.» en dos líneas: no llega a la tarjeta de la derecha.
+  · 4 · «a medida»: las tres TARJETAS (degradado de su web, nombre, navegador con su hero construyéndose) y el puntero de Tu equipo CLICA cada una: se abre en grande (la tarjeta crece hasta la ventana), arriba la petición a Claude o ChatGPT con su librería, el hero se construye con la fila de guías encendiéndose debajo y la página BAJA: dos secciones reales de cada web (grabadas en su web: Quantus la matriz y las tarjetas, Neety el feed de señales y los casos, Patchbay los canales y el código), colocadas por los agentes; a la derecha, el registro «Construido» (Hero ✓, sección ✓, sección ✓). Se cierra a su tarjeta y sigue la siguiente. Fuera «Pide hasta el último detalle».
+  · Mezcla con el inicio de la web y «Distant Miles»: 88,7 s, −15,5 LUFS, sin negros. `renders/mezcla-web-letras-v4.mp4` (53 MB) y `-ligero` (13 MB). El guion anterior, `build.v3.cjs`.
+- **A media ronda (Andoni):** «1 · edita textos/titulares es redundante: solo uno · 2 · los pasos no me convencen: textos, colores y mover secciones lo puedes hacer con Webflow; ahora puedes crear páginas nuevas siguiendo una librería que la IA entiende, eso es la clave · 3 · los proyectos, como en la home: el titular debajo de la card con una mini descripción · 4 · al clicar cada proyecto, que se abra con el marco de cristal de la web, se construya con savvia e IA y hagas scroll enseñando la web, como si fuera la real» →
+  · 1 + 2 · fuera los tres verbos y sus ejemplos (titular, colores, secciones). En su lugar, LA CLAVE: «Textos, colores, secciones…» se tachan con un hilo de savia; se escribe «Ahora, páginas nuevas.» con «con una librería que tu IA entiende.» debajo; y se le pide a Claude «Crea una landing de Neety para fabricantes»: en el marco de cristal se monta una página NUEVA solo con piezas de su librería (barra, «NEETY PARA FABRICANTES», titular en Bricolage, sus dos botones y tres tarjetas «Detecta · Prioriza · Actúa» con sus palabras), cada pieza encendiendo su guía en la fila de abajo, con Claude, savvia y Codex.
+  · 3 · las tarjetas con el nombre en Family y la categoría debajo (las de `home.ts`: IA y computación cuántica · Ventas B2B · API para desarrolladores).
+  · 4 · el MARCO DE CRISTAL de la web (`Proyectos.astro › .cromo`: barra de 44 px en blanco al 42 % con desenfoque sobre el tinte de la cabecera de cada web, semáforo, dirección centrada en píldora; la web empieza debajo): la tarjeta crece hasta él; arriba la petición; el hero se monta con savvia y los agentes (Claude, Codex, savvia) y su librería se enciende; y luego la web real BAJA (su grabación de scroll, mismo encuadre que el hero rehecho).
+  · Cursores reubicados en zonas vacías (ninguno pisa texto). Mezcla: 78,1 s, −15,6 LUFS, sin negros. `renders/mezcla-web-letras-v5.mp4` (45 MB) y `-ligero` (11 MB). El guion anterior, `build.v4.cjs`.
+- **A media ronda (Andoni):** «potenciar la parte en que escribes a la IA y te crea una web sin AI slop entendiendo la librería: una web con la librería de Neety que se vea chula, con varias secciones» · «los proyectos con desarrollo agéntico, solo ellos, con más detalle, más scroll y más tiempo, hasta la mitad de cada web; y en Neety, cómo se adapta a móvil» · «los marcos de proyectos destacados tienen que ser los de savvia.studio, de cristal» →
+  · LA IA CREA UNA WEB: «Crea la web de Neety para fabricantes» primero SIN librería → sale la página de AI slop (degradado morado, «Welcome to the Future of Sales 🚀», tres «Feature») con el sello «AI slop · sin librería»; se añade «+ librería de Neety», el slop se deshace y se monta la web de Neety en cinco secciones (hero · Cómo te ayuda · feed en Berenjena · Cómo funciona en Base cálida · cierre en Naranja Core), con el marco bajando por ella y cada pieza encendiendo su guía de la librería.
+  · PROYECTOS: solo los tres agénticos, con la tarjeta de /proyectos (`PiezaCasa`: lámina con los colores de su web, mockup de CRISTAL ladeado −6°, «Caso de estudio», icono de vídeo; nombre y categoría debajo). Al clicar, la lámina llena la pantalla y el cristal se endereza y crece (1560 px de web); el hero se monta con savvia y la IA (cursores en zonas vacías) y la grabación real baja hasta la MITAD de la página (`grabar.cjs`: 14 s deterministas a 1440 × 810 ×1,34; 10,4–13,6 s en pantalla). Neety: el cristal se aparta y entra el teléfono de cristal con la web móvil bajando a la vez, «Se adapta a móvil». Se cierra volviendo a su tarjeta.
+  · Fallo propio: las grabaciones de escritorio salían vacías (0 bytes) porque 810 × 1,34 da un alto impar y libx264 no lo acepta → `scale=trunc(iw/2)*2:trunc(ih/2)*2` en `grabar.cjs`.
+  · Mezcla: 105,2 s, −15,3 LUFS, sin negros. `renders/mezcla-web-letras-v6.mp4` (87 MB) y `-ligero` (20 MB). El guion anterior, `build.v6pre.cjs`.
+
+### Ronda 301 · 2026-10-26 · la página de Neety con sus secciones reales, zoom en los detalles de cada proyecto, Neety a móvil al final y sin música (en local)
+- **Andoni (textual):** «lo del AI slop no me gusta: dejemos que crees una página directamente y construye la página con secciones reales de Neety; analiza Neety y móntala bonita, tiene que parecer hecha por diseñadores» · «los proyectos destacados me gusta más cómo se ven, pero quiero que nos paremos más en detalles, hagamos zoom: Quantus, las ilustraciones isométricas animadas y el proceso en que las matrices se transforman; Patchbay, la ruleta y las pestañas que al cambiar tienen una animación como de 3D; en Neety, esperar al final y mostrar después cómo se transforma a móvil» · «quitamos música».
+- **Hecho:**
+  · Fuera el AI slop. La petición lleva desde el principio «+ librería de Neety» y la página se monta con las SECCIONES REALES de neety.treseiscero.app (medidas con `tools/r301/sondear.cjs` y capturadas a 1440 ×1,5 con `tools/r301/neety-secciones.cjs` → `hf/assets/neety-sec/`): hero · clientes · de ruido a señales · todo lo que tu equipo necesita · tu stack · cierre. Cada una se dibuja de arriba abajo con un filo de savia (saliendo del desenfoque), enciende su guía en la librería y el marco baja hasta su arriba; al terminar, la página se recorre hasta arriba. Cursores de savvia, Claude y Codex junto al borde derecho.
+  · DETALLES: grabados en vivo (screencast CDP a 30 fps, ×1,5 para el zoom, `tools/r301/detalle.cjs`): Quantus · la matriz de 4096 × 4096 que se parte y acaba en el cubo, y las isométricas de «Four places to run it»; Patchbay · las pestañas de canales y la ruleta de «Every channel docks into one API». Tras un scroll corto de la web, cada detalle entra en el cristal y la cámara se acerca (×1,4–1,8, hacia el detalle) con su rótulo debajo («La matriz que se comprime» · «Ilustraciones isométricas animadas» · «Pestañas que giran en 3D» · «La ruleta de canales»), y vuelve a alejarse.
+  · NEETY: la web de escritorio baja entera hasta la mitad; al terminar, el cristal se recorta hasta la forma del teléfono y dentro aparece la versión móvil bajando, «Se adapta a móvil».
+  · Sin música: la mezcla va sin pista de audio.
+- **Medido:** mezcla de 133,2 s sin negros. `renders/mezcla-web-letras-v7.mp4` (99 MB) y `-ligero` (22 MB). El guion anterior, `build.v6.cjs`.
+
+### Ronda 302 · 2026-10-26 · los proyectos como el showreel de agencias de Wix Studio (en local)
+- **Andoni (textual):** «los proyectos, quiero mostrarlos de esta manera: https://www.youtube.com/watch?v=U5f3iufE-bI; ¿podemos conseguirlo?» → «sí, móntalo así con los tres proyectos agénticos».
+- **Referencia (Wix Studio · agency showreel, 58 s; `tools/ref302/`):** por proyecto, ~6 s a cortes secos: ficha (nombre grande sobre retícula con cruces de registro, la web y la categoría) → la web en un solo plano (a sangre o en un portátil sobre mesa oscura) → la página rota en un collage de capturas flotando en profundidad → primer plano enorme de una interacción con el cursor → móvil.
+- **Hecho (`build.cjs`, bloque «RONDA 302»; el anterior, en `build.v7.cjs`):** fuera las tarjetas y el cristal que se abría. Para Quantus, Neety y Patchbay, escenas a corte seco:
+  · FICHA: la retícula de los carriles de savvia.studio que se traza con sus cruces, «savvia · proyectos con desarrollo agéntico» y «01 / 03» en mono; el nombre en Family a 220 px subiendo letra a letra desde su máscara; debajo, la web y la categoría.
+  · LA WEB EN LA MESA: la lámina del estudio de Proyectos destacados (Quantus en invierno, Patchbay en verano) con la web real bajando en el monitor y la cámara acercándose (×1,05 → ×2,1). Neety, en el cristal de savvia.studio sobre su lámina.
+  · COLLAGE: diez secciones reales de cada web (`tools/r301/secciones.cjs` → `hf/assets/sec/`) en tres profundidades con paralaje.
+  · DETALLES a pantalla completa con un empuje lento: matriz e isométricas (Quantus), el feed de señales y los casos (Neety), pestañas y ruleta (Patchbay).
+  · PRIMER PLANO del botón principal ×3,2 (`tools/r301/hover.cjs`: la grabación del hover real con sus tiempos) con el cursor de savvia llegando al botón a la vez que la web reacciona.
+  · MÓVIL: tres teléfonos de cristal sobre la lámina de su web; el del centro con la web móvil bajando (Quantus y Patchbay grabados ahora).
+- **Medido:** mezcla de 92,2 s, sin negros, sin música. `renders/mezcla-web-letras-v8.mp4` (95 MB) y `-ligero` (19 MB).
+
+### Ronda 303 · 2026-10-26 · la página de Neety con sus componentes reales, vuelven las tarjetas con scroll lento y un bento por web (en local)
+- **Andoni (textual):** «nada, no me gusta. 1 · tenemos que depurar la parte de crear la web de Neety con IA: tienen que parecer componentes reales, no capturas, y verse bien de calidad · 2 · los proyectos me gustaban más como los teníamos antes; vamos a mostrar de cada proyecto la web haciendo scroll, pero un scroll smooth lento como el de una persona para poder apreciar detalles (hasta la mitad de la web), y luego un bento de cada web con sus detalles, un bento bien hecho que muestre lo chulo de cada una».
+- **Hecho:**
+  · NEETY CON COMPONENTES REALES (`tools/r301/neety-dom.cjs`): el HTML y TODO el CSS de neety.treseiscero.app (301 KB), con sus fuentes (Bricolage Grotesque, Switzer, Inter, Roboto Mono) e imágenes descargadas en `hf/assets/neety-dom/`; cada sección se captura en pantalla cuando su contenido ya está pintado (el hero espera a «3 personas clave encontradas»). En el reel van dentro de una sombra (shadow DOM) para que su CSS no toque el del reel: texto vectorial y nítido. Se construyen COMPONENTE A COMPONENTE (fondo de la sección y luego titulares, textos, botones, tarjetas e imágenes en orden de lectura): hero · clientes · equipos B2B · de ruido a señales · aplica Neety, 2,2 s por sección. Fuera «todo lo que tu equipo necesita» y «tu stack» (su panel lo pinta su JavaScript y salía vacío).
+  · PROYECTOS: vuelven las tarjetas de /proyectos y el cristal que crece (la ronda 300, 6.ª), con el hero montándose con savvia y la IA.
+  · SCROLL HUMANO (`tools/r301/scroll-humano.cjs`): grabado en vivo, tirones de rueda con arranque suave y frenada larga (inercia de trackpad) y pausas de lectura, sembrado, hasta la mitad de cada web; en el reel a ×1,2 (19–21,5 s por web; Quantus se corta antes porque su mitad mide 9.900 px).
+  · EL BENTO de cada web (4 × 3 sobre su lámina): el detalle protagonista grande (matriz · feed de señales · pestañas en 3D), el botón principal con el cursor de savvia, el móvil (alto), un segundo detalle (isométricas · casos · ruleta), su paleta con nombres y hex y su tipografía real («Aa» en Schibsted, Bricolage o Instrument), y una franja (Nova 420B · sus clientes · su API en el terminal). El cristal se recoge hacia la pieza grande y las demás entran escalonadas; 7,2 s.
+- **Medido:** mezcla de 154,1 s, sin negros, sin música. `renders/mezcla-web-letras-v9.mp4` (121 MB) y `-ligero` (27 MB). El guion anterior, `build.v8.cjs`.
+
+### Ronda 304 · 2026-10-26 · más corto: tres cosas complejas pedidas a la IA sobre Neety real, y un bento por proyecto (en local)
+- **Andoni (textual):** «tenemos que hacerlo más corto; la parte de enseñar cada proyecto, igual directamente un bento donde mostremos el hero y 2 detalles, todos animados» · «la parte de cómo se construye Neety, igual volvemos a lo de antes, pero en vez de textos, colores y secciones podemos poner cosas más complicadas que ahora se pueden hacer con la IA».
+- **Hecho:**
+  · VUELVEN LOS VERBOS (como en la ronda 300, 3.ª) con su ejemplo sobre los COMPONENTES REALES de Neety (su HTML y CSS en una sombra), pero con tareas complejas: «Tradúcela» → «Tradúcela al inglés y al euskera, con la voz de Neety»: titular, subtítulo y botones pasan del castellano al inglés y al euskera, con un selector ES · EN · EU · «Crea páginas nuevas» → «Crea una página para fabricantes con la librería de Neety»: hero nuevo («Detecta qué fabricantes están listos para comprar.») y tres secciones montadas componente a componente · «Añade funciones» → «Añade una calculadora de cuántas cuentas prioriza tu equipo»: una sección nueva hecha con sus piezas (Bricolage, berenjena, naranja, su PillCta) que funciona: el cursor de savvia arrastra el deslizador de 8 a 24 comerciales y el resultado cuenta de +230 a +686. Fuera la página larga de la ronda 303.
+  · PROYECTOS: un BENTO por web sobre su lámina, que sube como una página: nombre y categoría, el HERO VIVO grande (grabado quieto en su web con sus animaciones, `tools/r301/detalle.cjs`) y dos detalles animados (matriz e isométricas · feed y casos · pestañas y ruleta). 5,6 s por proyecto. Fuera las tarjetas, el cristal, el scroll lento y el bento largo.
+- **Medido:** mezcla de 72,4 s (antes 154), sin negros, sin música. `renders/mezcla-web-letras-v10.mp4` (47 MB) y `-ligero` (11 MB). El guion anterior, `build.v9.cjs`.
+
+### Ronda 305 · 2026-10-26 · fuera la traducción: secciones nuevas, calculadora compleja y formulario de evento con calendario; detalles bien encuadrados (en local)
+- **Andoni (textual):** «1 · traducir quitamos, es algo que pueden hacer Webflow y cualquier IA simple. Me gusta la idea de que crees secciones a partir del estilo de Neety. La calculadora me gusta, hazla algo más animada y compleja. Y luego formulario para eventos, con calendario y todo · 2 · los proyectos destacados, encuadrar mejor los detalles que enseñamos, algunos se ven cortados y mal; el de Patchbay, que se vea cuando el producto sube y tapa el subtítulo en el hero».
+- **Hecho:**
+  · «Crea secciones nuevas» → «Crea las secciones de fabricantes con el estilo de Neety»: hero y tres secciones con titulares nuevos para ese público («Fabricantes que ya venden con más foco» · «De la feria al pedido, sin perder una señal» · «Neety, en cada planta y en cada mercado.»), montadas componente a componente con sus piezas reales.
+  · «Añade funciones» → calculadora compleja: dos deslizadores (comerciales 8 → 24 y ticket medio 12 → 28 k€), el sector que cambia (Industria → Seguros, con la píldora que se desliza), dos resultados que cuentan (+858 cuentas al mes · 0,84 M€ de pipeline) y un gráfico de doce meses que crece con ellos. El cursor de savvia la maneja; sus posiciones se MIDEN EN VIVO sobre la sombra (`window.__pt`), así nunca se desvía.
+  · «Monta formularios» → formulario del «Encuentro Neety: vender a la industria» (Bilbao · 2 h · 30 plazas): se escriben nombre, empresa y correo, el cursor de Codex elige el jueves 12 de noviembre en el calendario y la hora 09:30, pulsa «Reservar plaza» y la tarjeta pasa a «Plaza reservada» con el check que se dibuja.
+  · Encuadres medidos sobre fotogramas con rejilla: matriz (25 % 100 %, ×1,85), isométricas (0 % 36 %, ×1,9: solo la ilustración), casos de Neety entero (×1), pestañas de Patchbay (45 % 100 %, ×1,1: titular y tarjeta enteros), ruleta (6 % 40 %, ×2: solo los iconos). Patchbay: el hero es una grabación nueva (`patchbay-sube`) con scroll lento en la que el panel de código sube y tapa el subtítulo.
+- **Medido:** mezcla de 76,9 s, sin negros, sin música. `renders/mezcla-web-letras-v11.mp4` (49 MB) y `-ligero` (11 MB). El guion anterior, `build.v10.cjs`.
+
+### Ronda 306 · 2026-10-26 · todo es «Crea secciones nuevas» (sin hero), la sección isométrica de Neety, y los proyectos como Petalite (en local)
+- **Andoni (textual):** «quitamos el crea páginas, solo secciones nuevas con el estilo de la librería; enseña cómo se crean sin poner el hero, solo la sección; y añade detalles de Neety como gradientes e incluso el isométrico» · «fíjate aquí cómo muestra los detalles, quiero algo así para los proyectos destacados: philipreadman.com/petalite, pero con ritmo» · «no quiero que sea monta formularios, funciones nuevas y demás: quiero englobar todo en crea secciones nuevas, y en todas que no se vea el hero sino cómo se construye la sección nueva» · «la que tiene la isometría hay que corregir el fondo, que se ve cortado».
+- **Hecho:**
+  · UN SOLO VERBO, «Crea secciones nuevas», y tres secciones que se construyen solas, sin hero: (1) «De la feria al pedido, sin perder una señal.» para fabricantes, hecha con piezas de su librería (el resplandor con su retícula de cruces, su eyebrow en mono, el titular con la segunda mitad en berenjena al 40 %, una tarjeta de degradado donde CAE su bloque isométrico y flota, el feed de ferias y licitaciones, «+37 %» que cuenta sobre su degradado con muesca, su PillCta) · (2) la calculadora · (3) el encuentro con calendario y reserva. Peticiones reescritas como secciones («Crea una sección con una calculadora…», «Crea una sección para el encuentro…»).
+  · Fondo de la tarjeta isométrica: el degradado de Neety traía su muesca recortada en negro; ahora es un degradado en CSS con sus colores (naranja, berenjena, azul bebé) y grano.
+  · PROYECTOS COMO PETALITE (`tools/ref306/`: cada pieza aislada en un panel liso del color de la web, tres puntos arriba, mucho aire, retícula de 1 · 2 · 3 paneles): por proyecto cuatro compases (1,2 · 1,7 · 2,0 · 1,7 s) — titular → [esfera/feed/terminal · botón] → [métricas/personas/pestañas · isométricas/casos/ruleta · móvil] → el detalle grande (matriz · la web bajando · el producto que sube y tapa el subtítulo). Cada pieza es un recorte VIVO de sus grabaciones, medido en fotogramas con rejilla, sobre el fondo de su propia web (Quantus #15181c, Neety #f5f7f9, Patchbay #f8f4ee).
+- **Medido:** mezcla de 74,6 s, sin negros, sin música. `renders/mezcla-web-letras-v13.mp4` (44 MB) y `-ligero` (10 MB). Guiones anteriores: `build.v11.cjs`, `build.v12.cjs`.
+
+### Ronda 307 · 2026-10-27 · reel «secciones con tu librería»: el inicio de la web, seis secciones reales recreadas a mano y lo que hace la librería, con «Laundry on the wire» (en local)
+- **Andoni (textual):** «hacerlo con la canción que tenemos en la web: Laundry on the wire · coger de la web el inicio hasta proyectos destacados con desarrollo agéntico; mejorar esas animaciones · proyectos destacados cambiarlo por cómo vas pidiendo a la IA que te cree secciones para las webs, y coger las mejores secciones de las webs que tenemos; como son proyectos nuestros, recréalas tal cual para el vídeo · todo hecho a mano como la animación de savvia agentic» → «no quiero poner los heros: secciones chulas de cada web, para que veas que puedes crear cosas cuidadas con nuestra librería» · «antes del cierre, mencionar todo lo que puedes hacer con la librería, lo que sale en la animación de savvia agentic».
+- **Hecho (`tools/r307/`: `ensambla.py` monta `build.cjs` con el inicio de la ronda 238 + `gestos.txt` + `nuevo.txt`):**
+  · MÚSICA: `laundry-on-the-wire.mp3` (la de la radio de la web), 80 BPM (medido con `hyperframes beats`: un pulso cada 0,75 s, el primero a 0,785 s). Todo el reel cuadra a ese pulso; −15,3 LUFS.
+  · EL INICIO de la web (gota → «La IA es la base…» → «savvia agentic: tu web conectada con la IA.» → «Tu web, en una librería.» → la película de la librería → «Pide… y listo.»), retomado al nuevo tempo; las frases entran ahora LETRA A LETRA (SplitText de GSAP: desde abajo, desenfocadas y algo giradas). La petición pasa a «Crea una sección con tu librería». Fuera «edita / cambia / mueve» y los proyectos.
+  · «Secciones nuevas, hechas con tu librería.» y SEIS SECCIONES REALES, cada una con su HTML y su CSS de verdad (`tools/r301/web-dom.cjs`, en una sombra) y montada a mano al pulso, con una petición a Claude encima y un agente señalando: Quantus · el apilado («One stack. A fraction of the weight.»: los bloques caen y se encienden en rojo) y Forge (recorre sus cuatro pasos y dibuja el gráfico) · Neety · «De ruido comercial a señales accionables» (las marcas saltan una a una) e integraciones (se trazan las líneas) · Patchbay · agentes (las fichas de canales suben girando y atracan) y la capa oscura («Meet a new layer»: sus piezas se encienden en ola). Cada sección se ve a todo el ancho y baja con un scroll suave hasta su final; la anterior se queda hasta que entra la siguiente.
+  · «Y con tu librería, tu equipo puede…»: las diez salidas de la animación de savvia agentic (`home.ts › partitura.sale`), de «Cambios de copy» a «Revisar accesibilidad».
+  · CIERRE de la web (el hero con las estaciones y «savvia · savvia.studio»).
+- **Medido:** 62,6 s, sin negros, −15,3 LUFS. `tools/r307/renders/reel-secciones-v1.mp4` (42 MB) y `-ligero` (10 MB).
+
+### Ronda 307 (2.ª–4.ª) · 2026-10-27 · el reel de secciones: isométricos de Quantus, a ritmo de la canción, el chat en perspectiva, los checks de la home y el final plano (tools/r307)
+- **Andoni (textual):** «Las secciones que creamos que se vea mejor como se construyen y hacer más énfasis en las animaciones, sí que me gustaría ver los isométricos de
+  quantus… La música que vaya más acorde a lo que vas viendo» · «los finales que hacemos que sean como checks que se van marcando. Y en alguna de estas que pedimos una
+  sección que salga el chat como en grande con perspectiva y cuando le das a enviar que salga la sección» · «los checks como tenemos en la home los servicios» · «el final
+  rescatamos savvia con fondo plano y debajo savvia.studio» · «quitamos las estaciones del final, acabamos en plano con el rayo en savvia y savvia.studio» · «savvia
+  tipográfico como en la web y la luz como la que tenemos en el hero».
+- **Hecho:** siete secciones reales (Quantus despliegue con sus isométricos que pasan de alambre a sólido, stack, Forge · Neety ruido a señal, integraciones · Patchbay
+  agentes, enfoque) construidas pieza a pieza con su gesto propio; la intro oscura dura la entrada suave de «Laundry on the wire» y «Tu web, en una librería» cae en el
+  arranque (12,04 s); cada sección en un bloque de 8 pulsos; el primer pedido es un CHAT grande en perspectiva que se teclea, se envía y vuela a la barra mientras sale
+  la sección. Lista final «Y con tu librería, tu equipo puede…» con los checks de Servicios de la home (un cursor los marca: la tinta llena el aro, onda y marca en
+  Rosa niebla). Cierre: fuera el hero con estaciones; Cacao liso con grano que se abre desde abajo, el haz del hero (−18°, pico 9 %) y «savvia» en Family con
+  savvia.studio en mono debajo.
+- **Medido:** render 83,4 s 1920×1080, −15,6 LUFS, sin tramos negros; copia ligera 13 MB (`tools/r307/renders/reel-secciones-v4-ligero.mp4`).
+- **Pendiente:** «Last Ride Home» (Epidemic) necesita la suscripción para descargarla; no publicado.
+
+### Ronda 307 (5.ª) · 2026-10-27 · arranque más rápido, la caja de «Pide y listo» que se estira hasta la barra, las cuatro isométricas de Quantus, el montaje con cursores, Neety y la rueda de Patchbay, final con las guías (tools/r307)
+- **Andoni (textual):** «Empieza muy lento» · «El final quitamos la textura al fondo y añadimos las guías que tenemos en el hero» · «las secciones de quantus las de las isometrías prefiero
+  la sección que salen 4 en una y ver cómo se construyen» · «La de Neety de antes y después está mal construida, revísala» · «La de Patchbay de la ruleta hace mal la animación,
+  revísala» · «Después de pide y listo la transición es rara. Podríamos hacer zoom que se dé al enviar y se cree la sección apareciendo por abajo de lo que pedimos ahí» · «Todas
+  las secciones que se construyan como pasa en la librería con los cursores».
+- **Hecho:** la canción entra 4,5 s (6 pulsos) más adelante y la intro oscura se recoge: el ritmo arranca a los 7,5 s (antes 12). Fuera «Secciones nuevas» y el chat en
+  perspectiva: al enviar en «Pide… y listo.», las palabras se apartan, la cámara empuja y la caja se estira hasta ser la barra de peticiones; el marco sube por debajo.
+  Quantus abre con «Built for whoever pays the compute bill.» (`section#for`, `tools/r307/for.cjs`): la placa de cada isométrica se asienta y sus piezas caen encima.
+  MONTAJE: Claude, savvia y Codex cogen cada pieza (titular, texto, tarjetas) desde el borde del marco y la llevan a su sitio con su aro de color; el resto entra después.
+  Neety: el montaje forzaba opacidad 1 en lo que la web deja oculto (salía «Después con Neety» dos veces): ahora respeta la opacidad de cada elemento. Patchbay: en su web es una
+  RUEDA (ranuras en un arco de 715 px, 15,67° cada una): a cada pulso los iconos avanzan una ranura. Final: Cacao liso sin grano, guías verticales en los bordes del contenido y
+  una horizontal con cruces, el haz del hero y «savvia» con savvia.studio.
+- **Medido:** render 72,9 s 1920×1080, −15,8 LUFS, sin tramos negros; copia ligera 11,8 MB (`tools/r307/renders/reel-secciones-v5-ligero.mp4`).
+- **Pendiente:** el chat en perspectiva se ha retirado al sustituir la transición (vuelve en otra petición si se quiere); no publicado.
+
+### Ronda 307 (6.ª) · 2026-10-27 · cursores que montan cada sección con su gesto, el puente de Neety, transiciones distintas y la guía de arriba (tools/r307)
+- **Andoni (textual):** «Al final falta la guía de arriba» · «En quantus quitamos la sección de forge» · «En Neety falta el puente del medio y la animación del medio para el antes y el
+  después» · «En Quantus montar las cards de las isométricas directamente en la vista de las cards» · «las piezas que caen con físicas, mostrar directamente en la vista donde
+  caen y los cursores las dejan caer desde arriba. Si podemos aplicar este tipo de cosas chulas con los cursores en el resto de secciones también molaría» · «Buscar
+  transiciones chulas entre las secciones que montamos».
+- **Hecho:** fuera Forge (quedan seis secciones; cada una con su duración: Quantus 12 pulsos, las demás 8). Quantus: la cabecera llega con los cursores, la vista baja a las
+  cards y cada cursor abre su card en su sitio y, encima del dibujo, suelta las piezas de la isométrica en cuatro tandas que caen con rebote (la placa primero). Stack: los
+  cursores llegan arriba de cada hueco con su bloque y lo sueltan. Neety: el PUENTE como en su web (la banda, los chips, los píxeles que brotan, la pieza que late y su marca;
+  sus reglas venían con la animación apagada y opacidad 0), una señal que cruza de «antes» a «después» y un cursor que marca los checks uno a uno. Integraciones: el cursor va
+  en la punta de cada línea mientras la dibuja. Patchbay: un cursor empuja la rueda, icono a icono, hasta el hueco de la API. TRANSICIONES (una distinta en cada cambio):
+  empuje, círculo desde el botón de enviar, giro en perspectiva, zoom y barrido en diagonal. Final: guía horizontal también arriba, con sus cruces.
+- **Medido:** render 69,9 s 1920×1080, −15,8 LUFS, sin tramos negros; copia ligera 11,3 MB (`tools/r307/renders/reel-secciones-v6-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (7.ª) · 2026-10-27 · clics sutiles, el stack visto donde caen los bloques (con hover), el puente de Neety pulido y el chat que vuelve al centro en cada petición (tools/r307)
+- **Andoni (textual):** «¿Podemos añadir soniditos de click muy sutiles?» · «la sección de cómo los agentes sueltan los bloques desde arriba en Quantus tiene que ser la vista ya donde
+  caen los bloques para que se aprecien bien. Y hacer hover en alguno para que se vea cómo se mueven» · «El puente de Neety pulir la animación, se ve algo raro» · «animaciones
+  entre secciones me refería a que se note más que vuelves a escribir en el chat pidiendo algo nuevo».
+- **Hecho:** CLICS: `tools/r307/clics.cjs` lee del timeline las 79 pulsaciones (cursores, botón de enviar, cursor de la lista) → `clics.py` sintetiza un clic suave (roce de
+  4 ms + cuerpo a ~1,6 kHz, con variación) en cada una → se mezcla bajo la música tras el render (pico −15 dBFS frente a −1,5 de la música). STACK: la vista baja a los
+  bloques nada más abrirse la sección; los cursores sueltan cada bloque y, al final, uno pasa por encima de tres: la cara se desplaza hacia él, se enciende el rojo y crece la
+  sombra; el de «turn» gira 14°, como en su web. PUENTE de Neety en el orden de su web: la banda se abre desde el centro, la pieza aparece con su marca (rebote y balanceo),
+  los píxeles brotan del centro hacia fuera, una ola de luz los recorre dos veces de «antes» a «después» (la pieza late al pasar) y los destellos al final; fuera la bolita
+  que cruzaba. PETICIÓN NUEVA: el chat baja al centro y crece (×1,32) mientras la sección anterior se aleja desenfocada; se escribe ahí, se envía con una onda y el chat vuelve
+  arriba justo cuando entra la sección nueva con su transición.
+- **Medido:** render 69,9 s 1920×1080, −15,8 LUFS, sin tramos negros; copia ligera 12,5 MB (`tools/r307/renders/reel-secciones-v7-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (8.ª) · 2026-10-27 · clic de ratón y espaciado; peticiones que alternan barra, centro y zoom con clic (tools/r307)
+- **Andoni (textual):** «un sonido más de clic de ratón y más espaciado, no tantos» · «las transiciones de escribir en el chat no hacerlo siempre, hacerlo entre medias de nuevo con lo del
+  zoom que teníamos antes y que clicabas para que no se haga monótono mientras salen las diferentes secciones».
+- **Hecho:** `clics.py`: clic de RATÓN (pulsación seca con resonancia a ~3,3 kHz y golpe grave, y la suelta 75–95 ms después, más floja) y como mucho uno cada 0,6 s: de 79 a 35.
+  Peticiones (`nuevo.txt › MODO`): stack → el chat baja al centro; Neety «ruido» → solo en la barra; integraciones → ZOOM en perspectiva (la barra se inclina y crece, la cámara
+  deriva y el cursor de savvia llega y pulsa «enviar»); Patchbay agentes → barra; Patchbay oscura → centro.
+- **Medido:** render 69,9 s 1920×1080, −15,8 LUFS, sin tramos negros; copia ligera 12 MB (`tools/r307/renders/reel-secciones-v8-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (9.ª) · 2026-10-27 · cinco maneras de pedir, interludios de marca y clics más sutiles (tools/r307)
+- **Andoni (textual):** «pulir las animaciones de cuando escribes en el chat para las nuevas secciones, quiero que haya más variedad, no siempre la misma animación. Igual entre medias
+  ponerles alguna animación intermedia para que no sea tan monótono» · «Y los clics más sutiles».
+- **Hecho (`nuevo.txt › MODO`, `INTER`):** cada petición, distinta: stack → el chat baja al centro · Neety «ruido» → INTERLUDIO «Ahora, Neety.» (cartela Berenjena con su marca que gira,
+  «El mismo chat, otra librería.», se abre en círculo desde el botón de enviar y se recoge hacia arriba) y se escribe en la barra · integraciones → zoom en perspectiva con el
+  cursor pulsando «enviar» · Patchbay agentes → INTERLUDIO «Ahora, Patchbay.» (cartela naranja) y la petición DICTADA (punto de grabación y onda de voz; las palabras
+  entran una a una) · Patchbay oscura → el chat SUGIERE tres peticiones y el cursor elige una, que sube a la barra. Clics 5,5 dB más bajos (pico −17 dBFS frente a −1,5 de la música).
+- **Medido:** render 75,9 s 1920×1080, −15,8 LUFS, sin tramos negros; copia ligera 13,6 MB (`tools/r307/renders/reel-secciones-v9-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (10.ª) · 2026-10-27 · de la cartela al chat y del chat a la sección (tools/r307)
+- **Andoni (textual):** «cuando dices y ahora Neety, poner el chat en medio, pedir y desde ese chat ya pasamos a construir la sección que pedimos. Lo mismo para Patchbay».
+- **Hecho:** en las cartelas «Ahora, Neety.» y «Ahora, Patchbay.», la marca y el título suben, la frase se va y el chat baja de su barra al centro de la cartela (por encima de
+  ella); se escribe (Neety) o se dicta (Patchbay) ahí; al enviar, la cartela se recoge hacia arriba, el chat vuelve a su barra y el marco sube por debajo con la sección, que
+  se abre desde abajo (sin las transiciones de las otras). Arreglo: dos animaciones de la frase de la cartela chocaban y en el render se quedaba bajo el chat.
+- **Medido:** render 75,9 s 1920×1080, −15,8 LUFS, sin tramos negros; copia ligera 13,6 MB (`tools/r307/renders/reel-secciones-v10-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (11.ª) · 2026-10-27 · el chat de las cartelas llega vacío y se escribe al posarse (tools/r307)
+- **Andoni (textual):** «pulir la animación de cuando sale y ahora Neety el chat para escribir, se reescribe en vez de aparecer vacío y escribir algo. En Patchbay también escribimos
+  en vez de audio».
+- **Hecho:** el chat baja a la cartela VACÍO, con «Pide una sección o un cambio…» en gris y el cursor parpadeando, y en cuanto se posa se escribe la petición letra a letra
+  (antes esperaba 1,3 s vacío y sin cursor). Patchbay también se escribe: fuera el dictado.
+- **Medido:** render 75,9 s 1920×1080, −15,8 LUFS, sin tramos negros; copia ligera 13,6 MB (`tools/r307/renders/reel-secciones-v11-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (12.ª) · 2026-10-27 · chat de savvia agent, Playground, nuevo orden, textos sin «·» y final con el hero (tools/r307)
+- **Andoni (textual):** «El chat lo diseñaría como tenemos en savvia agent, que se vea más realista» · «Eliminamos AI Slop de los textos, sobre todo puntos centrados y guiones largos» ·
+  «Terminamos con el hero de savvia pero sin las líneas guía, el árbol y elevamos tu web con IA con el subtítulo» · «Los checks ponemos esto de titular: Con savvia agent tu equipo
+  puede…» · «Quiero meter Playground en los ejemplos de secciones, coge 2 de https://playgroundiep.treseiscero.app/home-v3» · «El orden: Neety (2) > Playground (2) > Quantus (1) >
+  Patchbay (1)».
+- **Hecho:** CHAT: el compositor de Claude de la animación de savvia agent (texto arriba; abajo «+», Opus 5.5 con su icono, la librería adjunta y enviar en su cuadrado naranja),
+  también en la caja de «Pide… y listo.». ORDEN: Neety «De ruido a señal» › Neety integraciones (zoom con clic) › «Ahora, Playground.» › Playground «What it does for your district»
+  (los cursores traen las cards vacías y se llenan; hover en la del medio) › Playground privacidad (sugerencias; se dibujan las pistas, entran las piezas, el candado se cierra,
+  los datos viajan por las pistas y un cursor marca las promesas) › Quantus isométricas (chat al centro) › «Ahora, Patchbay.» › la rueda. Fuera el stack y la sección oscura de
+  Patchbay. Playground sacado con su DOM real (`tools/r307/pg-dom.cjs`, fuentes de /assets/fonts; sin sus animaciones SMIL ni sus diálogos). TEXTOS: «Claude, Codex, tu equipo y
+  savvia» (antes con «·»). CHECKS: «Con savvia agent tu equipo puede…». FINAL: el hero de savvia sin guías: Cacao, la luz, el roble de otoño que crece y «Elevamos tu web con IA.»
+  con «Especialistas en orquestar el desarrollo agéntico.».
+- **Medido:** render 79,8 s 1920×1080, −15,9 LUFS, sin tramos negros, 37 clics; copia ligera 14,6 MB (`tools/r307/renders/reel-secciones-v12-ligero.mp4`).
+- **Pendiente:** el final ya no lleva savvia.studio (pedido así); no publicado.
+
+### Ronda 307 (13.ª) · 2026-10-27 · cartela de Quantus, features y testimonios de Playground, el roble que nace de la gota y el tecleo limpio (tools/r307)
+- **Andoni (textual):** «De Quantus falta la transición con su marca» · «De Playground cojamos la sección de features, la construyes y luego se hace scroll viendo cómo se apilan. Luego
+  cogemos la sección de testimonios con su animación» · «El final, hacer que el árbol salga con la gota como en el hero original. Que empiece el fondo plano y el resto se genera» ·
+  «Revisar todas las animaciones y textos en el chat, que se escriben bien sin empezar con un texto encima ya escrito».
+- **Hecho:** «Ahora, Quantus.» (su #15181c con su marca de dos círculos en rojo) y se pide en la cartela. Playground: FEATURES («Six problems. Solved.», `section#features`): los
+  cursores traen titular, menú y la primera tarjeta; después, como el scroll de su web, cada tarjeta sube y se posa sobre la anterior con su escalón de 14 px y el cohete del menú
+  salta a la herramienta activa. TESTIMONIOS (`section#proof`): la rueda de avatares (arco de 873 px, 30° por ranura); un cursor pulsa «siguiente», la rueda gira, el color de la
+  tarjeta vira al de esa persona y la cita y el nombre se relevan (Michael W., Lance P., Tiffany S.; citas reales recortadas). Su `<script>` interno rompía la página: se quita al
+  extraer. FINAL: Cacao liso, cae una gota de agua, salpica en la base del tronco, el roble se pinta desde ahí con el canto rasgado y luego entran la luz y el titular. TECLEO: el
+  texto de cada petición empieza recortado antes de mostrarse (había un instante con el texto entero) y la caja de «Pide… y listo.» empieza vacía.
+- **Medido:** render 87,8 s 1920×1080, −16 LUFS, sin tramos negros, 36 clics; copia ligera 15,5 MB (`tools/r307/renders/reel-secciones-v13-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (14.ª) · 2026-10-27 · cartelas suaves y Playground entero en el marco (tools/r307)
+- **Andoni (textual):** «Cuando salen los textos de Y ahora tal, hacen como saltos raros todos esos textos. Pon una animación más smooth» · «las secciones de Playground me gustan pero
+  se tienen que apreciar mejor las cards y el menú lateral sin cortarse en la primera. Y la segunda de testimonios que se vea la card sin cortar con las caras rotando ya desde el
+  inicio sin scroll».
+- **Hecho:** CARTELAS: la marca y «Ahora, X.» entran como un bloque, del desenfoque a nítido (1 s, power3.out; antes palabra a palabra desde una máscara y con rebote), la frase se
+  funde sin caer y la subida al llegar el chat dura 1,1 s con una curva suave (el chat baja a la vez, 1 s). PLAYGROUND: las secciones pueden ir con ZOOM (`seccion(…, zoom)`):
+  features al 74 % (el menú lateral y la tarjeta enteros; la pila se ve completa) y testimonios al 70 % (la tarjeta entera, sin desplazamiento); la rueda está desde el principio
+  y empieza a girar en el tercer pulso.
+- **Medido:** render 87,8 s 1920×1080, −16 LUFS, sin tramos negros; copia ligera 15,1 MB (`tools/r307/renders/reel-secciones-v14-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (15.ª) · 2026-10-27 · la tarjeta de testimonios entera y centrada (tools/r307)
+- **Andoni (textual):** «La sección de testimonios de Playground que ocupe más ancho y el redondeo por abajo tiene que ser igual que arriba, y céntrala al medio tanto vertical como
+  horizontalmente».
+- **Causa (medida):** la tarjeta empieza a 160 px de su sección y mide 891; el recorte a 1020 px se comía sus últimos 31 px, el redondeo de abajo.
+- **Hecho:** se encuadra SOLO la tarjeta (la sección sube 160 px, alto 891), centrada en el marco en los dos ejes y con los cuatro redondeos iguales; tras «un poco más estrecha, para darle aire por arriba y por abajo», al 84 % (unos 60 px de aire arriba y abajo).
+- **Medido:** render 87,8 s 1920×1080, −16 LUFS, sin tramos negros; copia ligera (`tools/r307/renders/reel-secciones-v15-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (16.ª) · 2026-10-27 · la estela del cohete en las features de Playground (tools/r307)
+- **Andoni (textual):** «en la sección de features el cohete, cuando pasa por el menú, deja como una estela, fíjate bien en la web en producción. Añádelo».
+- **Medido en producción (home-v6.js › fly):** al saltar de herramienta, el cohete se ladea ±28° y se endereza a los 240 ms; detrás deja un trazo de cera (`.fs6_trail`: 4 px,
+  discontinuo 5/2 px en el color de la herramienta a la que va) desde su punto anterior al nuevo, que crece en su dirección y se apaga (`fs6trail`, 0,7 s).
+- **Hecho:** lo mismo en el reel, con el timeline (el CSS de las secciones va sin animaciones): un trazo por salto, crece 0,32 s y se funde en 0,38 s; el cohete se ladea y vuelve.
+- **Medido:** render 87,8 s 1920×1080, −16 LUFS, sin tramos negros; copia ligera (`tools/r307/renders/reel-secciones-v16-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (17.ª) · 2026-10-27 · caja = barra sin salto, puente de Neety más tarde, peticiones elaboradas, final claro con la gota del inicio y repaso de saltos (tools/r307)
+- **Andoni (textual):** «Cuando pasamos de Pide y listo, el chat cuando pasa arriba es como que da un salto porque cambia la tipo o algo pasa ahí raro. Que sea smooth» · «Neety, la primera
+  sección que construimos, el puente se ve de primeras; que aparezca más tarde» · «Los prompts que sean algo más elaborados» · «Revisa todas las animaciones para que sean lo más smooth
+  posibles» · «La gota final que sea como la del inicio y acabamos con fondo light, no dark».
+- **Hecho:** la caja de «Pide… y listo.» es ahora la barra exacta a 1/1,12 (misma letra y medidas, iconos, botón y la librería adjunta, que faltaba); al estirarse y llegar arriba
+  coincide con la barra (comprobado en los fotogramas del relevo). Neety: la banda del puente también empieza oculta y todo el puente llega un pulso más tarde. Peticiones: «Crea
+  «De ruido a señal» con el antes y el después de Neety», «Añade sus integraciones: CRM, LinkedIn y email llegando al panel», «Las features de Playground: seis tarjetas que se
+  apilan al hacer scroll», «Y sus testimonios: la rueda de caras y el color de cada docente», «Una sección de Quantus: cuatro clientes, cada uno con su isométrico», «La sección de
+  agentes de Patchbay: todos los canales entrando en una API» (barra a 26 px). FINAL claro (#f6f3ee): la MISMA gota del gancho (cuelga, cae estirándose con su estela
+  desenfocada, salpica con corona, gotitas y onda), en tinta para leerse sobre claro; el roble se pinta desde el impacto y el titular en tinta.
+- **Saltos medidos** (`ffmpeg scdet`, umbral 9): había 9; el peor, un fotograma OSCURO entre los checks y el final (score 66: la máscara del antiguo final oscuro); también las
+  cartelas, que se abrían y recogían deprisa (0,9 y 0,6 s, expo) → 1,15 y 0,85 s (power3). Queda solo el corte a negro → claro de los 7,6 s, que es el golpe de la canción.
+- **Medido:** render 87,8 s 1920×1080, −16 LUFS, sin tramos negros; copia ligera 15,2 MB (`tools/r307/renders/reel-secciones-v17-ligero.mp4`).
+- **Pendiente:** no publicado.
+
+### Ronda 307 (18.ª) · 2026-10-27 · el reel por estación e idioma, en la web: el menú y la pantalla del ordenador (tools/r307, en local)
+- **Andoni (textual):** «Vamos a volver al final con el marrón. Y quiero un vídeo por cada estación: donde va el marrón, que vaya el de cada estación. Y luego en castellano e inglés.
+  Con esto lo metemos ya a la web y cada vez que cambia de estación se cambia, y por idioma» · «En el menú, donde tenemos proyectos destacados, recuperamos el reel como teníamos
+  antes» · «Y si te fijas en savvia.studio también lo tenemos sin sonido en la pantalla del ordenador».
+- **Hecho (reel):** el final vuelve al oscuro, con la gota del inicio en sus colores de agua. VARIANTES (`build.cjs`, `EST=<estación> IDIOMA=<es|en>`): el oscuro es el `--noche`
+  de la web (otoño #3b231b · primavera #3a2932 · verano #1b3125 · invierno la nieve #f5f5f7, con el texto en Pizarra y la gota en tinta), el roble del hero de la estación y la
+  escena de savvia agentic GRABADA otra vez en cada estación e idioma (`tools/r307/grabar-agentic.cjs`, copia de la de la ronda 233, desde el sitio en local). EN: todos los
+  textos del reel (los de la web: `home.en.ts`), «Now, X.», «Same chat, another library.», «With savvia agent your team can…». `render-8.sh` → `tools/r307/renders/estaciones/`
+  (8 × 87,8 s, −16 LUFS, sin negros) y para la web `public/media/reel/reel-<estación>-<idioma>.mp4` (1600×900, ~9,6 MB), su póster (fotograma 0) y la miniatura de 7 s
+  `reel-mini-…` (640×360, ~70 KB, de las isométricas de Quantus).
+- **Hecho (web):** `src/scripts/reel.ts` (nombre por estación e idioma y, al cambiar de estación, el vídeo cargado pasa al nuevo en el mismo punto; con `preload="none"`, Chrome
+  no cargaba el nuevo hasta pedirle que suene: si sonaba se le pide ya). `Nav.astro`: vuelve la tarjeta del REEL al menú (miniatura en bucle y, al pulsarla, el reel grande con
+  sonido); los destacados que rotaban (ronda 274) quedan en el código, sin usar. `Proyectos.astro`: la pantalla del ordenador, el reel de la estación en bucle y sin sonido.
+  Duración en el menú: 1:28.
+- **Medido:** `astro check` 0 errores · prueba en Chrome y WebKit, `/` y `/en/` (primavera → verano): miniatura y reel grande del idioma y la estación, sonando; al cambiar de estación
+  sigue sonando en su punto (4,2–4,7 s) · pantalla del ordenador en invierno, inglés: `reel-invierno-en.mp4` en marcha · `tools/verify.cjs` en `/` y `/en/` (Chrome y WebKit,
+  1280 y 390): sin errores, 0 ≥ 400, desborde 0.
+- **Pendiente:** sin commit ni publicar; `public/media/reel/reel.mp4`, `reel.jpg`, `reel-mini.mp4` y `reel-mini.jpg` (los de antes) ya no los usa nada.
+
+### Ronda 307, 19.ª · el roble del final, el mismo del hero (en local)
+- **Andoni (textual):** «hay que hacer que en todos los vídeos el árbol final se vea tal y como está en el hero de savvia, con el mismo efecto y colores».
+- **Hecho:** el final ya no pinta la lámina con una máscara rasgada: el roble es una GRABACIÓN del hero real (`tools/r307/arbol/grabar-arbol.cjs`): la home local con
+  `?estacion=<estación>`, solo la caja del árbol a 1180 px sobre la noche de la estación, y un reloj falso (performance.now, rAF y setTimeout avanzan 1/30 s por
+  fotograma) para que cada pasada sea idéntica. Sale el motor del hero tal cual (`estela.ts`: líneas → pintura rasgada desde la base, semitono, hervor, luz y halo),
+  desde el impacto de la gota → `hf/assets/arbol-hero-<estación>.mp4` (yuv444, 7,2 s). La gota cae ahora en la base del tronco (960 · 1070); el vídeo lleva los
+  bordes fundidos con el fondo. Re-renderizados los 8 reels y sus versiones web.
+- **Medido:** fotogramas del final en otoño e invierno (82,7 · 83,6 · 85 · 87,5 s): el árbol se dibuja y se pinta como en el hero; con contraste ×6, sin costura con el fondo.
+- **Pendiente:** sin commit ni publicar.
+
+### Ronda 307, 20.ª · el 3D del equipo, probado y descartado (en local)
+- **Andoni (textual):** «mirar cómo ha construido su 3D bguillaume.info y ver si podemos replicarlo para Eric y para mí» → «dejamos como antes, se ven muy low quality».
+- **Hecho y retirado:** modelos de Meshy (desde la foto `us-min.avif`, en pose T), esqueleto y saludo de Mixamo, textura recuperada y comprimidos (~0,9 MB) en
+  `~/Desktop/savvia/3d-equipo/` (fuera del repositorio), y una prueba `?equipo=3d` en el Estudio que se ha QUITADO entera (Estudio.astro sin cambios).
+
+### Ronda 307, 21.ª · los casos de estudio en dos columnas, con modo foco (en local)
+- **Andoni (textual):** «quiero que tenga esta estructura dsaltaren.com/#work. Quitamos la columna de Danny Saltaren: a la izquierda sticky el título del proyecto con su
+  descripción, tags, link a web y abajo del todo navegar entre diferentes case studies. A la derecha lo que tenemos ahora de contenido pero más minimalista: imagen,
+  descripción, etc. Y arriba tiene un focus mode: si le das, el contenido se queda en el centro como modo ventana; esto también lo quiero».
+- **Referencia medida (`tools/ref-casos/`):** columnas con cabecera fija («A closer look at the work.» · «Focus view»); el contenido, bloque a bloque: imagen con filo fino,
+  pie pequeño, título corto, una frase, botón gris con ↗. Focus view: la columna pasa a una ventana centrada con sombra, el resto se apaga; «Back» o Esc la devuelven.
+- **Hecho (`src/views/Caso.astro`; antes, etiqueta `r-casos-antes`):** a la izquierda (4 de 12 columnas, fija a toda la altura de la ventana): «← Todos los proyectos», el
+  nombre, la entradilla, los servicios como etiquetas, sector y lugar, «Ver la web ↗» y abajo el índice de casos (el actual con un punto Coral, en dos columnas) con
+  Anterior / Siguiente; en móvil va arriba y el índice se reduce a Anterior / Siguiente. A la derecha, el contenido de siempre en una sola columna, con títulos
+  pequeños en la tipografía de texto, menos aire y una barra fija «El caso, de cerca · Modo foco». MODO FOCO: el contenido pasa a una ventana centrada (60 rem,
+  radio 16, sombra, el grano de la página) sobre un velo claro desenfocado; abre en el mismo punto de lectura, la rueda se queda dentro y al salir (Volver, Esc o
+  clic en el velo) la página vuelve a ese punto. Fuera la cabecera grande, la ficha de arriba y el «Siguiente proyecto» del final.
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /proyectos/neety/ y /en/proyectos/cubbo/ (Chrome y WebKit, 1280 y 390): sin errores, 0 ≥ 400, desborde 0 ·
+  `tools/r307-casos/ver.cjs` (Chrome y WebKit, 1440 y 390): columna fija entera en 900 px de alto, foco abierto en el punto de lectura, rueda dentro (0 px de página),
+  salir devuelve el punto.
+- **Pendiente:** sin commit ni publicar.
+
+### Ronda 307, 22.ª · correcciones a los casos en dos columnas (en local)
+- **Andoni (textual):** «1. lo de la izquierda, como lo tiene él: más minimalista y más estrecho · 2. abajo solo los botones de siguiente y anterior con el nombre de los
+  proyectos; las flechas, como en el resto de la web · 3. línea de separación entre ambas columnas · 4. de momento fuera la librería en Neety · 5. el menú superior
+  (el caso de cerca y modo foco): lo que se mete por arriba, que desaparezca · 6. en modo foco solo se queda el caso centrado, el resto desaparece · 7. más espacio
+  entre el caso y el footer, 160 px».
+- **Hecho (`src/views/Caso.astro`):** 1 · la columna pasa de 4 a 3 de 12; arriba una cabecera a la altura de la barra del contenido («‹ Proyectos» · «4/9»); el nombre
+  en Family a 28–36 px, la entradilla a 16 px y dos líneas grises (servicios · sector y lugar) y «Ver la web» con la flecha de la casa; fuera las etiquetas en
+  píldora y la ficha. 2 · fuera el índice: abajo, Anterior y Siguiente con el nombre de cada proyecto y el chevrón de `flecha()`. 3 · filo de 1 px a la izquierda
+  del contenido, de arriba abajo. 4 · `lib` desactivado (vuelve con `p.libreria`). 5 · una franja del fondo (con grano) tapa por encima de la barra «El caso, de
+  cerca» hasta arriba de la ventana: lo que sube desaparece ahí (en móvil, solo los 64 px bajo la barra del menú). 6 · el velo del modo foco es el fondo de la
+  página, opaco: solo queda la ventana del caso. 7 · 160 px entre el final del caso y el pie.
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /proyectos/neety/ (Chrome y WebKit, 1280 y 390): sin errores, 0 ≥ 400, desborde 0 · `tools/r307-casos/ver.cjs`
+  (Chrome y WebKit, 1440 y 390): foco abre, la rueda va dentro, salir devuelve el punto.
+- **Pendiente:** sin commit ni publicar.
+
+### Ronda 307, 23.ª · lo de Eric, a local; la barra que lo tapa todo; fuera los «·» y las rayas (en local)
+- **Andoni (textual):** «fíjate las cosas que ha actualizado Eric y tráelo a local» · «revisa toda la web en busca de puntos en medio y líneas largas para quitarlas, es
+  muy AI slop» · «cuando haces scroll, el focus mode y lo otro tiene que tapar todo para que por detrás no se vea que pasa el contenido; fíjate bien cómo lo hace Danny».
+- **Lo de Eric:** tres «Update from Ship Studio» (b0dc4c5, 2531a6f, cd4881d: portfolio, manifiesto, `lanzamiento.ts`, método, sistema…). Traídos con `stash` →
+  avance rápido a `origin/main` → `stash pop`; cuatro conflictos resueltos: el registro (los dos), `home.ts`/`home.en.ts` (sus tipos con `href` opcional + la duración
+  del reel nuevo, 1:28) y `Caso.astro` (la estructura en dos columnas, con su `titular` bajo el nombre y anterior/siguiente solo entre los casos públicos, `esPublico`).
+  Copia de lo local en el scratchpad (`local-antes-de-eric.patch`) y el stash sigue guardado.
+- **La barra:** las imágenes del caso se pintaban por encima de «El caso, de cerca» (z 4) y la franja que tapa por arriba medía 64 px con la barra a 80 → la barra a
+  z 40 y la franja exacta (`--tapa`: 64 móvil, 80 escritorio). Medido: 0 elementos del caso por encima de la barra en toda la bajada (Chrome y WebKit) y lo mismo en foco.
+- **«·» y rayas:** `tools/r307-slop/buscar.cjs` recorre las 48 páginas (es/en, casos, método, sistema, lab) y lista todo texto, título, alt y aria-label con «·», «—» o
+  «–»: de 155 a 1 (la unidad «N·m» de Gravitas, que se queda). `limpiar.py` / `limpiar-astro.py` reescriben solo el interior de las cadenas y el texto del marcado
+  (separador → coma; raya → dos puntos tras una etiqueta corta o coma en una frase; rangos → «a»/«o», «de marzo a mayo»); el resto, a mano: «Reel» y la duración
+  aparte, «(pronto)», espacio en lugar de «·» en el método y en la portada del manual, «○» en las tablas, frases naturales en espaciado y sonido de los casos.
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /, /en/, /sistema, /metodo/la-receta, /lab y /proyectos/quantus/ (Chrome y WebKit, 1280 y 390): sin errores,
+  0 ≥ 400, desborde 0.
+- **Pendiente:** sin commit ni publicar; las páginas de prueba (`/prueba/…`) no se han tocado.
+
+## Rechazado — añadido en la ronda 307, 23.ª (NO VOLVER)
+- El punto en medio «·» como separador y las rayas «—» «–» en cualquier texto visible (copy, etiquetas, títulos, aria-label): «es muy AI slop». Coma, dos puntos, punto o aire.
+
+### Ronda 307, 24.ª · casos (guía y fondo plano), lab y el Storybook (en local)
+- **Andoni (textual):** «1. Case study: la línea superior es como una guía que atraviesa toda la página; Proyectos, modo foco y el caso de cerca, alineados; el número de
+  proyectos, fuera · 2. la parte de arriba que tapa al hacer scroll tiene textura: fondo plano · 3. Lab: en la tarjeta del centro, únicamente el título savvia lab y el
+  subtítulo «nuestros experimentos, ábrelos y juega con ellos» · 4. Sistema pasa a llamarse Storybook; dejamos solo Diseño y Desarrollo · 5. mejoramos la construcción del
+  logotipo animándolo · 6. el menú lateral no se pierde en las estaciones; las estaciones no se cambian con el scroll, las cambias tú con un selector · 7. iconografía,
+  únicamente la utilizada en la web · 8. movimiento: el hover del botón mejor representado; la ease-out expo, algo más vistoso · 9. firma, solo la del trazo arriba ·
+  10. revisar que los componentes y todo estén en la web · 11. mantenimiento técnico fuera, y cómo se hacen las piezas también».
+- **Hecho:** 1–2 · `Caso.astro`: la cabecera de la columna y la barra miden 56 px y van a 80 px de arriba (los tres rótulos en y = 107, medido); UNA línea de lado a
+  lado de la ventana (la dibuja la barra fija); fuera «4/9»; la franja que tapa, sin grano. 3 · `lab/Mesa.astro` + `lab.ts`: solo «savvia lab» y «Nuestros experimentos.
+  Ábrelos y juega con ellos.». 4 · `/storybook` (nueva) con `/sistema` redirigiendo (301); menú «Storybook»; fuera Empezar (guía y sitemap). 5 · la construcción, como
+  un editor (~5 s): guías que se trazan, anclas de izquierda a derecha, manejadores, contorno letra a letra y relleno; «Volver a construir». 6 · las estaciones, una
+  tarjeta dentro de la columna con un selector (Primavera, Verano, Otoño, Invierno) que cambia la página entera; el índice ya no se esconde. 7 · los 13 que pinta la web
+  (estaciones, cerrar, subir, bajar, reproducir, pausa, siguiente pieza, sonido, silencio, vídeo y la flecha de la casa); fuera la muestra de Iconoir. 8 · el BOTÓN DE
+  VERDAD con un cursor que entra por lados distintos (la savia nace y se recoge por donde pasa; tu ratón manda) y «tres velocidades» (lineal, quart y expo corriendo a
+  la vez con estela). 9 · una sola firma, la del trazo. 10 · revisión (agente de solo lectura): fuera la paginación de la barra de cristal, el buscador y filtros (el del
+  portfolio de Eric es otro), la píldora «Escuchando…» y, en el catálogo, Dolores y «Cabecera y destacados»; corregidos archivos y textos (casos en dos columnas, portfolio
+  de corrido, orden de la home, hero sin hora). 11 · fuera «Cómo se hacen las piezas» y «Mantenimiento técnico».
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /storybook, /lab, /proyectos/neety/ y / (Chrome y WebKit, 1280 y 390): sin errores, 0 ≥ 400, desborde 0 ·
+  `tools/r307-story/ver.cjs` (Chrome y WebKit): /sistema → /storybook, índice visible durante las estaciones, el selector cambia la estación de la página · la demo del
+  botón, llena 2 s de cada ~5 en bucle.
+- **Pendiente:** sin commit ni publicar; la miniatura de «Todos los proyectos» del catálogo es de antes de la reforma del portfolio.
+
+### Ronda 307, 25.ª · lab, método, storybook y casos (en local)
+- **Andoni (textual):** «1. en lab la card del centro algo más alta; y actualiza el proyecto de Gravitas porque ha cambiado · 2. Método, próximamente y que no se pueda
+  clicar · 3. Storybook: el cambio de colores en estaciones más fluido · los espaciados animados como en case studies · iconografía: descripciones que no se salgan del
+  recuadro, y el icono del chat de la home no está · movimiento, todas las cards la misma altura · firma: la copa del árbol, un solo trazo continuo que parezca hecho a mano ·
+  barra de cristal y anterior/siguiente ya no están en la web · 4. Casos: la línea de anterior y siguiente, que toque la línea de la derecha · el modo foco, que parezca que
+  sale del papel y se posiciona en el centro · la línea vertical de la derecha del todo, hasta arriba · el mismo padding a la derecha que a la izquierda · el primer vídeo,
+  redondeado como el resto» · (a media ronda) «al hacer scroll, donde el contenido desaparece arriba, un pequeño degradado para que se desvanezca».
+- **Hecho:** · Lab: la tarjeta, 52/56 px de relleno (213 px de alto); Gravitas es ahora un laberinto de bola: vídeo regrabado jugando (`tools/r307-lab/grabar-gravitas.cjs`) y
+  texto nuevo. · Método: sin enlace, «Método (próximamente)» en menú y pie; el Storybook ya no lo enlaza. · Storybook: estaciones a 1,4 s con curva suave, muestras en
+  cascada y nombres y valores que se funden; el ESQUEMA DE ESPACIADO de los casos con los valores de savvia (1200 · 192 · 24 · 24), por turnos o al pasar por su fila;
+  celdas de iconos que se adaptan (0 rótulos fuera, medido) + el chat (bocadillo, enviar, plegar); las seis tarjetas de movimiento a 319 px; la firma con la copa de UN
+  trazo (la «Abierta por abajo» de Eric con temblor de pulso: `tools/firma/firma-trazos-copa.cjs`, la de antes en tools/retirados/); fuera «Barra de cristal», «Tarjetas
+  anterior y siguiente» y el botón secundario con flecha a la izquierda (sin uso). · Casos: la línea de Anterior/Siguiente llega al filo (el aire pasa dentro de su
+  columna, cuyo scroll la recortaba); padding de 32 px a los dos lados del contenido (la línea de la derecha llega arriba); la portada con su radio; un degradado de 40 px
+  bajo la barra; el modo foco hace FLIP desde la columna, se despega con sombra y se posa en el centro, y al cerrar vuelve a su columna.
+- **Medido:** `astro check` 0 errores · `tools/verify.cjs` en /storybook, /lab, /proyectos/neety/ y / (Chrome y WebKit, 1280 y 390): limpio · `tools/r307-story/ver25.cjs` ·
+  `tools/r307-casos/ver.cjs` (WebKit) · `tools/r307-slop/buscar.cjs`: 0 textos con «·» o rayas.
+- **Pendiente:** sin commit ni publicar.
+
+### Ronda 307, 26.ª · firma a pulso, testimonio en los casos, storybook y modo foco · PUBLICADA (rondas 307, 19.ª a 26.ª)
+- **Andoni (textual):** «1. el trazo de la firma es demasiado perfecto, tiene que parecer hecho por un humano · 2. al final del case study quitamos nuestro comentario y
+  ponemos un testimonio como en portfolio, con esa foto; de momento un placeholder (Juanjo o lo que sea) para que Eric sepa lo que va ahí · 3. savvia lab: «Nuestros
+  experimentos. Ábrelos y juega con ellos.» en dos líneas · 4. storybook: las estaciones cambian muy lento, más rápido · 5. movimiento, las cards con el alto de antes ·
+  6. aplicaciones, todo se adapta a las estaciones · 7. añadir los nuevos filtros en componentes · 8. iconografía: falta el icono de poner el sonido» · (a media ronda)
+  «la animación de cómo se abre y cierra el modo foco, mejorarla» · «después de todo esto, mira si Eric ha subido algo nuevo y publica».
+- **Hecho:** · Firma: la copa de un trazo trazada a pulso (`tools/firma/firma-trazos-mano.cjs`: deriva del recorrido, presión que sube y baja, arco asimétrico, final que
+  se pasa y vuelve; semilla 23 de seis). · Casos: fuera «unas palabras del estudio»; al final, `Voces` (el mentor del portfolio, ahora con `dato`) con un MARCADOR: el
+  retrato de JJ Velaz y «Aquí va el testimonio del cliente… Marcador para Eric». · Lab: el subtítulo en dos líneas. · Storybook: estaciones a 0,7 s; movimiento al alto de
+  las tarjetas de vídeo (220 px; el botón y las carreras se compactan, el pie de las carreras pasa a las reglas); Aplicaciones con la imagen al compartir de la estación
+  (`public/media/sistema/aplicaciones/og-<estación>.jpg`, `tools/r307-story/og-estaciones.cjs`) y el chat y el perfil en la noche de la estación; «Filtros» en
+  Componentes (captura de la barra real con Tecnología abierto, `tools/r307-story/filtros.cjs`); el icono de la radio (las cinco barras, bailando). · Modo foco: sin
+  escalar (deformaba): sale de la columna solo desplazándose, se despega con sombra y una subida leve, y se posa; al cerrar, el camino contrario con el velo fundiéndose.
+- **Eric:** sin nada nuevo en origin/main desde los tres «Update from Ship Studio» ya traídos.
+- **Medido:** `astro check` 0 errores · `astro build` 39 páginas · `tools/verify.cjs` en /, /en/, /proyectos/, /proyectos/neety/, /storybook, /lab y /manifiesto (Chrome y WebKit,
+  1280 y 390): sin errores, 0 ≥ 400, desborde 0 · 0 textos con «·» o rayas.
+
 
 ## Vitrina de proyectos (27/10/2026, Eric)
 - «de cada proyecto, preparar los 3 modos de show (mesa, mobile y mockup) en un artefacto; el mockup que se pueda dimensionar, zoomear, girar y cambiar de gradiente; por cada uno el vídeo, el thumbnail, vídeo desktop y vídeo mobile; perfecto en todas las dimensiones (el mockup puede tener distintos ratios)» · «iremos proyecto a proyecto: generar, solo thumbnail o quitar» · «también Patchbay y Quantus (agénticos, inventados)» · «de cada uno, sus categorías, editables (añadir y quitar)».

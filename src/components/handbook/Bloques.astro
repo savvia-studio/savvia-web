@@ -103,7 +103,7 @@ import { flecha } from '../../lib/flecha';
               )}
             </span>
             <div class="av-c">
-              <p class="av-n detail detail-caps">{b.nivel === 'importante' ? 'Importante' : 'Nota'}{b.titulo ? ` · ${b.titulo}` : ''}</p>
+              <p class="av-n detail detail-caps">{b.nivel === 'importante' ? 'Importante' : 'Nota'}{b.titulo ? `, ${b.titulo}` : ''}</p>
               <p class="av-t">{b.texto}</p>
             </div>
           </aside>
@@ -145,7 +145,7 @@ import { flecha } from '../../lib/flecha';
                       const si = s.tags.includes(t);
                       return (
                         <td class={`mc ${si ? 'si' : 'no'}`} data-l={s.corto}>
-                          <span aria-hidden="true">{si ? '●' : '—'}</span>
+                          <span aria-hidden="true">{si ? '●' : '○'}</span>
                           <span class="sr-only">{si ? 'Incluida' : 'No incluida'}</span>
                         </td>
                       );
@@ -322,7 +322,7 @@ import { flecha } from '../../lib/flecha';
                 <span class="cu">{c.uso}</span>
                 <span class={`cr detail ${c.ok ? '' : 'no'}`}>
                   {c.ratio}
-                  {c.ok ? '' : ' · no'}
+                  {c.ok ? '' : ', no'}
                 </span>
               </li>
             ))}

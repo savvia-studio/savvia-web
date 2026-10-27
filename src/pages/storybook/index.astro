@@ -1,0 +1,9 @@
+---
+// LANZAMIENTO: esta página aún no sale (ver src/lib/lanzamiento.ts); quien llega por la dirección vuelve a la home
+import { RECORTE } from '../../lib/lanzamiento';
+if (RECORTE) return Astro.redirect('/');
+// RONDA 307, 24.ª · Andoni: «Sistema pasa a llamarse Storybook; dejamos solo Diseño y Desarrollo». /sistema redirige aquí.
+import Libro from '../../components/sistema/Libro.astro';
+---
+
+<Libro />

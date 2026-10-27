@@ -42,7 +42,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
       <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
       <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
         <ul class="enlaces text-ui flex flex-col gap-3 font-light lg:items-end" data-enlaces>
-          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].filter((l) => l.href).map((l) =><li>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie">{l.label}</a> : <span class="enlace-pie pronto">{l.label} · {en ? 'soon' : 'pronto'}</span>}</li>)}
+          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie">{l.label}</a> : <span class="enlace-pie pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
         </ul>
       </div>
     </div>
@@ -60,7 +60,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
         {i === 1 && <span class="contacta contacta-tras font-display" aria-hidden="true" data-contacta-tras><span>{pie.contactar}</span><span class="contacta-luz" data-contacta-luz>{pie.contactar}</span></span>}
         {i === 1 && <div class="tiempo" aria-hidden="true" data-tiempo><canvas class="lienzo-tiempo" data-tiempo-lienzo></canvas></div>}
         {i === 2 && (
-          <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`${pie.contactar} · ${pie.agenda}${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
+          <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`${pie.contactar}, ${pie.agenda}${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
             <span data-contacta-txt>{pie.contactar}</span>
             <span class="contacta-luz" aria-hidden="true" data-contacta-luz>{pie.contactar}</span>
           </a>

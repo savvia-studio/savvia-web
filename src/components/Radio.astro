@@ -254,7 +254,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       caja.dataset.filtro = em;
       bPlay.setAttribute('aria-pressed', String(on));
       bPP.setAttribute('aria-label', on ? t('Pausar la música', 'Pause the music') : t('Encender la música', 'Turn the music on'));
-      bPlay.setAttribute('aria-label', on ? `${t('Apagar la música', 'Turn the music off')}${actual ? ` · ${actual.t}` : ''}` : t('Encender la música', 'Turn the music on'));
+      bPlay.setAttribute('aria-label', on ? `${t('Apagar la música', 'Turn the music off')}${actual ? ` (${actual.t})` : ''}` : t('Encender la música', 'Turn the music on'));
       tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.em === em)));
       items.forEach((b) => b.classList.toggle('on', on && !!actual && b.dataset.pista === actual.id));
       if (actual && actual.id !== vista) { vista = actual.id; centrar(caja.classList.contains('abierto')); }

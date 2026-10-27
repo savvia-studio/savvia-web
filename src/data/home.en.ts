@@ -10,8 +10,8 @@ export const nav = {
     { label: 'Lab', href: '/lab' },
     { label: 'Manifesto', href: '/en/manifiesto' },
   ] as { label: string; href?: string }[],
-  reel: { label: 'Reel', duracion: '0:53' },
-  mas: { titulo: 'More', links: [{ label: 'System', href: '/sistema' }, { label: 'Method', href: '/metodo' }] as { label: string; href?: string }[] },
+  reel: { label: 'Reel', duracion: '1:28' },
+  mas: { titulo: 'More', links: [{ label: 'Storybook', href: '/storybook' }, { label: 'Method' /* ronda 307, 25.ª: coming soon */ }] as { label: string; href?: string }[] },
 };
 
 export const hero = {
@@ -72,12 +72,12 @@ export const laSavvia = {
   titulo: 'The savvia is the recipe for your website.',
   intro: "It isn't a document that gets filed away in a drawer: it's a system. Each ingredient decides one part of the website, and everyone reads them the same way: you, your team and the [[AI]].",
   ingredientes: [
-    { id: 'color', n: 'Colour', v: 'Cocoa · Mist pink · Walnut · Coral · Cobalt · Cherry', d: 'Six colours, each with its role. Coral is the action; each block, a single accent.' },
-    { id: 'tipo', n: 'Typography', v: 'Family · Timeless Sans · Timeless Grotesk', d: 'Three voices: the editorial one, the reading one and the one for details.' },
-    { id: 'espacio', n: 'Spacing', v: '4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128', d: 'A single scale. No gap is decided by eye.' },
-    { id: 'piezas', n: 'Components', v: 'Button · link · card · detail', d: 'The pieces any new page is built with.' },
-    { id: 'voz', n: 'Voice', v: 'orchestrate · judgement · custom · with you', d: 'What we say and what we don’t. The words belong to the system too.' },
-    { id: 'no', n: 'Rejected', v: 'Italics · landscapes in the hero · an effect as the star', d: 'Every decision that fell, and why. So we never go back.' },
+    { id: 'color', n: 'Colour', v: 'Cocoa, Mist pink, Walnut, Coral, Cobalt, Cherry', d: 'Six colours, each with its role. Coral is the action; each block, a single accent.' },
+    { id: 'tipo', n: 'Typography', v: 'Family, Timeless Sans, Timeless Grotesk', d: 'Three voices: the editorial one, the reading one and the one for details.' },
+    { id: 'espacio', n: 'Spacing', v: '4, 8, 12, 16, 24, 32, 48, 64, 96, 128', d: 'A single scale. No gap is decided by eye.' },
+    { id: 'piezas', n: 'Components', v: 'Button, link, card, detail', d: 'The pieces any new page is built with.' },
+    { id: 'voz', n: 'Voice', v: 'orchestrate, judgement, custom, with you', d: 'What we say and what we don’t. The words belong to the system too.' },
+    { id: 'no', n: 'Rejected', v: 'Italics, landscapes in the hero, an effect as the star', d: 'Every decision that fell, and why. So we never go back.' },
   ],
   puntos: [
     { t: 'Where everything is understood.', d: 'What it is, who it is for and why it is that way.' },
@@ -88,13 +88,13 @@ export const laSavvia = {
   doc: {
     archivo: 'savvia.md',
     lineas: [
-      { k: 'h', v: '# savvia · web' },
+      { k: 'h', v: '# savvia, web' },
       { k: 'h', v: '## Colour' },
-      { k: 'p', v: 'Cocoa #302018 · the base of the page' },
-      { k: 'p', v: 'Coral #F65340 · buttons and calls to action' },
-      { k: 'p', v: 'Cobalt · Cherry · one accent per block' },
+      { k: 'p', v: 'Cocoa #302018, the base of the page' },
+      { k: 'p', v: 'Coral #F65340, buttons and calls to action' },
+      { k: 'p', v: 'Cobalt, Cherry, one accent per block' },
       { k: 'h', v: '## Typography' },
-      { k: 'p', v: 'Family 400 · Timeless Sans · Timeless Grotesk' },
+      { k: 'p', v: 'Family 400, Timeless Sans, Timeless Grotesk' },
       { k: 'h', v: '## Rejected' },
       { k: 'p', v: 'Italics. Landscape backgrounds in the hero.' },
       { k: 'p', v: 'An effect as the star of the page.' },
@@ -113,9 +113,9 @@ export const receta = {
       paso: 'your brand',
       t: 'DESIGN.md',
       raya: '=-=-=-=-=-=-=-=-=-=-=-=',
-      lineas: ['# Neety · the recipe', '> the website is generated', '  from its own code', '', '## colour', 'Core Orange    #FE8238', 'Baby blue      #A7C5F9', 'Aubergine      #431B44', 'Plum           #2A0E2C', 'Warm base      #F8F7EC', '', '## typography', 'headlines  Bricolage', 'body       Switzer', 'H1  112 / 64 px · 120%', '', '## spacing', 'xtiny 4 … xxhuge 160', 'section 96·128·224 px'],
+      lineas: ['# Neety, the recipe', '> the website is generated', '  from its own code', '', '## colour', 'Core Orange    #FE8238', 'Baby blue      #A7C5F9', 'Aubergine      #431B44', 'Plum           #2A0E2C', 'Warm base      #F8F7EC', '', '## typography', 'headlines  Bricolage', 'body       Switzer', 'H1  112 / 64 px, 120%', '', '## spacing', 'xtiny 4 … xxhuge 160', 'section 96, 128, 224 px'],
       marcas: [[5, 'circulo'], [12, 'subraya']],
-      digital: { tipo: 'tabla', txt: 'app/globals.css · @theme', filas: [['Core Orange', '#FE8238', 'bg-naranja'], ['Aubergine', '#431B44', 'text-plum'], ['Warm base', '#F8F7EC', 'bg-base']], colores: ['#FE8238', '#431B44', '#F8F7EC'] },
+      digital: { tipo: 'tabla', txt: 'app/globals.css, @theme', filas: [['Core Orange', '#FE8238', 'bg-naranja'], ['Aubergine', '#431B44', 'text-plum'], ['Warm base', '#F8F7EC', 'bg-base']], colores: ['#FE8238', '#431B44', '#F8F7EC'] },
     },
     {
       paso: 'the harness',
@@ -123,7 +123,7 @@ export const receta = {
       raya: '·x·x·x·x·x·x·x·x·x·x·x·',
       lineas: ['no new colours', '   or fonts', '', 'no different hero:', '   reuse one', '', 'no invented buttons', '', 'one change per request', '', 'no publishing without', '   checking the preview'],
       marcas: [[0, 'subraya'], [6, 'visto'], [8, 'visto'], [10, 'visto']],
-      digital: { tipo: 'bloqueo', txt: '#FF2E9A is not in the recipe', fin: 'use the Core Orange token', cab: 'CLAUDE.md · the harness' },
+      digital: { tipo: 'bloqueo', txt: '#FF2E9A is not in the recipe', fin: 'use the Core Orange token', cab: 'CLAUDE.md, the harness' },
     },
     {
       paso: 'your team asks',
@@ -131,7 +131,7 @@ export const receta = {
       raya: "`'. .'`'. .'`'. .'`'. .'`",
       lineas: ['"Add a testimonials', 'section to the home,', 'between How it works', 'and Integrations: three', 'quotes with name, role', 'and company, in the', 'white card style."'],
       marcas: [[6, 'subraya']],
-      digital: { tipo: 'agente', txt: 'agent · reading the recipe', pasos: ['reads CLAUDE.md', 'reuses the white card', 'adds it in ES and EN', 'checks it in the preview'], fin: 'section ready ✓' },
+      digital: { tipo: 'agente', txt: 'agent, reading the recipe', pasos: ['reads CLAUDE.md', 'reuses the white card', 'adds it in ES and EN', 'checks it in the preview'], fin: 'section ready ✓' },
     },
     {
       paso: 'written down',
@@ -166,7 +166,7 @@ export const proyectos = {
       dominio: 'quantus-demo.vercel.app',
       estacion: 'invierno',
       hechos: [
-        ['Work', 'Home · agentic design and development'],
+        ['Work', 'Home, agentic design and development'],
         ['Typeface', 'Schibsted Grotesk'],
         ['A number', '24 documented rounds'],
       ],
@@ -180,8 +180,8 @@ export const proyectos = {
       url: 'https://playgroundiep.treseiscero.app/home-v3', dominio: 'playgroundiep.com', // ronda 230: la home v2 · 26/10: la v3 (Andoni, con Claude)
       estacion: 'primavera',
       hechos: [
-        ['Work', 'Home · agentic design and development'],
-        ['A number', '24 rounds · 4 versions of the home'],
+        ['Work', 'Home, agentic design and development'],
+        ['A number', '24 rounds, 4 versions of the home'],
       ],
     },
     {
@@ -193,7 +193,7 @@ export const proyectos = {
       url: 'https://neety.treseiscero.app/home',
       estacion: 'otono',
       hechos: [
-        ['Work', 'Home · agentic design and development'],
+        ['Work', 'Home, agentic design and development'],
         ['A number', '9 sections'],
       ],
     },
@@ -207,8 +207,8 @@ export const proyectos = {
       dominio: 'patchbay-web.vercel.app',
       estacion: 'verano',
       hechos: [
-        ['Work', 'Home · agentic design and development'],
-        ['A number', '23 channels · 11 sections'],
+        ['Work', 'Home, agentic design and development'],
+        ['A number', '23 channels, 11 sections'],
       ],
     },
   ],
@@ -331,13 +331,13 @@ export const servicios = {
 };
 
 export const voces = [
-  { rota: true, de: 'isotrol', n: 'Inés López-Pita', r: 'Marketing Director · Isotrol', q: 'The service, the execution, the deadlines and the delivery are excellent, but what really stands out is your knowledge and your ability to improve our initial vision.', video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: 'invopop', n: 'Juan Moliner', r: 'Co-founder · Invopop', q: 'From day one they plugged into our tools. They reply in minutes and push to production in hours instead of days. They exceeded our expectations and we will work with them again.', video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: '', n: 'Javi Ferrer', r: 'Co-founder · Codely', q: 'The project was a success thanks to the incredible work of Andoni and Eric. We shared a sketch and, by the next iteration, Andoni had it ready in Figma for Eric to develop in Webflow. An excellent collaboration, highly recommended!', video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: '', n: 'Thomas Hauer', r: 'Founder · THX', q: "A designer recommended them to build my website and I'm delighted I took the advice, both for the quality of their work and for how they collaborated with me. They thought of everything, were always available and made it easy for me with short, personalised videos. Six stars out of five.", video: '', poster: '', ar: 16 / 9 },
-  { rota: true, de: '', n: 'Claudia Bethencourt', r: 'Brand Shaper · Claudia BE', q: 'Methodical, reliable, and they dived straight into developing all our ideas. Impeccable work, praised even by other developers.', video: '', poster: '', ar: 16 / 9 },
-  { rota: false, de: '', n: 'Danny Saltaren', r: 'Founder · Minimum Run', q: 'I value their flexibility, their attention to detail and how they adapt to deadlines and changes to improve the experience and the final result. We will work together again.', video: '', poster: '', ar: 16 / 9 },
-  { rota: false, de: '', n: 'Félix Gonzalo', r: 'Webflow Developer · Monad', q: 'Eric and Andoni stand out for their talent, their professionalism and an impeccable workflow. A reliable, committed team that I wholeheartedly recommend.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: 'isotrol', n: 'Inés López-Pita', r: 'Marketing Director, Isotrol', q: 'The service, the execution, the deadlines and the delivery are excellent, but what really stands out is your knowledge and your ability to improve our initial vision.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: 'invopop', n: 'Juan Moliner', r: 'Co-founder, Invopop', q: 'From day one they plugged into our tools. They reply in minutes and push to production in hours instead of days. They exceeded our expectations and we will work with them again.', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Javi Ferrer', r: 'Co-founder, Codely', q: 'The project was a success thanks to the incredible work of Andoni and Eric. We shared a sketch and, by the next iteration, Andoni had it ready in Figma for Eric to develop in Webflow. An excellent collaboration, highly recommended!', video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Thomas Hauer', r: 'Founder, THX', q: "A designer recommended them to build my website and I'm delighted I took the advice, both for the quality of their work and for how they collaborated with me. They thought of everything, were always available and made it easy for me with short, personalised videos. Six stars out of five.", video: '', poster: '', ar: 16 / 9 },
+  { rota: true, de: '', n: 'Claudia Bethencourt', r: 'Brand Shaper, Claudia BE', q: 'Methodical, reliable, and they dived straight into developing all our ideas. Impeccable work, praised even by other developers.', video: '', poster: '', ar: 16 / 9 },
+  { rota: false, de: '', n: 'Danny Saltaren', r: 'Founder, Minimum Run', q: 'I value their flexibility, their attention to detail and how they adapt to deadlines and changes to improve the experience and the final result. We will work together again.', video: '', poster: '', ar: 16 / 9 },
+  { rota: false, de: '', n: 'Félix Gonzalo', r: 'Webflow Developer, Monad', q: 'Eric and Andoni stand out for their talent, their professionalism and an impeccable workflow. A reliable, committed team that I wholeheartedly recommend.', video: '', poster: '', ar: 16 / 9 },
 ];
 
 export const estudio = {
@@ -346,7 +346,7 @@ export const estudio = {
   texto: "We're Andoni and Eric. Both of us in every decision.\nBoth of us from the first conversation to the last.",
   personas: estudioEs.personas.map((p) => ({
     ...p,
-    falta: 'A 2–3 line bio and role.',
+    falta: 'A 2 to 3 line bio and role.',
     hobbies: p.n === 'Andoni' ? ['Basketball', 'Video games', 'Coffee at home'] : ['Sport', 'Nature', 'Music'],
   })),
 };
@@ -402,24 +402,24 @@ export const partitura = {
     ] as [string, string[]][],
     paginas: {
       color: { eyebrow: 'Foundations', titulo: 'Colour', texto: 'Defined in app/globals.css (@theme block). Editing there is the only way to change the palette; Tailwind generates the utilities.', etiqueta: 'Brand palette', rampas: 'Opacity ramps' },
-      tipo: { eyebrow: 'Foundations', titulo: 'Typography', texto: 'Headlines in Bricolage Grotesque (font-display), body in Switzer (font-sans).', etiqueta: 'Headlines — 120 % line height' },
+      tipo: { eyebrow: 'Foundations', titulo: 'Typography', texto: 'Headlines in Bricolage Grotesque (font-display), body in Switzer (font-sans).', etiqueta: 'Headlines: 120 % line height' },
       botones: { eyebrow: 'Base components', titulo: 'Buttons (CTA)', texto: 'The real CTA of the website is components/PillCta.tsx: a pill whose label rolls upwards on hover.' },
       esp: { eyebrow: 'Foundations', titulo: 'Spacing', texto: 'Scale of spacing tokens. The bar shows the desktop value; the label shows desktop / mobile.' },
       comp: { eyebrow: 'Product', titulo: 'Website components', texto: 'All the real components of the website, in tabs by page. Each card carries its real thumbnail and its path.' },
     } as Record<string, { eyebrow: string; titulo: string; texto: string; etiqueta?: string; rampas?: string }>,
-    botonesTarjetas: [['Primary — "Request a demo"', 'primary', 'Request a demo'], ['Outline — "Learn more"', 'outline', 'Learn more'], ['Primary · big — footer CTA', 'primary', 'Request a demo'], ['Primary · block — mobile menu', 'block', 'Request a demo']] as [string, string, string][],
+    botonesTarjetas: [['Primary: "Request a demo"', 'primary', 'Request a demo'], ['Outline: "Learn more"', 'outline', 'Learn more'], ['Primary, big: footer CTA', 'primary', 'Request a demo'], ['Primary, block: mobile menu', 'block', 'Request a demo']] as [string, string, string][],
     tabsComponentes: ['Common', 'Home', 'Platform', 'Use cases', 'Blog', 'Article', 'Events', 'Academy'],
     fichas: [{ id: 'logo', titulo: 'Logo', chips: ['Logotype', 'Logo', 'components/Logo.tsx'], texto: "Neety's wordmark as inline SVG. Props: className (size) and fill (colour)." }, { id: 'punto', titulo: 'Pulsing dot', chips: ['Pulsing dot', 'PulsingDot', 'components/PulsingDot.tsx'], texto: 'Brand dot whose halo breathes with GSAP. It heads the eyebrow of almost every section.' }],
     picks: [
       { ag: 2, sec: 'color', src: 'base', slot: 'fondo', label: 'Grainy gradient', chip: 'Grainy gradient' },
-      { ag: 0, sec: 'tipo', src: 'h1xl', slot: 'h1', label: 'H1 · XL', chip: 'Bricolage · H1 XL' },
+      { ag: 0, sec: 'tipo', src: 'h1xl', slot: 'h1', label: 'H1, XL', chip: 'Bricolage, H1 XL' },
       { ag: 1, sec: 'botones', src: 'cta', slot: 'ctas', label: 'Request a demo', chip: '<PillCta variant="primary" />' },
-      { ag: 2, sec: 'esp', src: 'large', slot: 'esp', label: 'large · 48', chip: 'spacing · large 48' },
+      { ag: 2, sec: 'esp', src: 'large', slot: 'esp', label: 'large, 48', chip: 'spacing, large 48' },
       { ag: 3, sec: 'comp', src: 'logo', slot: 'logo', label: 'Logo', chip: '<Logo />' },
       { ag: 1, sec: 'comp', src: 'punto', slot: 'punto', label: 'Pulsing dot', chip: '<PulsingDot />' },
     ] as { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[],
     color: [['Core Orange', '#FE8238'], ['Baby Blue', '#A7C5F9'], ['Aubergine', '#431B44'], ['Plum', '#2A0E2C'], ['Light Mint', '#EBFFF6'], ['Warm Base', '#F8F7EC'], ['Tech Grey', '#F5F7F9'], ['Grainy gradient', 'grad']] as [string, string][],
-    tipografia: [['Bricolage Grotesque', 'headlines · H1 XL 112 / 64 · 120 %'], ['Switzer', 'body · regular 16 · 150 %']] as [string, string][],
+    tipografia: [['Bricolage Grotesque', 'headlines, H1 XL 112 / 64, 120 %'], ['Switzer', 'body, regular 16, 150 %']] as [string, string][],
     espaciado: [['xtiny', 4], ['tiny', 8], ['xxsmall', 16], ['xsmall', 20], ['small', 24], ['medium', 32], ['large', 48], ['xlarge', 64], ['xxlarge', 80], ['huge', 96], ['xhuge', 112], ['xxhuge', 160]] as [string, number][],
     gradiente: { clase: '.rail-gradient-x', paradas: ['#F8F7EC', '#FE8238', '#431B44', '#A7C5F9', '#FFFFFF'], nota: 'cream → orange → aubergine → blue → white' },
     botones: { ruta: 'components/PillCta.tsx', primario: 'Request a demo', contorno: 'Learn more' },
