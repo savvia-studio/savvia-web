@@ -421,9 +421,14 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       // (y en la barra: los filtros entran con un desplazamiento; los offsets no lo ven, así que la barrita cae en su sitio aunque se mida en plena entrada)
       let x = 0, y = 0, n: HTMLElement | null = el;
       while (n && n !== caja) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
-      if (n === caja) { m.style.setProperty('--x', x + 'px'); m.style.setProperty('--y', y + 'px'); }
-      else { const r = el.getBoundingClientRect(), c = caja.getBoundingClientRect(); m.style.setProperty('--x', r.left - c.left - caja.clientLeft + caja.scrollLeft + 'px'); m.style.setProperty('--y', r.top - c.top - caja.clientTop + caja.scrollTop + 'px'); }
-      m.style.setProperty('--w', el.offsetWidth + 'px'); m.style.setProperty('--h', el.offsetHeight + 'px');
+      // 27/10 · Eric: «el hovering pill del padre del dropdown tiene que ocupar bien todo el área»: los offsets van en píxeles ENTEROS y las celdas miden
+      // 295,25: la barrita quedaba 1 px corrida a la izquierda y corta. Con la medida real (decimales) salvo en plena entrada (si difiere más de 2 px, offsets)
+      const r = el.getBoundingClientRect(), c = caja.getBoundingClientRect();
+      const rx = r.left - c.left - caja.clientLeft + caja.scrollLeft, ry = r.top - c.top - caja.clientTop + caja.scrollTop;
+      const fino = n === caja && Math.abs(rx - x) < 2 && Math.abs(ry - y) < 2 && Math.abs(r.width - el.offsetWidth) < 2;
+      if (n === caja && !fino) { m.style.setProperty('--x', x + 'px'); m.style.setProperty('--y', y + 'px'); }
+      else { m.style.setProperty('--x', rx + 'px'); m.style.setProperty('--y', ry + 'px'); }
+      m.style.setProperty('--w', (fino ? r.width : el.offsetWidth) + 'px'); m.style.setProperty('--h', (fino ? r.height : el.offsetHeight) + 'px');
       m.classList.add('on');
       if (primera) requestAnimationFrame(() => requestAnimationFrame(() => m.classList.remove('sin-viaje')));
     };
@@ -789,6 +794,10 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   @media (width >= 48rem) {
     .desp .desp-menu { left: 0; right: 0; min-width: 0; max-width: none; }
     .desp:nth-last-of-type(1 of .desp) .desp-menu { left: 0; right: 0; }
+    /* 27/10 · Eric: «no está bien alineado el dropdown todavía»: la lista empezaba DESPUÉS del filete de su celda (1 px a la derecha) y su filo quedaba
+       pegado al de la siguiente (doble). Se estira 1 px a cada lado para que su filo caiga justo sobre los filetes de la fila */
+    .desp + .desp .desp-menu { left: -1px; }
+    .desp:has(+ .desp) .desp-menu { right: -1px; }
   }
   /* 27/10 · Eric: «en móvil, el filtraje POR ENCIMA del navbar; no que se anime algo» y «jugar con el z-index». En móvil la barra no se aparta ni se
      funde: la fila (y su velo) suben a un plano por encima de ella (la barra va a z 55) y la tapan al pegarse. Para eso .obras deja de ser su propio
