@@ -53,7 +53,10 @@ if (!reducido && 'IntersectionObserver' in window) {
     if (previo?.tagName === 'MAIN') previo = ([...previo.children].reverse().find((c) => c.tagName === 'SECTION') as HTMLElement | undefined) ?? null;
     while (previo && previo.tagName !== 'SECTION') previo = previo.previousElementSibling as HTMLElement | null;
     const fuente = previo?.querySelector<HTMLElement>(':scope > .wrap');
-    if (!previo || !fuente) continue;
+    // 27/10 · Eric (/proyectos: «la ola marrón tiene que ir detrás de la reseña y lo que toque, en blanco»): una sección sin .wrap dentro puede marcar con
+    // [data-eco-ultimo] la lista cuyo ÚLTIMO hijo visible es lo que toca la gota (la rejilla: una reseña o, al filtrar, un proyecto); solo se copia ese, en su sitio
+    const lista = previo?.querySelector<HTMLElement>('[data-eco-ultimo]') ?? null;
+    if (!previo || (!fuente && !lista)) continue;
     const superficie = [...s.sec.classList].find((c) => c.startsWith('surface-')) ?? 'surface-dark';
     const rehacer = () => {
       s.path.querySelector('.sube-eco')?.remove();
@@ -61,11 +64,29 @@ if (!reducido && 'IntersectionObserver' in window) {
       ['id', 'data-sube', 'aria-labelledby'].forEach((a) => caja.removeAttribute(a));
       caja.className = `sube-eco ${superficie}`; caja.setAttribute('aria-hidden', 'true'); caja.setAttribute('inert', '');
       // 26/10: sin su clase, la copia pierde el relleno de abajo de la sección (en /proyectos, el aire bajo la cuadrícula) y el eco caía más abajo que el original
-      caja.style.paddingBottom = getComputedStyle(previo!).paddingBottom;
-      const copia = fuente.cloneNode(true) as HTMLElement;
+      let copia: HTMLElement;
+      if (fuente) {
+        caja.style.paddingBottom = getComputedStyle(previo!).paddingBottom;
+        copia = fuente.cloneNode(true) as HTMLElement;
+      } else {
+        const ult = [...lista!.children].reverse().find((c) => !(c as HTMLElement).hidden) as HTMLElement | undefined;
+        if (!ult) return;
+        // la caja va de lo alto de ese hijo hasta el borde del pie (donde se apoya la gota); la copia, en su misma x y con su mismo ancho
+        const r = ult.getBoundingClientRect(), b = s.sec.getBoundingClientRect();
+        caja.style.height = `${Math.max(0, b.top - r.top)}px`;
+        copia = ult.cloneNode(true) as HTMLElement;
+        Object.assign(copia.style, { position: 'absolute', top: '0', left: `${r.left - b.left}px`, width: `${r.width}px`, margin: '0', listStyle: 'none' });
+        // los lienzos (el retrato al carboncillo de la reseña, Voces.astro) se clonan en blanco: se copia su dibujo de ese momento y, como el texto, en claro
+        const origen = ult.querySelectorAll('canvas');
+        copia.querySelectorAll('canvas').forEach((c, i) => {
+          const o = origen[i]; if (!o?.width) return;
+          c.width = o.width; c.height = o.height; c.getContext('2d')?.drawImage(o, 0, 0);
+          c.dataset.eco = ''; c.style.filter = 'brightness(0) invert(1)';
+        });
+      }
       copia.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
       copia.querySelectorAll('[data-carril-fila]').forEach((e) => e.removeAttribute('data-carril-fila')); // la copia no es una guía: Carriles la contaba y trazaba una línea doble
-      copia.querySelectorAll('video, canvas, iframe').forEach((e) => e.remove());
+      copia.querySelectorAll('video, canvas:not([data-eco]), iframe').forEach((e) => e.remove());
       copia.querySelectorAll('[data-cine] > *').forEach((e) => e.remove()); // RONDA 218: la película (≈860 nodos y la réplica de Neety, 19 MB decodificada) no se copia al eco: es una imagen, no texto que haya que volver blanco
       caja.appendChild(copia);
       s.path.appendChild(caja);

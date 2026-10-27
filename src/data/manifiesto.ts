@@ -9,7 +9,7 @@ export type Principio = {
 
 export const manifiesto = {
   titulo: 'Manifiesto',
-  firma: 'Eric y Andoni', // ronda 156 (Eric): sin «Donostia»
+  firma: 'savvia', // ronda 296 (Eric): «pon savvia en vez de Eric y Andoni» (antes «Eric y Andoni»; ronda 156: sin «Donostia»)
   principios: [
     {
       num: '01',

@@ -19,8 +19,11 @@ export function formar(pz: HTMLElement, forma: Forma) {
   FORMAS.forEach((f) => pz.classList.toggle(f, f === forma));
   pz.classList.remove('interactivo', 'centra');
   pz.dataset.formada = '1';
-  cargar(pz);
+  cerca.unobserve(pz); cerca.observe(pz);
 }
+// 27/10 · Eric: «a veces se carga como skeleton: tarjetas de colores con su mockup vacío». Desde que /proyectos va sin páginas se forman las 45 piezas a la
+// vez, y cargarlas todas de golpe dejaba en cola las que se ven. Cada pieza descarga lo suyo al acercarse (pantalla y media antes de asomar)
+const cerca = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { cerca.unobserve(e.target); cargar(e.target as HTMLElement); } }), { rootMargin: '150% 0px' });
 
 // solo se descargan las imágenes de la forma visible (y, en la mesa, la lámina de la estación de la web)
 function cargar(pz: HTMLElement) {

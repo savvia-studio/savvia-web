@@ -3,7 +3,7 @@ import type { manifiesto as ManifiestoEs } from './manifiesto';
 
 export const manifiesto: typeof ManifiestoEs = {
   titulo: 'Manifesto',
-  firma: 'Eric and Andoni',
+  firma: 'savvia',
   principios: [
     {
       num: '01',

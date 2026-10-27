@@ -2,7 +2,7 @@
 // RONDA 62 · TODOS LOS PROYECTOS (referencia: focuslab.agency/work). RONDA 63 (Andoni): «en light mode; los destacados, como en "Más proyectos";
 // los filtros más elegantes y un buscador inteligente». En claro (Rosa niebla); los destacados son PIEZAS (degradado de su web + navegador, o la mesa
 // con la web en el monitor) en un mosaico asimétrico; debajo, un BUSCADOR que entiende sinónimos, acentos y erratas, y filtros tipográficos con
-// recuento. Todo se filtra y se pagina en la página; el estado va en la dirección (?q=&servicio=&sector=&p=).
+// recuento. Todo se filtra en la página; el estado va en la dirección (?q=&servicio=&sector=).
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Carriles from '../components/Carriles.astro';
@@ -11,7 +11,6 @@ import PiezaCasa, { type ObraCasa } from '../components/obra/PiezaCasa.astro';
 import Visor from '../components/obra/Visor.astro';
 import Cta from '../components/Cta.astro';
 import Voces from '../components/Voces.astro';
-import Cuadricula from '../components/Cuadricula.astro';
 import { CASOS_LISTOS } from '../lib/lanzamiento';
 import { proyectosDe, servicio } from '../data/idioma';
 import { langDe, ruta } from '../lib/i18n';
@@ -108,7 +107,12 @@ const FILTROS = [
   { k: 'servicio', n: en ? 'Service' : 'Servicio', ops: opciones((o) => o.servicios) },
   { k: 'categoria', n: en ? 'Category' : 'Categoría', ops: opciones((o) => o.categorias) },
 ] as const;
-const POR_PAGINA = 16; // de 16 en 16 al bajar (dos vueltas del mosaico)
+// 27/10 · sin páginas: proyectos en TRAMOS con un mentor detrás de cada uno (antes, de 16 en 16 con «Ver más proyectos»). Tantos mentores como tramos
+// de ~11 quepan (de 1 a 4) y repartidos a partes iguales, con el último siempre al final: nunca queda un proyecto suelto tras el último mentor.
+// La misma cuenta, en el script (cortes()).
+const MENTORES = home(lang).proyectos.testimonios.length;
+const cortes = (n: number) => { const c = Math.max(1, Math.min(MENTORES, Math.round(n / 11))); return Array.from({ length: c }, (_, k) => Math.round((n * (k + 1)) / c)); };
+const CORTES = cortes(OBRAS.length);
 const casaDe = (o: Obra): ObraCasa => ({
   slug: o.slug, nombre: o.nombre, sector: o.sector, href: o.href, colores: o.colores,
   video: o.portada.src ? { src: o.portada.src, poster: o.portada.poster } : undefined,
@@ -128,7 +132,8 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? 'Our featured projects since 2020, both no-code and agentic development.' : 'Nuestros proyectos destacados desde 2020, tanto de no-code como desarrollo agéntico.'}</p>
     </header>
 
-    <section class="wrap todos" aria-label={en ? 'All projects' : 'Todos los proyectos'} data-todos data-por-pagina={POR_PAGINA}>
+    <!-- 27/10 · Eric: en móvil, sin las dos cruces del vértice de la fila de filtros -->
+    <section class="wrap todos" aria-label={en ? 'All projects' : 'Todos los proyectos'} data-todos data-carril-sin-cruces-movil>
       <!-- RONDA 64 · «dejamos solo el buscador; en el buscador está escrito por defecto "Todos los proyectos": el titular se convierte en el propio
            buscador». El h2 es el campo: en Family, del tamaño de un titular; al escribir, busca. A la derecha, discretos: «Filtros» (se despliegan)
            y el orden de la rejilla (filas de 2 o de 3; ronda 129: fuera el «libre»). -->
@@ -170,28 +175,32 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
           </div>
         </div>
       </div>
-      <!-- cada proyecto, dentro de SU degradado (la pieza de «Más proyectos»), no la web a sangre -->
-      <ul class="rejilla mosaico" data-rejilla-obras>
+      <!-- 27/10 · Eric: «cuando no hay nada, algo centradito y más de diseño» -->
+      <div class="vacio" data-vacio hidden>
+        <p class="font-display text-h2 vacio-t">{en ? 'Nothing here, yet.' : 'Aquí no hay nada, todavía.'}</p>
+        <p class="text-sub text-fg2 mt-4">{en ? 'No project matches all those filters at once.' : 'Ningún proyecto cumple todos esos filtros a la vez.'}</p>
+        <div class="mt-8"><Cta variante="secundario" flecha="no" data-limpiar><svg class="ic-papelera" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V5.2c0-.66.54-1.2 1.2-1.2h2.6c.66 0 1.2.54 1.2 1.2V7M6.5 7l.8 11.3c.07.97.88 1.7 1.85 1.7h5.7c.97 0 1.78-.73 1.85-1.7L17.5 7M10.2 10.8v5.6M13.8 10.8v5.6" /></svg>{en ? 'Clear filters' : 'Quitar filtros'}</Cta></div>
+      </div>
+      <!-- cada proyecto, dentro de SU degradado (la pieza de «Más proyectos»), no la web a sangre.
+           27/10 · Eric: «en vez de "Ver más proyectos", al tener cuatro mentores: serie de proyectos, mentor, serie de proyectos, mentor…»: TRAMOS de 11
+           (las 44 piezas son cuatro tramos; 11 = filas de 3 · 2 · 3 · 3 del mosaico) y, tras cada uno, un mentor a todo el ancho (todos como el primero: retrato a la izquierda,
+           cita a la derecha). Sin JS ya van así; al filtrar, el script los recoloca (uno por tramo completo y, si no, uno al final) -->
+      <ul class="rejilla mosaico" data-rejilla-obras data-eco-ultimo>
+        {/* los mentores que no caben en un corte (pocos proyectos) también van, escondidos: el script los saca al filtrar */}
         {
           OBRAS.map((o, i) => (
-            <li data-obra data-slug={o.slug} data-forma={AJUSTES[o.slug]?.forma} data-nav={AJUSTES[o.slug]?.nav?.join(',')} data-servicios={o.servicios.join('|')} data-categoria={o.categorias.join('|')} data-sector={o.sector} data-pais={o.pais.join('|')} data-tec={o.tec.join('|')} data-texto={texto(o)} data-nombre={o.nombre}>
+            <Fragment>
+            <li data-obra data-slug={o.slug} data-forma={AJUSTES[o.slug]?.forma} data-navegador={AJUSTES[o.slug]?.nav?.join(',')} data-servicios={o.servicios.join('|')} data-categoria={o.categorias.join('|')} data-sector={o.sector} data-pais={o.pais.join('|')} data-tec={o.tec.join('|')} data-texto={texto(o)} data-nombre={o.nombre}>
               <PiezaCasa o={casaDe(o)} i={i} />
             </li>
+            {CORTES.includes(i + 1) && <li class="mentor" data-mentor><Voces k={CORTES.indexOf(i + 1)} /></li>}
+            </Fragment>
           ))
         }
+        {Array.from({ length: MENTORES - CORTES.length }, (_, j) => CORTES.length + j).map((k) => <li class="mentor" data-mentor hidden><Voces k={k} /></li>)}
       </ul>
-      <p class="vacio text-fg2" data-vacio hidden>{en ? 'Nothing matches those filters.' : 'Nada con esos filtros.'} <button type="button" class="link" data-limpiar>{en ? 'See all' : 'Ver todos'}</button></p>
-      <!-- 26/10 · Eric: «a nivel de SEO, ¿una paginación o un botón de cargar más? Así no se hace infinito»: fuera el scroll infinito (no dejaba llegar al
-           pie). Las 44 piezas van en el HTML; con JS se enseñan de 16 en 16 y este botón —un enlace de verdad a ?p=2, que vale sin JS y se comparte— trae
-           la tanda siguiente -->
-      <div class="mas" data-mas hidden><Cta href="?p=2" variante="secundario" flecha="abajo" data-mas-btn>{en ? 'See more projects' : 'Ver más proyectos'}</Cta></div>
     </section>
-    <!-- RONDA 296 · Eric: el slider de los cuatro mentores (descartado de la home), antes del pie: si un filtro deja uno o ningún proyecto, la página no se queda descolgada -->
-    <Voces />
-    <!-- y debajo, la cuadrícula de la home (Eric: «debajo del slider de ilustraciones, el grid»: la ola del pie pasa por debajo de sus líneas) -->
-    <!-- 26/10 · Eric: «que la ola marrón quede por detrás y por delante el grid, con su cambio de color a blanco»: una <section> con su .wrap dentro, que es lo
-         que busca el ECO de la gota del pie (entradas.ts, ronda 216): lo que cubre el marrón se ve en blanco -->
-    <section class="cuad-pie" aria-label={en ? 'Clients and testimonials' : 'Clientes y testimonios'}><div class="wrap"><Cuadricula /></div></section>
+    <!-- 27/10 · Eric: fuera la cuadrícula de clientes y testimonios («ya la tenemos en la home y aquí es demasiado») -->
     <Visor obras={OBRAS.map((o) => ({ slug: o.slug, nombre: o.nombre, sector: o.sector, colores: o.colores, video: o.portada.src || undefined, poster: o.portada.poster }))} />
   </main>
   <Pie />
@@ -258,7 +267,8 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   };
 
   const caja = document.querySelector<HTMLElement>('[data-todos]')!;
-  const POR = Number(caja.dataset.porPagina) || 6;
+  const mentores = [...caja.querySelectorAll<HTMLElement>('[data-mentor]')];
+  const cortes = (n: number) => { const c = Math.max(1, Math.min(mentores.length, Math.round(n / 11))); return Array.from({ length: c }, (_, k) => Math.round((n * (k + 1)) / c)); };
   const lista = caja.querySelector<HTMLElement>('[data-rejilla-obras]')!;
   const items = [...caja.querySelectorAll<HTMLElement>('[data-obra]')];
   const palabras = (s: string) => norma(s).split(/\s+/).filter(Boolean);
@@ -272,13 +282,17 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   }));
   const desps = [...caja.querySelectorAll<HTMLElement>('[data-desp]')], limpiarF = caja.querySelector<HTMLButtonElement>('[data-limpiar-f]')!;
   const ops = [...caja.querySelectorAll<HTMLButtonElement>('[data-f]')];
-  const mas = caja.querySelector<HTMLElement>('[data-mas]')!, masBtn = caja.querySelector<HTMLAnchorElement>('[data-mas-btn]')!, cuenta = caja.querySelector<HTMLElement>('[data-cuenta]')!, vacio = caja.querySelector<HTMLElement>('[data-vacio]')!;
+  const cuenta = caja.querySelector<HTMLElement>('[data-cuenta]')!, vacio = caja.querySelector<HTMLElement>('[data-vacio]')!;
   const q = new URLSearchParams(location.search);
   const F = ['pais', 'tec', 'servicio', 'categoria'] as const;
-  const filtro: Record<(typeof F)[number], string> = { pais: q.get('pais') || '', tec: q.get('tec') || '', servicio: q.get('servicio') || '', categoria: q.get('categoria') || '' };
-  let busca = '', pagina = Math.max(1, Number(q.get('p')) || 1); // sin buscador (el motor de búsqueda se queda por si vuelve); tandas mostradas
+  // 27/10 · Eric: «para que nunca nunca nos quedemos vacíos, el filtrado tiene que ser independiente: si filtras algo y luego vas a otro y filtras otra cosa,
+  // se quita el filtro anterior». UN filtro a la vez (cada opción tiene al menos un proyecto); de una dirección con varios, vale el primero
+  const filtro: Record<(typeof F)[number], string> = { pais: '', tec: '', servicio: '', categoria: '' };
+  const deUrl = F.find((k) => q.get(k));
+  if (deUrl) filtro[deUrl] = q.get(deUrl)!;
+  let busca = ''; // sin buscador (el motor de búsqueda se queda por si vuelve)
 
-  let quedan = false, reentrar = false; // reentrar: al filtrar, las piezas vuelven a entrar como al llegar
+  let reentrar = false; // reentrar: al filtrar, las piezas vuelven a entrar como al llegar
   // el mosaico de «Más proyectos» de la home (Anteriores.astro › SITIO): columna, proporción y cuánto baja cada pieza (en pasos de 4 px); ocho sitios en
   // filas de 3 · 2 · 3 que se repiten; se reparten según el orden de lo que se ve (al filtrar, el mosaico se recompone)
   // columna · proporción · cuánto baja (pasos de 4 px) · FORMA (las verticales, en móvil; las anchas, en escritorio) · dónde asoma el navegador (x, y, ancho en %)
@@ -289,6 +303,20 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     ['2 / span 4', '4 / 5', 0, 'movil'], ['8 / span 4', '1 / 1', 24, 'navegador', [7, 11, 132], 0],
     ['1 / span 3', '1 / 1', 0, 'navegador', [6, 17, 118], -2.5], ['5 / span 4', '3 / 4', 0, 'tel', undefined, -4], ['10 / span 3', '4 / 5', 32, 'navegador', [9, 20, 118], 4],
   ];
+  const quietoP = matchMedia('(prefers-reduced-motion: reduce)');
+  let soltarT = 0, destinoP = 0; // adónde sube la página al filtrar
+  const congelar = () => { if (!lista.style.minHeight) lista.style.minHeight = `${lista.offsetHeight}px`; };
+  const soltar = () => { clearTimeout(soltarT); removeEventListener('scrollend', alFin); lista.style.minHeight = ''; };
+  const alFin = () => { if (scrollY <= destinoP + 1) soltar(); };
+  // se suelta al terminar la subida (scrollend; si el navegador no lo tiene o alguien interrumpe la subida, como mucho a los 2,5 s)
+  const soltarAlLlegar = () => {
+    clearTimeout(soltarT);
+    if (scrollY <= destinoP + 1) { requestAnimationFrame(soltar); return; }
+    addEventListener('scrollend', alFin);
+    const mirar = () => { if (!lista.style.minHeight) return; if (scrollY <= destinoP + 1) soltar(); else requestAnimationFrame(mirar); };
+    requestAnimationFrame(mirar);
+    soltarT = window.setTimeout(soltar, 2500);
+  };
   const pintar = (mover = false) => {
     const terminos = palabras(busca).map((w) => ({ orig: w, variantes: inverso.get(w) ?? [w] }));
     const pasan = indice
@@ -296,38 +324,48 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       .map((x, n) => ({ ...x, n, s: terminos.length ? puntuar(terminos, x.campos) : 1 }))
       .filter((x) => x.s > 0)
       .sort((a, b) => b.s - a.s || a.n - b.n);
-    const total = Math.max(1, Math.ceil(pasan.length / POR));
-    pagina = Math.min(pagina, total);
+    // 27/10 · Eric: «a mitad de página, al filtrar, a veces se ve el footer un segundo y luego sube»: con menos proyectos la página encogía bajo el scroll y el
+    // navegador saltaba al final antes de la subida. Mientras sube, la rejilla CONSERVA su alto (congelar); se suelta al llegar arriba
+    if (mover) congelar();
     items.forEach((it) => (it.hidden = true));
-    pasan.forEach(({ it }) => lista.append(it)); // el orden, por relevancia
-    const ya = items.filter((it) => it.dataset.visto === '1').length;
-    pasan.slice(0, pagina * POR).forEach(({ it }, i) => { it.hidden = false; const nueva = it.dataset.visto !== '1'; it.dataset.visto = '1'; it.style.setProperty('--i', String(nueva ? Math.max(0, i - ya) % POR : 0)); const st = SITIO[i % SITIO.length], pz = it.querySelector<HTMLElement>('[data-pieza-casa]')!;
+    mentores.forEach((m) => (m.hidden = true));
+    // el orden, por relevancia; tras cada tramo, un mentor (el último, al final). El mosaico empieza de nuevo en cada tramo
+    const cs = cortes(pasan.length), inicio: number[] = [];
+    let m = 0, desde = 0;
+    pasan.forEach(({ it }, i) => { inicio.push(desde); lista.append(it); if (cs[m] === i + 1) { mentores[m].hidden = false; lista.append(mentores[m++]); desde = i + 1; } });
+    if (!pasan.length) { mentores[0].hidden = false; lista.append(mentores[0]); }
+    mentores.slice(m || 1).forEach((x) => lista.append(x)); // los que sobran, al final y escondidos
+    pasan.forEach(({ it }, i) => { it.hidden = false; const nueva = it.dataset.visto !== '1'; it.dataset.visto = '1'; it.style.setProperty('--i', String(i % 3)); const st = SITIO[(i - inicio[i]) % SITIO.length], pz = it.querySelector<HTMLElement>('[data-pieza-casa]')!;
       // 26/10 · Eric: «cada proyecto se muestra de una manera y siempre tiene que ser así» y «tu sistema estaba mejor: ahora no siempre se cumplen los
       // espacios»: el SITIO del mosaico pone tamaño y colocación (columna, proporción, cuánto baja); el PROYECTO pone su forma —solo tres: navegador,
       // mesa con la pantalla grande o mesa con el móvil— y su navegador [x, y, ancho, giro] (portfolio-orden.json › piezas), igual filtrando o en cualquier puesto
       it.style.setProperty('--col', st[0]); it.style.setProperty('--ratio', st[1]); it.style.setProperty('--baja', String(st[2]));
       const sb = SITIO[items.indexOf(it) % SITIO.length]; // respaldo para un proyecto sin pieza propia: la de su puesto sin filtros
       const forma = ((it.dataset.forma as Forma | undefined) ?? sb[3]) === 'tel' ? 'movil' : ((it.dataset.forma as Forma | undefined) ?? sb[3]);
-      const nav = it.dataset.nav?.split(',').map(Number), m = nav ?? [...(sb[4] ?? [10, 23, 116]), sb[5] ?? 0];
+      const nav = it.dataset.navegador?.split(',').map(Number), m = nav ?? [...(sb[4] ?? [10, 23, 116]), sb[5] ?? 0];
       pz.style.setProperty('--mx', m[0] + '%'); pz.style.setProperty('--top', m[1] + '%'); pz.style.setProperty('--mw', m[2] + '%'); pz.style.setProperty('--giro', m[3] + 'deg');
-      pz.style.setProperty('--i', String((nueva ? i - ya : i) % 3 + 1));
+      pz.style.setProperty('--i', String(i % 3 + 1));
       formar(pz, forma); preparar(pz); entrar(pz, reentrar && !nueva);
     });
-    quedan = pasan.length > pagina * POR;
-    mas.hidden = !quedan; masBtn.href = `?${new URLSearchParams({ ...Object.fromEntries(F.filter((k) => filtro[k]).map((k) => [k, filtro[k]])), p: String(pagina + 1) })}`;
     ops.forEach((b) => b.setAttribute('aria-pressed', String(filtro[b.dataset.f as (typeof F)[number]] === b.dataset.v)));
     const nAct = F.filter((k) => filtro[k]).length;
     limpiarF.classList.toggle('on', !!nAct); limpiarF.inert = !nAct;
+    // sin filtros, la papelera se cierra: la barrita no se queda donde estaba (el recuadro gris a la derecha de la fila, Eric 27/10)
+    if (!nAct) (window as any).__miraBarra?.();
     // cada desplegable enseña lo elegido (o «Todos») y se marca cuando filtra
     desps.forEach((d) => { const k = d.dataset.desp as (typeof F)[number], v = d.querySelector<HTMLElement>('[data-desp-v]')!; v.textContent = filtro[k] || v.dataset.todos!; d.classList.toggle('activo', !!filtro[k]); });
     vacio.hidden = pasan.length > 0;
     cuenta.textContent = busca || nAct ? `${pasan.length}/${items.length}` : String(items.length);
     cuenta.setAttribute('aria-label', `${pasan.length} ${pasan.length === 1 ? t('proyecto', 'project') : t('proyectos', 'projects')}`);
     const u = new URL(location.href);
-    ([['q', ''], ...F.map((k) => [k, filtro[k]] as const), ['p', pagina > 1 ? String(pagina) : '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
+    ([['q', ''], ...F.map((k) => [k, filtro[k]] as const), ['p', '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
     history.replaceState(null, '', u);
-    // Eric: al elegir un filtro, la página sube hasta arriba del todo, siempre en suave
-    if (mover) scrollTo({ top: 0, behavior: 'smooth' });
+    // Eric: al elegir un filtro, la página sube hasta arriba del todo, siempre en suave. En móvil (27/10), solo hasta donde la fila de filtros se pega
+    // arriba (y si aún no ha llegado ahí, no se mueve)
+    if (mover) {
+      destinoP = movil.matches ? Math.min(scrollY, Math.max(0, Math.round(arriba))) : 0;
+      scrollTo({ top: destinoP, behavior: scrollY > destinoP + 1 && !quietoP.matches ? 'smooth' : 'instant' }); soltarAlLlegar();
+    }
   };
   // los desplegables: uno abierto cada vez; cada lista baja de su caja y cabe en lo que queda de pantalla por abajo
   // abrir y cerrar con transición (clases, no `hidden`: el cierre también se anima); cerrada, la lista es inerte
@@ -347,12 +385,11 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       nube(m);
     });
   });
-  ops.forEach((b) => b.addEventListener('click', () => { filtro[b.dataset.f as (typeof F)[number]] = b.dataset.v!; pagina = 1; cerrarF(); reentrar = true; pintar(true); reentrar = false; }));
-  const limpiar = () => { F.forEach((k) => (filtro[k] = '')); pagina = 1; cerrarF(); reentrar = true; pintar(true); reentrar = false; };
+  ops.forEach((b) => b.addEventListener('click', () => { F.forEach((k) => (filtro[k] = '')); filtro[b.dataset.f as (typeof F)[number]] = b.dataset.v!; cerrarF(); reentrar = true; pintar(true); reentrar = false; }));
+  const limpiar = () => { F.forEach((k) => (filtro[k] = '')); cerrarF(); reentrar = true; pintar(true); reentrar = false; };
   caja.querySelector('[data-limpiar]')!.addEventListener('click', limpiar);
   limpiarF.addEventListener('click', limpiar);
-  // al acercarse el final de la rejilla, la tanda siguiente
-  masBtn.addEventListener('click', (e) => { e.preventDefault(); if (!quedan) return; pagina++; pintar(); });
+  limpiarF.addEventListener('transitionend', () => (window as any).__miraBarra?.()); // al terminar de abrirse o cerrarse, las celdas ya tienen su ancho
   // LA BARRITA: una píldora que se desliza hasta el filtro (o la opción) bajo el puntero y vuelve al que está abierto (o al elegido) al salir
   const mira = (caja: HTMLElement, sel: string, reposo: () => HTMLElement | null) => {
     const m = caja.querySelector<HTMLElement>(':scope > [data-mira]')!;
@@ -377,7 +414,7 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     return () => ir(reposo());
   };
   const barra = caja.querySelector<HTMLElement>('.barra-f')!;
-  const miraBarra = ((window as any).__miraBarra = mira(barra, '[data-desp-b], [data-limpiar-f]', () => desps.find(abierta)?.querySelector<HTMLElement>('[data-desp-b]') ?? [...barra.querySelectorAll<HTMLElement>('[data-desp-b], [data-limpiar-f]')].find((b) => b.matches(':hover')) ?? null));
+  const miraBarra = ((window as any).__miraBarra = mira(barra, '[data-desp-b], [data-limpiar-f]', () => desps.find(abierta)?.querySelector<HTMLElement>('[data-desp-b]') ?? [...barra.querySelectorAll<HTMLElement>('[data-desp-b], [data-limpiar-f]')].find((b) => b.matches(':hover') && !b.inert) ?? null));
   // en cada lista: sobre la opción elegida al abrirse, y siguiendo al puntero
   const mirasLista = desps.map((d) => mira(d.querySelector<HTMLElement>('[data-desp-menu]')!, '.op', () => d.querySelector<HTMLElement>('.op[aria-pressed="true"]')));
   desps.forEach((d, i) => d.querySelector('[data-desp-b]')!.addEventListener('click', () => { miraBarra(); if (abierta(d)) requestAnimationFrame(() => mirasLista[i]()); }));
@@ -385,8 +422,35 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   const flota = caja.querySelector<HTMLElement>('[data-flota]')!;
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { const ab = desps.find(abierta); if (ab) { cerrarF(); ab.querySelector<HTMLElement>('[data-desp-b]')!.focus(); } } });
   addEventListener('pointerdown', (e) => { if (!flota.contains(e.target as Node)) cerrarF(); });
+  // PEGADA: la fila de filtros, arriba del todo; mientras, la barra de la web se aparta
+  let arriba = 0, pedidoP = false;
+  const movil = matchMedia('(width < 48rem)');
+  const medir = () => (arriba = caja.getBoundingClientRect().top + scrollY + parseFloat(getComputedStyle(caja).paddingTop));
+  const pegar = () => {
+    pedidoP = false;
+    // pegada mientras la rejilla sigue debajo (el sticky la suelta al final de la sección y la barra vuelve)
+    // la barra solo se aparta si algo suyo (logotipo, iconos) cae entre los carriles, donde va la fila; si se queda, la fila se pega centrada con ella
+    const nav = document.querySelector<HTMLElement>('header[data-nav]'), f = flota.querySelector<HTMLElement>('.mandos')!.getBoundingClientRect();
+    const pisa = !nav || [...nav.children].some((c) => { const b = c.getBoundingClientRect(); return b.width > 0 && b.right > f.left && b.left < f.right; });
+    // pegada, nunca a ras: 12 px de aire arriba como poco
+    // en móvil, a ras (Eric, 27/10: «no hace falta que el filtraje sea más alto cuando se pone sticky»)
+    const n = nav?.getBoundingClientRect(), pega = movil.matches ? 0 : Math.max(12, pisa || !n ? 0 : Math.round(n.top + n.height / 2 - f.height / 2));
+    if (flota.style.getPropertyValue('--pega') !== pega + 'px') flota.style.setProperty('--pega', pega + 'px');
+    const r = flota.getBoundingClientRect(), si = arriba - scrollY <= pega + 0.5 && Math.abs(r.top - pega) <= 0.5;
+    // en móvil la barra no se aparta: la fila pasa POR ENCIMA de ella (z-index, en el CSS) (Eric, 27/10)
+    flota.classList.toggle('pegada', si); document.documentElement.classList.toggle('filtros-pegados', si && pisa && !movil.matches);
+    // y en cuanto el pie asoma, la fila vuelve a su plano para que la gota marrón la tape (la «nube» del 26/10)
+    // (cuando la cima de la gota llega a la fila: la curva, la de entradas.ts › __subeEn; antes, la barra se le montaba encima con el marrón aún lejos)
+    const pieTop = document.querySelector<HTMLElement>('[data-pie]')?.getBoundingClientRect().top ?? Infinity;
+    flota.classList.toggle('bajo-pie', pieTop <= f.bottom || !!(window as any).__subeEn?.(innerWidth / 2, f.bottom)?.hasAttribute('data-pie'));
+  };
+  const pedirP = () => { if (!pedidoP) { pedidoP = true; requestAnimationFrame(pegar); } };
+  addEventListener('scroll', pedirP, { passive: true });
+  addEventListener('resize', () => { medir(); pedirP(); });
+  medir(); pegar();
+  document.fonts?.ready.then(() => { medir(); pegar(); });
   pintar();
-  (window as any).__obras = () => ({ visibles: items.filter((i) => !i.hidden).map((i) => i.dataset.slug), busca, ...filtro, pagina, quedan });
+  (window as any).__obras = () => ({ visibles: items.filter((i) => !i.hidden).map((i) => i.dataset.slug), busca, ...filtro, mentores: mentores.filter((m) => !m.hidden).length });
 </script>
 
 <style>
@@ -410,8 +474,6 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     max-width: 14ch;
     text-wrap: balance;
   }
-  /* 26/10 · Eric: «aun así, deja espacio mejor»: el aire de una sección bajo la cuadrícula; la ola del pie sube por él sin pisar las citas */
-  .cuad-pie { padding-bottom: var(--space-section); }
   .todos {
     overflow-x: clip; /* el velo de los filtros sale a todo el ancho; clip (no hidden) no rompe el sticky */
     padding-top: calc(var(--spacing) * 12);
@@ -513,9 +575,9 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   .desp-ic { grid-area: 1 / 2 / 3 / 3; align-self: center; justify-self: end; width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.5; /* más grande y en la mitad de la caja (Eric) */ stroke-linecap: round; stroke-linejoin: round; opacity: 0.6; transition: rotate 0.4s var(--ease-out-expo); }
   .desp-b[aria-expanded='true'] .desp-ic { rotate: 180deg; }
   @media (width < 48rem) {
-    .mandos { --lu: calc(var(--spacing) * 10); width: 100%; justify-content: space-between; padding-inline: calc(var(--spacing) * 3); } /* el texto, a 16 px del borde */
+    .mandos { --lu: calc(var(--spacing) * 12); }
     .desp { flex: 1 1 0; min-width: 0; }
-    .desp-b { width: 100%; grid-template-columns: minmax(0, 1fr); padding-inline: calc(var(--spacing) * 1); }
+    .desp-b { width: 100%; grid-template-columns: minmax(0, 1fr); padding-inline: calc(var(--spacing) * 2); }
     .desp-n { font-size: 0.625rem; overflow: hidden; text-overflow: ellipsis; }
     .desp-ic { display: none; } /* sin sitio: el rótulo de arriba ya dice que es un desplegable */
     .desp-v { font-size: 0.8125rem; }
@@ -574,6 +636,13 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   .desp-menu::before, .desp-menu::after { margin-inline: calc(var(--spacing) * -2); border: 1px solid transparent; }
   .desp-menu::before { top: calc(var(--spacing) * -2); margin-bottom: calc(var(--spacing) * -12); border-bottom: 0; border-radius: calc(var(--spacing) * 5) calc(var(--spacing) * 5) 0 0; background: linear-gradient(var(--bg, #eadde7), transparent) padding-box; }
   .desp-menu::after { bottom: calc(var(--spacing) * -2); margin-top: calc(var(--spacing) * -12); border-top: 0; border-radius: 0 0 calc(var(--spacing) * 5) calc(var(--spacing) * 5); background: linear-gradient(transparent, var(--bg, #eadde7)) padding-box; }
+  /* 27/10 · Eric: «se ve una rayita por la g de Desarrollo agéntico»: el filo transparente de 1 px de la nube dejaba una franja SIN tapar en el borde de
+     fuera, y con posiciones de medio píxel asomaban por ella los rabos de las letras. La nube tapa hasta el borde por arriba y por abajo y lleva ella
+     el filo de ese lado (la nube va encima del outline y lo tapaba: «ahora no se ve el borde»), OPACO: la línea de la casa ya mezclada con el fondo, para
+     que no se sume a la de debajo y salga más oscura; a los lados sigue el filo transparente */
+  .desp-menu { --filo-opaco: color-mix(in srgb, var(--color-cacao) 15%, var(--bg, #eadde7)); }
+  .desp-menu::before { border-top: 1px solid var(--filo-opaco); }
+  .desp-menu::after { border-bottom: 1px solid var(--filo-opaco); }
   .desp-menu.sigue-arriba::before, .desp-menu.sigue-abajo::after { opacity: 1; }
   .desp.abierto .desp-menu {
     visibility: visible;
@@ -586,6 +655,20 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   }
   .desp:nth-last-of-type(1 of .desp) .desp-menu { left: auto; right: 0; }
   @media (width < 48rem) { .desp-menu { left: 0 !important; right: 0 !important; max-width: none; } }
+  /* 27/10 · Eric: «en móvil, el dropdown mejor integrado, sin redondeos, con el filtrado de arriba»: la lista cuelga de la fila (su línea de abajo es la de
+     arriba de la lista), de carril a carril, recta, sin sombra, y se descubre de arriba abajo sin escalar ni desenfocarse */
+  @media (width < 48rem) {
+    .desp-menu {
+      top: calc(100% - 1px);
+      border-radius: 0;
+      box-shadow: none;
+      transform: none;
+      filter: none;
+      clip-path: inset(0 0 100% 0);
+    }
+    .desp.abierto .desp-menu { clip-path: inset(0); }
+    .desp-menu::before, .desp-menu::after, .op, .mira-op { border-radius: 0; }
+  }
   .op {
     display: flex;
     align-items: baseline;
@@ -631,6 +714,88 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   .limpiar-f svg { width: 1.125rem; height: 1.125rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .limpiar-f:hover { color: var(--fg); }
   .limpiar-f.on { max-width: var(--lu); opacity: 1; }
+  /* 27/10 · Andoni: «los filtros, al principio, alineados con las líneas verticales». Eric: «me encanta cómo queda integrado arriba; lo dejaría tal cual,
+     sticky y listo», «en móvil, arriba del todo, por encima del menú», «en escritorio, la barra se mantiene» y «los hovers y demás, ya sin redondeos» (se
+     probó recogerla en la píldora centrada al bajar: fuera). Una FILA DE TABLA de carril a carril que cuelga de la línea de la sección (celdas iguales con
+     filetes, sin cristal ni redondeos) que se pega ARRIBA DEL TODO. Eric: «depende del breakpoint: en móvil, encima de la barra; en escritorio bastante
+     ancho, la barra se mantiene siempre que quede fuera de las dos líneas verticales». Así que se mide: si el logotipo o los iconos caen entre los
+     carriles, la barra se aparta mientras la fila está pegada (html.filtros-pegados); si quedan fuera, se queda. La línea de la sección, más abajo, para dar aire arriba. */
+  .todos { padding-top: 0; margin-top: calc(var(--spacing) * 16); }
+  /* --pega: 0, o (si la barra se queda) lo que baja la fila para quedar centrada con ella (Eric: «alineada horizontalmente con el navbar») */
+  .flota { top: var(--pega, 0px); padding-top: 0; }
+  .flota::before { top: calc(var(--pega, 0px) * -1); height: calc(100% + var(--pega, 0px) + var(--spacing) * 12); }
+  :global(html.filtros-pegados header[data-nav]) { opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+  .mandos { flex: 1 1 auto; width: auto; padding: 0; }
+  .mandos::before { content: none; }
+  .mandos::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg, #eadde7) padding-box; /* opaca: pegada, la rejilla pasa por debajo */
+    pointer-events: none;
+  }
+  .desp { flex: 1 1 0; min-width: 0; }
+  .mandos .desp-b { width: 100%; }
+  /* los filetes entre celdas (y antes de la papelera cuando asoma); pegada, siguen hasta el borde de arriba por el aire que queda encima
+     (Eric: «completa bien las líneas y aire cuando se pone sticky») */
+  .desp + .desp, .estado-f:has(.limpiar-f.on) { border-inline-start: 1px solid var(--rule); }
+  .desp-b, .estado-f { position: relative; }
+  .desp + .desp .desp-b::before, .estado-f:has(.limpiar-f.on)::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    bottom: 100%;
+    width: 1px;
+    height: var(--pega, 0px);
+    background: var(--rule);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+  .flota.pegada .desp + .desp .desp-b::before, .flota.pegada .estado-f:has(.limpiar-f.on)::before { opacity: 1; }
+  /* pegada, más aire entre el texto y la línea de abajo (Eric); el margen negativo lo descuenta para que la rejilla no se mueva */
+  .flota.pegada { --aire: calc(var(--spacing) * 2); }
+  .mandos .desp-b { height: calc(var(--lu) + var(--aire, 0px)); padding-bottom: var(--aire, 0px); transition: height 0.3s ease, padding-bottom 0.3s ease; }
+  .mandos { margin-bottom: calc(var(--aire, 0px) * -1); transition: margin-bottom 0.3s ease; }
+  .estado-f { align-self: stretch; padding-bottom: var(--aire, 0px); transition: padding-bottom 0.3s ease; }
+  /* y el hover ocupa la celda entera, también ese aire (Eric: «arriba en sticky, el hover que ocupe todo») */
+  .flota.pegada .mandos > .mira { height: calc(var(--h, 0px) + var(--pega, 0px)); translate: var(--x, 0) calc(var(--y, 0px) - var(--pega, 0px)); }
+  /* rectos: la barrita y las cajas de la fila. La lista sí va redondeada («al ser isla») y mide lo mismo que su celda */
+  .mandos > .mira, .desp-b, .limpiar-f { border-radius: 0; }
+  /* en escritorio, al 85 % de su celda y centrada, para que se lea como isla (Eric); en móvil, a todo el ancho de la fila */
+  /* (dos reglas: un selector con «of S» que el navegador no entienda tiraría la lista entera) */
+  @media (width >= 48rem) {
+    .desp .desp-menu { left: 7.5%; right: 7.5%; min-width: 0; max-width: none; }
+    .desp:nth-last-of-type(1 of .desp) .desp-menu { left: 7.5%; right: 7.5%; }
+  }
+  /* 27/10 · Eric: «en móvil, el filtraje POR ENCIMA del navbar; no que se anime algo» y «jugar con el z-index». En móvil la barra no se aparta ni se
+     funde: la fila (y su velo) suben a un plano por encima de ella (la barra va a z 55) y la tapan al pegarse. Para eso .obras deja de ser su propio
+     plano, y la fila se pega sin crecer su aire */
+  @media (width < 48rem) {
+    .obras { z-index: auto; }
+    .flota { z-index: 56; }
+    .obras:has(.flota.bajo-pie) { z-index: 1; }
+    .flota.bajo-pie { z-index: 20; }
+    /* por encima de la barra, la fila (y su velo) tapaban también los carriles (z 40): sus dos líneas, dibujadas aquí, de arriba abajo del velo (Eric) */
+    .flota::after {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset-inline: 0;
+      top: calc(var(--pega, 0px) * -1);
+      height: calc(100% + var(--pega, 0px) + var(--spacing) * 12);
+      border-inline: 1px solid color-mix(in srgb, var(--color-niebla) 14%, transparent);
+      mix-blend-mode: difference;
+      pointer-events: none;
+    }
+    .flota::after { z-index: 1; } /* sobre la fila también (es su propio plano: isolation) */
+    .flota.bajo-pie::after { content: none; }
+    .flota.pegada { --aire: 0px; }
+    .mandos::after { border-top: 1px solid var(--rule); } /* su línea de arriba: el velo tapa la de la sección (Eric) */
+    .mandos, .mandos .desp-b, .estado-f { transition: none; }
+  }
   @media (prefers-reduced-motion: reduce) { .mira, .desp-menu, .desp.abierto .desp-menu, .op, .desp.abierto .op, .limpiar-f { transition: none !important; filter: none; } }
   /* 26/10 · Eric: «no sé si mantendría el número; creo que lo quitaría»: el recuento ya no se ve; se queda para lectores de pantalla (aria-live) */
   .cuenta { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -675,10 +840,18 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     line-height: 1.2;
   }
   .vacio {
-    margin-top: calc(var(--spacing) * 12);
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    padding-block: calc(var(--spacing) * 32);
   }
-  .mas { display: flex; justify-content: center; margin-top: calc(var(--spacing) * 32); }
-  .mas[hidden] { display: none; }
+  .vacio[hidden] { display: none; }
+  .vacio-t { text-wrap: balance; }
+  /* la papelera de la fila, también aquí (Eric) */
+  .vacio :global(.btn-tx) { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); }
+  .ic-papelera { width: 1.125rem; height: 1.125rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  /* el mentor ocupa la fila entera del mosaico (el aire, el de las filas) */
+  .mosaico > li.mentor { grid-column: 1 / -1 !important; margin-top: 0; }
   :global(::view-transition-group(*)) {
     animation-duration: 0.9s;
   }

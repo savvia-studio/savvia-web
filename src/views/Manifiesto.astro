@@ -70,10 +70,10 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
         ))
       }
       <!-- ronda 296 (Eric): fuera el cierre «Eso es savvia agentic…»; «un pelín de aire» y al final nuestra firma de correo (la de /sistema ›
-           Descargas). Eric eligió «Solo los trazos» (la rúbrica de Andoni, public/descargas/savvia-firma-trazos.png, 150 × 93 a 2×) con el nombre en Family -->
+           Descargas). Eric eligió «Solo los trazos» con el nombre en Family; después, la copa en UN trazo abierto (public/media/manifiesto/rubrica.svg ← tools/firma/rubrica-copa.cjs) -->
       <!-- la firma es un <p> más de la cortina: aparece, «Eric y Andoni» se entinta letra a letra y la rúbrica se dibuja a la vez (de izquierda a derecha) -->
       <p class="firma-final" data-lento="4">
-        <img src="/descargas/savvia-firma-trazos.png" alt="" width="150" height="93" loading="lazy" decoding="async" data-rubrica />
+        <img src="/media/manifiesto/rubrica.svg" alt="" width="160" height="104" loading="lazy" decoding="async" data-rubrica />
         <span class="sr">{manifiesto.firma}</span>
         <span class="nombre">{palabras(manifiesto.firma).map((w) => <><span class="w" aria-hidden="true">{[...w].map((c) => <span class="c">{c}</span>)}</span>{' '}</>)}</span>
       </p>
@@ -221,7 +221,7 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
   .firma-final img {
     display: block;
     margin-inline: auto;
-    width: 75px; /* el tamaño del correo */
+    width: 80px; /* la rúbrica del correo a su tamaño (75 px), con el margen del viewBox */
     height: auto;
   }
   /* la rúbrica se dibuja con una máscara que avanza de izquierda a derecha (--d, de 0 a 1, lo lleva la cortina) */
