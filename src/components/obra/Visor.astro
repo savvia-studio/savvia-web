@@ -7,6 +7,11 @@ import sharp from 'sharp';
 import { flecha } from '../../lib/flecha';
 import { icono } from '../../lib/iconos';
 export type ObraVisor = { slug: string; nombre: string; sector: string; colores: [string, string, string]; video?: string; poster: string };
+// 27/10 · Eric: «lo mismo en el slider: que el usuario pueda elegir entre elementos visuales» → probado con tres vistas (navegador · mesa · móvil de la mesa) y una
+// cápsula; después: «quitamos el móvil, se ve mal» y «solo dejamos la mesa». Cada proyecto, en la MESA: la web en el monitor de la lámina del estudio (la de
+// 5120 px, en la estación de la web). Sin cápsula.
+// la pantalla del monitor en la lámina (PiezaCasa.astro › PANT) y cuánto se amplía la lámina para que el monitor llene el panel
+const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }, ZV = 2.5;
 interface Props { obras: ObraVisor[] }
 const { obras } = Astro.props;
 const en = Astro.currentLocale === 'en';
@@ -29,13 +34,16 @@ const tomas = await Promise.all(obras.map(async (o) => {
     <div class="vis-panel" data-vis-panel>
       {
         tomas.map((o) => (
-          <article class="vis-slide g-marca" data-vis-slide data-slug={o.slug} data-n={o.nombre} data-sector={o.sector} aria-hidden="true" style={`--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]};--vf:${claro(o.colores[0]) ? '#f6f7fb' : '#000'}`}>
-            <div class="vis-marco">
-              {o.src ? (
-                <video class="vis-vid" muted loop playsinline preload="none" data-poster={o.poster} width={o.w} height={o.h} data-src={o.src} aria-label={en ? `Walkthrough of the ${o.nombre} website` : `Recorrido por la web de ${o.nombre}`} />
-              ) : (
-                <img class="vis-vid" data-img={o.poster} width={o.w} height={o.h} alt={en ? `The ${o.nombre} website` : `La web de ${o.nombre}`} decoding="async" />
-              )}
+          <article class="vis-slide" data-vis-slide data-slug={o.slug} data-n={o.nombre} data-sector={o.sector} aria-hidden="true" style={`--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]};--vf:${claro(o.colores[0]) ? '#f6f7fb' : '#000'}`}>
+            <div class="vis-mesa" style={`--z:${ZV};--px:${PANT.x + PANT.w / 2};--py:${PANT.y + PANT.h / 2}`}>
+              <img class="vis-foto" data-mesa="/media/estudio/{est}-xl.webp" alt="" width="5120" height="2880" decoding="async" />
+              <span class="vis-pant">
+                {o.src ? (
+                  <video class="vis-vid" muted loop playsinline preload="none" data-poster={o.poster} data-src={o.src} aria-label={en ? `Walkthrough of the ${o.nombre} website` : `Recorrido por la web de ${o.nombre}`} />
+                ) : (
+                  <img class="vis-vid" data-img={o.poster} alt={en ? `The ${o.nombre} website` : `La web de ${o.nombre}`} decoding="async" />
+                )}
+              </span>
             </div>
           </article>
         ))
@@ -68,8 +76,12 @@ const tomas = await Promise.all(obras.map(async (o) => {
     // el recorrido: las tarjetas que se ven ahora, en el orden del mosaico (se fija al abrir)
     let orden: HTMLElement[] = [], cur = -1, vuelta: HTMLElement | null = null, cerrando = 0;
     const medio = (s: HTMLElement) => s.querySelector<HTMLVideoElement | HTMLImageElement>('.vis-vid')!;
+    // la mesa, en la lámina de la estación de la web (la grande: el monitor ocupa media pantalla)
+    const mesa = (s: HTMLElement) => { const im = s.querySelector<HTMLImageElement>('[data-mesa]')!; const v = im.dataset.mesa!.replace('{est}', document.documentElement.dataset.estacion || 'otono'); if (im.getAttribute('src') !== v) im.src = v; };
+    addEventListener('savvia:estacion', () => slides.forEach((s) => { if (s.querySelector<HTMLImageElement>('[data-mesa]')?.src) mesa(s); }));
     // la fuente se pone la primera vez que hace falta: el visor abre con el póster y no gasta red en todos
     const carga = (s: HTMLElement) => {
+      mesa(s);
       const m = medio(s);
       if (m.dataset.cargado) return;
       m.dataset.cargado = '1';
@@ -101,7 +113,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
       nombre.textContent = on.dataset.n ?? ''; sector.textContent = on.dataset.sector ?? '';
       if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
     };
-    // RONDA 280 · caja, lámina, marco y vídeo en píxeles ENTEROS (con anchos fraccionarios asomaba una línea de 1 px entre marco y vídeo)
+    // RONDA 280 · caja y lámina en píxeles ENTEROS
     const ajusta = () => {
       if (!vis.open) return;
       caja.style.width = ''; caja.style.marginTop = ''; panel.style.height = '';
@@ -113,18 +125,6 @@ const tomas = await Promise.all(obras.map(async (o) => {
       caja.style.alignSelf = 'start';
       const pie = caja.getBoundingClientRect().height - panel.getBoundingClientRect().height;
       caja.style.marginTop = Math.max(0, Math.floor((VH - H - pie) / 2)) + 'px';
-      slides.forEach((sl) => {
-        const marco = sl.querySelector<HTMLElement>('.vis-marco')!, m = medio(sl);
-        const g = Math.round(parseFloat(getComputedStyle(marco).paddingLeft)) || 4;
-        const rw = Number(m.getAttribute('width')) || 16, rh = Number(m.getAttribute('height')) || 10;
-        // el ancho del navegador, el de la home (82 %); si la toma es alta (capturas de página entera), el alto manda y no se sale de la lámina
-        let vw = Math.round(W * 0.82) - 2 * g, vh = Math.round((vw * rh) / rw);
-        const tope = Math.round(H * 0.88) - 2 * g;
-        if (vh > tope) { vh = tope; vw = Math.round((vh * rw) / rh); }
-        const ow = vw + 2 * g, oh = vh + 2 * g;
-        marco.style.cssText = `position:absolute;box-sizing:border-box;width:${ow}px;height:${oh}px;left:${Math.floor((W - ow) / 2)}px;top:${Math.floor((H - oh) / 2)}px`;
-        m.style.cssText = `width:${vw}px;height:${vh}px;object-fit:cover;object-position:top`;
-      });
     };
     addEventListener('resize', ajusta);
     const abre = (pz: HTMLElement) => {
@@ -154,7 +154,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
     document.addEventListener('click', (e) => {
       const pz = (e.target as HTMLElement).closest<HTMLElement>('[data-abre-visor]');
       if (!pz || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web
-      if (matchMedia('(hover: none), (width < 48rem)').matches) return; // RONDA 268 · en móvil no hay visor: el toque va a la web
+      if (matchMedia('(hover: none), (width < 48rem)').matches) { if (pz.getAttribute('href') === '#') e.preventDefault(); return; } // RONDA 268 · en móvil no hay visor: el toque va a la web (sin web, nada: «#» subía la página)
       e.preventDefault(); abre(pz);
     });
     vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));
@@ -231,42 +231,18 @@ const tomas = await Promise.all(obras.map(async (o) => {
     transition: opacity 0.7s ease, visibility 0s linear 0.7s;
   }
   .vis-slide.on { opacity: 1; visibility: visible; transition: opacity 0.7s ease; z-index: 1; }
-  .vis-slide::before {
-    content: '';
+  /* ── la MESA: la lámina del estudio ampliada con el monitor en el centro del panel (sin huecos en los bordes); la foto lo cubre todo */
+  .vis-mesa {
     position: absolute;
-    inset: 0;
-    z-index: -1;
+    width: calc(var(--z) * 100cqw);
+    aspect-ratio: 16 / 9;
+    left: clamp(100cqw - var(--z) * 100cqw, 50cqw - var(--px) * var(--z) * 100cqw, 0px);
+    top: clamp(100cqh - var(--z) * 56.25cqw, 50cqh - var(--py) * var(--z) * 56.25cqw, 0px);
+    background: #2a1d17;
   }
-  .vis-slide.g-marca::before {
-    background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3), transparent 70%), var(--c1);
-  }
-  .vis-marco {
-    --r-fuera: 12px;
-    --marco: 4px;
-    width: 82cqw;
-    padding: var(--marco);
-    border-radius: var(--r-fuera);
-    overflow: hidden;
-    background: color-mix(in srgb, #fff 20%, transparent);
-    -webkit-backdrop-filter: blur(20px) saturate(1.6);
-    backdrop-filter: blur(20px) saturate(1.6);
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.32),
-      inset 0 1px 0 rgb(255 255 255 / 0.5),
-      0 0 0 1px rgb(0 0 0 / 0.08),
-      0 40px 80px -28px rgb(20 12 6 / 0.6);
-    scale: 0.96;
-    translate: 0 14px;
-    transition: scale 1s var(--ease-out-expo), translate 1s var(--ease-out-expo);
-  }
-  .vis-slide.on .vis-marco { scale: 1; translate: 0 0; transition-delay: 0.12s; }
-  .vis-vid {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: calc(var(--r-fuera) - var(--marco));
-    background: var(--vf, #000);
-  }
+  .vis-foto { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .vis-pant { position: absolute; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; overflow: hidden; background: #121213; box-shadow: 0 0 0 2px #121213; }
+  .vis-pant .vis-vid { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; background: var(--vf, #000); }
   .vis-pie {
     display: flex;
     align-items: center;
@@ -296,6 +272,6 @@ const tomas = await Promise.all(obras.map(async (o) => {
   .vis.cierra .vis-x { opacity: 0; transition: opacity 0.2s ease; }
   @media (prefers-reduced-motion: reduce) {
     .vis[open]::backdrop, .vis[open] .vis-caja, .vis[open] .vis-x { animation: none; }
-    .vis-slide, .vis-slide.on, .vis-marco { transition: none; }
+    .vis-slide, .vis-slide.on { transition: none; }
   }
 </style>
