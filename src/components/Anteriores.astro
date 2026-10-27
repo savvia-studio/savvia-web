@@ -36,7 +36,6 @@ const VOZ_EN_MOSAICO = false;
 import sharp from 'sharp';
 import MESA_MOVIL from '../data/mesa-movil.json';
 // las webs que tienen grabación en móvil (<slug>-movil.mp4); las demás, en el móvil, enseñan la de escritorio recortada
-const VISOR_ESCRITORIO = new Set(['cubbo', 'neety-com']); // en el visor, la toma de escritorio aunque la card enseñe el móvil
 const CON_MOVIL = new Set(['remerge', 'neety-com', 'cubbo']); // ronda 204: Neety, grabada por Eric en móvil (Screen Studio, 500 × 1080) · ronda 206: Cubbo (Chrome a 390 px, tools/r189/grabar.cjs)
 // RONDA 65 · dos FRANJAS entre filas del mosaico: HECHOS Y LOGOTIPOS tras la primera (estilo minimum.run: una línea, la frase a la izquierda, los hechos
 // numerados a la derecha y el muro de logotipos en baldosas, cada logotipo una máscara en el color del texto) y TESTIMONIOS tras la tercera (la captura de
@@ -63,6 +62,7 @@ const SITIO: Sitio[] = [
 // la pantalla del monitor dentro de la lámina de la mesa (medida en la ronda 6)
 const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // ronda 26: la caja blanca entera
 const LAM = { w: 1672, h: 941 };
+const ZV = 2.5; // 27/10 · en el visor, cuánto se amplía la lámina para que el monitor llene el panel (obra/Visor.astro)
 // las pantallas en perspectiva: esquinas medidas por inundación en la lámina (px): TL · TR · BR · BL
 const QUAD: Record<string, { foto: string; q: [number, number][] }> = {
   // 27/10 · Eric (el marco del móvil: «muy fiel a la realidad», «sin muesca», «cuidado con el 1 px en blanco», «que no se recorte tanto arriba»): las esquinas de la
@@ -93,6 +93,12 @@ function escenaQuad(k: string) {
 }
 // el paisaje barrido de la variante v en las cuatro estaciones (el CSS elige el de la estación de la web)
 const BARRIDO = (v: number) => ['primavera', 'verano', 'otono', 'invierno'].map((e) => `--b-${e}:url('/media/anteriores/fondos/barrido-${v}-${e}.webp')`).join(';');
+// 27/10 · las escenas que no son la propia de cada card (el botoncito): el navegador de las cards de mesa, por proporción; y el vídeo de escritorio o de móvil
+const NAV_ALT: Record<string, [number, number, number]> = { '1 / 1': [6, 17, 118], '4 / 5': [10, 23, 116], '3 / 4': [9, 20, 118] };
+// las que tienen grabación en móvil (`<slug>-movil.mp4`, con su póster `.jpg`): si el póster se lee, la hay (como la toma grande del visor)
+const GRABADA_MOVIL = new Set((await Promise.all(A.map((c) => sharp(`public/media/anteriores/video/${c.slug}-movil.jpg`).metadata().then(() => c.slug, () => '')))).filter(Boolean));
+const NAV_GIRO: Record<string, number> = { '1 / 1': -2.5, '4 / 5': 4.5, '3 / 4': 4 };
+const vid = (c: { slug: string; n: string }, movil: boolean) => `<video class="vid" muted loop playsinline preload="none" data-poster="/media/anteriores/video/${c.slug}${movil ? '-movil' : ''}.jpg" width="${movil ? 390 : 960}" height="${movil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${movil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
 import { flecha } from '../lib/flecha';
 import Cuadricula from './Cuadricula.astro'; // ronda 296: la cuadrícula, en su componente (también va en /proyectos)
 import { icono } from '../lib/iconos';
@@ -123,6 +129,14 @@ import { icono } from '../lib/iconos';
           const esMovil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug);
           // el VÍDEO de la web (con su primer fotograma de póster); Remerge, grabada como móvil. (Como HTML: Astro no renderiza funciones JSX.)
           const video = `<video class="vid" muted loop playsinline preload="none" data-poster="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.jpg" width="${esMovil ? 390 : 960}" height="${esMovil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${esMovil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
+          // 27/10 · las ESCENAS: la propia (la del sitio, como siempre) y las otras dos, para el botoncito. `nav` = la clase del navegador (mancha o claro)
+          const propia = s.tipo === 'escena' ? 'escena' : s.tipo === 'movil' || s.tipo === 'tel' ? 'movil' : 'navegador';
+          const nav = s.tipo === 'claro' ? 'claro' : 'mancha';
+          // el navegador de las cards que no lo llevan: colocado como sus vecinas de la misma proporción (sin efecto en la escena propia: solo lo leen .mancha/.claro .mockup)
+          const m = s.m ?? NAV_ALT[s.ratio], giro = s.giro ?? (s.m ? 0 : NAV_GIRO[s.ratio] ?? 0);
+          const vEscritorio = vid(c, false), vMovil = vid(c, true);
+          // el móvil de la mesa (sin espejo), solo si hay grabación en móvil
+          const qAlt = propia !== 'movil' && GRABADA_MOVIL.has(c.slug) ? escenaQuad('movil') : null;
           return (
             <>
             {/* RONDA 292 · Eric: «tras savvia agentic los 5 proyectos, luego el grid y luego 3 proyectos más»: la cuadrícula ocupa una fila entera del mosaico, entre el 5.º y el 6.º */}
@@ -159,16 +173,33 @@ import { icono } from '../lib/iconos';
                 </div>
               </figure>
             )}
-            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo === 'mancha' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};${s.m ? `--mx:${s.m[0]}%;--top:${s.m[1]}%;--mw:${s.m[2]}%;` : s.ratio === '3 / 4' ? '--top:20%;' : ''}--giro:${s.giro ?? 0}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
-              <div class={`lamina ${s.g ?? ''} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
+            {/* 27/10 · Eric: «en la home tienes que dejar como están, PERO sí que tenemos que dar la oportunidad de cambiar de mobile/mesa y eso como en proyecto»: cada card
+                va en una CELDA (lleva el sitio del mosaico y las variables) con el botoncito de escena al lado del enlace, fuera de él (como Portfolio.astro › li[data-obra]) */}
+            <div class="celda" data-celda style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};${m ? `--mx:${m[0]}%;--top:${m[1]}%;--mw:${m[2]}%;` : s.ratio === '3 / 4' ? '--top:20%;' : ''}--giro:${giro}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
+            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo !== 'claro' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} data-tipo={s.tipo} data-forma={propia} data-nav={nav} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza>
+              <div class={`lamina ${s.g ?? 'g-marca'} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
+                {/* las escenas que no son la suya: ocultas, sin descargar nada hasta que se eligen (las fotos llevan data-src; los vídeos, preload="none" y el póster al verse) */}
+                {propia !== 'navegador' && <div class="mockup" data-f="navegador"><Fragment set:html={vEscritorio} /></div>}
+                {propia !== 'escena' && (
+                  <div class="mesa alt" data-f="escena" style={`--z:2.88;--left:${(50 - (PANT.x + PANT.w / 2) * 2.88 * 100).toFixed(2)};--cy:0.5;--py:${PANT.y + PANT.h / 2}`}>
+                    {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} data-src={`/media/estudio/${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
+                    <span class="pantalla"><Fragment set:html={vEscritorio} /></span>
+                  </div>
+                )}
+                {propia !== 'movil' && qAlt && (
+                  <div class="mesa alt" data-f="movil" style={`--z:2.5;--left:${(50 - qAlt.cx * 2.5 * 100).toFixed(2)};--cy:0.5;--py:${qAlt.cy}`} data-mesa-quad>
+                    {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} data-src={`/media/anteriores/${QUAD.movil.foto}-${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
+                    <span class="pantalla quad" style={`--mascara:url(/media/anteriores/${QUAD.movil.foto}-mascara.png?v=5);--cristal:url(/media/anteriores/${QUAD.movil.foto}-cristal.png?v=5);--vx:${MESA_MOVIL.movil.video[0]}%;--vy:${MESA_MOVIL.movil.video[1]}%;--vw:${MESA_MOVIL.movil.video[2]}%;--vh:${MESA_MOVIL.movil.video[3]}%;left:${((qAlt.x0 / LAM.w) * 100).toFixed(3)}%;top:${((qAlt.y0 / LAM.h) * 100).toFixed(3)}%;width:${((qAlt.W / LAM.w) * 100).toFixed(3)}%;height:${((qAlt.H / LAM.h) * 100).toFixed(3)}%;transform:${qAlt.matriz}`}><Fragment set:html={vMovil} /></span>
+                  </div>
+                )}
                 {s.tipo === 'escena' ? (
-                  <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
+                  <div class="mesa" data-f="escena" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
                     {/* RONDA 232 · Andoni: «el de Home of Ambrose no cambia el mockup de estación»: la mesa del estudio, una lámina por estación (como el móvil) */}
                     {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} src={`/media/estudio/${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
                     <span class="pantalla"><Fragment set:html={video} /></span>
                   </div>
                 ) : quad ? (
-                  <div class="mesa" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`} data-mesa-quad>
+                  <div class="mesa" data-f="movil" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`} data-mesa-quad>
                     {/* RONDA 209 · el móvil de la mesa en la estación de la web (una lámina por estación; en espejo, la misma volteada): solo se pinta y se descarga
                         la de la estación activa */}
                     {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} src={`/media/anteriores/${QUAD[clave].foto}-${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
@@ -177,7 +208,7 @@ import { icono } from '../lib/iconos';
                 ) : s.tipo === 'tel' ? (
                   <div class="tel-m"><span class="tel-pant"><Fragment set:html={video} /></span></div>
                 ) : (
-                  <div class="mockup">
+                  <div class="mockup" data-f="navegador">
                     <Fragment set:html={video} />
                   </div>
                 )}
@@ -191,6 +222,13 @@ import { icono } from '../lib/iconos';
                 {c.sector && <p class="detail text-fg2">{c.sector}</p>}{/* RONDA 189 · Eric: a la derecha, solo la categoría (sin el dominio) */}
               </div>
             </a>
+            {/* el botoncito de ESCENA (el de /proyectos: Portfolio.astro › .escenas): navegador · mesa · móvil (este, solo si hay grabación en móvil) */}
+            <div class="escenas" role="group" aria-label={en ? `View ${c.n} as` : `Ver ${c.n} en`} data-escenas>
+              <button type="button" data-escena="navegador" aria-label={en ? 'Browser' : 'Navegador'} title={en ? 'Browser' : 'Navegador'} aria-pressed={propia === 'navegador' ? 'true' : 'false'}><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 9h18" /></svg></button>
+              <button type="button" data-escena="escena" aria-label={en ? 'Desk' : 'Mesa'} title={en ? 'Desk' : 'Mesa'} aria-pressed={propia === 'escena' ? 'true' : 'false'}><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.6" /><path d="M12 16v4M8 20h8" /></svg></button>
+              {(propia === 'movil' || qAlt) && <button type="button" data-escena="movil" aria-label={en ? 'Phone' : 'Móvil'} title={en ? 'Phone' : 'Móvil'} aria-pressed={propia === 'movil' ? 'true' : 'false'}><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.2" /><path d="M11 18h2" /></svg></button>}
+            </div>
+            </div>
             </>
           );
         })
@@ -205,21 +243,20 @@ import { icono } from '../lib/iconos';
     <div class="vis-caja" data-vis-caja>
       <div class="vis-panel" data-vis-panel>
         {
-          A.map(async (c, i) => {
-            const s = SITIO[i];
-            // RONDA 215 · Cubbo: la card enseña su móvil, pero el visor, su web de escritorio (Eric: «cubbo en desktop para cuando ampliemos»)
-            const movil = (s.tipo === 'movil' || s.tipo === 'tel') && CON_MOVIL.has(c.slug) && !VISOR_ESCRITORIO.has(c.slug);
-            // RONDA 215 · el visor usa la toma GRANDE (`<slug>-grande.mp4/.jpg`, 16:10, a más resolución) si existe; si no, la de la card. Las cards no cambian.
-            const chico = `/media/anteriores/video/${c.slug}${movil ? '-movil' : ''}`;
-            const grande = await sharp(`public${chico}-grande.jpg`).metadata().then((m) => m, () => null); // sin toma grande, falla y se usa la de la card
+          A.map(async (c) => {
+            // 27/10 · Eric: «cuando se abre el slide, que se abra SOLO con desktop mesa»: cada proyecto, en la MESA del estudio (la lámina de 5120 px en la estación de la
+            // web) con su web de ESCRITORIO en el monitor, como el visor de /proyectos (obra/Visor.astro), aunque la card enseñe el móvil. Fuera el navegador de cristal.
+            // RONDA 215 · la toma GRANDE (`<slug>-grande.mp4/.jpg`) si existe; si no, la de la card
+            const chico = `/media/anteriores/video/${c.slug}`;
+            const grande = await sharp(`public${chico}-grande.jpg`).metadata().then((m) => m, () => null);
             const base = grande ? `${chico}-grande` : chico;
-            // el tamaño del póster fija la proporción antes de cargar (la toma grande puede no ser 16:10)
-            let w = movil ? 390 : 960, h = movil ? (c.slug === 'cubbo' ? 798 : 844) : 600;
-            if (grande) { w = grande.width ?? w; h = grande.height ?? h; }
             return (
-              <article class={`vis-slide ${movil ? 'movil' : ''} ${s.fondo ? 'con-fondo' : 'g-marca'}`} data-vis-slide data-n={c.n} data-sector={c.sector ?? ''} aria-hidden="true" style={`--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]};--vf:${claro(c.color[0]) ? '#f6f7fb' : '#000'};${s.fondo ? `--fondo:url('${s.fondo}')` : ''}`}>
-                <div class="vis-marco">
-                  <video class="vis-vid" muted loop playsinline preload="none" data-poster={`${base}.jpg`} width={w} height={h} data-src={`${base}.mp4`} aria-label={en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}></video>
+              <article class="vis-slide" data-vis-slide data-n={c.n} data-sector={c.sector ?? ''} aria-hidden="true" style={`--vf:${claro(c.color[0]) ? '#f6f7fb' : '#000'}`}>
+                <div class="vis-mesa" style={`--z:${ZV};--px:${PANT.x + PANT.w / 2};--py:${PANT.y + PANT.h / 2}`}>
+                  <img class="vis-foto" data-mesa="/media/estudio/{est}-xl.webp" alt="" width="5120" height="2880" decoding="async" />
+                  <span class="vis-pant">
+                    <video class="vis-vid" muted loop playsinline preload="none" data-visor-poster={`${base}.jpg`} data-src={`${base}.mp4`} aria-label={en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}></video>
+                  </span>
                 </div>
               </article>
             );
@@ -288,11 +325,16 @@ import { icono } from '../lib/iconos';
       const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
       let cur = -1, vuelta: HTMLElement | null = null, cerrando = 0;
       const vid = (i: number) => slides[i].querySelector<HTMLVideoElement>('video')!;
+      // 27/10 · la mesa, en la lámina de la estación de la web (la de 5120 px: el monitor ocupa medio panel); vira con ella
+      const mesa = (i: number) => { const im = slides[i].querySelector<HTMLImageElement>('[data-mesa]')!; const u = im.dataset.mesa!.replace('{est}', document.documentElement.dataset.estacion || 'otono'); if (im.getAttribute('src') !== u) im.src = u; };
+      addEventListener('savvia:estacion', () => slides.forEach((s, i) => { if (s.querySelector<HTMLImageElement>('[data-mesa]')?.getAttribute('src')) mesa(i); }));
       // la fuente del vídeo se pone la primera vez que hace falta (preload="none"): el visor abre con el póster y no gasta red en los ocho
       const carga = (i: number) => {
+        mesa(i);
         const v = vid(i);
         if (v.dataset.cargado) return;
         v.dataset.cargado = '1';
+        if (v.dataset.visorPoster) v.poster = v.dataset.visorPoster;
         const so = document.createElement('source'); so.src = v.dataset.src!; so.type = 'video/mp4'; v.appendChild(so); v.load();
       };
       // RONDA 218 · Safari se quedaba sin memoria: cada vídeo del visor, una vez cargado, no se soltaba nunca. Ahora solo viven el actual y sus dos vecinos, y al cerrar se sueltan todos
@@ -323,9 +365,7 @@ import { icono } from '../lib/iconos';
         if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
       };
       vis.addEventListener('close', () => slides.forEach((_, i) => soltar(i)));
-      // RONDA 280 · Eric: «cuida mucho ese 1px entre marco y vídeo». Con anchos fraccionarios (cqw, rem, centrado) el borde del vídeo caía a medio píxel y asomaba una
-      // línea. Con el visor abierto, se miden la caja y la lámina y se fijan en píxeles ENTEROS: caja, lámina, marco (posición incluida) y vídeo, con el ratio de cada toma
-      // (los atributos width/height del <video>). El vídeo llena el marco con object-fit: cover, así que el redondeo (< 1 px) se recorta, nunca se ve.
+      // RONDA 280 · la caja y la lámina en píxeles ENTEROS (el centrado cae en un píxel exacto). 27/10: sin el navegador de cristal, ya no hay marco que medir
       const caja = vis.querySelector<HTMLElement>('[data-vis-caja]')!;
       const ajusta = () => {
         if (!vis.open) return;
@@ -333,26 +373,11 @@ import { icono } from '../lib/iconos';
         const VW = vis.clientWidth, VH = vis.clientHeight;
         let W = Math.floor(caja.getBoundingClientRect().width);
         if ((VW - W) % 2) W -= 1; // misma paridad que la ventana: el centrado cae en un píxel exacto
-        const mobil = VW < 768;
-        const H = Math.round(W / (mobil ? 0.8 : 1.6));
+        const H = Math.round(W / 1.6);
         caja.style.width = W + 'px'; panel.style.height = H + 'px';
         caja.style.alignSelf = 'start';
         const pie = caja.getBoundingClientRect().height - panel.getBoundingClientRect().height;
         caja.style.marginTop = Math.max(0, Math.floor((VH - H - pie) / 2)) + 'px';
-        slides.forEach((sl) => {
-          const marco = sl.querySelector<HTMLElement>('.vis-marco')!, v = sl.querySelector<HTMLVideoElement>('video')!;
-          const m = Math.round(parseFloat(getComputedStyle(marco).paddingLeft)) || 4;
-          const esMovil = sl.classList.contains('movil');
-          const rw = esMovil ? 390 : Number(v.getAttribute('width')) || 16, rh = esMovil ? 820 : Number(v.getAttribute('height')) || 10;
-          let ow: number, oh: number, vw: number, vh: number;
-          if (esMovil) {
-            oh = Math.round(H * 0.88); vh = oh - 2 * m; vw = Math.round(vh * rw / rh); ow = vw + 2 * m;
-          } else {
-            ow = Math.round(W * (mobil ? 0.92 : 0.82)); vw = ow - 2 * m; vh = Math.round(vw * rh / rw); oh = vh + 2 * m;
-          }
-          marco.style.cssText = `position:absolute;box-sizing:border-box;width:${ow}px;height:${oh}px;left:${Math.floor((W - ow) / 2)}px;top:${Math.floor((H - oh) / 2)}px`;
-          v.style.cssText = `width:${vw}px;height:${vh}px;object-fit:cover`;
-        });
       };
       addEventListener('resize', ajusta);
       const abre = (i: number) => {
@@ -406,10 +431,12 @@ import { icono } from '../lib/iconos';
     const conHover = matchMedia('(hover: hover)').matches;
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const tactiles: { pz: HTMLElement; entra: () => void; sale: () => void }[] = [];
-      document.querySelectorAll<HTMLElement>('.pieza.mancha, .pieza.claro').forEach((pz) => {
-        const mk = pz.querySelector<HTMLElement>('.mockup'), lam = pz.querySelector<HTMLElement>('.lamina');
+      // 27/10 · todas las piezas llevan navegador (el botoncito de escena puede ponerlo): solo se mueve si es la escena que se ve
+      document.querySelectorAll<HTMLElement>('[data-pieza]').forEach((pz) => {
+        const mk = pz.querySelector<HTMLElement>('.mockup[data-f="navegador"]'), lam = pz.querySelector<HTMLElement>('.lamina');
         if (!mk || !lam) return;
         const entra = () => {
+          if (pz.dataset.forma !== 'navegador' || !mk.offsetWidth) return;
           pz.classList.add('interactivo');
           const W = lam.clientWidth, H = lam.clientHeight, s = (W * 0.88) / mk.offsetWidth;
           mk.style.setProperty('--hs', String(s));
@@ -432,6 +459,7 @@ import { icono } from '../lib/iconos';
         t.pz.classList.add('fijo');
         t.entra();
         new ResizeObserver(() => t.entra()).observe(lam);
+        t.pz.addEventListener('pieza:forma', () => t.entra()); // al elegir el navegador con el botoncito, nace ya centrado
       });
     }
   }
@@ -446,17 +474,22 @@ import { icono } from '../lib/iconos';
     const activos = new Set<() => void>();
     let vigilante = 0;
     const vigilar = () => { if (!vigilante) vigilante = window.setInterval(() => { activos.forEach((f) => f()); if (!activos.size) { clearInterval(vigilante); vigilante = 0; } }, 250); };
+    // 27/10 · cada pieza lleva el vídeo de cada escena: solo suena el de la que se ve (data-forma de la pieza; la escena, data-f)
+    const seVe = (v: HTMLVideoElement, pz: Element) => v.closest<HTMLElement>('[data-f]')?.dataset.f === (pz as HTMLElement).dataset.forma;
     vids.forEach((v) => {
       const pieza = v.closest('[data-pieza]')!;
-      let activo = false, jugado = false;
+      let activo = false, jugado = false, enVista = false;
       // `currentTime = 0` no basta: a veces el vídeo sigue PINTANDO el último fotograma (medido: 6 de 36 salidas, sobre todo tras 1–5 s). `load()` lo devuelve al póster,
       // que es su primer fotograma (el hero), siempre
-      const parar = () => { activo = false; activos.delete(comprueba); v.pause(); if (jugado) { jugado = false; v.load(); } };
+      // (27/10: `load()` borra el evento `pause` que estaba en cola y la pieza se quedaba en `.suena`, sin el icono de vídeo: se quita aquí)
+      const parar = () => { activo = false; activos.delete(comprueba); v.pause(); pieza.classList.remove('suena'); if (jugado) { jugado = false; v.load(); } };
       const comprueba = () => { if (activo && conRaton && !pieza.matches(':hover, :focus-visible')) parar(); };
-      const tocar = (si: boolean) => { if (si) { activo = true; jugar(v); if (conRaton) { activos.add(comprueba); vigilar(); } } else parar(); };
+      const tocar = (si: boolean) => { if (si && !seVe(v, pieza)) { if (activo) parar(); return; } if (si) { activo = true; jugar(v); if (conRaton) { activos.add(comprueba); vigilar(); } } else parar(); };
       v.addEventListener('playing', () => { jugado = true; pieza.classList.add('suena'); if (!activo) parar(); });
       v.addEventListener('timeupdate', () => { if (!activo && v.currentTime > 0.05) parar(); });
       v.addEventListener('pause', () => pieza.classList.remove('suena'));
+      // al cambiar de escena: el vídeo de la que se va, parado y al principio; el de la que llega suena si la pieza sigue a la vista (táctil) o bajo el cursor
+      pieza.addEventListener('pieza:forma', () => { if (!seVe(v, pieza)) parar(); else if (!reducido && (conRaton ? pieza.matches(':hover, :focus-visible') : enVista)) tocar(true); });
       if (reducido) return;
       document.addEventListener('visibilitychange', () => { if (document.hidden && !v.hasAttribute('data-siempre')) parar(); });
       addEventListener('blur', () => { if (!v.hasAttribute('data-siempre')) parar(); });
@@ -469,7 +502,7 @@ import { icono } from '../lib/iconos';
         pieza.addEventListener('focusout', () => tocar(false));
         // si la pieza sale de la pantalla (scroll con el cursor encima), también se reinicia
         new IntersectionObserver((e) => { if (!e[0].isIntersecting) parar(); }, { threshold: 0 }).observe(pieza);
-      } else new IntersectionObserver((e) => tocar(e[0].isIntersecting), { threshold: 0.55 }).observe(pieza);
+      } else new IntersectionObserver((e) => { enVista = e[0].isIntersecting; tocar(enVista); }, { threshold: 0.55 }).observe(pieza);
     });
     // las pantallas en perspectiva: la homografía lleva píxeles → hace falta la escala real de la lámina (--s = ancho de la mesa / 1672)
     const mesas = [...document.querySelectorAll<HTMLElement>('[data-mesa-quad]')];
@@ -657,6 +690,35 @@ import { icono } from '../lib/iconos';
       new IntersectionObserver((e) => { visible = e[0].isIntersecting; programar(); }, { threshold: 0.3 }).observe(voz);
     }
   }
+  // 27/10 · EL BOTONCITO DE ESCENA (el de /proyectos): cambia la escena de la card (navegador · mesa · móvil) poniendo su clase de forma en la pieza; la nueva entra
+  // enfocándose. Las fotos de la mesa elegida se piden entonces (llevan data-src); los vídeos, como siempre (póster al verse, fuente al sonar)
+  {
+    const FORMAS = ['mancha', 'claro', 'escena', 'movil'];
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll<HTMLElement>('[data-celda]').forEach((celda) => {
+      const pz = celda.querySelector<HTMLElement>('[data-pieza]')!;
+      celda.querySelector('[data-escenas]')?.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-escena]');
+        if (!b || b.getAttribute('aria-pressed') === 'true') return;
+        const f = b.dataset.escena!;
+        celda.querySelectorAll<HTMLButtonElement>('[data-escena]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        const ve = pz.querySelector<HTMLElement>(`.lamina > [data-f="${f}"]`);
+        ve?.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((im) => { if (!im.getAttribute('src')) im.src = im.dataset.src!; });
+        pz.classList.remove('interactivo', 'centra', ...FORMAS);
+        pz.classList.add(f === 'navegador' ? pz.dataset.nav! : f);
+        pz.dataset.forma = f;
+        // la pantalla en perspectiva necesita la escala real de su mesa (oculta medía 0)
+        if (ve?.matches('[data-mesa-quad]')) ve.style.setProperty('--s', String(ve.offsetWidth / 1672));
+        // el póster del vídeo de la escena que llega (el observador de carteles no ve lo que estaba oculto)
+        ve?.querySelectorAll<HTMLVideoElement>('video[data-poster]').forEach((v) => { if (!v.poster) v.poster = v.dataset.poster!; });
+        pz.dispatchEvent(new Event('pieza:forma'));
+        if (quieto) return;
+        pz.classList.remove('aparece'); void pz.offsetWidth; pz.classList.add('aparece');
+        setTimeout(() => pz.classList.remove('aparece'), 650);
+      });
+    });
+    document.getElementById('anteriores')?.classList.add('con-escenas'); // sin JS, el botoncito no está
+  }
   // ENTRADA de cada pieza al asomar (sin JS o con movimiento reducido están ya puestas: los estados ocultos cuelgan de html.anima)
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
   document.querySelectorAll('[data-pieza]').forEach((p) => io.observe(p));
@@ -707,6 +769,8 @@ import { icono } from '../lib/iconos';
     display: block;
     min-width: 0;
   }
+  /* 27/10 · la CELDA del mosaico: lleva el sitio (antes en la pieza) y, encima de la card y fuera del enlace, el botoncito de escena */
+  .celda { position: relative; min-width: 0; }
   .banda, .cuadricula-arriba { grid-column: 1 / -1; }
   /* ── EL TESTIMONIO que rota (ronda 66): el retrato al carboncillo a la izquierda, la cita en Family y quién la dice entre dos flechas finas; en claro */
   .voz {
@@ -892,8 +956,8 @@ import { icono } from '../lib/iconos';
   /* y más aire al final: la gota de la sección que llega (24 lvh de alto) le tocaba el nombre de THX */
   @media (width < 64rem) {
     #anteriores { padding-bottom: calc(var(--space-section) + var(--spacing) * 24); }
-    .pieza.mancha .lamina,
-    .pieza.claro .lamina { aspect-ratio: 1 / 1; }
+    /* (por el sitio de la card, no por la escena que se ve: al cambiarla con el botoncito, la card no cambia de alto) */
+    .pieza:is([data-tipo='mancha'], [data-tipo='claro']) .lamina { aspect-ratio: 1 / 1; }
     .pieza[data-slug='kymatio'] .mockup,
     .pieza[data-slug='thx'] .mockup { top: 12%; }
   }
@@ -903,7 +967,7 @@ import { icono } from '../lib/iconos';
       align-items: start;
       row-gap: calc(var(--spacing) * 36); /* ronda 292: 144 px entre filas (antes 192; «aquí menos aire»); el aire extra entre la 2.ª y la 3.ª va en `baja`; ronda 67: «más aire entre todo el contenido verticalmente» (antes 32) */
     }
-    .pieza {
+    .celda {
       grid-column: var(--col);
       margin-top: calc(var(--spacing) * var(--baja, 0));
     }
@@ -917,6 +981,62 @@ import { icono } from '../lib/iconos';
       aspect-ratio: 1 / 1;
     }
   }
+
+  /* 27/10 · las ESCENAS de cada card (el botoncito): solo la de su forma (la clase de la pieza); las demás, fuera */
+  .pieza:not(.mancha):not(.claro) .lamina > [data-f='navegador'],
+  .pieza:not(.escena) .lamina > [data-f='escena'],
+  .pieza:not(.movil) .lamina > [data-f='movil'] { display: none; }
+  /* en la mesa (monitor o móvil), sin el fondo de marca: la foto lo cubre (las cards de mesa también llevan g-marca, para cuando enseñan el navegador) */
+  .pieza:is(.escena, .movil) .lamina::before { display: none; }
+  /* la mesa de otra escena: con su ampliación, sin dejar huecos en los bordes (obra/PiezaCasa.astro) */
+  .mesa.alt {
+    left: clamp(100cqw - var(--z) * 100cqw, var(--left) * 1cqw, 0px);
+    top: clamp(100cqh - var(--z) * 56.25cqw, var(--cy) * 100cqh - var(--py) * var(--z) * 56.25cqw, 0px);
+  }
+
+  /* ── el botoncito de ESCENA (27/10, Eric; el de /proyectos, Portfolio.astro): arriba a la izquierda de la card, la cápsula de cristal del icono de vídeo, con las
+     escenas que tiene el proyecto; la que se ve, marcada. Con ratón asoma al pasar por la card; en táctil, siempre */
+  .escenas {
+    position: absolute;
+    z-index: 4;
+    top: calc(var(--spacing) * 3);
+    left: calc(var(--spacing) * 3);
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #1a1210 55%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.4s ease, filter 0.4s ease, scale 0.5s var(--ease-out-expo);
+  }
+  .escenas button {
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 7);
+    height: calc(var(--spacing) * 7);
+    border-radius: var(--radius-full);
+    color: color-mix(in oklab, var(--color-niebla) 62%, transparent);
+    cursor: pointer;
+    transition: color 0.25s ease, background-color 0.25s ease;
+  }
+  .escenas button:hover { color: var(--color-niebla); }
+  .escenas button[aria-pressed='true'] { background: var(--color-niebla); color: var(--color-cacao); cursor: default; }
+  .escenas button:focus-visible { outline: 2px solid var(--color-niebla); outline-offset: 1px; }
+  .escenas svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  @media (hover: hover) {
+    .celda:not(:hover):not(:focus-within) .escenas { opacity: 0; filter: blur(4px); scale: 0.9; pointer-events: none; }
+  }
+  /* no existe hasta que la card se descubre (.visto) y, al descubrirse, espera a que la lámina esté casi abierta (su recorte: 1,2 s, con el escalonado --i) */
+  :global(html.anima) .celda > .pieza:not(.visto) ~ .escenas { opacity: 0; visibility: hidden; }
+  :global(html.anima) .celda > .pieza.visto ~ .escenas { animation: escenas-llega 0.4s ease calc(0.6s + var(--i, 0) * 110ms) backwards; }
+  @keyframes escenas-llega { from { opacity: 0; filter: blur(4px); scale: 0.9; pointer-events: none; } }
+  /* sin JS no cambia nada: fuera */
+  #anteriores:not(.con-escenas) .escenas { display: none; }
+  /* el cambio: la escena nueva se enfoca (de desenfocada a nítida) */
+  .pieza.aparece .lamina > :is(.mockup, .mesa) { animation: escena-entra 0.6s var(--ease-out-expo); }
+  @keyframes escena-entra { from { opacity: 0; filter: blur(10px); } }
+  @media (prefers-reduced-motion: reduce) { .escenas { animation: none !important; } }
 
   /* ── LOS FONDOS de degradado: manchas muy desenfocadas (aerógrafo) + el grano de la web. Cada uno, distinto. */
   .lamina[class*='g-']::before {
@@ -1428,53 +1548,18 @@ import { icono } from '../lib/iconos';
     transition: opacity 0.7s ease, visibility 0s linear 0.7s;
   }
   .vis-slide.on { opacity: 1; visibility: visible; transition: opacity 0.7s ease; z-index: 1; }
-  /* el fondo de la marca: el mismo que el de la card (imagen o las dos manchas sobre el color base) */
-  .vis-slide::before {
-    content: '';
+  /* ── 27/10 · la MESA (obra/Visor.astro): la lámina del estudio ampliada con el monitor en el centro del panel (sin huecos en los bordes) y la web dentro */
+  .vis-mesa {
     position: absolute;
-    inset: 0;
-    z-index: -1;
+    width: calc(var(--z) * 100cqw);
+    aspect-ratio: 16 / 9;
+    left: clamp(100cqw - var(--z) * 100cqw, 50cqw - var(--px) * var(--z) * 100cqw, 0px);
+    top: clamp(100cqh - var(--z) * 56.25cqw, 50cqh - var(--py) * var(--z) * 56.25cqw, 0px);
+    background: #2a1d17;
   }
-  .vis-slide.g-marca::before {
-    background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3), transparent 70%), var(--c1);
-  }
-  .vis-slide.con-fondo::before { background: var(--fondo) center / cover no-repeat; }
-  /* el navegador de cristal, el mismo de las cards pero entero y centrado; la web no se corta */
-  .vis-marco {
-    --r-fuera: 12px;
-    --marco: 4px;
-    width: 82cqw;
-    padding: var(--marco);
-    border-radius: var(--r-fuera);
-    overflow: hidden;
-    background: color-mix(in srgb, #fff 20%, transparent);
-    -webkit-backdrop-filter: blur(20px) saturate(1.6);
-    backdrop-filter: blur(20px) saturate(1.6);
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.32),
-      inset 0 1px 0 rgb(255 255 255 / 0.5),
-      0 0 0 1px rgb(0 0 0 / 0.08),
-      0 40px 80px -28px rgb(20 12 6 / 0.6);
-    scale: 0.96;
-    translate: 0 14px;
-    transition: scale 1s var(--ease-out-expo), translate 1s var(--ease-out-expo);
-  }
-  .vis-slide.on .vis-marco { scale: 1; translate: 0 0; transition-delay: 0.12s; }
-  .vis-vid {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: calc(var(--r-fuera) - var(--marco));
-    background: var(--vf, #000); /* RONDA 215: el fondo asoma por el hueco de medio píxel del borde: en webs claras, claro (Eric: la línea negra de Neety) */
-  }
-  /* el móvil, de pie y centrado: el alto manda */
-  .vis-slide.movil .vis-marco {
-    --r-fuera: 30px;
-    --marco: 5px;
-    width: auto;
-    height: 88cqh;
-  }
-  .vis-slide.movil .vis-vid { height: 100%; width: auto; aspect-ratio: 390 / 820; object-fit: cover; }
+  .vis-foto { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .vis-pant { position: absolute; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; overflow: hidden; background: #121213; box-shadow: 0 0 0 2px #121213; }
+  .vis-pant .vis-vid { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; background: var(--vf, #000); }
   /* el pie: quién (nombre grande y sector) a la izquierda; a la derecha, «Visitar la web» y la barra de cristal */
   .vis-pie {
     display: flex;
@@ -1505,14 +1590,12 @@ import { icono } from '../lib/iconos';
   .vis[open] .vis-x { animation: vis-velo 0.6s ease 0.2s both; }
   .vis.cierra .vis-x { opacity: 0; transition: opacity 0.2s ease; }
   @media (width < 48rem) {
-    .vis-caja { --vw: min(100vw - calc(var(--spacing) * 6), (100dvh - calc(var(--spacing) * 44)) * 0.8); }
-    .vis-panel { aspect-ratio: 4 / 5; }
-    .vis-marco { width: 92cqw; }
+    .vis-caja { --vw: min(100vw - calc(var(--spacing) * 6), (100dvh - calc(var(--spacing) * 44)) * 1.6); }
     .vis-pie { flex-direction: column; align-items: flex-start; gap: calc(var(--spacing) * 4); }
     .vis-acciones { width: 100%; justify-content: space-between; }
   }
   @media (prefers-reduced-motion: reduce) {
     .vis[open]::backdrop, .vis[open] .vis-caja, .vis[open] .vis-x { animation: none; }
-    .vis-slide, .vis-slide.on, .vis-marco { transition: none; }
+    .vis-slide, .vis-slide.on { transition: none; }
   }
 </style>
