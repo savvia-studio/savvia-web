@@ -1,5 +1,6 @@
 ---
 import sharp from 'sharp';
+import MESA_MOVIL from '../../data/mesa-movil.json';
 // OCTUBRE 2026 · LA PIEZA DE LA HOME, PARA EL PORTFOLIO. Andoni: «los proyectos, con más aire; al hacer hover, la animación de la home (como está publicado);
 // intercalar con mockups; si es más vertical, móvil, y si es más horizontal, escritorio; y que carguen como en la home, también al filtrar».
 // Es la pieza de «Más proyectos» (Anteriores.astro): el mismo marcado, las mismas clases y el mismo CSS (copiado de allí: fondo de marca, navegador de cristal que
@@ -13,6 +14,7 @@ export type ObraCasa = {
   videoMovil?: { src: string; poster: string }; // grabación en móvil
   captura: string; // captura de escritorio (si no hay vídeo)
   movil?: string; // captura en móvil (sin ella, nunca va en teléfono)
+  zMesa?: number; zMovil?: number; // ampliación propia de la mesa con monitor y de la del móvil (portfolio-orden.json › piezas › zm / zt)
 };
 interface Props { o: ObraCasa; i: number }
 const { o, i } = Astro.props;
@@ -29,7 +31,11 @@ const LAM = { w: 1672, h: 941 };
 // 26/10 · Eric: «aquí Cubbo, como en la home, el móvil que tenemos»: el de Anteriores.astro › SITIO[3] (la lámina en ESPEJO, ×2,3, centro al 47 %)
 const COMO_HOME: Record<string, { espejo: boolean; z: number; cy: number }> = { cubbo: { espejo: true, z: 2.3, cy: 0.47 } };
 const home = COMO_HOME[o.slug];
-const Q: [number, number][] = home?.espejo ? [[467, 178], [708, 183], [729, 705], [477, 714]] : [[964, 183], [1205, 178], [1195, 714], [943, 705]];
+// 27/10 · Eric (el marco del móvil: «muy fiel a la realidad», «sin muesca», «cuidado con el 1 px en blanco», «que no se recorte tanto arriba»): las esquinas de la
+// pantalla, MEDIDAS en la foto (una recta por borde del cristal): la caja negra 4 px por fuera y el vídeo 1 px, en src/data/mesa-movil.json (tools/mesa-movil/mascara.cjs, que hace también la máscara)
+const MM = home?.espejo ? MESA_MOVIL['movil-espejo'] : MESA_MOVIL.movil;
+const Q = MM.caja as [number, number][];
+const VID = MM.video; // el vídeo, dentro de la caja negra: [x, y, ancho, alto] en %
 const FOTO_M = home?.espejo ? 'mesa-movil-espejo' : 'mesa-movil';
 function quad() {
   const x0 = Math.min(Q[0][0], Q[3][0]), y0 = Math.min(Q[0][1], Q[1][1]), x1 = Math.max(Q[1][0], Q[2][0]), y1 = Math.max(Q[2][1], Q[3][1]);
@@ -44,7 +50,7 @@ function quad() {
   return { x0, y0, W, H, cx: (x0 + x1) / 2 / LAM.w, cy: (y0 + y1) / 2 / LAM.h, matriz };
 }
 const q = quad();
-const ZE = 2.88, ZM = home?.z ?? 2.4, CYM = home?.cy ?? 0.5; // ampliación de la mesa (monitor) y de la del móvil
+const ZE = o.zMesa ?? 2.88, ZM = o.zMovil ?? home?.z ?? 2.4, CYM = home?.cy ?? 0.5; // ampliación de la mesa (monitor) y de la del móvil
 const leftE = 50 - (PANT.x + PANT.w / 2) * ZE * 100, pyE = PANT.y + PANT.h / 2;
 const leftM = 50 - q.cx * ZM * 100, pyM = q.cy;
 const EST = ['primavera', 'verano', 'otono', 'invierno'];
@@ -53,11 +59,13 @@ const etiqueta = en ? `Walkthrough of the ${o.nombre} website` : `Recorrido por 
 // 26/10 · Eric: «en la home THX encaja perfecto con su marco; en proyectos se corta»: el vídeo de escritorio va con SU proporción (la del póster), no
 // forzado a 16:10 y recortado; las capturas siguen a 16:10
 const medida = async (poster: string) => sharp(`public${poster}`).metadata().then((m) => [m.width ?? 960, m.height ?? 600]).catch(() => [960, 600]);
-const [vw, vh] = o.video ? await medida(o.video.poster) : [960, 600];
+// 27/10 · Eric («Home+ Casavo sale cortado»): una captura que no es del CMS (la de «solo thumbnail», 960×522) también va con SU proporción
+const propia = !o.video && o.captura.startsWith('/media/anteriores/');
+const [vw, vh] = o.video ? await medida(o.video.poster) : propia ? await medida(o.captura) : [960, 600];
 const medio = (v?: { src: string; poster: string }, img?: string, movil = false) =>
   v
     ? `<video class="vid" muted loop playsinline preload="none" data-poster="${v.poster}" width="${movil ? 390 : vw}" height="${movil ? 844 : vh}"${movil ? '' : ` style="--ar:${vw} / ${vh}"`} aria-label="${etiqueta}" data-vid><source src="${v.src}" type="video/mp4" /></video>`
-    : `<img class="vid" data-img="${img}" alt="${etiqueta}" width="${movil ? 390 : 1280}" height="${movil ? 844 : 830}" decoding="async" />`;
+    : `<img class="vid" data-img="${img}" alt="${etiqueta}" width="${movil ? 390 : propia ? vw : 1280}" height="${movil ? 844 : propia ? vh : 830}"${!movil && propia ? ` style="--ar:${vw} / ${vh}"` : ''} decoding="async" />`;
 const escritorio = medio(o.video, o.captura);
 const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '';
 ---
@@ -86,7 +94,7 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
       <>
         <div class="mesa f-movil" style={`--z:${ZM};--left:${leftM.toFixed(2)};--cy:${CYM};--py:${pyM}`} data-mesa-quad>
           {EST.map((e) => <img class="foto foto-e" data-e={e} data-img={`/media/anteriores/${FOTO_M}-${e}.webp`} alt="" width="1672" height="941" decoding="async" />)}
-          <span class="pantalla quad" style={`left:${((q.x0 / LAM.w) * 100).toFixed(3)}%;top:${((q.y0 / LAM.h) * 100).toFixed(3)}%;width:${((q.W / LAM.w) * 100).toFixed(3)}%;height:${((q.H / LAM.h) * 100).toFixed(3)}%;transform:${q.matriz}`}><Fragment set:html={enMovil} /></span>
+          <span class="pantalla quad" style={`--mascara:url(/media/anteriores/${FOTO_M}-mascara.png?v=5);--cristal:url(/media/anteriores/${FOTO_M}-cristal.png?v=5);--vx:${VID[0]}%;--vy:${VID[1]}%;--vw:${VID[2]}%;--vh:${VID[3]}%;left:${((q.x0 / LAM.w) * 100).toFixed(3)}%;top:${((q.y0 / LAM.h) * 100).toFixed(3)}%;width:${((q.W / LAM.w) * 100).toFixed(3)}%;height:${((q.H / LAM.h) * 100).toFixed(3)}%;transform:${q.matriz}`}><Fragment set:html={enMovil} /></span>
         </div>
         <div class="tel-m f-tel"><span class="tel-pant"><Fragment set:html={enMovil} /></span></div>
       </>
@@ -123,6 +131,11 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
     background: radial-gradient(46.7% 40% at 64.7% 31.3% in oklab, var(--c2), transparent 72%), radial-gradient(36.7% 36.7% at 22% 80.7% in oklab, var(--c3), transparent 70%), var(--c1);
     transition: transform 1.6s var(--ease-out-expo);
   }
+  /* 27/10 · las otras disposiciones del fondo de la vitrina de proyectos (Portfolio.astro › data-fondo: 1 B · 2 C · 3 D · 4 liso) */
+  :global([data-fondo='1']) .lamina::before { background: radial-gradient(46.7% 40% at 35.3% 31.3% in oklab, var(--c2), transparent 72%), radial-gradient(36.7% 36.7% at 78% 80.7% in oklab, var(--c3), transparent 70%), var(--c1); }
+  :global([data-fondo='2']) .lamina::before { background: radial-gradient(60% 34% at 50% 26% in oklab, var(--c2), transparent 72%), radial-gradient(60% 30% at 50% 82% in oklab, var(--c3), transparent 70%), var(--c1); }
+  :global([data-fondo='3']) .lamina::before { background: radial-gradient(42% 42% at 50% 50% in oklab, var(--c2), transparent 74%), radial-gradient(70% 30% at 50% 96% in oklab, var(--c3), transparent 70%), var(--c1); }
+  :global([data-fondo='4']) .lamina::before { background: var(--c1); }
   .pieza:hover .lamina::before { transform: scale(1.15) rotate(8deg); }
   /* en la mesa (monitor o móvil), sin el fondo de marca: la foto lo cubre */
   .pieza:is(.escena, .movil) .lamina::before { display: none; }
@@ -170,7 +183,8 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
     box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
   }
   /* el vídeo, entero y con su proporción (width/height del póster), como en la home */
-  .mockup :global(video.vid) {
+  .mockup :global(video.vid),
+  .mockup :global(img.vid[style*='--ar']) {
     aspect-ratio: var(--ar);
   }
 
@@ -179,8 +193,9 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
     position: absolute;
     width: calc(var(--z) * 100cqw);
     aspect-ratio: 16 / 9;
-    left: calc(var(--left) * 1cqw);
-    top: calc(var(--cy) * 100cqh - var(--py) * var(--z) * 56.25cqw);
+    /* con menos zoom, la lámina no deja huecos: se queda dentro de sus bordes */
+    left: clamp(100cqw - var(--z) * 100cqw, var(--left) * 1cqw, 0px);
+    top: clamp(100cqh - var(--z) * 56.25cqw, var(--cy) * 100cqh - var(--py) * var(--z) * 56.25cqw, 0px);
     transition: scale 1.6s var(--ease-out-expo);
     transform-origin: 50% var(--py);
   }
@@ -204,7 +219,14 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
   }
   .mesa .pantalla :global(.vid) { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
   /* con el filo de 2 px en el negro del bisel, como en la home (ronda 190): sin él asomaba 1 px del blanco de la pantalla de la lámina entre el marco y el vídeo */
-  .mesa .pantalla.quad { transform-origin: 0 0; border-radius: 12.5% / 5.8%; }
+  /* 27/10 · Eric: «el rounded del marco mobile tiene que ser muy fiel a la realidad» · «con muesca»: sin border-radius (daba ~30 px; la foto, 20–24 y distinto en
+     cada esquina por la perspectiva): la MÁSCARA es el cristal de la propia lámina (tools/mesa-movil/mascara.cjs), así esquinas y muesca son las de la foto */
+  /* (Eric: «rellénala de negro»): la pantalla, negra y con la forma del cristal real (-cristal.png); el vídeo, dentro, con la forma limpia (-mascara.png): si entre
+     las dos queda una rendija, es del negro del bisel */
+  .mesa .pantalla.quad { transform-origin: 0 0; box-shadow: none; background: #121213; -webkit-mask: var(--cristal) 0 0 / 100% 100% no-repeat; mask: var(--cristal) 0 0 / 100% 100% no-repeat; }
+  /* (Eric: «todavía queda un poco… en todos»: el filo de la foto ondula y sobresalía 1–2 px de la caja): la caja negra va 4 px por fuera del cristal y el vídeo,
+     dentro, en el rectángulo del cristal + 1 px (src/data/mesa-movil.json › video) */
+  .mesa .pantalla.quad > :global(*) { position: absolute; left: var(--vx); top: var(--vy); width: var(--vw); height: var(--vh); -webkit-mask: var(--mascara) 0 0 / 100% 100% no-repeat; mask: var(--mascara) 0 0 / 100% 100% no-repeat; }
   .escena:hover .mesa, .movil:hover .mesa, .escena:focus-visible .mesa, .movil:focus-visible .mesa { scale: 1.06; }
 
   /* ── el TELÉFONO de pie, algo ladeado. Andoni: «el marco del móvil, cuando no es mockup, como el marco de desktop»: la misma ventana de cristal que el

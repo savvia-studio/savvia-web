@@ -1,87 +1,116 @@
 {
  "orden": [
   "neety",
+  "wisable",
   "surepayroll",
   "monad",
   "cubbo",
+  "patchbay",
+  "transcend-network",
+  "quantus",
+  "isotrol",
   "thx",
   "gsbindex",
-  "home-of-ambrose",
+  "impact-bridge",
+  "fiallegas-abogados",
+  "junipero-vc",
+  "playground-agentico",
+  "stellar",
   "kymatio",
+  "kabila",
   "profounders-capital",
   "naterra",
+  "home-of-ambrose",
   "remerge",
   "bluence",
-  "lyra",
-  "business-online-payroll",
   "adaral",
-  "numen-games",
+  "business-online-payroll",
   "managerpro-by-codely",
   "invopop",
-  "endoaula-conecta",
   "claudia-be",
-  "valuat",
   "casa-for-agents",
-  "fiallegas-abogados",
+  "valuat",
   "gow-delivery",
-  "alpine-security",
   "homeplus-casavo",
-  "soundtown",
-  "endoaula",
   "routal",
-  "junipero-vc",
   "eleven-lab",
   "vitalera",
   "zrive",
   "ikon",
-  "isotrol",
-  "qalea",
   "kalma",
-  "kabila",
-  "impact-bridge",
-  "playground-agentico",
-  "transcend-network",
-  "stemdo",
-  "wisable",
   "greet",
-  "playground-iep"
+  "playground-iep",
+  "lyra",
+  "alpine-security",
+  "numen-games",
+  "endoaula-conecta",
+  "soundtown",
+  "endoaula",
+  "stemdo",
+  "qalea"
  ],
  "piezas": {
   "neety": {
    "forma": "navegador",
    "nav": [
-    5,
-    17,
-    111,
-    -2.5
-   ]
+    -1,
+    18.5,
+    96,
+    3.5
+   ],
+   "t": {
+    "pais": [
+     "España"
+    ],
+    "tec": [
+     "Next.js",
+     "Sanity",
+     "Figma"
+    ],
+    "servicio": [
+     "Diseño web",
+     "Desarrollo agéntico",
+     "Animación",
+     "CMS",
+     "Sistema de diseño",
+     "Multidioma"
+    ],
+    "categoria": [
+     "Ventas B2B",
+     "SaaS"
+    ]
+   },
+   "ar": 1.14
   },
   "surepayroll": {
-   "forma": "escena"
+   "forma": "navegador"
   },
   "monad": {
    "forma": "navegador",
    "nav": [
-    10,
-    20,
+    9,
+    17,
     116,
     4
-   ]
+   ],
+   "ar": 0.92
   },
   "cubbo": {
-   "forma": "movil"
+   "forma": "movil",
+   "zt": 2.45,
+   "ar": 0.8
   },
   "thx": {
    "forma": "navegador",
    "nav": [
-    6,
-    21,
+    5.5,
+    23,
     88,
     0
    ]
   },
   "gsbindex": {
-   "forma": "navegador",
+   "forma": "movil",
    "nav": [
     9,
     17,
@@ -95,7 +124,9 @@
    ]
   },
   "home-of-ambrose": {
-   "forma": "escena"
+   "forma": "escena",
+   "zm": 3.55,
+   "ar": 0.8
   },
   "kymatio": {
    "forma": "navegador",
@@ -104,28 +135,37 @@
     20,
     118,
     4
-   ]
+   ],
+   "ar": 0.9
   },
   "profounders-capital": {
    "forma": "navegador",
    "nav": [
-    5,
-    17,
+    8,
+    20.5,
     111,
-    -2.5
-   ]
+    4
+   ],
+   "ar": 0.8
   },
   "naterra": {
-   "forma": "escena"
+   "forma": "navegador",
+   "ar": 0.85
   },
   "remerge": {
    "forma": "movil"
   },
   "bluence": {
-   "forma": "escena"
+   "forma": "navegador",
+   "nav": [
+    6,
+    25.5,
+    87,
+    0
+   ]
   },
   "lyra": {
-   "forma": "navegador",
+   "forma": "escena",
    "nav": [
     9,
     16,
@@ -139,7 +179,7 @@
    ]
   },
   "business-online-payroll": {
-   "forma": "navegador",
+   "forma": "escena",
    "nav": [
     6,
     17,
@@ -150,10 +190,12 @@
     "#ffffff",
     "#ffffff",
     "#ffffff"
-   ]
+   ],
+   "zm": 3.9
   },
   "adaral": {
-   "forma": "escena"
+   "forma": "escena",
+   "zm": 3.8
   },
   "numen-games": {
    "forma": "navegador",
@@ -162,19 +204,23 @@
     20,
     118,
     4
-   ]
+   ],
+   "oculto": true
   },
   "managerpro-by-codely": {
    "forma": "navegador",
    "nav": [
-    5,
-    17,
-    111,
+    10.5,
+    21,
+    104,
     -2.5
-   ]
+   ],
+   "ar": 0.92
   },
   "invopop": {
-   "forma": "escena"
+   "forma": "escena",
+   "zm": 3.75,
+   "ar": 0.8
   },
   "endoaula-conecta": {
    "forma": "navegador",
@@ -183,19 +229,29 @@
     23,
     116,
     4
-   ]
+   ],
+   "oculto": true
   },
   "claudia-be": {
-   "forma": "movil"
+   "forma": "navegador",
+   "nav": [
+    8.5,
+    26,
+    81,
+    0
+   ],
+   "ar": 1.08
   },
   "valuat": {
-   "forma": "navegador",
+   "forma": "escena",
    "nav": [
     5,
     22,
     91,
     0
-   ]
+   ],
+   "zm": 3.6,
+   "ar": 0.8
   },
   "casa-for-agents": {
    "forma": "navegador",
@@ -204,31 +260,36 @@
     17,
     118,
     -2.5
-   ]
+   ],
+   "ar": 1.09
   },
   "gow-delivery": {
-   "forma": "escena"
+   "forma": "movil"
   },
   "alpine-security": {
-   "forma": "navegador",
+   "forma": "movil",
    "nav": [
     9,
     20,
     118,
     4
-   ]
+   ],
+   "g": 4,
+   "oculto": true
   },
   "homeplus-casavo": {
    "forma": "navegador",
    "nav": [
     5,
     17,
-    111,
-    -2.5
-   ]
+    120,
+    -2
+   ],
+   "ar": 1
   },
   "soundtown": {
-   "forma": "escena"
+   "forma": "escena",
+   "oculto": true
   },
   "endoaula": {
    "forma": "navegador",
@@ -237,34 +298,45 @@
     23,
     116,
     4
-   ]
+   ],
+   "oculto": true
   },
   "routal": {
-   "forma": "movil"
+   "forma": "escena",
+   "zm": 3.2
   },
   "junipero-vc": {
    "forma": "navegador",
    "nav": [
-    5,
-    22,
+    4,
+    29,
     90,
     0
-   ]
+   ],
+   "ar": 0.8
   },
   "eleven-lab": {
    "forma": "navegador",
    "nav": [
-    6,
-    17,
-    118,
-    -2.5
-   ]
+    5.5,
+    23,
+    86,
+    0
+   ],
+   "ar": 1.18
   },
   "vitalera": {
-   "forma": "movil"
+   "forma": "navegador",
+   "nav": [
+    4,
+    23.5,
+    104,
+    -2.5
+   ],
+   "ar": 1.02
   },
   "zrive": {
-   "forma": "navegador",
+   "forma": "escena",
    "nav": [
     9,
     20,
@@ -275,32 +347,38 @@
   "ikon": {
    "forma": "navegador",
    "nav": [
-    5,
-    17,
-    111,
+    3.5,
+    25.5,
+    119,
     -2.5
-   ]
+   ],
+   "ar": 0.89
   },
   "isotrol": {
-   "forma": "escena"
+   "forma": "escena",
+   "g": 1,
+   "zm": 4.05
   },
   "qalea": {
-   "forma": "movil"
+   "forma": "movil",
+   "oculto": true
   },
   "kalma": {
-   "forma": "movil"
+   "forma": "escena",
+   "zm": 3.6
   },
   "kabila": {
    "forma": "navegador",
    "nav": [
-    7,
-    11,
-    132,
+    6.5,
+    20.5,
+    117,
     0
-   ]
+   ],
+   "ar": 1.02
   },
   "impact-bridge": {
-   "forma": "navegador",
+   "forma": "movil",
    "nav": [
     6,
     17,
@@ -309,22 +387,47 @@
    ]
   },
   "playground-agentico": {
-   "forma": "navegador",
+   "forma": "escena",
    "nav": [
     10,
     23,
     116,
     -4
-   ]
+   ],
+   "t": {
+    "pais": [
+     "Estados Unidos"
+    ],
+    "categoria": [
+     "EdTech",
+     "SaaS",
+     "IA"
+    ],
+    "servicio": [
+     "Diseño web",
+     "Rediseño",
+     "Desarrollo agéntico",
+     "Animación",
+     "Sistema de diseño",
+     "Migración desde Webflow"
+    ],
+    "tec": [
+     "HTML/CSS/JS",
+     "GSAP",
+     "Python",
+     "Vercel"
+    ]
+   }
   },
   "transcend-network": {
-   "forma": "navegador",
+   "forma": "escena",
    "nav": [
     9,
     20,
     118,
     4
-   ]
+   ],
+   "zm": 3.55
   },
   "stemdo": {
    "forma": "navegador",
@@ -333,10 +436,12 @@
     17,
     111,
     -2.5
-   ]
+   ],
+   "oculto": true
   },
   "wisable": {
-   "forma": "escena"
+   "forma": "escena",
+   "zm": 3.5
   },
   "greet": {
    "forma": "navegador",
@@ -348,10 +453,82 @@
    ]
   },
   "playground-iep": {
-   "forma": "movil"
+   "forma": "navegador",
+   "nav": [
+    7,
+    19,
+    116,
+    0
+   ],
+   "ar": 0.92
   },
   "fiallegas-abogados": {
-   "forma": "escena"
+   "forma": "escena",
+   "zm": 3.4
+  },
+  "stellar": {
+   "forma": "movil",
+   "nav": [
+    3.5,
+    24,
+    90,
+    0
+   ],
+   "ar": 1.02
+  },
+  "quantus": {
+   "forma": "navegador",
+   "nav": [
+    3.5,
+    25,
+    128,
+    0
+   ],
+   "g": 1,
+   "t": {
+    "pais": [],
+    "tec": [
+     "Claude Code",
+     "Vercel",
+     "GSAP + ScrollTrigger",
+     "Lenis"
+    ],
+    "servicio": [
+     "Diseño web",
+     "Desarrollo agéntico",
+     "Animación",
+     "Ilustración"
+    ],
+    "categoria": [
+     "IA y computación cuántica"
+    ]
+   }
+  },
+  "patchbay": {
+   "forma": "navegador",
+   "nav": [
+    3.5,
+    25,
+    104,
+    -4.5
+   ],
+   "t": {
+    "pais": [],
+    "tec": [
+     "Claude Code",
+     "Vercel",
+     "React"
+    ],
+    "servicio": [
+     "Diseño web",
+     "Desarrollo agéntico",
+     "Animación"
+    ],
+    "categoria": [
+     "SaaS y APIs"
+    ]
+   },
+   "ar": 0.97
   }
  }
 }

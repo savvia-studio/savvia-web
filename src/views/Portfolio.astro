@@ -25,7 +25,7 @@ import { home } from '../data/idioma';
 const casos = proyectosDe(lang).map((p) => ({ ...p, servicios: p.servicios.map((s) => servicio(lang, s)) }));
 const caso = (slug: string) => casos.find((p) => p.slug === (slug === 'playground-iep' ? 'playground' : slug));
 const casa = Object.fromEntries((home(lang).proyectos.anteriores as { slug: string; n: string; sector?: string; color: string[] }[]).map((a) => [a.slug, a]));
-const NOMBRE: Record<string, string> = { greet: 'Greet', 'playground-agentico': 'Playground IEP', 'fiallegas-abogados': 'Fiallegas Abogados', wisable: 'Wisable', cubbo: 'Cubbo', remerge: 'Remerge', surepayroll: 'SurePayroll', qalea: 'Qalea', 'home-of-ambrose': 'Home of Ambrose', gsbindex: 'GSB Index', kymatio: 'Kymatio', isotrol: 'Isotrol', monad: 'Monad', bluence: 'Bluence', 'claudia-be': 'Claudia BE', adaral: 'Adaral', 'business-online-payroll': 'Business Online Payroll', 'numen-games': 'Numen Games', 'managerpro-by-codely': 'ManagerPro by Codely', invopop: 'Invopop', 'endoaula-conecta': 'Endoaula Conecta', lyra: 'Lyra', valuat: 'Valuat', 'casa-for-agents': 'Crece con Casavo', stemdo: 'Stemdo', 'alpine-security': 'Alpine Security', 'homeplus-casavo': 'Home+ Casavo', soundtown: 'Soundtown', endoaula: 'Endoaula', 'gow-delivery': 'GOW Delivery', 'junipero-vc': 'Junípero', 'eleven-lab': 'Eleven Lab', vitalera: 'Vitalera', zrive: 'Zrive', ikon: 'Ikon', 'playground-iep': 'Playground IEP', naterra: 'Naterra', kalma: 'Kalma', kabila: 'Kabila', 'impact-bridge': 'Impact Bridge', 'profounders-capital': 'PROfounders Capital', 'transcend-network': 'Transcend', routal: 'Routal', thx: 'THX' };
+const NOMBRE: Record<string, string> = { greet: 'Greet', stellar: 'Stellar', 'playground-agentico': 'Playground IEP', 'fiallegas-abogados': 'Fiallegas Abogados', wisable: 'Wisable', cubbo: 'Cubbo', remerge: 'Remerge', surepayroll: 'SurePayroll', qalea: 'Qalea', 'home-of-ambrose': 'Home of Ambrose', gsbindex: 'GSB Index', kymatio: 'Kymatio', isotrol: 'Isotrol', monad: 'Monad', bluence: 'Bluence', 'claudia-be': 'Claudia BE', adaral: 'Adaral', 'business-online-payroll': 'Business Online Payroll', 'numen-games': 'Numen Games', 'managerpro-by-codely': 'ManagerPro by Codely', invopop: 'Invopop', 'endoaula-conecta': 'Endoaula Conecta', lyra: 'Lyra', valuat: 'Valuat', 'casa-for-agents': 'Crece con Casavo', stemdo: 'Stemdo', 'alpine-security': 'Alpine Security', 'homeplus-casavo': 'Home+ Casavo', soundtown: 'Soundtown', endoaula: 'Endoaula', 'gow-delivery': 'GOW Delivery', 'junipero-vc': 'Junípero', 'eleven-lab': 'Eleven Lab', vitalera: 'Vitalera', zrive: 'Zrive', ikon: 'Ikon', 'playground-iep': 'Playground IEP', naterra: 'Naterra', kalma: 'Kalma', kabila: 'Kabila', 'impact-bridge': 'Impact Bridge', 'profounders-capital': 'PROfounders Capital', 'transcend-network': 'Transcend', routal: 'Routal', thx: 'THX' };
 const ES: Record<string, string> = {
   // países
   Spain: 'España', 'United States': 'Estados Unidos', 'United Kingdom': 'Reino Unido', Italy: 'Italia', Germany: 'Alemania',
@@ -44,9 +44,14 @@ const META = new Set(['Awwwards', 'YCombinator', 'Webflow Enterprise', 'Tech']);
 type Obra = { slug: string; nombre: string; dominio: string; href: string; sector: string; colores: [string, string, string]; portada: { tipo: 'video'; src: string; poster: string }; movil?: string; videoMovil?: { src: string; poster: string };
   pais: string[]; tec: string[]; servicios: string[]; categorias: string[] };
 // los que tienen grabación de su web (public/media/anteriores/video/<slug>.mp4: suena al pasar); los demás, su captura del CMS
-const GRABADOS = new Set(['greet', 'playground-agentico', 'fiallegas-abogados', 'gsbindex', 'profounders-capital', 'bluence', 'lyra', 'adaral', 'managerpro-by-codely', 'valuat', 'zrive', 'ikon', 'kabila', 'impact-bridge', 'gow-delivery', 'alpine-security', 'junipero-vc', 'business-online-payroll', 'claudia-be', 'cubbo', 'eleven-lab', 'home-of-ambrose', 'invopop', 'isotrol', 'kymatio', 'monad', 'naterra', 'remerge', 'routal', 'surepayroll', 'thx', 'transcend-network', 'wisable']);
-const conVideo = (slug: string) => GRABADOS.has(slug);
-const MOVIL_GRABADO = new Set(['cubbo', 'remerge', 'claudia-be', 'routal']); // con grabación en móvil (<slug>-movil.mp4)
+const GRABADOS = new Set(['greet', 'playground-agentico', 'fiallegas-abogados', 'gsbindex', 'profounders-capital', 'bluence', 'lyra', 'adaral', 'managerpro-by-codely', 'valuat', 'zrive', 'ikon', 'kabila', 'impact-bridge', 'gow-delivery', 'alpine-security', 'junipero-vc', 'business-online-payroll', 'claudia-be', 'cubbo', 'eleven-lab', 'home-of-ambrose', 'invopop', 'isotrol', 'kymatio', 'monad', 'naterra', 'remerge', 'routal', 'surepayroll', 'thx', 'transcend-network', 'wisable', 'homeplus-casavo', 'vitalera', 'kalma', 'playground-iep', 'casa-for-agents', 'stellar']);
+// 27/10 · Eric (vitrina de proyectos): «solo thumbnail» (Home+ Casavo): su captura, sin vídeo ni móvil;
+// y sin móvil, los que no convencen en el teléfono (Lyra, Eleven Lab, Zrive: «hay cosas desalineadas», «bastante pobre»; Valuat: «solo desktop»)
+// (Crece con Casavo era «solo thumbnail» hasta que llegaron sus grabaciones, el 27/10: ahora con vídeo de escritorio y de móvil)
+const SOLO_THUMB = new Set(['homeplus-casavo']);
+const SIN_MOVIL = new Set(['lyra', 'eleven-lab', 'zrive', 'valuat', ...SOLO_THUMB]);
+const conVideo = (slug: string) => GRABADOS.has(slug) && !SOLO_THUMB.has(slug);
+const MOVIL_GRABADO = new Set(['cubbo', 'remerge', 'claudia-be', 'routal', 'surepayroll', 'monad', 'thx', 'gsbindex', 'home-of-ambrose', 'kymatio', 'profounders-capital', 'naterra', 'bluence', 'lyra', 'business-online-payroll', 'adaral', 'managerpro-by-codely', 'fiallegas-abogados', 'gow-delivery','alpine-security', 'homeplus-casavo', 'junipero-vc', 'eleven-lab', 'vitalera', 'ikon', 'isotrol', 'qalea', 'kalma', 'kabila', 'impact-bridge', 'playground-agentico', 'transcend-network', 'wisable', 'greet', 'playground-iep', 'stellar', 'casa-for-agents']); // con grabación en móvil (<slug>-movil.mp4)
 // 26/10 · Eric: Greet (greet.video, de los últimos), que no está en el CMS de treseiscero: va detrás de los del CMS (al final: así no mueve de sitio ni de forma a los demás), con su grabación (Screen Studio)
 const EXTRA = [
   { slug: 'greet', dominio: 'greet.video', pais: ['Germany'], tecnologia: ['Webflow'], servicios: ['Web design', 'Webflow development'], categorias: ['Marketing'],
@@ -57,22 +62,31 @@ const EXTRA = [
   // 26/10 · Eric: Fiallegas Abogados (Eibar y Donostia), en Webflow; «a mitad de tabla, con pantalla de mesa»
   { slug: 'fiallegas-abogados', dominio: 'fiallegas-abogados.com', pais: ['Spain'], tecnologia: ['Webflow'], servicios: ['Web design', 'Webflow development'], categorias: ['Legal'],
     colores: ['#1f2c3f', '#3a4a63', '#c9b79c'], sector: en ? 'Law firm' : 'Despacho de abogados' },
+  // 27/10 · Eric: Stellar (stellar X labs), «nuevo proyecto»: España · capital riesgo · Figma y Webflow · animaciones. FALTA su dominio (sin él no enlaza)
+  { slug: 'stellar', dominio: '', pais: ['Spain'], tecnologia: ['Figma', 'Webflow'], servicios: ['Custom animations/GSAP'], categorias: ['VC'],
+    colores: ['#e3c9d3', '#7d93c4', '#2f4677'], sector: en ? 'Venture capital' : 'Capital riesgo' },
 ];
 // las tecnologías del filtro, las de treseiscero (las pilas de los casos agénticos solo cuentan si coinciden)
 const TECS = new Set(TSC.flatMap((d) => d.tecnologia));
-// 26/10 · Eric: fuera Quantus y Patchbay del portfolio («al final son showcase para la home de desarrollo agéntico»); siguen en la home y en sus casos
-// (Neety no tiene `url` en su ficha: su web es neety.com, como en home.ts › anteriores)
-const AGENTICOS = ['neety'].map((s) => caso(s)!).filter(Boolean).map((c): Obra => ({
+// 26/10 · Eric: fuera Quantus y Patchbay del portfolio («al final son showcase para la home de desarrollo agéntico»). 27/10 · Eric, desde la vitrina:
+// «mostremos todos los que hemos dicho que están bien»: vuelven, con los medios de la vitrina (su portada; Quantus con su móvil, Patchbay sin: «el responsive
+// no está bien resuelto»). (Neety no tiene `url` en su ficha: su web es neety.com, como en home.ts › anteriores)
+const AGENTICOS = ['neety', 'quantus', 'patchbay'].map((s) => caso(s)!).filter(Boolean).map((c): Obra => ({
   slug: c.slug, nombre: c.nombre, dominio: c.dominio ?? '', href: CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : c.url ?? `https://${c.dominio ?? (c.slug === 'neety' ? 'neety.com' : c.slug)}`, sector: c.sector ?? '', colores: c.colores,
-  portada: { tipo: 'video', src: (c.escritorio ?? c.portada).src, poster: (c.escritorio ?? c.portada).poster ?? '' },
+  // 27/10 · Eric: Neety, con su grabación de escritorio de Screen Studio (la de /proyectos; el caso sigue con su portada)
+  portada: c.slug === 'neety' ? { tipo: 'video', src: '/media/anteriores/video/neety.mp4', poster: '/media/anteriores/video/neety.jpg' } : { tipo: 'video', src: (c.escritorio ?? c.portada).src, poster: (c.escritorio ?? c.portada).poster ?? '' },
   pais: c.ubicacion ? [c.ubicacion.split(',').pop()!.trim()] : [], tec: (c.stack ?? []).filter((x) => TECS.has(x)), servicios: c.servicios, categorias: c.sector ? [c.sector] : [],
   ...(c.slug === 'neety' ? { movil: '/media/portfolio/neety-movil.webp', videoMovil: { src: '/media/anteriores/video/neety-com-movil.mp4', poster: '/media/anteriores/video/neety-com-movil.jpg' } } : {}),
+  ...(c.slug === 'quantus' ? { videoMovil: { src: '/media/anteriores/video/quantus-movil.mp4', poster: '/media/anteriores/video/quantus-movil.jpg' } } : {}),
 }));
 // 26/10 · Eric: «hay que tener orden»: el ORDEN de la rejilla y lo de cada pieza (forma fija, nombre, sector, colores, fuera) los decide la herramienta
 // «Orden de /proyectos» (claude.ai/artifact/EnYvzyRJn87Axd3SsUfBGP) y se copian a portfolio-orden.json. Lo que no esté en `orden` va al final (así un
 // proyecto nuevo no mueve de sitio, ni de forma, a los demás).
 import ORDEN from '../data/portfolio-orden.json';
-type Ajuste = { forma?: 'navegador' | 'escena' | 'movil'; nav?: [number, number, number, number]; n?: string; s?: string; c?: [string, string, string]; oculto?: boolean };
+// 27/10 · de la vitrina de proyectos: `g` = la disposición del fondo de marca (0 A, la de siempre · 1 B · 2 C · 3 D · 4 liso) y `t` = sus etiquetas, en
+// castellano, cuando Eric las ha cambiado (país · tecnología · servicio · categoría; en inglés se traducen de vuelta con ES)
+type Etiquetas = { pais?: string[]; tec?: string[]; servicio?: string[]; categoria?: string[] };
+type Ajuste = { forma?: 'navegador' | 'escena' | 'movil'; nav?: [number, number, number, number]; zm?: number; zt?: number; ar?: number; n?: string; s?: string; c?: [string, string, string]; oculto?: boolean; g?: number; t?: Etiquetas };
 const AJUSTES = ORDEN.piezas as unknown as Record<string, Ajuste>;
 const puesto = (slug: string) => { const i = ORDEN.orden.indexOf(slug); return i < 0 ? Infinity : i; };
 const TODAS: Obra[] = [
@@ -81,20 +95,22 @@ const TODAS: Obra[] = [
     const c = caso(d.slug), h = casa[d.slug];
     const cats = d.categorias.map(t);
     const sector = h?.sector ?? c?.sector ?? (d as { sector?: string }).sector ?? t(d.categorias.find((x) => !META.has(x)) ?? d.categorias[0] ?? '');
-    const video = conVideo(d.slug) ? { src: `/media/anteriores/video/${d.slug}.mp4`, poster: `/media/anteriores/video/${d.slug}.jpg` } : { src: '', poster: `/media/portfolio/${d.slug}.webp` };
+    const video = conVideo(d.slug) ? { src: `/media/anteriores/video/${d.slug}.mp4`, poster: `/media/anteriores/video/${d.slug}.jpg` }
+      : { src: '', poster: SOLO_THUMB.has(d.slug) && GRABADOS.has(d.slug) ? `/media/anteriores/video/${d.slug}.jpg` : `/media/portfolio/${d.slug}.webp` };
     return {
       slug: d.slug, nombre: h?.n ?? c?.nombre ?? NOMBRE[d.slug] ?? d.dominio, dominio: d.dominio,
-      href: c && CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : `https://${d.dominio}`, sector,
+      href: c && CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : d.dominio ? `https://${d.dominio}` : '#', sector,
       colores: ((h?.color as [string, string, string]) ?? c?.colores ?? d.colores) as [string, string, string],
       portada: { tipo: 'video', ...video }, pais: d.pais.map(t), tec: d.tecnologia, servicios: d.servicios.map(t), categorias: cats,
-      movil: (d as { movil?: boolean }).movil ? `/media/portfolio/${d.slug}-movil.webp` : undefined,
-      videoMovil: MOVIL_GRABADO.has(d.slug) ? { src: `/media/anteriores/video/${d.slug}-movil.mp4`, poster: `/media/anteriores/video/${d.slug}-movil.jpg` } : undefined,
+      movil: (d as { movil?: boolean }).movil && !SIN_MOVIL.has(d.slug) ? `/media/portfolio/${d.slug}-movil.webp` : undefined,
+      videoMovil: MOVIL_GRABADO.has(d.slug) && !SIN_MOVIL.has(d.slug) ? { src: `/media/anteriores/video/${d.slug}-movil.mp4`, poster: `/media/anteriores/video/${d.slug}-movil.jpg` } : undefined,
     };
   }),
 ];
 const OBRAS: Obra[] = TODAS.map((o, n) => ({ o, n })).sort((a, b) => puesto(a.o.slug) - puesto(b.o.slug) || a.n - b.n).map(({ o }) => o)
   .filter((o) => !AJUSTES[o.slug]?.oculto)
-  .map((o) => { const a = AJUSTES[o.slug]; return a ? { ...o, nombre: a.n ?? o.nombre, sector: a.s ?? o.sector, colores: a.c ?? o.colores } : o; });
+  .map((o) => { const a = AJUSTES[o.slug]; return a ? { ...o, nombre: a.n ?? o.nombre, sector: a.s ?? o.sector, colores: a.c ?? o.colores,
+    ...(a.t && !en ? { pais: a.t.pais ?? o.pais, tec: a.t.tec ?? o.tec, servicios: a.t.servicio ?? o.servicios, categorias: a.t.categoria ?? o.categorias } : {}) } : o; });
 // los cuatro filtros, con su recuento (de más a menos; a igualdad, por nombre)
 const opciones = (f: (o: Obra) => string[]) => {
   const n = new Map<string, number>();
@@ -117,6 +133,8 @@ const casaDe = (o: Obra): ObraCasa => ({
   slug: o.slug, nombre: o.nombre, sector: o.sector, href: o.href, colores: o.colores,
   video: o.portada.src ? { src: o.portada.src, poster: o.portada.poster } : undefined,
   captura: o.portada.src ? o.portada.poster : o.portada.poster, movil: o.movil, videoMovil: o.videoMovil,
+  // 27/10 · Eric: «y el zoom de la mesa desktop también, y zoom de mobile mesa», «y proporción de mockup también» (la de la carátula entera: `ar`, ancho/alto, manda sobre la del SITIO; ver `data-ratio`) (herramienta de orden › db orden/actual › zoom)
+  zMesa: AJUSTES[o.slug]?.zm, zMovil: AJUSTES[o.slug]?.zt,
 });
 const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, ...o.servicios, ...o.categorias].filter(Boolean).join(' · ');
 ---
@@ -190,7 +208,7 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
         {
           OBRAS.map((o, i) => (
             <Fragment>
-            <li data-obra data-slug={o.slug} data-forma={AJUSTES[o.slug]?.forma} data-navegador={AJUSTES[o.slug]?.nav?.join(',')} data-servicios={o.servicios.join('|')} data-categoria={o.categorias.join('|')} data-sector={o.sector} data-pais={o.pais.join('|')} data-tec={o.tec.join('|')} data-texto={texto(o)} data-nombre={o.nombre}>
+            <li data-obra data-slug={o.slug} data-forma={AJUSTES[o.slug]?.forma} data-fondo={AJUSTES[o.slug]?.g || undefined} data-navegador={AJUSTES[o.slug]?.nav?.join(',')} data-ratio={AJUSTES[o.slug]?.ar} data-servicios={o.servicios.join('|')} data-categoria={o.categorias.join('|')} data-sector={o.sector} data-pais={o.pais.join('|')} data-tec={o.tec.join('|')} data-texto={texto(o)} data-nombre={o.nombre}>
               <PiezaCasa o={casaDe(o)} i={i} />
             </li>
             {CORTES.includes(i + 1) && <li class="mentor" data-mentor><Voces k={CORTES.indexOf(i + 1)} /></li>}
@@ -339,7 +357,7 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       // 26/10 · Eric: «cada proyecto se muestra de una manera y siempre tiene que ser así» y «tu sistema estaba mejor: ahora no siempre se cumplen los
       // espacios»: el SITIO del mosaico pone tamaño y colocación (columna, proporción, cuánto baja); el PROYECTO pone su forma —solo tres: navegador,
       // mesa con la pantalla grande o mesa con el móvil— y su navegador [x, y, ancho, giro] (portfolio-orden.json › piezas), igual filtrando o en cualquier puesto
-      it.style.setProperty('--col', st[0]); it.style.setProperty('--ratio', st[1]); it.style.setProperty('--baja', String(st[2]));
+      it.style.setProperty('--col', st[0]); it.style.setProperty('--ratio', it.dataset.ratio ?? st[1]); it.style.setProperty('--baja', String(st[2]));
       const sb = SITIO[items.indexOf(it) % SITIO.length]; // respaldo para un proyecto sin pieza propia: la de su puesto sin filtros
       const forma = ((it.dataset.forma as Forma | undefined) ?? sb[3]) === 'tel' ? 'movil' : ((it.dataset.forma as Forma | undefined) ?? sb[3]);
       const nav = it.dataset.navegador?.split(',').map(Number), m = nav ?? [...(sb[4] ?? [10, 23, 116]), sb[5] ?? 0];
@@ -360,10 +378,11 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     const u = new URL(location.href);
     ([['q', ''], ...F.map((k) => [k, filtro[k]] as const), ['p', '']] as const).forEach(([k, v]) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k)));
     history.replaceState(null, '', u);
-    // Eric: al elegir un filtro, la página sube hasta arriba del todo, siempre en suave. En móvil (27/10), solo hasta donde la fila de filtros se pega
-    // arriba (y si aún no ha llegado ahí, no se mueve)
+    // Eric: al elegir un filtro, la página sube en suave solo hasta donde la fila de filtros se pega arriba (con su aire, `--pega`), y si aún no ha
+    // llegado ahí, no se mueve (27/10: primero en móvil, luego también en escritorio; antes subía hasta arriba del todo)
     if (mover) {
-      destinoP = movil.matches ? Math.min(scrollY, Math.max(0, Math.round(arriba))) : 0;
+      const pega = parseFloat(flota.style.getPropertyValue('--pega')) || 0;
+      destinoP = Math.min(scrollY, Math.max(0, Math.round(arriba - pega)));
       scrollTo({ top: destinoP, behavior: scrollY > destinoP + 1 && !quietoP.matches ? 'smooth' : 'instant' }); soltarAlLlegar();
     }
   };
@@ -656,8 +675,9 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   .desp:nth-last-of-type(1 of .desp) .desp-menu { left: auto; right: 0; }
   @media (width < 48rem) { .desp-menu { left: 0 !important; right: 0 !important; max-width: none; } }
   /* 27/10 · Eric: «en móvil, el dropdown mejor integrado, sin redondeos, con el filtrado de arriba»: la lista cuelga de la fila (su línea de abajo es la de
-     arriba de la lista), de carril a carril, recta, sin sombra, y se descubre de arriba abajo sin escalar ni desenfocarse */
-  @media (width < 48rem) {
+     arriba de la lista), de carril a carril, recta, sin sombra, y se descubre de arriba abajo sin escalar ni desenfocarse.
+     Y en escritorio igual (Andoni: «al desplegarlos, la misma estética más cuadrada; me gusta más como se ve en móvil»): cuelga de SU celda, a su ancho */
+  @media all {
     .desp-menu {
       top: calc(100% - 1px);
       border-radius: 0;
@@ -762,13 +782,13 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
   .estado-f { align-self: stretch; padding-bottom: var(--aire, 0px); transition: padding-bottom 0.3s ease; }
   /* y el hover ocupa la celda entera, también ese aire (Eric: «arriba en sticky, el hover que ocupe todo») */
   .flota.pegada .mandos > .mira { height: calc(var(--h, 0px) + var(--pega, 0px)); translate: var(--x, 0) calc(var(--y, 0px) - var(--pega, 0px)); }
-  /* rectos: la barrita y las cajas de la fila. La lista sí va redondeada («al ser isla») y mide lo mismo que su celda */
+  /* rectos: la barrita y las cajas de la fila, y la lista (Andoni, 27/10: antes iba redondeada, «al ser isla») */
   .mandos > .mira, .desp-b, .limpiar-f { border-radius: 0; }
-  /* en escritorio, al 85 % de su celda y centrada, para que se lea como isla (Eric); en móvil, a todo el ancho de la fila */
+  /* en escritorio, a todo el ancho de su celda (antes al 85 % y centrada); en móvil, a todo el ancho de la fila */
   /* (dos reglas: un selector con «of S» que el navegador no entienda tiraría la lista entera) */
   @media (width >= 48rem) {
-    .desp .desp-menu { left: 7.5%; right: 7.5%; min-width: 0; max-width: none; }
-    .desp:nth-last-of-type(1 of .desp) .desp-menu { left: 7.5%; right: 7.5%; }
+    .desp .desp-menu { left: 0; right: 0; min-width: 0; max-width: none; }
+    .desp:nth-last-of-type(1 of .desp) .desp-menu { left: 0; right: 0; }
   }
   /* 27/10 · Eric: «en móvil, el filtraje POR ENCIMA del navbar; no que se anime algo» y «jugar con el z-index». En móvil la barra no se aparta ni se
      funde: la fila (y su velo) suben a un plano por encima de ella (la barra va a z 55) y la tapan al pegarse. Para eso .obras deja de ser su propio

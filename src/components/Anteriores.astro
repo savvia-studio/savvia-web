@@ -34,6 +34,7 @@ const T = proyectos.testimonios;
 // RONDA 292 · el slider de los 4 mentores con retrato fuera del mosaico (probado dentro y vuelto a quitar; irá a cada caso de estudio); `true` lo devuelve
 const VOZ_EN_MOSAICO = false;
 import sharp from 'sharp';
+import MESA_MOVIL from '../data/mesa-movil.json';
 // las webs que tienen grabación en móvil (<slug>-movil.mp4); las demás, en el móvil, enseñan la de escritorio recortada
 const VISOR_ESCRITORIO = new Set(['cubbo', 'neety-com']); // en el visor, la toma de escritorio aunque la card enseñe el móvil
 const CON_MOVIL = new Set(['remerge', 'neety-com', 'cubbo']); // ronda 204: Neety, grabada por Eric en móvil (Screen Studio, 500 × 1080) · ronda 206: Cubbo (Chrome a 390 px, tools/r189/grabar.cjs)
@@ -64,8 +65,10 @@ const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }; // ronda 26: la caj
 const LAM = { w: 1672, h: 941 };
 // las pantallas en perspectiva: esquinas medidas por inundación en la lámina (px): TL · TR · BR · BL
 const QUAD: Record<string, { foto: string; q: [number, number][] }> = {
-  movil: { foto: 'mesa-movil', q: [[964, 183], [1205, 178], [1195, 714], [943, 705]] }, // ronda 67: esquinas de las rectas ajustadas a los cuatro bordes de la pantalla (antes, las de dentro del redondeo)
-  'movil-espejo': { foto: 'mesa-movil-espejo', q: [[467, 178], [708, 183], [729, 705], [477, 714]] }, // ronda 206: la lámina del móvil volteada (x' = 1672 − x; esquinas TL·TR·BR·BL reordenadas)
+  // 27/10 · Eric (el marco del móvil: «muy fiel a la realidad», «sin muesca», «cuidado con el 1 px en blanco», «que no se recorte tanto arriba»): las esquinas de la
+  // pantalla, MEDIDAS en la foto (una recta por borde del cristal): la caja negra 4 px por fuera y el vídeo 1 px, en src/data/mesa-movil.json (tools/mesa-movil/mascara.cjs, que hace también la máscara)
+  movil: { foto: 'mesa-movil', q: MESA_MOVIL.movil.caja as [number, number][] }, // ronda 67: esquinas de las rectas ajustadas a los cuatro bordes de la pantalla (antes, las de dentro del redondeo)
+  'movil-espejo': { foto: 'mesa-movil-espejo', q: MESA_MOVIL['movil-espejo'].caja as [number, number][] }, // ronda 206: la lámina del móvil volteada (x' = 1672 − x; esquinas TL·TR·BR·BL reordenadas)
   roble: { foto: 'mesa-roble', q: [[792, 274], [1220, 249], [1212, 535], [781, 519]] },
 };
 // homografía del cuadrado unidad al cuadrilátero (Heckbert): x' = (a·u + b·v + c) / (g·u + h·v + 1)
@@ -169,7 +172,7 @@ import { icono } from '../lib/iconos';
                     {/* RONDA 209 · el móvil de la mesa en la estación de la web (una lámina por estación; en espejo, la misma volteada): solo se pinta y se descarga
                         la de la estación activa */}
                     {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} src={`/media/anteriores/${QUAD[clave].foto}-${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
-                    <span class="pantalla quad" style={`left:${((quad.x0 / LAM.w) * 100).toFixed(3)}%;top:${((quad.y0 / LAM.h) * 100).toFixed(3)}%;width:${((quad.W / LAM.w) * 100).toFixed(3)}%;height:${((quad.H / LAM.h) * 100).toFixed(3)}%;transform:${quad.matriz}`}><Fragment set:html={video} /></span>
+                    <span class="pantalla quad" style={`${s.tipo === 'movil' ? `--mascara:url(/media/anteriores/${QUAD[clave].foto}-mascara.png?v=5);--cristal:url(/media/anteriores/${QUAD[clave].foto}-cristal.png?v=5);--vx:${MESA_MOVIL[clave as 'movil'].video[0]}%;--vy:${MESA_MOVIL[clave as 'movil'].video[1]}%;--vw:${MESA_MOVIL[clave as 'movil'].video[2]}%;--vh:${MESA_MOVIL[clave as 'movil'].video[3]}%;` : ''}left:${((quad.x0 / LAM.w) * 100).toFixed(3)}%;top:${((quad.y0 / LAM.h) * 100).toFixed(3)}%;width:${((quad.W / LAM.w) * 100).toFixed(3)}%;height:${((quad.H / LAM.h) * 100).toFixed(3)}%;transform:${quad.matriz}`}><Fragment set:html={video} /></span>
                   </div>
                 ) : s.tipo === 'tel' ? (
                   <div class="tel-m"><span class="tel-pant"><Fragment set:html={video} /></span></div>
@@ -1166,8 +1169,24 @@ import { icono } from '../lib/iconos';
     background: #121213;
     border-radius: 2px;
   }
+  /* 27/10 · Eric: «tiene que ser muy fiel a la realidad» · «con muesca»: fuera el border-radius (12,5 % / 5,8 % ≈ 30 px; la foto, 20–24 y distinto en cada
+     esquina por la perspectiva). La MÁSCARA es el cristal de la propia lámina (tools/mesa-movil/mascara.cjs): esquinas y muesca, las de la foto */
   .movil .mesa .pantalla.quad {
-    border-radius: 12.5% / 5.8%; /* el redondeo de la pantalla del móvil, medido en la lámina (~30 px sobre 241) */
+    border-radius: 0;
+    box-shadow: none;
+    /* (Eric: «rellénala de negro»): la pantalla, negra (su fondo #121213) y con la forma del cristal real; el vídeo, dentro, con la forma limpia */
+    -webkit-mask: var(--cristal) 0 0 / 100% 100% no-repeat;
+    mask: var(--cristal) 0 0 / 100% 100% no-repeat;
+  }
+  /* el filo de la foto ondula: la caja negra va 4 px por fuera del cristal y el vídeo, dentro, en el rectángulo del cristal + 1 px (mesa-movil.json › video) */
+  .movil .mesa .pantalla.quad > :global(*) {
+    position: absolute;
+    left: var(--vx);
+    top: var(--vy);
+    width: var(--vw);
+    height: var(--vh);
+    -webkit-mask: var(--mascara) 0 0 / 100% 100% no-repeat;
+    mask: var(--mascara) 0 0 / 100% 100% no-repeat;
   }
   .escena .lamina::before,
   .movil .lamina::before,
