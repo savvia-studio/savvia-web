@@ -210,6 +210,12 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
             <Fragment>
             <li data-obra data-slug={o.slug} data-forma={AJUSTES[o.slug]?.forma} data-fondo={AJUSTES[o.slug]?.g || undefined} data-navegador={AJUSTES[o.slug]?.nav?.join(',')} data-ratio={AJUSTES[o.slug]?.ar} data-servicios={o.servicios.join('|')} data-categoria={o.categorias.join('|')} data-sector={o.sector} data-pais={o.pais.join('|')} data-tec={o.tec.join('|')} data-texto={texto(o)} data-nombre={o.nombre}>
               <PiezaCasa o={casaDe(o)} i={i} />
+              {/* 27/10 · Eric: «de cada carátula, un botoncito para cambiar de escena»: mockup · mesa · móvil (este, solo si hay móvil). Fuera del enlace */}
+              <div class="escenas" role="group" aria-label={en ? `View ${o.nombre} as` : `Ver ${o.nombre} en`} data-escenas>
+                <button type="button" data-escena="navegador" aria-label={en ? 'Browser' : 'Navegador'} title={en ? 'Browser' : 'Navegador'}><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 9h18" /></svg></button>
+                <button type="button" data-escena="escena" aria-label={en ? 'Desk' : 'Mesa'} title={en ? 'Desk' : 'Mesa'}><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.6" /><path d="M12 16v4M8 20h8" /></svg></button>
+                {(o.movil || o.videoMovil) && <button type="button" data-escena="movil" aria-label={en ? 'Phone' : 'Móvil'} title={en ? 'Phone' : 'Móvil'}><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.2" /><path d="M11 18h2" /></svg></button>}
+              </div>
             </li>
             {CORTES.includes(i + 1) && <li class="mentor" data-mentor><Voces k={CORTES.indexOf(i + 1)} /></li>}
             </Fragment>
@@ -321,6 +327,18 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     ['2 / span 4', '4 / 5', 0, 'movil'], ['8 / span 4', '1 / 1', 24, 'navegador', [7, 11, 132], 0],
     ['1 / span 3', '1 / 1', 0, 'navegador', [6, 17, 118], -2.5], ['5 / span 4', '3 / 4', 0, 'tel', undefined, -4], ['10 / span 3', '4 / 5', 32, 'navegador', [9, 20, 118], 4],
   ];
+  // el botoncito de escena de cada carátula: marca la que se ve y, al pulsar, la cambia (la nueva entra enfocándose)
+  const marcarEscena = (it: HTMLElement) => { const f = [...(it.querySelector('[data-pieza-casa]')?.classList ?? [])].find((c) => ['navegador', 'escena', 'movil', 'tel'].includes(c));
+    it.querySelectorAll<HTMLButtonElement>('[data-escena]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.escena === (f === 'tel' ? 'movil' : f)))); };
+  lista.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-escena]'); if (!b || b.getAttribute('aria-pressed') === 'true') return;
+    const it = b.closest<HTMLElement>('[data-obra]')!, pz = it.querySelector<HTMLElement>('[data-pieza-casa]')!;
+    it.dataset.elegida = b.dataset.escena;
+    formar(pz, b.dataset.escena as Forma); marcarEscena(it);
+    if (quietoP.matches) return;
+    pz.classList.remove('aparece'); void pz.offsetWidth; pz.classList.add('aparece');
+    setTimeout(() => pz.classList.remove('aparece'), 650);
+  });
   const quietoP = matchMedia('(prefers-reduced-motion: reduce)');
   let soltarT = 0, destinoP = 0; // adónde sube la página al filtrar
   const congelar = () => { if (!lista.style.minHeight) lista.style.minHeight = `${lista.offsetHeight}px`; };
@@ -359,11 +377,12 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       // mesa con la pantalla grande o mesa con el móvil— y su navegador [x, y, ancho, giro] (portfolio-orden.json › piezas), igual filtrando o en cualquier puesto
       it.style.setProperty('--col', st[0]); it.style.setProperty('--ratio', it.dataset.ratio ?? st[1]); it.style.setProperty('--baja', String(st[2]));
       const sb = SITIO[items.indexOf(it) % SITIO.length]; // respaldo para un proyecto sin pieza propia: la de su puesto sin filtros
-      const forma = ((it.dataset.forma as Forma | undefined) ?? sb[3]) === 'tel' ? 'movil' : ((it.dataset.forma as Forma | undefined) ?? sb[3]);
+      const propia = ((it.dataset.forma as Forma | undefined) ?? sb[3]) === 'tel' ? 'movil' : ((it.dataset.forma as Forma | undefined) ?? sb[3]);
+      const forma = (it.dataset.elegida as Forma | undefined) ?? propia; // la escena que eligió el visitante con el botoncito (se mantiene al filtrar)
       const nav = it.dataset.navegador?.split(',').map(Number), m = nav ?? [...(sb[4] ?? [10, 23, 116]), sb[5] ?? 0];
       pz.style.setProperty('--mx', m[0] + '%'); pz.style.setProperty('--top', m[1] + '%'); pz.style.setProperty('--mw', m[2] + '%'); pz.style.setProperty('--giro', m[3] + 'deg');
       pz.style.setProperty('--i', String(i % 3 + 1));
-      formar(pz, forma); preparar(pz); entrar(pz, reentrar && !nueva);
+      formar(pz, forma); preparar(pz); entrar(pz, reentrar && !nueva); marcarEscena(it);
     });
     ops.forEach((b) => b.setAttribute('aria-pressed', String(filtro[b.dataset.f as (typeof F)[number]] === b.dataset.v)));
     const nAct = F.filter((k) => filtro[k]).length;
@@ -838,6 +857,50 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     margin-top: calc(var(--spacing) * 24);
   }
   .mosaico > li { grid-column: var(--col, span 4); margin-top: calc(var(--spacing) * var(--baja, 0)); }
+  /* ── el botoncito de ESCENA (27/10, Eric): arriba a la izquierda de la carátula, la misma cápsula de cristal que el icono de vídeo, con las escenas
+     que tiene el proyecto; la que se ve, marcada. Con ratón asoma al pasar por la pieza; en táctil, siempre */
+  .mosaico > li[data-obra] { position: relative; }
+  .escenas {
+    position: absolute;
+    z-index: 4;
+    top: calc(var(--spacing) * 3);
+    left: calc(var(--spacing) * 3);
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, #1a1210 55%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.4s ease, filter 0.4s ease, scale 0.5s var(--ease-out-expo);
+  }
+  .escenas button {
+    display: grid;
+    place-items: center;
+    width: calc(var(--spacing) * 7);
+    height: calc(var(--spacing) * 7);
+    border-radius: var(--radius-full);
+    color: color-mix(in oklab, var(--color-niebla) 62%, transparent);
+    cursor: pointer;
+    transition: color 0.25s ease, background-color 0.25s ease;
+  }
+  .escenas button:hover { color: var(--color-niebla); }
+  .escenas button[aria-pressed='true'] { background: var(--color-niebla); color: var(--color-cacao); cursor: default; }
+  .escenas button:focus-visible { outline: 2px solid var(--color-niebla); outline-offset: 1px; }
+  .escenas svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  @media (hover: hover) {
+    .mosaico > li[data-obra]:not(:hover):not(:focus-within) .escenas { opacity: 0; filter: blur(4px); scale: 0.9; pointer-events: none; }
+  }
+  /* Eric: «a veces al scroll sale antes de lo que se abre la carátula»: no existe hasta que la pieza se descubre (.visto, PiezaCasa) y, al descubrirse,
+     espera a que la lámina esté casi abierta (su recorte dura 1,2 s en ease-out-expo, con el mismo escalonado --i) y entra enfocándose */
+  :global(html.anima) .mosaico > li[data-obra] > :global(.pieza:not(.visto)) ~ .escenas { opacity: 0; visibility: hidden; }
+  :global(html.anima) .mosaico > li[data-obra] > :global(.pieza.visto) ~ .escenas { animation: escenas-llega 0.4s ease calc(0.6s + var(--i, 0) * 110ms) backwards; }
+  @keyframes escenas-llega { from { opacity: 0; filter: blur(4px); scale: 0.9; pointer-events: none; } }
+  /* sin JS no cambia nada: fuera */
+  :global(html:not(.pz-js)) .escenas { display: none; }
+  /* el cambio: la escena nueva se enfoca (de desenfocada a nítida), como entran los logotipos de la casa */
+  .mosaico :global(.pieza.aparece .lamina > :is(.mockup, .mesa, .tel-m)) { animation: escena-entra 0.6s var(--ease-out-expo); }
+  @keyframes escena-entra { from { opacity: 0; filter: blur(10px); } }
   @media (width < 64rem) {
     .mosaico { row-gap: calc(var(--spacing) * 24); column-gap: calc(var(--spacing) * 8); }
     .mosaico > li { grid-column: span 6 !important; margin-top: 0; --ratio: 1 / 1 !important; }

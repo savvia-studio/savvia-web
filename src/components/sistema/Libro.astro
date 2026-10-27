@@ -815,6 +815,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     cons.querySelector('[data-cons-otra]')?.addEventListener('click', () => { cons.classList.add('reinicia'); cons.classList.remove('visto'); void cons.offsetWidth; cons.classList.remove('reinicia'); cons.classList.add('visto'); });
   });
   const escena = document.querySelector<HTMLElement>('[data-escena-est]');
+  document.documentElement.classList.add('bb-est'); // el cambio de estación, más corto aquí (ver el estilo)
   const datos = JSON.parse(document.querySelector('[data-estaciones-datos]')?.textContent || '[]') as Record<string, any>[];
   let actual = -2;
   const poner = (i: number) => {
@@ -1123,13 +1124,21 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     align-items: center;
     background: var(--noche);
     color: var(--tinta-est);
-    transition: background-color 0.9s cubic-bezier(0.16, 1, 0.3, 1), color 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    /* el fondo ya viaja con --noche (registrada): una transición propia encima lo perseguía y alargaba el cambio */
+    transition: color 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* «la transición entre estaciones va muy lenta; smooth sí, pero fluido»: en el storybook la casa entera cambia en 0,8 s (en la web, 2,4 s);
+     la tinta da su golpe a mitad del fundido, como allí. Mismo orden que la lista de global.css (:root) */
+  :global(html.bb-est) {
+    transition-duration: 0.8s, 0.8s, 0.8s, 0.4s, 0.4s, 0.8s, 0.8s, 0.8s, 0.8s, 0.8s;
+    transition-delay: 0s, 0s, 0s, 0.04s, 0.04s, 0s, 0s, 0s, 0s, 0s;
+    transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1), cubic-bezier(0.33, 1, 0.68, 1), cubic-bezier(0.33, 1, 0.68, 1), cubic-bezier(0.9, 0, 0.1, 1), cubic-bezier(0.9, 0, 0.1, 1), cubic-bezier(0.33, 1, 0.68, 1), cubic-bezier(0.33, 1, 0.68, 1), cubic-bezier(0.33, 1, 0.68, 1), cubic-bezier(0.33, 1, 0.68, 1), cubic-bezier(0.33, 1, 0.68, 1);
   }
   .escena-est.clara { --tinta-est: #302018; }
   .est-dentro { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); row-gap: calc(var(--spacing) * 8); align-items: center; }
   .est-txt { grid-column: 4 / span 4; }
   .est-robles { grid-column: 8 / span 5; display: grid; }
-  .est-robles .rb { grid-area: 1 / 1; position: relative; opacity: 0; scale: 0.98; filter: blur(6px); transition: opacity 0.9s ease, scale 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.9s ease; }
+  .est-robles .rb { grid-area: 1 / 1; position: relative; opacity: 0; scale: 0.98; filter: blur(6px); transition: opacity 0.6s ease, scale 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease; }
   .est-robles .rb.on { opacity: 1; scale: 1; filter: none; }
   .est-robles img { display: block; width: 100%; height: auto; }
   /* RONDA 154 · «el árbol del brandbook, como lo tenemos en el hero, en todas las estaciones»: lo pinta el MISMO motor con las mismas opciones */
@@ -1154,7 +1163,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .est-puntos li { opacity: 0.4; transition: opacity 0.4s ease; }
   .est-puntos li.on { opacity: 1; }
   .est-paleta li { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .est-m { display: block; aspect-ratio: 4 / 3; margin-bottom: calc(var(--spacing) * 3); border-radius: var(--radius-lg); background: var(--c); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta-est) 22%, transparent); transition: background-color 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+  .est-m { display: block; aspect-ratio: 4 / 3; margin-bottom: calc(var(--spacing) * 3); border-radius: var(--radius-lg); background: var(--c); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta-est) 22%, transparent); }
   .est-mn { font-size: var(--text-ui); font-weight: 500; }
   .est-paleta .detail { opacity: 0.7; }
   .est-u { opacity: 0.5 !important; }
