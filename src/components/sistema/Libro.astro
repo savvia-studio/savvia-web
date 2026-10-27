@@ -189,7 +189,7 @@ const firmaHtml = (nombre: string, base: string, op = 'encima') => {
 const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((n) => [firmaHtml(n, '', id), firmaHtml(n, 'https://savvia.studio', id)])]));
 ---
 
-<Base title="Sistema — savvia" description="El sistema de savvia: cómo usarlo, la marca y su diseño, y cómo está construida la web, de los tokens a cada componente." carga={false}>
+<Base title="Sistema de savvia" description="El sistema de savvia: cómo usarlo, la marca y su diseño, y cómo está construida la web, de los tokens a cada componente." carga={false}>
   <Nav />
   <Carriles />
   <main id="contenido" class="libro surface-light">

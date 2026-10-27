@@ -32,7 +32,7 @@ export type Proyecto = {
   slug: string;
   nombre: string;
   titular?: string; // titular grande bajo el nombre, en la cabecera del caso (si falta, no hay)
-  titulo?: string; // <title> de su página, tal cual (si falta: «Nombre — savvia»)
+  titulo?: string; // <title> de su página, tal cual (si falta: «Nombre, un proyecto de savvia»; ronda 296: sin rayas en los títulos)
   dominio?: string;
   url?: string;
   sector?: string;

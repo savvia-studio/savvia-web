@@ -10,7 +10,7 @@ import Cta from '../components/Cta.astro';
 import Cuatro from '../components/404/Cuatro.astro';
 ---
 
-<Base title="Página no encontrada — savvia" description="Esta página no existe o ha cambiado de sitio. El resto de savvia sigue en su sitio." carga={false}>
+<Base title="Página no encontrada en savvia" description="Esta página no existe o ha cambiado de sitio. El resto de savvia sigue en su sitio." carga={false}>
   <Nav />
   <Carriles />
   <main id="contenido" class="surface-dark perdida">
@@ -42,7 +42,7 @@ import Cuatro from '../components/404/Cuatro.astro';
       } catch (e) {}
       if (!en) return;
       document.documentElement.lang = 'en';
-      document.title = 'Page not found — savvia';
+      document.title = 'Page not found on savvia';
       var d = document.querySelector('meta[name="description"]');
       if (d) d.setAttribute('content', 'This page does not exist or has moved. The rest of savvia is right where it was.');
       document.querySelectorAll('[data-en]').forEach(function (el) {

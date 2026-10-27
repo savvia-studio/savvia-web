@@ -161,7 +161,7 @@ const lib = p.libreria;
 const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? p.paleta?.[z.placa]?.hex : f === 'ancha' || f === 'sangre' ? undefined : p.color);
 ---
 
-<Base title={p.titulo ?? `${p.nombre} — savvia`} description={p.resumen} carga={false}>
+<Base title={p.titulo ?? (en ? `${p.nombre}, a savvia project` : `${p.nombre}, un proyecto de savvia`)} description={p.resumen} carga={false}>
   <script is:inline>document.documentElement.classList.add('pz-js');</script>
   <Nav />
   <Carriles />
