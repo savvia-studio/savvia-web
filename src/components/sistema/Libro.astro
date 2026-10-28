@@ -28,29 +28,35 @@ const ico = (n: string) => (ICONOIR[`/node_modules/iconoir/icons/regular/${n}.sv
 // 28/10 · NARRATIVA: cómo vive cada valor del manifiesto en la web, los símbolos y el papel de cada sección de la home (en el orden de Inicio.astro)
 // 28/10 (6.ª) · los valores de la marca, propios del storybook (separados del manifiesto, que es otra pieza: Andoni)
 // 28/10 · Eric: «tres valores también puede ser narrativo, que es como teníamos el manifiesto»: un párrafo por valor que arranca con él, y dentro, cómo vive en la web
+// 28/10 (9.ª) · Andoni: los valores de savvia, de su documento → «explica cada valor y ponlo como lo teníamos antes» (el nombre en negrita y su
+// explicación en el mismo párrafo). Sin «seis años»: en la web no se presume de años
 const VALORES: [string, string][] = [
-  ['Va por dentro.', 'La savia nutre, y por eso el árbol florece. Nosotros empezamos escuchando, mano a mano contigo. En la web pasa igual: lo que la sostiene no se ve; por dentro corren la receta y los agentes, y tú ves cómo florece.'],
-  ['Se adapta.', 'La savia llega a cada rama con lo que esa rama necesita. Por eso la web cambia de color con el año, como el bosque, y la marca no se encierra en un símbolo: no hay isotipo.'],
-  ['Es sabia.', 'La savia lleva dentro todo lo que el árbol ha vivido; nosotros, lo aprendido con cada cliente. Cada proyecto deja un anillo nuevo en el tronco, y este storybook es esa memoria, escrita para quien venga después.'],
+  ['Conocimiento con criterio.', 'Entre todas las posibilidades que abre la IA, el oficio nos da el criterio para escoger lo que cada cliente necesita en cada caso. Somos nosotros quienes guiamos a la IA, no al revés.'],
+  ['Adaptabilidad.', 'Nos adentramos en tu forma de trabajar y en la filosofía de tu marca, y adaptamos el proceso a cada caso para reflejar y elevar tu presencia digital.'],
+  ['Fieles a nosotros mismos.', 'Discretos y honestos: te decimos qué vas a recibir, cuándo y qué no depende de nosotros; si hace falta, con una horquilla de fechas.'],
+  ['Generosidad.', 'Siempre entregamos un poco más de lo que dijimos. Ahí está la sorpresa, y lo que hace que se acuerden de nosotros y nos recomienden.'],
+  ['Calma.', 'En la naturaleza, los resultados llegan con constancia y paciencia. Así trabajamos.'],
 ];
 const VALORES_EN: [string, string][] = [
-  ['It runs within.', 'Sap nourishes, and that is why the tree blooms. We start by listening, side by side with you. The website works the same way: what holds it up is never seen; the recipe and the agents run within, and you see it bloom.'],
-  ['It adapts.', 'Sap reaches each branch with what that branch needs. That is why the website changes colour with the year, like the forest, and the brand does not lock itself into a symbol: there is no isotype.'],
-  ['It is wise.', 'Sap carries everything the tree has lived through; we carry what we have learned with each client. Each project leaves a new ring in the trunk, and this storybook is that memory, written for whoever comes next.'],
+  ['Knowledge with judgement.', 'Out of everything AI makes possible, our craft gives us the judgement to choose what each client needs in each case. We guide the AI, not the other way round.'],
+  ['Adaptability.', 'We get to know how you work and the philosophy behind your brand, and we adapt the process to each case to reflect and elevate your digital presence.'],
+  ['True to ourselves.', 'Discreet and honest: we tell you what you will receive, when, and what does not depend on us; if needed, with a range of dates.'],
+  ['Generosity.', 'We always deliver a little more than we said we would. That is where the surprise lies, and what makes people remember and recommend us.'],
+  ['Calm.', 'In nature, results come with consistency and patience. That is how we work.'],
 ];
 // 28/10 (2.ª) · Andoni: «los símbolos, un poco más poéticos, no tan literales; quita lo de dibujado por Andoni a acuarela»
 // 28/10 (2.ª) · EL CICLO: cada estación, lo que hace la savia en el árbol y lo que pasa en el proyecto (en el orden del año que empieza: primavera)
 const CICLO: [string, string, string, string][] = [
-  ['primavera', 'Primavera', 'La savia sube y el árbol brota.', 'Escuchamos y entendemos tu proyecto. Ahí brota la idea.'],
-  ['verano', 'Verano', 'La savia llega a cada rama y el árbol crece.', 'Diseñamos y construimos contigo, rama a rama.'],
-  ['otono', 'Otoño', 'El roble da su fruto: las bellotas.', 'La web sale a la luz y empieza a dar fruto.'],
-  ['invierno', 'Invierno', 'La savia vuelve a la raíz y el árbol se prepara.', 'Documentamos, cuidamos y guardamos lo aprendido para la próxima primavera.'],
+  ['primavera', 'Primavera', 'La savia sube y el árbol brota.', 'Te escuchamos para entender lo que tu proyecto necesita.'],
+  ['verano', 'Verano', 'La savia llega a cada rama y el árbol crece.', 'Con tu visión y nuestro criterio creamos unas directrices únicas.'],
+  ['otono', 'Otoño', 'El roble da su fruto: las bellotas.', 'Te entregamos tu web conectada con la IA, lista para seguir evolucionando.'],
+  ['invierno', 'Invierno', 'La savia vuelve a la raíz y el árbol se prepara.', 'Cada decisión queda en el sistema, la fuente de verdad de tu web.'],
 ];
 const CICLO_EN: [string, string, string, string][] = [
-  ['primavera', 'Spring', 'The sap rises and the tree buds.', 'We listen and understand your project. That is where the idea buds.'],
-  ['verano', 'Summer', 'The sap reaches every branch and the tree grows.', 'We design and build with you, branch by branch.'],
-  ['otono', 'Autumn', 'The oak bears its fruit: acorns.', 'The website comes to light and starts to bear fruit.'],
-  ['invierno', 'Winter', 'The sap returns to the root and the tree gets ready.', 'We document, look after and keep what we learned for the next spring.'],
+  ['primavera', 'Spring', 'The sap rises and the tree buds.', 'We listen to understand what your project needs.'],
+  ['verano', 'Summer', 'The sap reaches every branch and the tree grows.', 'With your vision and our judgement, we create guidelines unique to you.'],
+  ['otono', 'Autumn', 'The oak bears its fruit: acorns.', 'We hand you your website connected to AI, ready to keep evolving.'],
+  ['invierno', 'Winter', 'The sap returns to the root and the tree gets ready.', 'Every decision is captured in the system, the source of truth for your website.'],
 ];
 import logoRaw from '../../../public/savvia-palabra.svg?raw'; // ronda 145: el logotipo es la palabra en Family (sin isotipo)
 
@@ -60,12 +66,12 @@ import logoRaw from '../../../public/savvia-palabra.svg?raw'; // ronda 145: el l
 // de diseño y desarrollo, y por otro lado el método». UNA sola página (/sistema) en tres grupos, como la librería de Neety; el Método vive en /metodo.
 import Catalogo from './Catalogo.astro';
 const GRUPOS = [
-  ['Narrativa', [['narrativa', 'La idea'], ['valores', 'Tres valores'], ['ciclo', 'El ciclo'], ['simbolos', 'Los símbolos'], ['relato', 'El relato de la home']]],
+  ['Narrativa', [['narrativa', 'La idea'], ['valores', 'Valores'], ['ciclo', 'El ciclo'], ['simbolos', 'Los símbolos'], ['relato', 'El relato de la home']]],
   ['Diseño', [['logotipo', 'Logotipo'], ['construccion', 'Construcción'], ['color', 'Color y estaciones'], ['tipografia', 'Tipografía'], ['espaciado', 'Espaciado y retícula'], ['iconografia', 'Iconografía'], ['materia', 'Movimiento'], ['aplicaciones', 'Aplicaciones'], ['descargas', 'Descargas']]],
   ['Desarrollo', [['stack', 'Stack'], ['componentes', 'Componentes'], ['catalogo', 'Catálogo de secciones'], ['herramientas', 'Herramientas y skills']]],
 ] as const;
 const GRUPOS_EN = [
-  ['Narrative', [['narrativa', 'The idea'], ['valores', 'Three values'], ['ciclo', 'The cycle'], ['simbolos', 'The symbols'], ['relato', 'The story of the home page']]],
+  ['Narrative', [['narrativa', 'The idea'], ['valores', 'Values'], ['ciclo', 'The cycle'], ['simbolos', 'The symbols'], ['relato', 'The story of the home page']]],
   ['Design', [['logotipo', 'Logo'], ['construccion', 'Construction'], ['color', 'Colour and seasons'], ['tipografia', 'Typography'], ['espaciado', 'Spacing and grid'], ['iconografia', 'Iconography'], ['materia', 'Motion'], ['aplicaciones', 'Applications'], ['descargas', 'Downloads']]],
   ['Development', [['stack', 'Stack'], ['componentes', 'Components'], ['catalogo', 'Section catalogue'], ['herramientas', 'Tools and skills']]],
 ] as const;
@@ -261,7 +267,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
       <div class="hojas">
         <header class="portada">
           <h1 class="font-display titular" data-entra>Storybook.</h1>
-          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? <>Everything that makes this website savvia, from the brand to the code: how it looks, how it sounds, how it moves and how it is built. Written for your team and for any agent to read. How we run projects will come with the Method, soon.</> : <>Todo lo que hace que esta web sea de savvia, de la marca al código: cómo se ve, cómo suena, cómo se mueve y cómo está construida. Escrito para que lo lea tu equipo y cualquier agente. Cómo hacemos los proyectos llegará con el Método, próximamente.</>}</p>
+          <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? <>Everything that makes this website savvia, from the brand to the code: how it looks, how it sounds, how it moves and how it is built.</> : <>Todo lo que hace que esta web sea de savvia, de la marca al código: cómo se ve, cómo suena, cómo se mueve y cómo está construida.</>}</p>
           <div class="cubierta">
             <span class="logo-masc" role="img" aria-label="savvia"></span>
             <span class="detail pie-cub">{en ? <>savvia, since 2020</> : <>savvia, desde 2020</>}</span>
@@ -271,30 +277,32 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 
         {/* 28/10 · NARRATIVA. Andoni: «añadir narrativa porque es algo importante de la web, es algo que hemos trabajado bastante» → (2.ª) «como una
              sección aparte; y las estaciones, explicarlas mejor y en visual: son el ciclo de la savia, que coincide con el ciclo de vida del árbol, y está
-             presente en cada proyecto, porque cada proyecto es algo vivo». (2.ª, Andoni) «no cambiaría en relación al manifiesto, los separaría»: la narrativa no lee ni cita el manifiesto. */}
-        <p class="font-display text-h2 grupo-rotulo" id="g-narrativa">{en ? <>Narrative</> : <>Narrativa</>}</p>
+             presente en cada proyecto, porque cada proyecto es algo vivo». (2.ª, Andoni) «no cambiaría en relación al manifiesto, los separaría». (28/10, 5.ª) «la cita va fuera; vamos a ajustar todos los textos de narrativa al manifiesto»: ahora habla con sus palabras. */}
+        <header class="grupo" id="g-narrativa"><p class="font-display grupo-rotulo">{en ? <>Narrative</> : <>Narrativa</>}</p></header>
         <section id="narrativa" class="seccion" aria-labelledby="h-narrativa">
           <h2 id="h-narrativa" class="font-display text-h2">{en ? <>The idea</> : <>La idea</>}</h2>
-          <p class="cuerpo">{en ? <>savvia comes from savia, Spanish for sap: what runs inside the tree without anyone seeing it and keeps it alive. That is the story the whole website tells. The oak, the drop, the seasons and every word grow from there. Whatever does not grow from there is not savvia.</> : <>savvia viene de savia: lo que corre por dentro del árbol sin que nadie lo vea y lo mantiene vivo. Esa es la historia que cuenta toda la web. El roble, la gota, las estaciones y cada palabra nacen de ahí. Lo que no nace de ahí, no es savvia.</>}</p>
-          {en ? <blockquote class="font-display ejemplo">“We start from within, like sap.”<span class="detail">“savia” is the sap of the tree, and “savvia” is us.</span></blockquote> : <blockquote class="font-display ejemplo">«Nosotros empezamos por dentro, como la savia.»<span class="detail">«savia» es la del árbol, y «savvia», nosotros.</span></blockquote>}
+          <p class="cuerpo">{en ? <>savvia exists to orchestrate the design and development of your website with AI. The name comes from savia, Spanish for sap: what runs inside the tree and keeps it alive.</> : <>savvia existe para orquestar el diseño y desarrollo de tu web con IA. El nombre viene de la savia, lo que corre por dentro del árbol y lo mantiene vivo.</>}</p>
         </section>
 
         <section id="valores" class="seccion" aria-labelledby="h-valores">
-          <h2 id="h-valores" class="font-display text-h2">{en ? <>Three values</> : <>Tres valores</>}</h2>
+          <h2 id="h-valores" class="font-display text-h2">{en ? <>Values</> : <>Valores</>}</h2>
           {(en ? VALORES_EN : VALORES).map(([t, txt]) => <p class="cuerpo"><b class="va-lead">{t}</b> {txt}</p>)}
         </section>
 
         <section id="ciclo" class="seccion" aria-labelledby="h-ciclo">
           <h2 id="h-ciclo" class="font-display text-h2">{en ? <>The cycle</> : <>El ciclo</>}</h2>
-          <p class="cuerpo">{en ? <>The seasons are not decoration: they are the pulse of the sap. It rises, reaches every branch, bears fruit and goes back to the root to wait. The tree lives through it every year, and so does every project, because a project, like a tree, is alive.</> : <>Las estaciones no son un adorno: son el pulso de la savia. Sube, llega a cada rama, da fruto y vuelve a la raíz a esperar. El árbol lo vive cada año, y cada proyecto también, porque un proyecto, como un árbol, está vivo.</>}</p>
+          <p class="cuerpo">{en ? <>The seasons are the pulse of the sap: it rises, bears fruit and goes back to the root. Your website should grow the same way: a seed for lasting, meaningful relationships.</> : <>Las estaciones son el pulso de la savia: sube, da fruto y vuelve a la raíz. Tu web debería crecer igual: ser la semilla de relaciones duraderas y con sentido.</>}</p>
           {/* 28/10 (4.ª) · «lo del ciclo no me gusta, ponlo más elegante»: sin tarjetas. Los cuatro robles, de pie sobre una misma línea que es el año; la
                línea vuelve por debajo y se cierra (un ciclo) y una gota de savia la recorre: la estación por la que pasa se enciende */}
-          <div class="ciclo" data-ciclo>
+          <div class="ciclo cartas" data-ciclo>
             <svg class="ci-via" aria-hidden="true"><path class="ci-pista" /><path class="ci-hecho" /><circle class="ci-gota" r="4.5" /></svg>
             <ol class="ci-lista">
+              {/* 28/10 (6.ª) · «que las cards representen la circularidad, sin cambiar la disposición»: un anillo donde se juntan las cuatro esquinas, con una
+                   gota de savia que da la vuelta (las estaciones, en el sentido del reloj) y enciende el roble de la estación por la que pasa */}
+              <li class="ci-anillo" aria-hidden="true"><svg class="ci-a-hueco" viewBox="-60 -60 120 120"><circle r="36" /><path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="rotate(0)" /> <path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="scale(1,-1)" /> <path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="scale(-1,1)" /> <path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="scale(-1,-1)" /> <path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="rotate(90) scale(1,-1)" /> <path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="rotate(90)" /> <path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="rotate(-90)" /> <path d="M6.00 41.71 L6.00 35.50 L6.46 35.42 L6.92 35.33 L7.38 35.23 L7.84 35.14 L8.30 35.03 L8.75 34.92 L9.21 34.80 L9.66 34.68 L10.11 34.55 L10.56 34.42 L11.01 34.28 L11.45 34.13 L10.68 34.43 L9.94 34.82 L9.25 35.28 L8.61 35.80 L8.02 36.39 L7.51 37.04 L7.06 37.74 L6.68 38.48 L6.39 39.26 L6.17 40.06 L6.04 40.88 L6.00 41.71Z" transform="rotate(-90) scale(1,-1)" /><path class="ci-a-filo" d="M6.00 41.71 L6.04 40.88 L6.17 40.06 L6.39 39.26 L6.68 38.48 L7.06 37.74 L7.51 37.04 L8.02 36.39 L8.61 35.80 L9.25 35.28 L9.94 34.82 L10.68 34.43 L11.45 34.13 L13.40 33.41 L15.31 32.58 L17.16 31.65 L18.96 30.60 L20.69 29.46 L22.36 28.22 L23.95 26.88 L25.46 25.46 L26.88 23.95 L28.22 22.36 L29.46 20.69 L30.60 18.96 L31.65 17.16 L32.58 15.31 L33.41 13.40 L34.13 11.45 L34.43 10.68 L34.82 9.94 L35.28 9.25 L35.80 8.61 L36.39 8.02 L37.04 7.51 L37.74 7.06 L38.48 6.68 L39.26 6.39 L40.06 6.17 L40.88 6.04 L41.71 6.00" transform="scale(-1,1)" /></svg><span class="ci-orbita" style={estaciones.map((e, i) => `--c${i}:${e.colores[2][2]}`).join(";")}><i class="ci-nucleo"></i><i class="ci-cola"></i><i class="ci-gota"></i></span></li>
               {(en ? CICLO_EN : CICLO).map(([id, n, savia, proyecto], k) => (
-                <li class="ci-e" style={`--s:${estaciones.find((e) => e.id === id)!.colores[2][2]};--k:${k}`} data-ci={k}>
-                  <img class="ci-roble" src={`/media/hero/arbol-${id}.webp`} alt="" width="1260" height="583" loading="lazy" decoding="async" />
+                <li class="ci-e" style={`--s:${estaciones.find((e) => e.id === id)!.colores[2][2]};--k:${k};--ci-fondo:${estaciones.find((e) => e.id === id)!.noche};--ci-tinta:${estaciones.find((e) => e.id === id)!.tinta}`} data-ci={k}>
+                  <img class="ci-roble" src={`/media/sistema/ciclo/roble-${id}.webp`} alt="" width="1200" height="632" loading="lazy" decoding="async" />
                   <i class="ci-pto" aria-hidden="true"></i>
                   <p class="font-display ci-n">{n}</p>
                   <p class="ci-savia">{savia}</p>
@@ -309,19 +317,24 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         <section id="simbolos" class="seccion" aria-labelledby="h-simbolos">
           <h2 id="h-simbolos" class="font-display text-h2">{en ? <>The symbols</> : <>Los símbolos</>}</h2>
           {/* 28/10 · Eric, «mismo con esto»: los símbolos, en párrafos como el relato (antes una lista de nombre y texto) */}
-          <p class="cuerpo">{en ? <>The oak is our tree. It never arrives finished: it grows from the root, changes its leaves with the year and never appears all at once, like a website that is looked after.</> : <>El roble es el árbol de casa. No llega terminado: crece desde la raíz, cambia de hoja con el año y nunca aparece de golpe, como una web que se cuida.</>}</p>
-          <p class="cuerpo">{en ? <>Everything alive starts with something small, and here it is a drop: it falls and the oak is born from it; at the end another one falls and the landscape sprouts. Every change on the website arrives like that, opening up from a single point.</> : <>Todo lo vivo empieza por algo pequeño, y aquí es una gota: cae y de ella nace el roble; al final cae otra y brota el paisaje. Cada cambio en la web llega así, abriéndose desde un punto.</>}</p>
-          <p class="cuerpo">{en ? <>Underneath are the roots, what you cannot see and what holds everything up: under every website there is a lot of conversation and a written recipe.</> : <>Debajo están las raíces, lo que no se ve y lo sostiene todo: bajo cada web hay mucha conversación y una receta escrita.</>}</p>
-          <p class="cuerpo">{en ? <>And nothing alive stays still. With the seasons, the website changes colour, leaves and weather, and always arrives with the one outside.</> : <>Y nada vivo se queda quieto. Con las estaciones, la web cambia de color, de hoja y de tiempo, y siempre llega con la que hay fuera.</>}</p>
-          <p class="cuerpo">{en ? <>At the end of the road waits the footer landscape, the horizon: an open place, the sap of your website and a single word to start talking.</> : <>Al final del camino espera el paisaje del pie, el horizonte: un lugar abierto, la savia de tu web y una sola palabra para empezar a hablar.</>}</p>
+          <p class="cuerpo">{en ? <>Five symbols tell the story, and each one says something about how we work.</> : <>Cinco símbolos cuentan la historia, y cada uno dice algo de cómo trabajamos.</>}</p>
+          {/* 28/10 (3.ª) · Andoni: «debajo de los símbolos, unas cards con los símbolos» */}
+          <ul class="simb">
+            {/* 28/10 (12.ª) · Andoni: «los símbolos, explícalos mejor, que tengan un significado»: qué ES cada uno (en mono) y por qué */}
+            {(en ? [['The oak', 'Your website', 'It grows from the root, branch by branch, and keeps growing with you after launch.'], ['The drop', 'The beginning', 'Everything starts with something small, a conversation, and the rest is born from it.'], ['The roots', 'What you cannot see', 'The guardrails and the recipe that hold your website up, even when nobody looks at them.'], ['The seasons', 'Time', 'The website changes with the year, like something alive, and never stands still.'], ['The horizon', 'What comes next', 'An open place at the end of the road, where one word is enough to begin.']]
+                 : [['El roble', 'Tu web', 'Crece desde la raíz, rama a rama, y sigue creciendo contigo después de publicarla.'], ['La gota', 'El principio', 'Todo empieza por algo pequeño, una conversación, y de ella nace todo lo demás.'], ['Las raíces', 'Lo que no se ve', 'Los guardarraíles y la receta que sostienen tu web aunque nadie los mire.'], ['Las estaciones', 'El tiempo', 'La web cambia con el año, como algo vivo, y nunca se queda quieta.'], ['El horizonte', 'Lo que viene', 'Un lugar abierto al final del camino, donde basta una palabra para empezar.']]).map(([n, q, d]) => (
+              <li><p class="font-display simb-n">{n}</p><p class="detail simb-q">{q}</p><p class="simb-d">{d}</p></li>
+            ))}
+          </ul>
         </section>
 
         <section id="relato" class="seccion" aria-labelledby="h-relato">
           <h2 id="h-relato" class="font-display text-h2">{en ? <>The story of the home page</> : <>El relato de la home</>}</h2>
           {/* 28/10 · Eric: «esto, algo más narrativo en párrafos; puesto así es raro» → la lista de secciones pasa a tres párrafos: la promesa, la prueba y quiénes somos */}
-          <p class="cuerpo">{en ? <>The home page reads from the canopy down to the root. At the top, the promise: “We elevate your website with AI.” and the oak born from a drop. Below it, the roots: we go down from what you see to what holds it up.</> : <>La home se lee de la copa a la raíz. Arriba, la promesa: «Elevamos tu web con IA.» y el roble que nace de una gota. Debajo, las raíces: bajamos de lo que se ve a lo que lo sostiene.</>}</p>
-          <p class="cuerpo">{en ? <>Then comes the proof. At the studio desk you sit down and walk through each website from the inside; savvia agentic shows the how, a living library the agents use to grow the page in front of you; and the forest gathers the work of these years and the voice of those who trusted us.</> : <>Luego llega la prueba. En la mesa del estudio te sientas y recorres cada web por dentro; savvia agentic enseña el cómo, una librería viva con la que los agentes hacen crecer la página delante de ti; y el bosque reúne el trabajo de estos años y la voz de quien confió en nosotros.</>}</p>
-          <p class="cuerpo">{en ? <>At the bottom, who we are and how to find us: three ways to walk with you; Eric and Andoni, who look after the tree and are the only ones who speak in the first person; a conversation instead of a form and, in the footer, the horizon: the sap of your website and one word to start talking.</> : <>Al fondo, quiénes somos y cómo encontrarnos: tres maneras de caminar contigo; Eric y Andoni, que cuidan del árbol y son los únicos que hablan en primera persona; una conversación en vez de un formulario y, en el pie, el horizonte: la savia de tu web y una palabra para empezar a hablar.</>}</p>
+          {/* 28/10 (11.ª) · Andoni: «tiene que ser una historia que contamos al cliente»: en segunda persona, lo que vive al recorrer la home */}
+          <p class="cuerpo">{en ? <>You arrive and the first thing you see is a promise: we elevate your website with AI. A drop falls and an oak is born from it. That is how we start with you: from within, listening, like sap.</> : <>Entras y lo primero que ves es una promesa: elevamos tu web con IA. Cae una gota y de ella nace un roble. Así empezamos contigo: por dentro, escuchando, como la savia.</>}</p>
+          <p class="cuerpo">{en ? <>You go down and sit at our desk. You open the projects we have made and walk through them from the inside. Then you watch a website grow in front of you, connected to AI and guided by our judgement: that is how yours will be.</> : <>Bajas y te sientas a nuestra mesa. Abres los proyectos que hemos hecho y los recorres por dentro. Después ves crecer una web delante de ti, conectada con la IA y guiada por nuestro criterio: así será la tuya.</>}</p>
+          <p class="cuerpo">{en ? <>At the end, you meet us. We tell you the three ways of working together, answer your questions and leave you facing an open horizon, with a single word to begin.</> : <>Al final nos conoces. Te contamos las tres formas de trabajar juntos, resolvemos tus dudas y te dejamos frente a un horizonte abierto, con una sola palabra para empezar.</>}</p>
           <ul class="reglas">
             {en ? <li><b>Told, not explained</b> the website does not say “we are like sap”: it shows it.</li> : <li><b>Se cuenta, no se explica</b> la web no dice «somos como la savia»: lo enseña.</li>}
             {en ? <li><b>To whoever arrives</b> the story always speaks to the visitor. The first person, only when Eric and Andoni speak.</li> : <li><b>A quien entra</b> el relato habla siempre a quien llega. La primera persona, solo cuando hablan Eric y Andoni.</li>}
@@ -329,7 +342,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           </ul>
         </section>
 
-        <p class="font-display text-h2 grupo-rotulo" id="g-diseno">{en ? <>Design</> : <>Diseño</>}</p>
+        <header class="grupo" id="g-diseno"><p class="font-display grupo-rotulo">{en ? <>Design</> : <>Diseño</>}</p></header>
         {/* 01 · LOGOTIPO */}
         <section id="logotipo" class="seccion" aria-labelledby="h-logotipo">
           <h2 id="h-logotipo" class="font-display text-h2">{en ? <>Logo</> : <>Logotipo</>}</h2>
@@ -338,13 +351,13 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           {/* 28/10 · Andoni: «no quiero que ponga que es la Family tal cual, explicar que hemos modificado algo; y explicar que va sin isotipo porque la savvia no
                tiene una forma reconocible como tal, se transforma, se adapta». Lo modificado, lo que se hizo de verdad: apretado −0,045 em (ronda 148) y las v
                separadas (ronda 154, tools/r154/separar-v.cjs) */}
-          <p class="cuerpo">{en ? <>The logo is the word “savvia”, always in lower case, even at the start of a sentence. It comes from Family, the headline typeface, but it is not Family as it is: we turned it into outlines and adjusted it by hand. We tightened the whole word and opened up the pair of v’s, which is what turns savia into savvia: “sa” moves closer, the first v shifts to the left and “ia” moves away to the right, so the two v’s can breathe and read as a pair.</> : <>El logotipo es la palabra «savvia», siempre en minúscula, también a principio de frase. Nace de Family, la letra de los titulares, pero no es Family tal cual: la pasamos a contornos y la ajustamos a mano. Apretamos toda la palabra y abrimos el par de v, que es lo que convierte savia en savvia: «sa» se acerca, la primera v se va a la izquierda e «ia» se aleja a la derecha, para que las dos v respiren y se lean como un par.</>}</p>
-          <h3 class="font-display text-h3 sub-bb">{en ? <>Why there is no isotype</> : <>Por qué no hay isotipo</>}</h3>
-          <p class="cuerpo">{en ? <>Sap has no recognisable shape. It runs within, transforms and adapts to every branch and every season. Giving it a fixed symbol would contradict it, so savvia does not have one: the brand is the word, and what changes (the colour, the oak, the season) acts as the symbol. The favicon does not carry one either: it is the season’s background with its oak in miniature (below).</> : <>La savia no tiene una forma que se reconozca. Corre por dentro, se transforma y se adapta a cada rama y a cada estación. Darle un símbolo fijo sería contradecirla, así que savvia no lo tiene: la marca es la palabra, y lo que cambia (el color, el roble, la estación) hace de símbolo. El favicon tampoco lleva uno: es el fondo de la estación con su roble en pequeño (abajo).</>}</p>
+          <p class="cuerpo">{en ? <>The logo is the word “savvia”, always in lower case. It comes from Family, adjusted by hand: we tightened the whole word and opened up the pair of v’s, which is what turns savia into savvia.</> : <>El logotipo es la palabra «savvia», siempre en minúscula. Nace de Family, ajustada a mano: apretamos la palabra entera y abrimos el par de v, que es lo que convierte savia en savvia.</>}</p>
           <div class="fila f2">
             <figure class="placa oscura grande"><span class="lockup" role="img" aria-label={en ? "savvia on Cacao" : "savvia sobre Cacao"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>On Cacao, Blanco</> : <>Sobre Cacao, Blanco</>}</figcaption></figure>
             <figure class="placa clara grande"><span class="lockup" role="img" aria-label={en ? "savvia on white" : "savvia sobre blanco"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>On white, Cacao</> : <>Sobre blanco, Cacao</>}</figcaption></figure>
           </div>
+          <h3 class="font-display text-h3 sub-bb">{en ? <>Why there is no isotype</> : <>Por qué no hay isotipo</>}</h3>
+          <p class="cuerpo">{en ? <>Sap has no fixed shape: it runs within and changes with every season. That is why savvia has no symbol: the brand is the word, and what changes (the colour, the oak, the season) acts as one.</> : <>La savia no tiene una forma fija: corre por dentro y cambia con cada estación. Por eso savvia no tiene símbolo: la marca es la palabra, y lo que cambia (el color, el roble, la estación) hace de símbolo.</>}</p>
           <p class="detail detail-caps rotulo-bb">{en ? <>With each season</> : <>Con cada estación</>}</p>
           <div class="lockups-est">
             {estL.map((e) => (
@@ -354,9 +367,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               </>
             ))}
           </div>
-          <div class="fila f2">
-            <figure class="placa clara sm fav-par"><img class="fav-png" src="/favicon-otono.png?v=226" data-est-src="/favicon-{est}.png?v=226" alt={en ? "The season’s favicon" : "Favicon de la estación"} width="64" height="64" /><figcaption class="detail">{en ? <>Favicon, the one for the season</> : <>Favicon, el de la estación</>}</figcaption></figure>
-            <figure class="placa clara sm"><span class="lockup peq" role="img" aria-label={en ? "savvia at small size" : "savvia en pequeño"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>Minimum size, 20 px high</> : <>Tamaño mínimo, 20 px de alto</>}</figcaption></figure>
+          <div class="fila">
+            <figure class="placa clara sm minimo"><span class="lockup peq" role="img" aria-label={en ? "savvia at small size" : "savvia en pequeño"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>Minimum size, 20 px high</> : <>Tamaño mínimo, 20 px de alto</>}</figcaption></figure>
           </div>
           <ul class="reglas">
             {en ? <li><b>One word</b> “savvia”, in lower case and on a single line; it is never split or paired with a symbol.</li> : <li><b>Una palabra</b> «savvia», en minúscula y en una sola línea; nunca se parte ni se acompaña de un símbolo.</li>}
@@ -366,7 +378,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           </ul>
           {/* RONDA 156 · Eric: «si no hacemos isotipo en el favicon, tiene que estar solo el background principal, y ese background se cambia con la
                estación; igual sí que podemos poner el árbol en pequeño» · «¿el cambio puede ser smooth?» */}
-          <h3 class="font-display text-h3 mt-24">{en ? <>The favicon</> : <>El favicon</>}</h3>
+          <h3 class="font-display text-h3 sub-bb">{en ? <>The favicon</> : <>El favicon</>}</h3>
           <p class="cuerpo">{en ? <>It is the main background of the website in the current season, with its oak in miniature and the ray of light: the same tree as the hero, with its foot at the bottom. It changes with the season: if you change it on the website, the tab fades to the new icon in just over a second.</> : <>Es el fondo principal de la web en la estación que toca, con su roble en pequeño y el rayo de luz: el mismo árbol del hero, con el pie abajo. Cambia con la estación: si la cambias en la web, la pestaña se funde al icono nuevo en poco más de un segundo.</>}</p>
           <div class="fila f4 fav-est">
             {['otono', 'invierno', 'primavera', 'verano'].map((e) => (
@@ -737,7 +749,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           {/* 28/10 · Andoni: «descargas, quitamos las mini explicaciones al final, después del correo» */}
         </section>
 
-        <p class="font-display text-h2 grupo-rotulo" id="g-desarrollo">{en ? <>Development</> : <>Desarrollo</>}</p>
+        <header class="grupo" id="g-desarrollo"><p class="font-display grupo-rotulo">{en ? <>Development</> : <>Desarrollo</>}</p></header>
         {/* RONDA 178 · STACK */}
         <section id="stack" class="seccion" aria-labelledby="h-stack">
           <h2 id="h-stack" class="font-display text-h2">Stack</h2>
@@ -976,7 +988,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
       const p0 = es[0].querySelector('.ci-pto')!.getBoundingClientRect();
       top = p0.top + p0.height / 2 - cr.top;
       xs = es.map((e) => { const r = e.querySelector('.ci-pto')!.getBoundingClientRect(); return r.left + r.width / 2 - cr.left; });
-      const x0 = 0.5, x1 = cr.width - 0.5, y1 = cr.height - 0.5, R = Math.min(48, (y1 - top) / 2);
+      const I = parseFloat(getComputedStyle(c).getPropertyValue('--ci-i')) || 0; // 28/10: dentro de su tarjeta, la línea va con margen
+      const x0 = I + 0.5, x1 = cr.width - I - 0.5, y1 = cr.height - I - 0.5, R = Math.min(48, (y1 - top) / 2);
       // en el sentido del reloj: de izquierda a derecha por arriba (las estaciones), baja por la derecha, vuelve por abajo y sube por la izquierda
       const d = `M${x0 + R} ${top}H${x1 - R}A${R} ${R} 0 0 1 ${x1} ${top + R}V${y1 - R}A${R} ${R} 0 0 1 ${x1 - R} ${y1}H${x0 + R}A${R} ${R} 0 0 1 ${x0} ${y1 - R}V${top + R}A${R} ${R} 0 0 1 ${x0 + R} ${top}Z`;
       pista.setAttribute('d', d); hecho.setAttribute('d', d); L = pista.getTotalLength(); recta = x1 - x0 - 2 * R;
@@ -1008,8 +1021,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   // 28/10 · los filtros en vivo: el portfolio real, cargado al acercarse, reducido al ancho de la placa y colocado en su barra
   document.querySelectorAll<HTMLElement>('[data-filtros-demo]').forEach((fig) => {
     const f = fig.querySelector('iframe')!;
-    // en móvil, el portfolio a su ancho (su versión móvil), sin reducir; en escritorio, el de 1440 reducido a la placa
-    new ResizeObserver(() => { const w = fig.clientWidth, movil = w < 640; fig.classList.toggle('movil', movil); fig.style.setProperty('--k', movil ? '1' : String(w / 1440)); fig.style.setProperty('--w', movil ? `${w}px` : '1440px'); }).observe(fig);
+    // en móvil, el portfolio en su versión de móvil a 390 px (el de un teléfono corriente) reducido a la placa; en escritorio, el de 1440 reducido.
+    // 28/10 · antes, en móvil, a su ancho tal cual (350 px): por debajo de 375 la pieza del portfolio se sale 22 px por la derecha
+    new ResizeObserver(() => { const w = fig.clientWidth, movil = w < 640, base = movil ? 390 : 1440, k = w / base; fig.classList.toggle('movil', movil); fig.style.setProperty('--k', String(k)); fig.style.setProperty('--w', `${base}px`); f.style.height = movil ? `${fig.clientHeight / k}px` : ''; }).observe(fig);
     f.addEventListener('load', () => {
       try {
         const w = f.contentWindow!, d = f.contentDocument!;
@@ -1263,18 +1277,26 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .logo-masc.linea { width: auto; height: 0.86em; translate: 0 0.12em; }
   /* 28/10 · Eric: «hay demasiadas rayas delimitando secciones»: sin raya; las separa el aire (como en el caso). Quedan las de los tres grupos */
   .seccion { margin-top: calc(var(--spacing) * 32); scroll-margin-top: calc(var(--spacing) * 20); }
-  .seccion.sin-borde { border-top: 0; margin-top: 0; padding-top: calc(var(--spacing) * 12); }
+  .seccion.sin-borde { border-top: 0; margin-top: 0; padding-top: 0; } /* 28/10 (6.ª) · las reglas del color, pegadas a su tarjeta como el resto de explicaciones (24 px, el margen de .reglas); antes 72 */
   /* 28/10 · Eric: «encaja con neety el storybook pero no con las columnas que hemos puesto dentro del contenido de neety; neety como modelo»: la MISMA
      retícula que .contenido del caso (Caso.astro › .rej.par): 12 columnas, hueco de 24; el título de sección pequeño (sans 18, 500) en las columnas 1–6,
      el texto desde la 7 hasta el final, todo en la misma vertical; las demos y placas, a todo el ancho. Los subtítulos (.sub-bb), como el título */
   .seccion > h2:not(.cie-t), .seccion > .sub-bb, .comp > .comp-t { font-family: var(--font-sans, inherit); font-size: 1.125rem; font-weight: 500; line-height: 1.3; letter-spacing: 0; }
   .seccion > .cuerpo { font-size: 1rem; line-height: 1.6; }
+  .va-lead { font-weight: 600; color: var(--fg); } /* el valor abre su párrafo */
+  /* 28/10 (6.ª) · Andoni: «que todos los textos de la derecha lleguen hasta el final; algunos tienen un salto y quedan raros»: era `text-wrap: pretty`,
+     que en Chrome corta líneas antes de tiempo para igualar el final (medido: 17 saltos donde cabía la palabra siguiente). En el storybook, el texto corrido
+     llena la línea; el catálogo (Catalogo.astro) también, por eso va con !important */
+  .hojas :global(:is(p, li, dd)) { text-wrap: wrap !important; }
   @media (width >= 48rem) {
     .seccion:not(.sin-borde):not(.cierre) { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); align-items: baseline; }
     .seccion > * { grid-column: 1 / -1; min-width: 0; }
     .seccion > h2:not(.cie-t), .seccion > .sub-bb { grid-column: 1 / span 6; }
     .seccion > h2:not(.cie-t) { grid-row: 1; }
-    .seccion > .cuerpo, .seccion > .reglas { grid-column: 7 / -1; max-width: none; }
+    .seccion > .cuerpo { grid-column: 7 / -1; max-width: none; }
+    /* 28/10 (6.ª) · las explicaciones, en la columna de la derecha (Andoni: «me gustaban más como estaban antes»), también las del color */
+    .seccion > .reglas { grid-column: 7 / -1; max-width: none; }
+    .seccion.sin-borde > .reglas { margin-left: calc(50% + var(--spacing) * 3); }
     .seccion > h2 + .cuerpo, .seccion > .sub-bb + .cuerpo, .seccion > h2 + .reglas { margin-top: 0; }
     /* las filas de título y texto (valores, stack, herramientas, símbolos): el título en 1–6 y el texto desde la 7, como el resto */
     /* 28/10 · Eric: «eso no se alinea como los demás»: el relato de la home, también (tenía su rejilla propia, 1 : 2,4) */
@@ -1285,6 +1307,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .cuerpo { margin-top: calc(var(--spacing) * 4); max-width: 60ch; font-size: var(--text-body); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
   .fila { display: grid; gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); }
   .fila.f2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .placa.sm.minimo { aspect-ratio: 5 / 1; } /* (2.ª) · sola en su fila desde que el favicon va solo abajo: baja y apaisada */
   .fila.f3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cuerpo + .fila { margin-top: calc(var(--spacing) * 10); }
   @media (width < 48rem) { .fila.f2, .fila.f3 { grid-template-columns: 1fr; } }
@@ -1292,6 +1315,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .placa.sm { aspect-ratio: 1; }
   .placa.oscura { background: var(--color-cacao); color: #F5F5F7; }
   .placa.clara { background: #F5F5F7; color: var(--color-cacao); box-shadow: inset 0 0 0 1px var(--rule); }
+  /* (3.ª) · Andoni: «los textos que van debajo de las imágenes, más sutiles, que no se confundan con textos de lectura»: en versalitas pequeñas y espaciadas */
+  figcaption.detail:not(.leyenda), figcaption .detail, .apl-pie, .pie-p { font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; }
   .placa > figcaption, .pie-p { position: absolute; left: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); right: calc(var(--spacing) * 4); opacity: 0.8; } /* 28/10: 0,65 bajaba de 4,5:1 sobre los bloques claros de primavera y verano */
   .fav { width: 30%; height: auto; border-radius: 22%; }
   .reglas { display: grid; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 6); font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); }
@@ -1456,8 +1481,16 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 
   /* ── VOZ */
   /* 28/10 · Eric: «cuida el aire entre secciones»: la cita iba a 40 px del párrafo y a 128 de la sección siguiente; ahora 96 arriba */
-  .ejemplo { display: flex; flex-direction: column; gap: calc(var(--spacing) * 3); margin-top: calc(var(--spacing) * 24); font-size: var(--text-h2); line-height: 1.1; }
-  .ejemplo .detail { font-family: var(--font-mono); color: var(--fg2); }
+  /* 28/10 · Andoni: «la cita de narrativa tampoco me convence como está puesta» → una tarjeta en la noche de la estación (como la cubierta), la frase centrada,
+     una gota de savia encima y la nota en mono debajo */
+  /* (4.ª) · «los símbolos, sin las imágenes de abajo»: tarjetas de texto, sutiles (el texto al 4 % sobre el fondo); el nombre y su frase */
+  .simb { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 3); margin: calc(var(--spacing) * 10) 0 0; padding: 0; list-style: none; }
+  .simb li { display: grid; align-content: start; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 6) calc(var(--spacing) * 5); border-radius: var(--radius-lg); background: color-mix(in oklab, var(--fg) 4%, var(--bg, #F5F5F7)); }
+  .simb-n { margin: 0; font-size: 1.25rem; line-height: 1.2; color: var(--fg); }
+  .simb-q { margin: 0; color: var(--fg); opacity: 0.7; }
+  .simb-d { margin: 0; font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); text-wrap: pretty; }
+  @media (width >= 40rem) and (width < 64rem) { .simb { grid-template-columns: repeat(6, minmax(0, 1fr)); } .simb li { grid-column: span 2; } .simb li:nth-child(4), .simb li:nth-child(5) { grid-column: span 3; } } /* 3 + 2, sin hueco */
+  @media (width < 40rem) { .simb { grid-template-columns: repeat(2, minmax(0, 1fr)); } .simb li:last-child:nth-child(odd) { grid-column: 1 / -1; } } /* el quinto, a lo ancho: no queda huérfano */
 
   /* ── COMPONENTES */
   .comp { margin-top: calc(var(--spacing) * 16); }
@@ -1775,7 +1808,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .sub-bb { margin-top: calc(var(--spacing) * 16); }
   /* 28/10 (4.ª) · EL CICLO, sin cajas: cuatro columnas con su roble apoyado en la línea del año; la pista (un rectángulo de esquinas redondas que pasa
      por el pie de los robles y vuelve por debajo de los textos) la dibuja el JS a la medida, y la gota la recorre en 16 s */
-  .ciclo { position: relative; margin-top: calc(var(--spacing) * 12); padding-bottom: calc(var(--spacing) * 24); }
+  /* 28/10 · Andoni: «la imagen de las estaciones en narrativa me queda rara: meterla dentro de una card» */
+  .ciclo { --ci-i: 28px; --carta: color-mix(in oklab, var(--fg) 4%, var(--bg, #F5F5F7)); position: relative; margin-top: calc(var(--spacing) * 12); padding: clamp(2rem, 1rem + 3vw, 4rem) clamp(1rem, 0.5rem + 2vw, 2.5rem) calc(var(--spacing) * 24); border-radius: var(--radius-lg); background: var(--carta); }
   .ci-via { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
   .ci-pista { fill: none; stroke: var(--rule-strong, var(--rule)); stroke-width: 1; }
   .ci-hecho { fill: none; stroke: var(--color-coral); stroke-width: 1.5; stroke-linecap: round; opacity: 0.85; }
@@ -1789,15 +1823,65 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .ci-e.on .ci-roble, .ciclo.quieto .ci-roble { opacity: 1; filter: none; }
   .ci-roble { display: block; width: 100%; height: auto; scale: 0.92; transform-origin: 50% 100%; }
   .ci-e.on .ci-roble { scale: 1; }
-  .ci-pto { justify-self: center; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--fg); box-shadow: 0 0 0 4px var(--bg, #F5F5F7); transition: background-color 0.6s ease, box-shadow 0.6s ease; }
-  .ci-e.on .ci-pto { background: var(--s); box-shadow: 0 0 0 4px var(--bg, #F5F5F7), 0 0 0 9px color-mix(in oklab, var(--s) 22%, transparent); }
+  .ci-pto { justify-self: center; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--fg); box-shadow: 0 0 0 4px var(--carta); transition: background-color 0.6s ease, box-shadow 0.6s ease; }
+  .ci-e.on .ci-pto { background: var(--s); box-shadow: 0 0 0 4px var(--carta), 0 0 0 9px color-mix(in oklab, var(--s) 22%, transparent); }
   .ci-n { margin-top: calc(var(--spacing) * 8); font-size: var(--text-h3); line-height: var(--text-h3--line-height); }
   .ci-savia { margin-top: calc(var(--spacing) * 3); font-size: var(--text-body); line-height: 1.6; text-wrap: pretty; }
   .ci-proy { margin-top: calc(var(--spacing) * 6); font-size: var(--text-aux); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
   .ci-proy b { display: block; margin-bottom: calc(var(--spacing) * 2); font-weight: 500; color: var(--fg); }
   .ci-savia, .ci-proy { width: 100%; max-width: 22ch; }
-  .ci-vuelta { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; translate: 0 50%; margin: 0; color: var(--fg2); }
-  .ci-vuelta span { padding-inline: calc(var(--spacing) * 3); background: var(--bg, #F5F5F7); }
+  .ci-vuelta { position: absolute; left: 0; right: 0; bottom: var(--ci-i); display: flex; justify-content: center; translate: 0 50%; margin: 0; color: var(--fg2); }
+  /* (2.ª) · Andoni: «las cuatro estaciones debajo del ciclo, de otra manera que quede mejor con lo de arriba: cuatro cards». Sin la línea del año ni la gota:
+     una tarjeta por estación (su roble, el nombre, la savia y el proyecto) y el «vuelta a empezar» debajo */
+  /* (4.ª) · «las cards de las estaciones, más sutiles, y los árboles con el color que tienen en el hero»: el roble es el del hero tal cual (el último
+     fotograma de su grabación, tools/r307/hf/assets/arbol-hero-<estación>.mp4 → /media/sistema/ciclo/), sobre la noche de su estación, que es el fondo de
+     la tarjeta; el texto, en voz baja: el nombre en Family y el resto pequeño y al 75 % */
+  .ciclo.cartas { padding: 0; background: none; border-radius: 0; }
+  .ciclo.cartas .ci-via, .ciclo.cartas .ci-pto { display: none; }
+  .ciclo.cartas .ci-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; gap: calc(var(--spacing) * 3); padding: 0; }
+  .ciclo.cartas .ci-e { grid-row: auto; grid-template-rows: none; align-content: start; justify-items: start; text-align: left; overflow: hidden; padding: 0 0 calc(var(--spacing) * 6); border-radius: var(--radius-lg); background: var(--ci-fondo); color: var(--ci-tinta); }
+  .ciclo.cartas .ci-roble { opacity: 1; filter: none; scale: 1; width: 100%; }
+  .ciclo.cartas .ci-n { margin: calc(var(--spacing) * 2) calc(var(--spacing) * 6) 0; font-size: 1.375rem; line-height: 1.2; color: inherit; }
+  .ciclo.cartas .ci-savia { margin: calc(var(--spacing) * 2) calc(var(--spacing) * 6) 0; font-size: var(--text-aux); color: color-mix(in srgb, var(--ci-tinta) 80%, transparent); max-width: 34ch; }
+  .ciclo.cartas .ci-proy { margin: calc(var(--spacing) * 2) calc(var(--spacing) * 6) 0; font-size: var(--text-aux); color: color-mix(in srgb, var(--ci-tinta) 66%, transparent); max-width: 34ch; }
+  .ciclo.cartas .ci-proy b { display: inline; margin: 0 0.35em 0 0; font-weight: 500; color: inherit; }
+  /* invierno es nieve sobre el fondo: su filo va en una capa POR ENCIMA del roble (la imagen, con su fondo de nieve, tapaba la sombra interior al crecer)
+     y, donde el anillo muerde su esquina, el contorno del hueco lleva el mismo trazo (.ci-a-filo) */
+  .ciclo.cartas .ci-e[data-ci='3']::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; box-shadow: inset 0 0 0 1px rgb(34 48 62 / 0.12); pointer-events: none; }
+  .ci-a-filo { fill: none; stroke: rgb(34 48 62 / 0.12); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .ciclo.cartas .ci-vuelta { position: static; translate: none; margin-top: calc(var(--spacing) * 6); }
+  .ciclo.cartas .ci-vuelta span { background: none; }
+  /* el año en el sentido del reloj: arriba primavera y verano; abajo, de derecha a izquierda, otoño e invierno */
+  .ciclo.cartas .ci-lista { position: relative; }
+  .ciclo.cartas .ci-e[data-ci='2'] { order: 4; }
+  .ciclo.cartas .ci-e[data-ci='3'] { order: 3; }
+  .ciclo.cartas .ci-e[data-ci='0'] { --q: 0; } .ciclo.cartas .ci-e[data-ci='1'] { --q: 1; } .ciclo.cartas .ci-e[data-ci='2'] { --q: 2; } .ciclo.cartas .ci-e[data-ci='3'] { --q: 3; }
+  .ci-anillo { position: absolute; left: 50%; top: 50%; z-index: 2; display: grid; place-items: center; width: 72px; aspect-ratio: 1; translate: -50% -50%; list-style: none; }
+  /* (7.ª) · «por donde corta el círculo, mantener el redondeo de los extremos»: el hueco es el disco más ocho filetes de 8 px donde toca el canto de
+     cada tarjeta (calculados al compilar: tangentes al disco y al canto), en el color del fondo */
+  .ci-a-hueco { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; translate: -50% -50%; overflow: visible; fill: var(--bg, #F5F5F7); }
+  /* (7.ª) · el círculo interior (Andoni, 9.ª: «me gustaba más el de antes»): una órbita fina con una estela de savia (degradado cónico) que sigue a la
+     gota, y un punto por estación en su color; da la vuelta en 24 s, empezando en la primavera (arriba a la izquierda) */
+  .ci-orbita { position: relative; display: block; width: 48px; height: 48px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--rule); }
+  .ci-cola { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0deg 250deg, color-mix(in srgb, var(--fg) 55%, transparent) 360deg); /* (11.ª) neutra: la tinta */ -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); animation: ci-giro 24s linear infinite; }
+  .ci-gota { position: absolute; inset: 0; animation: ci-giro 24s linear infinite; }
+  .ci-gota::after { content: ''; position: absolute; left: 50%; top: -3px; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: var(--fg); box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg) 14%, transparent); }
+  /* (10.ª) · «dentro, un círculo concéntrico que cambie de color según la estación por la que pasa»: con el mismo reloj de 24 s */
+  .ci-nucleo { position: absolute; inset: 13px; border-radius: 50%; background: var(--c0); animation: ci-nucleo 24s infinite; }
+  @keyframes ci-nucleo { 0%, 21% { background: var(--c0); } 25%, 46% { background: var(--c1); } 50%, 71% { background: var(--c2); } 75%, 96% { background: var(--c3); } 100% { background: var(--c0); } }
+  @keyframes ci-giro { from { transform: rotate(-90deg); } to { transform: rotate(270deg); } }
+  /* el roble de la estación por la que pasa la gota, encendido; los demás, en voz baja (6 s cada estación) */
+  /* (9.ª) · «el árbol inactivo con bastante transparencia y más pequeño; cuando pasa el círculo, al 100 % y más grande»: 6 s por estación */
+  .ciclo.cartas .ci-roble { transform-origin: 50% 92%; animation: ci-activo 24s infinite; animation-delay: calc(var(--q) * 6s - 24s); }
+  @keyframes ci-activo { 0% { opacity: 0.3; scale: 0.82; animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); } 6%, 22% { opacity: 1; scale: 1; animation-timing-function: ease-in-out; } 28%, 100% { opacity: 0.3; scale: 0.82; } }
+  @media (prefers-reduced-motion: reduce) { .ci-cola, .ci-gota, .ci-nucleo, .ciclo.cartas .ci-roble { animation: none; } }
+  @media (width < 40rem) {
+    .ciclo.cartas .ci-lista { grid-template-columns: 1fr; }
+    .ciclo.cartas .ci-e[data-ci] { order: 0; }
+    .ci-anillo { display: none; }
+    .ciclo.cartas .ci-roble { animation: none; }
+  }
+  .ci-vuelta span { padding-inline: calc(var(--spacing) * 3); background: var(--carta); }
   @media (width < 64rem) {
     .ci-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; row-gap: calc(var(--spacing) * 12); padding: 0; } .ci-e { grid-row: auto; grid-template-rows: none; align-content: start; justify-items: start; } .ci-savia, .ci-proy { max-width: none; }
     .ci-via { display: none; } .ci-e { opacity: 1; text-align: left; } .ci-pto { justify-self: start; margin-left: 50%; } .ci-vuelta { position: static; translate: none; justify-content: flex-start; margin-top: calc(var(--spacing) * 8); }
@@ -1844,7 +1928,6 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .significado { margin-top: calc(var(--spacing) * 12); display: grid; gap: calc(var(--spacing) * 5); max-width: 40rem; }
   .sig-lead { font-size: var(--text-h3); line-height: var(--text-h3--line-height); text-wrap: balance; }
   .lockups-est .placa { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 10%, transparent); }
-  .fav-par { grid-auto-flow: column; gap: calc(var(--spacing) * 4); place-content: center; }
   .fav-m { display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 0.9rem; }
   .fav-png { display: block; width: 4rem; height: 4rem; image-rendering: auto; }
   .fila.f4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -1954,8 +2037,11 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   }
   /* 28/10 · Eric: «esto quitamos» (la raya de 2 px y el rótulo en mayúsculas) → «delimitar con texto Family y ya, cada uno»: Narrativa · Diseño · Desarrollo,
      un titular en Family sin raya; la primera sección de cada grupo, pegada debajo */
-  .grupo-rotulo { margin-top: calc(var(--spacing) * 32); color: var(--fg); scroll-margin-top: calc(var(--spacing) * 20); }
-  .grupo-rotulo + .seccion { margin-top: calc(var(--spacing) * 12); }
+  /* 28/10 · Andoni: «Narrativa, Diseño y debajo la línea separadora, con la misma opacidad que las líneas guía» (Carriles.astro: niebla al 14 % por diferencia) */
+  .grupo { position: relative; margin-top: calc(var(--spacing) * 40); padding-bottom: calc(var(--spacing) * 8); scroll-margin-top: calc(var(--spacing) * 20); }
+  .grupo::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: color-mix(in srgb, var(--color-niebla) 14%, transparent); mix-blend-mode: difference; }
+  .grupo-rotulo { margin: 0; font-size: var(--text-h1); line-height: 1; color: var(--fg); }
+  .grupo + .seccion { margin-top: calc(var(--spacing) * 16); }
   .cod { font-family: var(--font-mono); font-size: 0.9em; padding: 0.1em 0.35em; border-radius: 4px; background: color-mix(in oklab, var(--fg) 7%, transparent); color: var(--fg); }
   .pasos-esp { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 8); }
   .pasos-esp li { display: grid; grid-template-columns: 3rem 1fr 4rem; align-items: center; gap: calc(var(--spacing) * 4); }
@@ -2202,7 +2288,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .placa.filtros-demo { position: relative; overflow: hidden; aspect-ratio: 1440 / 640; }
   .filtros-demo img { position: absolute; inset: 0; height: 100%; object-fit: contain; object-position: top; }
   .placa.filtros-demo.movil { aspect-ratio: auto; height: 34rem; }
-  .filtros-demo.movil iframe { height: 100%; }
+  /* 28/10 · en móvil asomaba 2 px de la pieza siguiente del portfolio (una tarjeta oscura) por el borde de abajo, como una raya: el pie se funde */
+  .placa.filtros-demo.movil::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; height: 3rem; background: linear-gradient(transparent, #F5F5F7 85%); pointer-events: none; }
   .filtros-demo iframe { position: absolute; top: 0; left: 0; width: var(--w, 1440px); height: 640px; border: 0; transform-origin: 0 0; scale: var(--k, 1); opacity: 0; transition: opacity 0.4s ease; background: #F5F5F7; }
   .filtros-demo.listo iframe { opacity: 1; }
   .ic-ondas { display: flex; align-items: center; gap: 3px; height: 1.9rem; }
@@ -2217,5 +2304,4 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
      relato, escalas, stack, herramientas, piezas, descargas); fuera solo las de exceso: la de arriba de cada lista (la sección ya la abre su titular) y la gruesa de los grupos */
   .valores, .relato, .dev-filas { border-top: 0; }
   .valores li, .relato li, .dev-filas.con-raya > div { padding-block: calc(var(--spacing) * 6); }
-  .va-lead { font-weight: 600; color: var(--fg); } /* el valor abre su párrafo, fuerte (como los capítulos del manifiesto) */
 </style>

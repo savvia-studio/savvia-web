@@ -25,7 +25,7 @@ export const lab = {
   sub: 'Nuestros experimentos.\nÁbrelos y juega con ellos.', // 26.ª: en dos líneas
   ayuda: 'Desliza o arrastra para explorar',
   ayudaTactil: 'Desliza para explorar',
-  abrir: 'Abrir en su web',
+  abrir: 'Ir a la web', // 28/10 · Andoni: «que sea Ir a la web»
 };
 
 // el mundo de diseño (a escala 1): las copias se reparten en él
