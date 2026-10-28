@@ -5515,3 +5515,4 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **Medido:** `astro check` 0 errores.
 - **A media ronda (Eric):** texto actualizado: el problema abre con contexto («Tu producto ha avanzado y tu equipo también… la versión de hace tres años»), párrafo corto «Tu web debería sonar a ti.», «directrices únicas» sin «para tu proyecto» y el sistema como «fuente de verdad de tu web». Seis párrafos tras la entrada (ES y EN).
 - **A media ronda (Eric):** «Con tu dirección…» → «Con tu visión y nuestro criterio creamos unas directrices únicas.» (EN: «With your vision…»).
+- **A media ronda (Eric):** «dejamos la primera s del manifiesto como s normal» → sin capitular cuando la entrada empieza por «savvia» (fuera `.cap-marca`).
