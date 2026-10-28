@@ -5656,3 +5656,4 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   «treseiscero», tapado «treseiscero» en los rótulos de cada concepto y fuera la barra de herramientas de Figma. ES y EN.
 - **28/10 · Color y Tipografía suben (Eric: «color, tipografía habrá que subirlo»)** justo tras «Del Figma a la web». Y el texto de Tipografía ya no dice
   «neety.treseiscero.app» (regla: treseiscero en ningún sitio): «Medido en la web entregada, a 1440 px» (ES y EN).
+  · Espaciado sube también, tras Tipografía (Eric duda si quitarlo).

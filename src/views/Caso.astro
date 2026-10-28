@@ -370,6 +370,53 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       )
     }
 
+    <!-- 28/10 · Eric: el ESPACIADO sube también, tras la tipografía -->
+    {
+      esp && (
+        <section class="wrap rej bloque" aria-labelledby="esp-h">
+          <h2 id="esp-h" class="t-enc enc">{en ? 'Spacing' : 'Espaciado'}</h2>
+          <div class="c23 espaciado" data-vivo data-esp>
+            <div class="esq" aria-hidden="true" style={`--C:${espCont};--S:${espSec};--R:${espRel};--G:${espHue}`}>
+              <div class="pag">
+                <i class="m m-cont izq"><span>{espCont} px {en ? 'container' : 'de contenedor'}</span></i><i class="m m-cont der" />
+                <div class="cont">
+                  <div class="sec">
+                    <b class="tit" />
+                    <div class="tarjetas">
+                      <div class="tj"><i class="m m-relleno"><span>{espRel} px {en ? 'padding' : 'de relleno'}</span></i><b /><b /><b class="c" /></div>
+                      <i class="m m-hueco gap-m"><span>{espHue} px {usoEsp.hueco}</span></i>
+                      <div class="tj"><b /><b /><b class="c" /></div>
+                      <i class="m m-hueco gap-m" />
+                      <div class="tj"><b /><b /><b class="c" /></div>
+                    </div>
+                  </div>
+                  <i class="m m-seccion entre"><span>{espSec} px {en ? 'between sections' : 'entre secciones'}</span></i>
+                  <div class="sec dos"><div class="txt"><b class="tit" /><b /><b /><b class="c" /></div><b class="img" /></div>
+                </div>
+              </div>
+            </div>
+            <dl class="claves">
+              <div><dt class="t-ojo">{en ? 'Base step' : 'Paso base'}</dt><dd class="cifra">{esp.base ? `${esp.base} px` : (en ? 'Fluid' : 'Fluido')}</dd></div>
+              {esp.seccion && <div data-k="seccion"><dt class="t-ojo">{en ? 'Between sections' : 'Entre secciones'}</dt><dd class="cifra">{esp.seccion} px</dd></div>}
+              {esp.contenedor && <div data-k="cont"><dt class="t-ojo">{en ? 'Container' : 'Contenedor'}</dt><dd class="cifra">{esp.contenedor} px</dd></div>}
+            </dl>
+            <ol class="pasos">
+              {esp.escala.map((e, i) => (
+                <li style={`--px:${e.px};--i:${i}`} data-k={espTipo(e) || undefined}>
+                  <span class="t-texto fuerte cifra">{e.px}</span>
+                  <span class="caja" aria-hidden="true"><span /></span>
+                  <span class="t-ojo">{usoEsp[e.uso] ?? e.uso}, {e.n} {en ? 'times' : 'veces'}</span>
+                </li>
+              ))}
+            </ol>
+            <p class="t-ojo nota">{en
+              ? `The paddings, margins and gaps that repeat most on the delivered site, at 1440 px and true scale${esp.base ? `; almost all fall on ${esp.base} px steps` : '; fluid sizes (they change with the window width), with no fixed step'}.`
+              : `Los rellenos, márgenes y huecos que más se repiten en la web entregada, a 1440 px y a escala real${esp.base ? `; casi todos caen en pasos de ${esp.base} px` : '; tamaños fluidos (cambian con el ancho de la ventana), sin un paso fijo'}.`}</p>
+          </div>
+        </section>
+      )
+    }
+
     <!-- CÓMO LA CONSTRUIMOS: los pasos, numerados, en dos columnas que arrancan arriba a la vez -->
     {
       p.proceso && (
@@ -482,51 +529,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       ))
     }
 
-    {
-      esp && (
-        <section class="wrap rej bloque" aria-labelledby="esp-h">
-          <h2 id="esp-h" class="t-enc enc">{en ? 'Spacing' : 'Espaciado'}</h2>
-          <div class="c23 espaciado" data-vivo data-esp>
-            <div class="esq" aria-hidden="true" style={`--C:${espCont};--S:${espSec};--R:${espRel};--G:${espHue}`}>
-              <div class="pag">
-                <i class="m m-cont izq"><span>{espCont} px {en ? 'container' : 'de contenedor'}</span></i><i class="m m-cont der" />
-                <div class="cont">
-                  <div class="sec">
-                    <b class="tit" />
-                    <div class="tarjetas">
-                      <div class="tj"><i class="m m-relleno"><span>{espRel} px {en ? 'padding' : 'de relleno'}</span></i><b /><b /><b class="c" /></div>
-                      <i class="m m-hueco gap-m"><span>{espHue} px {usoEsp.hueco}</span></i>
-                      <div class="tj"><b /><b /><b class="c" /></div>
-                      <i class="m m-hueco gap-m" />
-                      <div class="tj"><b /><b /><b class="c" /></div>
-                    </div>
-                  </div>
-                  <i class="m m-seccion entre"><span>{espSec} px {en ? 'between sections' : 'entre secciones'}</span></i>
-                  <div class="sec dos"><div class="txt"><b class="tit" /><b /><b /><b class="c" /></div><b class="img" /></div>
-                </div>
-              </div>
-            </div>
-            <dl class="claves">
-              <div><dt class="t-ojo">{en ? 'Base step' : 'Paso base'}</dt><dd class="cifra">{esp.base ? `${esp.base} px` : (en ? 'Fluid' : 'Fluido')}</dd></div>
-              {esp.seccion && <div data-k="seccion"><dt class="t-ojo">{en ? 'Between sections' : 'Entre secciones'}</dt><dd class="cifra">{esp.seccion} px</dd></div>}
-              {esp.contenedor && <div data-k="cont"><dt class="t-ojo">{en ? 'Container' : 'Contenedor'}</dt><dd class="cifra">{esp.contenedor} px</dd></div>}
-            </dl>
-            <ol class="pasos">
-              {esp.escala.map((e, i) => (
-                <li style={`--px:${e.px};--i:${i}`} data-k={espTipo(e) || undefined}>
-                  <span class="t-texto fuerte cifra">{e.px}</span>
-                  <span class="caja" aria-hidden="true"><span /></span>
-                  <span class="t-ojo">{usoEsp[e.uso] ?? e.uso}, {e.n} {en ? 'times' : 'veces'}</span>
-                </li>
-              ))}
-            </ol>
-            <p class="t-ojo nota">{en
-              ? `The paddings, margins and gaps that repeat most on the delivered site, at 1440 px and true scale${esp.base ? `; almost all fall on ${esp.base} px steps` : '; fluid sizes (they change with the window width), with no fixed step'}.`
-              : `Los rellenos, márgenes y huecos que más se repiten en la web entregada, a 1440 px y a escala real${esp.base ? `; casi todos caen en pasos de ${esp.base} px` : '; tamaños fluidos (cambian con el ancho de la ventana), sin un paso fijo'}.`}</p>
-          </div>
-        </section>
-      )
-    }
     {
       movVideo && (
         <section class="wrap bloque sis-bloque" aria-labelledby="mov-h">
