@@ -74,7 +74,7 @@ export const recorrido = {
     },
     {
       corto: 'AI slop',
-      dolor: 'Si lo que haces se ve como AI Slop…',
+      dolor: 'Si lo que haces se ve como AI slop…',
       t: 'Con tu dirección y nuestro criterio',
       d: 'generamos skills únicas de diseño y desarrollo web.',
     },
@@ -413,7 +413,7 @@ export const servicios = {
     {
       corto: 'Consultoría',
       cab: 'Qué incluye la consultoría:',
-      d: 'Te ayudamos a decidir qué necesita tu web y a ordenarla para que tu equipo la cambie con IA sin salirse de tu marca.',
+      d: 'Decidimos contigo qué necesita tu web, te asesoramos en movimiento, desarrollo agéntico y CMS, y la ordenamos para que tu equipo la cambie con IA sin salirse de tu marca.', // 28/10: la descripción recoge lo que Eric añadió en la ronda 197
       // ronda 197 · Eric, desde el artefacto «Servicios de savvia»: la consultoría también incluye movimiento, desarrollo agéntico y CMS
       // ronda 201 · Eric, artefacto v28: la receta (savvia.md) sale de la consultoría
       tags: ['Narrativa de la web', 'Arquitectura de contenidos', 'Auditoría de tu web', 'Ilustraciones animadas', 'Animaciones 3D', 'Interacciones GSAP', 'Desarrollo agéntico', 'Integraciones con CMS', 'Migraciones de Webflow a IA', 'Formación a tu equipo'],
@@ -591,7 +591,7 @@ export const estudio = {
 // `claves`: palabras con las que la pregunta LIBRE del visitante encuentra esta respuesta (sin ningún modelo detrás).
 export const preguntas = {
   pregunta: '¿Preguntas?',
-  titulo: 'Pregunta. Contestamos nosotros.',
+  titulo: 'Pregunta lo que necesites.', // 28/10: «Contestamos nosotros» chocaba con la nota de la pregunta libre (te contesta una IA)
   firma: 'Eric y Andoni',
   nota: 'Solemos contestar en el día.',
   // RONDA 39 · reescritas hacia quien pregunta (punto 8): lo que gana o lo que decide el cliente va primero.

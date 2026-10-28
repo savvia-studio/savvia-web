@@ -1,4 +1,4 @@
-// RONDA 180 · miniaturas del catálogo de secciones (/sistema/dev › Catálogo).
+// RONDA 180 (rehecho el 28/10) · miniaturas del catálogo de secciones (/sistema/dev › Catálogo).
 // Contra el servidor de desarrollo que ya corre (no lo arranca ni lo para): `node tools/r180/miniaturas.cjs [base] [id,id…]`.
 // Chrome del sistema a 1440 × 900 (16:10), ?carga=0, otoño y movimiento reducido. Cada pieza: se coloca la sección en la ventana, se espera a que
 // se pinte y se guarda la ventana entera reducida a 1200 px en public/media/sistema/catalogo/<id>.webp (calidad 78).
@@ -17,7 +17,6 @@ const W = 1440, H = 900;
 const PIEZAS = [
   { id: 'inicio-hero', url: '/', sel: '[data-hero]', al: 'arriba', espera: 3500 },
   { id: 'inicio-raices', url: '/', sel: '[data-raices]', al: 'arriba', dy: -260, espera: 2500 },
-  { id: 'inicio-dolores', url: '/', sel: '#recorrido-a2 .parada', al: 'arriba', dy: -140, espera: 3000 },
   { id: 'inicio-proyectos', url: '/', sel: '#proyectos', al: 'arriba', dy: 0.62, espera: 3500 },
   { id: 'inicio-mas-proyectos', url: '/', sel: '#anteriores', al: 'arriba', dy: 40, espera: 3000 },
   { id: 'inicio-servicios', url: '/', sel: '#servicios', al: 'arriba', dy: 40, espera: 3500 },
@@ -27,13 +26,16 @@ const PIEZAS = [
   { id: 'inicio-pie', url: '/', sel: '#contacto', al: 'abajo', espera: 6000 },
   { id: 'comun-menu', url: '/', sel: '[data-hero]', al: 'arriba', espera: 1500, antes: async (p) => { await p.click('[data-menu-boton], button[aria-controls="menu"]'); await p.waitForTimeout(1600); } },
   { id: 'comun-carga', url: '/', q: 'carga=1&estacion=otono', sel: null, espera: 2600 },
-  { id: 'portfolio-cabecera', url: '/proyectos', sel: 'main', al: 'arriba', espera: 3000 },
-  { id: 'portfolio-todos', url: '/proyectos', sel: '[data-todos]', al: 'arriba', dy: -40, espera: 3000 },
+  { id: 'portfolio-todos', url: '/proyectos', sel: '[data-todos]', al: 'arriba', dy: -40, espera: 3500 },
+  // 28/10 · las piezas nuevas del catálogo: el chat (abierto, fuera del hero), el mentor del portfolio y el visor
+  { id: 'comun-chat', url: '/', sel: '#servicios', al: 'arriba', dy: 40, espera: 1800, antes: async (p) => { await p.waitForTimeout(800); await p.click('[data-cf-btn]'); await p.waitForTimeout(1400); } },
+  { id: 'portfolio-mentor', url: '/proyectos', sel: '[data-mentor]:not([hidden])', al: 'arriba', dy: -120, espera: 4500 },
+  { id: 'portfolio-visor', url: '/proyectos', sel: '[data-obra]', al: 'arriba', dy: -200, espera: 3500, antes: async (p) => { await p.click('[data-obra] a'); await p.waitForTimeout(2200); } },
   { id: 'caso-cabecera', url: '/proyectos/neety', sel: 'main', al: 'arriba', espera: 2500 },
   { id: 'caso-portada', url: '/proyectos/neety', sel: 'main .pz, main [class*="pieza"]', al: 'arriba', dy: -60, espera: 3000 },
   { id: 'caso-detalles', url: '/proyectos/neety', sel: '#det-h', al: 'arriba', dy: -64, espera: 3000 },
-  { id: 'caso-sistema', url: '/proyectos/neety', sel: '#sis-h', al: 'arriba', dy: -120, espera: 2500 },
-  { id: 'caso-siguiente', url: '/proyectos/neety', sel: 'nav.pares', al: 'abajo', dy: 160, espera: 2500 },
+  { id: 'caso-sistema', url: '/proyectos/neety', sel: '#color-h', al: 'arriba', dy: -120, espera: 2500 },
+  { id: 'caso-siguiente', url: '/proyectos/neety', sel: '#concl-h', al: 'arriba', dy: -80, espera: 2500 },
   { id: 'lab', url: '/lab', sel: null, espera: 4000 },
   { id: 'manifiesto-portada', url: '/manifiesto', sel: null, espera: 4500 },
   { id: 'manifiesto-texto', url: '/manifiesto', sel: '.texto .primero', al: 'arriba', dy: -220, espera: 4500 },

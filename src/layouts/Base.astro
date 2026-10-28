@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { Font } from 'astro:assets';
-import { langDe, enOtroIdioma } from '../lib/i18n';
+import { langDe, enOtroIdioma, tieneEn } from '../lib/i18n';
 
 interface Props {
   title?: string;
@@ -42,9 +42,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="es" href={hrefLang('es')} />
+    {tieneEn(Astro.url.pathname) && <><link rel="alternate" hreflang="es" href={hrefLang('es')} />
     <link rel="alternate" hreflang="en" href={hrefLang('en')} />
-    <link rel="alternate" hreflang="x-default" href={hrefLang('es')} />
+    <link rel="alternate" hreflang="x-default" href={hrefLang('es')} /></>}
     <!-- RONDA 38 · metadatos para compartir (og/twitter en URL absoluta; `site` = https://savvia.studio) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="savvia" />

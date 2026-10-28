@@ -1,3 +1,4 @@
+import { t as tr } from './i18n';
 // RONDA 162 (Eric) · «por cada uno de ellos, antes del thumbnail, mostrar la animación del reel: el agente y nosotros vamos pintando el thumbnail».
 // La construcción del reel (r138/r152), rehecha en vivo dentro de la pantalla del monitor: la retícula, «el agente», Andoni y Eric dibujan las cajas
 // de la maqueta (medidas a ojo sobre cada miniatura, en % de la pantalla) y al final la miniatura se PINTA encima con el canto rasgado desde la
@@ -92,7 +93,7 @@ export function construir(capa: HTMLElement, slug: string, cap: string, alAcabar
   ];
   const quienes: [string, string, number, number, number][] = [
     // nombre, clase, entra desde (fuera de la pantalla, en %), y cuándo empieza
-    ['el agente', 'agente', 108, 30, 0.12],
+    [tr('el agente', 'the agent'), 'agente', 108, 30, 0.12],
     ['Andoni', 'andoni', 28, 112, 0.4],
     ['Eric', 'eric', -8, 6, 0.7],
   ];

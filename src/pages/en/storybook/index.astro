@@ -1,0 +1,9 @@
+---
+// LANZAMIENTO: esta página aún no sale (ver src/lib/lanzamiento.ts); quien llega por la dirección vuelve a la home
+import { RECORTE } from '../../../lib/lanzamiento';
+if (RECORTE) return Astro.redirect('/en/');
+// 28/10 · el Storybook en inglés: el mismo libro (Libro.astro saca el idioma de la dirección)
+import Libro from '../../../components/sistema/Libro.astro';
+---
+
+<Libro />

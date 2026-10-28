@@ -57,7 +57,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
         </li>
       ))}
     </ol>
-    <p class="ahora" data-radio-ahora aria-live="polite">Apagada</p>
+    <p class="ahora" data-radio-ahora aria-live="polite">{en ? 'Off' : 'Apagada'}</p>
   </div>
 </div>
 
@@ -258,7 +258,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.em === em)));
       items.forEach((b) => b.classList.toggle('on', on && !!actual && b.dataset.pista === actual.id));
       if (actual && actual.id !== vista) { vista = actual.id; centrar(caja.classList.contains('abierto')); }
-      ahora.textContent = on && actual ? (cede ? `${actual.t} sigue al salir de la mesa` : `Suena ${actual.t}`) : 'Apagada';
+      ahora.textContent = on && actual ? (cede ? t(`${actual.t} sigue al salir de la mesa`, `${actual.t} keeps playing when you leave the desk`) : t(`Suena ${actual.t}`, `Playing ${actual.t}`)) : t('Apagada', 'Off');
     };
     const avisar = () => dispatchEvent(new CustomEvent('savvia:radio', { detail: { on } }));
     const cola = () => PISTAS.filter((p) => em === 'todas' || p.em === em);

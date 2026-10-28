@@ -33,6 +33,12 @@ const ESCENAS = {
     await p.addStyleTag({ content: '[data-pie] .contacta, [data-pie] .contacta *, [data-pie] [data-tiempo], [data-pie] .contenido { opacity: 0 !important; }' });
     m('a'); await p.waitForTimeout(6000); m('b');
     const r = await caja(p, '[data-paisaje]'); return { x: 0, y: Math.max(0, r.y + r.h * 0.34), w: 1280, h: Math.min(720 - Math.max(0, r.y + r.h * 0.34), 460) }; } },
+  // 28/10 · Catálogo: «el contáctanos, que se vea animado para ver cómo caen las hojas, lo mismo para el 404, en las 4 estaciones» → public/media/sistema/catalogo/video/
+  'pie': { out: 'public/media/sistema/catalogo/video', ancho: 960, url: `/?carga=0&estacion=${ESTA}`, async run(p, m) {
+    await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await p.waitForTimeout(9000);
+    m('a'); await p.waitForTimeout(7000); m('b'); return { x: 0, y: 0, w: 1280, h: 720 }; } },
+  '404': { out: 'public/media/sistema/catalogo/video', ancho: 960, url: `/esta-pagina-no-existe?carga=0&estacion=${ESTA}`, async run(p, m) {
+    await p.waitForTimeout(2500); m('a'); await p.waitForTimeout(7000); m('b'); return { x: 0, y: 0, w: 1280, h: 720 }; } },
 };
 (async () => {
   const pedidas = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(ESCENAS);
@@ -49,8 +55,10 @@ const ESCENAS = {
     const z = { x: Math.max(0, Math.round(zona.x / 2) * 2), y: Math.max(0, Math.round(zona.y / 2) * 2) };
     z.w = Math.min(1280 - z.x, Math.round(zona.w / 2) * 2); z.h = Math.min(720 - z.y, Math.round(zona.h / 2) * 2);
     const dur = (marcas.b - marcas.a).toFixed(2);
-    execFileSync('ffmpeg', ['-v', 'error', '-y', '-ss', String(marcas.a), '-i', v, '-t', dur, '-vf', `crop=${z.w}:${z.h}:${z.x}:${z.y},scale=720:-2,fps=30`, '-an', '-c:v', 'libx264', '-crf', '24', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${OUT}/${id}-${ESTA}.mp4`]);
-    console.log(id, dur + ' s', `${z.w}×${z.h}`, Math.round(fs.statSync(`${OUT}/${id}-${ESTA}.mp4`).size / 1024) + ' KB');
+    const DIR = E.out || OUT; fs.mkdirSync(DIR, { recursive: true });
+    execFileSync('ffmpeg', ['-v', 'error', '-y', '-ss', String(marcas.a), '-i', v, '-t', dur, '-vf', `crop=${z.w}:${z.h}:${z.x}:${z.y},scale=${E.ancho || 720}:-2,fps=30`, '-an', '-c:v', 'libx264', '-crf', '24', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${DIR}/${id}-${ESTA}.mp4`]);
+    if (E.out) execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', `${DIR}/${id}-${ESTA}.mp4`, '-frames:v', '1', '-q:v', '4', `${DIR}/${id}-${ESTA}.jpg`]); // el póster
+    console.log(id, dur + ' s', `${z.w}×${z.h}`, Math.round(fs.statSync(`${DIR}/${id}-${ESTA}.mp4`).size / 1024) + ' KB');
   }
   await b.close();
 })();

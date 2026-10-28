@@ -57,7 +57,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       {
         nav.links.filter((l) => l.href).map((l, i) => (
           <li style={`--n:${i}`}>
-            {l.href ? <a href={ruta(lang, l.href)} class="enlace"><span class="font-display text-h2">{l.label}</span></a> : <span class="pronto font-display text-h2">{l.label} <small>{en ? '(soon)' : '(pronto)'}</small></span>}
+            {l.href ? <a href={ruta(lang, l.href)} class="enlace brota grande"><span class="font-display text-h2">{l.label}</span></a> : <span class="pronto font-display text-h2">{l.label} <small>{en ? '(soon)' : '(pronto)'}</small></span>}
           </li>
         ))
       }
@@ -66,8 +66,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       <div class="mas">
         <p class="detail detail-caps text-fg2">{nav.mas.titulo}</p>
         <ul class="text-lead mt-3 flex flex-col gap-1">
-          <li><a href={`mailto:${pie.correo}`} data-copiar={pie.correo} class="enlace inline-block">{pie.correoTexto}</a></li>
-          {nav.mas.links.map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace inline-block">{l.label}</a> : <span class="pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
+          <li><a href={`mailto:${pie.correo}`} data-copiar={pie.correo} class="enlace brota inline-block">{pie.correoTexto}</a></li>
+          {nav.mas.links.map((l) => <li>{l.href ? <a href={ruta(lang, l.href)} class="enlace brota inline-block">{l.label}</a> : <span class="pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
         </ul>
       </div>
       <!-- RONDA 307 (18.ª) · Andoni: «en el menú, donde tenemos proyectos destacados, recuperamos el reel como teníamos antes»: la miniatura en bucle y, al
@@ -135,6 +135,9 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   import { tinta } from '../scripts/tinta';
   import { t } from '../scripts/i18n';
   import { EST, NOMBRE, estacionActual, fijarEstacion } from '../scripts/estacion';
+  import { brotar } from '../scripts/brotar';
+  // 28/10 · lo que brota de la palabra al pasar por los enlaces del menú y del pie (el script de módulo corre con todo el DOM ya leído)
+  brotar();
   const btn = document.querySelector<HTMLButtonElement>('[data-rejilla]')!;
   const menu = document.querySelector<HTMLElement>('[data-menu]')!;
   const velo = document.querySelector<HTMLElement>('[data-velo]')!;
@@ -963,12 +966,16 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     }
   }
   .enlace {
-    transition: opacity 0.35s ease, filter 0.45s ease;
+    transition: opacity 0.35s ease;
   }
-  /* como en la referencia: el que pisas se queda, los demás se retiran. RONDA 22: y se DESENFOCAN */
+  /* el que pisas se queda y los demás se retiran. 28/10: fuera el desenfoque de la ronda 22 (Andoni: «algo más sutil, el resto bajan su opacidad
+     a menos aún»): el gesto es lo que brota de la palabra según la estación (src/scripts/brotar.ts) */
   .menu ul:has(.enlace:hover) .enlace:not(:hover) {
-    opacity: 0.4;
-    filter: blur(4px);
+    opacity: 0.18; /* 28/10: «que se vean algo menos» (antes 0,3) */
+  }
+  /* la caja del enlace grande mide lo que su texto (h2): el lienzo del brote se coloca sobre ella */
+  .enlace.grande {
+    display: inline-block;
   }
   @media (prefers-reduced-motion: reduce) {
     .menu,

@@ -9,6 +9,9 @@ interface Props {
   bloque?: 'empezar' | 'mantenimiento';
 }
 const { bloque = 'empezar' } = Astro.props;
+// 28/10 · en /en/…, la misma guía en inglés (los bloques en inglés van debajo de los de castellano; los datos, al lado)
+import { langDe } from '../../lib/i18n';
+const en = langDe(Astro.currentLocale) === 'en';
 
 type Fila = [string, string];
 
@@ -20,6 +23,14 @@ const TEXTOS: Fila[] = [
   ['src/data/lab.ts', 'Los experimentos del Lab: nombre, qué es, dirección, vídeo y sitio en el lienzo.'],
   ['src/data/ias.ts', 'Los logotipos de las IA que salen en las demos.'],
 ];
+const TEXTOS_EN: Fila[] = [
+  ['src/data/home.ts', 'The whole home page: menu (nav), hero, the pain points (recorrido), Featured projects and More projects, Services, savvia agentic, Eric and Andoni (estudio), questions and footer (email, the cal.com link when it exists). The English copy, in src/data/home.en.ts.'],
+  ['src/data/proyectos.ts', 'The portfolio: one entry per project. /proyectos, each case /proyectos/<slug> and the service filters all come from here.'],
+  ['src/data/handbook.ts', 'The Method: the chapters, their parts and where each fact comes from.'],
+  ['src/data/manifiesto.ts', 'The text of the Manifesto.'],
+  ['src/data/lab.ts', 'The Lab experiments: name, what it is, address, video and place on the canvas.'],
+  ['src/data/ias.ts', 'The logos of the AIs that appear in the demos.'],
+];
 
 const MEDIOS: Fila[] = [
   ['public/media/obra/<slug>/', 'Portada, cubierta y detalles de cada caso (mp4 con su póster jpg, webp).'],
@@ -30,6 +41,16 @@ const MEDIOS: Fila[] = [
   ['public/media/lab/', 'El vídeo y el póster de cada experimento.'],
   ['public/media/sonido/, radio/', 'La impresora, los ambientes y las piezas de la radio.'],
   ['public/', 'Logotipo (savvia-palabra.svg), isotipo, favicons por estación, og.jpg (la imagen para compartir).'],
+];
+const MEDIOS_EN: Fila[] = [
+  ['public/media/obra/<slug>/', 'Cover, card and details of each case (mp4 with its jpg poster, webp).'],
+  ['public/media/proyectos/', 'The thumbnail of each featured project on the monitor (1710 px wide).'],
+  ['public/media/hero/', 'The oak and the roots of each season.'],
+  ['public/media/estudio/', 'The desk illustrations, one per season, at 1600, 2560 and 5120 px.'],
+  ['public/media/equipo/', 'Eric and Andoni: pose strips, faces and the photo of the two of them.'],
+  ['public/media/lab/', 'The video and the poster of each experiment.'],
+  ['public/media/sonido/, radio/', 'The printer, the ambiences and the pieces of the radio.'],
+  ['public/', 'Logo (savvia-palabra.svg), isotype, favicons by season, og.jpg (the share image).'],
 ];
 
 const CAMPOS: Fila[] = [
@@ -45,6 +66,19 @@ const CAMPOS: Fila[] = [
   ['color, colores', 'El fondo de su tarjeta y los tres colores de su degradado.'],
   ['portada, escritorio, cubierta', 'Los medios: la toma de la rejilla, la de escritorio si la portada es móvil, y la grande de la carátula.'],
 ];
+const CAMPOS_EN: Fila[] = [
+  ['slug', 'The address: /proyectos/<slug>. It does not change once published.'],
+  ['nombre, dominio, url', 'What it is called, which domain is shown and where “Visit the site” leads.'],
+  ['sector, ubicacion, servicios', 'The entry. The services filter the listing and must be in SERVICIOS (Diseño web, Desarrollo agéntico, Webflow, CMS, Multidioma, Migración, Animación).'],
+  ['destacado', 'true puts it at the top, in the featured slider.'],
+  ['resumen, entradilla, contexto, reto', 'The card in the listing and the header of the case.'],
+  ['apartados, tecnica, descartado', 'Design, motion, content; “Under the hood”; what was tried and dropped.'],
+  ['paleta, tipos, escala, boton', 'The system of THEIR website, measured on their website.'],
+  ['mosaico, detalles, proceso', '“The details” in images and how it was built, step by step.'],
+  ['cifras, cita, conclusion', 'Figures from the project (never from the process), the testimonial and the close.'],
+  ['color, colores', 'The background of its card and the three colours of its gradient.'],
+  ['portada, escritorio, cubierta', 'The media: the grid shot, the desktop one if the cover is mobile, and the large one for the cover card.'],
+];
 
 const GUARDARRAILES: Fila[] = [
   ['npx astro check', 'Cero errores antes de dar nada por hecho.'],
@@ -58,9 +92,21 @@ const GUARDARRAILES: Fila[] = [
   ['Comentarios HTML fuera de expresiones', 'Un <!-- --> dentro de un {…} o de un .map() rompe la página. Los comentarios, en el frontmatter.'],
   ['Especificidad de Astro', 'Sus atributos de ámbito cuentan: una regla de estado con menos selectores que la base pierde. Repite la cadena.'],
 ];
+const GUARDARRAILES_EN: Fila[] = [
+  ['npx astro check', 'Zero errors before anything counts as done.'],
+  ['npx astro build', 'That it builds. Do not run it while another tool’s development server is writing to dist/ at the same time.'],
+  ['node tools/spacing-lint.cjs', 'That every spacing is on the scale of the guide: 1 2 3 4 6 8 12 16 24 32 (+ 14 on mobile).'],
+  ['node tools/verify.cjs <url>', 'Real Chrome and WebKit, at 1280×720 and 390×844: clean console, zero responses ≥ 400 and no overflow.'],
+  ['lvh and dvh, never vh', 'Screen heights, in lvh or dvh: vh jumps on mobile when the browser bar moves.'],
+  ['<script is:inline> in the head', 'Whatever has to be there in the first frame (the season, the page class). Otherwise, it flickers.'],
+  ['grep before a global class', 'Before introducing a new class or global selector, search for it. In round 155 a new .ia painted the AI pixel in the footer.'],
+  ['// on its own line', 'A // comment never with code after it on the same line: it swallows the rest and breaks the script (it happened three times).'],
+  ['HTML comments outside expressions', 'A <!-- --> inside a {…} or a .map() breaks the page. Comments go in the frontmatter.'],
+  ['Astro specificity', 'Its scope attributes count: a state rule with fewer selectors than the base loses. Repeat the chain.'],
+];
 ---
 
-{bloque === 'empezar' && (
+{bloque === 'empezar' && !en && (
   <Fragment>
     <section id="usar" class="seccion" aria-labelledby="h-usar">
       <h2 id="h-usar" class="font-display text-h2">Cómo usar este sistema</h2>
@@ -255,7 +301,7 @@ import Pie from '../components/Pie.astro';
   </Fragment>
 )}
 
-{bloque === 'mantenimiento' && (
+{bloque === 'mantenimiento' && !en && (
   <section id="mantenimiento" class="seccion" aria-labelledby="h-mantenimiento">
     <h2 id="h-mantenimiento" class="font-display text-h2">Mantenimiento técnico</h2>
     <p class="cuerpo">Para los cambios que tocan la base de la web, para perfiles técnicos o para el propio Claude.</p>
@@ -269,6 +315,219 @@ import Pie from '../components/Pie.astro';
       <div><dt>Copias de seguridad</dt><dd>Lo que se quita no se borra: va a <code>tools/retirados/</code> con la ronda en el nombre. Andoni guarda además una copia de la carpeta antes de cada ronda grande (<code>../savvia-web.bak-rNN-fecha/</code>, en su Mac). Y Git guarda cada commit.</dd></div>
       <div><dt>Si Vercel bloquea un despliegue</dt><dd>Pasa cuando el commit es de alguien que no está en el equipo de Vercel de Andoni: queda en «Deployment was blocked» (ronda 83). Desde la ronda 174 la Action <code>publicar.yml</code> llama al Deploy Hook (secreto <code>VERCEL_DEPLOY_HOOK</code> del repositorio) y lo publica igual. Si aun así no sale: Andoni le da a Redeploy en Vercel o sube un commit suyo (vale uno vacío). Para que no vuelva a pasar, cada persona configura su identidad de Git con el correo de su GitHub.</dd></div>
       <div><dt>De emergencia</dt><dd>La receta antigua sigue valiendo: <code>astro build</code> y <code>vercel deploy --prod</code> desde <code>dist/</code>, con el proyecto <code>savvia-home</code>.</dd></div>
+    </dl>
+  </section>
+)}
+
+{bloque === 'empezar' && en && (
+  <Fragment>
+    <section id="usar" class="seccion" aria-labelledby="h-usar">
+      <h2 id="h-usar" class="font-display text-h2">How to use this system</h2>
+      <p class="cuerpo">This page is the manual for the savvia website, and it comes from its own code: every colour, typeface or component you see here is the one you see on the website. It has three parts: how it looks (the brand), how it is made (the development) and this guide, which is the one you will use day to day to change the website with Claude.</p>
+      <dl class="dev-filas">
+        <div><dt>Working with the website</dt><dd>Receiving the project, working with Claude, changing content, adding sections and pages, and how to ask for changes. Start here.</dd></div>
+        <div><dt>The brand</dt><dd>Logo, colour by season, typography, icons and motion. Check it to name a colour or a style when you ask for a change.</dd></div>
+        <div><dt>The development</dt><dd>Stack, components, how each piece is made and the map of the website. It helps you point without doubt at what you want to touch.</dd></div>
+        <div><dt>Maintenance</dt><dd>Verifying, publishing, licences and what to do if something breaks. For technical profiles or for Claude itself.</dd></div>
+      </dl>
+      <ul class="reglas">
+        <li><b>Two documents rule</b> AGENTS.md (how we work, the dictionary, what was rejected and the log of every round) and DESIGN.md (Andoni’s design guide). If something here does not match them, they win.</li>
+        <li><b>How we work</b> the Method lives separately and is coming soon.</li>
+      </ul>
+    </section>
+
+    <section id="recibir" class="seccion" aria-labelledby="h-recibir">
+      <h2 id="h-recibir" class="font-display text-h2">Receiving the project</h2>
+      <p class="cuerpo">The whole website lives in a private GitHub repository: code, images, videos, fonts and documentation. This is done once per computer.</p>
+      <ol class="pasos">
+        <li>
+          <h3 class="font-display text-h3">Ask for access to the repository</h3>
+          <p>It is at <code>github.com/AndoniMart/savvia-web</code> and it is private: it holds licensed fonts and screenshots of client websites. You need a GitHub account and Andoni has to invite you as a collaborator.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Bring it to your computer</h3>
+          <p>With Ship Studio, “Import project” and choose the repository. With the terminal:</p>
+          <pre><code>git clone https://github.com/AndoniMart/savvia-web.git</code></pre>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Install what is needed</h3>
+          <p>You need Node 22.12 or later (<code>package.json</code> asks for it). Inside the folder:</p>
+          <pre><code>npm install</code></pre>
+          <p>The dependencies do not travel in the repository: they are rebuilt here.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Start the website locally</h3>
+          <p>The development server runs in the background, so it does not take up the terminal:</p>
+          <pre><code>astro dev --background
+astro dev status
+astro dev logs
+astro dev stop</code></pre>
+          <p>Open the address it gives you and you will see every change live before publishing it. Locally, Agentation is always on, so you can leave notes pinned to each element.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Set up your Git identity</h3>
+          <p>With the email of your GitHub account. Without it, your commits go out under the name of the computer and Vercel does not know whose they are (round 83).</p>
+          <pre><code>git config user.name "Your name"
+git config user.email "your-github-email"</code></pre>
+        </li>
+      </ol>
+    </section>
+
+    <section id="conectar" class="seccion" aria-labelledby="h-conectar">
+      <h2 id="h-conectar" class="font-display text-h2">Working with Claude</h2>
+      <p class="cuerpo">The website is maintained by talking to Claude: you ask for the change in plain words and it touches the code. Eric and Andoni work on the same repository, each on their own computer, and Git does not sync by itself: there is a routine.</p>
+      <ol class="pasos">
+        <li>
+          <h3 class="font-display text-h3">Open the project</h3>
+          <p>In Ship Studio (Claude and the preview come already connected) or with Claude Code in the terminal, on the folder. When it opens, Claude reads CLAUDE.md and AGENTS.md: it already knows the stack, the colours, the dictionary and what was rejected. There is no need to explain it.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">When you start: git pull</h3>
+          <p>The hook <code>.claude/hooks/al-empezar.sh</code> does it by itself when each session opens: it pulls the latest from GitHub and tells you if there are commits or changes waiting to be pushed. If it warns that it could not (conflicting changes), that is solved before touching anything.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Ask for the change and look at it</h3>
+          <p>What you want, where and how it should end up. Check it in the preview, on desktop and on mobile.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Keep it written down</h3>
+          <p>Every round is noted in the log in AGENTS.md: what was asked (word for word), what was done, what was measured and what is pending. Whatever is discarded goes to “Rejected” and does not come back.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">When you finish: commit and push</h3>
+          <p>So the other person has it. Careful: a push to <code>main</code> PUBLISHES to savvia.studio. If the push is Andoni’s, Vercel publishes it by itself; if it is someone else’s, the “Publicar en Vercel” Action (<code>.github/workflows/publicar.yml</code>) calls the Deploy Hook. In a few minutes it is live. You push when whoever is working asks for it.</p>
+          <pre><code>git add -A
+git commit -m "Round NN: what changes"
+git push</code></pre>
+        </li>
+      </ol>
+    </section>
+
+    <section id="contenido" class="seccion" aria-labelledby="h-contenido">
+      <h2 id="h-contenido" class="font-display text-h2">Changing content</h2>
+      <p class="cuerpo">The copy is not scattered across the components: it lives in a few data files. Changing a sentence means changing a line.</p>
+      <h3 class="font-display text-h3 sub">Copy</h3>
+      <dl class="dev-filas">{TEXTOS_EN.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+      <ul class="reglas">
+        <li><b>Dictionary</b> “savvia” always in lower case, even at the start of a sentence. We speak to whoever arrives (you); the first person, only in the Studio. No italics.</li>
+        <li><b>AI</b> in the copy is marked <code>[[IA]]</code>: <code>src/lib/rich.ts</code> gives it its pixel.</li>
+        <li><b>What is missing</b> the details from Eric and Andoni are never made up: they stay marked as FALTA until we have them.</li>
+      </ul>
+      <h3 class="font-display text-h3 sub">Images and videos</h3>
+      <dl class="dev-filas">{MEDIOS_EN.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+      <ul class="reglas">
+        <li><b>Format</b> images in webp; video in mp4 (h264, no sound) with its poster in jpg, so something shows before it loads.</li>
+        <li><b>Cache</b> if you replace a file with the same name (favicon, og.jpg), bump its version in the address (<code>?v=NN</code>): social networks and browsers keep the old one.</li>
+      </ul>
+      <h3 class="font-display text-h3 sub">A new project in the portfolio</h3>
+      <p class="cuerpo">You add an entry to <code>src/data/proyectos.ts</code> and its media to <code>public/media/obra/&lt;slug&gt;/</code>. The case page and its place in /proyectos come out by themselves. The fields:</p>
+      <dl class="dev-filas">{CAMPOS_EN.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+      <ul class="reglas">
+        <li><b>Only facts</b> the copy of the case comes from what is on record (the project, its website, its documents). Nothing made up.</li>
+        <li><b>Permission</b> before showing the website, the logo or the quote of a client.</li>
+      </ul>
+    </section>
+
+    <section id="secciones" class="seccion" aria-labelledby="h-secciones">
+      <h2 id="h-secciones" class="font-display text-h2">Adding a section</h2>
+      <p class="cuerpo">Each section of the home page is a component in <code>src/components/</code> placed, in its order, in <code>src/pages/index.astro</code>. Today: Hero, Raices, Dolores, Proyectos, Anteriores, Servicios, LaPartitura, Estudio, Preguntas, and the Pie outside main.</p>
+      <ol class="pasos">
+        <li>
+          <h3 class="font-display text-h3">The component</h3>
+          <p>A <code>&lt;section&gt;</code> with its id (it is the anchor: <code>/#servicios</code>), the <code>wrap</code> container and the section spacing <code>section-y</code>. The copy, in <code>home.ts</code>; the styles, scoped inside the component.</p>
+          <pre><code>&lt;section id="nueva" class="surface-light"&gt;
+  &lt;div class="wrap section-y"&gt;
+    &lt;h2 class="font-display text-h2" data-entra&gt;…&lt;/h2&gt;
+    &lt;p class="text-sub text-fg2" data-enfoca&gt;…&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">Tokens, never loose values</h3>
+          <p>Surface <code>surface-dark</code>, <code>surface-light</code> or <code>surface-warm</code> (Services); text <code>text-fg</code> and <code>text-fg2</code>, rules <code>border-rule</code>; sizes <code>text-h1, h2, h3, lead, sub, body, ui, detail</code>; spacing only in the steps of the guide. The colours change by themselves with the season.</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">The entrance</h3>
+          <p><code>src/scripts/entradas.ts</code> gives three movements by attribute: <code>data-entra</code> on headlines (the words rise from a mask), <code>data-enfoca</code> on blocks (from blurred to sharp) and <code>data-sube</code> on every section that CHANGES COLOUR from the previous one (the liquid drop that arrives through the centre).</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">The rails</h3>
+          <p><code>Carriles.astro</code> draws a line with two crosses at the start of each section in main. <code>data-sin-fila</code> on the section removes it; <code>data-carril-fila</code> on an element adds another (with <code>="sin-cruces"</code>, just the line).</p>
+        </li>
+        <li>
+          <h3 class="font-display text-h3">No repeats</h3>
+          <p>A section does not copy the skeleton of another, and it is not an effect for the sake of the effect: AGENTS.md › “Rejected” says so with examples.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="paginas" class="seccion" aria-labelledby="h-paginas">
+      <h2 id="h-paginas" class="font-display text-h2">Adding a page</h2>
+      <p class="cuerpo">A page is a file in <code>src/pages/</code>: its route is its name (<code>lab.astro</code> → /lab; <code>proyectos/[slug].astro</code> → one case per project). They all share the same skeleton.</p>
+      <pre><code>---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Carriles from '../components/Carriles.astro';
+import Pie from '../components/Pie.astro';
+---
+&lt;Base title="A new savvia page" description="One sentence." carga=&#123;false&#125;&gt;
+  &lt;Nav /&gt;
+  &lt;Carriles /&gt;
+  &lt;main id="contenido" class="surface-light"&gt;…&lt;/main&gt;
+  &lt;Pie /&gt;
+&lt;/Base&gt;</code></pre>
+      <dl class="dev-filas">
+        <div><dt><code>Base.astro</code></dt><dd>Three options: <code>title</code>, <code>description</code> and <code>carga</code> (the loading animation; set it to <code>false</code>: only the home page has it). It sets the season, the fonts, the favicon, the share image and the noindex.</dd></div>
+        <div><dt>Nav, Carriles, Pie</dt><dd>The bar with the menu, the guides along the edges and the footer with the landscape. The Lab has no Carriles: its canvas is endless.</dd></div>
+        <div><dt>Light or dark</dt><dd>Secondary pages are light (<code>surface-light</code>), a decision from round 128.</dd></div>
+        <div><dt>The menu</dt><dd>For it to appear there, add it to <code>nav.links</code> or to <code>nav.mas</code> in <code>home.ts</code>.</dd></div>
+        <div><dt>The map</dt><dd>There is no automatic sitemap.xml. The map of the website in this system is written by hand in <code>Libro.astro</code> (<code>mapa</code>), except the cases and the chapters of the Method, which come in by themselves.</dd></div>
+        <div><dt>A route that changes</dt><dd>The old one is redirected in <code>astro.config.mjs</code> › <code>redirects</code>, like /brandbook → /sistema and /handbook → /metodo.</dd></div>
+      </dl>
+      <h3 class="font-display text-h3 sub">Guardrails: what is not accepted</h3>
+      <dl class="dev-filas">{GUARDARRAILES_EN.map(([t, d]) => (<div><dt><code>{t}</code></dt><dd>{d}</dd></div>))}</dl>
+    </section>
+
+    <section id="pedir" class="seccion" aria-labelledby="h-pedir">
+      <h2 id="h-pedir" class="font-display text-h2">Asking for changes</h2>
+      <p class="cuerpo">A few rules help Claude get it right the first time and keep the website tidy.</p>
+      <dl class="dev-filas">
+        <div><dt>What, where and how it ends up</dt><dd>“Change X to Y in the hero” works better than “improve the hero”.</dd></div>
+        <div><dt>One thing, or a numbered list</dt><dd>If there are several, number them: each one is done, measured and noted separately.</dd></div>
+        <div><dt>In your own words</dt><dd>What you ask for is copied as it is into the log. There is no need to polish it.</dd></div>
+        <div><dt>Point at it</dt><dd>A screenshot, or an Agentation note pinned to the element locally: that way there is no doubt about which piece it is.</dd></div>
+        <div><dt>Name things with this system</dt><dd>“The accent of the season”, “the glass CTA”, “the ‹ 01/04 › bar”, “the drop between sections”.</dd></div>
+        <div><dt>Say what not to touch</dt><dd>“Without moving the tree”, “only on mobile”, “the rest stays as it is”.</dd></div>
+        <div><dt>What was rejected does not come back</dt><dd>If you ask for something listed under “Rejected” in AGENTS.md, Claude will tell you. If it really needs to come back, the two of you decide and it is noted.</dd></div>
+        <div><dt>Tests that can be undone</dt><dd>To try something you are unsure about, ask for it to sit behind a parameter (<code>?bloque=hielo</code>, <code>?carga=1</code>) without touching the rest.</dd></div>
+      </dl>
+      <h3 class="font-display text-h3 sub">Well made requests</h3>
+      <ul class="peticiones">
+        <li>“In the hero, the subtitle becomes: ‘Specialists in orchestrating agentic development.’. The headline stays as it is.”</li>
+        <li>“In More projects: 1. the client name moves down to the foot of the card; 2. more space between rows; 3. the last row, only two projects.”</li>
+        <li>“The hero roots in winter have a halftone that the canopy does not have. Remove it from the roots only.” (with a screenshot)</li>
+        <li>“Add the [client] project to the portfolio: here is the website and the copy for the case. It should not appear among the featured ones.”</li>
+        <li>“I want to try the winter blue in Services, but as a test that is easy to remove.”</li>
+        <li>“The × in the seated view sometimes opens the menu: it should never happen. Test it on mobile too.”</li>
+      </ul>
+    </section>
+  </Fragment>
+)}
+
+{bloque === 'mantenimiento' && en && (
+  <section id="mantenimiento" class="seccion" aria-labelledby="h-mantenimiento">
+    <h2 id="h-mantenimiento" class="font-display text-h2">Technical maintenance</h2>
+    <p class="cuerpo">For the changes that touch the foundations of the website, for technical profiles or for Claude itself.</p>
+    <dl class="dev-filas">
+      <div><dt>Verifying</dt><dd><code>npx astro check</code>, <code>npx astro build</code>, <code>node tools/spacing-lint.cjs</code> and <code>node tools/verify.cjs &lt;url&gt;</code> must pass before anything counts as done, and again live after publishing. Today <code>verify.cjs</code> loads Playwright from a path on Andoni’s Mac: on another computer it does not start and you have to test with your own Playwright.</dd></div>
+      <div><dt>Tokens</dt><dd>Colour by season, the type scale and spacing live in <code>src/styles/global.css</code>. The season of the website is handled by <code>src/scripts/estacion.ts</code> and is set in the head (<code>Base.astro</code>) before the first frame.</dd></div>
+      <div><dt>WebGL contexts</dt><dd>The oak, the roots, the footer landscape and the Manifesto are painted by the engine <code>src/scripts/estela.ts</code>, one WebGL canvas each. Chrome and Safari keep about 16 at a time and drop the oldest (in round 63 the hero went blank). That is why estela.ts PUTS TO SLEEP the distant canvases when more than <code>LIMITE</code> are alive (12 in Chrome; in Safari, always) and wakes them up as you get close. Before adding another canvas, count them.</dd></div>
+      <div><dt>Fonts</dt><dd>Self-hosted with Astro’s font API (<code>astro.config.mjs</code>, files in <code>src/assets/fonts/</code>). Family is the TRIAL file from Klim: no accents or ñ (they fall back to Georgia) and it cannot be served openly without a licence: it has to be bought. Timeless (Sans, Grotesk) comes with the Timeless Free Font License 1.2 (<code>tools/fuentes-timeless/</code>): free for web and commercial use, but redistributing it or uploading it to a public repository is forbidden. Ours is private and must stay that way.</dd></div>
+      <div><dt>noindex</dt><dd><code>Base.astro</code> carries <code>robots: noindex, nofollow</code>. It comes off once the licences and the go-ahead are in place.</dd></div>
+      <div><dt>Sounds</dt><dd>The printer, the ambiences and the music of the reel come from Pixabay (free to use without attribution); the source, author and excerpt of each one are in <code>tools/fuentes-sonido.md</code>. The radio, from HoliznaCC0 (public domain), matched to −18 LUFS. Nothing marked “all rights reserved”.</dd></div>
+      <div><dt>Backups</dt><dd>What is removed is not deleted: it goes to <code>tools/retirados/</code> with the round in its name. Andoni also keeps a copy of the folder before each large round (<code>../savvia-web.bak-rNN-fecha/</code>, on his Mac). And Git keeps every commit.</dd></div>
+      <div><dt>If Vercel blocks a deployment</dt><dd>It happens when the commit comes from someone who is not in Andoni’s Vercel team: it stays as “Deployment was blocked” (round 83). Since round 174 the <code>publicar.yml</code> Action calls the Deploy Hook (the repository secret <code>VERCEL_DEPLOY_HOOK</code>) and publishes it anyway. If it still does not go out: Andoni hits Redeploy in Vercel or pushes a commit of his own (an empty one will do). So it does not happen again, each person sets up their Git identity with their GitHub email.</dd></div>
+      <div><dt>In an emergency</dt><dd>The old recipe still works: <code>astro build</code> and <code>vercel deploy --prod</code> from <code>dist/</code>, with the <code>savvia-home</code> project.</dd></div>
     </dl>
   </section>
 )}

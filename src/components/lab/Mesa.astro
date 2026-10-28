@@ -18,7 +18,12 @@ import Cta from '../Cta.astro';
 // RONDA 132 · solo tres experimentos (Gravitas, Think Clearly, Skale), más grandes, cada uno con su línea y su web. Para que el lienzo infinito no
 // tenga huecos, el mundo es más pequeño (src/data/lab.ts › mundo) y cada experimento aparece dos veces por vuelta. Clic = se abre en grande, con el
 // enlace a su web (pestaña nueva). Fuera las notas sueltas.
-import { experimentos, lab, mundo } from '../../data/lab';
+import { mundo } from '../../data/lab';
+import { labDe } from '../../data/idioma';
+import { langDe } from '../../lib/i18n';
+const lang = langDe(Astro.currentLocale);
+const en = lang === 'en';
+const { experimentos, lab } = labDe(lang);
 const M = '/media/lab/';
 const piezas = experimentos
   .flatMap((e, i) => e.lienzo.map((l, c) => ({ i, c, x: l.x, y: l.y, w: l.w, mx: l.m.x, my: l.m.y })))
@@ -27,7 +32,7 @@ const piezas = experimentos
 
 <section class="lab surface-light" aria-labelledby="lab-h" data-lab>
   <canvas class="raices" aria-hidden="true" data-raices></canvas>
-  <div class="mundo" tabindex="0" aria-label="Lienzo de savvia lab: arrastra, desliza o usa las flechas para explorar; no tiene fin" data-mundo>
+  <div class="mundo" tabindex="0" aria-label={en ? 'savvia lab canvas: drag, scroll or use the arrow keys to explore; it never ends' : 'Lienzo de savvia lab: arrastra, desliza o usa las flechas para explorar; no tiene fin'} data-mundo>
     {
       piezas.map((p, k) => {
         const e = experimentos[p.i];
@@ -35,7 +40,7 @@ const piezas = experimentos
           <article
             class="pieza"
             tabindex="0"
-            aria-label={`${e.nombre}. ${e.que} Abrir de cerca`}
+            aria-label={`${e.nombre}. ${e.que} ${en ? 'Open up close' : 'Abrir de cerca'}`}
             data-pieza
             data-esp={p.i}
             data-x={p.x}
@@ -50,7 +55,7 @@ const piezas = experimentos
             </header>
             <div class="cuerpo">
               <video muted loop playsinline preload="none" poster={`${M}${e.slug}.jpg`} data-src={`${M}${e.slug}.mp4`} aria-hidden="true" />
-              <button type="button" class="ver" data-ver aria-label={`Reproducir ${e.nombre}`}>
+              <button type="button" class="ver" data-ver aria-label={`${en ? 'Play' : 'Reproducir'} ${e.nombre}`}>
                 <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2l7 4-7 4z" /></svg>
               </button>
             </div>
@@ -74,7 +79,7 @@ const piezas = experimentos
   </p>
 
   <div class="fondos" data-fondos>
-    <span class="fondos-t" id="fondo-t">Elige el fondo</span>
+    <span class="fondos-t" id="fondo-t">{en ? 'Choose the background' : 'Elige el fondo'}</span>
     <div class="pista-color" data-pista-color>
       <span
         class="tirador"
@@ -84,12 +89,12 @@ const piezas = experimentos
         aria-valuemin="0"
         aria-valuemax="100"
         aria-valuenow="0"
-        aria-valuetext="Rosa niebla"
+        aria-valuetext={en ? 'Mist pink' : 'Rosa niebla'}
         data-tirador></span>
     </div>
   </div>
 
-  <Cta href="#contacto" class="al-pie" variante="secundario" tam="sm" flecha="abajo">Contacto</Cta>
+  <Cta href="#contacto" class="al-pie" variante="secundario" tam="sm" flecha="abajo">{en ? 'Contact' : 'Contacto'}</Cta>
 
 </section>
 
@@ -102,7 +107,7 @@ const piezas = experimentos
       <p class="lupa-que" data-lupa-que></p>
       <Cta class="ir" href="#" tam="sm" externo data-lupa-ir>{lab.abrir}</Cta>
     </div>
-    <button type="button" class="cerrar" data-lupa-cerrar aria-label="Cerrar">
+    <button type="button" class="cerrar" data-lupa-cerrar aria-label={en ? 'Close' : 'Cerrar'}>
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" /></svg>
     </button>
   </div>
@@ -110,7 +115,10 @@ const piezas = experimentos
 
 <script>
   import { jugar } from '../../scripts/jugar';
-  import { experimentos, mundo as MUNDO } from '../../data/lab';
+  import { mundo as MUNDO } from '../../data/lab';
+  import { labDe } from '../../data/idioma';
+  import { t, EN } from '../../scripts/i18n';
+  const { experimentos } = labDe(EN ? 'en' : 'es');
   const sec = document.querySelector<HTMLElement>('[data-lab]')!;
   const mundo = sec.querySelector<HTMLElement>('[data-mundo]')!;
   const lienzo = sec.querySelector<HTMLCanvasElement>('[data-raices]')!;
@@ -125,12 +133,12 @@ const piezas = experimentos
 
   // ───────────────────────── el FONDO: deslizador con la paleta de savvia, interpolada en OKLab ─────────────────────────
   const PARADAS: [string, string][] = [
-    ['Rosa niebla', '#eadde7'],
-    ['Salvia', '#96bfe6'],
-    ['Cobalto', '#3456d3'],
-    ['Coral', '#ff616b'],
-    ['Nogal', '#63402f'],
-    ['Cacao', '#302018'],
+    [t('Rosa niebla', 'Mist pink'), '#eadde7'],
+    [t('Salvia', 'Sage'), '#96bfe6'],
+    [t('Cobalto', 'Cobalt'), '#3456d3'],
+    [t('Coral', 'Coral'), '#ff616b'],
+    [t('Nogal', 'Walnut'), '#63402f'],
+    [t('Cacao', 'Cocoa'), '#302018'],
   ];
   const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
   const gam = (c: number) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);

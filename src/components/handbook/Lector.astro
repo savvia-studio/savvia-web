@@ -95,7 +95,7 @@ import { flecha } from '../../lib/flecha';
       align-self: start;
       position: sticky;
       top: calc(var(--spacing) * 28);
-      opacity: 0.62;
+      opacity: 0.88; /* 28/10: 0,62 dejaba los capítulos a 2,1:1 (el mínimo es 4,5); sigue en voz baja por tamaño y por tinta secundaria */
       transition: opacity 0.4s ease, visibility 0s linear 0s;
     }
     .lateral:hover, .lateral:focus-within { opacity: 1; }
@@ -129,10 +129,10 @@ import { flecha } from '../../lib/flecha';
     padding-block: calc(var(--spacing) * 1);
     font-size: var(--text-detail);
     line-height: 1.35;
-    color: color-mix(in oklab, var(--fg) 58%, transparent);
+    color: color-mix(in oklab, var(--fg) 82%, transparent); /* 28/10: 58 % daba 2,1:1 */
     transition: color 0.3s ease;
   }
-  .cap-a .cn { font-size: 0.6875rem; color: var(--fg2); opacity: 0.6; min-width: 1.6em; }
+  .cap-a .cn { font-size: 0.6875rem; color: var(--fg2); opacity: 1; min-width: 1.6em; }
   .cap-a:hover, .actual .cap-a { color: var(--fg); }
   .actual .cap-a { font-weight: 500; }
   .mas { flex: none; display: grid; place-items: center; width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); border-radius: var(--radius-full); color: var(--fg2); opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.4s var(--ease-out-expo); }
@@ -149,7 +149,7 @@ import { flecha } from '../../lib/flecha';
     padding-left: calc(var(--spacing) * 6);
     font-size: var(--text-detail);
     line-height: 1.35;
-    color: color-mix(in oklab, var(--fg) 50%, transparent);
+    color: color-mix(in oklab, var(--fg) 78%, transparent); /* 28/10: 50 % daba 2,5:1 */
     transition: color 0.3s ease;
   }
   .sec a:hover { color: var(--fg); }

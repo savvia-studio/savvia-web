@@ -7,6 +7,8 @@ import preguntasEs from './preguntas.json';
 import preguntasEn from './preguntas.en.json';
 import { proyectos, type Proyecto } from './proyectos';
 import { proyectosEn, SERVICIOS_EN } from './proyectos.en';
+import * as labEs from './lab';
+import * as labEn from './lab.en';
 import type { Lang } from '../lib/i18n';
 
 export const home = (lang: Lang): typeof homeEs => (lang === 'en' ? homeEn : homeEs);
@@ -16,3 +18,4 @@ export const fichasDe = (lang: Lang) => (lang === 'en' ? preguntasEn : preguntas
 export const proyectosDe = (lang: Lang): Proyecto[] => (lang === 'en' ? proyectos.map((p) => ({ ...p, ...(proyectosEn[p.slug] ?? {}) })) : proyectos);
 export const proyectoDe = (lang: Lang, slug: string) => proyectosDe(lang).find((p) => p.slug === slug);
 export const servicio = (lang: Lang, s: string) => (lang === 'en' ? SERVICIOS_EN[s] ?? s : s);
+export const labDe = (lang: Lang): typeof labEs => (lang === 'en' ? labEn : labEs);

@@ -40,7 +40,7 @@ const talla = (url: string, k = 1) => {
             <div class={`item ${it.tipo} ${k === 0 ? 'on' : ''}`} aria-hidden={k === 0 ? 'false' : 'true'} data-item>
               {it.tipo === 'cita' && (
                 <>
-                  <p class="cq">“{it.q}”</p>
+                  <p class="cq">{en ? `“${it.q}”` : `«${it.q}»`}</p>
                   {/* RONDA 292 · las 4 citas con retrato (`retrato` en home.ts) entran en la cuadrícula SIN la ilustración: Eric, «las ilustraciones aquí quedan mal, las dejamos para los case studies» */}
                   <p class="cn">{it.n}</p>
                   <p class="cr">{it.r}</p>

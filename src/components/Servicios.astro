@@ -272,10 +272,10 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     font-size: clamp(2.25rem, 1.4rem + 2.2vw, 3.75rem);
     line-height: 0.95;
     letter-spacing: -0.03em;
-    opacity: 0.38;
+    opacity: 0.6; /* 28/10: 0,38 daba 2:1 (texto grande, mínimo 3:1); 0,6 pasa en las cuatro estaciones */
     transition: opacity 0.35s ease;
   }
-  .fila:not(.on) .opcion:hover .nombre { opacity: 0.7; }
+  .fila:not(.on) .opcion:hover .nombre { opacity: 0.8; }
   .fila.on .nombre { opacity: 1; }
   .d-caja { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.55s var(--ease-out-expo); }
   .d-caja > .d { overflow: hidden; min-height: 0; }
@@ -332,7 +332,7 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     padding-block: calc(var(--spacing) * 1);
     border-bottom: 1px solid var(--rule);
     color: var(--fg);
-    opacity: 0.4;
+    opacity: 0.76; /* 28/10: lo que no incluye, al 40 % daba 2,1:1; al 76 %, más de 4,5 en las cuatro estaciones (lo distingue el check vacío) */
     transition: opacity 0.25s ease;
   }
   .punto.on { opacity: 1; transition: opacity 0.4s ease; }

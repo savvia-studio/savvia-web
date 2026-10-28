@@ -324,7 +324,7 @@ export const servicios = {
     {
       corto: 'Consulting',
       cab: 'What the consulting includes:',
-      d: 'We help you decide what your website needs and organise it so your team can change it with AI without leaving your brand.',
+      d: 'We help you decide what your website needs, advise you on motion, agentic development and CMS, and organise it so your team can change it with AI without leaving your brand.',
       tags: ['Website narrative', 'Content architecture', 'Website audit', 'Animated illustrations', '3D animations', 'GSAP interactions', 'Agentic development', 'CMS integrations', 'Webflow to AI migrations', 'Team training'],
     },
   ],
@@ -353,7 +353,7 @@ export const estudio = {
 
 export const preguntas = {
   pregunta: 'Questions?',
-  titulo: 'Ask. We answer ourselves.',
+  titulo: 'Ask us anything.',
   firma: 'Eric and Andoni',
   nota: 'We usually reply the same day.',
   lista: listaPreguntas as { q: string; a: string; claves: string[]; chip: boolean }[],
@@ -367,7 +367,7 @@ export const preguntas = {
 };
 
 export const pie = {
-  tagline: 'The sap of your web.',
+  tagline: 'The sap behind your website.', // 28/10: «of your web» no suena natural; el logotipo sigue en el lugar de «sap»
   pitch: 'The studio that orchestrates AI, with judgement.',
   contactar: 'Contact us', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Click to book a call with us',

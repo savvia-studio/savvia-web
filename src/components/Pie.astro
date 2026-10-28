@@ -42,7 +42,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
       <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
       <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
         <ul class="enlaces text-ui flex flex-col gap-3 font-light lg:items-end" data-enlaces>
-          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie">{l.label}</a> : <span class="enlace-pie pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
+          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie brota">{l.label}</a> : <span class="enlace-pie pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
         </ul>
       </div>
     </div>
@@ -809,18 +809,15 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   .capa canvas:global(.listo) {
     opacity: 1;
   }
-  /* RONDA 24 · los enlaces: al pasar por uno, los demás se desenfocan y se retiran (como en el menú); el que pisas se desplaza un poco */
+  /* RONDA 24 · los enlaces: al pasar por uno, los demás se retiran (como en el menú). 28/10: fuera el desenfoque y el desplazamiento (Andoni:
+     «algo más sutil»): el gesto es lo que brota de la palabra según la estación (src/scripts/brotar.ts) */
   .enlace-pie {
     display: inline-block;
-    transition: opacity 0.35s ease, filter 0.45s ease, translate 0.45s var(--ease-out-expo);
+    transition: opacity 0.35s ease;
   }
   ul:has(.enlace-pie:hover) .enlace-pie:not(:hover) {
-    opacity: 0.4;
-    filter: blur(3px);
-  }
-  .enlace-pie:hover {
-    translate: 0.25em 0;
+    opacity: 0.18; /* 28/10: «que se vean algo menos» (antes 0,3) */
   }
   :global(html:not(.js)) .capa { translate: 0 0; }
-  .pronto { opacity: 0.5; cursor: default; }
+  .pronto { opacity: 0.72; cursor: default; } /* 28/10: 0,5 daba 4,3:1 sobre la noche (3,9 sobre la nieve); 0,72 pasa en las cuatro */
 </style>

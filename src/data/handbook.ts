@@ -171,7 +171,8 @@ export const capitulos: Capitulo[] = [
     num: '02',
     titulo: 'Principios',
     frase: 'Voz propia, tu ritmo y una receta que te quedas.',
-    entrada: 'Tres ideas guían cada decisión. Son las de nuestro manifiesto, y este capítulo cuenta qué significan en el día a día.',
+    // 28/10: el capítulo tiene cuatro apartados (las tres ideas y «Cómo hablamos»): la entrada los nombra todos
+    entrada: 'Tres ideas guían cada decisión, las de nuestro manifiesto. Este capítulo cuenta qué significan en el día a día y cómo se notan en la forma en que hablamos.',
     portada: { tipo: 'arbol' },
     secciones: [
       // de: manifiesto.ts (texto de Andoni, fiel); el tercero no lleva lema en el manifiesto: se nombra con su frase subrayada («receta propia»)
@@ -321,7 +322,8 @@ export const capitulos: Capitulo[] = [
               g.n,
               ({ color: 'tokens', tipo: 'familias', espacio: 'escala', piezas: 'componentes', voz: 'palabras', no: 'lista' } as Record<string, string>)[g.id],
               g.id === 'color' ? 'Cacao, Rosa niebla, Nogal, Coral, Salvia' : g.v,
-              g.d,
+              // 28/10: la lista de arriba es la paleta de hoy (cinco); el texto de home.ts aún contaba los seis de la paleta 2
+              g.id === 'color' ? 'Cinco colores, cada uno con su papel. El Coral es la acción; cada bloque, un solo acento.' : g.d,
             ]),
           },
           { tipo: 'h3', texto: 'Qué lleva dentro la librería' },
@@ -349,8 +351,8 @@ export const capitulos: Capitulo[] = [
             mono: [1],
             muestra: 1,
             filas: [
-              ['Cacao', '#302018', 'Texto sobre claro'],
-              ['Noche de otoño', '#3B231B', 'Fondo oscuro'],
+              // 28/10: el Cacao de la web es #3B231B (global.css), el mismo que la noche de otoño: una sola fila (antes #302018, el de DESIGN.md)
+              ['Cacao', '#3B231B', 'Texto sobre claro y fondo oscuro'],
               ['Rosa niebla', '#EADDE7', 'Fondo de lectura'],
               ['Nogal', '#63402F', 'Texto secundario'],
               ['Coral', '#FF616B', 'La acción y la savia'],
@@ -483,10 +485,10 @@ export const capitulos: Capitulo[] = [
           {
             tipo: 'contraste',
             items: [
-              { fg: '#302018', bg: '#EADDE7', par: 'Cacao sobre Rosa niebla', ratio: '11,89 : 1', ok: true, uso: 'Texto de lectura' },
+              { fg: '#3B231B', bg: '#EADDE7', par: 'Cacao sobre Rosa niebla', ratio: '11,09 : 1', ok: true, uso: 'Texto de lectura' },
               { fg: '#EADDE7', bg: '#3B231B', par: 'Rosa niebla sobre la noche', ratio: '11,09 : 1', ok: true, uso: 'Texto sobre oscuro' },
-              { fg: '#302018', bg: '#96BFE6', par: 'Cacao sobre Salvia', ratio: '7,1 : 1', ok: true, uso: 'Servicios' },
-              { fg: '#302018', bg: '#FF616B', par: 'Cacao sobre Coral', ratio: '4,63 : 1', ok: true, uso: 'Botón principal' },
+              { fg: '#3B231B', bg: '#96BFE6', par: 'Cacao sobre Salvia', ratio: '7,55 : 1', ok: true, uso: 'Servicios' },
+              { fg: '#3B231B', bg: '#FF616B', par: 'Cacao sobre Coral', ratio: '4,97 : 1', ok: true, uso: 'Botón principal' },
               { fg: '#FF616B', bg: '#EADDE7', par: 'Coral sobre Rosa niebla', ratio: '2,57 : 1', ok: false, uso: 'Nunca para texto' },
             ],
           },
@@ -528,7 +530,8 @@ export const capitulos: Capitulo[] = [
     num: '07',
     titulo: 'Herramientas',
     frase: 'La herramienta se elige por tu problema, no al revés.',
-    entrada: respuesta(/Webflow/), // de: home.ts › preguntas
+    // 28/10: antes repetía la respuesta de Webflow de las preguntas (la misma que «Si ya tienes web» de Formas de trabajar); ahora cuenta el capítulo
+    entrada: 'Estas son las herramientas con las que hacemos cada web, del diseño al código y a los agentes que lo construyen. Y un ejemplo de cómo elegimos entre ellas.',
     portada: { tipo: 'imagen', img: IMG.roble3d },
     secciones: [
       {

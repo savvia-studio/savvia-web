@@ -1,0 +1,48 @@
+---
+// LANZAMIENTO: esta página aún no sale (ver src/lib/lanzamiento.ts); quien llega por la dirección vuelve a la home
+import { RECORTE } from '../../lib/lanzamiento';
+if (RECORTE) return Astro.redirect('/en/');
+// RONDA 126 · /lab — EL LABORATORIO. Andoni: «quiero una página de labs donde podamos poner experimentos y se sienta como eso, un laboratorio de
+// experimentos, algo caótico». RONDA 128: «las páginas secundarias, todas en light» y «el lab como esto: matthewvernon.co». RONDA 129: savvia lab,
+// lienzo en bucle infinito con distorsión por velocidad, raíces desde la card de cristal y el fondo que elige el visitante
+// (src/components/lab/Mesa.astro; datos en src/data/lab.ts).
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Pie from '../../components/Pie.astro';
+import Mesa from '../../components/lab/Mesa.astro';
+---
+
+<Base title="savvia lab" description="savvia lab: the tests we run before knowing if they work, live exactly as we left them." carga={false}>
+  <!-- antes del primer pintado (regla dura 3): la clase de la página (barra en color-dodge) y el fondo que eligió el visitante -->
+  <script is:inline>
+    (function () {
+      var h = document.documentElement;
+      h.classList.add('lab-pagina');
+      try {
+        var g = JSON.parse(localStorage.getItem('savvia:lab-fondo') || 'null');
+        if (g && g.c) {
+          h.style.setProperty('--lab-fondo', g.c);
+          h.style.setProperty('--lab-tinta', g.ti);
+          if (g.o) h.classList.add('lab-oscuro');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <Nav />
+  <main id="contenido" class="surface-light">
+    <Mesa />
+  </main>
+  <Pie />
+</Base>
+
+<!-- RONDA 130 / 141 · solo aquí, la barra en blanco con mezcla por DIFERENCIA: enseña el contrario de lo que pisa (el fondo lo elige el visitante) -->
+<style is:global>
+  html.lab-pagina [data-nav] {
+    color: #fff;
+    mix-blend-mode: difference;
+  }
+  html.lab-pagina.menu-abierto [data-nav] {
+    color: var(--color-niebla);
+    mix-blend-mode: normal;
+  }
+</style>
