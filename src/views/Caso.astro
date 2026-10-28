@@ -27,6 +27,7 @@ import Pieza from '../components/obra/Pieza.astro';
 import Voces from '../components/Voces.astro';
 import { flecha } from '../lib/flecha';
 import { gestosDe } from '../lib/gestos';
+import { mesaMovil } from '../lib/mesa-movil';
 import { type Proyecto } from '../data/proyectos';
 import { proyectoDe, proyectosDe, servicio } from '../data/idioma';
 import { langDe, ruta } from '../lib/i18n';
@@ -37,21 +38,22 @@ const en = lang === 'en';
 const props = Astro.props as { p: Proyecto; sig: Proyecto; ant: Proyecto };
 // los datos llegan en castellano desde getStaticPaths: se resuelven en el idioma de la página
 const p = proyectoDe(lang, props.p.slug) ?? props.p;
-// RONDA 144 (3.ª) · «arriba hay demasiada información: la parte de la derecha, más sutil o reducida»: arriba solo servicios, sector y lugar, en una línea
-// pequeña; las herramientas y las cifras bajan a «Por dentro»
-const ficha = [
-  [en ? 'Services' : 'Servicios', p.servicios.map((x) => servicio(lang, x)).join(', ')],
-  [en ? 'Sector' : 'Sector', p.sector ?? ''],
-  [en ? 'Location' : 'Lugar', p.ubicacion ?? p.con ?? ''],
-].filter(([, v]) => v) as [string, string][];
 const cifras = (p.cifras ?? []).map((c) => `${c.v} ${c.t}`);
 // RONDA 307 · CASOS EN DOS COLUMNAS (referencia: dsaltaren.com/#work): a la izquierda, fija, la ficha del proyecto (nombre, entradilla, servicios, sector,
 // lugar, enlace a la web) y abajo del todo el índice de casos con anterior y siguiente; a la derecha, el contenido, más sobrio. «Modo foco» lleva el
 // contenido al centro como una ventana.
 // solo entre los casos que ya se publican (src/lib/lanzamiento.ts · Eric); el actual cuenta aunque no lo sea
 const todos = proyectosDe(lang).filter((x) => esPublico(x.slug) || x.slug === p.slug), yo = todos.findIndex((x) => x.slug === p.slug);
+// Eric (oct.): «de momento sobra porque saldremos solo con 1 proyecto»: anterior y siguiente, ocultos (vuelven con true)
+const masCasos = false;
 const antP = todos[(yo - 1 + todos.length) % todos.length], sigP = todos[(yo + 1) % todos.length];
-const fichaLado = ficha.filter(([k]) => k !== (en ? 'Services' : 'Servicios'));
+// Eric (oct.): «falta información del cliente: categorías, país si hay y demás» → sector, lugar, año y servicios, cada uno con su rótulo
+const fichaLado = [
+  [en ? 'Sector' : 'Sector', p.sector ?? ''],
+  [en ? 'Location' : 'Lugar', p.ubicacion ?? p.con ?? ''],
+  [en ? 'Year' : 'Año', p.anio ?? ''],
+  [en ? 'Services' : 'Servicios', p.servicios.map((x) => servicio(lang, x)).join(', ')],
+].filter(([, v]) => v) as [string, string][];
 const luz = (hex: string) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, gg = (n >> 8) & 255, b = n & 255; return (r * 299 + gg * 587 + b * 114) / 1000 > 150; };
 // el fondo de las muestras tipográficas: el color más claro de su paleta (la tinta de la muestra es la suya)
 const claroMarca = (p.paleta ?? []).map((c) => c.hex).find((h) => luz(h)) ?? '#FFFFFF';
@@ -160,13 +162,20 @@ const sonidos = (p.sonidos ?? []).map((so) => ({ ...so, onda: ondaDe(so.capas) }
 const textoSonido = p.apartados.find((x) => /sonido|sound/i.test(x.titulo))?.texto[0];
 // LA LIBRERÍA que entregamos (solo donde la hay publicada: hoy, Neety)
 // RONDA 307, 22.ª · Andoni: «de momento fuera la librería en Neety» (vuelve cambiando esta línea por p.libreria)
-const lib = undefined as Proyecto['libreria'];
+// 28/10 · Eric: «La entrega» vuelve, con su texto (libreria.texto), para enseñar la librería y lo útil que es para ellos
+const lib = p.libreria;
 
 // RONDA 188 · Andoni: «este detalle se sale de las guías; tiene que estar dentro y verse sin cortar». Nada va a sangre: la fila «sangre» ocupa las 12
 // columnas, como la ancha, a la proporción real de su vídeo. Y en las parejas y tríos ninguna pieza se recorta: la que no lleva placa se pone ENTERA
 // sobre el color de su web (antes llenaba su hueco y perdía los lados).
 // octubre 2026 · Andoni: «los gradientes de los detalles, lo más parecidos posible a los del hero»: la placa decide SI va sobre fondo de marca, pero el
 // fondo es el MISMO de la carátula (Pieza › g-marca: base colores[0] y las dos manchas de colores[1] y [2])
+// la carátula en la MESA (28/10): la pantalla del monitor en la lámina (Visor.astro › PANT) y cuánto se amplía; la grabación, la toma grande si la hay
+const PANT = { x: 0.3903, y: 0.3696, w: 0.2178, h: 0.2104 }, ZP = 2.9; // Eric: «un poco menos de zoom, que se vea algo más de aire» (era 3,3 a 2:1)
+const portadaVid = p.cubierta ?? p.portada;
+// 28/10 · Eric: «y también la vista de mobile, que hay switcher»: con grabación en móvil, la carátula tiene también el MÓVIL de la mesa (la lámina `mesa-movil`
+// de /proyectos, con su homografía: lib/mesa-movil.ts) y la cápsula de escena de /proyectos (mesa · móvil). Llega en la mesa
+const MM = p.cubiertaMovil ? mesaMovil() : null;
 const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? p.paleta?.[z.placa]?.hex : f === 'ancha' || f === 'sangre' ? undefined : p.color);
 ---
 
@@ -179,19 +188,22 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     <div class="wrap dos-col">
     <aside class="lado" aria-label={en ? 'About the project' : 'Sobre el proyecto'}>
       <div class="lado-pega">
-        <div class="lado-cab">
-          <a class="volver" href={ruta(lang, '/proyectos')}><Fragment set:html={flecha('izq')} />{en ? 'Projects' : 'Proyectos'}</a>
-        </div>
+        <!-- 28/10 · Eric: «Proyectos, quitamos de aquí; ya se nos ocurrirá algo». La cabecera se queda vacía: guarda el alto y la línea de debajo -->
+        <div class="lado-cab"></div>
         <div class="lado-info">
           <h1 class="font-display nombre" data-entra>{p.nombre}</h1>
           {p.titular && <p class="font-display lado-titular">{p.titular}</p>}
-          <p class="lado-desc">{p.entradilla}</p>
-          <p class="lado-meta">{p.servicios.map((x) => servicio(lang, x)).join(', ')}</p>
-          {fichaLado.length > 0 && <p class="lado-meta">{fichaLado.map(([, v]) => v).join(', ')}</p>}
+          <!-- Eric (oct.): aquí, lo que hicimos para el cliente (si falta, la entradilla); debajo, la ficha del cliente -->
+          <p class="lado-desc">{p.hicimos ?? p.entradilla}</p>
+          <dl class="lado-ficha">{fichaLado.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
           {p.url && <a class="ir-web" href={p.url} target="_blank" rel="noopener">{en ? 'Visit the site' : 'Ver la web'}<Fragment set:html={flecha('fuera')} /></a>}
         </div>
+        <!-- Eric (oct.): «Modo foco», abajo en la columna fija, con su icono; «Volver» sigue en la barra del contenido, solo con el foco abierto -->
+        <button type="button" class="foco-ic" data-foco-abrir aria-pressed="false">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5V4.5a1.5 1.5 0 0 1 1.5-1.5h3M12.5 3h3A1.5 1.5 0 0 1 17 4.5v3M17 12.5v3a1.5 1.5 0 0 1-1.5 1.5h-3M7.5 17h-3A1.5 1.5 0 0 1 3 15.5v-3" /></svg>{en ? 'Focus view' : 'Modo foco'}
+        </button>
         <!-- RONDA 307, 22.ª · abajo, solo anterior y siguiente, con el nombre del proyecto y la flecha de la casa -->
-        {todos.length > 1 && <nav class="ant-sig" aria-label={en ? 'More case studies' : 'Más casos de estudio'}>
+        {masCasos && todos.length > 1 && <nav class="ant-sig" aria-label={en ? 'More case studies' : 'Más casos de estudio'}>
           <a href={ruta(lang, `/proyectos/${antP.slug}`)} rel="prev"><span class="ojo">{en ? 'Previous' : 'Anterior'}</span><span class="n"><Fragment set:html={flecha('izq')} />{antP.nombre}</span></a>
           <a href={ruta(lang, `/proyectos/${sigP.slug}`)} rel="next"><span class="ojo">{en ? 'Next' : 'Siguiente'}</span><span class="n">{sigP.nombre}<Fragment set:html={flecha()} /></span></a>
         </nav>}
@@ -200,95 +212,111 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
 
     <div class="contenido" data-foco-zona>
     <div class="barra-caso">
-      <p>{en ? 'A closer look' : 'El caso, de cerca'}</p>
       <i class="desvanece" aria-hidden="true"></i>
-      <button type="button" class="foco-btn" data-foco aria-pressed="false"><span class="f-on">{en ? 'Focus view' : 'Modo foco'}</span><span class="f-off">{en ? 'Back' : 'Volver'}</span></button>
+      <button type="button" class="foco-btn" data-foco-cerrar>{en ? 'Back' : 'Volver'}</button>
     </div>
     <!-- RONDA 154 · LA CARÁTULA: la pieza del portfolio (su degradado y su web saliendo desde abajo), a lo grande -->
+    <!-- 28/10 · Eric: «de primeras, el mockup de la mesa, como el del slider de proyectos»: la web de escritorio va en el MONITOR de la lámina del estudio
+         (la de la estación de la web), como en el visor (obra/Visor.astro); las webs móviles siguen en su teléfono sobre el degradado -->
     <div class="wrap portada">
-      <Pieza p={p} tipo={p.portada.movil ? 'telefono' : 'mancha'} grande transicion />
+      {
+        p.portada.movil ? (
+          <Pieza p={p} tipo="telefono" grande transicion />
+        ) : (
+          <div class="portada-mesa" data-portada-mesa data-escena="mesa">
+            <div class="pm-mesa pm-e" style={`--z:${ZP};--px:${PANT.x + PANT.w / 2};--py:${PANT.y + PANT.h / 2}`}>
+              <img class="pm-foto" data-mesa alt="" width="5120" height="2880" decoding="async" fetchpriority="high" />
+              <span class="pm-pant">
+                <video muted loop playsinline preload="none" poster={portadaVid.poster} data-src={portadaVid.src} aria-label={en ? `${p.nombre}'s website` : `La web de ${p.nombre}`} />
+              </span>
+            </div>
+            {MM && p.cubiertaMovil && (
+              <>
+                <div class="pm-mesa pm-m" style={`--px:${MM.cx};--py:${MM.cy}`} data-pm-quad>
+                  <img class="pm-foto" data-mesa-m alt="" width="1672" height="941" decoding="async" />
+                  <span class="pm-quad" style={`--mascara:url(${MM.mascara});--cristal:url(${MM.cristal});--vx:${MM.video[0]}%;--vy:${MM.video[1]}%;--vw:${MM.video[2]}%;--vh:${MM.video[3]}%;left:${MM.caja.left.toFixed(3)}%;top:${MM.caja.top.toFixed(3)}%;width:${MM.caja.width.toFixed(3)}%;height:${MM.caja.height.toFixed(3)}%;transform:${MM.matriz}`}>
+                    <video muted loop playsinline preload="none" poster={p.cubiertaMovil.poster} data-src={p.cubiertaMovil.src} aria-label={en ? `${p.nombre}'s website on a phone` : `La web de ${p.nombre} en el móvil`} />
+                  </span>
+                </div>
+                <div class="escenas" role="group" aria-label={en ? `View ${p.nombre} on` : `Ver ${p.nombre} en`}>
+                  <button type="button" data-escena-b="mesa" aria-pressed="true" aria-label={en ? 'Desk' : 'Mesa'} title={en ? 'Desk' : 'Mesa'}><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.6" /><path d="M12 16v4M8 20h8" /></svg></button>
+                  <button type="button" data-escena-b="movil" aria-pressed="false" aria-label={en ? 'Phone' : 'Móvil'} title={en ? 'Phone' : 'Móvil'}><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.2" /><path d="M11 18h2" /></svg></button>
+                </div>
+              </>
+            )}
+          </div>
+        )
+      }
+      <!-- la lámina de la estación de la web, antes de que se pida ninguna -->
+      <script is:inline set:html={`(function(){var s=document.currentScript.parentNode.querySelector('[data-mesa]');if(!s)return;var b='/media/estudio/'+(document.documentElement.dataset.estacion||'otono');s.sizes='(width >= 64rem) ${ZP * 65}vw, ${ZP * 92}vw';s.srcset=b+'-m.webp 1600w, '+b+'.webp 2560w, '+b+'-xl.webp 5120w';})();`} />
     </div>
 
     {
       p.contexto.length > 0 && (
-        <section class="wrap rej bloque" aria-labelledby="ctx-h">
+        <section class="wrap rej par bloque" aria-labelledby="ctx-h">
           <h2 id="ctx-h" class="t-enc enc">{en ? 'The project' : 'El proyecto'}</h2>
-          <div class="c23 dos">{p.contexto.map((t) => <p class="t-texto">{t}</p>)}</div>
+          <!-- 28/10 · si el contexto cuenta una historia (más de dos párrafos), se lee en una columna, en orden -->
+          <div class={`c23 ${p.contexto.length > 2 ? 'pila medida' : 'dos'}`}>{p.contexto.map((t) => <p class="t-texto">{t}</p>)}</div>
         </section>
       )
     }
 
-    <section class="wrap rej bloque" aria-labelledby="reto-h">
+    {p.reto && (
+    <section class="wrap rej par bloque" aria-labelledby="reto-h">
       <h2 id="reto-h" class="t-enc enc">{en ? 'The challenge' : 'El reto'}</h2>
       <p class="t-lead c23 medida">{p.reto}</p>
     </section>
+    )}
 
-    <!-- CÓMO LA CONSTRUIMOS: los pasos, numerados, en dos columnas que arrancan arriba a la vez -->
+    <!-- 28/10 · LO QUE GANÓ EL CLIENTE (Eric: «lo importante es mostrar el trabajo realizado y el valor que aportamos al cliente»): cada punto, su nombre y su prueba.
+         Referencia de limpieza: wearecollins.com/case-studies/robinhood (nombre a un lado, texto al otro, sin filetes) -->
     {
-      p.proceso && (
-        <section class="wrap rej bloque" aria-labelledby="proc-h">
-          <h2 id="proc-h" class="t-enc enc">{en ? 'How we built it' : 'Cómo la construimos'}</h2>
-          <ol class="c23 proceso">
-            {p.proceso.map((s, i) => (
+      p.valor && p.valor.length > 0 && (
+        <section class="wrap rej par bloque" aria-labelledby="valor-h">
+          <h2 id="valor-h" class="t-enc enc">{en ? `What ${p.nombre} gained` : `Lo que ganó ${p.nombre}`}</h2>
+          <ul class="c23 valor">
+            {p.valor.map((v) => (
               <li data-enfoca>
-                <h3 class="t-h">{s.n}</h3>
-                <p class="t-texto">{s.d}</p>
+                <h3 class="t-h">{v.n}</h3>
+                <p class="t-texto">{v.d}</p>
               </li>
             ))}
-          </ol>
+          </ul>
         </section>
       )
     }
 
-    <!-- LOS DETALLES (ronda 153, referencia casabien · Hannun): un MOSAICO de imágenes en filas de tamaños distintos sobre la retícula de 12 —
-         ancha · a sangre · 6 + 6 · 7 + 5 · 5 + 7 · 4 + 4 + 4—, cada pieza con su número, su título y una frase. Las webs van enteras sobre una
-         placa de su color; los primeros planos llenan su hueco. -->
+    {/* 28/10 · con la cita del cliente y su retrato, el testimonio ilustrado, ENTRE MEDIAS (Eric: «más arriba»): tras lo que ganó el cliente; sin cita, el marcador va al final */}
+    {p.cita?.retrato && (
+    <section class="wrap bloque testimonio-final" aria-label={en ? 'What the client says' : 'Lo que dice el cliente'}>
+      <Voces dato={{ n: p.cita.autor, r: p.cita.rol, retrato: p.cita.retrato, q: p.cita.texto }} cel={2.4} />
+    </section>
+    )}
+
+    <!-- 28/10 · DEL FIGMA A LA WEB (Eric: «el Figma también es nuestro, todo hecho y documentado»): capturas de su archivo, en el orden en que se trabajó.
+         Va JUSTO DESPUÉS DE LA RESEÑA (Eric, 28/10: «después de la reseña, primero Del Figma a la web») y sin el sitemap: empieza por el esqueleto y los conceptos.
+         Una imagen por bloque sobre su tarjeta (referencia de limpieza: wearecollins.com) -->
     {
-      filas.length > 0 && (
-        <section class="bloque detalles" aria-labelledby="det-h">
+      p.figma && p.figma.length > 0 && (
+        <section class="bloque figma" aria-labelledby="figma-h">
           <div class="wrap det-cab">
-            <h2 id="det-h" class="t-enc">{en ? 'The details' : 'Los detalles'}</h2>
-            {(p.nota ?? p.detalles?.[0]?.pie) && <p class="t-ojo">{p.nota ?? p.detalles?.[0]?.pie}</p>}
+            <h2 id="figma-h" class="t-enc">{en ? 'From Figma to the site' : 'Del Figma a la web'}</h2>
           </div>
-          <div class="mosaico">
-            {filas.map((fila) => (
-              <div class={`fila f-${fila.f === 'sangre' ? 'ancha' : fila.f} wrap`}>
-                {fila.p.map((z) => (
-                  <figure class={`tesela ${dePlaca(z, fila.f) ? 'con-placa' : 'sin-placa'} ${z.medio.movil ? 'es-movil' : ''}`} data-vivo>
-                    <div class="hueco">
-                      <Medio
-                        medio={z.medio}
-                        color={p.color}
-                        alt={en ? `${z.titulo}, on ${p.nombre}'s website` : `${z.titulo}, en la web de ${p.nombre}`}
-                        proporcion={fila.f === 'ancha' || fila.f === 'sangre' ? (z.prop ?? '16 / 9') : 'auto'}
-                        natural={z.prop ?? '16 / 9'}
-                        placa={dePlaca(z, fila.f) ? p.colores[0] : undefined}
-                        pos={z.pos}
-                        colores={p.colores}
-                      />
-                    </div>
-                    <figcaption class="t-ojo pie">
-                      <span class="num">{String(z.i).padStart(2, '0')}</span>
-                      <span><span class="fuerte">{z.titulo}.</span> {z.pie}</span>
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
+          <div class="wrap fg-lista">
+            {p.figma.map((g) => (
+              <figure class={`fg fg-${g.f}`} data-enfoca>
+                <div class="fg-imgs">
+                  {g.img.map((src) => <img src={src} alt={en ? `${g.titulo}, in ${p.nombre}’s Figma file` : `${g.titulo}, en el Figma de ${p.nombre}`} loading="lazy" decoding="async" />)}
+                </div>
+                <figcaption class="t-ojo pie"><span><span class="fuerte">{g.titulo}.</span> {g.pie}</span></figcaption>
+              </figure>
             ))}
           </div>
         </section>
       )
     }
 
-    {
-      p.apartados.map((a) => (
-        <section class="wrap rej bloque" aria-label={a.titulo}>
-          <h2 class="t-enc enc">{a.titulo}</h2>
-          <div class={`c23 ${a.texto.length > 1 ? 'dos' : 'medida'}`}>{a.texto.map((t) => <p class="t-texto">{t}</p>)}</div>
-        </section>
-      ))
-    }
-
+    <!-- 28/10 · Eric: «color y tipografía habrá que subirlo»: van justo tras «Del Figma a la web» (la librería ya los enseña en Figma) -->
     <!-- OCTUBRE 2026 · EL SISTEMA, a la manera de brand.dropbox.com (Andoni): el COLOR como tarjetas apiladas que suben al pasar (brand.dropbox.com/color),
          la TIPOGRAFÍA en tarjetas de su paleta con sus rótulos en píldora (…/typography), el MOVIMIENTO en una línea de tiempo que recorre su grabación
          (…/motion) y la ICONOGRAFÍA en una rejilla, si el proyecto la tiene (…/iconography) -->
@@ -327,13 +355,13 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
           <div class={`tipo-cartas n${Math.min(p.tipos.length, 2) + (aplicado ? 1 : 0)}`} data-vivo>
             {p.tipos.slice(0, 2).map((t, i) => (
               <figure class="carta" style={`--fondo:${cartaTipo(i)};--k:${i}`} data-carta>
-                <span class="pildora">{t.uso}, {t.n}</span>
+                <span class="rotulo">{t.uso}, {t.n}</span>
                 <img src={`/media/obra/${p.slug}/tipo-${i + 1}.png`} alt={en ? `${t.n} specimen` : `Muestra de ${t.n}`} loading="lazy" decoding="async" />
               </figure>
             ))}
             {aplicado && (
               <figure class="carta aplicada" style={`--fondo:${cartaTipo(2)};--k:2`} data-carta>
-                <span class="pildora">{en ? 'Applied' : 'Aplicada'}</span>
+                <span class="rotulo">{en ? 'Applied' : 'Aplicada'}</span>
                 <img src={`/media/obra/${p.slug}/aplicado.webp`} alt={en ? `Headline, text and button from ${p.nombre}'s website, in its typography` : `Titular, texto y botón de la web de ${p.nombre}, con su tipografía`} loading="lazy" decoding="async" />
               </figure>
             )}
@@ -341,6 +369,119 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
         </section>
       )
     }
+
+    <!-- CÓMO LA CONSTRUIMOS: los pasos, numerados, en dos columnas que arrancan arriba a la vez -->
+    {
+      p.proceso && (
+        <section class="wrap rej par bloque" aria-labelledby="proc-h">
+          <h2 id="proc-h" class="t-enc enc">{en ? 'How we built it' : 'Cómo la construimos'}</h2>
+          <ol class="c23 proceso">
+            {p.proceso.map((s, i) => (
+              <li data-enfoca>
+                <h3 class="t-h">{s.n}</h3>
+                <p class="t-texto">{s.d}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    <!-- 28/10 · DEL DISEÑO A LA ANIMACIÓN (Eric): dos columnas, la pieza tal cual se dibujó en Figma (su marco, entero) y la misma pieza viva en la web;
+         las dos con el formato de «Los detalles»: carátula con el degradado de marca y la ventana de cristal (Medio con placa) -->
+    {
+      p.animacion && (
+        <section class="wrap bloque" aria-labelledby="anim-h">
+          <div class="sis-cab">
+            <h2 id="anim-h" class="t-enc">{p.animacion.titulo}</h2>
+            <p class="t-texto text-fg2 sis-entra">{p.animacion.texto}</p>
+          </div>
+          <div class="anim">
+            <figure class="anim-pieza" data-vivo>
+              <div class="anim-hueco">
+                <Medio medio={{ tipo: 'imagen', src: p.animacion.diseno.src }} color={p.color} alt={en ? `${p.nombre}'s feed cards, as designed in Figma` : `Las tarjetas del feed de ${p.nombre}, tal como se diseñaron en Figma`} proporcion="auto" placa={p.colores[0]} colores={p.colores} />
+              </div>
+              <figcaption class="t-ojo pie"><span><span class="fuerte">{en ? 'In Figma.' : 'En Figma.'}</span> {p.animacion.diseno.pie}</span></figcaption>
+            </figure>
+            <figure class="anim-pieza" data-vivo>
+              <div class="anim-hueco">
+                <Medio medio={{ tipo: 'video', src: p.animacion.web.src, poster: p.animacion.web.poster }} color={p.color} alt={en ? `The feed animated on ${p.nombre}'s website` : `El feed animado en la web de ${p.nombre}`} proporcion="auto" placa={p.colores[0]} colores={p.colores} />
+              </div>
+              <figcaption class="t-ojo pie"><span><span class="fuerte">{en ? 'On the website.' : 'En la web.'}</span> {p.animacion.web.pie}</span></figcaption>
+            </figure>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- 28/10 · MICROANIMACIONES (Eric: «cómo se nos permite microanimar en código todo»): la cabecera a dos columnas y la grabación a lo ancho, como las piezas anchas de «Los detalles» -->
+    {
+      p.micro && (
+        <section class="wrap bloque" aria-labelledby="micro-h">
+          <div class="sis-cab">
+            <h2 id="micro-h" class="t-enc">{p.micro.titulo}</h2>
+            <p class="t-texto text-fg2 sis-entra">{p.micro.texto}</p>
+          </div>
+          <div class="fila f-ancha">
+          <figure class="tesela con-placa" data-vivo>
+            <div class="hueco">
+              <Medio medio={{ tipo: 'video', src: p.micro.video.src, poster: p.micro.video.poster }} color={p.color} alt={en ? `The “How it works” section animated on ${p.nombre}'s website` : `La sección «Cómo funciona» animada en la web de ${p.nombre}`} proporcion="16 / 9" placa={p.colores[0]} colores={p.colores} />
+            </div>
+            <figcaption class="t-ojo pie"><span><span class="fuerte">{en ? 'How it works.' : 'Cómo funciona.'}</span> {p.micro.video.pie}</span></figcaption>
+          </figure>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- LOS DETALLES (ronda 153, referencia casabien · Hannun): un MOSAICO de imágenes en filas de tamaños distintos sobre la retícula de 12 —
+         ancha · a sangre · 6 + 6 · 7 + 5 · 5 + 7 · 4 + 4 + 4—, cada pieza con su número, su título y una frase. Las webs van enteras sobre una
+         placa de su color; los primeros planos llenan su hueco. -->
+    {
+      filas.length > 0 && (
+        <section class="bloque detalles" aria-labelledby="det-h">
+          <div class="wrap det-cab">
+            <h2 id="det-h" class="t-enc">{en ? 'The details' : 'Los detalles'}</h2>
+            {(p.nota ?? p.detalles?.[0]?.pie) && <p class="t-ojo">{p.nota ?? p.detalles?.[0]?.pie}</p>}
+          </div>
+          <div class="mosaico">
+            {filas.map((fila) => (
+              <div class={`fila f-${fila.f === 'sangre' ? 'ancha' : fila.f} wrap`}>
+                {fila.p.map((z) => (
+                  <figure class={`tesela ${dePlaca(z, fila.f) ? 'con-placa' : 'sin-placa'} ${z.medio.movil ? 'es-movil' : ''}`} data-vivo>
+                    <div class="hueco">
+                      <Medio
+                        medio={z.medio}
+                        color={p.color}
+                        alt={en ? `${z.titulo}, on ${p.nombre}'s website` : `${z.titulo}, en la web de ${p.nombre}`}
+                        proporcion={fila.f === 'ancha' || fila.f === 'sangre' ? (z.prop ?? '16 / 9') : 'auto'}
+                        natural={z.prop ?? '16 / 9'}
+                        placa={dePlaca(z, fila.f) ? p.colores[0] : undefined}
+                        pos={z.pos}
+                        colores={p.colores}
+                      />
+                    </div>
+                    <figcaption class="t-ojo pie">
+                      <span><span class="fuerte">{z.titulo}.</span> {z.pie}</span>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      p.apartados.map((a) => (
+        <section class="wrap rej par bloque" aria-label={a.titulo}>
+          <h2 class="t-enc enc">{a.titulo}</h2>
+          <div class={`c23 ${a.texto.length > 1 ? 'dos' : 'medida'}`}>{a.texto.map((t) => <p class="t-texto">{t}</p>)}</div>
+        </section>
+      ))
+    }
+
     {
       esp && (
         <section class="wrap rej bloque" aria-labelledby="esp-h">
@@ -479,8 +620,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       lib && (
         <section class="wrap bloque sis-bloque" aria-labelledby="lib-h">
           <div class="sis-cab">
-            <h2 id="lib-h" class="t-enc">{en ? 'What we hand over' : 'Lo que entregamos'}</h2>
-            <p class="t-texto text-fg2 sis-entra">{en ? `Along with the site, ${p.nombre} kept all of this: its design system and the guide to change it with Claude.` : `Con la web, ${p.nombre} se quedó con esto: su sistema de diseño y la guía para cambiarla con Claude.`}</p>
+            <h2 id="lib-h" class="t-enc">{en ? 'The handover' : 'La entrega'}</h2>
+            {(en ? lib.textoEn : lib.texto) ? (en ? lib.textoEn : lib.texto)!.map((t) => <p class="t-texto text-fg2 sis-entra">{t}</p>) : <p class="t-texto text-fg2 sis-entra">{en ? `Along with the site, ${p.nombre} kept all of this: its design system and the guide to change it with Claude.` : `Con la web, ${p.nombre} se quedó con esto: su sistema de diseño y la guía para cambiarla con Claude.`}</p>}
           </div>
           <!-- LA ENTREGA, como un albarán: las cuatro piezas que se lleva el cliente; la librería (la que se navega debajo) va marcada -->
           <ol class="entrega" data-vivo>
@@ -533,7 +674,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       )
     }
 
-    <section class="wrap rej bloque" aria-labelledby="dentro-h">
+    <section class="wrap rej par bloque" aria-labelledby="dentro-h">
       <h2 id="dentro-h" class="t-enc enc">{en ? 'Under the hood' : 'Por dentro'}</h2>
       <div class="c2">
         {p.stack && p.stack.length > 0 && (<><p class="t-ojo sub">{en ? 'Tools' : 'Herramientas'}</p><ul class="lista herramientas">{p.stack.map((t) => <li class="t-texto"><span class="h-ic" aria-hidden="true" set:html={icoTec(t)} />{t}</li>)}</ul></>)}
@@ -548,7 +689,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     <!-- CONCLUSIÓN (ronda 153): lo que consiguió la web y cómo trabaja el cliente con ella; solo hechos -->
     {
       p.conclusion && p.conclusion.length > 0 && (
-        <section class="wrap rej bloque" aria-labelledby="concl-h">
+        <section class="wrap rej par bloque" aria-labelledby="concl-h">
           <h2 id="concl-h" class="t-enc enc">{en ? 'Conclusion' : 'Conclusión'}</h2>
           <div class="c23 conclusion">
             <p class="t-lead">{p.conclusion[0]}</p>
@@ -559,8 +700,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     }
 
     {
-      p.cita && (
-        <section class="wrap rej bloque" aria-label={en ? 'What the client says' : 'Lo que cuenta el cliente'}>
+      p.cita && !p.cita.retrato && (
+        <section class="wrap rej par bloque" aria-label={en ? 'What the client says' : 'Lo que cuenta el cliente'}>
           <h2 class="t-enc enc">{en ? 'In their words' : 'Lo que cuentan'}</h2>
           <figure class="cita c23">
             <blockquote class="t-lead font-display">{en ? '“' : '«'}{p.cita.texto}{en ? '”' : '»'}</blockquote>
@@ -577,6 +718,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
 
     {/* RONDA 307, 26.ª · Andoni: «al final del case study quitamos nuestro comentario y ponemos un testimonio como en el portfolio, con esa foto; de momento un
          placeholder para que Eric sepa lo que va ahí». MARCADOR: el retrato de JJ Velaz y un texto que lo dice; cuando haya el de cada cliente, va en su ficha. */}
+    {!p.cita && (
     <section class="wrap bloque testimonio-final" aria-label={en ? 'What the client says' : 'Lo que dice el cliente'}>
       <Voces dato={{
         n: en ? 'Client name (placeholder)' : 'Nombre del cliente (marcador)',
@@ -585,11 +727,11 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
         q: en ? 'The client’s testimonial about this project goes here: two or three lines, with their charcoal portrait. Placeholder for Eric.' : 'Aquí va el testimonio del cliente sobre este proyecto: dos o tres líneas, con su retrato al carboncillo. Marcador para Eric.',
       }} />
     </section>
+    )}
 
     </div>
     </div>
   </main>
-  <div class="leido" aria-hidden="true" data-leido><span data-leido-t></span><svg viewBox="0 0 24 24"><circle class="pista-l" cx="12" cy="12" r="9" /><circle class="lleno" cx="12" cy="12" r="9" pathLength="1" /></svg></div>
   <Pie />
 </Base>
 
@@ -597,6 +739,32 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   // lo que se anima al llegar (paleta, muestras, escala, espaciado, piezas del mosaico): una vez, cuando asoma un 25 %
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { threshold: 0.25 });
   document.querySelectorAll('[data-vivo]').forEach((el) => io.observe(el));
+
+  // LA CARÁTULA EN LA MESA · la grabación corre mientras se ve; la lámina sigue a la estación de la web
+  const pm = document.querySelector<HTMLElement>('[data-portada-mesa]');
+  if (pm) {
+    const foto = pm.querySelector<HTMLImageElement>('[data-mesa]')!, fotoM = pm.querySelector<HTMLImageElement>('[data-mesa-m]');
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // suena solo la grabación de la escena que se ve
+    const vid = () => pm.querySelector<HTMLVideoElement>(pm.dataset.escena === 'movil' ? '.pm-m video' : '.pm-e video')!;
+    let aLaVista = false;
+    const sonar = () => { pm.querySelectorAll('video').forEach((x) => x.pause()); if (!aLaVista) return; const v = vid(); if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!quieto) v.play().catch(() => {}); };
+    new IntersectionObserver(([e]) => { aLaVista = e.isIntersecting; sonar(); }, { threshold: 0.2 }).observe(pm);
+    const est = () => document.documentElement.dataset.estacion || 'otono';
+    const lamM = () => { if (fotoM && pm.dataset.escena === 'movil') fotoM.src = `/media/anteriores/mesa-movil-${est()}.webp`; };
+    addEventListener('savvia:estacion', () => { const b = `/media/estudio/${est()}`; foto.srcset = `${b}-m.webp 1600w, ${b}.webp 2560w, ${b}-xl.webp 5120w`; lamM(); });
+    // el MÓVIL de la mesa: la homografía de la pantalla escala con la lámina (--s = su ancho / 1672)
+    const quad = pm.querySelector<HTMLElement>('[data-pm-quad]');
+    if (quad) new ResizeObserver(([e]) => quad.style.setProperty('--s', String(e.contentRect.width / 1672))).observe(quad);
+    // la cápsula: marca la escena que se ve y, al pulsar, la cambia (la nueva entra enfocándose); la lámina del móvil, solo al pedirla
+    pm.querySelectorAll<HTMLButtonElement>('[data-escena-b]').forEach((b) => b.addEventListener('click', () => {
+      if (b.getAttribute('aria-pressed') === 'true') return;
+      pm.dataset.escena = b.dataset.escenaB;
+      pm.querySelectorAll('[data-escena-b]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      pm.classList.remove('aparece'); void pm.offsetWidth; pm.classList.add('aparece');
+      lamM(); sonar();
+    }));
+  }
 
   // COLOR · la paleta de brand.dropbox.com/color, con sus números: el panel bajo el puntero sube un 50 % de su alto y se ladea −1,5°; los de la izquierda,
   // una campana ancha (σ ≈ 1,8 columnas); los de la derecha, una estrecha (σ ≈ 0,6). La distancia se mide desde el canto izquierdo de cada panel hasta el
@@ -768,31 +936,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     const ioEj = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target as HTMLVideoElement; if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src!; if (!reducido) v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.4 });
     document.querySelectorAll<HTMLVideoElement>('[data-ej]').forEach((v) => ioEj.observe(v));
   }
-  // EL PROGRESO DE LECTURA · la guía izquierda se llena con lo leído (del principio del caso al final de «Siguiente proyecto») y en su punta, los minutos que
-  // quedan (a 220 palabras por minuto, contadas en el texto del caso)
-  {
-    const l = document.querySelector<HTMLElement>('[data-leido]'), main = document.querySelector<HTMLElement>('main.caso'), tEl = l?.querySelector<HTMLElement>('[data-leido-t]');
-    if (l && main && tEl) {
-      const palabras = (main.innerText.match(/\S+/g) ?? []).length, minutos = palabras / 220;
-      const en = document.documentElement.lang === 'en';
-      let raf = 0;
-      const medir = () => {
-        raf = 0;
-        const guia = main.querySelector<HTMLElement>('.wrap');
-        if (guia) l.style.setProperty('--d', innerWidth - guia.getBoundingClientRect().right + parseFloat(getComputedStyle(guia).paddingRight) + 'px'); // a la guía DERECHA (el canto del contenido)
-        const r = main.getBoundingClientRect(), total = r.height - innerHeight;
-        const p = Math.max(0, Math.min(1, -r.top / Math.max(total, 1)));
-        l.style.setProperty('--p', p.toFixed(4));
-        l.classList.toggle('on', r.top < -innerHeight * 0.3 && r.bottom > innerHeight * 0.6);
-        const quedan = Math.max(0, Math.ceil(minutos * (1 - p)));
-        tEl.textContent = quedan > 0 ? (en ? `${quedan} min left` : `quedan ${quedan} min`) : (en ? 'done' : 'leído');
-      };
-      const pedir = () => { if (!raf) raf = requestAnimationFrame(medir); };
-      addEventListener('scroll', pedir, { passive: true });
-      addEventListener('resize', pedir);
-      medir();
-    }
-  }
   // MOVIMIENTO · la grabación suena a la vista; el cabezal sigue al vídeo y la línea se arrastra (o se mueve con las flechas) para recorrerlo
   document.querySelectorAll<HTMLElement>('[data-motion]').forEach((mo) => {
     const v = mo.querySelector('video')!, linea = mo.querySelector<HTMLElement>('[data-mo-linea]')!;
@@ -824,9 +967,9 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
 <script>
   // RONDA 307 · MODO FOCO (dsaltaren.com · Focus view): el contenido pasa a una ventana centrada que se lee sola, en el mismo punto donde ibas;
   // Volver, Esc o un clic en el velo lo devuelven a su sitio, también en el mismo punto. Entra con un desplazamiento corto y sale con un fundido.
-  const zona = document.querySelector<HTMLElement>('[data-foco-zona]'), boton = document.querySelector<HTMLButtonElement>('[data-foco]');
+  const zona = document.querySelector<HTMLElement>('[data-foco-zona]'), boton = document.querySelector<HTMLButtonElement>('[data-foco-abrir]'), cerrar = document.querySelector<HTMLButtonElement>('[data-foco-cerrar]');
   const velo = document.querySelector<HTMLElement>('[data-foco-velo]'), col = zona?.parentElement;
-  if (zona && boton && velo && col) {
+  if (zona && boton && cerrar && velo && col) {
     const html = document.documentElement, quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let abierto = false, arriba = 0;
     const entrar = () => {
@@ -835,7 +978,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       const de = { x: r.left, y: Math.max(0, r.top), w: r.width, h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top) }; // lo que se ve de la columna
       arriba = r.top + scrollY; col.style.minHeight = col.offsetHeight + 'px';
       const y = scrollY; html.classList.add('caso-foco'); scrollTo(0, y);
-      zona.scrollTop = leido; abierto = true; boton.setAttribute('aria-pressed', 'true'); boton.focus({ preventScroll: true });
+      zona.scrollTop = leido; abierto = true; boton.setAttribute('aria-pressed', 'true'); cerrar.focus({ preventScroll: true });
       // RONDA 307, 25.ª · «que parezca que sale del papel y se posiciona en el centro» → 26.ª «mejorarla»: sin escalar (deformaba el contenido): la ventana
       // arranca en el sitio de la columna (solo desplazada), se despega del papel (sube unos px, crece un 1 % y le crece la sombra) y se posa en el centro
       if (!quieto) {
@@ -864,6 +1007,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       ], { duration: 560, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' }).onfinish = (e) => { fin(); requestAnimationFrame(() => (e.target as Animation).cancel()); };
     };
     boton.addEventListener('click', () => (abierto ? salir() : entrar()));
+    cerrar.addEventListener('click', salir);
     velo.addEventListener('click', salir);
     addEventListener('keydown', (e) => { if (e.key === 'Escape' && abierto) salir(); });
     (window as any).__foco = () => ({ abierto, scroll: zona.scrollTop, alto: zona.clientHeight });
@@ -927,15 +1071,63 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .ver-w { align-self: end; }
   @media (width < 48rem) { .ficha { grid-template-columns: 1fr 1fr; } }
   .portada { margin-top: clamp(2.5rem, 1.5rem + 3vw, 4.5rem); }
+  /* 28/10 · LA CARÁTULA EN LA MESA: la lámina del estudio ampliada con el monitor en el centro (como el visor); la foto lo cubre todo, sin huecos.
+     Proporción de la carátula de siempre (11:5; 4:3 en móvil, para que el monitor no quede diminuto) */
+  .portada-mesa { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-lg); background: #2a1d17; container-type: size; }
+  @media (width < 48rem) { .portada-mesa { aspect-ratio: 4 / 3; } }
+  .pm-mesa {
+    position: absolute; width: calc(var(--z) * 100cqw); aspect-ratio: 16 / 9;
+    left: clamp(100cqw - var(--z) * 100cqw, 50cqw - var(--px) * var(--z) * 100cqw, 0px);
+    top: clamp(100cqh - var(--z) * 56.25cqw, 50cqh - var(--py) * var(--z) * 56.25cqw, 0px);
+  }
+  .pm-foto { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pm-pant { position: absolute; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; overflow: hidden; background: #121213; box-shadow: 0 0 0 2px #121213; }
+  .pm-pant video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; background: #f6f7fb; }
+  /* 28/10 · el MÓVIL de la mesa (de obra/PiezaCasa.astro): la lámina `mesa-movil` (1672 × 941) con el teléfono en el centro, más cerca que el monitor para que
+     se lea; la pantalla, negra y con la forma del cristal de la foto; el vídeo, dentro, con su máscara */
+  .pm-m { --z: 1.4; display: none; } /* Eric: «el móvil más centrado, la imagen más a la izquierda» y «menos zoom, más aire»: el teléfono está al 64 % de la foto; a 16:9, ×1,4 es el mínimo con el que la lámina se corre lo bastante para centrarlo sin dejar hueco */
+  @media (width < 48rem) { .pm-m { --z: 1.6; } }
+  .portada-mesa[data-escena='movil'] .pm-e { display: none; }
+  .portada-mesa[data-escena='movil'] .pm-m { display: block; }
+  .pm-quad { position: absolute; z-index: 2; transform-origin: 0 0; background: #121213; -webkit-mask: var(--cristal) 0 0 / 100% 100% no-repeat; mask: var(--cristal) 0 0 / 100% 100% no-repeat; }
+  .pm-quad video { position: absolute; left: var(--vx); top: var(--vy); width: var(--vw); height: var(--vh); object-fit: cover; object-position: 50% 0; -webkit-mask: var(--mascara) 0 0 / 100% 100% no-repeat; mask: var(--mascara) 0 0 / 100% 100% no-repeat; }
+  .portada-mesa.aparece .pm-mesa { animation: escena-entra 0.6s var(--ease-out-expo); }
+  @keyframes escena-entra { from { opacity: 0; filter: blur(10px); } }
+  /* la cápsula de escena de /proyectos (Portfolio.astro › .escenas): cristal oscuro arriba a la izquierda; la que se ve, en Rosa niebla */
+  .escenas {
+    position: absolute; z-index: 4; top: calc(var(--spacing) * 3); left: calc(var(--spacing) * 3); display: flex; gap: 2px; padding: 3px;
+    border-radius: var(--radius-full); background: color-mix(in oklab, #1a1210 55%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  .escenas button {
+    display: grid; place-items: center; width: calc(var(--spacing) * 7); height: calc(var(--spacing) * 7); border-radius: var(--radius-full);
+    color: color-mix(in oklab, var(--color-niebla) 62%, transparent); cursor: pointer; transition: color 0.25s ease, background-color 0.25s ease;
+  }
+  .escenas button:hover { color: var(--color-niebla); }
+  .escenas button[aria-pressed='true'] { background: var(--color-niebla); color: var(--color-cacao); cursor: default; }
+  .escenas button:focus-visible { outline: 2px solid var(--color-niebla); outline-offset: 1px; }
+  .escenas svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :global(html:not(.pz-js)) .escenas { display: none; }
   .bloque { padding-top: var(--aire); }
   @media (width >= 64rem) { .enc { position: sticky; top: calc(var(--spacing) * 24); } } /* ronda 153: en el móvil, pegado pisaba el texto */
   /* dos párrafos lado a lado, a la misma altura */
   .dos { display: grid; gap: calc(var(--spacing) * 6); }
+  .pila { display: grid; gap: calc(var(--spacing) * 4); }
   @media (width >= 48rem) { .dos { grid-template-columns: 1fr 1fr; } }
   /* ── CÓMO LA CONSTRUIMOS: pasos en dos columnas, cada uno con su número y un filete arriba */
   .proceso { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6); counter-reset: none; }
   @media (width >= 48rem) { .proceso { grid-template-columns: 1fr 1fr; } }
-  .proceso li { display: grid; gap: calc(var(--spacing) * 2); align-content: start; padding-top: calc(var(--spacing) * 4); border-top: 1px solid var(--rule); }
+  .fg-lista { display: grid; row-gap: clamp(2.5rem, 1.75rem + 2vw, 4rem); }
+  .fg { margin: 0; display: grid; gap: calc(var(--spacing) * 4); }
+  .fg-imgs { display: grid; gap: calc(var(--spacing) * 3); }
+  .fg-trio .fg-imgs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (width < 48rem) { .fg-trio .fg-imgs { grid-template-columns: minmax(0, 1fr); } }
+  /* 28/10 · una lámina vertical (el look and feel): estrecha, para que no ocupe varias pantallas */
+  .fg-alta .fg-imgs { max-width: min(100%, 34rem); }
+  .fg-imgs img { display: block; width: 100%; height: auto; border-radius: var(--radius-lg); box-shadow: 0 0 0 1px var(--rule); }
+  .valor { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6); }
+  @media (width >= 48rem) { .valor { grid-template-columns: 1fr 1fr; } }
+  .valor li { display: grid; gap: calc(var(--spacing) * 2); align-content: start; }
+  .proceso li { display: grid; gap: calc(var(--spacing) * 2); align-content: start; } /* Eric (oct.): «muchas líneas horizontales»: fuera los filetes */
   /* ── LOS DETALLES (ronda 153): mosaico. Entre filas, la mitad del aire de un bloque; en cada fila, las piezas comparten el alto de su hueco
        (subrejilla: la fila de los huecos manda la que lleva proporción; la otra se estira) */
   .det-cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: calc(var(--spacing) * 3); margin-bottom: calc(var(--spacing) * 8); }
@@ -950,8 +1142,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .tesela { grid-column: 1 / -1; grid-row: span 2; display: grid; grid-template-rows: subgrid; row-gap: calc(var(--spacing) * 3); margin: 0; min-width: 0; }
   .hueco { position: relative; min-height: 0; }
   .hueco :global(.medio) { border-radius: var(--radius-lg); box-shadow: 0 0 0 1px var(--rule); } /* un filo: las webs claras no se pierden en el papel */
-  .pie { display: grid; grid-template-columns: 2.25em minmax(0, 1fr); column-gap: calc(var(--spacing) * 2); max-width: 44em; align-self: start; }
-  .pie .num { font-variant-numeric: tabular-nums; }
+  .pie { max-width: 44em; align-self: start; }
   /* en el móvil, una columna: los primeros planos cuadrados, las webs sobre placa en 4:3 y los teléfonos en 4:5 */
   :is(.f-par, .f-par75, .f-par57, .f-trio) .hueco { aspect-ratio: 1 / 1; }
   :is(.f-par, .f-par75, .f-par57, .f-trio) .con-placa .hueco { aspect-ratio: 4 / 3; }
@@ -968,6 +1159,17 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     .f-par75 > .tesela:nth-child(2) .hueco, .f-par57 > .tesela:nth-child(1) .hueco { aspect-ratio: auto; height: 100%; }
     .f-trio .tesela .hueco { aspect-ratio: 1 / 1; }
   }
+  /* 28/10 · DEL DISEÑO A LA ANIMACIÓN: dos huecos de 4:5 con la carátula de los detalles (Medio con placa: degradado de marca y ventana de cristal);
+     altos para que el marco de Figma se vea ENTERO y quieto (Eric: «entero a la vista»). Al verse, el hueco se abre desde un margen */
+  .anim { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6); }
+  @media (width >= 48rem) { .anim { grid-template-columns: 1fr 1fr; } }
+  .anim-pieza { display: grid; align-content: start; gap: calc(var(--spacing) * 3); margin: 0; min-width: 0; }
+  .anim-hueco {
+    position: relative; aspect-ratio: 4 / 5; border-radius: var(--radius-lg);
+    clip-path: inset(5% 5% 5% 5% round var(--radius-lg)); transition: clip-path 1.2s var(--ease-out-expo);
+  }
+  .anim-pieza + .anim-pieza .anim-hueco { transition-delay: 0.12s; }
+  .anim-pieza.visto .anim-hueco { clip-path: inset(0 0 0 0 round var(--radius-lg)); }
   /* la entrada: el hueco se abre desde un margen y el medio se asienta */
   .hueco :global(.medio) {
     clip-path: inset(5% 5% 5% 5% round var(--radius-lg));
@@ -1185,21 +1387,19 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .carta:hover img { scale: 1.04; }
   :global(html.anima) .carta { clip-path: inset(100% 0 0 0 round calc(var(--spacing) * 2)); }
   :global(html.anima) .carta img { opacity: 0; filter: blur(12px); transform: translateY(14%); }
-  :global(html.anima) .carta .pildora { opacity: 0; transform: translateX(-12px); }
+  :global(html.anima) .carta .rotulo { opacity: 0; transform: translateX(-12px); }
   :global(html.anima) .tipo-cartas.visto .carta { clip-path: inset(0 0 0 0 round calc(var(--spacing) * 2)); transition: clip-path 1.2s var(--ease-out-expo) calc(var(--k, 0) * 140ms); }
   :global(html.anima) .tipo-cartas.visto .carta img { opacity: 1; filter: none; transform: none; transition: opacity 0.9s ease calc(0.25s + var(--k, 0) * 140ms), filter 1.1s ease calc(0.25s + var(--k, 0) * 140ms), transform 1.4s var(--ease-out-expo) calc(0.25s + var(--k, 0) * 140ms), translate 0.9s var(--ease-out-expo), scale 1.2s var(--ease-out-expo); animation: flota 7s ease-in-out calc(1.6s + var(--k, 0) * 0.9s) infinite alternate; }
-  :global(html.anima) .tipo-cartas.visto .carta .pildora { opacity: 1; transform: none; transition: opacity 0.6s ease calc(0.7s + var(--k, 0) * 140ms), transform 0.9s var(--ease-out-expo) calc(0.7s + var(--k, 0) * 140ms); }
+  :global(html.anima) .tipo-cartas.visto .carta .rotulo { opacity: 1; transform: none; transition: opacity 0.6s ease calc(0.7s + var(--k, 0) * 140ms), transform 0.9s var(--ease-out-expo) calc(0.7s + var(--k, 0) * 140ms); }
   @keyframes flota { from { transform: translateY(0); } to { transform: translateY(-1.6%); } }
   .carta.aplicada { padding: calc(var(--spacing) * 16) 0 0 calc(var(--spacing) * 8); place-items: end; }
   .carta.aplicada img { border-radius: calc(var(--spacing) * 2) 0 0 0; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08); }
-  .pildora {
+  /* Eric (oct.): «las pills no me gustan»: el rótulo, texto suelto en la esquina */
+  .rotulo {
     position: absolute;
-    left: calc(var(--spacing) * 5);
-    top: calc(var(--spacing) * 5);
+    left: calc(var(--spacing) * 6);
+    top: calc(var(--spacing) * 6);
     z-index: 1;
-    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3.5);
-    border-radius: var(--radius-full);
-    background: rgb(255 255 255 / 0.82);
     color: #241c19;
     font-size: 0.8125rem;
     font-weight: 500;
@@ -1502,20 +1702,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .h-ic { flex: none; display: inline-grid; place-items: center; width: 1.125rem; height: 1.125rem; }
   .h-ic :global(img) { width: 100%; height: 100%; opacity: 0.85; }
   .h-ic :global(svg) { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
-  /* EL PROGRESO DE LECTURA (Andoni): la guía izquierda de la retícula se llena según lees; en su punta, lo que queda en minutos. Fijo mientras dura el caso */
-  .leido {
-    position: fixed; z-index: 30; right: var(--d, 48px); bottom: max(calc(var(--spacing) * 6), env(safe-area-inset-bottom));
-    display: flex; align-items: center; gap: calc(var(--spacing) * 2); padding: 6px 6px 6px 12px; border-radius: 999px;
-    background: rgb(255 255 255 / 0.86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 0 0 1px var(--rule);
-    pointer-events: none; opacity: 0; translate: calc(100% + var(--d, 48px) + 12px) 0; transition: translate 0.9s var(--ease-out-expo), opacity 0.5s ease;
-  }
-  .leido.on { opacity: 1; translate: 0 0; }
-  .leido span { white-space: nowrap; font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--color-cacao, #3b231b); }
-  .leido svg { width: 22px; height: 22px; rotate: -90deg; }
-  .leido circle { fill: none; stroke-width: 2.6; }
-  .leido .pista-l { stroke: var(--rule); }
-  .leido .lleno { stroke: var(--color-coral); stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: calc(1 - var(--p, 0)); }
-  @media (width < 48rem) { .leido { right: 16px; } }
   /* EL ESPACIADO APLICADO: su página a escala (1440 → el ancho del esquema) y cada medida que se enciende por turnos en coral, con su fila */
   .esq { container-type: inline-size; margin-bottom: calc(var(--spacing) * 10); }
   .pag { --u: calc(100cqw / 1440); position: relative; padding-block: calc(72 * var(--u)); border: 1px solid var(--rule); border-radius: calc(var(--spacing) * 2); background: color-mix(in oklab, var(--fg) 3%, transparent); overflow: hidden; }
@@ -1570,7 +1756,9 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .lado-titular { margin-top: calc(var(--spacing) * -1); font-size: 1.25rem; line-height: 1.2; color: var(--fg2); text-wrap: balance; }
   .lado-desc { font-size: 1rem; line-height: 1.55; color: var(--fg); text-wrap: pretty; }
   .tv-p { margin-left: 0.75em; } /* ronda 307, 23.ª: el uso, aparte del valor (antes «#hex · %») */
-  .lado-meta { font-size: var(--text-aux); line-height: 1.5; color: color-mix(in oklab, var(--fg) 50%, transparent); }
+  .lado-ficha { display: grid; gap: calc(var(--spacing) * 3); margin: calc(var(--spacing) * 2) 0 0; font-size: var(--text-aux); line-height: 1.45; }
+  .lado-ficha dt { color: color-mix(in oklab, var(--fg) 50%, transparent); }
+  .lado-ficha dd { margin: 0; color: var(--fg); }
   .ir-web { display: inline-flex; align-items: center; gap: 2px; width: fit-content; margin-top: calc(var(--spacing) * 1); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); transition: color 0.25s ease; }
   .ir-web:hover, .ir-web:focus-visible { color: var(--fg); }
   .ant-sig { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 10); padding-top: calc(var(--spacing) * 4); border-top: 1px solid var(--rule); }
@@ -1588,7 +1776,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     .lado-pega::-webkit-scrollbar { display: none; }
     .ant-sig { margin-top: auto; margin-right: calc(var(--spacing) * -8); padding-right: calc(var(--spacing) * 8); }
     .lado-cab { margin-right: calc(var(--spacing) * -8); padding-right: calc(var(--spacing) * 8); } /* 25.ª: su línea llega hasta el filo del contenido */
-    /* la línea entre columnas: el filo izquierdo del contenido, de arriba abajo */
+    /* la línea entre columnas: el filo izquierdo del contenido, de arriba abajo (Eric la quitó y la pidió de vuelta: «falta una línea que separe lo sticky de lo que no») */
     .contenido { border-left: 1px solid var(--rule); padding-inline: calc(var(--spacing) * 8); } /* 25.ª: el mismo aire a la derecha que a la izquierda */
   }
   /* el contenido: una sola columna, títulos pequeños, menos aire (lo de la referencia: imagen, pie, título y texto) */
@@ -1606,15 +1794,41 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .contenido .portada { margin-top: calc(var(--spacing) * 6); }
   .contenido .det-cab { margin-bottom: calc(var(--spacing) * 6); }
   .contenido .comentario { padding-bottom: 0; }
+  /* 28/10 · LECTURA A DOS COLUMNAS (Eric: «como Collins, más organizada respetando columnas sin ser obvia»): el título a la izquierda, el texto
+     a la derecha, y TODO el texto arranca en la misma vertical; una sola columna de lectura (fuera los párrafos y puntos lado a lado).
+     La MISMA retícula que las imágenes (12 columnas, hueco de 24): el texto arranca en la 7, donde arranca la segunda pieza de cada par (Eric: «el
+     subtítulo no se corta verticalmente con el vídeo de abajo»). Las cabeceras de los bloques visuales (.sis-cab, .det-cab) siguen la misma regla. */
+  @media (width >= 48rem) {
+    .contenido .rej.par, .contenido .sis-cab, .contenido .det-cab {
+      display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); align-items: baseline;
+    }
+    .contenido .rej.par > * { grid-column: 7 / -1 !important; max-width: none; }
+    .contenido .rej.par > .enc { grid-column: 1 / span 6 !important; grid-row: 1 !important; }
+    .contenido .sis-cab h2, .contenido .det-cab h2 { grid-column: 1 / span 6; }
+    .contenido .sis-entra, .contenido .det-cab > p { grid-column: 7 / -1; max-width: none; }
+  }
+  .contenido .par .dos, .contenido .par .valor, .contenido .par .proceso { grid-template-columns: minmax(0, 1fr); }
+  .contenido .par .dos { gap: calc(var(--spacing) * 4); }
+  .contenido .par .valor, .contenido .par .proceso { gap: calc(var(--spacing) * 8); }
+  .contenido .par .t-h { color: var(--fg); }
   @media (width < 64rem) { .contenido { margin-top: calc(var(--spacing) * 20); } }
   @media (width >= 64rem) { .barra-caso { --tapa: calc(var(--spacing) * 20); } }
   .barra-caso::before { content: ''; position: absolute; left: -1px; right: 0; bottom: 100%; height: var(--tapa, calc(var(--spacing) * 16)); /* tapa del borde de arriba de la ventana a la barra: en móvil 64 px (la ficha va justo encima), en escritorio 80 */ background-color: var(--bg); } /* 24.ª: fondo plano, sin grano */
+  @media (width >= 64rem) { .barra-caso::before { left: -100vw; } } /* 28/10 · la tapa, también sobre la columna fija: al llegar al pie, la columna sube y se metía bajo el logotipo */
   :global(html.caso-foco) .barra-caso::before { display: none; }
-  .barra-caso { position: sticky; z-index: 40; top: calc(var(--spacing) * 16); display: flex; justify-content: space-between; align-items: center; padding: calc(var(--spacing) * 4) 0; border-bottom: 1px solid var(--rule); background-color: var(--bg); font-size: var(--text-aux); color: var(--fg); }
+  /* Eric (oct.): al bajar, el pie sube con su curva y la barra pegada (con su degradado) se le pintaba encima: el pie, por encima de la barra (30) y por debajo de
+     los carriles (40) y la barra del menú */
+  :global(main.caso ~ .pie) { z-index: 31; }
+  .barra-caso { position: sticky; z-index: 30; top: calc(var(--spacing) * 16); display: flex; justify-content: space-between; align-items: center; padding: calc(var(--spacing) * 4) 0; border-bottom: 1px solid var(--rule); background-color: var(--bg); font-size: var(--text-aux); color: var(--fg); }
   @media (width >= 64rem) { .contenido { padding-top: calc(var(--spacing) * 20); } .barra-caso { top: calc(var(--spacing) * 20); } }
   .foco-btn { color: color-mix(in oklab, var(--fg) 60%, transparent); font: inherit; padding: 4px 0; cursor: pointer; transition: color 0.25s ease; }
   .foco-btn:hover, .foco-btn:focus-visible { color: var(--fg); }
-  .f-off { display: none; }
+  .foco-btn { display: none; margin-left: auto; }
+  :global(html.caso-foco) .foco-btn { display: inline; }
+  .foco-ic { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); width: fit-content; margin-top: auto; padding: calc(var(--spacing) * 1) 0; font: inherit; font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); cursor: pointer; transition: color 0.25s ease; }
+  .foco-ic:hover, .foco-ic:focus-visible { color: var(--fg); }
+  .foco-ic svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+  @media (width < 64rem) { .foco-ic { display: none; } }
   /* MODO FOCO: el contenido sube al centro como una ventana; detrás, la página se apaga y se desenfoca (Volver, Esc o un clic fuera lo devuelven) */
   .foco-velo { position: fixed; inset: 0; z-index: 58; background-color: var(--bg); background-image: url('/media/grano.png'); opacity: 0; pointer-events: none; transition: opacity 0.45s ease; }
   :global(html.caso-foco) .foco-velo { opacity: 1; pointer-events: auto; }
@@ -1628,19 +1842,24 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   :global(html.caso-foco) .barra-caso { top: 0; }
   @media (width >= 64rem) { :global(html.caso-foco) .contenido { padding-top: 0; padding-left: clamp(1.25rem, 3vw, 3rem); border-left: 0; } }
   :global(html.caso-foco) .contenido { padding-bottom: clamp(2rem, 4vw, 3rem); }
-  :global(html.caso-foco) .f-on { display: none; }
-  :global(html.caso-foco) .f-off { display: inline; }
   @media (width < 48rem) { :global(html.caso-foco) .contenido { inset: calc(var(--spacing) * 3) 0; width: calc(100vw - var(--spacing) * 6); } }
   /* RONDA 307, 24.ª · «la línea superior es como una guía que atraviesa toda la página; Proyectos, Modo foco y El caso de cerca, alineados; el número fuera»:
      en escritorio la cabecera de la columna y la barra del contenido miden lo mismo y van a la misma altura (80 px); la línea de debajo es UNA, de lado a lado de
      la ventana (la dibuja la barra, que va fija, así acompaña al scroll); y su fondo, plano. */
   .lado-cab, .barra-caso { min-height: calc(var(--spacing) * 14); padding-block: 0; line-height: 1.4; }
-  .barra-caso p, .foco-btn { line-height: 1.4; padding-block: 0; }
+  .foco-btn { line-height: 1.4; padding-block: 0; }
   @media (width >= 64rem) {
     .lado-cab { border-bottom: 0; }
     .barra-caso { border-bottom: 0; }
     .barra-caso::after { content: ''; position: absolute; left: -100vw; right: -100vw; bottom: 0; height: 1px; background: var(--rule); pointer-events: none; }
     :global(html.caso-foco) .barra-caso::after { left: 0; right: 0; }
+    /* 28/10 · Eric: «quitamos la raya horizontal; el sticky queda ahí y empieza ahí, pero el contenido sube hasta arriba». Fuera de modo foco, la barra
+       ya no se pega ni tapa: sin línea, sin tapa, sin desvanecido; solo guarda el alto para que la columna y el contenido arranquen a la misma altura.
+       La línea entre columnas va de arriba abajo, como los carriles */
+    :global(html:not(.caso-foco)) .barra-caso { position: relative; top: auto; background: none; }
+    :global(html:not(.caso-foco)) .barra-caso::before,
+    :global(html:not(.caso-foco)) .barra-caso::after,
+    :global(html:not(.caso-foco)) .barra-caso .desvanece { display: none; }
   }
   /* RONDA 307, 25.ª · «cuando el contenido empieza a desaparecer arriba, un pequeño degradado para que parezca que se desvanece»: bajo la barra, 40 px del fondo
      que se funden a nada (lo que sube se apaga antes de meterse bajo la línea) */

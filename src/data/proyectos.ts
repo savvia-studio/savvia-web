@@ -37,6 +37,8 @@ export type Proyecto = {
   url?: string;
   sector?: string;
   ubicacion?: string;
+  anio?: string; // Eric (oct.): el año del proyecto, en la ficha del caso
+  hicimos?: string; // Eric (oct.): lo que hicimos para el cliente, en una o dos frases (columna fija del caso; si falta, la entradilla)
   destacado?: boolean;
   servicios: string[]; // filtran el listado (ver SERVICIOS)
   stack?: string[];
@@ -62,7 +64,11 @@ export type Proyecto = {
   tecnica?: string[]; // por dentro
   descartado?: string[]; // lo que se probó y cayó
   cifras?: { v: string; t: string }[]; // del PROYECTO (nunca del proceso)
-  cita?: { texto: string; autor: string; rol: string; video?: string }; // ronda 144: si el testimonio tiene vídeo, se indica
+  cita?: { texto: string; autor: string; rol: string; video?: string; retrato?: string }; // ronda 144: si el testimonio tiene vídeo, se indica · 28/10: con retrato, va ilustrado al final del caso (Voces)
+  valor?: { n: string; d: string }[]; // 28/10: lo que ganó el cliente, cada punto con su prueba
+  figma?: { f: 'ancha' | 'trio' | 'alta'; img: string[]; titulo: string; pie: string }[]; // 28/10: «Del Figma a la web», capturas de su archivo de diseño (tools/neety-figma/)
+  animacion?: { titulo: string; texto: string; diseno: { src: string; pie: string }; web: { src: string; poster: string; pie: string } }; // 28/10: del diseño (Figma) a la animación en la web, en dos columnas
+  micro?: { titulo: string; texto: string; video: { src: string; poster: string; pie: string } }; // 28/10: las microanimaciones, una grabación a lo ancho
   con?: string;
   color: string; // fondo de su tarjeta
   colores: [string, string, string]; // fondo · secundario · acento de su web (el degradado de su pieza)
@@ -70,6 +76,7 @@ export type Proyecto = {
   escritorio?: Medio; // ronda 131: si la portada es móvil, su web en escritorio para la rejilla del portfolio
   caratulaLogo?: { vb: string; fill: string; d: string[] }; // el caso enseña solo su logotipo sobre el fondo de marca, sin la web (el vídeo se muestra más abajo)
   cubierta?: Medio; // ronda 154: la toma GRANDE de la carátula del caso (1920 px, tools/r154/grabar.cjs y archivo.sh); si falta, la portada
+  cubiertaMovil?: { src: string; poster: string }; // 28/10: la grabación en móvil; con ella, la carátula del caso tiene también el MÓVIL de la mesa (cápsula mesa · móvil)
   galeria?: Medio[]; // ronda 152: sin uso en el caso (lo sustituyen los detalles)
   // octubre 2026: los SONIDOS de su web, si los tiene, copiados de su código (Web Audio): un bus con su volumen y un paso bajo, y sus capas: «ruido»
   // (ruido blanco por un paso banda: f Hz, q; ataque de 0,5 ms y caída exponencial en dur s) y «seno» (de f a fin Hz en 44 ms; ataque y caída). Cada golpe
@@ -83,6 +90,7 @@ export type Proyecto = {
     accesos: { n: string; nEn: string; ancla: string }[]; // los atajos a sus secciones (sus #id)
     tapa: { marca: string; titulo: string; tituloEn: string; fondo: string; tinta: string; acento: string }; // el libro: su tapa, en los colores de su marca
     entrega: { n: string; d: string; nEn: string; dEn: string }[]; // lo que se llevó el cliente (de su librería: «Recibir el proyecto»)
+    texto?: string[]; textoEn?: string[]; // 28/10: lo que se cuenta de la entrega, encima del albarán
   };
   iconos?: { n: string; src: string }[]; // octubre 2026: su iconografía, si la tiene (el caso la enseña en rejilla, a la manera de brand.dropbox.com)
 };
@@ -411,18 +419,25 @@ export const proyectos: Proyecto[] = [
   {
     slug: 'neety',
     nombre: 'Neety',
-    sector: 'Ventas B2B',
+    sector: 'Ventas B2B, SaaS',
+    anio: '2026',
     destacado: true,
-    servicios: ['Diseño web', 'Desarrollo agéntico', 'Animación'],
+    servicios: ['Diseño web', 'Desarrollo agéntico', 'CMS', 'Multidioma', 'Animación'],
     stack: ['Next.js', 'Tailwind CSS', 'GSAP + ScrollTrigger', 'Sanity', 'Cloudflare'],
-    resumen: 'Detecta a quién vender y cuándo. La web enseña el feed de señales antes de explicarlo.',
-    entradilla: 'Neety es inteligencia comercial para equipos B2B: detecta a quién vender, cuándo hacerlo y qué acción tomar a partir de señales dispersas.',
+    resumen: 'Diseño y desarrollo agéntico: 40 páginas en dos idiomas que su equipo sigue cambiando con Claude.',
+    // 28/10 · reescrito con el dossier de la ingeniería inversa (~/ShipStudio/neety/docs/dossier-caso.md, con su fuente por dato). Eric: el Figma también es nuestro
+    // 28/10 · reescrito con Eric en el documento del caso (Claude Docs «Caso de estudio · Neety»): la historia en «El proyecto», sin plazos
+    hicimos: 'Diseñamos y desarrollamos con IA la web de Neety, en dos idiomas, y se la entregamos con una librería para que su equipo la siga haciendo evolucionar con IA, respetando todo lo que trabajamos juntos.',
+    entradilla: 'Neety detecta a quién vender, cuándo hacerlo y qué acción tomar. Su web tenía que enseñarlo moviéndose y quedarse en manos de un equipo sin desarrolladores.',
     contexto: [
-      'El producto se entiende viéndolo: un feed de señales abre la página y las secciones siguientes lo desmontan pieza a pieza, del ruido comercial a la acción.',
-      'La marca pedía claridad operativa y elegancia, y una regla que se respetó en toda la web: el naranja, solo para la señal.',
+      'Neety ayuda a los equipos comerciales B2B a saber a qué empresas vender, cuándo hacerlo y qué acción tomar. Lo usan más de 200 comerciales en más de 50 empresas industriales, como Ojmar, Telpark o Fagor Automation.',
+      'Trabajamos con Unai y su equipo en el rediseño de su web. La anterior estaba en Webflow y mantenerla era uno de sus mayores problemas: les costaba que la web evolucionara al mismo ritmo que el producto.',
+      'Empezamos por el diseño, en Figma, y después nos pidieron construir la web con IA: con Ship Studio, cada pantalla pasaba a Claude, que la convertía en código. El resultado: 40 páginas en dos idiomas, con el contenido en Sanity.',
+      'Salió el 24 de septiembre, en Neety Forward. Desde la puesta en producción, Unai y su equipo han rehecho la página de demo y han publicado 30 artículos y 26 recursos de la academia por su cuenta según sus necesidades.',
     ],
-    reto: 'Que un comercial entienda en segundos qué hace una herramienta de datos, sin diagramas abstractos ni promesas vacías.',
-    frase: 'Del ruido comercial a señales accionables.',
+    reto: '', // 28/10 · Eric: fuera «El reto» y «Lo que ganó Neety»
+    frase: 'Una web que su equipo sigue cambiando sin nosotros.',
+    // 28/10 · LO QUE GANÓ NEETY: el valor, cada punto con su prueba (dossier §3)
     secciones: [
       { n: 'Hero', d: 'El titular y un feed de siete tarjetas de señales que corre en bucle.' },
       { n: 'Clientes', d: 'Los logotipos de quienes ya la usan.' },
@@ -435,11 +450,11 @@ export const proyectos: Proyecto[] = [
       { n: 'Demo', d: 'Qué verás en la demo y la llamada final.' },
     ],
     paleta: [
-      { hex: '#431B44', pct: 0.6, n: 'Ciruela' },
+      { hex: '#431B44', pct: 0.6, n: 'Berenjena' },
       { hex: '#A7C5F9', pct: 1.4, n: 'Azul bebé' },
-      { hex: '#FE8238', pct: 1.2, n: 'Naranja (solo la señal)' },
-      { hex: '#0BB783', pct: 0, n: 'Menta' },
-      { hex: '#F5F7F9', pct: 96.8, n: 'Superficie' },
+      { hex: '#FE8238', pct: 1.2, n: 'Naranja Core' },
+      { hex: '#2A0E2C', n: 'Ciruela' },
+      { hex: '#F5F7F9', pct: 96.8, n: 'Gris tecnológico' },
     ],
     tipos: [
       { n: 'Bricolage Grotesque', uso: 'Titulares, 500' },
@@ -454,26 +469,46 @@ export const proyectos: Proyecto[] = [
       'Servida tras Cloudflare',
     ],
     cifras: [
-      { v: '9', t: 'secciones' },
-      { v: '7', t: 'tarjetas en el feed' },
-      { v: '27 s', t: 'de bucle de señales' },
-      { v: '4', t: 'casos de uso' },
+      { v: '40', t: 'páginas en dos idiomas' },
+      { v: '209', t: 'decisiones escritas' },
+      { v: '80', t: 'componentes en la librería' },
     ],
-    proceso: [
-      { n: 'El brief', d: 'Veinticinco apartados y un concepto, «inteligencia de señal», con un tono: claridad operativa y elegante. El movimiento, como un radar comercial.' },
-      { n: 'El color con reglas', d: 'La paleta llegó con proporciones (menta 55 a 65 %, ciruela 20 a 25 %, azul 10 a 15 %, naranja 5 a 10 %) y una regla: si todo es naranja, nada es importante. El naranja, solo para la señal.' },
-      { n: 'La identidad', d: 'Sobre su marca: el degradado azul, naranja y ciruela recortado por una sola máscara con dos muescas que encajan, la que da forma a todo el hero.' },
-      { n: 'La librería', d: 'Un manual vivo generado desde el propio código: fundamentos, componentes, el mapa de la web en español e inglés y una guía para que su equipo la cambie con Claude.' },
+    // 28/10 · Eric: «cómo pasamos del diseño a la animación»: el feed dibujado a mano en Figma (Neety Web, nodo 14340-3494; las siete tarjetas a 1×, apiladas
+    // como en el frame) y la web (Screen Studio CUcZjwvM, sin 24,75–26,8 s: la cámara se alejaba y asomaba la ventana; tras el corte, en inglés)
+    animacion: {
+      titulo: 'Del diseño a la animación',
+      texto: 'El feed del hero, de la tarjeta dibujada a la que se mueve. Lo diseñamos a mano en Figma y, con desarrollo agéntico, lo construimos en código, no en un vídeo ni en una animación exportada. Por eso los textos, los logotipos y las fotos van aparte del movimiento: traducirlo o cambiar una empresa, una persona o una imagen es cambiar el contenido, sin tocar la animación. Y su equipo lo hace por su cuenta.',
+      diseno: { src: '/media/obra/neety/anim-figma.webp', pie: 'Las siete tarjetas, dibujadas a mano en Figma: las empresas que encajan, quién decide, quién se activa, la señal, el mensaje, la respuesta y la reunión.' },
+      web: { src: '/media/obra/neety/x-feed.mp4', poster: '/media/obra/neety/x-feed.jpg', pie: 'Las mismas tarjetas, en bucle sobre el degradado: la activa, nítida; las demás se desenfocan y encogen.' },
+    },
+    // 28/10 · Eric: «otra sección a recalcar sobre las microanimaciones: cómo se nos permite microanimar en código todo» (Screen Studio RCpQOObj, «Cómo funciona»)
+    micro: {
+      titulo: 'Microanimaciones',
+      texto: 'Al estar hecha en código, cada detalle se puede animar: una línea, un paso, una tarjeta. En «Cómo funciona», la línea avanza y va encendiendo cada paso con su pantalla, al ritmo de la marca, sin plantillas ni efectos de catálogo.',
+      video: { src: '/media/obra/neety/micro-rail.mp4', poster: '/media/obra/neety/micro-rail.jpg', pie: 'La línea recorre el proceso y enciende cada paso: el texto pasa a tinta y su pantalla aparece. Detecta, prioriza y actúa.' },
+    },
+    figma: [
+      // 28/10 · Eric: «quitaremos el tema del sitemap»: fuera «La estructura» (figma-sitemap.webp); empieza por el esqueleto y los conceptos
+      { f: 'trio', img: ['/media/obra/neety/figma-estructura.webp', '/media/obra/neety/figma-concepto-1.webp', '/media/obra/neety/figma-concepto-3.webp'], titulo: 'Del esqueleto al concepto', pie: 'Cada página, primero en estructura y sin color. Después, cinco conceptos de dirección visual hasta dar con el definitivo.' },
+      // 28/10 · Eric: «empezar por las variantes, pero también mostrar look and feel, descartes y luego la home/responsive» (capturas de Eric; tools: las cabeceras
+      // con «treseiscero» y la barra de Figma, recortadas o tapadas). La librería sustituye a «El sistema» (figma-sistema.webp, sin uso)
+      { f: 'alta', img: ['/media/obra/neety/figma-look.webp'], titulo: 'El look and feel', pie: 'Diecisiete variaciones de la home sobre el mismo esqueleto: el degradado, el titular y la tarjeta del hero, hasta dar con la dirección.' },
+      { f: 'ancha', img: ['/media/obra/neety/figma-descartes.webp'], titulo: 'Los descartes', pie: 'Cinco conceptos que se quedaron por el camino, cada uno con sus variantes, del fondo claro al oscuro.' },
+      { f: 'ancha', img: ['/media/obra/neety/figma-home.webp'], titulo: 'La home, en escritorio y en móvil', pie: 'La home definitiva, los desplegables del menú, el feed y las pantallas de «Neety por dentro»; al lado, la versión móvil con su menú.' },
+      { f: 'ancha', img: ['/media/obra/neety/figma-libreria.webp'], titulo: 'La librería', pie: 'Color, texto y espaciado de escritorio y de móvil, radios, sombras, botones, marca y favicon: el sistema que después pasó al código.' },
+      { f: 'ancha', img: ['/media/obra/neety/figma-gradientes.webp'], titulo: 'Los gradientes', pie: 'Siete degradados con grano: la materia de la marca en toda la web.' },
     ],
+    // 28/10 · «Cómo la construimos» fuera (Eric: «a partir de ahí iremos más visual»); la historia la cuenta el contexto
     detalles: [
-      x('neety', 'feed', 'El feed de señales', 'Siete tarjetas en un bucle de unos 27 segundos. La pista sube por pasos y deja la activa a un 40 % de la ventana; las demás pierden opacidad, se desenfocan hasta 5 px y encogen según su distancia. Cada tarjeta pasa de esqueleto a contenido y una se escribe sola hasta «Enviado ✓».', '4 / 3'),
-      x('neety', 'ruido', 'De ruido a señal', 'El antes y el después en una sola máquina: 64 píxeles y 26 cruces que parpadean a ritmos de 1,8 a 4 segundos y se asientan con un pequeño rebote, mientras la lista fría de la izquierda se vuelve la priorizada de la derecha.', '2 / 1'),
+      x('neety', 'feed', 'El feed de señales', 'Siete tarjetas en bucle. La pista sube por pasos y deja la activa a un 40 % de la ventana; las demás pierden opacidad, se desenfocan hasta 5 px y encogen según su distancia. Cada tarjeta pasa de esqueleto a contenido y una se escribe sola hasta «Enviado ✓».', '4 / 3'),
+      x('neety', 'ruido', 'De ruido a señal', 'El antes y el después en una sola máquina: los píxeles salen de la lista fría de la izquierda y se recogen en el isotipo, y a la derecha queda la lista priorizada.', '2 / 1'),
       x('neety', 'dentro', 'Neety por dentro', 'Las pantallas reales del producto (cuentas con encaje, señales de intención) se relevan al bajar, cada una con la cifra que la justifica: la web enseña lo que verá el equipo.'),
       x('neety', 'casos', 'Un caso por equipo', 'Cuatro pestañas, una por equipo comercial. Cada una cambia el texto y una tarjeta de producto con empresas de ejemplo y su encaje.'),
     ],
     mosaico: [
       { f: 'ancha', p: [pz('neety', 'x-ruido', 'De ruido a señal', 'La lista fría, a la izquierda; a la derecha, lo que Neety devuelve: cuentas priorizadas y la acción siguiente.', { prop: '2 / 1', foto: true })] },
-      { f: 'par75', p: [pz('neety', 'x-feed', 'El feed de señales', 'Siete tarjetas en bucle: la activa, nítida; las demás se desenfocan y encogen.', { placa: 0, prop: '4 / 3' }), pz('neety', 'x-cifras', 'Por qué Neety', 'Seis cifras del producto que cuentan al entrar.', { pos: '84% 50%', prop: '1440 / 880', foto: true })] },
+      // 28/10 · fuera el feed: ya lo cuenta «Del diseño a la animación»
+      { f: 'ancha', p: [pz('neety', 'x-cifras', 'Por qué Neety', 'Seis cifras del producto que cuentan al entrar.', { pos: '84% 50%', prop: '1440 / 880', foto: true })] },
       { f: 'sangre', p: [pz('neety', 'x-dentro', 'Neety por dentro', 'Las pantallas reales del producto se relevan al bajar, cada una con su cifra.')] },
       { f: 'par', p: [pz('neety', 'x-rail', 'Cómo funciona', 'Un raíl recorre el proceso: detecta, prioriza y actúa.', { placa: 1, foto: true }), pz('neety', 'x-casos', 'Un caso por equipo', 'Cuatro pestañas; cada una cambia el texto y la tarjeta de producto.', { placa: 3 })] },
     ],
@@ -484,12 +519,21 @@ export const proyectos: Proyecto[] = [
       { n: 'Texto', fam: 'Switzer', px: 20, lh: 30, peso: 400 },
       { n: 'Detalle', fam: 'Roboto Mono', px: 12, lh: 16, peso: 500, ls: 'mayúsculas' },
     ],
-    boton: { fam: 'Bricolage Grotesque', px: 14, peso: 500, radio: 999, alto: 36, fondo: '#431B44', tinta: '#FFFFFF', nota: 'Ciruela al 75 %' },
-    medido: 'Medido en la web entregada (neety.treseiscero.app), a 1440 px',
+    boton: { fam: 'Bricolage Grotesque', px: 14, peso: 500, radio: 999, alto: 36, fondo: '#431B44', tinta: '#FFFFFF', nota: 'Berenjena al 75 %' },
+    medido: 'Medido en la web entregada, a 1440 px',
     aplicado: true,
     libreria: {
       url: 'https://neety.treseiscero.app/library',
       captura: '/media/obra/neety/libreria.webp', capturaMovil: '/media/obra/neety/libreria-movil.webp',
+      // 28/10 · «La entrega» (Eric): el texto que va encima del albarán y del libro
+      texto: [
+        'Con la web, Neety se llevó todo lo necesario para seguir cambiándola por su cuenta. En el centro, la librería: una página dentro de la propia web, hecha con su código y en los dos idiomas. Reúne sus colores, su tipografía, el espaciado, los botones y la marca, y un catálogo de 80 componentes ordenado página por página. Como sale del código, no se queda desfasada cuando la web cambia.',
+        'Antes de tocar nada, su equipo ve qué piezas hay y cómo se usan. Así, lo que añaden encaja con el diseño que trabajamos juntos, sin tener que reinventarlo. Y la guía «Trabajar con Claude» trae las peticiones ya escritas para cambiar contenido, reutilizar secciones o crear páginas nuevas: ellos mismos pidieron ponerla la primera.',
+      ],
+      textoEn: [
+        'Along with the site, Neety took everything it needs to keep changing it on its own. At the centre, the library: a page inside the site itself, built from its code and in both languages. It gathers its colours, its typography, spacing, buttons and brand, and a catalogue of 80 components ordered page by page. Because it comes from the code, it never falls out of date when the site changes.',
+        'Before touching anything, their team sees which pieces exist and how they are used. So whatever they add fits the design we worked on together, without reinventing it. And the “Working with Claude” guide comes with the requests already written to change content, reuse sections or create new pages: they asked for it to go first.',
+      ],
       tapa: { marca: 'neety', titulo: 'El sistema de diseño de Neety, y cómo mantener la web', tituloEn: 'Neety’s design system, and how to maintain the website', fondo: '#431B44', tinta: '#F8F7EC', acento: '#FE8238' },
       accesos: [
         { n: 'Cambiar contenido', nEn: 'Changing content', ancla: 'contenido' },
@@ -501,19 +545,21 @@ export const proyectos: Proyecto[] = [
       entrega: [
         { n: 'La web', d: 'Publicada y suya: Next.js, con el blog y el equipo en Sanity.', nEn: 'The website', dEn: 'Live and theirs: Next.js, with the blog and the team in Sanity.' },
         { n: 'El código', d: 'Un repositorio de GitHub con el código, los assets y la documentación.', nEn: 'The code', dEn: 'A GitHub repository with the code, the assets and the documentation.' },
-        { n: 'La librería', d: 'Su sistema de diseño y la guía viva para mantener la web, generados desde el código.', nEn: 'The library', dEn: 'Its design system and a living guide to maintain the site, generated from the code.' },
-        { n: 'La guía para Claude', d: 'CLAUDE.md con las convenciones y docs/decisiones.md con el porqué de cada decisión.', nEn: 'The guide for Claude', dEn: 'CLAUDE.md with the conventions and docs/decisiones.md with the reason behind every decision.' },
+        { n: 'La librería', d: 'Su sistema de diseño y la guía para mantener la web, generados desde el código.', nEn: 'The library', dEn: 'Its design system and a living guide to maintain the site, generated from the code.' },
+        { n: 'La guía para Claude', d: 'Las convenciones del proyecto y el porqué de cada una de las 209 decisiones.', nEn: 'The guide for Claude', dEn: 'The project’s conventions and the reason behind each of the 209 decisions.' },
       ],
     },
     comentario: { quien: 'andoni', texto: 'Con Neety entregamos algo más que una web: una librería que sale del propio código para que su equipo la siga cambiando con Claude. Es la forma de trabajar que queremos para todos los proyectos.' },
     conclusion: [
-      'La web enseña el producto antes de explicarlo: el feed de señales abre la página y cada sección lo desmonta hasta la acción, con el naranja reservado para la señal.',
-      'Con ella se entregó una librería viva, generada desde el propio código, con sus fundamentos, sus componentes, el mapa de la web en español e inglés y una guía para que su equipo la cambie con Claude.',
+      'Neety fue nuestro primer proyecto de principio a fin con desarrollo agéntico: diseño, código, contenido y traspaso.',
+      'La web enseña el producto antes de explicarlo, y su equipo la sigue haciendo evolucionar: con Sanity para el contenido, la librería para el diseño y Claude para todo lo demás.',
     ],
+    cita: { texto: 'Cercanos, humanos y capaces de entender de verdad tu proyecto. Más que un proveedor, son parte de tu equipo.', autor: 'Unai Arambarri', rol: 'Fundador y CEO, Neety', retrato: '/media/testimonios/unai-arambarri.webp' }, // la de la home; retrato: su foto (Eric, 28/10) con tools/r191/retrato.py (S=1.25 OY=230 FY=-170 BODY=0.45)
     color: '#f5f7f9',
     colores: ['#EEE8F7', '#A7C5F9', '#FE8238'], // ronda 154: «el gradiente de Neety se ve sucio» → su paleta real: lavanda (base) · Azul bebé · Naranja Core (acento)
     portada: m('neety', 'portada'),
     cubierta: { tipo: 'video', src: '/media/anteriores/video/neety-com-grande.mp4', poster: '/media/anteriores/video/neety-com-grande.jpg' }, // ronda 227: la toma grande de Eric (visor de «Más proyectos»)
+    cubiertaMovil: { src: '/media/anteriores/video/neety-com-movil.mp4', poster: '/media/anteriores/video/neety-com-movil.jpg' },
   },
   {
     slug: 'invopop',

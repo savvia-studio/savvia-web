@@ -5549,3 +5549,110 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **Causa:** las dos secciones de Neety del reel («De ruido a señal» y las integraciones) son el DOM real de su web, capturado de `neety.treseiscero.app/home` (en castellano) para todos los idiomas.
 - **Hecho:** captura de `neety.treseiscero.app/en/home` (`tools/r308-neety-en/neety-dom-en.cjs` → `tools/r307/hf/assets/neety-dom/secciones-en.json`; mismas secciones en el mismo orden, mismos recursos y CSS). `tools/r307/build.cjs` la usa con `IDIOMA=en`. `tools/r307/render-en.sh`: solo los cuatro en inglés → `public/media/reel/reel-<estación>-en.mp4` y sus miniaturas. Los de castellano, sin tocar.
 - **Medido:** fotogramas de Neety en las cuatro estaciones: «From sales noise to actionable signals» y «Connect Neety to your sales stack»; 87,8 s, ~10 MB cada uno.
+
+### 28/10 · El caso de Neety, primera estructura para salir (en local)
+- **Eric (Agentation, /proyectos/neety):** «El caso, de cerca: esto quitamos» · «la línea vertical que delimita el sticky de la izquierda, quitamos» · «Modo foco: que cambie a un
+  icono en la parte sticky» · «falta información del cliente: categorías, país si hay y demás» · «aquí explicaremos brevemente lo que hicimos para el cliente» · «muchas líneas
+  horizontales [proceso]» · «lo de quedan 4 minutos quitamos» · «los 01 02 03 quitamos» · «la paleta bien; preparados para proyectos de muchos colores» · «tipo: así o como en
+  Storybook» · «las pills no me gustan» · «[un bloque] no sé si suma o resta» · «anterior/siguiente sobra: saldremos solo con 1 proyecto». Y: «vamos a salir con Neety; lo
+  importante es mostrar el trabajo realizado y el valor aportado al cliente; fue nuestro primer cliente con desarrollo agéntico».
+- **Hecho (`src/views/Caso.astro`):** fuera «El caso, de cerca»; Modo foco = icono en la cabecera de la columna fija (`[data-foco-abrir]`, solo escritorio); «Volver» queda en
+  la barra del contenido solo con el foco abierto (`[data-foco-cerrar]`). Fuera la línea vertical entre columnas, el progreso de lectura («quedan N min»), los números del
+  mosaico, los filetes del proceso y las píldoras de tipografía (rótulo suelto, `.rotulo`). Ficha del cliente en lista con rótulo: Sector, Lugar, Año, Servicios. Anterior y
+  siguiente ocultos (`masCasos = false`). Datos: `anio` y `hicimos` nuevos en `Proyecto`; Neety con año 2026 y un BORRADOR de «lo que hicimos» (ES y EN).
+- **Ingeniería inversa:** prompt en `docs/casos/prompt-ingenieria-inversa.md` para sacar de `~/ShipStudio/neety` el dossier del caso (`docs/dossier-caso.md`).
+- **Pendiente:** el dossier y reescribir el caso con él; qué bloque era el «no sé si suma» (¿Espaciado o Por dentro?); tipografía como en Storybook; país de Neety. Sin commit.
+- **A media ronda (Eric):** «el icono junto a Proyectos no me convence» → «Modo foco» abajo en la columna fija, texto con su icono (`.foco-ic`, solo escritorio). «Falta una línea
+  vertical que separe lo sticky de lo que no» → vuelve el filo izquierdo del contenido. «Al bajar, la nube del pie no está bien»: la barra pegada del contenido (z 40, con su
+  degradado) se pintaba encima de la curva del pie → barra a z 30 y, en los casos, el pie a z 31 (`main.caso ~ .pie`; por debajo de carriles 40 y menú). Medido en Chrome a
+  1710×985: el pie tapa la barra al subir; foco abre y cierra; consola limpia.
+- **Referencia (Eric):** wearecollins.com/case-studies/robinhood, «me gusta mucho la limpieza». Su bloque «Augments»: titular y entradilla centrados, un montón de tarjetas
+  apiladas y «Explore Augments», que abre un recorrido pieza a pieza (nombre a la izquierda, texto a la derecha y una imagen grande en una tarjeta clara). «No hace falta
+  cambiar la estructura, es ir viendo cositas». Candidato: el bloque del VALOR APORTADO a Neety, cuando esté el dossier.
+- **Dossier (Eric lo lanzó en `~/ShipStudio/neety`):** `docs/dossier-caso.md` (12 apartados, cada dato con su fuente). Eric: el Figma también es nuestro; permiso de Neety, sí;
+  la cita es la de Unai en la home (su retrato, pendiente: lo manda Eric); la web completa salió el 24/09 en Neety Forward; «los vídeos los grabo yo con Screen Studio».
+- **Hecho:** ficha de Neety reescrita con el dossier (ES y EN): «lo que hicimos», resumen, entradilla, contexto, reto, frase, proceso real en 6 pasos, cifras verificadas
+  (40 páginas, 55 días, 209 decisiones, 80 componentes), servicios + CMS y Multidioma, conclusión y la cita de Unai. Paleta corregida (`#431B44` es Berenjena; fuera la
+  «menta», que es un estado del feed, y «el naranja solo para la señal», que no consta). Fuera «64 píxeles» y «27 segundos» (no constan en el código). Nuevo campo `valor`
+  y bloque «Lo que ganó Neety» tras el reto (siete puntos con su prueba). `cita.retrato`: con retrato, la cita va ilustrada al final (Voces); sin él, en texto; sin cita, el marcador.
+- **A media ronda (Eric):** foto de Unai → `public/media/testimonios/unai-arambarri.webp` con `tools/r191/retrato.py` (S=1.25 OY=230 TOP=140 FY=-170 BODY=0.45; rembg en un
+  venv aparte), `cita.retrato` de Neety. «La reseña, más arriba, entre medias» → el testimonio ilustrado va tras «Lo que ganó Neety». «El dithering de Unai, más fino» →
+  `Voces` acepta `cel` (celda del semitono; por defecto 3,5 px); en el caso, 2,4. La tapa de la barra, también sobre la columna fija (al llegar al pie, «‹ Proyectos» se
+  metía bajo el logotipo). Figma de Neety: https://www.figma.com/design/WW83KZiCeZqvFgtR1UhRjw/Neety-Web (nodos 1-2 y 3-17; sin leer: el conector no estaba).
+  Vídeos: Eric grabará escritorio y móvil para usar la mesa de escritorio y la del móvil. `astro check` 0 errores (464 archivos).
+- **Figma de Neety leído (conector remoto de Figma, autorizado por Eric).** Archivo `WW83KZiCeZqvFgtR1UhRjw`, páginas: Cover · Web Structure (sitemap actual, fase 1 y fase 2;
+  wireframes «Structure 1.0» de cada página) · Web Look&Feel (conceptos 1.0 a 5.0 con variantes) · Web Screens & Development · Library (color, texto escritorio/móvil,
+  espaciado, radios, sombras, botones, marca, favicon, Open Graph, gradientes). Capturas en `tools/neety-figma/` (portada, library, sitemap, estructura de la home,
+  conceptos 1, 2 y 3). Variables: Berenjena #431b44 · Ciruela #2a0e2c · Naranja Core #fe8238 · Azúl bebe #a7c5f9 · Mint claro #ebfff6 · Base cálida #f8f7ec ·
+  Gris Tecnológico #f5f7f9; Bricolage Grotesque (H1 XL 96 → H6 16), Switzer (cuerpo 24/20/16/14/12), Roboto Mono (detalles). Coinciden con lo que ya tiene el caso.
+
+- **28/10 · Portfolio (Eric: «en proyectos esta raya aquí sobra»).** Fuera la fila de los carriles (línea de lado a lado + cruces) sobre los filtros de
+  `/proyectos`: la sección `.todos` pasa de `data-carril-sin-cruces-movil` a `data-sin-fila`, en todos los tamaños.
+
+- **28/10 · lectura del caso a dos columnas (Eric: «la forma de lectura es bastante pobre… tiene que ser como Collins, más organizada respetando columnas sin ser obvia»).**
+  `Caso.astro`: los bloques de texto (`.rej.par`: el proyecto, el reto, lo que ganó, cómo la construimos, apartados, por dentro, conclusión, cita sin retrato) y las
+  cabeceras de los bloques visuales (`.sis-cab`, `.det-cab`) van a dos columnas desde 48rem, en la MISMA retícula que las imágenes (12 col., hueco 24: título 1–6, texto 7–12, donde arranca la
+  segunda pieza de cada par; Eric: «el subtítulo no se corta verticalmente con el vídeo de abajo»), alineados por la línea base; todo el texto arranca en la
+  misma vertical, en UNA columna de lectura (fuera los párrafos y puntos lado a lado). En móvil, apilado como antes.
+- **A media ronda (Eric): «una sección de cómo pasamos del diseño a la animación»**: el feed del hero, dibujado a mano en Figma (Neety Web, nodo 14340-3494) y cómo se llevó a la web
+  con desarrollo agéntico sobre el degradado granulado; el vídeo (Screen Studio CUcZjwvM) pasa a inglés tras la primera vuelta, para enseñar que traducirla es cambiar textos.
+  → campo `animacion` en `Proyecto` (ES y EN) y bloque «Del diseño a la animación» en `Caso.astro`, tras «Cómo la construimos»: dos columnas con la proporción del vídeo.
+  Izquierda, el lienzo (lavanda de Neety, `colores[0]`) con las siete tarjetas apiladas como en el frame (`anim-figma.webp`), que lo recorre despacio arriba y abajo (26 s;
+  se para al pasar; quieto con movimiento reducido). Derecha, `anim-web.mp4` (1080 × 1004, 36,9 s, 4 MB, a la vista con `data-ej`). Del vídeo se quitan 24,75–26,8 s: la
+  cámara se alejaba y asomaban la ventana y una barra negra (justo en el cambio de idioma, que queda como corte). OJO: las tarjetas de Figma salen del conector a 1× (408 px
+  de ancho) y en pantallas retina se ven blandas: falta un export a 2× o 3× del frame. Medido (Chromium 1440 y 390, DPR 2): vídeo cargado y en marcha, consola limpia; `astro check` 0 errores.
+- **«Del Figma a la web» (Eric: «dale»):** bloque nuevo tras «Cómo la construimos» (campo `figma`: filas `ancha` o `trio`, título y pie; ES y EN). Cuatro piezas de su
+  archivo: sitemap · estructura de la home + conceptos 1.2 y 3.0 · el sistema (botones, marca, favicon, Open Graph) · los siete gradientes →
+  `public/media/obra/neety/figma-*.webp` (412 KB en total; originales en `tools/neety-figma/hd-*.png`). Medido en Chrome a 1440 y 390: sin errores, 0 respuestas ≥ 400, desborde 0.
+- **28/10 · Caso de Neety, «Del diseño a la animación» (Eric).** En Figma, una IMAGEN del marco de Figma entero («Animated Illustration_Full», captura de Eric →
+  `anim-figma.webp`, 548×1594) y en la web el vídeo del feed de los detalles (`x-feed`, «estaba mejor»; `anim-web.*` queda sin uso). Las dos con el formato de los
+  detalles: `Medio` con placa (carátula con el degradado de marca + ventana de cristal), huecos de 4:5. Fuera el lienzo que recorría la pieza.
+  · Después (Eric: «la foto que sea esta», «animación vertical arriba y abajo smooth, para que no ocupe tanto»): `anim-figma.webp` = la captura sin selección
+    (710×1676, con el lienzo gris de Figma); huecos de vuelta a 4:3; el de Figma es una ventana fija (50 cqw × 82 cqh) y el marco sube y baja dentro
+    (16 s, `cubic-bezier(0.65, 0, 0.35, 1)`, alterno, pausa arriba y abajo; se para al pasar el cursor; quieto con movimiento reducido).
+  · Luego: `anim-figma.webp` = solo las tarjetas, con fondo TRANSPARENTE (PNG de Eric, 675×2000): entre ellas se ve el cristal y el degradado de la carátula.
+  · Y al final (Eric: «quedaba mejor la foto en vertical al principio»): vuelve la captura con el lienzo gris de Figma y el rótulo «Animated Illustration_Full»
+    (596×1426), sin selección; sigue la ventana que sube y baja.
+  · Y Eric: «entero a la vista, sí»: fuera la ventana que subía y bajaba; huecos de 4:5 y el marco de Figma entero y quieto en la carátula.
+  · Captura nueva con menos aire alrededor (508×1366).
+  · Copy (Eric: «es importante decir que así se puede cambiar fácil los textos, traducir, logos, imágenes»): el texto de la sección dice que el feed está
+    construido en código (componente React `SignalFeed.tsx` con GSAP; textos en `copy({es,en})`, logotipos y fotos como archivos), no en vídeo ni animación
+    exportada, y que cambiar el contenido no toca la animación. El pie de «En la web» pierde la frase del idioma (ya va en el texto). ES y EN.
+- **28/10 · Carátula de los casos en la MESA (Eric: «de primeras, el mockup mesa chulo, como el del slider de proyectos»).** La portada de escritorio va en el
+  monitor de la lámina del estudio, en la estación de la web (srcset `-m` / base / `-xl`, fijado en línea antes de pedirla; sigue a `savvia:estacion`), ampliada ×2,5 como
+  el visor; 11:5 (4:3 en móvil); la grabación grande (`cubierta`) corre a la vista. Las portadas móviles siguen en su teléfono (Pieza). Se pierde la transición
+  compartida tarjeta → carátula en escritorio.
+  · Eric: «la línea sobrante vertical»: era el larguero negro de la ventana de la lámina, pegado al borde. Ampliación ×2,5 → ×3,3 (los largueros quedan
+    fuera) y carátula 11:5 → 2:1 para que el monitor respire.
+  · Eric: «esta raya no tiene que subir, se queda en el vértice»: la línea entre columnas (filo izquierdo de `.contenido`) ya no sube junto a la barra del
+    caso: la barra la tapa con una sombra de su fondo (`box-shadow` −33 px); arranca en la línea de debajo. Solo escritorio; fuera en modo foco.
+  · Eric: «Proyectos, quitamos de aquí; ya se nos ocurrirá algo»: fuera el enlace «‹ Proyectos» de la cabecera de la columna; la cabecera queda vacía (alto y línea).
+
+- **28/10 · Microanimaciones en el caso de Neety (Eric: «otra sección a recalcar sobre las microanimaciones: cómo se nos permite microanimar en código todo»;
+  Screen Studio RCpQOObj).** Grabación de «Cómo funciona» (2144 × 1080, 4,6 s, 60 fps; recortado 2 px por lado, el filo gris) → `public/media/obra/neety/micro-rail.{mp4,jpg}`
+  a 1600 × 804, 60 fps (para que la microanimación no pierda suavidad), crf 24, sin audio, 200 KB; póster = el último fotograma (los tres pasos encendidos).
+  Campo nuevo `micro` en `Proyecto` (ES y EN) y bloque en `Caso.astro` tras «Del diseño a la animación»: cabecera a dos columnas y la pieza a lo ancho, con el formato
+  de las piezas anchas de «Los detalles» (`.fila.f-ancha` › `Medio` con placa `colores[0]`, la lavanda de las otras dos; 16:9).
+- **28/10 · Carátula del caso: mesa · móvil (Eric: «tiene que verse así [la mesa] y también la vista de mobile, que hay switcher»).** Con `cubiertaMovil` (campo nuevo;
+  hoy Neety, `neety-com-movil.mp4`), la carátula lleva también el MÓVIL de la mesa de /proyectos (lámina `mesa-movil` de la estación, homografía y máscaras; el cálculo,
+  sacado a `src/lib/mesa-movil.ts`, el mismo de `PiezaCasa.astro › quad()`) y la cápsula de escena de /proyectos arriba a la izquierda (mesa · móvil; llega en la
+  mesa; la nueva entra enfocándose; solo suena la grabación de la escena visible; la lámina del móvil se pide al elegirlo). «Menos zoom, más aire» y «el móvil más
+  centrado»: carátula a 16:9 (era 2:1), monitor ×2,9 (era 3,3), móvil ×1,4 (el teléfono está al 64 % de la foto: por debajo de ×1,4 el filo no deja centrarlo).
+  Medido (Chromium 1280 y 390, DPR 2): móvil centrado (50 %), 9 % de aire arriba y abajo en escritorio y 15 % en móvil; sin errores de consola.
+  · Eric: «quitamos la raya horizontal; el sticky queda ahí, pero el contenido sube hasta arriba»: en escritorio y fuera de modo foco, la barra del caso ya
+    no se pega ni tapa (sin línea, tapa ni desvanecido; solo guarda el alto). La columna fija sigue igual; el contenido sube hasta el borde de la ventana y la
+    línea entre columnas va de arriba abajo. Ojo: al subir, el texto pasa por debajo de los iconos de la barra del menú (sin fondo).
+- **28/10 · ÍNDICE del caso (Eric: «un mini menú para ir a cada sección, minimalista y funcional»).** En la columna fija, bajo la ficha (`[data-indice]`):
+  se hace al cargar con los h2 del contenido; apagado al 42 %, la sección activa (la última cuyo titular pasó el 35 % de la ventana) en el color del texto
+  con una raya de 8 px que la empuja; clic = scroll suave al titular (`scroll-margin-top` 80 px) y reajuste al pararse si lo que carga movió la página. Si no
+  cabe, la lista se desliza sola para tener la activa a la vista (bordes fundidos). Solo escritorio, fuera de modo foco. Estilos de los enlaces en `:global`
+  (los crea el JS: el ámbito de Astro no les llega).
+- **28/10 · Orden del caso (Eric: «después de la reseña, primero Del Figma a la web; quitaremos el sitemap»).** «Del Figma a la web» sube justo tras la
+  reseña (antes de «Del diseño a la animación»); fuera «La estructura» (sitemap) en ES y EN: empieza por «Del esqueleto al concepto».
+- **28/10 · Fuera el índice del caso (Eric: «quitamos»).** El mini menú de secciones de la columna fija (`nav.indice`, su script y su CSS) sale de `Caso.astro`.
+- **28/10 · «Del Figma a la web», el recorrido (Eric: «empezar por las variantes, pero también look and feel, descartes y luego la home/responsive»).** Orden:
+  esqueleto y conceptos · look and feel (`figma-look.webp`, lámina vertical `fg-alta`, 34 rem) · descartes (`figma-descartes.webp`) · la home en escritorio y móvil
+  (`figma-home.webp`) · la librería (`figma-libreria.webp`, sustituye a «El sistema») · los gradientes. De las capturas de Eric: fuera las cabeceras oscuras con
+  «treseiscero», tapado «treseiscero» en los rótulos de cada concepto y fuera la barra de herramientas de Figma. ES y EN.
+- **28/10 · Color y Tipografía suben (Eric: «color, tipografía habrá que subirlo»)** justo tras «Del Figma a la web». Y el texto de Tipografía ya no dice
+  «neety.treseiscero.app» (regla: treseiscero en ningún sitio): «Medido en la web entregada, a 1440 px» (ES y EN).
