@@ -11,13 +11,14 @@ import { langDe } from '../lib/i18n';
 // RONDA 307, 26.ª · también vale para un testimonio que no está en la lista (`dato`): el del final de cada caso de estudio
 type Dato = { n: string; r: string; retrato: string; q: string };
 // 28/10 · `cel`: el tamaño de la celda del semitono en px (Eric: «el de Unai, más fino»); por defecto, el de siempre
-interface Props { k?: number; dato?: Dato; cel?: number }
-const { k = 0, dato, cel = 3.5 } = Astro.props;
+// 28/10 · `escala`: cuánto crece el retrato en escritorio (Eric: «Unai, un pelín más grande»); por defecto, 1
+interface Props { k?: number; dato?: Dato; cel?: number; escala?: number }
+const { k = 0, dato, cel = 3.5, escala = 1 } = Astro.props;
 const lang = langDe(Astro.currentLocale), en = lang === 'en';
 const t: Dato = dato ?? home(lang).proyectos.testimonios[k];
 ---
 
-<figure class="voz" data-voces data-cel={cel}>
+<figure class="voz" data-voces data-cel={cel} style={escala !== 1 ? `--escala:${escala}` : undefined}>
   <div class="retratos" aria-hidden="true">
     <img class="fuente-r" src={t.retrato} alt="" width="800" height="800" loading="lazy" decoding="async" data-retrato />
     <canvas class="retrato-cv" data-rc></canvas>
@@ -176,7 +177,7 @@ const t: Dato = dato ?? home(lang).proyectos.testimonios[k];
   @media (width < 64rem) { .quien { margin-top: calc(var(--spacing) * 4); } }
   @media (width >= 64rem) {
     .voz { grid-template-columns: 5fr 7fr; gap: calc(var(--spacing) * 16); }
-    .retratos { width: 100%; }
+    .retratos { width: 100%; scale: var(--escala, 1); }
   }
   @media (prefers-reduced-motion: reduce) {
     .retrato-cv, .quien > *, .vq :global(.w > span) { transition: none !important; }

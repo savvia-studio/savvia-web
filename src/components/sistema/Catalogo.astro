@@ -5,7 +5,7 @@
 // public/media/sistema/catalogo/<id>.webp (1200 × 750, 16:10). Si se añade una pieza: una línea en PIEZAS del script y otra aquí.
 // Lo que dice cada tarjeta sale de leer el componente (sus imports de src/data y sus medios en public/media), no de memoria.
 
-type Pieza = { id: string; nombre: string; archivo: string; que: string; de: string; video?: boolean }; // video: grabado en las cuatro estaciones (tools/r266-motion/grabar.cjs)
+type Pieza = { id: string; nombre: string; archivo: string; que: string; de: string; video?: boolean; fotos?: boolean }; // fotos: una por estación, <id>-<estación>.webp // video: grabado en las cuatro estaciones (tools/r266-motion/grabar.cjs)
 type Grupo = { pagina: string; ruta: string; piezas: Pieza[] };
 
 // 28/10 · Andoni: «revisar todos los componentes y secciones para que concuerden con la web actual». Reescrito contra el código de hoy (Inicio.astro y
@@ -26,7 +26,8 @@ const GRUPOS: Grupo[] = [
       { id: 'inicio-servicios', nombre: 'Servicios', archivo: 'src/components/Servicios.astro', que: 'Las tres formas de trabajar contigo; al elegir una, un cursor marca en la tarjeta los puntos que incluye.', de: 'src/data/home.ts › servicios (lista y grupos).' },
       { id: 'inicio-estudio', nombre: 'Eric y Andoni', archivo: 'src/components/Estudio.astro', que: 'Los dos, de pie y juntos; al pasar por cada uno le salen de la cabeza, grandes, sus tres aficiones dibujadas a tinta. La única sección en primera persona.', de: 'src/data/home.ts › estudio, src/data/ilustraciones-equipo.ts, poses en public/media/equipo/.' },
       { id: 'inicio-preguntas', nombre: 'Preguntas', archivo: 'src/components/Preguntas.astro', que: 'Las preguntas frecuentes como una conversación: sugerencias y pregunta libre, que contestan Eric y Andoni.', de: 'src/data/home.ts › preguntas.' },
-      { id: 'inicio-pie', video: true, nombre: 'Pie', archivo: 'src/components/Pie.astro', que: 'El paisaje de la estación se dibuja tras la gota del logotipo; «Contáctanos» queda entre las montañas y se abre al pasar.', de: 'src/data/home.ts › pie y nav, capas en public/media/pie/. Es el mismo en todas las páginas.' },
+      // 28/10 · Eric: «en foto el estado final de cada estación» (el vídeo cortaba los enlaces): cuatro fotos, la ventana entera
+      { id: 'inicio-pie', fotos: true, nombre: 'Pie', archivo: 'src/components/Pie.astro', que: 'El paisaje de la estación se dibuja tras la gota del logotipo; «Contáctanos» queda entre las montañas y se abre al pasar.', de: 'src/data/home.ts › pie y nav, capas en public/media/pie/. Es el mismo en todas las páginas.' },
     ],
   },
   {
@@ -136,7 +137,14 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
         <ul class="cat-rej">
           {g.piezas.map(L).map((p) => (
             <li class="cat-tarjeta">
-              {p.video ? (
+              {p.fotos ? (
+                <figure class="cat-vid" data-cat-fotos={p.id}>
+                  <img class="cat-mini" src={`/media/sistema/catalogo/${p.id}-otono.webp`} alt={en ? `Screenshot of ${p.nombre}` : `Captura de ${p.nombre}`} width="1200" height="750" loading="lazy" decoding="async" data-cat-v />
+                  <div class="cat-est" role="radiogroup" aria-label={en ? `See ${p.nombre} in` : `Ver ${p.nombre} en`}>
+                    {ESTS.map(([e, n], k) => <button type="button" role="radio" aria-checked={k === 0 ? 'true' : 'false'} data-cat-est={e}>{en ? ESTS_EN[e] : n}</button>)}
+                  </div>
+                </figure>
+              ) : p.video ? (
                 <figure class="cat-vid" data-cat-vid={VID[p.id]}>
                   <video class="cat-mini" src={`/media/sistema/catalogo/video/${VID[p.id]}-otono.mp4`} poster={`/media/sistema/catalogo/video/${VID[p.id]}-otono.jpg`} muted loop playsinline preload="none" aria-label={en ? `${p.nombre}, in motion` : `${p.nombre}, en movimiento`} data-cat-v></video>
                   <div class="cat-est" role="radiogroup" aria-label={en ? `See ${p.nombre} in` : `Ver ${p.nombre} en`}>
@@ -161,6 +169,16 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
 </section>
 
 <script>
+  const ESTS = ['otono', 'invierno', 'primavera', 'verano'];
+  // las piezas en foto por estación: los botones cambian la foto (se piden las cuatro al verse, para que el cambio no parpadee)
+  document.querySelectorAll<HTMLElement>('[data-cat-fotos]').forEach((fig) => {
+    const im = fig.querySelector<HTMLImageElement>('[data-cat-v]')!, base = fig.dataset.catFotos!;
+    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { ESTS.forEach((x) => (new Image().src = `/media/sistema/catalogo/${base}-${x}.webp`)); o.disconnect(); } }).observe(fig);
+    fig.querySelectorAll<HTMLButtonElement>('[data-cat-est]').forEach((b) => b.addEventListener('click', () => {
+      fig.querySelectorAll('[data-cat-est]').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+      im.src = `/media/sistema/catalogo/${base}-${b.dataset.catEst}.webp`;
+    }));
+  });
   // 28/10 · el pie y el 404 en movimiento: suenan (mudos) solo a la vista; cuatro botones los pasan por las estaciones sin cambiar la de la página
   {
     const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -180,11 +198,19 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
 
 <style>
   /* Los valores, los de Libro.astro (sus estilos son de ámbito y no llegan aquí) */
-  .seccion { padding-top: calc(var(--spacing) * 24); margin-top: calc(var(--spacing) * 24); border-top: 1px solid var(--rule); scroll-margin-top: calc(var(--spacing) * 20); }
+  .seccion { margin-top: calc(var(--spacing) * 32); scroll-margin-top: calc(var(--spacing) * 20); } /* 28/10 · sin raya, como en Libro.astro */
+  /* 28/10 · como el resto del storybook (Libro.astro, retícula de Neety): título pequeño en 1–6, la entradilla desde la 7; las páginas, títulos pequeños */
+  #h-catalogo, .cat-pag { font-family: var(--font-sans, inherit) !important; font-size: 1.125rem !important; font-weight: 500; line-height: 1.3 !important; letter-spacing: 0; }
+  @media (width >= 48rem) {
+    .seccion { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); align-items: baseline; }
+    .seccion > * { grid-column: 1 / -1; min-width: 0; }
+    #h-catalogo { grid-column: 1 / span 6; grid-row: 1; }
+    .seccion > .cat-intro { grid-column: 7 / -1; margin-top: 0; max-width: none; font-size: 1rem; }
+  }
   .cat-intro { margin-top: calc(var(--spacing) * 4); max-width: 60ch; font-size: var(--text-body); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
   .cat-grupo { margin-top: calc(var(--spacing) * 16); }
   .cat-grupo:first-of-type { margin-top: calc(var(--spacing) * 12); }
-  .cat-pag { display: flex; align-items: baseline; gap: calc(var(--spacing) * 3); padding-bottom: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); font-family: var(--font-display); font-size: var(--text-h3); line-height: var(--text-h3--line-height); font-weight: 400; }
+  .cat-pag { display: flex; align-items: baseline; gap: calc(var(--spacing) * 3); padding-bottom: 0; /* 28/10 · sin raya (Eric: «muchísima raya horizontal») */ font-family: var(--font-display); font-size: var(--text-h3); line-height: var(--text-h3--line-height); font-weight: 400; }
   .cat-ruta { color: var(--fg2); text-decoration: none; }
   .cat-ruta:hover { color: var(--fg); }
   .cat-rej { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 12) calc(var(--spacing) * 6); margin: calc(var(--spacing) * 8) 0 0; padding: 0; list-style: none; }

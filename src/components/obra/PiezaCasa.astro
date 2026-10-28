@@ -24,6 +24,7 @@ const en = Astro.currentLocale === 'en';
 const fuera = /^https?:/.test(o.href);
 // 27/10 · Eric: «clico aquí [Stellar] y me hace scroll up»: sin dominio todavía, el enlace era «#» y subía la página. Sin web, el clic abre el visor igual
 const sinWeb = o.href === '#';
+const caso = !fuera && !sinWeb; // 28/10 · Eric: lleva a su caso de estudio: al pasar, en vez de la lupa, una FLECHA en la misma cápsula (solo icono)
 // el fondo de su web, claro u oscuro: decide el cristal del navegador y la tinta
 const claro = (hex: string) => { const [r, g, b] = [1, 3, 5].map((k) => parseInt(hex.slice(k, k + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5; };
 const esClaro = claro(o.colores[0]);
@@ -83,6 +84,7 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
   data-claro={esClaro ? '' : undefined}
   data-con-movil={enMovil ? '' : undefined}
   data-abre-visor={fuera || sinWeb ? '' : undefined}
+  data-caso={caso ? '' : undefined}
   style={`--i:${(i % 3) + 1};--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]}`}
 >
   <div class="lamina g-marca">
@@ -102,6 +104,7 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
       </>
     )}
     {(o.video || o.videoMovil) && <span class="vid-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="6.6" width="12.6" height="10.8" rx="2.4" /><path d="M15.4 10.4l5.2-3v9.2l-5.2-3z" /></svg></span>}
+    {caso && <span class="abre-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>}
     {(fuera || sinWeb) && <span class="abre-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.4 15.4 20 20M8 10.5h5M10.5 8v5" /></svg></span>}
   </div>
   <div class="pie pie-pieza mt-4">
@@ -302,8 +305,13 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
   .abre-ic svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); }
   @media (hover: hover) and (width >= 48rem) {
     .pieza:hover .abre-ic, .pieza:focus-visible .abre-ic { opacity: 1; scale: 1; filter: none; }
-    .pieza[data-abre-visor]:hover .vid-ic, .pieza[data-abre-visor]:focus-visible .vid-ic { opacity: 0; filter: blur(4px); }
+    .pieza:is([data-abre-visor], [data-caso]):hover .vid-ic, .pieza:is([data-abre-visor], [data-caso]):focus-visible .vid-ic { opacity: 0; filter: blur(4px); }
   }
+  /* 28/10 · Eric: «¿y un usuario sin hover?» · «en este estado algo tiene que haber que incite el clic, sutil»: con caso, la FLECHA ocupa SIEMPRE el sitio de la
+     cámara (en reposo, en táctil y al pasar, cuando crece un pelo como la cámara); las demás siguen con cámara y lupa */
+  .pieza[data-caso] .vid-ic { display: none; }
+  .pieza[data-caso] .abre-ic { opacity: 1; scale: 1; filter: none; }
+  @media (hover: hover) { .pieza[data-caso]:is(:hover, :focus-visible) .abre-ic { scale: 1.06; } }
   /* ── el pie: nombre a la izquierda y sector a la derecha */
   .pie-pieza { display: flex; align-items: baseline; justify-content: space-between; gap: calc(var(--spacing) * 4); flex-wrap: wrap; }
   .nombre-pie { font-size: clamp(1.25rem, 1rem + 0.6vw, 1.625rem); line-height: 1.15; letter-spacing: -0.01em; color: var(--fg); }

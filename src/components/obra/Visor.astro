@@ -6,6 +6,8 @@
 import sharp from 'sharp';
 import { flecha } from '../../lib/flecha';
 import { icono } from '../../lib/iconos';
+import { CASOS_LISTOS } from '../../lib/lanzamiento';
+import { ruta } from '../../lib/i18n';
 export type ObraVisor = { slug: string; nombre: string; sector: string; colores: [string, string, string]; video?: string; poster: string };
 // 27/10 · Eric: «lo mismo en el slider: que el usuario pueda elegir entre elementos visuales» → probado con tres vistas (navegador · mesa · móvil de la mesa) y una
 // cápsula; después: «quitamos el móvil, se ve mal» y «solo dejamos la mesa». Cada proyecto, en la MESA: la web en el monitor de la lámina del estudio (la de
@@ -34,7 +36,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
     <div class="vis-panel" data-vis-panel>
       {
         tomas.map((o) => (
-          <article class="vis-slide" data-vis-slide data-slug={o.slug} data-n={o.nombre} data-sector={o.sector} aria-hidden="true" style={`--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]};--vf:${claro(o.colores[0]) ? '#f6f7fb' : '#000'}`}>
+          <article class="vis-slide" data-vis-slide data-slug={o.slug} data-caso={CASOS_LISTOS.includes(o.slug) ? ruta(en ? 'en' : 'es', `/proyectos/${o.slug}`) : undefined} data-n={o.nombre} data-sector={o.sector} aria-hidden="true" style={`--c1:${o.colores[0]};--c2:${o.colores[1]};--c3:${o.colores[2]};--vf:${claro(o.colores[0]) ? '#f6f7fb' : '#000'}`}>
             <div class="vis-mesa" style={`--z:${ZV};--px:${PANT.x + PANT.w / 2};--py:${PANT.y + PANT.h / 2}`}>
               <img class="vis-foto" data-mesa="/media/estudio/{est}-xl.webp" alt="" width="5120" height="2880" decoding="async" />
               <span class="vis-pant">
@@ -53,6 +55,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
       <div class="vis-quien" data-vis-quien>
         <h3 class="vis-nombre font-display" data-vis-nombre></h3>
         <p class="detail vis-sector" data-vis-sector></p>
+        <a class="btn-secondary btn-sm vis-caso" href="#" hidden data-vis-caso><span class="btn-tx">{en ? 'View case study' : 'Ver caso de estudio'}</span><Fragment set:html={flecha()} /></a>
       </div>
       <div class="vis-acciones">
         <div class="barra-cristal" role="group" aria-label={en ? 'Projects' : 'Proyectos'}>
@@ -70,6 +73,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
   if (vis) {
     const slides = [...vis.querySelectorAll<HTMLElement>('[data-vis-slide]')];
     const porSlug = new Map(slides.map((s) => [s.dataset.slug!, s]));
+    const verCaso = vis.querySelector<HTMLAnchorElement>('[data-vis-caso]');
     const quien = vis.querySelector<HTMLElement>('[data-vis-quien]')!, nombre = vis.querySelector<HTMLElement>('[data-vis-nombre]')!, sector = vis.querySelector<HTMLElement>('[data-vis-sector]')!;
     const panel = vis.querySelector<HTMLElement>('[data-vis-panel]')!, caja = vis.querySelector<HTMLElement>('[data-vis-caja]')!;
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -111,6 +115,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
       });
       vecinos.forEach(carga);
       nombre.textContent = on.dataset.n ?? ''; sector.textContent = on.dataset.sector ?? '';
+      if (verCaso) { verCaso.hidden = !on.dataset.caso; if (on.dataset.caso) verCaso.href = on.dataset.caso; } // Eric: «aquí poner Ver caso de estudio»: solo si tiene caso
       if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
     };
     // RONDA 280 · caja y lámina en píxeles ENTEROS
@@ -129,7 +134,8 @@ const tomas = await Promise.all(obras.map(async (o) => {
     addEventListener('resize', ajusta);
     const abre = (pz: HTMLElement) => {
       if (vis.open) return;
-      orden = [...document.querySelectorAll<HTMLElement>('[data-abre-visor]')].filter((p) => !p.closest('[hidden]')).map((p) => porSlug.get(p.dataset.slug!)).filter(Boolean) as HTMLElement[];
+      // 28/10 · Eric: «que aparezca Neety» en el slider: también recorre las piezas con caso (el clic en ellas sigue llevando al caso; aquí, «Ver caso de estudio»)
+      orden = [...document.querySelectorAll<HTMLElement>('[data-abre-visor], [data-pieza-casa][data-caso]')].filter((p) => !p.closest('[hidden]')).map((p) => porSlug.get(p.dataset.slug!)).filter(Boolean) as HTMLElement[];
       const i = orden.indexOf(porSlug.get(pz.dataset.slug!)!);
       if (i < 0) return;
       vuelta = document.activeElement as HTMLElement | null;
@@ -154,7 +160,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
     document.addEventListener('click', (e) => {
       const pz = (e.target as HTMLElement).closest<HTMLElement>('[data-abre-visor]');
       if (!pz || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web
-      if (matchMedia('(hover: none), (width < 48rem)').matches) { if (pz.getAttribute('href') === '#') e.preventDefault(); return; } // RONDA 268 · en móvil no hay visor: el toque va a la web (sin web, nada: «#» subía la página)
+      // 28/10 · Eric: «en mobile clico y me va a la URL de la web final: eso NUNCA; tiene que abrir el slider»: también en móvil, el visor (antes, ronda 268, iba a la web)
       e.preventDefault(); abre(pz);
     });
     vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));
@@ -259,6 +265,8 @@ const tomas = await Promise.all(obras.map(async (o) => {
   }
   .vis-sector { color: color-mix(in oklab, #f5f5f7 62%, transparent); }
   .vis-acciones { display: flex; align-items: center; gap: calc(var(--spacing) * 6); }
+  .vis-caso { color: #f5f5f7; justify-self: start; margin-top: calc(var(--spacing) * 3); } /* bajo el nombre, a la izquierda (Eric) */
+  .vis-caso[hidden] { display: none; }
   .vis-x {
     position: fixed;
     top: calc(var(--spacing) * 4);
@@ -270,6 +278,12 @@ const tomas = await Promise.all(obras.map(async (o) => {
   .vis-x :global(svg) { width: 1.25rem; height: 1.25rem; }
   .vis[open] .vis-x { animation: vis-velo 0.6s ease 0.2s both; }
   .vis.cierra .vis-x { opacity: 0; transition: opacity 0.2s ease; }
+  @media (width < 48rem) {
+    .vis-caja { --vw: min(100vw - calc(var(--spacing) * 6), (100dvh - calc(var(--spacing) * 44)) * 1.6); }
+    /* 28/10 · Eric: en móvil, «más zoom al escritorio» (el monitor llena casi el panel) y las flechas a la derecha del nombre, en la misma fila */
+    .vis-mesa { --z: 3.6 !important; }
+    .vis-pie { flex-wrap: nowrap; align-items: flex-start; gap: calc(var(--spacing) * 4); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .vis[open]::backdrop, .vis[open] .vis-caja, .vis[open] .vis-x { animation: none; }
     .vis-slide, .vis-slide.on { transition: none; }

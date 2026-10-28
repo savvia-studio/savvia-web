@@ -150,8 +150,8 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? 'Our featured projects since 2020, both no-code and agentic development.' : 'Nuestros proyectos destacados desde 2020, tanto de no-code como desarrollo agéntico.'}</p>
     </header>
 
-    <!-- 28/10 · Eric: «esta raya aquí sobra»: sin la fila de los carriles sobre los filtros (ya llevan su filete); antes, en móvil, solo sin cruces -->
-    <section class="wrap todos" aria-label={en ? 'All projects' : 'Todos los proyectos'} data-todos data-sin-fila>
+    <!-- 27/10 · Eric: en móvil, sin las dos cruces del vértice de la fila de filtros. (28/10 se quitó la fila entera y Eric la echó en falta: vuelve) -->
+    <section class="wrap todos" aria-label={en ? 'All projects' : 'Todos los proyectos'} data-todos data-carril-sin-cruces-movil>
       <!-- RONDA 64 · «dejamos solo el buscador; en el buscador está escrito por defecto "Todos los proyectos": el titular se convierte en el propio
            buscador». El h2 es el campo: en Family, del tamaño de un titular; al escribir, busca. A la derecha, discretos: «Filtros» (se despliegan)
            y el orden de la rejilla (filas de 2 o de 3; ronda 129: fuera el «libre»). -->

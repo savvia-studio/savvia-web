@@ -100,7 +100,7 @@ const RE_MOV = /movimiento|anima|gsap|scrolltrigger|lenis|transici|motion|cae |e
 const movTexto = [...(p.tecnica ?? []), ...p.apartados.flatMap((x) => x.texto)].filter((t) => RE_MOV.test(t)).slice(0, 1).map((t) => (/[.!?»]$/.test(t.trim()) ? t.trim() : t.trim() + '.'));
 // las pistas de la línea de tiempo (inicio y fin en % del recorrido): la forma de la de Dropbox, en los colores de su paleta
 // POR DENTRO · cada herramienta con su icono (Simple Icons, CC0: public/media/iconos/tec/); las que no tienen logotipo, un glifo de línea de la casa
-const TEC: [RegExp, string][] = [[/next/i, 'nextdotjs'], [/tailwind/i, 'tailwindcss'], [/gsap/i, 'greensock'], [/sanity/i, 'sanity'], [/cloudflare/i, 'cloudflare'], [/vercel/i, 'vercel'], [/figma/i, 'figma'], [/webflow/i, 'webflow'], [/notion/i, 'notion'], [/hubspot/i, 'hubspot'], [/react/i, 'react'], [/^css$/i, 'css3'], [/html/i, 'html5']];
+const TEC: [RegExp, string][] = [[/next/i, 'nextdotjs'], [/tailwind/i, 'tailwindcss'], [/gsap/i, 'greensock'], [/sanity/i, 'sanity'], [/cloudflare/i, 'cloudflare'], [/vercel/i, 'vercel'], [/figma/i, 'figma'], [/webflow/i, 'webflow'], [/notion/i, 'notion'], [/hubspot/i, 'hubspot'], [/react/i, 'react'], [/^css$/i, 'css3'], [/html/i, 'html5'], [/github/i, 'github']];
 const GLIFO: [RegExp, string][] = [
   [/lenis|scroll/i, '<path d="M8 3.5v17M8 3.5 5 6.5M8 3.5l3 3M16 20.5v-17M16 20.5l-3-3M16 20.5l3-3"/>'],
   [/canvas/i, '<rect x="3.5" y="5.5" width="17" height="13" rx="1.5"/><path d="M7 15c2-4 4-4 5-2s3 2 5-2"/>'],
@@ -217,7 +217,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
           <!-- Eric (oct.): aquí, lo que hicimos para el cliente (si falta, la entradilla); debajo, la ficha del cliente -->
           <p class="lado-desc">{p.hicimos ?? p.entradilla}</p>
           <dl class="lado-ficha">{fichaLado.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
-          {p.url && <a class="ir-web" href={p.url} target="_blank" rel="noopener">{en ? 'Visit the site' : 'Ver la web'}<Fragment set:html={flecha('fuera')} /></a>}
+          {p.url && <a class="ir-web" href={p.url} target="_blank" rel="noopener">{p.dominio ?? (en ? 'Visit the site' : 'Ver la web')}</a>}
         </div>
         <!-- RONDA 307, 22.ª · abajo, solo anterior y siguiente, con el nombre del proyecto y la flecha de la casa -->
         {masCasos && todos.length > 1 && <nav class="ant-sig" aria-label={en ? 'More case studies' : 'Más casos de estudio'}>
@@ -305,7 +305,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     {/* 28/10 · con la cita del cliente y su retrato, el testimonio ilustrado, ENTRE MEDIAS (Eric: «más arriba»): tras lo que ganó el cliente; sin cita, el marcador va al final */}
     {p.cita?.retrato && (
     <section class="wrap bloque testimonio-final" aria-label={en ? 'What the client says' : 'Lo que dice el cliente'}>
-      <Voces dato={{ n: p.cita.autor, r: p.cita.rol, retrato: p.cita.retrato, q: p.cita.texto }} cel={2.4} />
+      <Voces dato={{ n: p.cita.autor, r: p.cita.rol, retrato: p.cita.retrato, q: p.cita.texto }} cel={2.4} escala={1.2} />
     </section>
     )}
 
@@ -341,7 +341,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
         <section class="wrap bloque sis-bloque" aria-labelledby="color-h">
           <div class="sis-cab">
             <h2 id="color-h" class="t-enc">{en ? 'Colour' : 'Color'}</h2>
-            <p class="t-texto text-fg2 sis-entra">{en ? `The palette of ${p.nombre}, by how much it is used on the delivered site. Hover over a colour.` : `La paleta de ${p.nombre}, por lo que se usa en la web entregada. Pasa por encima de cada color.`}</p>
+            <p class="t-texto text-fg2 sis-entra">{en ? `The palette of ${p.nombre}, by how much it is used on the delivered site.` : `La paleta de ${p.nombre}, por lo que se usa en la web entregada.`} <span class="solo-puntero">{en ? 'Hover over a colour.' : 'Pasa por encima de cada color.'}</span></p>
           </div>
           <!-- la PALETA de brand.dropbox.com/color, medida en su página: cada color es un panel de cuatro columnas que pisa al anterior y deja ver una;
                al pasar, el panel bajo el puntero SUBE la mitad de su alto y se ladea (−0,03° por cada 1 % que sube), los de su izquierda suben menos
@@ -382,7 +382,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
                 {(p.escala ?? []).map((e) => (
                   <li>
                     <span class="t-ojo tf-n">{NESC_V[e.n] ?? e.n}</span>
-                    <span class="tf-m" style={`--ch:${fraseEsc(e.n).length};font-family:${FUENTE[e.fam]};font-size:${tamEsc(e.px)}px;font-weight:${e.peso};letter-spacing:${lsCss(e.ls)};${/may|upper/.test(e.ls ?? '') ? 'text-transform:uppercase;' : ''}`}>{fraseEsc(e.n)}</span>
+                    <span class="tf-m" data-corta={fraseEsc(e.n).length <= 24 ? '' : undefined} style={`--ch:${fraseEsc(e.n).length};font-family:${FUENTE[e.fam]};--fs:${tamEsc(e.px)}px;font-size:${tamEsc(e.px)}px;font-weight:${e.peso};letter-spacing:${lsCss(e.ls)};${/may|upper/.test(e.ls ?? '') ? 'text-transform:uppercase;' : ''}`}>{fraseEsc(e.n)}</span>
                     <span class="t-ojo tf-d">{e.movil && e.movil !== e.px ? `${e.movil} → ${e.px}` : e.px} px</span>
                   </li>
                 ))}
@@ -769,7 +769,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       <h2 id="dentro-h" class="t-enc enc">{en ? 'Under the hood' : 'Por dentro'}</h2>
       <div class="c2">
         {p.stack && p.stack.length > 0 && (<><p class="t-ojo sub">{en ? 'Tools' : 'Herramientas'}</p><ul class="lista herramientas">{p.stack.map((t) => <li class="t-texto"><span class="h-ic" aria-hidden="true" set:html={icoTec(t)} />{t}</li>)}</ul></>)}
-        {p.tecnica && (<><p class="t-ojo sub">{en ? 'How it is built' : 'Cómo está hecha'}</p><ul class="lista">{p.tecnica.map((t) => <li class="t-texto">{t}</li>)}</ul></>)}
       </div>
       <div class="c3">
         {cifras.length > 0 && (<><p class="t-ojo sub">{en ? 'In numbers' : 'En cifras'}</p><ul class="lista">{cifras.map((t) => <li class="t-texto">{t}</li>)}</ul></>)}
@@ -1406,7 +1405,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     grid-template-columns: repeat(calc(var(--n) + 3), minmax(0, 1fr));
     height: calc(var(--alto) * 0.42);
     margin-top: calc(var(--alto) * 0.62 + var(--spacing) * 6); /* lo que sube el panel (la mitad de su alto) no pisa la cabecera */
-    clip-path: inset(-300% 0 0 0);
+    clip-path: inset(-300% 0 0 -1.5rem); /* a la izquierda, margen para el giro del primer panel (si no, se le corta el canto) */
     border-bottom: 1px solid var(--rule);
   }
   .tono {
@@ -1427,12 +1426,12 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .tono.arriba .tono-info { opacity: 1; }
   .tn { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.2; white-space: nowrap; }
   .tv { font-size: var(--text-aux); font-variant-numeric: tabular-nums; opacity: 0.8; white-space: nowrap; }
-  @media (hover: none) { .tono-info { opacity: 1; } .tono:not(:last-child) .tv { display: none; } }
+  @media (hover: none) { .solo-puntero { display: none; } .tono-info { display: none; } }
   /* TIPOGRAFÍA (brand.dropbox.com/typography): cartas en colores de su paleta con la muestra y su rótulo en píldora; la primera, grande */
   /* 28/10 · la tipografía como el storybook (sistema/Libro.astro): cartas Aa con su fuente y la escala medida */
-  .tf-fams { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: calc(var(--spacing) * 6); }
-  .tf-fam { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; margin: 0; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1px var(--rule); }
-  .tf-aa { font-size: clamp(3rem, 1.5rem + 3.5vw, 4.5rem); line-height: 1; translate: 0 -12%; }
+  .tf-fams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); }
+  .tf-fam { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; margin: 0; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1px var(--rule); container-type: inline-size; }
+  .tf-aa { font-size: clamp(3rem, 26cqi, 9rem); /* Eric: «las cards se quedan muy grandes para la Aa»: sigue al ancho de la carta */ line-height: 1; translate: 0 -12%; }
   .tf-fam figcaption { position: absolute; left: calc(var(--spacing) * 4); right: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); display: flex; flex-direction: column; gap: 2px; }
   .tf-fam b { font-weight: 500; }
   .tf-fam .t-ojo { color: var(--fg2); }
@@ -1441,6 +1440,17 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   /* una fila por tamaño: nombre y medida arriba, la muestra debajo a todo el ancho y en una línea (si no cabe a su tamaño, baja lo justo) */
   .tf-escala li { display: grid; grid-template-columns: calc(var(--spacing) * 20) minmax(0, 1fr) auto; align-items: baseline; gap: calc(var(--spacing) * 4); padding-block: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); }
   .tf-escala .tf-m { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* 28/10 · responsive: en móvil la muestra se quedaba en «A qui…» entre el nombre y la medida; ahora va debajo, a todo el ancho, y encoge lo justo
+     para caber entera (--ch = letras de la frase; 0,56 em por letra, de sobra para Bricolage); las frases largas de texto, a su tamaño y en dos líneas */
+  @media (width < 48rem) {
+    .tf-fams { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 3); }
+    .tf-fam { aspect-ratio: auto; place-items: stretch; gap: calc(var(--spacing) * 6); padding: calc(var(--spacing) * 8) calc(var(--spacing) * 3) calc(var(--spacing) * 3); }
+    .tf-aa { font-size: 2.5rem; translate: none; text-align: center; }
+    .tf-fam figcaption { position: static; align-self: end; }
+    .tf-escala li { grid-template-columns: minmax(0, 1fr) auto; row-gap: calc(var(--spacing) * 1); }
+    .tf-escala .tf-m { grid-column: 1 / -1; grid-row: 2; white-space: normal; }
+    .tf-escala .tf-m[data-corta] { white-space: nowrap; font-size: min(var(--fs), 100cqi / (var(--ch) * 0.56)) !important; }
+  }
   .tf-n, .tf-d { color: var(--fg2); }
   .tf-m { line-height: 1.1; text-wrap: balance; min-width: 0; }
   .tipo-cartas { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); }
@@ -1825,8 +1835,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .lado-ficha dd { margin: 0; color: var(--fg); }
   .ir-web { display: inline-flex; align-items: center; gap: 2px; width: fit-content; margin-top: calc(var(--spacing) * 1); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); transition: color 0.25s ease; }
   .ir-web:hover, .ir-web:focus-visible { color: var(--fg); }
-  /* el chevrón girado (fuera) caía por debajo de la línea: se sube a la altura de la x (Eric: «la › está demasiado abajo») */
   .ir-web :global(.btn-flecha.fuera) { position: relative; top: -0.18em; left: 0.12em; }
+  /* el chevrón girado (fuera) caía por debajo de la línea: se sube a la altura de la x (Eric: «la › está demasiado abajo») */
   .ant-sig { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 10); padding-top: calc(var(--spacing) * 4); border-top: 1px solid var(--rule); }
   .ant-sig a { display: grid; gap: 2px; min-width: 0; padding: calc(var(--spacing) * 1) 0; }
   .ant-sig a[rel='next'] { text-align: right; justify-items: end; }
@@ -1843,10 +1853,13 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     .ant-sig { margin-top: auto; margin-right: calc(var(--spacing) * -8); padding-right: calc(var(--spacing) * 8); }
     .lado-cab { margin-right: calc(var(--spacing) * -8); padding-right: calc(var(--spacing) * 8); } /* 25.ª: su línea llega hasta el filo del contenido */
     /* la línea entre columnas: el filo izquierdo del contenido, de arriba abajo (Eric la quitó y la pidió de vuelta: «falta una línea que separe lo sticky de lo que no») */
-    .contenido { border-left: 1px solid var(--rule); padding-inline: calc(var(--spacing) * 8); } /* 25.ª: el mismo aire a la derecha que a la izquierda */
+    .contenido { position: relative; padding-inline: calc(var(--spacing) * 8); } /* 25.ª: el mismo aire a la derecha que a la izquierda */
+    /* 28/10 · Eric: «la ola va por detrás de las líneas, y las líneas adaptan su color»: ya no es un borde (la gota del pie, z 31, lo tapaba) sino una línea
+       como los carriles (Carriles.astro): z 40 y niebla al 14 % por diferencia → oscura sobre lo claro, clara sobre el marrón */
+    .contenido::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; z-index: 40; pointer-events: none; background: color-mix(in srgb, var(--color-niebla) 14%, transparent); mix-blend-mode: difference; }
   }
   /* el contenido: una sola columna, títulos pequeños, menos aire (lo de la referencia: imagen, pie, título y texto) */
-  .contenido { --aire: clamp(3rem, 2.4rem + 2vw, 4.5rem); min-width: 0; padding-bottom: calc(var(--spacing) * 40); } /* 160 px hasta el pie */
+  .contenido { --aire: clamp(3rem, 2.4rem + 2vw, 4.5rem); min-width: 0; padding-bottom: calc(var(--spacing) * 64); } /* 256 px hasta el pie (28/10 · Eric: «más aire abajo, que la ola no llegue tan rápido»; antes 160) */
   .contenido .wrap { max-width: none; margin-inline: 0; padding-inline: 0; }
   .contenido .rej > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
   .contenido .rej { row-gap: calc(var(--spacing) * 4); }
@@ -1878,7 +1891,10 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .contenido .par .dos { gap: calc(var(--spacing) * 4); }
   .contenido .par .valor, .contenido .par .proceso { gap: calc(var(--spacing) * 8); }
   .contenido .par .t-h { color: var(--fg); }
-  @media (width < 64rem) { .contenido { margin-top: calc(var(--spacing) * 20); } }
+  @media (width < 64rem) { .contenido { margin-top: calc(var(--spacing) * 8); } }
+  /* 28/10 · responsive: la cabecera de la columna y la barra del caso están vacías; en escritorio guardan el alto, en móvil solo dejaban un hueco arriba
+     y una franja pegada (fondo, línea y desvanecido) que se comía 56 px de pantalla al leer */
+  @media (width < 64rem) { .lado .lado-cab, .contenido .barra-caso { display: none; } .lado-info { padding-top: 0; } }
   @media (width >= 64rem) { .barra-caso { --tapa: calc(var(--spacing) * 20); } }
   .barra-caso::before { content: ''; position: absolute; left: -1px; right: 0; bottom: 100%; height: var(--tapa, calc(var(--spacing) * 16)); /* tapa del borde de arriba de la ventana a la barra: en móvil 64 px (la ficha va justo encima), en escritorio 80 */ background-color: var(--bg); } /* 24.ª: fondo plano, sin grano */
   @media (width >= 64rem) { .barra-caso::before { left: -100vw; } } /* 28/10 · la tapa, también sobre la columna fija: al llegar al pie, la columna sube y se metía bajo el logotipo */

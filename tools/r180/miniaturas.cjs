@@ -16,14 +16,17 @@ const W = 1440, H = 900;
 // dy: desplazamiento extra (px) · antes: acción en la página antes de esperar · espera: ms
 const PIEZAS = [
   { id: 'inicio-hero', url: '/', sel: '[data-hero]', al: 'arriba', espera: 3500 },
-  { id: 'inicio-raices', url: '/', sel: '[data-raices]', al: 'arriba', dy: -260, espera: 2500 },
+  // 28/10 · Eric: «esta foto la veo bastante rara»: las roble y raíces juntos, sin el cielo de Proyectos debajo
+  { id: 'inicio-raices', url: '/', sel: '[data-raices]', al: 'abajo', dy: -40, espera: 7000 },
   { id: 'inicio-proyectos', url: '/', sel: '#proyectos', al: 'arriba', dy: 0.62, espera: 3500 },
-  { id: 'inicio-mas-proyectos', url: '/', sel: '#anteriores', al: 'arriba', dy: 40, espera: 3000 },
+  // 28/10 · Eric: «faltaría actualizar el hover con la pill de cambio de desktop/mobile»: el puntero encima de la primera pieza
+  { id: 'inicio-mas-proyectos', url: '/', sel: '#anteriores', al: 'arriba', dy: 40, espera: 3000, antes: async (p) => { const c = p.locator('[data-celda]').first(); await c.hover(); await p.waitForTimeout(900); } },
   { id: 'inicio-servicios', url: '/', sel: '#servicios', al: 'arriba', dy: 40, espera: 3500 },
   { id: 'inicio-agentic', url: '/', sel: '#la-savvia', al: 'arriba', dy: 60, espera: 3500 },
   { id: 'inicio-estudio', url: '/', sel: '#estudio', al: 'arriba', dy: 80, espera: 3500 },
   { id: 'inicio-preguntas', url: '/', sel: '#preguntas', al: 'arriba', dy: 60, espera: 2500 },
-  { id: 'inicio-pie', url: '/', sel: '#contacto', al: 'abajo', espera: 6000 },
+  // 28/10 · Eric: «en foto el estado final de cada estación» (el vídeo cortaba los enlaces de arriba): una foto por estación, la ventana entera
+  ...['otono', 'invierno', 'primavera', 'verano'].map((e) => ({ id: `inicio-pie-${e}`, url: '/', q: `carga=0&estacion=${e}`, sel: '#contacto', al: 'abajo', espera: 9000, antes: async (p) => { await p.addStyleTag({ content: 'header[data-nav]{opacity:0!important}' }); } })),
   { id: 'comun-menu', url: '/', sel: '[data-hero]', al: 'arriba', espera: 1500, antes: async (p) => { await p.click('[data-menu-boton], button[aria-controls="menu"]'); await p.waitForTimeout(1600); } },
   { id: 'comun-carga', url: '/', q: 'carga=1&estacion=otono', sel: null, espera: 2600 },
   { id: 'portfolio-todos', url: '/proyectos', sel: '[data-todos]', al: 'arriba', dy: -40, espera: 3500 },
@@ -33,7 +36,8 @@ const PIEZAS = [
   { id: 'portfolio-visor', url: '/proyectos', sel: '[data-obra]', al: 'arriba', dy: -200, espera: 3500, antes: async (p) => { await p.click('[data-obra] a'); await p.waitForTimeout(2200); } },
   { id: 'caso-cabecera', url: '/proyectos/neety', sel: 'main', al: 'arriba', espera: 2500 },
   { id: 'caso-portada', url: '/proyectos/neety', sel: 'main .pz, main [class*="pieza"]', al: 'arriba', dy: -60, espera: 3000 },
-  { id: 'caso-detalles', url: '/proyectos/neety', sel: '#det-h', al: 'arriba', dy: -64, espera: 3000 },
+  // 28/10 · Neety ya no enseña «Los detalles» (sinDetalles): se captura en Quantus
+  { id: 'caso-detalles', url: '/proyectos/quantus', sel: '#det-h', al: 'arriba', dy: -64, espera: 3000 },
   { id: 'caso-sistema', url: '/proyectos/neety', sel: '#color-h', al: 'arriba', dy: -120, espera: 2500 },
   { id: 'caso-siguiente', url: '/proyectos/neety', sel: '#concl-h', al: 'arriba', dy: -80, espera: 2500 },
   { id: 'lab', url: '/lab', sel: null, espera: 4000 },
@@ -60,7 +64,7 @@ const MEDIR = ({ sel, al, dy }) => {
   const el = document.querySelector(sel);
   if (!el) return null;
   const r = el.getBoundingClientRect();
-  let y = al === 'abajo' ? scrollY + r.bottom - innerHeight : scrollY + r.top;
+  let y = al === 'abajo' ? scrollY + r.bottom - innerHeight : al === 'centro' ? scrollY + r.top + r.height / 2 - innerHeight / 2 : scrollY + r.top;
   y += Math.abs(dy) < 1 && dy !== 0 ? dy * r.height : dy;
   return Math.max(0, Math.round(y));
 };

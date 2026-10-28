@@ -5677,3 +5677,50 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   Neety, como su documento «Caso de estudio · Neety»: contexto más corto («la web no avanzaba al ritmo del producto», «Desde entonces…»), animación y
   microanimaciones con textos y pies nuevos, pie de la home sin «Neety por dentro», «La entrega» en un párrafo (los guardarraíles + la guía para
   conectarla con Claude o Ship Studio), GitHub en el stack y en «Cómo está hecha», y una Conclusión nueva de cuatro párrafos (sin «La IA es la base»).
+- **28/10 · Responsive del caso de Neety (Eric: «repasemos el responsive»).** Medido a 390, 768, 1024 y 1280 (Chromium): sin desborde ni errores. En `Caso.astro`:
+  en móvil (< 64rem) fuera la cabecera vacía de la columna y la barra vacía del caso (eran 56 px de hueco arriba y una franja pegada con fondo, línea y
+  desvanecido que se comía pantalla al leer); la carátula entra en la primera pantalla (32 px tras la ficha, eran 160). «Pasa por encima de cada color»
+  solo con puntero (`.solo-puntero`, oculto en `hover: none`). Tipografía: en móvil la muestra de la escala se quedaba en «A qui…»: ahora va debajo de
+  nombre y medida, a todo el ancho; los titulares encogen lo justo para caber en una línea (`--fs`, `--ch`, `[data-corta]`) y las frases de texto, a su tamaño
+  en dos líneas. Las cuatro familias, 2 × 2 en todos los tamaños (a 1280 quedaba 3 + 1), 16:9 en escritorio y con el «Aa» y el rótulo apilados en móvil.
+- **28/10 · /proyectos: vuelve la línea sobre los filtros (Eric: «la línea horizontal de proyectos del filtraje ha desaparecido»).** Se deshace la de esta
+  tarde («esta raya aquí sobra»): `.todos` vuelve a `data-carril-sin-cruces-movil` (línea en todos los tamaños; cruces solo en escritorio).
+- **28/10 · neety.com en el caso (Eric: «nos falta poner neety.com en algún lado, quizás en el sticky»).** Neety no tenía `url`: ahora `url: https://neety.com`
+  y `dominio: neety.com` (ES; el EN lo hereda). El enlace de la columna fija muestra el dominio si lo hay (si no, «Ver la web») y SIN flecha (Eric: «quitamos
+  ese arrow, no me mola nada»). «Ver la librería» conserva la suya.
+- **28/10 · Storybook, feedback de Eric.** (1) El CICLO: la estación se enciende cuando la gota LLEGA a su punto (antes, la más cercana: «el punto de la
+  siguiente sale antes de que llegue el punto dinámico»). (2) Pastillas de estación: el texto de la encendida tardaba ~1,2 s («sale en pill entera blanca»):
+  su `color` es `var(--noche)`, que se anima 0,8 s, y la transición propia con retraso se reiniciaba cada fotograma; fuera los retrasos. (3) FILTROS en vivo: el
+  portfolio real en un `<iframe>` (1440 px reducido al ancho de la placa, colocado en la barra, sin nav ni chat); la captura queda de respaldo hasta que carga.
+  (4) Monitor de Proyectos destacados: una frase por capa («demasiado texto»). (5) Miniaturas del catálogo rehechas (`tools/r180/miniaturas.cjs`): Raíces con
+  el roble encima (sin el cielo de Proyectos), Más proyectos con el puntero sobre la primera pieza (botoncito de escena), «Los detalles» desde Quantus (Neety ya
+  no los tiene) y el PIE en cuatro FOTOS del estado final, una por estación, sin la barra (`inicio-pie-<estación>.webp`; antes vídeo recortado). OJO: si el
+  servidor de desarrollo recarga a mitad de una captura se pierden los estilos inyectados: revisar las miniaturas al acabar.
+  (6) MÓVIL (Eric: «quita el navbar de storybook sticky en mobile, para no liar»): fuera el índice en móvil (la tira se salía por la derecha); los filtros en
+  vivo cargan el portfolio a su ancho (su versión móvil) en vez de reducir el de 1440.
+  (7) ESTRUCTURA del caso de Neety en escritorio (Eric: «exactamente la misma estructura que el case study, con las líneas verticales, que empiece todo en el
+  mismo sitio»): `.marco-libro` en 3 · 9 sin hueco; el índice, `sticky` a 100dvh con su aire dentro (como `.lado`); `.hojas` con la línea a la izquierda y 32 px
+  a cada lado; los dos arrancan a 160 px (medido: índice 120·160 = ficha del caso; línea en x 420; titular 453·160 = portada). Fuera «Storybook» del índice
+  (se repetía con el titular). El índice sigue apagándose al llegar el pie (sube con el final y se metía bajo el logotipo).
+  (8) Eric (captura del caso de Neety): «la ola va por detrás de las líneas, y las líneas adaptan su color». La línea entre columnas del caso (`.contenido`,
+  Caso.astro) era un `border-left` y la gota del pie (z 31) la tapaba: ahora es un `::before` como los carriles (z 40, niebla al 14 % por diferencia) →
+  oscura sobre lo claro, clara sobre el marrón de la ola. Comprobado a 1280 con la ola a media subida.
+  (8) RETÍCULA INTERNA de Neety en el storybook (Eric: «encaja con neety pero no con las columnas de dentro»): cada `.seccion` en 12 columnas, título pequeño
+  (sans 18, 500) en 1–6 y el texto desde la 7; valores, stack, herramientas, símbolos y relato con el título en 1–6 y el texto en la 7; demos a todo el ancho.
+  El catálogo, igual. (9) RAYAS (Eric: «hay muchísima raya horizontal, tiene que ser más editorial como Neety»): fuera la de cada sección, las de las listas y la
+  gruesa de los grupos; las separa el aire (secciones a 128 px). Quedan solo las que dibujan algo (maquetas, árbol de archivos, rejilla de iconos, claves).
+  (10) Caso: 256 px de aire bajo el contenido antes del pie (antes 160): «que la ola no llegue tan rápido». Se intentó extender el ECO de la ola (letras en
+  claro donde las toca) a `main` sin secciones; Eric lo paró: queda solo el aire.
+  (10) /sistema, los tres valores: «a estas sí que hace falta la línea abajo» → vuelven a llevar su raya fina debajo (solo ellos; el resto de listas, sin raya).
+  (11) Los símbolos, «aquí también»: `.dev-filas.con-raya` (solo esa lista; Stack y Herramientas siguen sin raya).
+  (12) El relato de la home, «aquí también»: vuelve su raya fina bajo cada fila.
+  (13) La escala tipográfica, «y aquí»: vuelve su raya bajo cada paso. Quedan sin raya solo Stack y Herramientas (`.dev-filas` sin `con-raya`).
+  (14) La escala de espaciado, «y aquí»: raya bajo cada paso (12 px arriba y abajo en vez de 8 entre filas).
+  (15) Eric: «recupera todas las líneas horizontales que son para separar contenido, tipo puntos; lo que hemos intentado es quitar las de exceso» → vuelven las rayas entre elementos de TODAS las listas del libro (también Stack, Herramientas, Piezas y Descargas); fuera solo la raya de arriba de cada lista y la gruesa de los grupos.
+  (16) /sistema: fuera las secciones «Radios y sombras» y «Voz» (Eric: «esto quitar», «esto también»), del libro y del índice, con sus estilos y listas.
+  (17) Iconografía: las tarjetas de estación, cuadradas (antes 3:4, «muy altas»; el icono al 28 % y algo subido); la hoja de la construcción, a tamaño fijo (min(56 %, 13rem)) en vez del 68 % del alto de la fila, que crecía con la rejilla de iconos.
+  (18) «El relato de la home» (Eric: «algo más narrativo en párrafos; puesto así es raro, o si no quitar»): la lista de nueve secciones pasa a TRES PÁRRAFOS en la columna del texto (la promesa · la prueba · quiénes somos), con las mismas frases; fuera RELATO/RELATO_EN. Las píldoras de estación de «Color y estaciones», en una fila en escritorio.
+  (19) «Los símbolos», «mismo con esto»: en cinco párrafos (roble · gota · raíces · estaciones · paisaje del pie), con sus mismas frases; fuera SIMBOLOS/SIMBOLOS_EN.
+  (20) «Tres valores» (Eric: «también puede ser narrativo, que es como teníamos el manifiesto anoche»): tres párrafos que ABREN con el valor en negrita (Va por dentro. · Se adapta. · Es sabia.) y llevan dentro cómo vive en la web; fuera la lista con titular grande y «En la web».
+  (21) Movimiento: aviso «Pasa el ratón por encima» con cursor en la muestra de las opciones (se apaga al pasar por la primera; oculto en táctil). «Cuida el aire»: la cita de «La idea» a 96 px del párrafo (antes 40).
+  (22) Storybook: la línea entre columnas (`.hojas`) llega hasta el pie (el padding de abajo de <main> pasa a .hojas en escritorio) y va como la del caso: z 40 por diferencia, sobre la ola.

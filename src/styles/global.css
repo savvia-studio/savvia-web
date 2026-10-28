@@ -649,9 +649,12 @@ html.tipo-antes {
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease, scale 0.3s var(--ease-out-expo), opacity 0.3s ease;
   }
-  .barra-cristal .paso:hover:not(:disabled) {
-    background: #eadde7;
-    color: #302018;
+  /* 28/10 · Eric: en móvil se quedaba encendido el último paso tocado (:hover pegajoso): el relleno, solo con ratón */
+  @media (hover: hover) {
+    .barra-cristal .paso:hover:not(:disabled) {
+      background: #eadde7;
+      color: #302018;
+    }
   }
   .barra-cristal .paso:active:not(:disabled) { scale: 0.94; }
   .barra-cristal .paso:disabled { opacity: 0.3; cursor: default; }

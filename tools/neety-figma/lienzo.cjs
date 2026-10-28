@@ -4,7 +4,7 @@
 const sharp = require('sharp'), fs = require('fs'), path = require('path');
 const DIR = 'public/media/obra/neety', TOL = 10;
 (async () => {
-  for (const n of ['figma-look', 'figma-descartes', 'figma-libreria', 'figma-home']) {
+  for (const n of ['figma-look', 'figma-descartes', 'figma-libreria', 'figma-home', 'anim-figma']) {
     if (!fs.existsSync(path.join(DIR, n + '.webp')) && !fs.existsSync(path.join('tools/neety-figma', n + '-lienzo.webp'))) { console.log(n, 'no está: se salta'); continue; }
     const f = path.join(DIR, n + '.webp'), gris = path.join('tools/neety-figma', n + '-gris.webp'), copia = path.join('tools/neety-figma', n + '-lienzo.webp');
     if (!fs.existsSync(copia)) fs.copyFileSync(fs.existsSync(gris) ? gris : f, copia);

@@ -21,7 +21,10 @@
 //     dependen del tamaño real de la lámina en pantalla: el JS mide la mesa y deja la escala en `--s`.
 //   · Barras de navegador a 16 px (antes 24).
 import { home } from '../data/idioma';
-import { langDe } from '../lib/i18n';
+import { langDe, ruta } from '../lib/i18n';
+import { CASOS_LISTOS } from '../lib/lanzamiento';
+// 28/10 · Eric: con caso de estudio (lanzamiento.ts › CASOS_LISTOS), la card lleva al CASO, no al visor; el slug de la home es el del dominio (neety-com → neety)
+const casoDe = (c: { slug: string; dominio?: string }) => CASOS_LISTOS.find((s) => c.slug === s || c.dominio?.startsWith(`${s}.`));
 const lang = langDe(Astro.currentLocale), en = lang === 'en';
 const { proyectos } = home(lang);
 import { proyectos as OBRA } from '../data/proyectos';
@@ -176,7 +179,7 @@ import { icono } from '../lib/iconos';
             {/* 27/10 · Eric: «en la home tienes que dejar como están, PERO sí que tenemos que dar la oportunidad de cambiar de mobile/mesa y eso como en proyecto»: cada card
                 va en una CELDA (lleva el sitio del mosaico y las variables) con el botoncito de escena al lado del enlace, fuera de él (como Portfolio.astro › li[data-obra]) */}
             <div class="celda" data-celda style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};${m ? `--mx:${m[0]}%;--top:${m[1]}%;--mw:${m[2]}%;` : s.ratio === '3 / 4' ? '--top:20%;' : ''}--giro:${giro}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
-            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo !== 'claro' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} data-tipo={s.tipo} data-forma={propia} data-nav={nav} href={`https://${c.dominio}`} target="_blank" rel="noopener" data-pieza>
+            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo !== 'claro' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} data-tipo={s.tipo} data-forma={propia} data-nav={nav} href={casoDe(c) ? ruta(lang, `/proyectos/${casoDe(c)}`) : `https://${c.dominio}`} target={casoDe(c) ? undefined : '_blank'} rel={casoDe(c) ? undefined : 'noopener'} data-caso={casoDe(c) ? '' : undefined} data-pieza>
               <div class={`lamina ${s.g ?? 'g-marca'} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
                 {/* las escenas que no son la suya: ocultas, sin descargar nada hasta que se eligen (las fotos llevan data-src; los vídeos, preload="none" y el póster al verse) */}
                 {propia !== 'navegador' && <div class="mockup" data-f="navegador"><Fragment set:html={vEscritorio} /></div>}
@@ -215,7 +218,8 @@ import { icono } from '../lib/iconos';
                 <!-- RONDA 41 · «añadir un icono de que los mockups tienen vídeo al hacer hover»: se ve en reposo y se retira mientras el vídeo suena -->
                 <span class="vid-ic" aria-hidden="true"><Fragment set:html={icono('video-camera', 'fill')} /></span>
                 <!-- RONDA 215 · Eric: «cuando estás en hover, otro botón como el del vídeo pero para que hagan clic»: la LUPA ocupa el sitio del icono de vídeo al pasar y avisa de que la card abre el visor -->
-                <span class="abre-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.4 15.4 20 20M8 10.5h5M10.5 8v5" /></svg></span>
+                {casoDe(c) && <span class="abre-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>}
+                {!casoDe(c) && <span class="abre-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.4 15.4 20 20M8 10.5h5M10.5 8v5" /></svg></span>}
               </div>
               <div class="pie pie-pieza mt-4">
                 <h3 class="nombre-pie font-display">{c.n}</h3>
@@ -251,7 +255,7 @@ import { icono } from '../lib/iconos';
             const grande = await sharp(`public${chico}-grande.jpg`).metadata().then((m) => m, () => null);
             const base = grande ? `${chico}-grande` : chico;
             return (
-              <article class="vis-slide" data-vis-slide data-n={c.n} data-sector={c.sector ?? ''} aria-hidden="true" style={`--vf:${claro(c.color[0]) ? '#f6f7fb' : '#000'}`}>
+              <article class="vis-slide" data-vis-slide data-n={c.n} data-caso={casoDe(c) ? ruta(lang, `/proyectos/${casoDe(c)}`) : undefined} data-sector={c.sector ?? ''} aria-hidden="true" style={`--vf:${claro(c.color[0]) ? '#f6f7fb' : '#000'}`}>
                 <div class="vis-mesa" style={`--z:${ZV};--px:${PANT.x + PANT.w / 2};--py:${PANT.y + PANT.h / 2}`}>
                   <img class="vis-foto" data-mesa="/media/estudio/{est}-xl.webp" alt="" width="5120" height="2880" decoding="async" />
                   <span class="vis-pant">
@@ -267,6 +271,7 @@ import { icono } from '../lib/iconos';
         <div class="vis-quien" data-vis-quien>
           <h3 class="vis-nombre font-display" data-vis-nombre></h3>
           <p class="detail vis-sector" data-vis-sector></p>
+          <a class="btn-secondary btn-sm vis-caso" href="#" hidden data-vis-caso><span class="btn-tx">{en ? 'View case study' : 'Ver caso de estudio'}</span><Fragment set:html={flecha()} /></a>
         </div>
         <div class="vis-acciones">
           <div class="barra-cristal" role="group" aria-label={en ? 'Projects' : 'Proyectos'}>
@@ -322,6 +327,7 @@ import { icono } from '../lib/iconos';
       const slides = [...vis.querySelectorAll<HTMLElement>('[data-vis-slide]')];
       const quien = vis.querySelector<HTMLElement>('[data-vis-quien]')!, nombre = vis.querySelector<HTMLElement>('[data-vis-nombre]')!, sector = vis.querySelector<HTMLElement>('[data-vis-sector]')!;
       const panel = vis.querySelector<HTMLElement>('[data-vis-panel]')!;
+      const verCaso = vis.querySelector<HTMLAnchorElement>('[data-vis-caso]');
       const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
       let cur = -1, vuelta: HTMLElement | null = null, cerrando = 0;
       const vid = (i: number) => slides[i].querySelector<HTMLVideoElement>('video')!;
@@ -362,6 +368,7 @@ import { icono } from '../lib/iconos';
         slides.forEach((_, i) => { const d = (i - n + slides.length) % slides.length; if (d > 1 && d < slides.length - 1) soltar(i); });
         const d = slides[n].dataset;
         nombre.textContent = d.n ?? ''; sector.textContent = d.sector ?? '';
+        if (verCaso) { verCaso.hidden = !d.caso; if (d.caso) verCaso.href = d.caso; } // Eric: «aquí poner Ver caso de estudio»: solo si el proyecto tiene caso
         if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
       };
       vis.addEventListener('close', () => slides.forEach((_, i) => soltar(i)));
@@ -403,7 +410,8 @@ import { icono } from '../lib/iconos';
       vis.addEventListener('cancel', (e) => { e.preventDefault(); cierra(); }); // Esc: con la misma salida suave
       piezas.forEach((pz, i) => pz.addEventListener('click', (e) => {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web como siempre
-        if (matchMedia('(hover: none), (width < 48rem)').matches) return; // RONDA 268 · Eric: en móvil no hay visor: el toque va a la web
+        if (pz.hasAttribute('data-caso')) return; // 28/10 · con caso de estudio, el clic va al caso
+        // 28/10 · Eric: «en mobile clico y me va a la URL de la web final: eso NUNCA»: también en móvil abre el visor (antes, ronda 268, iba a la web)
         e.preventDefault(); abre(i);
       }));
       vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));
@@ -1192,6 +1200,11 @@ import { icono } from '../lib/iconos';
     .pieza:hover .abre-ic, .pieza:focus-visible .abre-ic { opacity: 1; scale: 1; filter: none; }
     .pieza:hover .vid-ic, .pieza:focus-visible .vid-ic { opacity: 0; filter: blur(4px); }
   }
+  /* 28/10 · Eric: «¿y un usuario sin hover?» · «en este estado algo tiene que haber que incite el clic, sutil»: con caso, la FLECHA ocupa SIEMPRE el sitio de la
+     cámara (en reposo, en táctil y al pasar, cuando crece un pelo como la cámara); las demás siguen con cámara y lupa */
+  .pieza[data-caso] .vid-ic { display: none; }
+  .pieza[data-caso] .abre-ic { opacity: 1; scale: 1; filter: none; }
+  @media (hover: hover) { .pieza[data-caso]:is(:hover, :focus-visible) .abre-ic { scale: 1.06; } }
   /* RONDA 162 · Eric: «el título del cliente arriba a la izquierda no me convence; puede estar en el pie de la card». En las piezas de proyecto el
      nombre baja al PIE, fuera de la imagen: nombre en Family a tamaño medio y, a la derecha, dominio · sector. La imagen queda limpia.
      (La pieza de entrada, la que rota, conserva su nombre encima: su relevo vive ahí.) */
@@ -1577,6 +1590,8 @@ import { icono } from '../lib/iconos';
   }
   .vis-sector { color: color-mix(in oklab, #f5f5f7 62%, transparent); }
   .vis-acciones { display: flex; align-items: center; gap: calc(var(--spacing) * 6); }
+  .vis-caso { color: #f5f5f7; justify-self: start; margin-top: calc(var(--spacing) * 3); } /* bajo el nombre, a la izquierda (Eric) */
+  .vis-caso[hidden] { display: none; }
   /* cerrar: la misma cápsula de cristal, arriba a la derecha de la ventana */
   .vis-x {
     position: fixed;
@@ -1591,8 +1606,9 @@ import { icono } from '../lib/iconos';
   .vis.cierra .vis-x { opacity: 0; transition: opacity 0.2s ease; }
   @media (width < 48rem) {
     .vis-caja { --vw: min(100vw - calc(var(--spacing) * 6), (100dvh - calc(var(--spacing) * 44)) * 1.6); }
-    .vis-pie { flex-direction: column; align-items: flex-start; gap: calc(var(--spacing) * 4); }
-    .vis-acciones { width: 100%; justify-content: space-between; }
+    /* 28/10 · Eric: en móvil, «más zoom al escritorio» (el monitor llena casi el panel) y las flechas a la derecha del nombre, en la misma fila */
+    .vis-mesa { --z: 3.6 !important; }
+    .vis-pie { flex-wrap: nowrap; align-items: flex-start; gap: calc(var(--spacing) * 4); }
   }
   @media (prefers-reduced-motion: reduce) {
     .vis[open]::backdrop, .vis[open] .vis-caja, .vis[open] .vis-x { animation: none; }

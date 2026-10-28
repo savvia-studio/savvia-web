@@ -424,6 +424,8 @@ export const proyectos: Proyecto[] = [
   {
     slug: 'neety',
     nombre: 'Neety',
+    url: 'https://neety.com',
+    dominio: 'neety.com',
     sector: 'Ventas B2B, SaaS',
     anio: '2026',
     destacado: true,
