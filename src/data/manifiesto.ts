@@ -37,29 +37,36 @@ export const manifiesto = {
   // problemas · cómo empezamos (la savia) · qué entregamos · los guardarraíles · cierre. Cada `capitulo` es un párrafo.
   entrada: 'savvia existe para orquestar el diseño y desarrollo de tu web con IA.',
   capitulos: [
-    { num: 'I', parrafos: ['Pasa mucho: tu web no se alinea con tu marca, se ve como AI slop, cuesta mantenerla y el diseño se rompe en cada cambio.'] },
     {
-      num: 'II',
+      num: 'I',
       parrafos: [
-        'Nosotros empezamos por dentro, como la savia. Te escuchamos para entender lo que tu marca necesita.',
-        'La savia lleva dentro todo lo que el árbol ha vivido; savvia, lo aprendido con cada cliente desde 2020.',
-        'Con tu dirección y nuestro criterio creamos las directrices únicas para tu proyecto.',
+        'Tu producto ha avanzado y tu equipo también. Sin embargo, tu web sigue contando la versión de hace tres años.',
+        'No se alinea con tu marca. Cuesta mantenerla y el diseño se rompe en cada cambio. Y si la rehiciste con IA, quizá se vea como AI slop.',
       ],
     },
+    { num: 'II', parrafos: ['Tu web debería sonar a ti.'] },
     {
       num: 'III',
       parrafos: [
-        'Y te entregamos tu web conectada con la IA, lista para usar: un repositorio enlazado a tu suscripción de Claude o ChatGPT, desde donde podrás seguir evolucionándola sin perder nada de lo que hemos trabajado juntos.',
+        'Nosotros empezamos por dentro, como la savia. Te escuchamos para entender lo que tu proyecto necesita.',
+        'La savia lleva dentro todo lo que el árbol ha vivido. savvia, lo aprendido con cada cliente desde 2020.',
+        'Con tu dirección y nuestro criterio creamos unas directrices únicas.',
       ],
     },
     {
       num: 'IV',
       parrafos: [
-        'Eso solo funciona con guardarraíles. Cada decisión de diseño, de movimiento o de componente queda recogida en el sistema.',
-        'En la práctica, son archivos .md que resuelven las incógnitas de llevar tu identidad visual a una web.',
+        'Y te entregamos tu web conectada con la IA, lista para usar: un repositorio enlazado a tu suscripción de Claude o ChatGPT, desde donde podrás seguir evolucionándola sin perder nada de lo que hemos trabajado juntos.',
       ],
     },
-    { num: 'V', parrafos: ['savvia es alimento y energía. savvia es criterio.'] },
+    {
+      num: 'V',
+      parrafos: [
+        'Eso solo funciona con guardarraíles. Cada decisión de diseño, de movimiento o de componente queda recogida en el sistema, que es la fuente de verdad de tu web.',
+        'En la práctica, es un conjunto de archivos .md que resuelven las incógnitas de llevar tu identidad visual a una web.',
+      ],
+    },
+    { num: 'VI', parrafos: ['savvia es alimento y energía. savvia es criterio.'] },
   ],
   listas: [
     { titulo: 'El método', items: ['Entender', 'Decidir', 'Documentar', 'Entregar'] },

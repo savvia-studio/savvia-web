@@ -27,29 +27,36 @@ export const manifiesto: typeof ManifiestoEs = {
   // RONDA 297: the new manifesto (see manifiesto.ts).
   entrada: 'savvia exists to orchestrate the design and development of your website with AI.',
   capitulos: [
-    { num: 'I', parrafos: ['It happens a lot: your website is out of step with your brand, it looks like AI slop, it is hard to maintain and the design breaks with every change.'] },
     {
-      num: 'II',
+      num: 'I',
       parrafos: [
-        'We start from within, like sap. We listen to understand what your brand needs.',
-        'Sap carries everything the tree has lived through; savvia, everything learned with every client since 2020.',
-        'With your direction and our judgement, we create the guidelines unique to your project.',
+        'Your product has moved forward, and so has your team. Yet your website still tells the story of three years ago.',
+        'It is out of step with your brand. It is hard to maintain and the design breaks with every change. And if you rebuilt it with AI, it may look like AI slop.',
       ],
     },
+    { num: 'II', parrafos: ['Your website should sound like you.'] },
     {
       num: 'III',
       parrafos: [
-        'And we hand you your website connected to AI, ready to use: a repository linked to your Claude or ChatGPT subscription, from which you can keep evolving it without losing anything we have built together.',
+        'We start from within, like sap. We listen to understand what your project needs.',
+        'Sap carries everything the tree has lived through. savvia, everything learned with every client since 2020.',
+        'With your direction and our judgement, we create guidelines unique to you.',
       ],
     },
     {
       num: 'IV',
       parrafos: [
-        'That only works with guardrails. Every decision on design, motion or components is captured in the system.',
-        'In practice, they are .md files that solve the unknowns of bringing your visual identity to a website.',
+        'And we hand you your website connected to AI, ready to use: a repository linked to your Claude or ChatGPT subscription, from which you can keep evolving it without losing anything we have built together.',
       ],
     },
-    { num: 'V', parrafos: ['savvia is nourishment and energy. savvia is judgement.'] },
+    {
+      num: 'V',
+      parrafos: [
+        'That only works with guardrails. Every decision on design, motion or components is captured in the system, the source of truth for your website.',
+        'In practice, it is a set of .md files that solve the unknowns of bringing your visual identity to a website.',
+      ],
+    },
+    { num: 'VI', parrafos: ['savvia is nourishment and energy. savvia is judgement.'] },
   ],
   listas: [
     { titulo: 'The method', items: ['Understand', 'Decide', 'Document', 'Deliver'] },
