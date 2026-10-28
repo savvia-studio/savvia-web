@@ -33,7 +33,7 @@ const PIEZAS = [
   // 28/10 · las piezas nuevas del catálogo: el chat (abierto, fuera del hero), el mentor del portfolio y el visor
   { id: 'comun-chat', url: '/', sel: '#servicios', al: 'arriba', dy: 40, espera: 1800, antes: async (p) => { await p.waitForTimeout(800); await p.click('[data-cf-btn]'); await p.waitForTimeout(1400); } },
   { id: 'portfolio-mentor', url: '/proyectos', sel: '[data-mentor]:not([hidden])', al: 'arriba', dy: -120, espera: 4500 },
-  { id: 'portfolio-visor', url: '/proyectos', sel: '[data-obra]', al: 'arriba', dy: -200, espera: 3500, antes: async (p) => { await p.click('[data-obra] a'); await p.waitForTimeout(2200); } },
+  { id: 'portfolio-visor', url: '/proyectos', sel: '[data-abre-visor]', al: 'centro', espera: 3500, antes: async (p) => { await p.click('[data-abre-visor]'); await p.waitForTimeout(2600); } }, // 29/10 · Eric: «esto es de case study»: el clic en la primera pieza llevaba al caso; ahora, una sin caso (abre el visor)
   { id: 'caso-cabecera', url: '/proyectos/neety', sel: 'main', al: 'arriba', espera: 2500 },
   { id: 'caso-portada', url: '/proyectos/neety', sel: 'main .pz, main [class*="pieza"]', al: 'arriba', dy: -60, espera: 3000 },
   // 28/10 · Neety ya no enseña «Los detalles» (sinDetalles): se captura en Quantus

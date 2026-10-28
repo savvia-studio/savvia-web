@@ -71,6 +71,7 @@ export type Proyecto = {
   figmaCorte?: number; // 28/10: cuántas láminas del Figma van antes de Color, Tipografía y Espaciado (el resto, después)
   figma?: { f: 'ancha' | 'trio' | 'alta'; img: string[]; titulo: string; pie: string }[]; // 28/10: «Del Figma a la web», capturas de su archivo de diseño (tools/neety-figma/)
   animacion?: { titulo: string; texto: string; diseno: { src: string; pie: string }; web: { src: string; poster: string; pie: string } }; // 28/10: del diseño (Figma) a la animación en la web, en dos columnas
+  herramientas?: { titulo: string; texto: string; piezas: { titulo: string; alt: string; video?: { src: string; poster: string; pie: string } }[] }; // 28/10: con qué trabajamos (Ship Studio, Agentation), dos vídeos a dos columnas
   micro?: { titulo: string; texto: string; video: { src: string; poster: string; pie: string }; mas?: { titulo: string; alt: string; video: { src: string; poster: string; pie: string } }[] }; // mas: más grabaciones debajo (28/10) // 28/10: las microanimaciones, una grabación a lo ancho
   con?: string;
   color: string; // fondo de su tarjeta
@@ -491,6 +492,16 @@ export const proyectos: Proyecto[] = [
       web: { src: '/media/obra/neety/x-feed.mp4', poster: '/media/obra/neety/x-feed.jpg', pie: 'Las mismas tarjetas, en bucle sobre el degradado: la activa, nítida; el resto, desenfocadas.' },
     },
     // 28/10 · Eric: «otra sección a recalcar sobre las microanimaciones: cómo se nos permite microanimar en código todo» (Screen Studio RCpQOObj, «Cómo funciona»)
+    // 28/10 · Eric: «un vídeo enseñando Ship Studio y Agentation, en dos columnas» (Ship Studio: Screen Studio bdisDhjQ, 18,6 s). Agentation: pendiente
+    herramientas: {
+      titulo: 'Ship Studio y Agentation',
+      texto: 'La web se construyó en Ship Studio. Claude trabaja sobre el código mientras la web se ve en directo en el canvas. Y con Agentation, los comentarios se dejan sobre la propia web, señalando cada elemento, para que Claude sepa exactamente qué cambiar.',
+      piezas: [
+        { titulo: 'Ship Studio', alt: 'Ship Studio con la web de Neety: el agente a la izquierda y la web en directo', video: { src: '/media/obra/neety/ship-studio.mp4', poster: '/media/obra/neety/ship-studio.jpg', pie: 'Le pedimos un cambio al agente y la web se actualiza en directo.' } },
+        // Screen Studio O0P9dwVL, 17 s: se marca un elemento de «Cómo funciona» y se le escribe el comentario
+        { titulo: 'Agentation', alt: 'Agentation sobre la web de Neety: un comentario escrito sobre la sección «Cómo funciona»', video: { src: '/media/obra/neety/agentation.mp4', poster: '/media/obra/neety/agentation.jpg', pie: 'Al pasar el cursor se marca cada elemento de la web. Se pulsa y se escribe el comentario. Claude recibe el texto, el elemento exacto y el tamaño de pantalla en el que se dejó.' } },
+      ],
+    },
     micro: {
       titulo: 'Microanimaciones',
       texto: 'Al estar hecha en código, cada detalle se puede animar: una línea, un paso, una tarjeta. En «Cómo funciona Neety», la línea avanza y va encendiendo cada paso con su pantalla.',
@@ -508,7 +519,7 @@ export const proyectos: Proyecto[] = [
       // 28/10 · Eric: «empezar por las variantes, pero también mostrar look and feel, descartes y luego la home/responsive» (capturas de Eric; tools: las cabeceras
       // con «treseiscero» y la barra de Figma, recortadas o tapadas). La librería sustituye a «El sistema» (figma-sistema.webp, sin uso)
       // 28/10 · Eric: «descartes quitamos»: fuera «Los descartes» (figma-descartes.webp, borrada) y «gradiente quitamos»: fuera «Los gradientes» (figma-gradientes.webp, borrada)
-      { f: 'ancha', img: ['/media/obra/neety/figma-look.webp'], titulo: 'El look and feel', pie: 'Diecisiete variaciones de la home sobre el mismo esqueleto: el degradado, el titular y la tarjeta del hero, hasta dar con la dirección.' },
+      { f: 'ancha', img: ['/media/obra/neety/figma-look.webp'], titulo: 'El look and feel', pie: 'Diecisiete variaciones de la home sobre el mismo esqueleto. Cambian el degradado, el titular y la tarjeta del hero hasta dar con la dirección.' },
       // 28/10 · Eric: fuera «La librería» del Figma: en su sitio suben Color y Tipografía (figmaCorte); figma-libreria.webp sin uso
       { f: 'ancha', img: ['/media/obra/neety/figma-home.webp'], titulo: 'La home, en escritorio y en móvil', pie: 'La home definitiva, los desplegables del menú y el feed; al lado, la versión móvil con su menú.' },
     ],
@@ -552,7 +563,7 @@ export const proyectos: Proyecto[] = [
       // 28/10 · «La entrega» (Eric): el texto que va encima del albarán y del libro
       // 28/10 · Eric: «La entrega» vuelve como VÍDEO de la librería (Screen Studio 5oBvdom9): para que el equipo sepa cómo conectarla a la IA,
       // y como guía de cambios, de diseño y de componentes
-      video: { src: '/media/obra/neety/libreria-recorrido.mp4', poster: '/media/obra/neety/libreria-recorrido.jpg', pie: 'Un recorrido por la librería: cómo usarla, los fundamentos de diseño y el catálogo de componentes de la web.', pieEn: 'A walk through the library: how to use it, the design foundations and the catalogue of the site’s components.' },
+      video: { src: '/media/obra/neety/libreria-recorrido.mp4', poster: '/media/obra/neety/libreria-recorrido.jpg', pie: 'Cómo usarla, los fundamentos de diseño y el catálogo de componentes de la web.', pieEn: 'How to use it, the design foundations and the catalogue of the site’s components.' },
       texto: [
         'Con la web, Neety se llevó su librería: los guardarraíles para seguir evolucionándola con IA. En ella queda recogida cada decisión de diseño, de movimiento o de componente, junto con la guía para conectar el repositorio con Claude o Ship Studio.',
       ],
@@ -576,9 +587,9 @@ export const proyectos: Proyecto[] = [
     },
     comentario: { quien: 'andoni', texto: 'Con Neety entregamos algo más que una web: una librería que sale del propio código para que su equipo la siga cambiando con Claude. Es la forma de trabajar que queremos para todos los proyectos.' },
     conclusion: [
-      'Neety fue nuestro primer proyecto con desarrollo agéntico. El diseño empezó en Figma; el código lo construimos con IA, fiel a cada decisión de ese diseño.',
+      'Neety fue nuestro primer proyecto con desarrollo agéntico. El diseño empezó en Figma. El código lo construimos con IA, fiel a cada decisión de ese diseño.',
       'Neety se llevó una web conectada con la IA, que su equipo sigue evolucionando por su cuenta.',
-      'Eso funciona porque la librería hace de guardarraíles: el color, la tipografía, el movimiento y los 80 componentes quedan recogidos en ella.',
+      'Eso funciona porque la librería hace de guardarraíles. En ella quedan recogidos el color, la tipografía, el movimiento y los 80 componentes.',
       'Y a su equipo le llegó un repositorio conectado a Claude desde el que cambian, hablando, el contenido, las secciones o las páginas.',
     ],
     cita: { texto: 'Cercanos, humanos y capaces de entender de verdad tu proyecto. Más que un proveedor, son parte de tu equipo.', autor: 'Unai Arambarri', rol: 'Fundador y CEO, Neety', retrato: '/media/testimonios/unai-arambarri.webp' }, // la de la home; retrato: su foto (Eric, 28/10) con tools/r191/retrato.py (S=1.25 OY=230 FY=-170 BODY=0.45)

@@ -18,52 +18,38 @@ const GRUPOS: Grupo[] = [
     pagina: 'Inicio',
     ruta: '/',
     piezas: [
-      { id: 'inicio-hero', nombre: 'Hero', archivo: 'src/components/Hero.astro', que: 'Titular y subtítulo sobre el roble de la estación, que el motor del árbol dibuja y pinta desde donde cae la gota. En el marco, la hora y «desde 2020».', de: 'Textos en src/data/home.ts › hero, lámina en public/media/hero/, motor en src/scripts/estela.ts.' },
-      { id: 'inicio-raices', nombre: 'Raíces', archivo: 'src/components/Raices.astro', que: 'Las raíces del roble bajo la línea de suelo, pintadas una sola vez con la estación de la web: el paso del hero a lo que hay debajo.', de: 'Lámina de la estación en public/media/hero/, pintadas con src/scripts/estela.ts.' },
-      { id: 'inicio-proyectos', nombre: 'Proyectos destacados', archivo: 'src/components/Proyectos.astro', que: 'La mesa del estudio: de pie, el monitor enseña el reel de la estación en bucle y sin sonido; al sentarte, la cámara se acerca y recorres la web real de cada proyecto hecho con desarrollo agéntico. En móvil, su vídeo.', de: 'Proyectos en src/data/home.ts › proyectos.nuevos, láminas en public/media/estudio/, reel en public/media/reel/.' },
-      { id: 'inicio-agentic', nombre: 'savvia agentic', archivo: 'src/components/LaPartitura.astro + Problemas.astro', que: 'Abre con el manifiesto, que se entinta letra a letra con el scroll; después, la librería de Neety usada en tiempo real: los agentes cogen sus piezas y montan la página delante de ti.', de: 'src/data/home.ts › problemas y partitura (con su libreria).' },
-      { id: 'inicio-mas-proyectos', nombre: 'Más proyectos', archivo: 'src/components/Anteriores.astro + Cuadricula.astro', que: 'El mosaico de proyectos, cada pieza en el degradado de su marca con la web que se reproduce al pasar; un botón por pieza la cambia de escena (navegador, mesa o móvil) y el clic abre el visor. Tras los cinco primeros, la cuadrícula de citas, logotipos y cifras ocupa una fila entera.', de: 'src/data/home.ts › proyectos.anteriores, celdas y testimonios, src/data/proyectos.ts, vídeos en public/media/anteriores/.' },
-      { id: 'inicio-servicios', nombre: 'Servicios', archivo: 'src/components/Servicios.astro', que: 'Las tres formas de trabajar contigo; al elegir una, un cursor marca en la tarjeta los puntos que incluye.', de: 'src/data/home.ts › servicios (lista y grupos).' },
-      { id: 'inicio-estudio', nombre: 'Eric y Andoni', archivo: 'src/components/Estudio.astro', que: 'Los dos, de pie y juntos; al pasar por cada uno le salen de la cabeza, grandes, sus tres aficiones dibujadas a tinta. La única sección en primera persona.', de: 'src/data/home.ts › estudio, src/data/ilustraciones-equipo.ts, poses en public/media/equipo/.' },
-      { id: 'inicio-preguntas', nombre: 'Preguntas', archivo: 'src/components/Preguntas.astro', que: 'Las preguntas frecuentes como una conversación: sugerencias y pregunta libre, que contestan Eric y Andoni.', de: 'src/data/home.ts › preguntas.' },
+      { id: 'inicio-hero', nombre: 'Hero', archivo: 'src/components/Hero.astro', que: 'Arriba, el titular y el subtítulo. Debajo, el roble de la estación, que se dibuja y se pinta desde donde cae la gota. En el marco, la hora y «desde 2020».', de: 'Textos en src/data/home.ts › hero, lámina en public/media/hero/, motor en src/scripts/estela.ts.' },
+      { id: 'inicio-proyectos', nombre: 'Proyectos destacados', archivo: 'src/components/Proyectos.astro', que: 'La mesa del estudio. De pie, el monitor enseña el reel de la estación. Al sentarte, la cámara se acerca y recorres por dentro la web real de cada proyecto. En móvil, su vídeo.', de: 'Proyectos en src/data/home.ts › proyectos.nuevos, láminas en public/media/estudio/, reel en public/media/reel/.' },
+      { id: 'inicio-mas-proyectos', nombre: 'Más proyectos', archivo: 'src/components/Anteriores.astro + Cuadricula.astro', que: 'El mosaico de proyectos, cada uno sobre el degradado de su marca y con su web en marcha al pasar. Cada pieza cambia de escena con un botón y se abre en el visor. Tras los cinco primeros, una fila de citas, logotipos y cifras.', de: 'src/data/home.ts › proyectos.anteriores, celdas y testimonios, src/data/proyectos.ts, vídeos en public/media/anteriores/.' },
+      { id: 'inicio-servicios', nombre: 'Servicios', archivo: 'src/components/Servicios.astro', que: 'Las tres formas de trabajar contigo. Al elegir una, un cursor marca en la tarjeta lo que incluye.', de: 'src/data/home.ts › servicios.' },
+      { id: 'inicio-preguntas', nombre: 'Preguntas', archivo: 'src/components/Preguntas.astro', que: 'Las preguntas frecuentes, como una conversación. Eliges una sugerencia o escribes la tuya, y contestan Eric y Andoni.', de: 'src/data/home.ts › preguntas.' },
       // 28/10 · Eric: «en foto el estado final de cada estación» (el vídeo cortaba los enlaces): cuatro fotos, la ventana entera
-      { id: 'inicio-pie', fotos: true, nombre: 'Pie', archivo: 'src/components/Pie.astro', que: 'El paisaje de la estación se dibuja tras la gota del logotipo; «Contáctanos» queda entre las montañas y se abre al pasar.', de: 'src/data/home.ts › pie y nav, capas en public/media/pie/. Es el mismo en todas las páginas.' },
-    ],
-  },
-  {
-    pagina: 'En todas las páginas',
-    ruta: '',
-    piezas: [
-      { id: 'comun-menu', nombre: 'Barra y menú', archivo: 'src/components/Nav.astro + Radio.astro', que: 'Logotipo, la radio (cinco barras que bailan con lo que suena), el icono de estación y la rejilla que abre el menú en una tarjeta, con el reel en miniatura.', de: 'src/data/home.ts › nav, reel por estación e idioma en src/scripts/reel.ts y public/media/reel/.' },
-      { id: 'comun-carga', nombre: 'Carga', archivo: 'src/components/Cargador.astro', que: 'Solo la primera visita: el visitante dibuja un círculo, el círculo se recoge en una gota y la gota cae al pie del roble, de donde nace el hero.', de: '`?carga=1` la fuerza para revisarla; no sale en navegadores automatizados.' },
-      { id: 'comun-chat', nombre: 'Chat', archivo: 'src/components/ChatFlotante.astro', que: 'Prototipo. Un botón de cristal abajo a la derecha abre un brief guiado (End-to-end, Colaboración, Consultoría) y preguntas libres. Se esconde en el hero, con el menú abierto, sentado y junto a Preguntas. `?chat=0` lo quita.', de: 'src/data/home.ts › pie (correo y agenda) y estudio (las caras).' },
+      { id: 'inicio-pie', fotos: true, nombre: 'Pie', archivo: 'src/components/Pie.astro', que: 'El paisaje de la estación se dibuja tras la gota del logotipo. «Contáctanos» queda entre las montañas y se abre al pasar.', de: 'src/data/home.ts › pie y nav, capas en public/media/pie/. Es el mismo en todas las páginas.' },
     ],
   },
   {
     pagina: 'Portfolio',
     ruta: '/proyectos',
     piezas: [
-      { id: 'portfolio-todos', nombre: 'Todos los proyectos', archivo: 'src/views/Portfolio.astro + obra/PiezaCasa.astro', que: '«Webs a medida.» y, debajo, la fila de filtros (país, tecnología, servicio y categoría), pegada arriba al bajar. Todos los proyectos seguidos, cada uno en su forma (navegador, mesa o móvil, con su botón para cambiarla).', de: 'src/data/proyectos.ts y src/data/portfolio-orden.json (orden, formas y ajustes de cada pieza); los filtros van en la dirección (?pais, ?tec…).' },
-      { id: 'portfolio-mentor', nombre: 'Mentor', archivo: 'src/components/Voces.astro', que: 'Cada once proyectos, un mentor a todo el ancho: su retrato al carboncillo se dibuja y la cita sube palabra a palabra. El mismo componente cierra cada caso de estudio.', de: 'src/data/home.ts › proyectos.testimonios, retratos en public/media/testimonios/.' },
-      { id: 'portfolio-visor', nombre: 'Visor', archivo: 'src/components/obra/Visor.astro', que: 'Al abrir una pieza, la mesa del estudio en grande con la web del proyecto en el monitor, siempre en la mesa; flechas para pasar al siguiente.', de: 'Lámina de la mesa a 5120 px en public/media/estudio/, vídeo grande de cada proyecto en public/media/obra/.' },
+      { id: 'portfolio-todos', nombre: 'Todos los proyectos', archivo: 'src/views/Portfolio.astro + obra/PiezaCasa.astro', que: '«Webs a medida.» y, debajo, los filtros por país, tecnología, servicio y categoría, que se quedan arriba al bajar. Después, todos los proyectos, cada uno en su escena, navegador, mesa o móvil.', de: 'src/data/proyectos.ts y src/data/portfolio-orden.json, con el orden, las formas y los ajustes de cada pieza. Los filtros van en la dirección, como ?pais o ?tec.' },
+      { id: 'portfolio-mentor', nombre: 'Mentor', archivo: 'src/components/Voces.astro', que: 'Cada once proyectos, un mentor a todo el ancho. Su retrato al carboncillo se dibuja y la cita sube palabra a palabra. El mismo cierra cada caso de estudio.', de: 'src/data/home.ts › proyectos.testimonios, retratos en public/media/testimonios/.' },
+      { id: 'portfolio-visor', nombre: 'Visor', archivo: 'src/components/obra/Visor.astro', que: 'Al abrir un proyecto, la mesa del estudio en grande con su web en el monitor. Con las flechas pasas al siguiente.', de: 'Lámina de la mesa a 5120 px en public/media/estudio/, vídeo grande de cada proyecto en public/media/obra/.' },
     ],
   },
   {
     pagina: 'Caso de estudio',
     ruta: '/proyectos/neety',
     piezas: [
-      { id: 'caso-cabecera', nombre: 'Cabecera del caso', archivo: 'src/views/Caso.astro', que: 'La columna fija de la izquierda: nombre, la idea en gris, la entradilla, servicios, sector y lugar, el enlace a la web y, abajo, anterior y siguiente. A la derecha, el caso, con un anillo que mide lo leído.', de: 'src/data/proyectos.ts (una ficha por proyecto).' },
-      { id: 'caso-portada', nombre: 'Portada', archivo: 'obra/Pieza.astro (grande)', que: 'La web del proyecto sube desde abajo dentro de su degradado, a todo el ancho del contenido.', de: 'Portada de cada ficha en src/data/proyectos.ts, medios en public/media/obra/<slug>/.' },
-      { id: 'caso-detalles', nombre: 'Los detalles', archivo: 'src/views/Caso.astro + obra/Medio.astro', que: 'Mosaico de imágenes y vídeos de cerca de cada pieza de la web, con su pie.', de: 'src/data/proyectos.ts › mosaico (los hechos, en detalles), public/media/obra/<slug>/.' },
-      { id: 'caso-sistema', nombre: 'El sistema y lo que entregamos', archivo: 'src/views/Caso.astro', que: 'Su paleta con cuánto se usa cada color, sus tipografías con la escala real y el espaciado medido; lo que se le entregó y, en «Por dentro», las herramientas y las cifras.', de: 'src/data/proyectos.ts › paleta y tipos (medidos en la web de cada cliente).' },
-      { id: 'caso-siguiente', nombre: 'Conclusión y testimonio', archivo: 'src/views/Caso.astro + Voces.astro', que: 'La conclusión, «Lo que cuentan» con la cita del cliente y, al final, el testimonio con su retrato.', de: 'src/data/proyectos.ts (el orden de la lista manda).' },
+      { id: 'caso-cabecera', nombre: 'Cabecera del caso', archivo: 'src/views/Caso.astro', que: 'A la izquierda, una columna fija con el nombre, la entradilla, la ficha, el enlace a la web y, abajo, anterior y siguiente. A la derecha, el caso.', de: 'src/data/proyectos.ts, una ficha por proyecto.' },
+      { id: 'caso-portada', nombre: 'Portada', archivo: 'obra/Pieza.astro (grande)', que: 'La web del proyecto sube desde abajo sobre el degradado de su marca, a todo el ancho.', de: 'Portada de cada ficha en src/data/proyectos.ts, medios en public/media/obra/<slug>/.' },
+      { id: 'caso-sistema', nombre: 'El sistema y lo que entregamos', archivo: 'src/views/Caso.astro', que: 'La paleta con lo que se usa cada color, las tipografías con su escala real y el espaciado medido. Después, lo que se entregó y, en «Por dentro», las herramientas y las cifras.', de: 'src/data/proyectos.ts › paleta y tipos, medidos en la web de cada cliente.' },
     ],
   },
   {
     pagina: 'Lab',
     ruta: '/lab',
     piezas: [
-      { id: 'lab', nombre: 'La mesa del lab', archivo: 'src/components/lab/Mesa.astro', que: 'Un lienzo sin fin que se arrastra: la tarjeta de cristal de savvia lab, raíces hacia cada experimento y el fondo a elegir. Cada experimento se abre en grande, con el enlace a su web.', de: 'src/data/lab.ts (experimentos y mundo), vídeos en public/media/lab/.' },
+      { id: 'lab', nombre: 'La mesa del lab', archivo: 'src/components/lab/Mesa.astro', que: 'Un lienzo sin fin que se arrastra, con la tarjeta de savvia lab y raíces hacia cada experimento. Cada uno se abre en grande, con el enlace a su web.', de: 'src/data/lab.ts, con los experimentos y el mundo. Vídeos en public/media/lab/.' },
     ],
   },
   {
@@ -71,48 +57,38 @@ const GRUPOS: Grupo[] = [
     ruta: '/manifiesto',
     piezas: [
       { id: 'manifiesto-portada', nombre: 'Portada', archivo: 'src/views/Manifiesto.astro', que: '«Manifiesto» y el brote de la bellota de la estación, que se dibuja con el motor del árbol.', de: 'Láminas en public/media/manifiesto/.' },
-      { id: 'manifiesto-texto', nombre: 'El texto', archivo: 'src/views/Manifiesto.astro', que: 'La entrada con la capitular y seis párrafos que se entintan al leerlos: qué es savvia, el problema, cómo empezamos (por dentro, como la savia), lo que te entregamos, los guardarraíles y el cierre; al final, la firma de savvia.', de: 'src/data/manifiesto.ts (y manifiesto.en.ts) › entrada y capitulos.' },
     ],
   },
   {
     pagina: '404',
     ruta: '',
     piezas: [
-      { id: '404', video: true, nombre: 'El tiempo encima', archivo: 'src/pages/404.astro + 404/Cuatro.astro', que: 'El 404 en grande y, encima, el tiempo de la estación: hojas, nieve, flores o hierba que se posan.', de: 'Textos en la propia página.' },
+      { id: '404', video: true, nombre: 'El tiempo encima', archivo: 'src/pages/404.astro + 404/Cuatro.astro', que: 'El 404 en grande y, encima, el tiempo de la estación. Hojas, nieve, flores o hierba que se posan.', de: 'Textos en la propia página.' },
     ],
   },
 ];
 // 28/10 · /en/storybook: lo mismo en inglés, al lado (por página y por id de pieza); los archivos y las rutas no se traducen
-import { langDe, ruta } from '../../lib/i18n';
+import { langDe } from '../../lib/i18n';
 const lang = langDe(Astro.currentLocale);
 const en = lang === 'en';
-const PAGINA_EN: Record<string, string> = { Inicio: 'Home', 'En todas las páginas': 'On every page', Portfolio: 'Portfolio', 'Caso de estudio': 'Case study', Lab: 'Lab', Manifiesto: 'Manifesto', '404': '404' };
+const PAGINA_EN: Record<string, string> = { Inicio: 'Home', Portfolio: 'Portfolio', 'Caso de estudio': 'Case study', Lab: 'Lab', Manifiesto: 'Manifesto', '404': '404' };
 const ESTS_EN: Record<string, string> = { otono: 'Autumn', invierno: 'Winter', primavera: 'Spring', verano: 'Summer' };
 const PIEZA_EN: Record<string, { nombre: string; que: string; de: string }> = {
-  'inicio-hero': { nombre: 'Hero', que: 'Headline and subtitle over the oak of the season, which the tree engine draws and paints from where the drop falls. In the frame, the time and “since 2020”.', de: 'Copy in src/data/home.ts › hero, illustration in public/media/hero/, engine in src/scripts/estela.ts.' },
-  'inicio-raices': { nombre: 'Roots', que: 'The roots of the oak below the ground line, painted once in the season of the website: the step from the hero to what lies beneath.', de: 'Illustration of the season in public/media/hero/, painted with src/scripts/estela.ts.' },
-  'inicio-proyectos': { nombre: 'Featured projects', que: 'The studio desk: standing, the monitor shows the reel of the season on a silent loop; when you sit down, the camera moves in and you walk through the real website of each project built with agentic development. On mobile, its video.', de: 'Projects in src/data/home.ts › proyectos.nuevos, illustrations in public/media/estudio/, reel in public/media/reel/.' },
-  'inicio-agentic': { nombre: 'savvia agentic', que: 'It opens with the manifesto, which inks itself letter by letter as you scroll; then, the Neety library used in real time: the agents pick up its pieces and build the page in front of you.', de: 'src/data/home.ts › problemas and partitura (with its libreria).' },
-  'inicio-mas-proyectos': { nombre: 'More projects', que: 'The project mosaic, each piece in the gradient of its brand with the website that plays on hover; a button on each piece changes its scene (browser, desk or mobile) and a click opens the viewer. After the first five, the grid of quotes, logos and figures takes up a whole row.', de: 'src/data/home.ts › proyectos.anteriores, cells and testimonials, src/data/proyectos.ts, videos in public/media/anteriores/.' },
-  'inicio-servicios': { nombre: 'Services', que: 'The three ways of working with you; when you pick one, a cursor ticks off on the card the points it includes.', de: 'src/data/home.ts › servicios (list and groups).' },
-  'inicio-estudio': { nombre: 'Eric and Andoni', que: 'The two of them, standing together; when you hover over each one, their three hobbies, drawn in ink, come out of their head, large. The only section in the first person.', de: 'src/data/home.ts › estudio, src/data/ilustraciones-equipo.ts, poses in public/media/equipo/.' },
-  'inicio-preguntas': { nombre: 'Questions', que: 'The frequently asked questions as a conversation: suggestions and a free question, answered by Eric and Andoni.', de: 'src/data/home.ts › preguntas.' },
-  'inicio-pie': { nombre: 'Footer', que: 'The landscape of the season is drawn after the drop of the logo; “Contact us” sits between the mountains and opens on hover.', de: 'src/data/home.ts › pie and nav, layers in public/media/pie/. It is the same on every page.' },
-  'comun-menu': { nombre: 'Bar and menu', que: 'Logo, the radio (five bars that dance with what is playing), the season icon and the grid that opens the menu in a card, with the reel in miniature.', de: 'src/data/home.ts › nav, reel by season and language in src/scripts/reel.ts and public/media/reel/.' },
-  'comun-carga': { nombre: 'Loader', que: 'Only on the first visit: the visitor draws a circle, the circle gathers into a drop and the drop falls to the foot of the oak, where the hero is born.', de: '`?carga=1` forces it so it can be reviewed; it does not show in automated browsers.' },
-  'comun-chat': { nombre: 'Chat', que: 'Prototype. A glass button at the bottom right opens a guided brief (End-to-end, Collaboration, Consulting) and free questions. It hides in the hero, with the menu open, when seated and next to Questions. `?chat=0` removes it.', de: 'src/data/home.ts › pie (email and calendar) and estudio (the faces).' },
-  'portfolio-todos': { nombre: 'All projects', que: '“Custom websites.” and, below it, the row of filters (country, technology, service and category), which sticks to the top as you scroll. All the projects one after another, each in its own form (browser, desk or mobile, with its button to change it).', de: 'src/data/proyectos.ts and src/data/portfolio-orden.json (order, forms and settings for each piece); the filters go in the address (?pais, ?tec…).' },
-  'portfolio-mentor': { nombre: 'Mentor', que: 'Every eleven projects, a mentor across the full width: their charcoal portrait draws itself and the quote rises word by word. The same component closes each case study.', de: 'src/data/home.ts › proyectos.testimonios, portraits in public/media/testimonios/.' },
-  'portfolio-visor': { nombre: 'Viewer', que: 'When you open a piece, the studio desk at full size with the project website on the monitor, always on the desk; arrows to move on to the next one.', de: 'Desk illustration at 5120 px in public/media/estudio/, large video of each project in public/media/obra/.' },
-  'caso-cabecera': { nombre: 'Case header', que: 'The fixed column on the left: name, the idea in grey, the standfirst, services, sector and location, the link to the website and, at the bottom, previous and next. On the right, the case, with a ring that measures how much you have read.', de: 'src/data/proyectos.ts (one entry per project).' },
-  'caso-portada': { nombre: 'Cover', que: 'The project website rises from below inside its gradient, across the full width of the content.', de: 'Cover of each entry in src/data/proyectos.ts, media in public/media/obra/<slug>/.' },
-  'caso-detalles': { nombre: 'The details', que: 'A mosaic of close-up images and videos of each piece of the website, with its caption.', de: 'src/data/proyectos.ts › mosaico (the facts, in detalles), public/media/obra/<slug>/.' },
-  'caso-sistema': { nombre: 'The system and what we deliver', que: 'Its palette with how much each colour is used, its typefaces with the real scale and the measured spacing; what was delivered and, in “Under the hood”, the tools and the figures.', de: 'src/data/proyectos.ts › paleta and tipos (measured on each client’s website).' },
-  'caso-siguiente': { nombre: 'Conclusion and testimonial', que: 'The conclusion, “What they say” with the client quote and, at the end, the testimonial with its portrait.', de: 'src/data/proyectos.ts (the order of the list decides).' },
-  lab: { nombre: 'The lab desk', que: 'An endless canvas you drag around: the glass card of savvia lab, roots towards each experiment and a background of your choice. Each experiment opens at full size, with the link to its website.', de: 'src/data/lab.ts (experiments and world), videos in public/media/lab/.' },
-  'manifiesto-portada': { nombre: 'Cover', que: '“Manifesto” and the sprouting acorn of the season, drawn with the tree engine.', de: 'Illustrations in public/media/manifiesto/.' },
-  'manifiesto-texto': { nombre: 'The text', que: 'The opening with the drop cap and six paragraphs that ink themselves as you read: what savvia is, the problem, how we start (from within, like sap), what we deliver to you, the guardrails and the close; at the end, the savvia signature.', de: 'src/data/manifiesto.ts (and manifiesto.en.ts) › entrada and capitulos.' },
-  '404': { nombre: 'The weather on top', que: 'The 404 in large type and, on top, the weather of the season: leaves, snow, flowers or grass that settle.', de: 'Copy in the page itself.' },
+  'inicio-hero': { nombre: 'Hero', que: 'At the top, the headline and the subtitle. Below, the oak of the season, drawn and painted from where the drop falls. In the frame, the time and “since 2020”.', de: 'Copy in src/data/home.ts › hero, illustration in public/media/hero/, engine in src/scripts/estela.ts.' },
+  'inicio-proyectos': { nombre: 'Featured projects', que: 'The studio desk. Standing, the monitor shows the reel of the season. Sitting down, the camera moves in and you walk through the real website of each project. On mobile, its video.', de: 'Projects in src/data/home.ts › proyectos.nuevos, illustrations in public/media/estudio/, reel in public/media/reel/.' },
+  'inicio-mas-proyectos': { nombre: 'More projects', que: 'The project mosaic, each one on its brand gradient with its website playing on hover. Each piece switches scene with a button and opens in the viewer. After the first five, a row of quotes, logos and figures.', de: 'src/data/home.ts › proyectos.anteriores, cells and testimonials, src/data/proyectos.ts, videos in public/media/anteriores/.' },
+  'inicio-servicios': { nombre: 'Services', que: 'The three ways of working with you. Pick one and a cursor marks on the card what it includes.', de: 'src/data/home.ts › servicios (list and groups).' },
+  'inicio-preguntas': { nombre: 'Questions', que: 'The FAQ as a conversation. Pick a suggestion or write your own, and Eric and Andoni answer.', de: 'src/data/home.ts › preguntas.' },
+  'inicio-pie': { nombre: 'Footer', que: 'The landscape of the season is drawn after the drop from the logo. “Contact us” sits between the mountains and opens on hover.', de: 'src/data/home.ts › pie and nav, layers in public/media/pie/. It is the same on every page.' },
+  'portfolio-todos': { nombre: 'All projects', que: '“Websites made to measure.” and, below, the filters by country, technology, service and category, which stay at the top as you scroll. Then every project, each in its scene, browser, desk or mobile.', de: 'src/data/proyectos.ts and src/data/portfolio-orden.json (order, forms and settings for each piece); the filters go in the address (?pais, ?tec…).' },
+  'portfolio-mentor': { nombre: 'Mentor', que: 'Every eleven projects, a mentor across the full width. Their charcoal portrait is drawn and the quote rises word by word. The same piece closes each case study.', de: 'src/data/home.ts › proyectos.testimonios, portraits in public/media/testimonios/.' },
+  'portfolio-visor': { nombre: 'Viewer', que: 'Open a project and the studio desk appears large with its website on the monitor. The arrows take you to the next one.', de: 'Desk illustration at 5120 px in public/media/estudio/, large video of each project in public/media/obra/.' },
+  'caso-cabecera': { nombre: 'Case header', que: 'On the left, a fixed column with the name, the lead, the details, the link to the website and, at the bottom, previous and next. On the right, the case.', de: 'src/data/proyectos.ts (one entry per project).' },
+  'caso-portada': { nombre: 'Cover', que: 'The project’s website rises from below over its brand gradient, full width.', de: 'Cover of each entry in src/data/proyectos.ts, media in public/media/obra/<slug>/.' },
+  'caso-sistema': { nombre: 'The system and what we deliver', que: 'The palette with how much each colour is used, the typefaces with their real scale and the measured spacing. Then what was delivered and, under the hood, the tools and the figures.', de: 'src/data/proyectos.ts › paleta and tipos (measured on each client’s website).' },
+  lab: { nombre: 'The lab desk', que: 'An endless canvas you drag, with the savvia lab card and roots leading to each experiment. Each one opens large, with the link to its website.', de: 'src/data/lab.ts (experiments and world), videos in public/media/lab/.' },
+  'manifiesto-portada': { nombre: 'Cover', que: '“Manifesto” and the acorn sprout of the season, drawn with the tree engine.', de: 'Illustrations in public/media/manifiesto/.' },
+  '404': { nombre: 'The weather on top', que: 'The large 404 and, over it, the weather of the season. Leaves, snow, flowers or grass that settle.', de: 'Copy in the page itself.' },
 };
 const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p);
 ---
@@ -120,11 +96,9 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
 <section id="catalogo" class="seccion" aria-labelledby="h-catalogo">
   <h2 id="h-catalogo" class="font-display text-h2">{en ? <>Section catalogue</> : <>Catálogo de secciones</>}</h2>
   {en ? <p class="cat-intro">
-    Each piece of the website, captured from the real website: how it looks, which file it lives in and where its content comes from. The thumbnails are rebuilt with
-    {" "}<span class="detail">node tools/r180/miniaturas.cjs</span>.
+    Some of the sections of the website, page by page, as it looks today. Under each one, the file it lives in and where its copy comes from.
   </p> : <p class="cat-intro">
-    Cada pieza de la web, capturada de la web real: cómo se ve, en qué archivo vive y de dónde sale su contenido. Las miniaturas se rehacen con
-    {" "}<span class="detail">node tools/r180/miniaturas.cjs</span>.
+    Algunas secciones de la web, página a página, tal como se ven hoy. Debajo de cada una, el archivo donde vive y de dónde sale su texto.
   </p>}
 
   {
@@ -132,7 +106,7 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
       <div class="cat-grupo">
         <h3 class="cat-pag">
           {en ? PAGINA_EN[g.pagina] ?? g.pagina : g.pagina}
-          {g.ruta && <a class="detail cat-ruta" href={ruta(lang, g.ruta)}>{ruta(lang, g.ruta)}</a>}
+          {/* 29/10 · Eric: fuera la dirección junto al nombre de la página («/», «/proyectos»…) */}
         </h3>
         <ul class="cat-rej">
           {g.piezas.map(L).map((p) => (
@@ -145,7 +119,7 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
                   </div>
                 </figure>
               ) : p.video ? (
-                <figure class="cat-vid" data-cat-vid={VID[p.id]}>
+                <figure class={`cat-vid${p.id === '404' ? ' abajo' : ''}`} data-cat-vid={VID[p.id]}>
                   <video class="cat-mini" src={`/media/sistema/catalogo/video/${VID[p.id]}-otono.mp4`} poster={`/media/sistema/catalogo/video/${VID[p.id]}-otono.jpg`} muted loop playsinline preload="none" aria-label={en ? `${p.nombre}, in motion` : `${p.nombre}, en movimiento`} data-cat-v></video>
                   <div class="cat-est" role="radiogroup" aria-label={en ? `See ${p.nombre} in` : `Ver ${p.nombre} en`}>
                     {ESTS.map(([e, n], k) => <button type="button" role="radio" aria-checked={k === 0 ? 'true' : 'false'} data-cat-est={e}>{en ? ESTS_EN[e] : n}</button>)}
@@ -219,8 +193,10 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
   .cat-mini { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-lg); box-shadow: 0 0 0 1px var(--rule); background: var(--rule); }
   .cat-texto { display: grid; gap: calc(var(--spacing) * 1); }
   .cat-vid { position: relative; margin: 0; }
-  .cat-vid video { display: block; object-position: center bottom; } /* el pie y el 404 tienen lo que importa abajo */
-  .cat-est { position: absolute; left: calc(var(--spacing) * 3); bottom: calc(var(--spacing) * 3); display: flex; gap: 2px; padding: 3px; border-radius: var(--radius-full); background: rgb(20 14 11 / 0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgb(245 245 247 / 0.16); }
+  .cat-vid video { display: block; object-position: center bottom; aspect-ratio: 16 / 9; } /* 29/10 · el vídeo es 16:9: a 16:10 se cortaban los lados («Esta página no existe») */
+  .cat-vid.abajo .cat-est { top: auto; bottom: calc(var(--spacing) * 3); } /* el 404 tiene lo suyo arriba: ahí el selector va abajo */ /* el pie y el 404 tienen lo que importa abajo */
+  /* 29/10 · Eric: el selector de estación, arriba (abajo tapaba justo lo interesante: el pie y el 404 tienen lo suyo abajo) */
+  .cat-est { position: absolute; left: calc(var(--spacing) * 3); top: calc(var(--spacing) * 3); display: flex; gap: 2px; padding: 3px; border-radius: var(--radius-full); background: rgb(20 14 11 / 0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgb(245 245 247 / 0.16); }
   .cat-est button { padding: 4px 10px; border: 0; border-radius: var(--radius-full); background: none; color: rgb(245 245 247 / 0.88); font: inherit; font-size: var(--text-detail); line-height: 1.4; cursor: pointer; transition: background-color 0.3s ease, color 0.3s ease; }
   .cat-est button:hover { color: #F5F5F7; }
   .cat-est button[aria-checked='true'] { background: #F5F5F7; color: #302018; }

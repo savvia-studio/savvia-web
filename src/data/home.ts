@@ -96,7 +96,7 @@ export const problemas = {
   aria: 'Por qué savvia agentic',
   // ronda 186 (Eric: «menos texto, tres párrafos cortos»): el mismo manifiesto, condensado por Nilo con sus propias frases
   parrafos: [
-    'La IA es la base; el criterio sigue siendo nuestro.',
+    'La IA es la base. El criterio sigue siendo nuestro.',
     'Hacemos tu web como un traje a medida, mano a mano contigo.',
     'Cocinamos a fuego lento, píxel a píxel, y te entregamos la receta…',
     '[[savvia agentic]]: tu web conectada con la IA.',

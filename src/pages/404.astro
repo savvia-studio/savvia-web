@@ -5,8 +5,6 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Carriles from '../components/Carriles.astro';
-import Pie from '../components/Pie.astro';
-import Cta from '../components/Cta.astro';
 import Cuatro from '../components/404/Cuatro.astro';
 ---
 
@@ -17,21 +15,13 @@ import Cuatro from '../components/404/Cuatro.astro';
     <section class="tiempo" data-sin-fila data-cuatro-zona aria-labelledby="perdida-h">
       <Cuatro />
       <div class="hueco" data-cuatro-hueco aria-hidden="true"></div>
+      <!-- fuera el titular, la frase y los botones («no suma»); la fila queda como suelo del 404 y el h1 solo para lectores -->
       <div class="wrap texto" data-carril-fila data-cuatro-suelo>
-        <h1 id="perdida-h" class="font-display text-h2 titular"><span class="sr" data-en="Error 404. ">Error 404. </span><span data-en="This page does not exist.">Esta página no existe.</span></h1>
-        <div class="lado">
-          <p class="text-sub text-fg2 linea">
-            <span data-en="The address has changed, or never existed. Meanwhile, ">La dirección ha cambiado o nunca estuvo. Mientras tanto, </span><span data-mientras>caen las hojas</span>.
-          </p>
-          <div class="acciones">
-            <Cta href="/" data-en-href="/en/" data-en="Back to home">Volver al inicio</Cta>
-            <Cta href="/proyectos" variante="secundario" flecha="no" data-en-href="/en/proyectos" data-en="See projects">Ver proyectos</Cta>
-          </div>
-        </div>
+        <h1 id="perdida-h" class="font-display sr"><span data-en="Error 404. This page does not exist.">Error 404. Esta página no existe.</span></h1>
       </div>
     </section>
   </main>
-  <Pie />
+  <!-- sin pie: en el 404 no hay footer (Eric) -->
   <!-- una sola URL para los dos idiomas: el HTML lleva el castellano y, antes del primer pintado, esto lo pasa a inglés si la dirección de origen era /en/ o la cookie/almacén dicen «en» -->
   <script is:inline>
     (function () {
@@ -55,18 +45,6 @@ import Cuatro from '../components/404/Cuatro.astro';
   </script>
 </Base>
 
-<script>
-  // la frase sigue a la estación
-  const EN = document.documentElement.lang === 'en';
-  const FRASE: Record<string, string> = EN
-    ? { invierno: 'it is snowing', otono: 'the leaves are falling', primavera: 'the flowers are blooming', verano: 'the sun is out' }
-    : { invierno: 'nieva', otono: 'caen las hojas', primavera: 'florece', verano: 'da el sol' };
-  const el = document.querySelector<HTMLElement>('[data-mientras]');
-  const poner = () => { if (el) el.textContent = FRASE[document.documentElement.dataset.estacion || 'otono'] || FRASE.otono; };
-  poner();
-  new MutationObserver(poner).observe(document.documentElement, { attributes: true, attributeFilter: ['data-estacion'] });
-</script>
-
 <style>
   .tiempo {
     position: relative;
@@ -75,7 +53,7 @@ import Cuatro from '../components/404/Cuatro.astro';
     display: flex;
     flex-direction: column;
     padding-top: calc(var(--spacing) * 24);
-    padding-bottom: calc(var(--spacing) * 16);
+    padding-bottom: calc(var(--spacing) * 32); /* el 404 y su línea, más arriba: aire debajo */
   }
   /* el sitio del 404: el lienzo cubre toda la sección; esto reserva su alto (las cifras se apoyan en la línea de abajo) */
   .hueco {
@@ -84,32 +62,6 @@ import Cuatro from '../components/404/Cuatro.astro';
   .texto {
     position: relative;
     z-index: 2;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: calc(var(--spacing) * 6);
-    align-items: end;
-    padding-top: calc(var(--spacing) * 8);
-  }
-  .titular {
-    grid-column: 1 / span 6;
-    margin: 0;
-    max-width: 14ch;
-    text-wrap: balance;
-  }
-  .lado {
-    grid-column: 7 / span 6;
-  }
-  .linea {
-    margin: 0;
-    max-width: 36ch;
-    text-wrap: pretty;
-  }
-  .acciones {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: calc(var(--spacing) * 6);
-    margin-top: calc(var(--spacing) * 8);
   }
   .sr {
     position: absolute;
@@ -120,7 +72,7 @@ import Cuatro from '../components/404/Cuatro.astro';
     white-space: nowrap;
   }
   @media (max-width: 47.99rem) {
-    /* en el móvil el 404 lo limita el ancho: el grupo (cifras + texto) va centrado en la pantalla, sin un vacío arriba */
+    /* en el móvil el 404 lo limita el ancho: las cifras van centradas en la pantalla, sin un vacío arriba */
     .tiempo {
       justify-content: center;
       padding-bottom: calc(var(--spacing) * 14);
@@ -128,12 +80,6 @@ import Cuatro from '../components/404/Cuatro.astro';
     .hueco {
       flex: 0 0 auto;
       height: clamp(12rem, 54vw, 18rem);
-    }
-    .texto {
-      display: block;
-    }
-    .lado {
-      margin-top: calc(var(--spacing) * 6);
     }
   }
 </style>

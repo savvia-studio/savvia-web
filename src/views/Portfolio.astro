@@ -711,7 +711,9 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       clip-path: inset(0 0 100% 0);
     }
     .desp.abierto .desp-menu { clip-path: inset(0); }
-    .desp-menu::before, .desp-menu::after, .op, .mira-op { border-radius: 0; }
+    .desp-menu::before, .desp-menu::after { border-radius: 0; }
+    /* 29/10 · Eric: «probaría a poner el hovering state de cada elemento dentro del cuadrado en algo de rounded»: la lista sigue recta; el resaltado, radio 8 */
+    .op, .mira-op { border-radius: 8px; }
   }
   .op {
     display: flex;

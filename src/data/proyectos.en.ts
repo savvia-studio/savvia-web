@@ -270,6 +270,14 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
       diseno: { src: '/media/obra/neety/anim-figma.webp', pie: 'The seven cards, drawn by hand.' },
       web: { src: '/media/obra/neety/x-feed.mp4', poster: '/media/obra/neety/x-feed.jpg', pie: 'The same cards, looping over the gradient: the active one sharp; the rest, blurred.' },
     },
+    herramientas: {
+      titulo: 'Ship Studio and Agentation',
+      texto: 'The site was built in Ship Studio. Claude works on the code while the site shows live on the canvas. And with Agentation, feedback is left on the site itself, pointing at each element, so Claude knows exactly what to change.',
+      piezas: [
+        { titulo: 'Ship Studio', alt: 'Ship Studio with Neety’s site: the agent on the left and the live site', video: { src: '/media/obra/neety/ship-studio.mp4', poster: '/media/obra/neety/ship-studio.jpg', pie: 'We ask the agent for a change and the site updates live.' } },
+        { titulo: 'Agentation', alt: 'Agentation on Neety’s site: a comment written on the “How it works” section', video: { src: '/media/obra/neety/agentation.mp4', poster: '/media/obra/neety/agentation.jpg', pie: 'Hovering marks each element of the site. You click it and write the comment. Claude gets the text, the exact element and the screen size it was left at.' } },
+      ],
+    },
     micro: {
       titulo: 'Micro-animations',
       texto: 'Because it is built in code, every detail can be animated: a line, a step, a card. In “How Neety works”, the line moves forward and lights up each step with its screen.',
@@ -306,7 +314,7 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     ]),
     figma: tx(neety.figma, [
       { titulo: 'From skeleton to concept', pie: 'Every page, first as structure with no colour. Then five visual direction concepts until landing on the final one.' },
-      { titulo: 'The look and feel', pie: 'Seventeen variations of the home page on the same skeleton: the gradient, the headline and the hero card, until the direction was found.' },
+      { titulo: 'The look and feel', pie: 'Seventeen variations of the home page on the same skeleton. The gradient, the headline and the hero card change until the direction is found.' },
       { titulo: 'The home page, on desktop and mobile', pie: 'The final home page, the menu dropdowns and the feed; next to it, the mobile version with its menu.' },
     ]),
     detalles: tx(neety.detalles, [
@@ -325,9 +333,9 @@ export const proyectosEn: Record<string, Partial<Proyecto>> = {
     boton: { ...neety.boton!, nota: 'Aubergine at 75%' },
     medido: 'Measured on the delivered site, at 1440 px',
     conclusion: [
-      'Neety was our first project with agentic development. The design started in Figma; we built the code with AI, true to every decision in that design.',
+      'Neety was our first project with agentic development. The design started in Figma. We built the code with AI, true to every decision in that design.',
       'Neety took away a website connected to AI, which their team keeps evolving on their own.',
-      'That works because the library acts as guardrails: colour, typography, motion and the 80 components are all captured in it.',
+      'That works because the library acts as guardrails. Colour, typography, motion and the 80 components are all captured in it.',
       'And their team received a repository connected to Claude, from which they change content, sections or pages just by talking.',
     ],
     cita: { ...neety.cita!, texto: 'Close, human and genuinely able to understand your project. More than a supplier, they are part of your team.', rol: 'Founder and CEO, Neety' },

@@ -60,7 +60,7 @@ export const recorrido = {
 export const problemas = {
   aria: 'Why savvia agentic',
   parrafos: [
-    'AI is the base; the judgement is still ours.',
+    'AI is the base. The judgement is still ours.',
     'We make your website like a tailored suit, side by side with you.',
     'We cook slowly, pixel by pixel, and hand you the recipe…',
     '[[savvia agentic]]: your website, connected to AI.',

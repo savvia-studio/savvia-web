@@ -448,8 +448,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
               ))}
             </ol>
             <p class="t-ojo nota">{en
-              ? `The paddings, margins and gaps that repeat most on the delivered site, at 1440 px and true scale${esp.base ? `; almost all fall on ${esp.base} px steps` : '; fluid sizes (they change with the window width), with no fixed step'}.`
-              : `Los rellenos, márgenes y huecos que más se repiten en la web entregada, a 1440 px y a escala real${esp.base ? `; casi todos caen en pasos de ${esp.base} px` : '; tamaños fluidos (cambian con el ancho de la ventana), sin un paso fijo'}.`}</p>
+              ? `The paddings, margins and gaps that repeat most on the delivered site, at 1440 px and true scale${esp.base ? `. Almost all fall on ${esp.base} px steps` : '. They are fluid sizes, which change with the window width, with no fixed step'}.`
+              : `Los rellenos, márgenes y huecos que más se repiten en la web entregada, a 1440 px y a escala real${esp.base ? `. Casi todos caen en pasos de ${esp.base} px` : '. Son tamaños fluidos, que cambian con el ancho de la ventana, sin un paso fijo'}.`}</p>
           </div>
         </section>
       )
@@ -543,6 +543,28 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
             </figure>
             </div>
           ))}
+        </section>
+      )
+    }
+
+    <!-- 28/10 · Eric: CON QUÉ TRABAJAMOS (Ship Studio y Agentation), dos vídeos a dos columnas, como «Del diseño a la animación»; solo los que ya tienen vídeo -->
+    {
+      p.herramientas && p.herramientas.piezas.some((h) => h.video) && (
+        <section class="wrap bloque" aria-labelledby="herr-h">
+          <div class="sis-cab">
+            <h2 id="herr-h" class="t-enc">{p.herramientas.titulo}</h2>
+            <p class="t-texto text-fg2 sis-entra">{p.herramientas.texto}</p>
+          </div>
+          <div class="anim">
+            {p.herramientas.piezas.filter((h) => h.video).map((h) => (
+              <figure class="anim-pieza" data-vivo>
+                <div class="anim-hueco herr-hueco">
+                  <Medio medio={{ tipo: 'video', src: h.video!.src, poster: h.video!.poster }} color={p.color} alt={h.alt} proporcion="auto" placa={p.colores[0]} colores={p.colores} />
+                </div>
+                <figcaption class="t-ojo pie"><span><span class="fuerte">{h.titulo}.</span> {h.video!.pie}</span></figcaption>
+              </figure>
+            ))}
+          </div>
         </section>
       )
     }
@@ -1209,6 +1231,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   }
   /* 28/10 · DEL DISEÑO A LA ANIMACIÓN: dos huecos de 4:5 con la carátula de los detalles (Medio con placa: degradado de marca y ventana de cristal);
      altos para que el marco de Figma se vea ENTERO y quieto (Eric: «entero a la vista»). Al verse, el hueco se abre desde un margen */
+  .anim-hueco.herr-hueco { aspect-ratio: 16 / 11; } /* más bajas que las de la animación (4:5): son grabaciones apaisadas */
   .micro-mas { margin-top: clamp(2.5rem, 1.75rem + 2vw, 4rem); }
   .anim { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6); }
   @media (width >= 48rem) { .anim { grid-template-columns: 1fr 1fr; } }
