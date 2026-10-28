@@ -33,35 +33,33 @@ export const manifiesto = {
   // RONDA 296 (Eric): «la analogía de la savia del árbol con savvia: compartimos valores». Tres capítulos (va por dentro · se adapta · es sabia);
   // la entrada lleva la capitular; «savia» = la del árbol, «savvia» = nosotros. Eric: «los subrayados no me gustan nada» y los lemas como heading
   // tampoco: prosa seguida, sin [[…]]; `etiqueta` queda como nombre del capítulo (no se pinta).
-  entrada: 'La savia de un árbol y savvia comparten valores.',
+  // RONDA 297 (Eric, 28/10): manifiesto nuevo tras la revisión de José Luis («abrir con fuerza, cerrar con fuerza»): qué es savvia · los
+  // problemas · cómo empezamos (la savia) · qué entregamos · los guardarraíles · cierre. Cada `capitulo` es un párrafo.
+  entrada: 'savvia existe para orquestar el diseño y desarrollo de tu web con IA.',
   capitulos: [
-    {
-      num: 'I',
-      cap: 'Cap. uno',
-      etiqueta: 'Va por dentro.',
-      parrafos: [
-        'La savia va por dentro: nutre, y por eso el árbol florece. Nosotros empezamos escuchando, mano a mano contigo.',
-        'Te conocemos, nos conoces y te hacemos parte del proceso. En ese vínculo está buena parte del resultado.',
-      ],
-    },
+    { num: 'I', parrafos: ['Pasa mucho: tu web no se alinea con tu marca, se ve como AI slop, cuesta mantenerla y el diseño se rompe en cada cambio.'] },
     {
       num: 'II',
-      cap: 'Cap. dos',
-      etiqueta: 'Se adapta.',
       parrafos: [
-        'La savia llega a cada rama con lo que esa rama necesita.',
-        'Nosotros también: nos adaptamos a tu proyecto, a su tamaño y a su momento, y siempre que podemos damos un poco más.',
+        'Nosotros empezamos por dentro, como la savia. Te escuchamos para entender lo que tu marca necesita.',
+        'La savia lleva dentro todo lo que el árbol ha vivido; savvia, lo aprendido con cada cliente desde 2020.',
+        'Con tu dirección y nuestro criterio creamos las directrices únicas para tu proyecto.',
       ],
     },
     {
       num: 'III',
-      cap: 'Cap. tres',
-      etiqueta: 'Es sabia.',
       parrafos: [
-        'La savia lleva dentro todo lo que el árbol ha vivido. Nosotros, lo aprendido con cada cliente.',
-        'Con la IA, ese criterio llega más lejos.',
+        'Y te entregamos tu web conectada con la IA, lista para usar: un repositorio enlazado a tu suscripción de Claude o ChatGPT, desde donde podrás seguir evolucionándola sin perder nada de lo que hemos trabajado juntos.',
       ],
     },
+    {
+      num: 'IV',
+      parrafos: [
+        'Eso solo funciona con guardarraíles. Cada decisión de diseño, de movimiento o de componente queda recogida en el sistema.',
+        'En la práctica, son archivos .md que resuelven las incógnitas de llevar tu identidad visual a una web.',
+      ],
+    },
+    { num: 'V', parrafos: ['savvia es alimento y energía. savvia es criterio.'] },
   ],
   listas: [
     { titulo: 'El método', items: ['Entender', 'Decidir', 'Documentar', 'Entregar'] },

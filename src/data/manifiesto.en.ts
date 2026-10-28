@@ -24,35 +24,32 @@ export const manifiesto: typeof ManifiestoEs = {
     },
   ],
   cierre: 'That is savvia agentic: your website, orchestrated with AI and judgement.',
-  entrada: 'The sap of a tree and savvia share the same values.',
+  // RONDA 297: the new manifesto (see manifiesto.ts).
+  entrada: 'savvia exists to orchestrate the design and development of your website with AI.',
   capitulos: [
-    {
-      num: 'I',
-      cap: 'Chapter one',
-      etiqueta: 'It runs within.',
-      parrafos: [
-        'Sap runs within: it nourishes, and that is why the tree blossoms. We begin by listening, side by side with you.',
-        'We get to know you, you get to know us and we make you part of the process. Much of the result lives in that bond.',
-      ],
-    },
+    { num: 'I', parrafos: ['It happens a lot: your website is out of step with your brand, it looks like AI slop, it is hard to maintain and the design breaks with every change.'] },
     {
       num: 'II',
-      cap: 'Chapter two',
-      etiqueta: 'It adapts.',
       parrafos: [
-        'Sap reaches every branch with what that branch needs.',
-        'So do we: we adapt to your project, to its size and to its moment, and whenever we can, we give a little more.',
+        'We start from within, like sap. We listen to understand what your brand needs.',
+        'Sap carries everything the tree has lived through; savvia, everything learned with every client since 2020.',
+        'With your direction and our judgement, we create the guidelines unique to your project.',
       ],
     },
     {
       num: 'III',
-      cap: 'Chapter three',
-      etiqueta: 'It is wise.',
       parrafos: [
-        'Sap carries everything the tree has lived through. We carry what we have learned with every client.',
-        'With AI, that judgement reaches further.',
+        'And we hand you your website connected to AI, ready to use: a repository linked to your Claude or ChatGPT subscription, from which you can keep evolving it without losing anything we have built together.',
       ],
     },
+    {
+      num: 'IV',
+      parrafos: [
+        'That only works with guardrails. Every decision on design, motion or components is captured in the system.',
+        'In practice, they are .md files that solve the unknowns of bringing your visual identity to a website.',
+      ],
+    },
+    { num: 'V', parrafos: ['savvia is nourishment and energy. savvia is judgement.'] },
   ],
   listas: [
     { titulo: 'The method', items: ['Understand', 'Decide', 'Document', 'Deliver'] },
