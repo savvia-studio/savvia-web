@@ -26,7 +26,7 @@ export type Detalle = { titulo: string; texto: string; medio: Medio; prop?: stri
 // (tools/r153/estilos.cjs y aplicado.cjs); el porcentaje de uso de cada color, en las grabaciones de la web entregada (tools/r153/proporcion.cjs).
 export type Pieza = { medio: Medio; titulo: string; pie: string; prop?: string; placa?: number; pos?: string };
 export type Fila = { f: 'ancha' | 'sangre' | 'par' | 'par75' | 'par57' | 'trio'; p: Pieza[] };
-export type Escalon = { n: string; fam: string; px: number; lh: number | 'normal'; peso: number; ls?: string };
+export type Escalon = { n: string; fam: string; px: number; lh: number | 'normal'; peso: number; ls?: string; movil?: number }; // movil: su tamaño en móvil (28/10)
 export type Boton = { fam: string; px: number; peso: number; radio: number; alto: number; fondo: string; tinta: string; nota?: string };
 export type Proyecto = {
   slug: string;
@@ -66,9 +66,12 @@ export type Proyecto = {
   cifras?: { v: string; t: string }[]; // del PROYECTO (nunca del proceso)
   cita?: { texto: string; autor: string; rol: string; video?: string; retrato?: string }; // ronda 144: si el testimonio tiene vídeo, se indica · 28/10: con retrato, va ilustrado al final del caso (Voces)
   valor?: { n: string; d: string }[]; // 28/10: lo que ganó el cliente, cada punto con su prueba
+  sinMovimiento?: boolean; // 28/10: no enseña «Movimiento»
+  sinDetalles?: boolean; // 28/10: no enseña «Los detalles» (el mosaico sigue alimentando «Movimiento»)
+  figmaCorte?: number; // 28/10: cuántas láminas del Figma van antes de Color, Tipografía y Espaciado (el resto, después)
   figma?: { f: 'ancha' | 'trio' | 'alta'; img: string[]; titulo: string; pie: string }[]; // 28/10: «Del Figma a la web», capturas de su archivo de diseño (tools/neety-figma/)
   animacion?: { titulo: string; texto: string; diseno: { src: string; pie: string }; web: { src: string; poster: string; pie: string } }; // 28/10: del diseño (Figma) a la animación en la web, en dos columnas
-  micro?: { titulo: string; texto: string; video: { src: string; poster: string; pie: string } }; // 28/10: las microanimaciones, una grabación a lo ancho
+  micro?: { titulo: string; texto: string; video: { src: string; poster: string; pie: string }; mas?: { titulo: string; alt: string; video: { src: string; poster: string; pie: string } }[] }; // mas: más grabaciones debajo (28/10) // 28/10: las microanimaciones, una grabación a lo ancho
   con?: string;
   color: string; // fondo de su tarjeta
   colores: [string, string, string]; // fondo · secundario · acento de su web (el degradado de su pieza)
@@ -90,8 +93,10 @@ export type Proyecto = {
     accesos: { n: string; nEn: string; ancla: string }[]; // los atajos a sus secciones (sus #id)
     tapa: { marca: string; titulo: string; tituloEn: string; fondo: string; tinta: string; acento: string }; // el libro: su tapa, en los colores de su marca
     entrega: { n: string; d: string; nEn: string; dEn: string }[]; // lo que se llevó el cliente (de su librería: «Recibir el proyecto»)
+    video?: { src: string; poster: string; pie: string; pieEn: string }; // 28/10: «La entrega» como grabación de la librería (sin albarán ni libro)
     texto?: string[]; textoEn?: string[]; // 28/10: lo que se cuenta de la entrega, encima del albarán
   };
+  muestra?: { titular: string; texto: string; detalle?: string; titularEn?: string; textoEn?: string; detalleEn?: string }; // 28/10: frases de SU web para la escala tipográfica del caso (como el storybook)
   iconos?: { n: string; src: string }[]; // octubre 2026: su iconografía, si la tiene (el caso la enseña en rejilla, a la manera de brand.dropbox.com)
 };
 
@@ -423,7 +428,7 @@ export const proyectos: Proyecto[] = [
     anio: '2026',
     destacado: true,
     servicios: ['Diseño web', 'Desarrollo agéntico', 'CMS', 'Multidioma', 'Animación'],
-    stack: ['Next.js', 'Tailwind CSS', 'GSAP + ScrollTrigger', 'Sanity', 'Cloudflare'],
+    stack: ['Next.js', 'Tailwind CSS', 'GSAP + ScrollTrigger', 'Sanity', 'Cloudflare', 'GitHub'],
     resumen: 'Diseño y desarrollo agéntico: 40 páginas en dos idiomas que su equipo sigue cambiando con Claude.',
     // 28/10 · reescrito con el dossier de la ingeniería inversa (~/ShipStudio/neety/docs/dossier-caso.md, con su fuente por dato). Eric: el Figma también es nuestro
     // 28/10 · reescrito con Eric en el documento del caso (Claude Docs «Caso de estudio · Neety»): la historia en «El proyecto», sin plazos
@@ -431,9 +436,9 @@ export const proyectos: Proyecto[] = [
     entradilla: 'Neety detecta a quién vender, cuándo hacerlo y qué acción tomar. Su web tenía que enseñarlo moviéndose y quedarse en manos de un equipo sin desarrolladores.',
     contexto: [
       'Neety ayuda a los equipos comerciales B2B a saber a qué empresas vender, cuándo hacerlo y qué acción tomar. Lo usan más de 200 comerciales en más de 50 empresas industriales, como Ojmar, Telpark o Fagor Automation.',
-      'Trabajamos con Unai y su equipo en el rediseño de su web. La anterior estaba en Webflow y mantenerla era uno de sus mayores problemas: les costaba que la web evolucionara al mismo ritmo que el producto.',
-      'Empezamos por el diseño, en Figma, y después nos pidieron construir la web con IA: con Ship Studio, cada pantalla pasaba a Claude, que la convertía en código. El resultado: 40 páginas en dos idiomas, con el contenido en Sanity.',
-      'Salió el 24 de septiembre, en Neety Forward. Desde la puesta en producción, Unai y su equipo han rehecho la página de demo y han publicado 30 artículos y 26 recursos de la academia por su cuenta según sus necesidades.',
+      'Trabajamos con Unai y su equipo en el rediseño de su web. La anterior estaba en Webflow y mantenerla era uno de sus mayores problemas: la web no avanzaba al ritmo del producto.',
+      'Empezamos por el diseño, en Figma, y después nos pidieron construir la web con IA: con Ship Studio, cada pantalla pasaba a Claude, que la convertía en código. El resultado: 40 páginas en dos idiomas, con el contenido en el CMS Sanity.',
+      'Salió el 24 de septiembre, en Neety Forward. Desde entonces, Unai y su equipo han rehecho la página de demo y han publicado 30 artículos y 26 recursos de la academia por su cuenta.',
     ],
     reto: '', // 28/10 · Eric: fuera «El reto» y «Lo que ganó Neety»
     frase: 'Una web que su equipo sigue cambiando sin nosotros.',
@@ -459,14 +464,16 @@ export const proyectos: Proyecto[] = [
     tipos: [
       { n: 'Bricolage Grotesque', uso: 'Titulares, 500' },
       { n: 'Switzer', uso: 'Interfaz y texto' },
+      { n: 'Inter', uso: 'Textos largos' }, // 28/10: la cuarta familia (su librería: «e Inter para textos largos»; blog y academia)
     ],
     apartados: [],
     tecnica: [
       'Next.js 15 con App Router y Tailwind CSS 4',
       'GSAP 3.15 y ScrollTrigger para el feed y las entradas, sin librerías de scroll',
       'Cuatro familias: Bricolage Grotesque, Switzer, Inter y Roboto Mono, servidas con next/font',
-      'Español e inglés; blog, equipo y eventos desde Sanity',
-      'Servida tras Cloudflare',
+      'Español e inglés, con el blog, el equipo y los eventos en el CMS de Sanity',
+      'Alojada en Cloudflare, en la cuenta de Neety',
+      'El código, en un repositorio de GitHub con los assets y la documentación',
     ],
     cifras: [
       { v: '40', t: 'páginas en dos idiomas' },
@@ -477,26 +484,31 @@ export const proyectos: Proyecto[] = [
     // como en el frame) y la web (Screen Studio CUcZjwvM, sin 24,75–26,8 s: la cámara se alejaba y asomaba la ventana; tras el corte, en inglés)
     animacion: {
       titulo: 'Del diseño a la animación',
-      texto: 'El feed del hero, de la tarjeta dibujada a la que se mueve. Lo diseñamos a mano en Figma y, con desarrollo agéntico, lo construimos en código, no en un vídeo ni en una animación exportada. Por eso los textos, los logotipos y las fotos van aparte del movimiento: traducirlo o cambiar una empresa, una persona o una imagen es cambiar el contenido, sin tocar la animación. Y su equipo lo hace por su cuenta.',
-      diseno: { src: '/media/obra/neety/anim-figma.webp', pie: 'Las siete tarjetas, dibujadas a mano en Figma: las empresas que encajan, quién decide, quién se activa, la señal, el mensaje, la respuesta y la reunión.' },
-      web: { src: '/media/obra/neety/x-feed.mp4', poster: '/media/obra/neety/x-feed.jpg', pie: 'Las mismas tarjetas, en bucle sobre el degradado: la activa, nítida; las demás se desenfocan y encogen.' },
+      texto: 'Primero dibujamos a mano en Figma cada tarjeta y luego las animamos directamente en código con Claude Code. Ahora el equipo de Neety puede cambiar sus textos e imágenes hablando con la IA.',
+      diseno: { src: '/media/obra/neety/anim-figma.webp', pie: 'Las siete tarjetas, dibujadas a mano.' },
+      web: { src: '/media/obra/neety/x-feed.mp4', poster: '/media/obra/neety/x-feed.jpg', pie: 'Las mismas tarjetas, en bucle sobre el degradado: la activa, nítida; el resto, desenfocadas.' },
     },
     // 28/10 · Eric: «otra sección a recalcar sobre las microanimaciones: cómo se nos permite microanimar en código todo» (Screen Studio RCpQOObj, «Cómo funciona»)
     micro: {
       titulo: 'Microanimaciones',
-      texto: 'Al estar hecha en código, cada detalle se puede animar: una línea, un paso, una tarjeta. En «Cómo funciona», la línea avanza y va encendiendo cada paso con su pantalla, al ritmo de la marca, sin plantillas ni efectos de catálogo.',
-      video: { src: '/media/obra/neety/micro-rail.mp4', poster: '/media/obra/neety/micro-rail.jpg', pie: 'La línea recorre el proceso y enciende cada paso: el texto pasa a tinta y su pantalla aparece. Detecta, prioriza y actúa.' },
+      texto: 'Al estar hecha en código, cada detalle se puede animar: una línea, un paso, una tarjeta. En «Cómo funciona Neety», la línea avanza y va encendiendo cada paso con su pantalla.',
+      video: { src: '/media/obra/neety/micro-rail.mp4', poster: '/media/obra/neety/micro-rail.jpg', pie: 'La línea recorre el proceso y enciende cada paso.' },
+      // 28/10 · Eric (Screen Studio jJUxf8d0, 9,4 s, el hero de /casos-de-uso/reactivacion-de-oportunidades): la píldora que cambia de caso, la transición
+      // entre páginas y la ilustración que adapta el logotipo de cada empresa
+      mas: [
+        { titulo: 'Casos de uso', alt: 'El hero de los casos de uso de Neety: la píldora cambia de caso y la ilustración se adapta', video: { src: '/media/obra/neety/micro-casos.mp4', poster: '/media/obra/neety/micro-casos.jpg', pie: 'La píldora del titular cambia de caso de uso, la página pasa al siguiente con su transición y la ilustración animada se adapta al logotipo de cada empresa.' } },
+      ],
     },
+    figmaCorte: 2, // el esqueleto y el look and feel; después, el sistema (color, tipografía, espaciado); luego la home
     figma: [
       // 28/10 · Eric: «quitaremos el tema del sitemap»: fuera «La estructura» (figma-sitemap.webp); empieza por el esqueleto y los conceptos
       { f: 'trio', img: ['/media/obra/neety/figma-estructura.webp', '/media/obra/neety/figma-concepto-1.webp', '/media/obra/neety/figma-concepto-3.webp'], titulo: 'Del esqueleto al concepto', pie: 'Cada página, primero en estructura y sin color. Después, cinco conceptos de dirección visual hasta dar con el definitivo.' },
       // 28/10 · Eric: «empezar por las variantes, pero también mostrar look and feel, descartes y luego la home/responsive» (capturas de Eric; tools: las cabeceras
       // con «treseiscero» y la barra de Figma, recortadas o tapadas). La librería sustituye a «El sistema» (figma-sistema.webp, sin uso)
-      { f: 'alta', img: ['/media/obra/neety/figma-look.webp'], titulo: 'El look and feel', pie: 'Diecisiete variaciones de la home sobre el mismo esqueleto: el degradado, el titular y la tarjeta del hero, hasta dar con la dirección.' },
-      { f: 'ancha', img: ['/media/obra/neety/figma-descartes.webp'], titulo: 'Los descartes', pie: 'Cinco conceptos que se quedaron por el camino, cada uno con sus variantes, del fondo claro al oscuro.' },
-      { f: 'ancha', img: ['/media/obra/neety/figma-home.webp'], titulo: 'La home, en escritorio y en móvil', pie: 'La home definitiva, los desplegables del menú, el feed y las pantallas de «Neety por dentro»; al lado, la versión móvil con su menú.' },
-      { f: 'ancha', img: ['/media/obra/neety/figma-libreria.webp'], titulo: 'La librería', pie: 'Color, texto y espaciado de escritorio y de móvil, radios, sombras, botones, marca y favicon: el sistema que después pasó al código.' },
-      { f: 'ancha', img: ['/media/obra/neety/figma-gradientes.webp'], titulo: 'Los gradientes', pie: 'Siete degradados con grano: la materia de la marca en toda la web.' },
+      // 28/10 · Eric: «descartes quitamos»: fuera «Los descartes» (figma-descartes.webp, borrada) y «gradiente quitamos»: fuera «Los gradientes» (figma-gradientes.webp, borrada)
+      { f: 'ancha', img: ['/media/obra/neety/figma-look.webp'], titulo: 'El look and feel', pie: 'Diecisiete variaciones de la home sobre el mismo esqueleto: el degradado, el titular y la tarjeta del hero, hasta dar con la dirección.' },
+      // 28/10 · Eric: fuera «La librería» del Figma: en su sitio suben Color y Tipografía (figmaCorte); figma-libreria.webp sin uso
+      { f: 'ancha', img: ['/media/obra/neety/figma-home.webp'], titulo: 'La home, en escritorio y en móvil', pie: 'La home definitiva, los desplegables del menú y el feed; al lado, la versión móvil con su menú.' },
     ],
     // 28/10 · «Cómo la construimos» fuera (Eric: «a partir de ahí iremos más visual»); la historia la cuenta el contexto
     detalles: [
@@ -505,6 +517,8 @@ export const proyectos: Proyecto[] = [
       x('neety', 'dentro', 'Neety por dentro', 'Las pantallas reales del producto (cuentas con encaje, señales de intención) se relevan al bajar, cada una con la cifra que la justifica: la web enseña lo que verá el equipo.'),
       x('neety', 'casos', 'Un caso por equipo', 'Cuatro pestañas, una por equipo comercial. Cada una cambia el texto y una tarjeta de producto con empresas de ejemplo y su encaje.'),
     ],
+    sinMovimiento: true, // 28/10 · Eric: «Movimiento» fuera
+    sinDetalles: true, // 28/10 · Eric: «los detalles quitamos»: ya lo enseñan «Del diseño a la animación» y «Microanimaciones»
     mosaico: [
       { f: 'ancha', p: [pz('neety', 'x-ruido', 'De ruido a señal', 'La lista fría, a la izquierda; a la derecha, lo que Neety devuelve: cuentas priorizadas y la acción siguiente.', { prop: '2 / 1', foto: true })] },
       // 28/10 · fuera el feed: ya lo cuenta «Del diseño a la animación»
@@ -512,11 +526,19 @@ export const proyectos: Proyecto[] = [
       { f: 'sangre', p: [pz('neety', 'x-dentro', 'Neety por dentro', 'Las pantallas reales del producto se relevan al bajar, cada una con su cifra.')] },
       { f: 'par', p: [pz('neety', 'x-rail', 'Cómo funciona', 'Un raíl recorre el proceso: detecta, prioriza y actúa.', { placa: 1, foto: true }), pz('neety', 'x-casos', 'Un caso por equipo', 'Cuatro pestañas; cada una cambia el texto y la tarjeta de producto.', { placa: 3 })] },
     ],
+    muestra: { titular: 'A quién vender', texto: 'No es otra herramienta para enviar más mensajes.', detalle: 'Detecta. Prioriza. Actúa.', titularEn: 'Who to sell to', textoEn: 'It isn’t another tool for sending more messages.', detalleEn: 'Detect. Prioritise. Act.' },
+    // 28/10 · Eric: «hay más tamaños»: la escala ENTERA de su librería (LibraryPage.tsx › HEADINGS y BODY: escritorio y móvil; titulares al 120 %, cuerpo al 150 %); sin H4–H6 (Eric)
     escala: [
-      { n: 'H1', fam: 'Bricolage Grotesque', px: 64, lh: 71.7, peso: 500, ls: '−0,02 em' },
-      { n: 'H2', fam: 'Bricolage Grotesque', px: 40, lh: 48, peso: 500 },
-      { n: 'H3', fam: 'Bricolage Grotesque', px: 24, lh: 28.8, peso: 500 },
-      { n: 'Texto', fam: 'Switzer', px: 20, lh: 30, peso: 400 },
+      { n: 'H1 · XL', fam: 'Bricolage Grotesque', px: 112, movil: 64, lh: 134.4, peso: 500 },
+      { n: 'H1 · L', fam: 'Bricolage Grotesque', px: 80, movil: 48, lh: 96.0, peso: 500 },
+      { n: 'H1 · M', fam: 'Bricolage Grotesque', px: 64, movil: 40, lh: 76.8, peso: 500 },
+      { n: 'H2', fam: 'Bricolage Grotesque', px: 48, movil: 32, lh: 57.6, peso: 500 },
+      { n: 'H3', fam: 'Bricolage Grotesque', px: 40, movil: 24, lh: 48.0, peso: 500 },
+      { n: 'Large', fam: 'Switzer', px: 24, movil: 20, lh: 36.0, peso: 400 },
+      { n: 'Medium', fam: 'Switzer', px: 20, movil: 18, lh: 30.0, peso: 400 },
+      { n: 'Regular', fam: 'Switzer', px: 16, movil: 16, lh: 24.0, peso: 400 },
+      { n: 'Small', fam: 'Switzer', px: 14, movil: 14, lh: 21.0, peso: 400 },
+      { n: 'Tiny', fam: 'Switzer', px: 12, movil: 12, lh: 18.0, peso: 400 },
       { n: 'Detalle', fam: 'Roboto Mono', px: 12, lh: 16, peso: 500, ls: 'mayúsculas' },
     ],
     boton: { fam: 'Bricolage Grotesque', px: 14, peso: 500, radio: 999, alto: 36, fondo: '#431B44', tinta: '#FFFFFF', nota: 'Berenjena al 75 %' },
@@ -526,13 +548,14 @@ export const proyectos: Proyecto[] = [
       url: 'https://neety.treseiscero.app/library',
       captura: '/media/obra/neety/libreria.webp', capturaMovil: '/media/obra/neety/libreria-movil.webp',
       // 28/10 · «La entrega» (Eric): el texto que va encima del albarán y del libro
+      // 28/10 · Eric: «La entrega» vuelve como VÍDEO de la librería (Screen Studio 5oBvdom9): para que el equipo sepa cómo conectarla a la IA,
+      // y como guía de cambios, de diseño y de componentes
+      video: { src: '/media/obra/neety/libreria-recorrido.mp4', poster: '/media/obra/neety/libreria-recorrido.jpg', pie: 'Un recorrido por la librería: cómo usarla, los fundamentos de diseño y el catálogo de componentes de la web.', pieEn: 'A walk through the library: how to use it, the design foundations and the catalogue of the site’s components.' },
       texto: [
-        'Con la web, Neety se llevó todo lo necesario para seguir cambiándola por su cuenta. En el centro, la librería: una página dentro de la propia web, hecha con su código y en los dos idiomas. Reúne sus colores, su tipografía, el espaciado, los botones y la marca, y un catálogo de 80 componentes ordenado página por página. Como sale del código, no se queda desfasada cuando la web cambia.',
-        'Antes de tocar nada, su equipo ve qué piezas hay y cómo se usan. Así, lo que añaden encaja con el diseño que trabajamos juntos, sin tener que reinventarlo. Y la guía «Trabajar con Claude» trae las peticiones ya escritas para cambiar contenido, reutilizar secciones o crear páginas nuevas: ellos mismos pidieron ponerla la primera.',
+        'Con la web, Neety se llevó su librería: los guardarraíles para seguir evolucionándola con IA. En ella queda recogida cada decisión de diseño, de movimiento o de componente, junto con la guía para conectar el repositorio con Claude o Ship Studio.',
       ],
       textoEn: [
-        'Along with the site, Neety took everything it needs to keep changing it on its own. At the centre, the library: a page inside the site itself, built from its code and in both languages. It gathers its colours, its typography, spacing, buttons and brand, and a catalogue of 80 components ordered page by page. Because it comes from the code, it never falls out of date when the site changes.',
-        'Before touching anything, their team sees which pieces exist and how they are used. So whatever they add fits the design we worked on together, without reinventing it. And the “Working with Claude” guide comes with the requests already written to change content, reuse sections or create new pages: they asked for it to go first.',
+        'Along with the site, Neety took its library: the guardrails for evolving it with AI. Every decision on design, motion or components is captured in it, along with the guide to connecting the repository to Claude or Ship Studio.',
       ],
       tapa: { marca: 'neety', titulo: 'El sistema de diseño de Neety, y cómo mantener la web', tituloEn: 'Neety’s design system, and how to maintain the website', fondo: '#431B44', tinta: '#F8F7EC', acento: '#FE8238' },
       accesos: [
@@ -551,8 +574,10 @@ export const proyectos: Proyecto[] = [
     },
     comentario: { quien: 'andoni', texto: 'Con Neety entregamos algo más que una web: una librería que sale del propio código para que su equipo la siga cambiando con Claude. Es la forma de trabajar que queremos para todos los proyectos.' },
     conclusion: [
-      'Neety fue nuestro primer proyecto de principio a fin con desarrollo agéntico: diseño, código, contenido y traspaso.',
-      'La web enseña el producto antes de explicarlo, y su equipo la sigue haciendo evolucionar: con Sanity para el contenido, la librería para el diseño y Claude para todo lo demás.',
+      'Neety fue nuestro primer proyecto con desarrollo agéntico. El diseño empezó en Figma; el código lo construimos con IA, fiel a cada decisión de ese diseño.',
+      'Neety se llevó una web conectada con la IA, que su equipo sigue evolucionando por su cuenta.',
+      'Eso funciona porque la librería hace de guardarraíles: el color, la tipografía, el movimiento y los 80 componentes quedan recogidos en ella.',
+      'Y a su equipo le llegó un repositorio conectado a Claude desde el que cambian, hablando, el contenido, las secciones o las páginas.',
     ],
     cita: { texto: 'Cercanos, humanos y capaces de entender de verdad tu proyecto. Más que un proveedor, son parte de tu equipo.', autor: 'Unai Arambarri', rol: 'Fundador y CEO, Neety', retrato: '/media/testimonios/unai-arambarri.webp' }, // la de la home; retrato: su foto (Eric, 28/10) con tools/r191/retrato.py (S=1.25 OY=230 FY=-170 BODY=0.45)
     color: '#f5f7f9',

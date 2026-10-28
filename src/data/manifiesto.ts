@@ -44,7 +44,7 @@ export const manifiesto = {
         'No se alinea con tu marca. Cuesta mantenerla y el diseño se rompe en cada cambio. Y si la rehiciste con IA, quizá se vea como AI slop.',
       ],
     },
-    { num: 'II', parrafos: ['Tu web debería sonar a ti.'] },
+    { num: 'II', parrafos: ['Tu web debería ser la semilla para construir relaciones duraderas y con sentido.'] }, // José Luis, 28/10 (antes «Tu web debería sonar a ti.»)
     {
       num: 'III',
       parrafos: [
@@ -56,14 +56,18 @@ export const manifiesto = {
     {
       num: 'IV',
       parrafos: [
-        'Y te entregamos tu web conectada con la IA, lista para usar: un repositorio enlazado a tu suscripción de Claude o ChatGPT, desde donde podrás seguir evolucionándola sin perder nada de lo que hemos trabajado juntos.',
+        // 28/10 · Eric: el desarrollo agéntico como forma de ENTREGAR (antes: «Y te entregamos tu web conectada con la IA, lista para usar: …»)
+        'Para nosotros, el desarrollo agéntico no es tanto una forma de construir como una forma de entregar.',
+        'Te entregamos tu web conectada con la IA: una web que puedes seguir evolucionando respetando todo lo que hemos trabajado juntos.',
       ],
     },
     {
       num: 'V',
       parrafos: [
-        'Eso solo funciona con guardarraíles. Cada decisión de diseño, de movimiento o de componente queda recogida en el sistema, que es la fuente de verdad de tu web.',
-        'En la práctica, es un conjunto de archivos .md que resuelven las incógnitas de llevar tu identidad visual a una web.',
+        'Eso solo funciona con guardarraíles: cada decisión de diseño, de movimiento o de componente queda recogida en el sistema, que es la fuente de verdad de tu web.',
+        'En la práctica son archivos .md que resuelven las incógnitas de llevar tu identidad visual a una web.',
+        'Y te llega como un plug and play: un repositorio conectado a tu suscripción de Claude o ChatGPT desde el que haces, hablando, lo que antes exigía entender cada herramienta.',
+        'La IA es la base. El criterio sigue siendo nuestro.',
       ],
     },
     { num: 'VI', parrafos: ['savvia es alimento y energía. savvia es criterio.'] },

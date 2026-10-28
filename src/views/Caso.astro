@@ -40,8 +40,8 @@ const props = Astro.props as { p: Proyecto; sig: Proyecto; ant: Proyecto };
 const p = proyectoDe(lang, props.p.slug) ?? props.p;
 const cifras = (p.cifras ?? []).map((c) => `${c.v} ${c.t}`);
 // RONDA 307 · CASOS EN DOS COLUMNAS (referencia: dsaltaren.com/#work): a la izquierda, fija, la ficha del proyecto (nombre, entradilla, servicios, sector,
-// lugar, enlace a la web) y abajo del todo el índice de casos con anterior y siguiente; a la derecha, el contenido, más sobrio. «Modo foco» lleva el
-// contenido al centro como una ventana.
+// lugar, enlace a la web) y abajo del todo el índice de casos con anterior y siguiente; a la derecha, el contenido, más sobrio.
+// 28/10 · Eric: «el modo foco quitamos directamente».
 // solo entre los casos que ya se publican (src/lib/lanzamiento.ts · Eric); el actual cuenta aunque no lo sea
 const todos = proyectosDe(lang).filter((x) => esPublico(x.slug) || x.slug === p.slug), yo = todos.findIndex((x) => x.slug === p.slug);
 // Eric (oct.): «de momento sobra porque saldremos solo con 1 proyecto»: anterior y siguiente, ocultos (vuelven con true)
@@ -66,6 +66,27 @@ const usados = [...(p.paleta ?? [])].sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0))
 const fondo = usados[0];
 const pares = fondo ? usados.slice(1).map((c) => ({ c, r: contraste(c.hex, fondo.hex) })).sort((a, b) => b.r - a.r) : [];
 const aplicado = !!p.aplicado;
+// 28/10 · Eric: «en vez de La librería (del Figma), ahí mejor subir colores y typo, y luego ya la home»: el Figma se parte en `figmaCorte`;
+// entre las dos partes van Color, Tipografía y Espaciado
+const corteFigma = p.figmaCorte ?? p.figma?.length ?? 0;
+const figA = (p.figma ?? []).slice(0, corteFigma), figB = (p.figma ?? []).slice(corteFigma);
+// 28/10 · Eric: «la tipografía, como el storybook»: cartas «Aa» en SUS fuentes (texto vivo) y debajo la escala medida con frases de su web.
+// Solo donde la web ya carga todas sus familias (Base.astro); si falta alguna, siguen las cartas con imagen.
+const FUENTE: Record<string, string> = { 'Bricolage Grotesque': 'var(--font-bricolage)', Switzer: 'var(--font-switzer)', 'Roboto Mono': 'var(--font-roboto-mono)', Inter: 'var(--font-inter)' };
+const famsTipo = [...new Set([...(p.tipos ?? []).map((t) => t.n), ...(p.escala ?? []).map((e) => e.fam)])];
+const tipoVivo = !!p.escala?.length && famsTipo.every((n) => FUENTE[n]);
+const NDET: Record<string, string> = en ? { H1: 'Headlines', H2: 'Headlines', H3: 'Headlines', Texto: 'Text', Detalle: 'Details' } : { H1: 'Titulares', H2: 'Titulares', H3: 'Titulares', Texto: 'Texto', Detalle: 'Detalles' };
+const familiasVivas = famsTipo.map((n) => {
+  const t = p.tipos?.find((x) => x.n === n);
+  const filas = (p.escala ?? []).filter((e) => e.fam === n);
+  return { n, css: FUENTE[n], peso: filas[0]?.peso ?? 400, mayus: filas.some((e) => /may|upper/.test(e.ls ?? '')), uso: t?.uso ?? `${NDET[filas[0]?.n] ?? filas[0]?.n ?? ''}, ${filas[0]?.peso ?? 400}` };
+});
+const mu = p.muestra;
+const fraseEsc = (n: string) => (/^H\d/.test(n) && !/Detalle|Detail/.test(n) ? (en ? mu?.titularEn : mu?.titular) ?? p.nombre : /Detalle|Detail/.test(n) ? (en ? mu?.detalleEn : mu?.detalle) ?? p.nombre : (en ? mu?.textoEn : mu?.texto) ?? p.resumen);
+const NESC_V: Record<string, string> = en ? { Texto: 'Text', Detalle: 'Detail', Entradilla: 'Lead' } : {};
+// 28/10 · Eric: «too much, ocupa mucho»: los titulares se enseñan comprimidos (hasta 20 px, reales; por encima, al 45 %), en una fila compacta
+const tamEsc = (px: number) => (px <= 20 ? px : Math.round(20 + (px - 20) * 0.45));
+const lsCss = (ls?: string) => (ls && /em/.test(ls) ? ls.replace('−', '-').replace(',', '.').replace(/\s/g, '') : ls && /may|upper/.test(ls) ? '0.04em' : 'normal');
 // las tarjetas de tipografía y del movimiento, en colores de SU paleta (los menos usados primero: los acentos; el fondo, el último)
 const acentos = [...usados].reverse();
 const tarjeta = (i: number) => (acentos[i % Math.max(acentos.length, 1)]?.hex ?? p.colores[i % 3]);
@@ -163,7 +184,8 @@ const textoSonido = p.apartados.find((x) => /sonido|sound/i.test(x.titulo))?.tex
 // LA LIBRERÍA que entregamos (solo donde la hay publicada: hoy, Neety)
 // RONDA 307, 22.ª · Andoni: «de momento fuera la librería en Neety» (vuelve cambiando esta línea por p.libreria)
 // 28/10 · Eric: «La entrega» vuelve, con su texto (libreria.texto), para enseñar la librería y lo útil que es para ellos
-const lib = p.libreria;
+// 28/10 · Eric: «la librería con el libro también quitamos»: «La entrega» fuera otra vez (vuelve cambiando esta línea por p.libreria)
+const lib = undefined as Proyecto['libreria'];
 
 // RONDA 188 · Andoni: «este detalle se sale de las guías; tiene que estar dentro y verse sin cortar». Nada va a sangre: la fila «sangre» ocupa las 12
 // columnas, como la ancha, a la proporción real de su vídeo. Y en las parejas y tríos ninguna pieza se recorta: la que no lleva placa se pone ENTERA
@@ -184,7 +206,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   <Nav />
   <Carriles />
   <main id="contenido" class="caso surface-light" style={`--claro-marca:${claroMarca}`}>
-    <div class="foco-velo" aria-hidden="true" data-foco-velo></div>
     <div class="wrap dos-col">
     <aside class="lado" aria-label={en ? 'About the project' : 'Sobre el proyecto'}>
       <div class="lado-pega">
@@ -198,10 +219,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
           <dl class="lado-ficha">{fichaLado.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
           {p.url && <a class="ir-web" href={p.url} target="_blank" rel="noopener">{en ? 'Visit the site' : 'Ver la web'}<Fragment set:html={flecha('fuera')} /></a>}
         </div>
-        <!-- Eric (oct.): «Modo foco», abajo en la columna fija, con su icono; «Volver» sigue en la barra del contenido, solo con el foco abierto -->
-        <button type="button" class="foco-ic" data-foco-abrir aria-pressed="false">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5V4.5a1.5 1.5 0 0 1 1.5-1.5h3M12.5 3h3A1.5 1.5 0 0 1 17 4.5v3M17 12.5v3a1.5 1.5 0 0 1-1.5 1.5h-3M7.5 17h-3A1.5 1.5 0 0 1 3 15.5v-3" /></svg>{en ? 'Focus view' : 'Modo foco'}
-        </button>
         <!-- RONDA 307, 22.ª · abajo, solo anterior y siguiente, con el nombre del proyecto y la flecha de la casa -->
         {masCasos && todos.length > 1 && <nav class="ant-sig" aria-label={en ? 'More case studies' : 'Más casos de estudio'}>
           <a href={ruta(lang, `/proyectos/${antP.slug}`)} rel="prev"><span class="ojo">{en ? 'Previous' : 'Anterior'}</span><span class="n"><Fragment set:html={flecha('izq')} />{antP.nombre}</span></a>
@@ -210,10 +227,9 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
       </div>
     </aside>
 
-    <div class="contenido" data-foco-zona>
+    <div class="contenido">
     <div class="barra-caso">
       <i class="desvanece" aria-hidden="true"></i>
-      <button type="button" class="foco-btn" data-foco-cerrar>{en ? 'Back' : 'Volver'}</button>
     </div>
     <!-- RONDA 154 · LA CARÁTULA: la pieza del portfolio (su degradado y su web saliendo desde abajo), a lo grande -->
     <!-- 28/10 · Eric: «de primeras, el mockup de la mesa, como el del slider de proyectos»: la web de escritorio va en el MONITOR de la lámina del estudio
@@ -297,15 +313,15 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
          Va JUSTO DESPUÉS DE LA RESEÑA (Eric, 28/10: «después de la reseña, primero Del Figma a la web») y sin el sitemap: empieza por el esqueleto y los conceptos.
          Una imagen por bloque sobre su tarjeta (referencia de limpieza: wearecollins.com) -->
     {
-      p.figma && p.figma.length > 0 && (
+      figA.length > 0 && (
         <section class="bloque figma" aria-labelledby="figma-h">
           <div class="wrap det-cab">
             <h2 id="figma-h" class="t-enc">{en ? 'From Figma to the site' : 'Del Figma a la web'}</h2>
           </div>
           <div class="wrap fg-lista">
-            {p.figma.map((g) => (
-              <figure class={`fg fg-${g.f}`} data-enfoca>
-                <div class="fg-imgs">
+            {figA.map((g) => (
+              <figure class={`fg fg-${g.f}`} data-vivo>
+                <div class="fg-imgs" style={`--color:${p.colores[0]};--c2:${p.colores[1]};--c3:${p.colores[2]}`}>
                   {g.img.map((src) => <img src={src} alt={en ? `${g.titulo}, in ${p.nombre}’s Figma file` : `${g.titulo}, en el Figma de ${p.nombre}`} loading="lazy" decoding="async" />)}
                 </div>
                 <figcaption class="t-ojo pie"><span><span class="fuerte">{g.titulo}.</span> {g.pie}</span></figcaption>
@@ -350,22 +366,44 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
         <section class="wrap bloque sis-bloque" aria-labelledby="tipo-h">
           <div class="sis-cab">
             <h2 id="tipo-h" class="t-enc">{en ? 'Typography' : 'Tipografía'}</h2>
-            {p.medido && <p class="t-texto text-fg2 sis-entra">{p.medido}.</p>}
+            {p.medido && <p class="t-texto text-fg2 sis-entra">{p.medido}.{tipoVivo && (en ? ' Headings shown scaled down.' : ' Los titulares, a escala reducida.')}</p>}
           </div>
+          {tipoVivo ? (
+            <>
+              <div class="tf-fams" data-vivo>
+                {familiasVivas.map((f) => (
+                  <figure class="tf-fam">
+                    <span class="tf-aa" style={`font-family:${f.css};font-weight:${f.peso}`}>Aa</span>
+                    <figcaption><b>{f.n}</b><span class="t-ojo">{f.uso}</span></figcaption>
+                  </figure>
+                ))}
+              </div>
+              <ol class="tf-escala">
+                {(p.escala ?? []).map((e) => (
+                  <li>
+                    <span class="t-ojo tf-n">{NESC_V[e.n] ?? e.n}</span>
+                    <span class="tf-m" style={`--ch:${fraseEsc(e.n).length};font-family:${FUENTE[e.fam]};font-size:${tamEsc(e.px)}px;font-weight:${e.peso};letter-spacing:${lsCss(e.ls)};${/may|upper/.test(e.ls ?? '') ? 'text-transform:uppercase;' : ''}`}>{fraseEsc(e.n)}</span>
+                    <span class="t-ojo tf-d">{e.movil && e.movil !== e.px ? `${e.movil} → ${e.px}` : e.px} px</span>
+                  </li>
+                ))}
+              </ol>
+            </>
+          ) : (
           <div class={`tipo-cartas n${Math.min(p.tipos.length, 2) + (aplicado ? 1 : 0)}`} data-vivo>
-            {p.tipos.slice(0, 2).map((t, i) => (
-              <figure class="carta" style={`--fondo:${cartaTipo(i)};--k:${i}`} data-carta>
-                <span class="rotulo">{t.uso}, {t.n}</span>
-                <img src={`/media/obra/${p.slug}/tipo-${i + 1}.png`} alt={en ? `${t.n} specimen` : `Muestra de ${t.n}`} loading="lazy" decoding="async" />
-              </figure>
-            ))}
-            {aplicado && (
-              <figure class="carta aplicada" style={`--fondo:${cartaTipo(2)};--k:2`} data-carta>
-                <span class="rotulo">{en ? 'Applied' : 'Aplicada'}</span>
-                <img src={`/media/obra/${p.slug}/aplicado.webp`} alt={en ? `Headline, text and button from ${p.nombre}'s website, in its typography` : `Titular, texto y botón de la web de ${p.nombre}, con su tipografía`} loading="lazy" decoding="async" />
-              </figure>
-            )}
-          </div>
+              {p.tipos.slice(0, 2).map((t, i) => (
+                <figure class="carta" style={`--fondo:${cartaTipo(i)};--k:${i}`} data-carta>
+                  <span class="rotulo">{t.uso}, {t.n}</span>
+                  <img src={`/media/obra/${p.slug}/tipo-${i + 1}.png`} alt={en ? `${t.n} specimen` : `Muestra de ${t.n}`} loading="lazy" decoding="async" />
+                </figure>
+              ))}
+              {aplicado && (
+                <figure class="carta aplicada" style={`--fondo:${cartaTipo(2)};--k:2`} data-carta>
+                  <span class="rotulo">{en ? 'Applied' : 'Aplicada'}</span>
+                  <img src={`/media/obra/${p.slug}/aplicado.webp`} alt={en ? `Headline, text and button from ${p.nombre}'s website, in its typography` : `Titular, texto y botón de la web de ${p.nombre}, con su tipografía`} loading="lazy" decoding="async" />
+                </figure>
+              )}
+            </div>
+          )}
         </section>
       )
     }
@@ -412,6 +450,24 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
             <p class="t-ojo nota">{en
               ? `The paddings, margins and gaps that repeat most on the delivered site, at 1440 px and true scale${esp.base ? `; almost all fall on ${esp.base} px steps` : '; fluid sizes (they change with the window width), with no fixed step'}.`
               : `Los rellenos, márgenes y huecos que más se repiten en la web entregada, a 1440 px y a escala real${esp.base ? `; casi todos caen en pasos de ${esp.base} px` : '; tamaños fluidos (cambian con el ancho de la ventana), sin un paso fijo'}.`}</p>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- 28/10 · la segunda parte del Figma (la home y lo que sigue), tras el sistema -->
+    {
+      figB.length > 0 && (
+        <section class="bloque figma" aria-label={en ? 'From Figma to the site, continued' : 'Del Figma a la web, sigue'}>
+          <div class="wrap fg-lista">
+            {figB.map((g) => (
+              <figure class={`fg fg-${g.f}`} data-vivo>
+                <div class="fg-imgs" style={`--color:${p.colores[0]};--c2:${p.colores[1]};--c3:${p.colores[2]}`}>
+                  {g.img.map((src) => <img src={src} alt={en ? `${g.titulo}, in ${p.nombre}’s Figma file` : `${g.titulo}, en el Figma de ${p.nombre}`} loading="lazy" decoding="async" />)}
+                </div>
+                <figcaption class="t-ojo pie"><span><span class="fuerte">{g.titulo}.</span> {g.pie}</span></figcaption>
+              </figure>
+            ))}
           </div>
         </section>
       )
@@ -477,6 +533,16 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
             <figcaption class="t-ojo pie"><span><span class="fuerte">{en ? 'How it works.' : 'Cómo funciona.'}</span> {p.micro.video.pie}</span></figcaption>
           </figure>
           </div>
+          {(p.micro.mas ?? []).map((m) => (
+            <div class="fila f-ancha micro-mas">
+            <figure class="tesela con-placa" data-vivo>
+              <div class="hueco">
+                <Medio medio={{ tipo: 'video', src: m.video.src, poster: m.video.poster }} color={p.color} alt={m.alt} proporcion="16 / 9" placa={p.colores[0]} colores={p.colores} />
+              </div>
+              <figcaption class="t-ojo pie"><span><span class="fuerte">{m.titulo}.</span> {m.video.pie}</span></figcaption>
+            </figure>
+            </div>
+          ))}
         </section>
       )
     }
@@ -484,8 +550,9 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     <!-- LOS DETALLES (ronda 153, referencia casabien · Hannun): un MOSAICO de imágenes en filas de tamaños distintos sobre la retícula de 12 —
          ancha · a sangre · 6 + 6 · 7 + 5 · 5 + 7 · 4 + 4 + 4—, cada pieza con su número, su título y una frase. Las webs van enteras sobre una
          placa de su color; los primeros planos llenan su hueco. -->
+    {/* 28/10 · Eric: fuera «Los detalles» donde el caso ya los enseña con «Del diseño a la animación» y «Microanimaciones» (sinDetalles) */}
     {
-      filas.length > 0 && (
+      filas.length > 0 && !p.sinDetalles && (
         <section class="bloque detalles" aria-labelledby="det-h">
           <div class="wrap det-cab">
             <h2 id="det-h" class="t-enc">{en ? 'The details' : 'Los detalles'}</h2>
@@ -530,7 +597,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     }
 
     {
-      movVideo && (
+      movVideo && !p.sinMovimiento && (
         <section class="wrap bloque sis-bloque" aria-labelledby="mov-h">
           <div class="sis-cab">
             <h2 id="mov-h" class="t-enc">{en ? 'Motion' : 'Movimiento'}</h2>
@@ -614,6 +681,28 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
           <ul class="iconos">
             {p.iconos.map((ic) => <li><img src={ic.src} alt={ic.n} loading="lazy" /><span class="t-ojo">{ic.n}</span></li>)}
           </ul>
+        </section>
+      )
+    }
+
+    {/* 28/10 · Eric: «La entrega», con la grabación de la librería en vez del albarán y el libro */}
+    {
+      p.libreria?.video && (
+        <section class="wrap bloque" aria-labelledby="entrega-h">
+          <div class="sis-cab">
+            <h2 id="entrega-h" class="t-enc">{en ? 'The handover' : 'La entrega'}</h2>
+            {((en ? p.libreria.textoEn : p.libreria.texto) ?? []).map((t) => <p class="t-texto text-fg2 sis-entra">{t}</p>)}
+            {/* el enlace mínimo de la columna fija («Ver la web»), no un botón (Eric: «más minimalista») */}
+            <p class="sis-entra"><a class="ir-web" href={p.libreria.url} target="_blank" rel="noopener">{en ? 'See the library' : 'Ver la librería'}<Fragment set:html={flecha('fuera')} /></a></p>
+          </div>
+          <div class="fila f-ancha">
+          <figure class="tesela con-placa" data-vivo>
+            <div class="hueco">
+              <Medio medio={{ tipo: 'video', src: p.libreria.video.src, poster: p.libreria.video.poster }} color={p.color} alt={en ? `${p.nombre}'s library, page by page` : `La librería de ${p.nombre}, página a página`} proporcion="16 / 9" placa={p.colores[0]} colores={p.colores} />
+            </div>
+            <figcaption class="t-ojo pie"><span><span class="fuerte">{en ? 'The library.' : 'La librería.'}</span> {en ? p.libreria.video.pieEn : p.libreria.video.pie}</span></figcaption>
+          </figure>
+          </div>
         </section>
       )
     }
@@ -966,56 +1055,6 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
 </script>
 
 
-<script>
-  // RONDA 307 · MODO FOCO (dsaltaren.com · Focus view): el contenido pasa a una ventana centrada que se lee sola, en el mismo punto donde ibas;
-  // Volver, Esc o un clic en el velo lo devuelven a su sitio, también en el mismo punto. Entra con un desplazamiento corto y sale con un fundido.
-  const zona = document.querySelector<HTMLElement>('[data-foco-zona]'), boton = document.querySelector<HTMLButtonElement>('[data-foco-abrir]'), cerrar = document.querySelector<HTMLButtonElement>('[data-foco-cerrar]');
-  const velo = document.querySelector<HTMLElement>('[data-foco-velo]'), col = zona?.parentElement;
-  if (zona && boton && cerrar && velo && col) {
-    const html = document.documentElement, quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let abierto = false, arriba = 0;
-    const entrar = () => {
-      if (abierto) return;
-      const r = zona.getBoundingClientRect(), leido = Math.max(0, -r.top);
-      const de = { x: r.left, y: Math.max(0, r.top), w: r.width, h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top) }; // lo que se ve de la columna
-      arriba = r.top + scrollY; col.style.minHeight = col.offsetHeight + 'px';
-      const y = scrollY; html.classList.add('caso-foco'); scrollTo(0, y);
-      zona.scrollTop = leido; abierto = true; boton.setAttribute('aria-pressed', 'true'); cerrar.focus({ preventScroll: true });
-      // RONDA 307, 25.ª · «que parezca que sale del papel y se posiciona en el centro» → 26.ª «mejorarla»: sin escalar (deformaba el contenido): la ventana
-      // arranca en el sitio de la columna (solo desplazada), se despega del papel (sube unos px, crece un 1 % y le crece la sombra) y se posa en el centro
-      if (!quieto) {
-        const a = zona.getBoundingClientRect(), dx = de.x - a.left, dy = de.y - a.top;
-        zona.animate([
-          { transform: `translate(${dx}px, ${dy}px)`, borderRadius: '0px', boxShadow: '0 0 0 1px rgb(0 0 0 / 0), 0 0 0 0 rgb(0 0 0 / 0)' },
-          { offset: 0.35, transform: `translate(${dx * 0.7}px, ${dy * 0.7 - 14}px) scale(1.012)`, borderRadius: '12px', boxShadow: '0 0 0 1px rgb(0 0 0 / 0.04), 0 50px 110px -30px rgb(0 0 0 / 0.38)' },
-          { transform: 'none', borderRadius: '16px' },
-        ], { duration: 760, easing: 'cubic-bezier(.22,1,.36,1)' });
-        velo.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 520, easing: 'ease-out' });
-      }
-    };
-    const salir = () => {
-      if (!abierto) return;
-      const leido = zona.scrollTop;
-      const fin = () => { html.classList.remove('caso-foco'); col.style.minHeight = ''; scrollTo(0, arriba + leido); abierto = false; boton.setAttribute('aria-pressed', 'false'); boton.focus({ preventScroll: true }); };
-      if (quieto) return fin();
-      // al salir, el camino contrario: se levanta un poco, viaja a su columna (solo desplazada) y se posa en el papel perdiendo sombra y radio
-      const lado = document.querySelector('.lado')?.getBoundingClientRect(), a = zona.getBoundingClientRect();
-      const x0 = lado && lado.width < innerWidth * 0.6 ? lado.right : a.left, y0 = innerWidth >= 1024 ? 80 : 64, dx = x0 - a.left, dy = y0 - a.top;
-      velo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 480, easing: 'ease-in', fill: 'forwards' }).onfinish = (e) => (e.target as Animation).cancel();
-      zona.animate([
-        { transform: 'none', borderRadius: '16px' },
-        { offset: 0.4, transform: `translate(${dx * 0.3}px, ${dy * 0.3 - 10}px) scale(1.01)`, borderRadius: '12px', boxShadow: '0 0 0 1px rgb(0 0 0 / 0.04), 0 50px 110px -30px rgb(0 0 0 / 0.34)' },
-        { transform: `translate(${dx}px, ${dy}px)`, borderRadius: '0px', boxShadow: '0 0 0 1px rgb(0 0 0 / 0), 0 0 0 0 rgb(0 0 0 / 0)' },
-      ], { duration: 560, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' }).onfinish = (e) => { fin(); requestAnimationFrame(() => (e.target as Animation).cancel()); };
-    };
-    boton.addEventListener('click', () => (abierto ? salir() : entrar()));
-    cerrar.addEventListener('click', salir);
-    velo.addEventListener('click', salir);
-    addEventListener('keydown', (e) => { if (e.key === 'Escape' && abierto) salir(); });
-    (window as any).__foco = () => ({ abierto, scroll: zona.scrollTop, alto: zona.clientHeight });
-  }
-</script>
-
 <style>
   /* ── RONDA 152 · UNA ESCALA para todo el caso: cinco estilos y nada más
        .t-ojo   rótulo, número, pie y dato pequeño · 14 px, tinta al 50 %
@@ -1120,12 +1159,20 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   @media (width >= 48rem) { .proceso { grid-template-columns: 1fr 1fr; } }
   .fg-lista { display: grid; row-gap: clamp(2.5rem, 1.75rem + 2vw, 4rem); }
   .fg { margin: 0; display: grid; gap: calc(var(--spacing) * 4); }
-  .fg-imgs { display: grid; gap: calc(var(--spacing) * 3); }
+  /* 28/10 · Eric: «con los gradientes que usamos luego»: cada lámina sobre el degradado de marca de las piezas (Medio › .placa) y en su ventana de cristal */
+  /* 28/10 · Eric: la misma entrada con el scroll que «Del diseño a la animación» y «Microanimaciones»: la placa se abre desde un margen y la lámina se asienta */
+  .fg-imgs { clip-path: inset(5% 5% 5% 5% round var(--radius-lg)); transition: clip-path 1.2s var(--ease-out-expo); }
+  .fg.visto .fg-imgs { clip-path: inset(0 0 0 0 round var(--radius-lg)); }
+  .fg-imgs img { scale: 1.03; transition: scale 1.4s var(--ease-out-expo); }
+  .fg.visto .fg-imgs img { scale: 1; }
+  .fg-imgs img + img { transition-delay: 0.08s; }
+  @media (prefers-reduced-motion: reduce) { .fg-imgs, .fg-imgs img { clip-path: none; scale: 1; transition: none; } }
+  .fg-imgs { display: grid; gap: calc(var(--spacing) * 4); padding: clamp(1.5rem, 1rem + 3vw, 4rem); border-radius: var(--radius-lg); background: radial-gradient(70% 60% at 72% 22% in oklab, var(--c2), transparent 72%), radial-gradient(55% 55% at 8% 96% in oklab, var(--c3), transparent 70%), var(--color); }
   .fg-trio .fg-imgs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   @media (width < 48rem) { .fg-trio .fg-imgs { grid-template-columns: minmax(0, 1fr); } }
   /* 28/10 · una lámina vertical (el look and feel): estrecha, para que no ocupe varias pantallas */
-  .fg-alta .fg-imgs { max-width: min(100%, 34rem); }
-  .fg-imgs img { display: block; width: 100%; height: auto; border-radius: var(--radius-lg); box-shadow: 0 0 0 1px var(--rule); }
+  .fg-alta .fg-imgs img { max-width: min(100%, 34rem); justify-self: center; }
+  .fg-imgs img { display: block; width: 100%; height: auto; padding: 3px; border-radius: 6px; background: color-mix(in srgb, #fff 20%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); /* el cristal desenfoca el degradado: con el lienzo transparente, dentro queda el rosa (Eric: «mejor rosa») */ box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.32), 0 0 0 1px rgb(0 0 0 / 0.08), 0 28px 56px -24px rgb(20 12 6 / 0.5); }
   .valor { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6); }
   @media (width >= 48rem) { .valor { grid-template-columns: 1fr 1fr; } }
   .valor li { display: grid; gap: calc(var(--spacing) * 2); align-content: start; }
@@ -1163,6 +1210,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   }
   /* 28/10 · DEL DISEÑO A LA ANIMACIÓN: dos huecos de 4:5 con la carátula de los detalles (Medio con placa: degradado de marca y ventana de cristal);
      altos para que el marco de Figma se vea ENTERO y quieto (Eric: «entero a la vista»). Al verse, el hueco se abre desde un margen */
+  .micro-mas { margin-top: clamp(2.5rem, 1.75rem + 2vw, 4rem); }
   .anim { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6); }
   @media (width >= 48rem) { .anim { grid-template-columns: 1fr 1fr; } }
   .anim-pieza { display: grid; align-content: start; gap: calc(var(--spacing) * 3); margin: 0; min-width: 0; }
@@ -1381,6 +1429,20 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .tv { font-size: var(--text-aux); font-variant-numeric: tabular-nums; opacity: 0.8; white-space: nowrap; }
   @media (hover: none) { .tono-info { opacity: 1; } .tono:not(:last-child) .tv { display: none; } }
   /* TIPOGRAFÍA (brand.dropbox.com/typography): cartas en colores de su paleta con la muestra y su rótulo en píldora; la primera, grande */
+  /* 28/10 · la tipografía como el storybook (sistema/Libro.astro): cartas Aa con su fuente y la escala medida */
+  .tf-fams { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: calc(var(--spacing) * 6); }
+  .tf-fam { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; margin: 0; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1px var(--rule); }
+  .tf-aa { font-size: clamp(3rem, 1.5rem + 3.5vw, 4.5rem); line-height: 1; translate: 0 -12%; }
+  .tf-fam figcaption { position: absolute; left: calc(var(--spacing) * 4); right: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 3); display: flex; flex-direction: column; gap: 2px; }
+  .tf-fam b { font-weight: 500; }
+  .tf-fam .t-ojo { color: var(--fg2); }
+  .tf-escala { margin-top: calc(var(--spacing) * 8); }
+  .tf-escala { container-type: inline-size; }
+  /* una fila por tamaño: nombre y medida arriba, la muestra debajo a todo el ancho y en una línea (si no cabe a su tamaño, baja lo justo) */
+  .tf-escala li { display: grid; grid-template-columns: calc(var(--spacing) * 20) minmax(0, 1fr) auto; align-items: baseline; gap: calc(var(--spacing) * 4); padding-block: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); }
+  .tf-escala .tf-m { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tf-n, .tf-d { color: var(--fg2); }
+  .tf-m { line-height: 1.1; text-wrap: balance; min-width: 0; }
   .tipo-cartas { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); }
   .carta { position: relative; margin: 0; display: grid; place-items: center; overflow: hidden; border-radius: calc(var(--spacing) * 2); background: var(--fondo); padding: calc(var(--spacing) * 16) calc(var(--spacing) * 8) calc(var(--spacing) * 8); }
   /* Andoni: «la parte de typo, algo más animada»: cada carta entra descubriéndose de abajo arriba (escalonadas), la muestra sube desde el desenfoque y la
@@ -1763,6 +1825,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .lado-ficha dd { margin: 0; color: var(--fg); }
   .ir-web { display: inline-flex; align-items: center; gap: 2px; width: fit-content; margin-top: calc(var(--spacing) * 1); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); transition: color 0.25s ease; }
   .ir-web:hover, .ir-web:focus-visible { color: var(--fg); }
+  /* el chevrón girado (fuera) caía por debajo de la línea: se sube a la altura de la x (Eric: «la › está demasiado abajo») */
+  .ir-web :global(.btn-flecha.fuera) { position: relative; top: -0.18em; left: 0.12em; }
   .ant-sig { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 10); padding-top: calc(var(--spacing) * 4); border-top: 1px solid var(--rule); }
   .ant-sig a { display: grid; gap: 2px; min-width: 0; padding: calc(var(--spacing) * 1) 0; }
   .ant-sig a[rel='next'] { text-align: right; justify-items: end; }
@@ -1798,8 +1862,9 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .contenido .comentario { padding-bottom: 0; }
   /* 28/10 · LECTURA A DOS COLUMNAS (Eric: «como Collins, más organizada respetando columnas sin ser obvia»): el título a la izquierda, el texto
      a la derecha, y TODO el texto arranca en la misma vertical; una sola columna de lectura (fuera los párrafos y puntos lado a lado).
-     La MISMA retícula que las imágenes (12 columnas, hueco de 24): el texto arranca en la 7, donde arranca la segunda pieza de cada par (Eric: «el
-     subtítulo no se corta verticalmente con el vídeo de abajo»). Las cabeceras de los bloques visuales (.sis-cab, .det-cab) siguen la misma regla. */
+     La MISMA retícula que las imágenes (12 columnas, hueco de 24). El texto arranca en la 7, donde arranca la segunda pieza de cada par (Eric:
+     «el subtítulo no se corta verticalmente con el vídeo de abajo»; probada la 5 el 28/10 por la tarde: no cuadra con nada). Las cabeceras (.sis-cab,
+     .det-cab) siguen la misma regla; la cita del cliente, no (Eric: quedaba mejor con la frase más ancha, como en Voces). */
   @media (width >= 48rem) {
     .contenido .rej.par, .contenido .sis-cab, .contenido .det-cab {
       display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: calc(var(--spacing) * 6); align-items: baseline;
@@ -1817,51 +1882,24 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   @media (width >= 64rem) { .barra-caso { --tapa: calc(var(--spacing) * 20); } }
   .barra-caso::before { content: ''; position: absolute; left: -1px; right: 0; bottom: 100%; height: var(--tapa, calc(var(--spacing) * 16)); /* tapa del borde de arriba de la ventana a la barra: en móvil 64 px (la ficha va justo encima), en escritorio 80 */ background-color: var(--bg); } /* 24.ª: fondo plano, sin grano */
   @media (width >= 64rem) { .barra-caso::before { left: -100vw; } } /* 28/10 · la tapa, también sobre la columna fija: al llegar al pie, la columna sube y se metía bajo el logotipo */
-  :global(html.caso-foco) .barra-caso::before { display: none; }
   /* Eric (oct.): al bajar, el pie sube con su curva y la barra pegada (con su degradado) se le pintaba encima: el pie, por encima de la barra (30) y por debajo de
      los carriles (40) y la barra del menú */
   :global(main.caso ~ .pie) { z-index: 31; }
   .barra-caso { position: sticky; z-index: 30; top: calc(var(--spacing) * 16); display: flex; justify-content: space-between; align-items: center; padding: calc(var(--spacing) * 4) 0; border-bottom: 1px solid var(--rule); background-color: var(--bg); font-size: var(--text-aux); color: var(--fg); }
   @media (width >= 64rem) { .contenido { padding-top: calc(var(--spacing) * 20); } .barra-caso { top: calc(var(--spacing) * 20); } }
-  .foco-btn { color: color-mix(in oklab, var(--fg) 60%, transparent); font: inherit; padding: 4px 0; cursor: pointer; transition: color 0.25s ease; }
-  .foco-btn:hover, .foco-btn:focus-visible { color: var(--fg); }
-  .foco-btn { display: none; margin-left: auto; }
-  :global(html.caso-foco) .foco-btn { display: inline; }
-  .foco-ic { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); width: fit-content; margin-top: auto; padding: calc(var(--spacing) * 1) 0; font: inherit; font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); cursor: pointer; transition: color 0.25s ease; }
-  .foco-ic:hover, .foco-ic:focus-visible { color: var(--fg); }
-  .foco-ic svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
-  @media (width < 64rem) { .foco-ic { display: none; } }
-  /* MODO FOCO: el contenido sube al centro como una ventana; detrás, la página se apaga y se desenfoca (Volver, Esc o un clic fuera lo devuelven) */
-  .foco-velo { position: fixed; inset: 0; z-index: 58; background-color: var(--bg); background-image: url('/media/grano.png'); opacity: 0; pointer-events: none; transition: opacity 0.45s ease; }
-  :global(html.caso-foco) .foco-velo { opacity: 1; pointer-events: auto; }
-  :global(html.caso-foco) { overflow: hidden; }
-  :global(html.caso-foco) .contenido {
-    position: fixed; z-index: 60; inset: calc(var(--spacing) * 6) 0; margin-inline: auto; width: min(60rem, 100vw - var(--spacing) * 8);
-    overflow-y: auto; overscroll-behavior: contain; padding: 0 clamp(1.25rem, 3vw, 3rem) clamp(2rem, 4vw, 3rem);
-    background-color: var(--bg); background-image: url('/media/grano.png'); border-radius: 16px;
-    box-shadow: 0 0 0 1px var(--rule), 0 40px 100px -30px rgb(0 0 0 / 0.35);
-  }
-  :global(html.caso-foco) .barra-caso { top: 0; }
-  @media (width >= 64rem) { :global(html.caso-foco) .contenido { padding-top: 0; padding-left: clamp(1.25rem, 3vw, 3rem); border-left: 0; } }
-  :global(html.caso-foco) .contenido { padding-bottom: clamp(2rem, 4vw, 3rem); }
-  @media (width < 48rem) { :global(html.caso-foco) .contenido { inset: calc(var(--spacing) * 3) 0; width: calc(100vw - var(--spacing) * 6); } }
   /* RONDA 307, 24.ª · «la línea superior es como una guía que atraviesa toda la página; Proyectos, Modo foco y El caso de cerca, alineados; el número fuera»:
      en escritorio la cabecera de la columna y la barra del contenido miden lo mismo y van a la misma altura (80 px); la línea de debajo es UNA, de lado a lado de
      la ventana (la dibuja la barra, que va fija, así acompaña al scroll); y su fondo, plano. */
   .lado-cab, .barra-caso { min-height: calc(var(--spacing) * 14); padding-block: 0; line-height: 1.4; }
-  .foco-btn { line-height: 1.4; padding-block: 0; }
   @media (width >= 64rem) {
     .lado-cab { border-bottom: 0; }
     .barra-caso { border-bottom: 0; }
     .barra-caso::after { content: ''; position: absolute; left: -100vw; right: -100vw; bottom: 0; height: 1px; background: var(--rule); pointer-events: none; }
-    :global(html.caso-foco) .barra-caso::after { left: 0; right: 0; }
-    /* 28/10 · Eric: «quitamos la raya horizontal; el sticky queda ahí y empieza ahí, pero el contenido sube hasta arriba». Fuera de modo foco, la barra
+    /* 28/10 · Eric: «quitamos la raya horizontal; el sticky queda ahí y empieza ahí, pero el contenido sube hasta arriba». La barra
        ya no se pega ni tapa: sin línea, sin tapa, sin desvanecido; solo guarda el alto para que la columna y el contenido arranquen a la misma altura.
        La línea entre columnas va de arriba abajo, como los carriles */
-    :global(html:not(.caso-foco)) .barra-caso { position: relative; top: auto; background: none; }
-    :global(html:not(.caso-foco)) .barra-caso::before,
-    :global(html:not(.caso-foco)) .barra-caso::after,
-    :global(html:not(.caso-foco)) .barra-caso .desvanece { display: none; }
+    .barra-caso { position: relative; top: auto; background: none; }
+    .barra-caso::before, .barra-caso::after, .barra-caso .desvanece { display: none; }
   }
   /* RONDA 307, 25.ª · «cuando el contenido empieza a desaparecer arriba, un pequeño degradado para que parezca que se desvanece»: bajo la barra, 40 px del fondo
      que se funden a nada (lo que sube se apaga antes de meterse bajo la línea) */

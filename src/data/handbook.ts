@@ -380,7 +380,7 @@ export const capitulos: Capitulo[] = [
           { tipo: 'arbol', raiz: partitura.libreria.ruta, grupos: partitura.libreria.indice },
           { tipo: 'h3', texto: 'Su color y sus tipografías' },
           { tipo: 'muestras', items: (neetyCaso.paleta ?? []).map((c) => ({ n: c.n, hex: c.hex, uso: '' })) },
-          { tipo: 'tipos', items: (neetyCaso.tipos ?? []).map((t) => ({ n: t.n, css: /Bricolage/.test(t.n) ? 'var(--font-bricolage)' : 'var(--font-switzer)', uso: t.uso, muestra: /Bricolage/.test(t.n) ? 'Detecta a quién vender' : 'Prioriza. Actúa.' })) },
+          { tipo: 'tipos', items: (neetyCaso.tipos ?? []).map((t) => ({ n: t.n, css: /Bricolage/.test(t.n) ? 'var(--font-bricolage)' : /Inter/.test(t.n) ? 'var(--font-inter)' : 'var(--font-switzer)', uso: t.uso, muestra: /Bricolage/.test(t.n) ? 'Detecta a quién vender' : 'Prioriza. Actúa.' })) },
           { tipo: 'enlace', label: partitura.enlace.label, href: partitura.enlace.href },
         ],
       },

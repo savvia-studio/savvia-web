@@ -34,7 +34,7 @@ export const manifiesto: typeof ManifiestoEs = {
         'It is out of step with your brand. It is hard to maintain and the design breaks with every change. And if you rebuilt it with AI, it may look like AI slop.',
       ],
     },
-    { num: 'II', parrafos: ['Your website should sound like you.'] },
+    { num: 'II', parrafos: ['Your website should be the seed for building lasting, meaningful relationships.'] },
     {
       num: 'III',
       parrafos: [
@@ -46,14 +46,17 @@ export const manifiesto: typeof ManifiestoEs = {
     {
       num: 'IV',
       parrafos: [
-        'And we hand you your website connected to AI, ready to use: a repository linked to your Claude or ChatGPT subscription, from which you can keep evolving it without losing anything we have built together.',
+        'For us, agentic development is less a way of building than a way of delivering.',
+        'We hand you your website connected to AI: a website you can keep evolving while respecting everything we have worked on together.',
       ],
     },
     {
       num: 'V',
       parrafos: [
-        'That only works with guardrails. Every decision on design, motion or components is captured in the system, the source of truth for your website.',
-        'In practice, it is a set of .md files that solve the unknowns of bringing your visual identity to a website.',
+        'That only works with guardrails: every decision on design, motion or components is captured in the system, the source of truth for your website.',
+        'In practice, they are .md files that solve the unknowns of bringing your visual identity to a website.',
+        'And it reaches you plug and play: a repository connected to your Claude or ChatGPT subscription, from which you do, just by talking, what used to require understanding every tool.',
+        'AI is the foundation. The judgement is still ours.',
       ],
     },
     { num: 'VI', parrafos: ['savvia is nourishment and energy. savvia is judgement.'] },

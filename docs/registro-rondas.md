@@ -5657,3 +5657,23 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **28/10 · Color y Tipografía suben (Eric: «color, tipografía habrá que subirlo»)** justo tras «Del Figma a la web». Y el texto de Tipografía ya no dice
   «neety.treseiscero.app» (regla: treseiscero en ningún sitio): «Medido en la web entregada, a 1440 px» (ES y EN).
   · Espaciado sube también, tras Tipografía (Eric duda si quitarlo).
+- **28/10 · Manifiesto, capítulo II (José Luis: «la cambiaría por metáfora de naturaleza»).** «Tu web debería sonar a ti.» → «Tu web debería ser la semilla
+  para construir relaciones duraderas y con sentido.» (EN: «Your website should be the seed for building lasting, meaningful relationships.»).
+- **28/10 · Láminas de Figma de Neety, limpias (Eric: «¿las puedes tratar para que sean más bonitas? Ese fondo típico de Figma no sé yo»).**
+  `figma-look.webp` y `figma-descartes.webp` ya no son capturas del lienzo (gris de Figma, rótulos «Neety Concept…», avatares de cursor): cada frame
+  sale limpio del Figma de Neety por el conector (página «Web Look&Feel»: 17 frames «Neety Concept 1.1–3.2» y 16 descartes «Concept 1.0–5.0»),
+  recortado a su primera pantalla (1512 × 984) y montado en rejilla sobre la lavanda de Neety (#EEE8F7), radio y filo de 1 px
+  (`tools/neety-figma/laminas.cjs <look> <descartes>`; los PNG exportados no se guardan, se vuelven a pedir al Figma). Look: una fila por
+  concepto (1.1 · 1.2 · 2.x · 3.x), 2400 × 1364, pasa de `alta` a `ancha`. (Los descartes se montaron igual, pero Eric los quitó en paralelo; después
+  `lienzo.cjs` vuelve transparente la lavanda para que se vea el degradado de la ventana de cristal.)
+- **28/10 · Fuera «Los descartes» del caso de Neety (Eric: «descartes quitamos»).** Sale la lámina de `proyectos.ts › figma` (ES; el EN no la tenía) y se
+  borra `figma-descartes.webp`; `laminas.cjs` ya solo monta el look and feel (`<carpeta look>`).
+- **28/10 · Fuera «Los gradientes» del caso de Neety (Eric: «gradiente quitamos»).** Sale la lámina de `proyectos.ts › figma` y se borra `figma-gradientes.webp`.
+- **28/10 · Fuera el MODO FOCO de los casos (Eric: «el modo foco quitamos directamente»).** En `Caso.astro` salen el botón «Modo foco» de la columna fija,
+  «Volver» de la barra, el velo, su script (`__foco`) y todo `html.caso-foco`; las reglas de la barra que iban con `html:not(.caso-foco)` quedan sin ese
+  prefijo (el aspecto no cambia). También se quita de la descripción del catálogo (`sistema/Catalogo.astro`).
+- **28/10 · Textos del caso de Neety y del manifiesto, pasados desde los documentos de Claude Docs (Eric).** Manifiesto IV–V: el desarrollo agéntico
+  «no tanto una forma de construir como una forma de entregar», guardarraíles, archivos .md, «plug and play» con Claude o ChatGPT (ES y EN). Caso de
+  Neety, como su documento «Caso de estudio · Neety»: contexto más corto («la web no avanzaba al ritmo del producto», «Desde entonces…»), animación y
+  microanimaciones con textos y pies nuevos, pie de la home sin «Neety por dentro», «La entrega» en un párrafo (los guardarraíles + la guía para
+  conectarla con Claude o Ship Studio), GitHub en el stack y en «Cómo está hecha», y una Conclusión nueva de cuatro párrafos (sin «La IA es la base»).
