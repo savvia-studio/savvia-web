@@ -40,7 +40,7 @@ export const manifiesto: typeof ManifiestoEs = {
       parrafos: [
         'We start from within, like sap. We listen to understand what your project needs.',
         'Sap carries everything the tree has lived through. savvia, everything learned with every client since 2020.',
-        'With your direction and our judgement, we create guidelines unique to you.',
+        'With your vision and our judgement, we create guidelines unique to you.',
       ],
     },
     {

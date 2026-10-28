@@ -50,7 +50,7 @@ export const manifiesto = {
       parrafos: [
         'Nosotros empezamos por dentro, como la savia. Te escuchamos para entender lo que tu proyecto necesita.',
         'La savia lleva dentro todo lo que el árbol ha vivido. savvia, lo aprendido con cada cliente desde 2020.',
-        'Con tu dirección y nuestro criterio creamos unas directrices únicas.',
+        'Con tu visión y nuestro criterio creamos unas directrices únicas.',
       ],
     },
     {
