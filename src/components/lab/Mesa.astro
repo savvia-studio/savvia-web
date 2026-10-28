@@ -1,5 +1,6 @@
 ---
 import Cta from '../Cta.astro';
+import { icono } from '../../lib/iconos';
 // RONDA 128 · EL LABORATORIO, sobre matthewvernon.co (lienzo que se recorre, ventanas de archivo, selector de fondo).
 // RONDA 129 · Andoni: «el usuario elige el color de fondo como en la página de referencia. Es un loop infinito y cuando te mueves hacia los lados es
 // como que se distorsionan un poco los proyectos, como si cogieras velocidad. El logo y menú superior en color-dodge. Lo del laboratorio, savvia lab,
@@ -107,9 +108,8 @@ const piezas = experimentos
       <p class="lupa-que" data-lupa-que></p>
       <Cta class="ir" href="#" tam="sm" externo data-lupa-ir>{lab.abrir}</Cta>
     </div>
-    <button type="button" class="cerrar" data-lupa-cerrar aria-label={en ? 'Close' : 'Cerrar'}>
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" /></svg>
-    </button>
+    <!-- 28/10 · Andoni: «la (x) de cerrar, más acorde al estilo de la web y animada»: la × de cristal del visor del portfolio (barra-cristal) -->
+    <button type="button" class="cerrar barra-cristal" data-lupa-cerrar aria-label={en ? 'Close' : 'Cerrar'}><span class="paso"><Fragment set:html={icono('x', 'regular')} /></span></button>
   </div>
 </dialog>
 
@@ -914,6 +914,13 @@ const piezas = experimentos
     gap: 24px;
     padding: 20px;
   }
+  /* 28/10 · Andoni: «en lab en mobile, cuando abres un proyecto, que la card ocupe más»: casi a pantalla completa, y el vídeo llena todo el alto libre */
+  @media (max-width: 899px) {
+    .lupa.lupa { width: calc(100vw - 16px); max-width: none; height: calc(100dvh - 16px); max-height: none; border-radius: 14px; }
+    .lupa .lupa-in { height: 100%; grid-template-rows: minmax(0, 1fr) auto; gap: 16px; padding: 8px 8px 20px; }
+    .lupa .lupa-in video { height: 100%; max-height: none; object-fit: cover; object-position: center top; border-radius: 8px; }
+    .lupa-in > div { padding: 0 8px; }
+  }
   @media (min-width: 900px) {
     .lupa-in {
       grid-template-columns: 2.2fr 1fr;
@@ -944,30 +951,24 @@ const piezas = experimentos
     color: var(--fg2);
     margin: 12px 0 16px;
   }
+  /* la × de cristal de la casa: entra girando al abrirse la tarjeta y, al pasar, gira un cuarto de vuelta */
   .cerrar {
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: var(--color-niebla);
-    border: 1px solid var(--rule-strong);
-    color: var(--color-cacao);
     z-index: 2;
+    cursor: pointer;
   }
-  .cerrar svg {
-    width: 14px;
-    height: 14px;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-  }
+  .cerrar :global(svg) { width: 1.25rem; height: 1.25rem; transition: rotate 0.6s var(--ease-out-expo); }
+  @media (hover: hover) { .cerrar:hover :global(svg) { rotate: 90deg; } }
+  .cerrar:focus-visible :global(svg) { rotate: 90deg; }
+  .lupa[open] .cerrar { animation: cerrar-entra 0.7s var(--ease-out-expo) 0.2s both; }
+  @keyframes cerrar-entra { from { opacity: 0; scale: 0.6; rotate: -90deg; } to { opacity: 1; scale: 1; rotate: 0deg; } }
   @media (prefers-reduced-motion: reduce) {
     .lab,
-    .pieza {
+    .pieza,
+    .cerrar,
+    .cerrar :global(svg) {
       transition: none !important;
       animation: none !important;
       opacity: 1;

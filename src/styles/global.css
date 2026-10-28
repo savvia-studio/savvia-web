@@ -619,7 +619,8 @@ html.tipo-antes {
   .btn-flecha.izq { transform: scaleX(-1); }
   .btn-flecha.abajo { transform: rotate(90deg); }
   .btn-flecha.arriba { transform: rotate(-90deg); }
-  .btn-flecha.fuera { transform: rotate(-45deg); }
+  /* 28/10 · Andoni: «estas flechas están ladeadas, tenemos que ponerlas como en el resto de la web»: la de los enlaces externos ya no gira 45°, es el mismo chevrón */
+  .btn-flecha.fuera { transform: none; }
   /* ── LA BARRA DE CRISTAL (la de la vista sentado, para toda la web): ‹ 01/04 Nombre › */
   .barra-cristal {
     display: inline-flex;
