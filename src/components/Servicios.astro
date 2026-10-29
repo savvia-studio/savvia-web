@@ -398,7 +398,9 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     .cuerpo { display: flex; flex-direction: column; }
     .izq { display: contents; } /* selector y descripción pasan a ser hijos del bloque: así el sticky de las píldoras dura todo el bloque */
     /* z 58: por encima de la barra del menú (55) · la «nubecita»: un velo del color del fondo bajo las píldoras para que la info pase por debajo suavemente */
-    .selector { position: sticky; top: 0; z-index: 58; padding-block: max(calc(var(--spacing) * 3), env(safe-area-inset-top)) calc(var(--spacing) * 3); margin-block: calc(var(--spacing) * -3) 0; background: linear-gradient(var(--bg), var(--bg)); }
+    .selector { position: sticky; top: 2px; z-index: 58; padding-block: max(calc(var(--spacing) * 3), env(safe-area-inset-top)) calc(var(--spacing) * 3); margin-block: calc(var(--spacing) * -3) 0; background: linear-gradient(var(--bg), var(--bg)); box-shadow: 0 -2px 0 var(--bg); }
+    /* 29/10 (3.ª) · Eric: «que el sticky no esté en 0 al uso», «que quede 1px o 2px». A 2 px del borde, Safari no lo toma como pegado al borde y tiñe con
+       lo que hay detrás (que cambia con el scroll). Los 2 px los tapa una sombra plana del color del fondo (no cuenta como caja: «se ve el contenido de detrás»). */
     /* 29/10 · Eric (iPhone): «se pone sticky arriba y cambia de color toda la pantalla en Safari», y la banda se quedaba en Nosotros. Safari 26 tiñe la barra de
        estado con el background-color de lo fijo o pegado al borde, y se lo queda. El fondo va como imagen (mismo aspecto), que Safari no toma para teñir. */
     .selector::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: calc(var(--spacing) * 8); background: linear-gradient(var(--bg), transparent); pointer-events: none; }

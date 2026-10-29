@@ -930,10 +930,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     // ronda 161: en B el clic (o el toque: `click` no salta al arrastrar para hacer scroll) te SIENTA, con el viaje de cámara
     // RONDA 266 · Eric: «en esa sección, prácticamente donde toques te haga sentarte»: en táctil el toque vale en TODA la sección (no solo en el escenario) y
     // mientras el escenario ocupe la pantalla (sin exigir el borde exacto de la pista); el selector, la ficha, los botones y los enlaces siguen a lo suyo
-    const tocaSentar = () => !sentado && (MOVIL ? (() => { const r = escenario.getBoundingClientRect(); return r.top < innerHeight * 0.4 && r.bottom > innerHeight * 0.6; })() : invita());
-    (MOVIL ? raiz : escenario).addEventListener('click', (ev) => {
+    // 29/10 · Eric (móvil): «clicas en cualquier lado menos navbar y pone ver proyectos, entonces te sientas siempre»: la píldora y el toque iban por condiciones
+    // distintas (salía la píldora y el toque no sentaba). En móvil manda la píldora: si se ve, cualquier toque de la página te sienta, menos la barra, botones y enlaces
+    const tocaSentar = () => !sentado && (MOVIL ? sigue.classList.contains('on') : invita());
+    (MOVIL ? document : (escenario as EventTarget)).addEventListener('click', (ev) => {
       if (!tocaSentar()) return;
-      if ((ev.target as HTMLElement).closest('[data-barra], .ui-info, button, a')) return; // el selector y la ficha hacen lo suyo
+      if ((ev.target as HTMLElement).closest('[data-nav], [data-barra], .ui-info, button, a')) return; // la barra, el selector y la ficha hacen lo suyo
       seguir(null); escenario.classList.remove('mira');
       cargar(); sentar(true);
     });

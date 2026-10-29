@@ -147,7 +147,7 @@ export const ESTACIONES_SIN_RALEO = ESTACIONES_ARBOL.map((e) => [e[0], e[1], e[2
 // RONDA 76 · Eric: «en invierno, las hierbas todo nevado, nieve pura»: el paisaje del pie en invierno se pinta en blanco de nieve (con su sombra azulada)
 export const ESTACIONES_PIE = ESTACIONES_SIN_RALEO.map((e, i) => (i === 1 ? [0.95, 0.96, 0.99, 0] : e));
 
-export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void };
+export type Estela = { fondo(r: number, g: number, b: number): void; crecer(g: number): void; visible(si: boolean): void; soltar(): void; mirar(x: number, y: number, si: boolean): void; renacer(estacion: number): void; ciclo(): boolean; origen(x: number, y: number): void; estacion(n: number): void; luz(x: number): void; lamina(img: HTMLImageElement, op: { soplo?: boolean; intensidad?: number; nitido?: boolean }): void };
 
 // RONDA 23 · opciones nuevas: `radial` (el frente sale en círculo desde `origen`, sin gota), `paisaje` (una lámina completa, no el árbol: sin
 // hundir el color, sin elipse de cobertura ni bordes desvanecidos) y `estaciones` (tabla propia: el paisaje del pie no ralea en invierno).
@@ -175,7 +175,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   let U: (k: string) => WebGLUniformLocation | null;
   let uR: WebGLUniformLocation | null, uT: WebGLUniformLocation | null, uG: WebGLUniformLocation | null, uD: WebGLUniformLocation | null, uGT: WebGLUniformLocation | null, uM: WebGLUniformLocation | null, uMK: WebGLUniformLocation | null, uE: WebGLUniformLocation | null, uEB: WebGLUniformLocation | null, uEV: WebGLUniformLocation | null, uO: WebGLUniformLocation | null, uLX: WebGLUniformLocation | null, uFO: WebGLUniformLocation | null;
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const vivo = !!op.soplo && !reducido;
+  let vivo = !!op.soplo && !reducido;
   const gota = !!op.gota && !reducido;
   const sh = (tipo: number, src: string) => { const s = gl.createShader(tipo)!; gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS) && !gl.isContextLost()) console.error(gl.getShaderInfoLog(s)); return s; };
   // montar el programa y los uniformes (al crear y cada vez que el contexto vuelve)
@@ -255,8 +255,11 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.viewport(0, 0, w, hh); gl.uniform2f(uR, w, hh); gl.uniform1f(uD, dpr);
     ult = 0; pedir();
   };
+  let tex: WebGLTexture | null = null;
   const textura = () => {
-    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+    if (tex) gl.deleteTexture(tex);
+    tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     if (gl2) gl.generateMipmap(gl.TEXTURE_2D);
@@ -284,7 +287,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     if (!dormido && cv.isConnected) { dormido = true; if (!lejos) setTimeout(() => ext?.restoreContext(), 120); }
   });
   cv.addEventListener('webglcontextrestored', () => {
-    dormido = false;
+    dormido = false; tex = null; // la textura del contexto perdido ya no existe
     if (!montar()) return;
     // lo que estaba a medio aparecer vuelve ya aparecido (el visitante no lo estaba viendo)
     if (gota) { t0 = performance.now() - (INTRO + CRECE + 1) * 1000; suelta = true; }
@@ -315,6 +318,16 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     origen(x, y) { oV = [x, y]; gl.uniform2f(uO, x, y); ult = 0; pedir(); },
     luz(x) { lxV = x; gl.uniform1f(uLX, x); ult = 0; pedir(); },
     // RONDA 24: fijar la estación de golpe (la de hoy, al cargar), sin pintar
+    // 29/10 · Eric: «los cambios de estaciones en el móvil van lentos». Medido: el árbol y las raíces creaban un lienzo WebGL nuevo (programa compilado
+    // y textura) en cada cambio aunque estuvieran a pantallas de distancia: 0,5–1,5 s de hilo bloqueado con la CPU de un móvil. Lo que no se ve
+    // cambia de lámina en su propio contexto: solo se sube la textura nueva (el lienzo nuevo queda para el cambio a la vista, que se rasga encima)
+    lamina(nueva, cambios) {
+      img = nueva; op = { ...op, ...cambios }; vivo = !!op.soplo && !reducido;
+      if (!listo || gl.isContextLost()) return; // dormido: al recuperarse sube `img`, que ya es la nueva (y montar() lee `op`)
+      textura();
+      gl.uniform1f(U('ek'), op.intensidad ?? 0.9); gl.uniform1f(U('soplo'), vivo ? 1 : 0); gl.uniform1f(U('ni'), op.nitido ? 1 : 0);
+      ult = 0; pedir();
+    },
     estacion(n) { estB = ESTACIONES[n % ESTACIONES.length]; eV = estB; gl.uniform4f(uE, estB[0], estB[1], estB[2], estB[3]); gl.uniform4f(uEB, estB[0], estB[1], estB[2], estB[3]); gl.uniform1f(uEV, -1); virando = false; ult = 0; pedir(); },
   };
 }

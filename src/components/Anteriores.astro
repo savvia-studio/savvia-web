@@ -296,8 +296,9 @@ import { icono } from '../lib/iconos';
   // VIEJO encima de cada pieza a la vista y se le abre un agujero con el canto rasgado desde abajo, como el árbol del hero.
   {
     let prev = EST[estacionActual()] as string;
-    // las cuatro fotos de la mesa, pedidas al acercarse la pieza (si no, la nueva llega vacía bajo la copia que se rasga)
-    const cerca = new IntersectionObserver((en) => en.forEach((e) => { if (!e.isIntersecting) return; e.target.querySelectorAll<HTMLImageElement>('.foto-e').forEach((i) => { i.loading = 'eager'; }); cerca.unobserve(e.target); }), { rootMargin: '400px 0px' });
+    // la foto de la mesa de la estación de la web, pedida al acercarse la pieza. 29/10 · Eric: «la home tarda en cargar»: antes se pedían las CUATRO
+    // (≈ 2 MB en el móvil, para ver una); la de otra estación se pide al cambiar, y el rasgado espera a que esté descodificada (ver abajo)
+    const cerca = new IntersectionObserver((en) => en.forEach((e) => { if (!e.isIntersecting) return; const i = e.target.querySelector<HTMLImageElement>(`.foto-e[data-e="${EST[estacionActual()]}"]`); if (i) i.loading = 'eager'; cerca.unobserve(e.target); }), { rootMargin: '400px 0px' });
     document.querySelectorAll('.mesa').forEach((m) => cerca.observe(m));
     // el cartel de cada vídeo (≈15 JPG de 40–120 KB) se pide al acercarse, no al cargar la página: un <video poster> no admite loading=lazy
     const carteles = new IntersectionObserver((en) => en.forEach((e) => { if (!e.isIntersecting) return; const v = e.target as HTMLVideoElement; if (v.dataset.poster) v.poster = v.dataset.poster; carteles.unobserve(v); }), { rootMargin: '800px 0px' });

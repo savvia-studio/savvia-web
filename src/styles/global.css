@@ -388,6 +388,9 @@ html.tipo-antes {
     text-rendering: optimizeLegibility;
   }
   body {
+    /* 29/10 · Eric (iPhone): las barras de Safari se quedaban en el salvia de Servicios. Safari 26 tiñe con el background-color del <body> cuando no hay
+       nada fijo en el borde; transparente, se quedaba con el último color que vio. El mismo del html (lo sigue también cuando una página lo cambia). */
+    background-color: inherit;
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
     min-height: 100dvh;

@@ -915,6 +915,10 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     .flota.pegada::after { top: -200px; height: calc(100% + 200px + var(--spacing) * 12); }
     .flota::before { background: linear-gradient(var(--bg, #eadde7) calc(100% - var(--spacing) * 12), transparent); } /* opaco hasta el borde de la fila; se desvanece en los 48 px de debajo */
     .mandos::after { border-top: 1px solid var(--rule); } /* su línea de arriba: el velo tapa la de la sección (Eric) */
+    /* 29/10 · Eric: «los horizontales, algo más gorditos»: la línea de la sección (Carriles) va redondeada al px y la fila cae en medio píxel (340,47):
+       en Safari asomaba un píxel por encima del velo, junto al filo de la fila, y se leían como una línea doble. Suelta, el velo sube 1 px y la tapa */
+    .flota:not(.pegada)::before { top: -1px; height: calc(100% + 1px + var(--spacing) * 12); }
+    .flota:not(.pegada)::after { top: -1px; height: calc(100% + 1px + var(--spacing) * 12); }
     .mandos, .mandos .desp-b, .estado-f { transition: none; }
   }
   @media (prefers-reduced-motion: reduce) { .mira, .desp-menu, .desp.abierto .desp-menu, .op, .desp.abierto .op, .limpiar-f { transition: none !important; filter: none; } }
@@ -979,7 +983,8 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     .mosaico > li { grid-column: span 6 !important; margin-top: 0; --ratio: 1 / 1 !important; }
   }
   @media (width < 48rem) {
-    .mosaico { row-gap: calc(var(--spacing) * 20); }
+    /* 29/10 · Eric (iPhone 13 mini): «los proyectos no se ajustan, se sobrepasan»: con 12 columnas, los 11 huecos de 32 px (352) no caben en 375 − 40 */
+    .mosaico { grid-template-columns: minmax(0, 1fr); row-gap: calc(var(--spacing) * 20); }
     .mosaico > li { grid-column: 1 / -1 !important; }
   }
   .tarjeta {

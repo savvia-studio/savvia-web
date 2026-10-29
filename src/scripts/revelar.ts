@@ -25,12 +25,14 @@ const ponMascara = (el: HTMLElement, m: string) => { el.style.setProperty('-webk
 export function revelar(nuevo: HTMLElement, opc: { ox?: number; oy?: number; dur?: number; viejo?: HTMLElement | null; fin?: () => void } = {}) {
   const { ox = 0.5, oy = 1, dur = DUR_ESTACION, viejo, fin } = opc;
   if (reducido()) { fin?.(); return () => {}; }
-  let a = 0, vivo = true;
+  // (29/10) la caja se mide en el primer fotograma y no en cada uno: leerla justo después de mover la máscara obligaba a recalcular los estilos de
+  // toda la página en cada fotograma (con varios rasgados a la vez, en el móvil, el cambio de estación iba a tirones)
+  let a = 0, vivo = true, w = 0, h = 0;
   ponMascara(nuevo, `${MASCARA} 0 0 / 0 0 no-repeat`);
   const paso = (ahora: number) => {
     if (!vivo) return;
-    if (!a) a = ahora;
-    const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), w = nuevo.offsetWidth, h = nuevo.offsetHeight, S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
+    if (!a) { a = ahora; w = nuevo.offsetWidth; h = nuevo.offsetHeight; }
+    const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
     ponMascara(nuevo, `${MASCARA} ${(ox * w - S / 2).toFixed(1)}px ${(oy * h - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
     if (viejo) viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
     if (k < 1) requestAnimationFrame(paso);
@@ -49,20 +51,21 @@ export function rasgarCopia(copia: HTMLElement, opc: { ox?: number; oy?: number;
   const { ox = 0.5, oy = 1, dur = DUR_ESTACION, ref, fin } = opc;
   const acabar = () => { if (fin) { for (const k of ['-webkit-mask', 'mask', '-webkit-mask-composite', 'mask-composite', 'opacity']) copia.style.removeProperty(k); fin(); } else copia.remove(); };
   if (reducido()) { acabar(); return; }
-  let a = 0;
+  let a = 0, w = 0, h = 0, x = 0, y = 0; // la geometría, medida en el primer fotograma (ver revelar)
   const pon = (m: string) => {
     copia.style.setProperty('-webkit-mask', m); copia.style.setProperty('mask', m);
     copia.style.setProperty('-webkit-mask-composite', 'xor'); copia.style.setProperty('mask-composite', 'exclude');
   };
   const paso = (ahora: number) => {
     if (!copia.isConnected) return;
-    if (!a) a = ahora;
-    const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k);
-    let w = copia.offsetWidth, h = copia.offsetHeight, x = ox * w, y = oy * h;
-    if (ref) {
-      const rc = copia.getBoundingClientRect(), rr = ref.getBoundingClientRect(), sx = rc.width / (w || 1), sy = rc.height / (h || 1);
-      x = (rr.left + ox * rr.width - rc.left) / sx; y = (rr.top + oy * rr.height - rc.top) / sy; w = rr.width / sx; h = rr.height / sy;
+    if (!a) {
+      a = ahora; w = copia.offsetWidth; h = copia.offsetHeight; x = ox * w; y = oy * h;
+      if (ref) {
+        const rc = copia.getBoundingClientRect(), rr = ref.getBoundingClientRect(), sx = rc.width / (w || 1), sy = rc.height / (h || 1);
+        x = (rr.left + ox * rr.width - rc.left) / sx; y = (rr.top + oy * rr.height - rc.top) / sy; w = rr.width / sx; h = rr.height / sy;
+      }
     }
+    const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k);
     const S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
     pon(`linear-gradient(#000, #000), ${MASCARA} ${(x - S / 2).toFixed(1)}px ${(y - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
     copia.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));

@@ -94,11 +94,11 @@ const { hero } = home(langDe(Astro.currentLocale));
     // la carga) y al acabar la vieja suelta su contexto WebGL. Sin ver el hero o antes de crecer, de golpe.
     let luzV = 0, pedida = -1;
     const revelar = (el: HTMLElement, ox: number, oy: number, dur: number, fin: () => void, viejo?: HTMLElement) => {
-      let a = 0;
+      let a = 0, w = 0, h = 0; // medida en el primer fotograma, no en cada uno (ver revelar.ts)
       const pon = (m: string) => { el.style.setProperty('-webkit-mask', m); el.style.setProperty('mask', m); };
       const paso = (ahora: number) => {
-        if (!a) a = ahora;
-        const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), w = el.offsetWidth, h = el.offsetHeight, S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
+        if (!a) { a = ahora; w = el.offsetWidth; h = el.offsetHeight; }
+        const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
         pon(`url('/media/rasgo-circulo.png') ${(ox * w - S / 2).toFixed(1)}px ${(oy * h - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
         // el viejo se apaga detrás del frente (si no, se transparentaba y desaparecía de golpe al final: el «salto»)
         if (viejo) viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
@@ -113,6 +113,12 @@ const { hero } = home(langDe(Astro.currentLocale));
       const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/arbol-${EST[n]}.webp`;
       nueva.onload = () => {
         if (pedida !== n || !t) return;
+        // sin verse (o antes de crecer): la lámina nueva en el mismo lienzo, sin compilar otro programa (ver estela.ts › lamina)
+        if (!heroVisible || reducido || !hero.classList.contains('crecido')) {
+          t.lamina(nueva, { soplo: n !== 1, intensidad: tinte(n) }); t.estacion(n === 2 || n === 1 ? n : 0);
+          img.src = nueva.src; t.fondo(...fondoDe(n));
+          return;
+        }
         // clonado del lienzo actual: así lleva el atributo de ámbito de Astro (con createElement los estilos del componente no le llegan)
         const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2);
         const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: n !== 1, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(n) });

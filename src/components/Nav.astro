@@ -560,8 +560,9 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       addEventListener('loadeddata', pedir, true);
       setInterval(() => { if (!document.hidden) pedir(); }, 700);
       addEventListener('resize', () => { medirLogo(); pedir(); });
-      // la estación cambia el fondo con un fundido de 2,4 s y la tinta a mitad: se mira durante el fundido
-      addEventListener('savvia:estacion', () => [0, 500, 900, 1300, 1800, 2600].forEach((t) => setTimeout(pedir, t)));
+      // la estación cambia el fondo con un fundido de 2,4 s y la tinta a mitad: se mira a mitad y al final (al empezar ya mira el MutationObserver de abajo, y el
+      // repaso de 700 ms sigue). 29/10: antes, seis lecturas más en 2,6 s; cada una recalculaba los estilos de la página en pleno cambio (móvil a tirones)
+      addEventListener('savvia:estacion', () => [1200, 2600].forEach((t) => setTimeout(pedir, t)));
       // al terminar la carga (el hero se posa) y cuando la página ya ha pintado sus secciones
       new MutationObserver(pedir).observe(html, { attributes: true, attributeFilter: ['class', 'data-estacion'] });
       medirLogo(); mirar(); setTimeout(() => { medirLogo(); pedir(); }, 300); addEventListener('load', () => { medirLogo(); pedir(); });

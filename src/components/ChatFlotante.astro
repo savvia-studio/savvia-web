@@ -80,7 +80,10 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     } catch { return new URLSearchParams(location.search).get('chat') ?? '1'; }
   })();
   const enHero = activo === 'hero'; // ?chat=hero: también visible desde el hero, para decidir si queda o no
-  if (raiz && activo !== '0') {
+  // 29/10 · Eric (móvil): «el toca para agendar llamada me abre el email cuando debería abrir el chat»: con ?chat=0 (que se recuerda en la pestaña) no había
+  // chat y «Contáctanos» del pie caía al mailto. Ahora ?chat=0 solo quita el BOTÓN flotante; el chat sigue montado para el pie
+  const sinBoton = activo === '0';
+  if (raiz) {
     raiz.hidden = false;
     raiz.classList.toggle('cf-local', local);
     const cfg = raiz.dataset;
@@ -127,7 +130,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     let raf = 0;
     const refrescarBtn = () => {
       const lejos = enHero || (scrollY > 0 && (heroEl ? heroEl.getBoundingClientRect().bottom < innerHeight * 0.8 : scrollY > innerHeight * 0.9)); // RONDA 264 · Eric: «discreto»: nada en el hero; aparece en cuanto asoma la segunda sección (el borde del hero sube del 80 % de la pantalla)
-      const oculto = !lejos || preguntasVisible || pieCerca || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
+      const oculto = sinBoton || !lejos || preguntasVisible || pieCerca || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
       raiz.classList.toggle('cf-fuera', oculto && (!abierto || desdeOculto));
       if (!abierto) desdeOculto = false;
       if (!raf) raf = requestAnimationFrame(() => { raf = 0; raiz.classList.toggle('cf-claro', fondoClaro()); });
