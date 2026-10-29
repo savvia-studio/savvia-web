@@ -768,7 +768,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     width: min(34rem, 100vw - var(--m) * 2);
     max-height: calc(100dvh - var(--m) * 2);
     overflow-y: auto;
-    padding: calc(var(--spacing) * 28) calc(var(--spacing) * 6) calc(var(--spacing) * 8); /* ronda 230: más aire arriba en móvil (96 → 112 px) */
+    padding: calc(var(--spacing) * 20) calc(var(--spacing) * 6) calc(var(--spacing) * 8); /* móvil: 80 px arriba (antes 112; Eric, 29/10: «acortarlo») */
     border-radius: var(--r);
     opacity: 0; /* ronda 40: ya no crece recortada desde el botón: se DIBUJA (máscara rasgada + líneas, src/scripts/dibujar.ts) */
   }
@@ -776,6 +776,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     .menu {
       --m: calc(var(--spacing) * 3);
       right: calc(var(--spacing) * 8);
+      padding-top: calc(var(--spacing) * 28);
       padding-inline: calc(var(--spacing) * 8);
     }
   }
