@@ -5945,4 +5945,21 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **Hecho (`Servicios.astro`):** `scroll-margin-top` en la sección (< 64 rem) = 48 px + el alto del safe-area (mínimo 16 px): el titular llega por debajo de la
   barra. El velo va 1 px metido por cada lado (el fondo como imagen posicionada, la sombra pasa a un `::before` y el degradado se estrecha): los carriles
   siguen a la vista a través de la banda.
-- **Medido:** Chrome 390 × 844 tras el ancla, sección a 64 px del borde y titular bajo la barra; con las píldoras pegadas, los dos carriles continuos. Sin publicar.
+- **Medido:** Chrome 390 × 844 tras el ancla, sección a 64 px del borde y titular bajo la barra; con las píldoras pegadas, los dos carriles continuos. `astro build` en verde (23 páginas).
+- **PUBLICADO (30/10, Eric: «dale sube»)** commit 627747b; Vercel lo desplegó con el 34c70f4 del chat (sesión paralela de Eric) y la regla ya está en el CSS de savvia.studio.
+
+### 29/10 (Eric, 14.ª, iPhone, captura del portfolio) · «en móvil es posible que sea mejor que los filtros queden sticky justo como ahí en la foto; los proyectos pasan por debajo pero no se ven, se esconden directamente detrás del sticky filter; así el navbar sigue»
+- **Antes (27/10):** en móvil la fila de filtros se pegaba a ras (top 0) y subía a z 56, POR ENCIMA de la barra, tapándola; bajo la fila, 48 px de desvanecido.
+- **Hecho (`Portfolio.astro`):** en móvil `--pega` = la base de la barra (`nav.bottom`, 54 px en el iPhone de prueba): la fila se pega JUSTO DEBAJO y la
+  barra sigue a la vista. La fila vuelve a su plano (z 20, bajo la barra; `.obras` conserva su z 1, como en escritorio). Pegada, su velo (con su nube de 48 px por debajo,
+  como antes: se probó cortarlo a ras y Eric: «la nubecita no está ahora, es un corte blanco») sube 200 px por encima, tras la barra y el safe-area. Los filetes
+  entre celdas no suben por el aire de encima (cruzarían la barra); los dos carriles (`::after`) sí. Un velo REAL (`.velo-b`, `data-velo-barra`, solo
+  pegada y no `bajo-pie`) tras la barra, porque la barra lee el color del fondo con `elementsFromPoint`, que no ve pseudoelementos: `Nav.astro` lo añade
+  a su lista `sinPuntero` y así lee Rosa niebla (Cacao en la barra) aunque bajo el velo pase una lámina oscura.
+- **Medido:** Playwright, Chrome y WebKit 390 × 844, scroll a 1.700: barra 0–54, fila 54–110 pegada, velo −146–110 opaco `rgb(245 245 247)`, `html.sobre-claro`
+  true, consola sin errores (solo avisos de preload). Escritorio sin cambios (el script y el CSS tocados van en la rama móvil). Sin publicar.
+- **30/10 (Eric, captura de /proyectos desde la home): «con esa banda marrón abajo» · «en páginas secundarias no tiene que haber bandas extra sobre el buscador».**
+  La «banda» es la barra de Safari teñida de Cacao sobre una página clara. Causa: Safari 26 tiñe sus barras con el fondo del html/body (Ben Frain, bleedblend),
+  y en las páginas claras el html seguía en la noche de la estación. `global.css`: el html toma el color de su `<main>` (`:has(> body > main.surface-light)` →
+  niebla; `surface-warm` → salvia). `bordes-safari.ts`: en esas páginas las tiras existen solo alrededor del PIE (oscuro y no fijo: sin ellas la barra
+  quedaría clara sobre él); en la home, alrededor de Servicios como antes. `astro check` 0 · `astro build` 23 páginas. Publicado (Eric: «dale»). Sin iPhone.

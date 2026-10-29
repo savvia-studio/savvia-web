@@ -4,8 +4,11 @@
 // con el color de la sección que hay detrás (por la geometría de las secciones, no por lo que caiga bajo el punto). Van debajo de las barras de Safari
 // (viewport-fit=cover): no se ven. Solo en iPhone e iPad. (Lo de antes no valía: una línea de 1 px, que Safari ignora y además se veía.)
 const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-// 30/10 · Eric: «en las páginas secundarias estas bandas extras no». Solo existen en la página que tiene Servicios (la home): en las demás ni se crean.
-if (IOS && document.getElementById('servicios')) {
+// 30/10 · Eric: «en las páginas secundarias no tiene que haber bandas extra sobre el buscador» (la barra de Safari en Cacao sobre /proyectos). En la home,
+// las tiras existen alrededor de Servicios; en las páginas CLARAS (html del color de la página, global.css), alrededor del PIE, que es oscuro y no está
+// fijo: sin ellas, Safari dejaría la barra en claro sobre el pie. En cualquier otra página, ni se crean.
+const ancla = document.getElementById('servicios') || (document.querySelector('body > main.surface-light, body > main.surface-warm') ? document.querySelector<HTMLElement>('body > footer') : null);
+if (IOS && ancla) {
   const tira = (lado: 'top' | 'bottom') => {
     const t = document.createElement('div');
     t.setAttribute('aria-hidden', 'true');
@@ -18,8 +21,7 @@ if (IOS && document.getElementById('servicios')) {
   // secciones afectadas?». Solo existen alrededor de Servicios (lo único pegado al borde en móvil): desde una pantalla antes hasta una pantalla después,
   // cuando la sección siguiente ya ocupa los dos bordes y Safari ha tomado su color. Escondidas con display (con opacity 0 Safari las sigue leyendo).
   const mostrar = (si: boolean) => { arriba.style.display = abajo.style.display = si ? '' : 'none'; if (si) pedir(); };
-  const servicios = document.getElementById('servicios')!;
-  new IntersectionObserver(([e]) => mostrar(e.isIntersecting), { rootMargin: '100% 0px' }).observe(servicios);
+  new IntersectionObserver(([e]) => mostrar(e.isIntersecting), { rootMargin: '100% 0px' }).observe(ancla);
   const opaco = (c: string) => !!c && c !== 'transparent' && !/,\s*0\)$/.test(c) && !/\/\s*0\)$/.test(c);
   let secciones: HTMLElement[] = [];
   // las secciones con fondo propio, en orden de documento (la última que contiene el punto es la más honda: main > section)
