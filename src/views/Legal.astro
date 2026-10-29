@@ -100,13 +100,13 @@ const fecha = new Intl.DateTimeFormat(en ? 'en-GB' : 'es-ES', { month: 'long', y
     /* la línea de la columna, como la del caso, la del storybook y los carriles: niebla al 14 % por diferencia, hasta el pie */
     .hojas::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; z-index: 40; pointer-events: none; background: color-mix(in srgb, var(--color-niebla) 14%, transparent); mix-blend-mode: difference; }
   }
+  .rotulo { color: var(--fg2); }
+  .indice { display: flex; flex-direction: column; gap: calc(var(--spacing) * 3); }
+  /* 30/10 · Andoni: «en las políticas, quitar el índice de abajo» (en móvil): el `display: flex` de arriba iba después del `none` del móvil y lo pisaba */
   @media (width < 64rem) {
     .hojas { order: -1; padding-bottom: var(--space-section); }
     .indice { display: none; } /* como en el storybook: en móvil no hay índice */
   }
-
-  .rotulo { color: var(--fg2); }
-  .indice { display: flex; flex-direction: column; gap: calc(var(--spacing) * 3); }
   .indice ol { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); }
   .indice a { display: block; padding-block: calc(var(--spacing) * 1); font-size: var(--text-ui); color: var(--fg2); transition: color 0.3s ease; }
   .indice a:hover, .indice a[aria-current] { color: var(--fg); }

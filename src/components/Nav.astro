@@ -160,7 +160,21 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     const orig = Array.from(barra.querySelectorAll<HTMLElement>('button, a')).filter((n) => !n.closest('.radio > :not(button)')), copia = Array.from(k.querySelectorAll<HTMLElement>('button, a'));
     copia.forEach((c, i) => { c.tabIndex = -1; if (c.tagName === 'BUTTON') c.addEventListener('click', (e) => { e.stopPropagation(); orig[i]?.click(); }); });
     menu.prepend(k);
+    // 29/10 · la copia sigue a la barra mientras la tarjeta está abierta: cualquier cambio de clase o estado en un original (el icono de estación, la radio
+    // sonando…) se copia a su gemelo. Los gemelos se emparejan en el mismo orden, sin el panel de la radio, que la copia no lleva
+    const fuera = (n: Element) => !!n.closest('.radio > :not(button)');
+    const o = Array.from(barra.querySelectorAll('*')).filter((n) => !fuera(n)), c2 = Array.from(k.querySelectorAll('*'));
+    espejo?.disconnect();
+    espejo = new MutationObserver((ms) => ms.forEach((m) => {
+      const i = o.indexOf(m.target as Element), g = c2[i];
+      if (!g || !m.attributeName || m.attributeName === 'id' || m.attributeName === 'tabindex') return;
+      const v = (m.target as Element).getAttribute(m.attributeName);
+      if (m.attributeName === 'data-rejilla' || m.attributeName === 'aria-expanded') return;
+      v === null ? g.removeAttribute(m.attributeName) : g.setAttribute(m.attributeName, v);
+    }));
+    espejo.observe(barra, { subtree: true, attributes: true });
   }
+  let espejo: MutationObserver | undefined;
   // RONDA 274 · los destacados del menú: cada 3,2 s el siguiente (solo con el menú abierto; con movimiento reducido, quietos en el primero)
   const dst = menu.querySelector<HTMLAnchorElement>('[data-destacados]');
   let dstReloj = 0, dstI = 0;
@@ -181,6 +195,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     dst.querySelectorAll<HTMLImageElement>('.dst img').forEach((im) => (im.loading = 'eager'));
     if (si && !matchMedia('(prefers-reduced-motion: reduce)').matches) dstReloj = window.setInterval(() => dstPoner(dstI + 1), 3200);
   };
+  let miniReloj = 0;
   function poner(si: boolean, devolverFoco = false) {
     abierto = si;
     btn.setAttribute('aria-expanded', String(si));
@@ -193,8 +208,10 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
     const mini = menu.querySelector<HTMLVideoElement>('[data-reel-mini]');
     if (mini && si) {
       if (!mini.getAttribute('src')) mini.src = reelArchivo('reel-mini');
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) jugar(mini);
-    } else mini?.pause();
+      // (30/10) el vídeo arranca cuando la tarjeta ya está abierta: descodificarlo a la vez que se pinta daba tirones en el móvil
+      clearTimeout(miniReloj);
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) miniReloj = window.setTimeout(() => { if (abierto) jugar(mini); }, 1100);
+    } else { clearTimeout(miniReloj); mini?.pause(); }
     if (si) {
       menu.hidden = velo.hidden = false;
       document.documentElement.classList.add('menu-visible');
@@ -204,7 +221,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       dibujar(menu, { estacion: true, abrir: true, origen, color: LINEA }); // ronda 45: como el cambio de estación del árbol
     } else {
       velo.classList.remove('on');
-      dibujar(menu, { estacion: true, abrir: false, origen, color: LINEA, alTerminar: () => { if (!abierto) { menu.classList.remove('on'); menu.hidden = velo.hidden = true; document.documentElement.classList.remove('menu-visible'); menu.querySelector('.capa-cacao')?.remove(); } } });
+      dibujar(menu, { estacion: true, abrir: false, origen, color: LINEA, alTerminar: () => { if (!abierto) { menu.classList.remove('on'); menu.hidden = velo.hidden = true; document.documentElement.classList.remove('menu-visible'); menu.querySelector('.capa-cacao')?.remove(); espejo?.disconnect(); } } });
       if (devolverFoco) btn.focus({ preventScroll: true });
     }
   }
@@ -280,10 +297,12 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   {
     const ic = document.querySelector<HTMLButtonElement>('[data-estacion-ic]');
     if (ic) {
-      const caras = [...ic.querySelectorAll<HTMLElement>('[data-ic]')];
+      // 29/10 · Andoni: «con el menú abierto, si cambias de estación el icono no cambia hasta que cierras el menú»: con la tarjeta abierta, lo que se ve
+      // es la COPIA en Cacao de la barra (capaCacao, clonada al abrir); se pintan las caras de las dos
+      const caras = () => [...document.querySelectorAll<HTMLElement>('[data-estacion-ic] [data-ic]')];
       let est = estacionActual();
       const pintar = (n: number, anim: boolean) => {
-        caras.forEach((c) => { const k = EST.indexOf(c.dataset.ic as (typeof EST)[number]); c.classList.toggle('sale', anim && k === est && k !== n); c.classList.toggle('on', k === n); });
+        caras().forEach((c) => { const k = EST.indexOf(c.dataset.ic as (typeof EST)[number]); c.classList.toggle('sale', anim && k === est && k !== n); c.classList.toggle('on', k === n); });
         est = n;
         ic.setAttribute('aria-label', t(`Estación: ${NOMBRE[n]}. Cambiar a ${NOMBRE[(n + 1) % 4]}`, `Season: ${NOMBRE[n]}. Change to ${NOMBRE[(n + 1) % 4]}`));
       };

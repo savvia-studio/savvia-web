@@ -25,16 +25,36 @@ export function formar(pz: HTMLElement, forma: Forma) {
 }
 // 27/10 · Eric: «a veces se carga como skeleton: tarjetas de colores con su mockup vacío». Desde que /proyectos va sin páginas se forman las 45 piezas a la
 // vez, y cargarlas todas de golpe dejaba en cola las que se ven. Cada pieza descarga lo suyo al acercarse (pantalla y media antes de asomar)
-const cerca = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { cerca.unobserve(e.target); cargar(e.target as HTMLElement); } }), { rootMargin: '150% 0px' });
+// (30/10 · Andoni: «la página de portfolio tarda mucho en cargar», medido en móvil con 4G lenta: la primera pieza a los 5,6 s) las que se VEN al abrir se
+// piden primero y con prioridad; las de más abajo esperan al `load` de la página para no quitarles ancho de banda
+let paginaLista = document.readyState === 'complete';
+const enEspera: HTMLElement[] = [];
+addEventListener('load', () => { paginaLista = true; enEspera.splice(0).forEach((pz) => cargar(pz)); }, { once: true });
+const cerca = new IntersectionObserver((es) => es.forEach((e) => {
+  if (!e.isIntersecting) return;
+  const pz = e.target as HTMLElement;
+  cerca.unobserve(pz);
+  const r = e.boundingClientRect, seVe = r.top < innerHeight && r.bottom > 0;
+  if (paginaLista || seVe) cargar(pz, seVe && !paginaLista); else enEspera.push(pz);
+}), { rootMargin: '150% 0px' });
+// en pantallas estrechas, las láminas de la mesa a 1600 px y más comprimidas (`-m`: de 150–180 KB a 85–95)
+const ligera = (u: string) => (innerWidth < 768 && /\/media\/(estudio\/|anteriores\/mesa-movil)/.test(u) && !u.endsWith('-m.webp') ? u.replace(/\.webp$/, '-m.webp') : u);
 
 // solo se descargan las imágenes de la forma visible (y, en la mesa, la lámina de la estación de la web)
-function cargar(pz: HTMLElement) {
+function cargar(pz: HTMLElement, prisa = false) {
   const v = visible(pz);
   if (!v) return;
   pz.dataset.cargada = '1';
   const est = document.documentElement.dataset.estacion || 'otono';
-  v.querySelectorAll<HTMLImageElement>('img[data-img]').forEach((im) => { if (!im.src && (!im.dataset.e || im.dataset.e === est)) im.src = im.dataset.img!; });
-  v.querySelectorAll<HTMLVideoElement>('video[data-poster]').forEach((vd) => { if (!vd.poster) vd.poster = vd.dataset.poster!; });
+  v.querySelectorAll<HTMLImageElement>('img[data-img]').forEach((im) => {
+    if (im.src || (im.dataset.e && im.dataset.e !== est)) return;
+    if (prisa) im.fetchPriority = 'high';
+    // la mesa enseña su pantalla cuando ya está su foto (si no, se veía un móvil o un monitor negros sobre el degradado)
+    if (im.dataset.e) im.addEventListener('load', () => v.classList.add('lista'), { once: true });
+    im.src = ligera(im.dataset.img!);
+  });
+  // (30/10) el cartel en WebP (la mitad que el JPG: 8,4 → 3,8 MB en las 122 grabaciones)
+  v.querySelectorAll<HTMLVideoElement>('video[data-poster]').forEach((vd) => { if (!vd.poster) vd.poster = vd.dataset.poster!.replace(/\.jpg$/, '.webp'); });
   const quad = v.matches('[data-mesa-quad]') ? v : null;
   if (quad) { quad.style.setProperty('--s', String(quad.offsetWidth / 1672)); ro.observe(quad); }
 }
@@ -44,7 +64,7 @@ function cargar(pz: HTMLElement) {
 let estPrev = document.documentElement.dataset.estacion || 'otono';
 addEventListener('savvia:estacion', () => {
   const viejo = estPrev; estPrev = document.documentElement.dataset.estacion || 'otono';
-  document.querySelectorAll<HTMLElement>('[data-pieza-casa][data-cargada]').forEach(cargar);
+  document.querySelectorAll<HTMLElement>('[data-pieza-casa][data-cargada]').forEach((pz) => cargar(pz));
   if (viejo === estPrev) return;
   document.querySelectorAll<HTMLElement>('[data-pieza-casa] .mesa').forEach((m) => {
     const img = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${viejo}"]`);
@@ -100,9 +120,39 @@ export function preparar(pz: HTMLElement) {
     pz.addEventListener('focusout', () => soltar(pz));
     new IntersectionObserver((e) => { if (!e[0].isIntersecting) soltar(pz); }, { threshold: 0 }).observe(pz);
   } else {
-    // táctil: el vídeo suena mientras la pieza está a la vista
-    new IntersectionObserver((e) => (e[0].isIntersecting ? tocar(pz) : parar(pz)), { threshold: 0.55 }).observe(pz);
+    // táctil: ver más abajo (`centrada`), un solo vídeo a la vez
+    enPantalla.observe(pz);
   }
 }
+
+// 30/10 · Andoni: «en portfolio tiene que cargar más rápido; los vídeos no tienen por qué cargar todos: imagen de placeholder y luego ya se activa el
+// vídeo». En móvil sonaba el vídeo de cada pieza que pasaba por la pantalla (al bajar el portfolio entero, 19 vídeos y 3,3 MB con 4G lenta, y 400 KB
+// antes de tocar nada). Ahora se ve el cartel y solo suena UNO: el de la pieza más centrada, cuando el scroll se ha parado 0,9 s y después del `load`;
+// las demás vuelven al cartel y su descarga se corta (`parar` → load()).
+const visibles = new Set<HTMLElement>();
+const enPantalla = new IntersectionObserver((es) => { es.forEach((e) => (e.isIntersecting ? visibles.add(e.target as HTMLElement) : (visibles.delete(e.target as HTMLElement), parar(e.target as HTMLElement), sonando === e.target && (sonando = null)))); elegir(); }, { threshold: [0, 0.6] });
+let sonando: HTMLElement | null = null, reloj = 0;
+function centrada() {
+  let mejor: HTMLElement | null = null, d = Infinity;
+  visibles.forEach((pz) => {
+    const r = pz.getBoundingClientRect(), vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+    if (vis < Math.min(r.height, innerHeight) * 0.6) return;
+    const dd = Math.abs(r.top + r.height / 2 - innerHeight / 2);
+    if (dd < d) { d = dd; mejor = pz; }
+  });
+  return mejor as HTMLElement | null;
+}
+function elegir() {
+  clearTimeout(reloj);
+  reloj = window.setTimeout(() => {
+    if (!paginaLista) { addEventListener('load', elegir, { once: true }); return; }
+    const pz = centrada();
+    if (pz === sonando) return;
+    if (sonando) parar(sonando);
+    sonando = pz;
+    if (pz) tocar(pz);
+  }, 900);
+}
+if (!conRaton) addEventListener('scroll', () => { if (visibles.size) elegir(); }, { passive: true });
 // si se pierde un pointerleave (scroll con el cursor encima, cambio de pestaña), la pieza vuelve a su sitio igualmente
 if (conRaton) setInterval(() => document.querySelectorAll<HTMLElement>('[data-pieza-casa].centra, [data-pieza-casa].suena').forEach((pz) => { if (!pz.matches(':hover, :focus-visible')) soltar(pz); }), 300);

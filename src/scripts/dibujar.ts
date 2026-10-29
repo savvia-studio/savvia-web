@@ -21,13 +21,16 @@ function pintarComoEstacion(el: HTMLElement, op: Op) {
   const filo = document.createElement('i');
   filo.setAttribute('aria-hidden', 'true');
   filo.style.cssText = `position:fixed;left:${r0.left}px;top:${r0.top}px;width:${r0.width}px;height:${r0.height}px;border-radius:${cs.borderRadius};background:var(--color-naranja);pointer-events:none;z-index:${cs.zIndex === 'auto' ? 1 : Number(cs.zIndex) + 1};-webkit-mask-composite:source-out;mask-composite:subtract`;
-  el.parentElement!.append(filo);
+  // (30/10 · «menú, problemas de rendimiento al abrir y cerrar» en móvil) el anillo es una segunda máscara compuesta que se repinta entera en cada
+  // fotograma; en pantallas táctiles (iPhone a DPR 3) se queda la pintura rasgada sola
+  const conFilo = !matchMedia('(pointer: coarse)').matches;
+  if (conFilo) el.parentElement!.append(filo);
   const capa = (s: number) => `${MASCARA} ${ox - s / 2}px ${oy - s / 2}px / ${Math.max(0.01, s)}px ${Math.max(0.01, s)}px no-repeat`;
   const poner = (e: HTMLElement, v: string) => { e.style.setProperty('-webkit-mask', v); e.style.setProperty('mask', v); e.style.setProperty('-webkit-mask-composite', 'source-out'); e.style.setProperty('mask-composite', 'subtract'); };
   const pintar = (k: number) => {
     const s = ((R * k) / RADIO) * 1.04;
     el.style.setProperty('-webkit-mask', capa(s)); el.style.setProperty('mask', capa(s));
-    poner(filo, `${capa(s + 26)}, ${capa(s)}`); // el anillo (~11 px de ancho): el círculo algo mayor MENOS el de la pintura
+    if (conFilo) poner(filo, `${capa(s + 26)}, ${capa(s)}`); // el anillo (~11 px de ancho): el círculo algo mayor MENOS el de la pintura
   };
   const T = op.abrir ? 1050 : 600; // ronda 264 · al cerrar, más corto y SIN arranque lento (antes 720 ms con k²: el recorte tarda en tocar la pieza y parece que espera)
   pintar(op.abrir ? 0 : 1);
@@ -40,7 +43,7 @@ function pintarComoEstacion(el: HTMLElement, op: Op) {
     const k = Math.min(1, (ahora - t0) / T);
     const e = op.abrir ? 1 - Math.pow(1 - k, 2.4) : Math.pow(1 - k, 1.7); // abrir: sale rápido y se asienta; cerrar: se recoge hacia el origen
     pintar(e);
-    filo.style.opacity = String(0.75 * (op.abrir ? Math.pow(1 - k, 0.7) : Math.pow(1 - k, 0.4) * Math.min(1, k * 6)));
+    if (conFilo) filo.style.opacity = String(0.75 * (op.abrir ? Math.pow(1 - k, 0.7) : Math.pow(1 - k, 0.4) * Math.min(1, k * 6)));
     if (k < 1) raf = requestAnimationFrame(paso); else { fin(); op.alTerminar?.(); }
   };
   raf = requestAnimationFrame(paso);

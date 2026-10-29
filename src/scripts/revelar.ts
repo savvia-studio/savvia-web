@@ -72,3 +72,29 @@ export function rasgarCopia(copia: HTMLElement, opc: { ox?: number; oy?: number;
 }
 
 export const estaVisible = (el: Element) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };
+
+/** (30/10 · Andoni: «revisar cambios de estaciones fluidos en todos lados») Para una foto que cambia de archivo con la estación: se descarga y descodifica
+ *  la nueva fuera de pantalla; entonces se congela encima una copia de la vieja, se pone la nueva (ya lista: sin hueco) y a la copia se le abre el
+ *  rasgado. Sin la foto a la vista, o con movimiento reducido, el cambio es directo. `src` o `srcset` (+ `sizes` del propio elemento). */
+export function cambiarFoto(img: HTMLImageElement, nuevo: { src?: string; srcset?: string }, opc: { ox?: number; oy?: number; ref?: HTMLElement } = {}) {
+  const aplicar = () => { if (nuevo.srcset != null) img.srcset = nuevo.srcset; if (nuevo.src != null) img.src = nuevo.src; };
+  if ((nuevo.src != null && img.getAttribute('src') === nuevo.src && nuevo.srcset == null) || (nuevo.srcset != null && img.getAttribute('srcset') === nuevo.srcset)) return;
+  if (reducido() || !img.complete || !img.naturalWidth || !estaVisible(img)) { aplicar(); return; }
+  const pre = new Image();
+  if (nuevo.srcset != null) { pre.sizes = img.sizes || `${Math.round(img.getBoundingClientRect().width)}px`; pre.srcset = nuevo.srcset; }
+  if (nuevo.src != null) pre.src = nuevo.src;
+  const listo = pre.decode().catch(() => {});
+  Promise.race([listo, new Promise((r) => setTimeout(r, 5000))]).then(() => {
+    const padre = img.offsetParent as HTMLElement | null;
+    if (!padre || !img.isConnected) { aplicar(); return; }
+    const copia = img.cloneNode(false) as HTMLImageElement;
+    copia.removeAttribute('srcset'); copia.removeAttribute('data-mesa'); copia.removeAttribute('data-mesa-m'); copia.removeAttribute('id');
+    copia.src = img.currentSrc || img.src; copia.setAttribute('aria-hidden', 'true'); copia.alt = '';
+    const rp = padre.getBoundingClientRect(), ri = img.getBoundingClientRect(), sx = rp.width / (padre.offsetWidth || 1), sy = rp.height / (padre.offsetHeight || 1);
+    const cs = getComputedStyle(img);
+    copia.style.cssText = `position:absolute;margin:0;left:${(ri.left - rp.left) / sx - padre.clientLeft}px;top:${(ri.top - rp.top) / sy - padre.clientTop}px;width:${img.offsetWidth}px;height:${img.offsetHeight}px;object-fit:${cs.objectFit};object-position:${cs.objectPosition};border-radius:${cs.borderRadius};z-index:${cs.zIndex === 'auto' ? 1 : cs.zIndex};pointer-events:none;transform:${cs.transform}`;
+    padre.append(copia);
+    aplicar();
+    rasgarCopia(copia, { ox: opc.ox ?? 0.5, oy: opc.oy ?? 1, ref: opc.ref });
+  });
+}

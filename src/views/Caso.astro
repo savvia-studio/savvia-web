@@ -848,6 +848,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
 </Base>
 
 <script>
+  import { cambiarFoto } from '../scripts/revelar';
   // lo que se anima al llegar (paleta, muestras, escala, espaciado, piezas del mosaico): una vez, cuando asoma un 25 %
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { threshold: 0.25 });
   document.querySelectorAll('[data-vivo]').forEach((el) => io.observe(el));
@@ -863,8 +864,9 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     const sonar = () => { pm.querySelectorAll('video').forEach((x) => x.pause()); if (!aLaVista) return; const v = vid(); if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!quieto) v.play().catch(() => {}); };
     new IntersectionObserver(([e]) => { aLaVista = e.isIntersecting; sonar(); }, { threshold: 0.2 }).observe(pm);
     const est = () => document.documentElement.dataset.estacion || 'otono';
-    const lamM = () => { if (fotoM && pm.dataset.escena === 'movil') fotoM.src = `/media/anteriores/mesa-movil-${est()}.webp`; };
-    addEventListener('savvia:estacion', () => { const b = `/media/estudio/${est()}`; foto.srcset = `${b}-m.webp 1600w, ${b}.webp 2560w, ${b}-xl.webp 5120w`; lamM(); });
+    const lamM = () => { if (fotoM && pm.dataset.escena === 'movil') cambiarFoto(fotoM, { src: `/media/anteriores/mesa-movil-${est()}.webp` }); };
+    // (30/10) la lámina nueva entra con el rasgado de la estación, ya descargada (antes cambiaba de golpe)
+    addEventListener('savvia:estacion', () => { const b = `/media/estudio/${est()}`; cambiarFoto(foto, { srcset: `${b}-m.webp 1600w, ${b}.webp 2560w, ${b}-xl.webp 5120w` }); lamM(); });
     // el MÓVIL de la mesa: la homografía de la pantalla escala con la lámina (--s = su ancho / 1672)
     const quad = pm.querySelector<HTMLElement>('[data-pm-quad]');
     if (quad) new ResizeObserver(([e]) => quad.style.setProperty('--s', String(e.contentRect.width / 1672))).observe(quad);

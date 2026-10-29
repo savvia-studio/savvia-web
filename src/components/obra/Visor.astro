@@ -69,6 +69,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
 
 <script>
   import { jugar } from '../../scripts/jugar';
+  import { cambiarFoto } from '../../scripts/revelar';
   const vis = document.querySelector<HTMLDialogElement>('[data-vis]');
   if (vis) {
     const slides = [...vis.querySelectorAll<HTMLElement>('[data-vis-slide]')];
@@ -82,7 +83,8 @@ const tomas = await Promise.all(obras.map(async (o) => {
     const medio = (s: HTMLElement) => s.querySelector<HTMLVideoElement | HTMLImageElement>('.vis-vid')!;
     // la mesa, en la lámina de la estación de la web (la grande: el monitor ocupa media pantalla)
     const mesa = (s: HTMLElement) => { const im = s.querySelector<HTMLImageElement>('[data-mesa]')!; const v = im.dataset.mesa!.replace('{est}', document.documentElement.dataset.estacion || 'otono'); if (im.getAttribute('src') !== v) im.src = v; };
-    addEventListener('savvia:estacion', () => slides.forEach((s) => { if (s.querySelector<HTMLImageElement>('[data-mesa]')?.src) mesa(s); }));
+    // (30/10) al cambiar de estación con el visor abierto, la lámina nueva entra con el rasgado, ya descargada
+    addEventListener('savvia:estacion', () => slides.forEach((s) => { const im = s.querySelector<HTMLImageElement>('[data-mesa]'); if (im?.src) cambiarFoto(im, { src: im.dataset.mesa!.replace('{est}', document.documentElement.dataset.estacion || 'otono') }); }));
     // la fuente se pone la primera vez que hace falta: el visor abre con el póster y no gasta red en todos
     const carga = (s: HTMLElement) => {
       mesa(s);

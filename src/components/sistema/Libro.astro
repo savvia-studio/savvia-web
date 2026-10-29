@@ -258,6 +258,16 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   <Nav />
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="goo-nav-grande"><feGaussianBlur in="SourceGraphic" stdDeviation="5" /><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 16 -6" /></filter></svg>
   <Carriles />
+  {/* 30/10 · Andoni, en el iPhone: «arriba a la izquierda del todo hay un cuadrado de otro color, ponlo con el color de fondo». La página es clara, pero
+       el fondo del documento y el color de la barra de Safari eran el oscuro de la estación: asomaba bajo la barra de estado y en el rebote. Aquí, el claro
+       de la página (también al cambiar de estación) */}
+  <script is:inline>
+    (function () {
+      var h = document.documentElement; h.classList.add('pagina-clara');
+      var poner = function () { var m = document.querySelector('main.libro'), c = m ? getComputedStyle(m).backgroundColor : '#f5f5f7'; h.style.backgroundColor = c; document.querySelector('meta[name="theme-color"]').setAttribute('content', c); };
+      poner(); addEventListener('DOMContentLoaded', poner); addEventListener('savvia:estacion', function () { requestAnimationFrame(poner); });
+    })();
+  </script>
   <main id="contenido" class="libro surface-light">
     <div class="wrap marco-libro">
       <nav class="indice" aria-label={en ? "Storybook sections" : "Secciones del storybook"}>
@@ -666,7 +676,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               <div class="chat" aria-hidden="true">
                 <p class="burbuja yo">{en ? <>Shall I send you the website of the people making our new one?</> : <>¿Te paso la web de los que nos van a hacer la nueva?</>}</p>
                 <div class="burbuja yo enlace">
-                  <img src="/media/sistema/aplicaciones/og-otono.jpg" data-est-src="/media/sistema/aplicaciones/og-{est}.jpg" alt="" width="1200" height="630" loading="lazy" decoding="async" />
+                  {/* 30/10 · Andoni: «actualiza el thumbnail al que ha puesto Eric, para cada estación»: la imagen para compartir de verdad (public/og, ES y EN) */}
+                  <img src={`/og/otono${en ? '-en' : ''}.jpg?v=5`} data-est-src={`/og/{est}${en ? '-en' : ''}.jpg?v=5`} alt="" width="1200" height="630" loading="lazy" decoding="async" />
                   <span class="en-t">{en ? <>savvia: AI with judgement</> : <>savvia: IA con criterio</>}</span>
                   <span class="en-d">savvia.studio</span>
                 </div>
@@ -868,12 +879,14 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 <script>
   import { jugar } from '../../scripts/jugar';
   import { fijarEstacion, estacionActual, EST, NOCHE } from '../../scripts/estacion';
+  import { cambiarFoto } from '../../scripts/revelar';
   import { crearEstela } from '../../scripts/estela';
   import { caerRealista } from '../../scripts/gota';
   import { brotar } from '../../scripts/brotar';
   import { t as tr } from '../../scripts/i18n';
   // 24/10 · las imágenes que eran de otoño siguen a la estación de la página (data-est-src lleva {est}); al cargar y en cada cambio
-  const ponerImgEst = () => { const e = EST[estacionActual()] ?? 'otono'; document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('[data-est-src]').forEach((i) => { const v = i.dataset.estSrc!.replaceAll('{est}', e); if (i.getAttribute('src') === v) return; const enMarcha = i instanceof HTMLVideoElement && !i.paused; i.src = v; if (enMarcha) (i as HTMLVideoElement).play().catch(() => {}); }); };
+  // (30/10) las fotos, con el rasgado de la estación y ya descargadas (`cambiarFoto`); los vídeos, directos
+  const ponerImgEst = () => { const e = EST[estacionActual()] ?? 'otono'; document.querySelectorAll<HTMLImageElement | HTMLVideoElement>('[data-est-src]').forEach((i) => { const v = i.dataset.estSrc!.replaceAll('{est}', e); if (i.getAttribute('src') === v) return; if (i instanceof HTMLImageElement) { cambiarFoto(i, { src: v }); return; } const enMarcha = !i.paused; i.src = v; if (enMarcha) i.play().catch(() => {}); }); };
   ponerImgEst(); addEventListener('savvia:estacion', ponerImgEst);
   // Firma de correo · el selector de opciones: cambia las dos firmas, lo que copian y la del correo de ejemplo (se recuerda en este navegador)
   const opc = document.querySelector<HTMLElement>('.dl-opc');
@@ -2160,6 +2173,15 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   /* 28/10 · MOVIMIENTO: la muestra de las opciones que brotan (como en el menú: la que pisas se queda, las demás a 0,18) */
   .placa.br-demo { aspect-ratio: auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); padding: calc(var(--spacing) * 8) calc(var(--spacing) * 8) calc(var(--spacing) * 6); } /* 29/10: arriba, 32 (antes 64 dejaba sitio al aviso flotante) */
   .placa.br-demo > figcaption { position: static; grid-column: 1 / -1; }
+  /* 30/10 · Andoni: «los hover de Servicios / Portfolio / Lab, quitarlos en móvil, porque no hay hover»: la muestra solo con ratón (las reglas de al lado
+     lo cuentan igual) */
+  @media (hover: none) { .placa.br-demo { display: none; } }
+  /* y «el perfil de LinkedIn, que ocupe todo el ancho»: en móvil la placa se quedaba en 7 de 12 columnas (este `span 7`, más abajo que la regla del
+     móvil, la pisaba); ahora a todo el ancho, y el perfil dentro algo más ancho */
+  @media (width < 48rem) {
+    .apl-perfil { grid-column: 1 / -1; min-height: 0; padding-block: calc(var(--spacing) * 10) calc(var(--spacing) * 4); }
+    .perfil { width: 90%; }
+  }
   /* 29/10 · Eric: el aviso, alineado con las opciones: van juntos en una columna y el aviso encima, a su izquierda */
   .br-col { display: grid; justify-items: start; justify-self: start; } /* a la izquierda de la caja, no centrada */
 

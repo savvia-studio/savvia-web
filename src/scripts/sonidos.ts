@@ -22,9 +22,18 @@ export const audio = () => {
     ctx = new A() as AudioContext;
     salida = ctx.createGain(); salida.gain.value = 0.9; salida.connect(ctx.destination);
     // la SALA: ruido que se apaga en 2,4 s (una sala de conciertos pequeña), mezclado al 28 %
-    const n = Math.round(ctx.sampleRate * 2.4), ir = ctx.createBuffer(2, n, ctx.sampleRate);
-    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3.2); }
-    sala = ctx.createConvolver(); sala.buffer = ir;
+    // (30/10 · «menú, problemas de rendimiento al abrir y cerrar» en móvil: este ruido se calculaba entero en el primer clic, ~300 ms con la CPU de un móvil
+    // medio, y el primer clic suele ser abrir el menú) se rellena a trozos fuera del clic; hasta tenerlo, la sala no suena
+    const n = Math.round(ctx.sampleRate * 2.4), ir = ctx.createBuffer(2, n, ctx.sampleRate), d0 = ir.getChannelData(0), d1 = ir.getChannelData(1);
+    sala = ctx.createConvolver();
+    const conv = sala;
+    let i = 0;
+    const trozo = () => {
+      const fin = Math.min(n, i + 16384);
+      for (; i < fin; i++) { const e = Math.pow(1 - i / n, 3.2); d0[i] = (Math.random() * 2 - 1) * e; d1[i] = (Math.random() * 2 - 1) * e; }
+      if (i < n) setTimeout(trozo, 16); else conv.buffer = ir;
+    };
+    setTimeout(trozo, 400);
     const mezcla = ctx.createGain(); mezcla.gain.value = 0.28; sala.connect(mezcla).connect(salida);
   }
   if (ctx.state === 'suspended') ctx.resume();

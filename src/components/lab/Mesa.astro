@@ -433,7 +433,10 @@ const piezas = experimentos
   }
 
   // ───────────────────────── vídeos: solo a la vista ─────────────────────────
-  const cargar = (v: HTMLVideoElement) => { if (!v.src && v.dataset.src) v.src = v.dataset.src; };
+  // (30/10 · rendimiento en móvil con mala conexión) en pantallas estrechas, las tarjetas piden su vídeo a 720 px (`-m`: de 0,6–1,4 MB a la mitad o menos);
+  // la lupa sigue con el grande
+  const ligero = innerWidth < 900;
+  const cargar = (v: HTMLVideoElement) => { if (!v.src && v.dataset.src) v.src = ligero ? v.dataset.src.replace(/\.mp4$/, '-m.mp4') : v.dataset.src; };
   let seVe = true;
   const vistos = new IntersectionObserver(
     (ents) => ents.forEach((en) => {
@@ -511,6 +514,7 @@ const piezas = experimentos
   .lab {
     --tinta: var(--lab-tinta, var(--color-cacao));
     --velo: color-mix(in oklab, var(--tinta) 6%, transparent);
+    --velo-pieza: color-mix(in oklab, var(--tinta) 10%, transparent);
     position: relative;
     height: 100dvh;
     min-height: 560px;
@@ -552,10 +556,11 @@ const piezas = experimentos
     z-index: var(--z);
     transform-origin: 50% 50%;
     will-change: transform;
-    background: var(--velo);
+    /* 30/10 · Andoni: «las cards de proyectos, un pelín más notorias»: el velo del 6 al 10 %, un filo y la sombra algo más honda */
+    background: var(--velo-pieza);
     border-radius: 12px;
     padding: 0 6px 6px;
-    box-shadow: 0 4px 24px color-mix(in oklab, var(--color-cacao) 12%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta) 11%, transparent), 0 8px 32px color-mix(in oklab, var(--color-cacao) 18%, transparent);
     cursor: grab;
     user-select: none;
     -webkit-user-select: none;
@@ -587,7 +592,7 @@ const piezas = experimentos
   }
   .pieza.cogida {
     cursor: grabbing;
-    box-shadow: 0 10px 40px color-mix(in oklab, var(--color-cacao) 24%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tinta) 14%, transparent), 0 12px 44px color-mix(in oklab, var(--color-cacao) 28%, transparent);
   }
   .pieza:focus-visible {
     outline: 2px solid var(--tinta);
@@ -848,11 +853,13 @@ const piezas = experimentos
   }
 
   @media (max-width: 899px) {
+    /* 30/10 · Andoni: «la tarjeta central, más estrecha y más alta» */
     .hola {
+      width: min(300px, calc(100vw - 96px));
       transform: translate(-50%, -60%);
     }
     .hola-c {
-      padding: 16px 14px 18px;
+      padding: 44px 18px 48px;
     }
     .sub {
       font-size: 14px;

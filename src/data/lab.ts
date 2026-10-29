@@ -49,7 +49,7 @@ export const experimentos: Experimento[] = [
   {
     codigo: 'EXP-002',
     slug: 'apogee',
-    nombre: 'Think Clearly',
+    nombre: 'Apogee',
     que: 'Control de misión con IA para tomar decisiones. Al bajar, el cohete despega, su estela abre el horizonte y la web sube con él.',
     url: 'https://apogee-invader.vercel.app/',
     dominio: 'apogee-invader.vercel.app',

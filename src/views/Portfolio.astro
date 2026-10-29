@@ -474,13 +474,16 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     pedidoP = false;
     // pegada mientras la rejilla sigue debajo (el sticky la suelta al final de la sección y la barra vuelve)
     // la barra solo se aparta si algo suyo (logotipo, iconos) cae entre los carriles, donde va la fila; si se queda, la fila se pega centrada con ella
+    // (30/10 · Andoni: «en móvil los filtros siguen teniendo tembleque») en móvil la barra no se aparta: no hace falta medirla en cada fotograma del scroll
     const nav = document.querySelector<HTMLElement>('header[data-nav]'), f = flota.querySelector<HTMLElement>('.mandos')!.getBoundingClientRect();
-    const pisa = !nav || [...nav.children].some((c) => { const b = c.getBoundingClientRect(); return b.width > 0 && b.right > f.left && b.left < f.right; });
+    const pisa = !movil.matches && (!nav || [...nav.children].some((c) => { const b = c.getBoundingClientRect(); return b.width > 0 && b.right > f.left && b.left < f.right; }));
     // pegada, nunca a ras: 12 px de aire arriba como poco
     // en móvil, a ras (Eric, 27/10: «no hace falta que el filtraje sea más alto cuando se pone sticky»)
     const n = nav?.getBoundingClientRect(), pega = movil.matches ? 0 : Math.max(12, pisa || !n ? 0 : Math.round(n.top + n.height / 2 - f.height / 2));
     if (flota.style.getPropertyValue('--pega') !== pega + 'px') flota.style.setProperty('--pega', pega + 'px');
-    const r = flota.getBoundingClientRect(), si = arriba - scrollY <= pega + 0.5 && Math.abs(r.top - pega) <= 0.5;
+    // con margen: en el scroll con inercia de iOS la caja da medios píxeles y `pegada` se ponía y se quitaba en fotogramas seguidos (sus filetes se encendían
+    // y apagaban: el temblor); ahora solo cambia cuando la fila de verdad se suelta
+    const r = flota.getBoundingClientRect(), si = arriba - scrollY <= pega + 2 && r.top <= pega + 2;
     // en móvil la barra no se aparta: la fila pasa POR ENCIMA de ella (z-index, en el CSS) (Eric, 27/10)
     flota.classList.toggle('pegada', si); document.documentElement.classList.toggle('filtros-pegados', si && pisa && !movil.matches);
     // y en cuanto el pie asoma, la fila vuelve a su plano para que la gota marrón la tape (la «nube» del 26/10)
@@ -847,6 +850,11 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     /* 29/10 · Andoni, en Safari: «al hacer scroll, el sticky de arriba tiembla y se ve una minirrayita por detrás»: su velo, 40 px por encima de su borde
        (por ese hueco asomaba lo de detrás). (2.ª) Fuera la capa propia (translateZ) que se probó: en una pieza pegada, iOS puede temblar más con ella */
     .flota::before { top: calc(var(--pega, 0px) * -1 - 40px); height: calc(100% + var(--pega, 0px) + var(--spacing) * 12 + 40px); }
+    /* 30/10 · Andoni: «arriba quedan separados de las guías y tienen que ir juntos»: en el iPhone la página se ve también bajo la barra de estado y la
+       barra de Safari (y en el rebote del scroll), por encima del borde de la fila. El velo y las dos líneas suben 160 px más allá del borde: lo de
+       encima de la fila es la misma fila, con sus guías seguidas hasta el canto de la pantalla */
+    .flota.pegada::before { top: -200px; height: calc(100% + 200px + var(--spacing) * 12); }
+    .flota.pegada::after { top: -200px; height: calc(100% + 200px + var(--spacing) * 12); }
     .flota::before { background: linear-gradient(var(--bg, #eadde7) calc(100% - var(--spacing) * 12), transparent); } /* opaco hasta el borde de la fila; se desvanece en los 48 px de debajo */
     .mandos::after { border-top: 1px solid var(--rule); } /* su línea de arriba: el velo tapa la de la sección (Eric) */
     .mandos, .mandos .desp-b, .estado-f { transition: none; }
