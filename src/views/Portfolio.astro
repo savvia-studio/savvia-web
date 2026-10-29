@@ -941,7 +941,10 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     /* 29/10 · Eric: «los horizontales, algo más gorditos»: la línea de la sección (Carriles) va redondeada al px y la fila cae en medio píxel (340,47):
        en Safari asomaba un píxel por encima del velo, junto al filo de la fila, y se leían como una línea doble. Suelta, el velo sube 1 px y la tapa */
     .flota:not(.pegada)::before { top: -1px; height: calc(100% + 1px + var(--spacing) * 12); }
-    .flota:not(.pegada)::after { top: -1px; height: calc(100% + 1px + var(--spacing) * 12); }
+    /* 29/10 · Eric: «a izquierda y derecha de los filtros hay una línea extra que sobra»: suelta, las dos líneas seguían 48 px bajo la fila, encima de los
+       carriles (que ahí se ven) y medio píxel desplazadas: doble. (2.ª) «sigue habiendo doble línea donde están los filtros»: suelta, nada tapa los carriles
+       (van a z 40, por encima de la fila), así que la fila no dibuja las suyas; solo pegada */
+    .flota:not(.pegada)::after { content: none; }
     .mandos, .mandos .desp-b, .estado-f { transition: none; }
   }
   @media (prefers-reduced-motion: reduce) { .mira, .desp-menu, .desp.abierto .desp-menu, .op, .desp.abierto .op, .limpiar-f { transition: none !important; filter: none; } }

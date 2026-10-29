@@ -5987,3 +5987,6 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
   de la transición (`.vt-savia` y `html.vt-llega::after`, fijas a pantalla completa) y las tiras de `bordes-safari.ts` (alrededor del pie y 900 ms al llegar).
   **Hecho:** la cortina pasa a `position: absolute` (100 lvh, a la altura del scroll: `transicion.ts › capa()`); las tiras solo existen en la home
   (alrededor de Servicios); fuera `savvia:llegado`. `astro check` 0 · `astro build` 23 páginas. Sin iPhone. Sin publicar.
+- 29/10 · Eric (móvil, captura): «a izquierda y derecha de los filtros, sobre las líneas verticales, hay una línea extra que sobra» y «sigue habiendo doble
+  línea donde están los filtros». Con la fila suelta, sus dos líneas propias (`.flota::after`) iban encima de los carriles, medio píxel desplazadas y 48 px más
+  abajo. Suelta, la fila ya no las dibuja (`.flota:not(.pegada)::after { content: none }`): quedan solo los carriles. Pegada, igual que antes.
