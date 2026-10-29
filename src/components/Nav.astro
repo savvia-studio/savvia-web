@@ -1015,6 +1015,12 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   html.menu-visible [data-nav] {
     z-index: 49;
   }
+  /* 29/10 · Andoni, en Safari móvil: «al abrir el menú, los filtros se ven por encima» (la fila pegada del portfolio va a z 56 para tapar la barra, y el
+     selector pegado de Servicios a 58). Mientras el menú se ve, su pila entera sube por encima de cualquier pieza pegada de la web, sin cambiar su orden
+     (velo < barra < tarjeta); el escenario sentado (60) y la carga (70) nunca coinciden con el menú abierto */
+  html:is(.menu-visible, .menu-abierto) .velo { z-index: 60; }
+  html:is(.menu-visible, .menu-abierto) [data-nav] { z-index: 61; }
+  html:is(.menu-visible, .menu-abierto) .menu { z-index: 62; }
   .capa-cacao {
     overflow: clip;
     contain: paint;
