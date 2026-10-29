@@ -214,8 +214,9 @@ export const proyectos: Proyecto[] = [
     ],
     color: '#15181c',
     colores: ['#15181c', '#f01438', '#3a3e44'],
-    portada: m('quantus', 'portada'),
-    cubierta: m('quantus', 'cubierta'),
+    // 29/10 · Eric: SU grabación de Screen Studio (lvcg4kO8); las de obra/quantus/portada y cubierta eran mías, con script
+    portada: { tipo: 'video', src: '/media/anteriores/video/quantus.mp4', poster: '/media/anteriores/video/quantus.jpg' },
+    cubierta: { tipo: 'video', src: '/media/anteriores/video/quantus-grande.mp4', poster: '/media/anteriores/video/quantus-grande.jpg' },
   },
   {
     // octubre 2026: Andoni rehízo la web de Zernio (ronda 126: «Arkdev», en marca blanca; antes «Amarra») como CONCEPTO propio, sin nada del cliente:
@@ -314,8 +315,9 @@ export const proyectos: Proyecto[] = [
     ],
     color: '#f8f4ee',
     colores: ['#f8f4ee', '#e8542b', '#998a82'],
-    portada: m('patchbay', 'portada'),
-    cubierta: m('patchbay', 'cubierta'),
+    // 29/10 · Eric: SU grabación de Screen Studio (r4EqYjLX); las de obra/patchbay/portada y cubierta eran mías, con script
+    portada: { tipo: 'video', src: '/media/anteriores/video/patchbay.mp4', poster: '/media/anteriores/video/patchbay.jpg' },
+    cubierta: { tipo: 'video', src: '/media/anteriores/video/patchbay-grande.mp4', poster: '/media/anteriores/video/patchbay-grande.jpg' },
   },
   {
     slug: 'playground',
