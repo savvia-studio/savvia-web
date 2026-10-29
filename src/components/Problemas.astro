@@ -49,6 +49,7 @@ const partir = (p: string): Trozo[] =>
     margin-inline: auto;
     font-family: var(--font-display);
   }
+  @media (width < 48rem) { .texto { font-size: 2rem; } } /* móvil: 32 px, 2 menos que el h2 (Eric: «lo veo muy grande») */
   .texto p + p { margin-top: 1.1em; }
   .w { white-space: nowrap; }
   .c { color: var(--fg); }
