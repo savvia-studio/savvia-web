@@ -29,12 +29,15 @@ const cerca = new IntersectionObserver((es) => es.forEach((e) => { if (e.isInter
 function cargar(pz: HTMLElement) {
   const v = visible(pz);
   if (!v) return;
+  pz.dataset.cargada = '1';
   const est = document.documentElement.dataset.estacion || 'otono';
   v.querySelectorAll<HTMLImageElement>('img[data-img]').forEach((im) => { if (!im.src && (!im.dataset.e || im.dataset.e === est)) im.src = im.dataset.img!; });
   v.querySelectorAll<HTMLVideoElement>('video[data-poster]').forEach((vd) => { if (!vd.poster) vd.poster = vd.dataset.poster!; });
   const quad = v.matches('[data-mesa-quad]') ? v : null;
   if (quad) { quad.style.setProperty('--s', String(quad.offsetWidth / 1672)); ro.observe(quad); }
 }
+// 29/10 · Eric: «cambio de una estación a otra y se me van a blanco las imágenes»: la lámina de la estación nueva no se había pedido nunca
+addEventListener('savvia:estacion', () => document.querySelectorAll<HTMLElement>('[data-pieza-casa][data-cargada]').forEach(cargar));
 const ro = new ResizeObserver((es) => es.forEach((e) => (e.target as HTMLElement).style.setProperty('--s', String(e.contentRect.width / 1672))));
 
 // la ENTRADA: al asomar, `.visto` (el CSS descubre la lámina y sube su contenido); `entrar(pz, true)` la repite (al filtrar)
