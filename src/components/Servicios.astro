@@ -91,6 +91,31 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
   import { EN } from '../scripts/i18n';
   const raiz = document.querySelector<HTMLElement>('[data-serv]');
   const quieto = matchMedia('(prefers-reduced-motion: reduce)');
+  // 29/10 · móvil: las píldoras se pegan bajo la barra (--pega) y, pegadas, llevan su velo hasta arriba (.pegada). Como los filtros del portfolio
+  const sel = document.querySelector<HTMLElement>('[data-selector]');
+  if (sel) {
+    const movil = matchMedia('(width < 64rem)');
+    let pedido = false;
+    const pegar = () => {
+      pedido = false;
+      if (!movil.matches) { sel.classList.remove('pegada'); return; }
+      const n = document.querySelector<HTMLElement>('header[data-nav]')?.getBoundingClientRect();
+      const pega = Math.round(n?.bottom ?? 54) + 12;
+      if (sel.style.getPropertyValue('--pega') !== pega + 'px') sel.style.setProperty('--pega', pega + 'px');
+      const r = sel.getBoundingClientRect();
+      sel.classList.toggle('pegada', Math.abs(r.top - pega) <= 1); // solo mientras está pegada (al soltarse al final del bloque, sin velo)
+      // Eric: «al final ten cuidado que la nube desaparezca antes»: en cuanto la sección siguiente (o la cima de su gota, entradas.ts › __subeEn) llega al
+      // borde de abajo de la nube, la nube se va (si no, quedaba encima de la ola marrón)
+      const sec = sel.closest('section'), fondo = r.bottom + 48;
+      const llega = (sec?.getBoundingClientRect().bottom ?? Infinity) <= fondo || [0.5, 0.15, 0.85].some((k) => { const g = (window as any).__subeEn?.(innerWidth * k, fondo); return !!g && g !== sec; });
+      sel.classList.toggle('sin-nube', llega);
+      sel.classList.toggle('sale', r.top < pega - 1); // soltadas al final del bloque, se desvanecen en vez de pasar bajo el logotipo de la barra
+    };
+    const pedir = () => { if (!pedido) { pedido = true; requestAnimationFrame(pegar); } };
+    addEventListener('scroll', pedir, { passive: true });
+    addEventListener('resize', pedir);
+    pegar();
+  }
   if (raiz) {
     const tarjeta = raiz.querySelector<HTMLElement>('[data-tarjeta-serv]')!;
     const cursor = raiz.querySelector<HTMLElement>('[data-cursor]')!;
@@ -403,15 +428,17 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     .cuerpo { display: flex; flex-direction: column; }
     .izq { display: contents; } /* selector y descripción pasan a ser hijos del bloque: así el sticky de las píldoras dura todo el bloque */
     /* z 58: por encima de la barra del menú (55) · la «nubecita»: un velo del color del fondo bajo las píldoras para que la info pase por debajo suavemente */
-    .selector { position: sticky; top: 2px; z-index: 58; padding-block: max(calc(var(--spacing) * 3), env(safe-area-inset-top)) calc(var(--spacing) * 3); margin-block: calc(var(--spacing) * -3) 0; background: linear-gradient(var(--bg), var(--bg)) 1px 0 / calc(100% - 2px) 100% no-repeat; }
-    /* 30/10 · Eric: «la nube del sticky hace que justo ahí no se vean las líneas verticales». El velo (fondo, los 2 px de arriba y el degradado de abajo) va
-       1 px metido por cada lado: los carriles (1 px en cada borde del wrap, z 40) quedan a la vista por el hueco. */
-    .selector::before { content: ''; position: absolute; left: 1px; right: 1px; bottom: 100%; height: 2px; background: var(--bg); pointer-events: none; }
-    /* 29/10 (3.ª) · Eric: «que el sticky no esté en 0 al uso», «que quede 1px o 2px». A 2 px del borde, Safari no lo toma como pegado al borde y tiñe con
-       lo que hay detrás (que cambia con el scroll). Los 2 px los tapa una sombra plana del color del fondo (no cuenta como caja: «se ve el contenido de detrás»). */
-    /* 29/10 · Eric (iPhone): «se pone sticky arriba y cambia de color toda la pantalla en Safari», y la banda se quedaba en Nosotros. Safari 26 tiñe la barra de
-       estado con el background-color de lo fijo o pegado al borde, y se lo queda. El fondo va como imagen (mismo aspecto), que Safari no toma para teñir. */
-    .selector::after { content: ''; position: absolute; left: 1px; right: 1px; top: 100%; height: calc(var(--spacing) * 8); background: linear-gradient(var(--bg), transparent); pointer-events: none; }
+    /* 29/10 · Eric (iPhone): «quitamos las bandas; en móvil Servicios funcionará igual que el filtrado de proyectos: irá debajo del navbar y lo que pase por
+       debajo desaparece en la nube». Las píldoras se pegan BAJO la barra con 12 px de aire (--pega = su base + 12, en el script), a z 20 (la barra, 55, por
+       encima). Pegadas, su velo sube hasta el canto de la pantalla (tras la barra) y por debajo va la nube. Todo el velo es IMAGEN (gradiente), no color de
+       fondo: Safari 26 no la toma para teñir sus barras. 1 px metido por cada lado: los carriles se ven por el hueco */
+    .selector { position: sticky; top: var(--pega, 66px); z-index: 20; padding-block: calc(var(--spacing) * 3); margin-block: calc(var(--spacing) * -3) 0; background: linear-gradient(var(--bg), var(--bg)) 1px 0 / calc(100% - 2px) 100% no-repeat; }
+    .selector::before { content: ''; position: absolute; left: 1px; right: 1px; bottom: 100%; height: calc(var(--pega, 66px) + 200px); background: linear-gradient(var(--bg), var(--bg)); pointer-events: none; display: none; }
+    .selector.pegada::before { display: block; }
+    .selector::after { content: ''; position: absolute; left: 1px; right: 1px; top: 100%; height: calc(var(--spacing) * 12); background: linear-gradient(var(--bg) 20%, transparent); pointer-events: none; transition: opacity 0.25s ease; }
+    .selector.sin-nube::after { opacity: 0; }
+    .selector { transition: opacity 0.2s ease; }
+    .selector.sale { opacity: 0; }
   }
   @media (width < 64rem) {
     .tarjeta { padding-block: calc(var(--spacing) * 6) 0; }

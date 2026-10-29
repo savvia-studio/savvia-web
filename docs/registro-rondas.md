@@ -6004,3 +6004,10 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
 - **29/10 (Eric, iPhone, pie de la home): «seguimos igual, no se ven las montañas».** Quedaba otra capa fija a pantalla completa solo en la home: el velo del
   chat (`ChatFlotante.astro › .cf-velo`, fondo Cacao + desenfoque, a opacidad 0 pero presente). El del menú no da banda porque cerrado va `hidden`.
   Hecho: en móvil, con el chat cerrado, `.cf-velo` va `display: none`. Sin iPhone.
+- **29/10 (Eric, iPhone): «nada, sigue sin verse las montañas» · «quitamos las bandas» · «en Servicios, en móvil, funcionará igual que el filtrado de proyectos: irá
+  debajo del navbar y lo que pase por debajo desaparece en la nube».** Fuera `bordes-safari.ts` entero (las tiras fijas de los bordes). `Servicios.astro`, móvil:
+  las píldoras se pegan BAJO la barra (`--pega` = base de la barra + 12 px, script propio; z 20, la barra encima); pegadas (`.pegada`), su velo sube hasta el
+  canto de la pantalla y debajo va la nube (48 px). Todo el velo es imagen (gradiente), no color de fondo, para que Safari no tiña sus barras con el naranja.
+  Medido en WebKit 390 × 844: fila a 66 px (barra 0–54), `.pegada` solo pegada, sin tiras fijas, consola limpia. Sin iPhone.
+  (2.ª) Eric: «al final ten cuidado que la nube desaparezca antes»: `.sin-nube` en cuanto el borde de la sección o la cima de la gota de la siguiente (`__subeEn`)
+  llega al borde de abajo de la nube; y al soltarse al final del bloque las píldoras se desvanecen (`.sale`) en vez de pasar bajo el logotipo de la barra.

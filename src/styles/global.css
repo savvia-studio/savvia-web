@@ -246,7 +246,7 @@ html[data-estacion] {
   }
   /* 30/10 · Eric (iPhone, /proyectos y /manifiesto): «en páginas secundarias no tiene que haber bandas extra sobre el buscador». Safari 26 tiñe sus barras
      con el fondo del html/body: en las páginas CLARAS el html seguía en la noche de la estación y la barra de abajo salía en Cacao, una banda enorme sobre
-     lo claro. El html toma el color de la página (su <main>); junto al pie, las tiras de bordes-safari.ts le dan el oscuro. */
+     lo claro. El html toma el color de la página (su <main>). */
   html:has(> body > main.surface-light) { background-color: var(--color-niebla); }
   html:has(> body > main.surface-warm) { background-color: var(--color-salvia); }
   /* RONDA 11 · TEXTURA de fondo, muy sutil: un grano fino (motas con alfa ≤ 12 %) repetido sobre el color plano de cada superficie.
