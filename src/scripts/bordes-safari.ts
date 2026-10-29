@@ -24,9 +24,19 @@ if (IOS) {
   let secciones: HTMLElement[] = [];
   // las secciones con fondo propio, en orden de documento (la última que contiene el punto es la más honda: main > section)
   const listar = () => { secciones = [...document.querySelectorAll<HTMLElement>('main, main > section, main > div, main > article, body > section, footer')].filter((s) => opaco(getComputedStyle(s).backgroundColor)); };
+  // 29/10 (10.ª) · Eric: «la ola marrón ya ha tocado el top, así que debería irse el naranja». La transición líquida (entradas.ts › .sube) pinta la sección que llega
+  // hasta 240 px por ENCIMA de su borde, recortada con un polígono. Si en el centro de la pantalla la gota ya cubre el borde, manda el color de esa sección.
+  const gotaCubre = (sec: HTMLElement, y: number) => {
+    const g = sec.querySelector<HTMLElement>(':scope > .sube'); if (!g) return false;
+    const r = g.getBoundingClientRect(); if (!(r.top <= y && r.bottom > y)) return false;
+    const m = /polygon\((.*)\)/.exec(g.style.clipPath); if (!m) return false;
+    let mejor = 1e9, py = 100;
+    for (const par of m[1].split(',')) { const [x, yy] = par.trim().split(/\s+/).map(parseFloat); if (Math.abs(x - 50) < mejor) { mejor = Math.abs(x - 50); py = yy; } }
+    return r.top + (r.height * py) / 100 <= y;
+  };
   const colorEn = (y: number) => {
     let el: HTMLElement | null = null;
-    for (const s of secciones) { const r = s.getBoundingClientRect(); if (r.top <= y && r.bottom > y) el = s; }
+    for (const s of secciones) { const r = s.getBoundingClientRect(); if ((r.top <= y && r.bottom > y) || gotaCubre(s, y)) el = s; }
     return el ? getComputedStyle(el).backgroundColor : getComputedStyle(document.documentElement).backgroundColor;
   };
   let raf = 0;

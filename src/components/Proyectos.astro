@@ -248,6 +248,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const otroNombre = $('[data-otro-nombre]'); // el selector de la vista sentado (Eric: sin «01/04», solo el nombre)
     const capas = $$<HTMLImageElement>('[data-capa]'), webs = $$('[data-web]'), items = $$<HTMLButtonElement>('[data-item]'), hechos = $$('[data-hechos]');
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // 30/10 · Eric: «en móvil hay enseñando 2 vídeos, ¿no? Solo hay que enseñar el reel en bucle»: en móvil el monitor es SOLO el reel, de pie y sentado.
+    // No se montan los vídeos de proyecto ni sus capturas (dos vídeos a la vez se disputaban el decodificador y dejaban asomar el blanco de la pantalla);
+    // sentarse solo acerca la cámara, sin pantalla de carga, sin selector de proyecto y sin «desliza dentro».
+    const SOLO_REEL = innerWidth < 700;
+    if (SOLO_REEL) raiz.classList.add('solo-reel');
     const sonido = crearSonido();
     // RONDA 65 · «los proyectos no tienen su propia estación, la cambias tú con los botones»: la escena lleva la estación de la web
     let explorando = false;
@@ -332,6 +337,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const ya = montadas.get(w); if (ya) return ya;
       const m: Montada = { el: null as any, listo: false, cbs: [] };
       const listo = () => { m.listo = true; m.cbs.splice(0).forEach((f) => f()); };
+      // 30/10 · solo el reel en móvil: no se monta nada en la pantalla (ni vídeo ni captura); cuenta como listo en el acto
+      if (SOLO_REEL) { m.el = document.createComment('solo reel') as any; w.append(m.el); montadas.set(w, m); listo(); return m; }
       // RONDA 67 · «cuando te sientas, carga un proyecto»: de pie se enseña su CAPTURA (ligera, para que roten); sentado, la web real
       const vivo = sentado || explorando;
       if (w.dataset.video && innerWidth < 700) {
@@ -386,7 +393,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       let visto = false;
       // RONDA 292 · Eric: «que el vídeo salga cuando el frame ya se vea por pantalla»: arranca y queda DEBAJO del titular-pantalla cuando éste empieza a irse (a > 0,6), para que esté listo cuando su fondo se funde («que entre antes»)
       const marcha = () => {
-        const va = visto && listo && !sentado && !explorando && !document.hidden && !reducido;
+        const va = visto && listo && (SOLO_REEL || (!sentado && !explorando)) && !document.hidden && !reducido; // 30/10: en móvil, también sentado
         reel.classList.toggle('listo', listo && !reducido && suena);
         // (30/10) parado, al cambiar de estación se queda sin archivo (reel.ts): al volver a ponerse en marcha pide el de la estación nueva
         if (va && !reel.getAttribute('src')) reel.src = reelArchivo('reel');
@@ -487,7 +494,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     pantallaTinte.classList.remove('estrenando');
       const yo = ++turno, w = webs[activo], host = datos[activo].dom;
       tintar(null);
-      if (reducido) { urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); return; }
+      if (reducido || SOLO_REEL) { urlEl.textContent = host; w.classList.remove('cargando'); tintar(w); return; } // 30/10: en móvil no hay web que cargar (solo el reel)
       webs.forEach((x) => x.classList.add('cargando'));
       cargaUrl.textContent = ""; // ronda 161 (Eric): la pantalla de carga sin la dirección (enseñaba la de staging)
       // RONDA 67 · sin navegador ya no se teclea la dirección: la web se monta en el acto y la pantalla de carga se ve al menos 0,8 s (hasta que ha cargado)
@@ -592,7 +599,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     let pararC = () => {};
     function construirActiva() {
       pararC();
-      if (reducido || sentado || explorando) return;
+      if (reducido || sentado || explorando || SOLO_REEL) return;
       pararC = construir(capaC, datos[activo].slug, webs[activo].dataset.cap!, () => {});
     }
 
@@ -713,7 +720,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       encuadrar();
       if (!si && !reducido) { e = -1; requestAnimationFrame(entrar); } // ronda 161: al levantarte en B, vuelve el encuadre del scroll
       if (si) scrollDescubierto();
-      avisarDesliza(si);
+      avisarDesliza(si && !SOLO_REEL); // 30/10: en móvil no hay web que deslizar
       // RONDA 67 · sentado se CARGA la web real del proyecto (con su pantalla de carga); de pie vuelven las capturas que rotan
       webs.forEach((w) => desmontar(w));
       // RONDA 210 · Eric: «si te sientas pronto se queda pillado y no carga»: sentado ANTES del estreno (estrenado = false) solo se montaba la web y nadie le quitaba la
@@ -1102,7 +1109,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     height: calc(21.04% * var(--k, 1));
     transform: scale(calc(1 / var(--k, 1)));
     transform-origin: 0 0;
-    background: #fff;
+    /* 30/10 · Eric: «hay una línea vertical blanca entre el frame del ordenador y el vídeo, a la derecha»: la pantalla era blanca por debajo y, con la caja
+       escalada, lo que va encima (visor, titular, reel) se queda a una fracción de píxel del borde y el blanco asoma. Debajo nunca hace falta blanco (el
+       visor pone el suyo): el fondo es el negro del bisel, siempre, no solo con el reel */
+    background: #121213;
     overflow: hidden;
     pointer-events: none;
     container-type: size;
@@ -1347,13 +1357,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
     transition: opacity 0.9s ease;
   }
   .reel-loop:global(.listo) { opacity: 1; }
-  /* 30/10 · Andoni, en el móvil: «el reel tiene algunas bandas blancas en las esquinas del monitor». La pantalla es blanca por debajo (para las webs) y, en
-     iOS, el vídeo dentro de una caja escalada puede quedarse a medio píxel de sus bordes: con el reel, el fondo y el filo son el negro del bisel. El vídeo,
-     además, en su capa y medio píxel más grande por cada lado */
-  .pantalla:has(.reel-loop:global(.listo)) { background: #121213; }
+  /* 30/10 · Andoni, en el móvil: «el reel tiene algunas bandas blancas en las esquinas del monitor». En iOS, el vídeo dentro de una caja escalada puede
+     quedarse a medio píxel de sus bordes: el fondo de la pantalla es el negro del bisel (arriba) y el vídeo va en su capa y medio píxel más grande por cada lado */
   .reel-loop { inset: -0.5px; width: calc(100% + 1px); height: calc(100% + 1px); transform: translateZ(0); }
-  [data-estudio].sentado .reel-loop:global(.listo),
-  .escenario.explora .reel-loop:global(.listo) { opacity: 0; }
+  /* 30/10 · en móvil (solo-reel) el reel se queda también sentado */
+  [data-estudio]:not(.solo-reel).sentado .reel-loop:global(.listo),
+  [data-estudio]:not(.solo-reel) .escenario.explora .reel-loop:global(.listo) { opacity: 0; }
+  /* 30/10 · solo el reel en móvil: sentado no hay proyecto que cambiar ni lema que lo presente */
+  [data-estudio].solo-reel .barra .otros,
+  [data-estudio].solo-reel .barra .lema,
+  [data-estudio].solo-reel .ui-guia { display: none; }
   .visor {
     position: absolute;
     inset: 0; /* ronda 66: sin navegador, la web ocupa la pantalla entera */
