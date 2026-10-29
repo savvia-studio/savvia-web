@@ -5969,3 +5969,16 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   escurrirse lanza `savvia:llegado` y `bordes-safari.ts` saca las tiras 0,9 s con el color de la página. Sin iPhone.
 - **30/10 (Eric, captura de /proyectos en móvil): «la barra horizontal que no es sticky se superpone con la del filtrado; tiene que haber solo 1».**
   `Carriles.astro`: nuevo `data-sin-fila-movil`; la sección de filtros lo lleva y en móvil queda solo la línea de la fila de filtros. Publicado (Eric: «sube directamente»).
+
+## 29/10 (Eric) · Rendimiento en móvil (imágenes, caché, WebGL)
+Petición: «mírame bien el rendimiento de las páginas, de los vídeos e imágenes, optimicemos todo como dice Google… en mobile sobre todo».
+Medido antes (producción, Lighthouse 12 móvil simulado): home ES 32–40 (LCP 5–10 s, TBT 9–12 s, 2,3 MB al abrir) · home EN 93 · /proyectos 85 · /manifiesto 95.
+Hecho:
+- Hero y raíces: variante `-m.webp` de 880 px + `srcset`/`sizes`; la máscara del grano sale de `img.currentSrc` (antes se pedía la grande por CSS).
+- `estela.ts`: shaders con `KHR_parallel_shader_compile` (no pinta hasta que el programa está); Hero y Raices crean la estela en `requestIdleCallback`.
+- Logos de la cuadrícula y `rasgo-circulo` PNG → WebP sin pérdida (569 → 366 KB; 37 → 18 KB). Los PNG viejos siguen en `public/media` sin uso.
+- Póster de LaPartitura al acercarse; `nh-secciones` lazy; Proyectos no adelanta las otras estaciones en móvil o saveData; mesa de Anteriores con srcset.
+- `timeless-grotesk` sin preload. `vercel.json`: `/media` y favicons con caché de 1 día + SWR 7 días (antes `max-age=0`).
+Verificado: `astro check` 0 errores, build verde, verify (Chrome + WebKit, 1280 y 390) limpio en /, /en, /proyectos y /manifiesto.
+Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de estilo y layout en ES frente a 0,4 s); recomprimir vídeos (reel ~10 MB,
+`anteriores/video/*-grande.mp4` hasta 15 MB, `obra/quantus/cubierta.mp4` 4,7 MB), siempre a 1× y enteros; medir antes/después.

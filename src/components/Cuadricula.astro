@@ -21,7 +21,7 @@ const proporcion = (url: string) => PROP[url] ?? 3;
 import LOGOS from '../data/logos-cuadricula.json';
 // y la ESCALA a mano de cada uno (Eric la ajustó logo a logo en el artefacto «Tallas de los logos»)
 const talla = (url: string, k = 1) => {
-  const d = (LOGOS as Record<string, { r: number; d: number }>)[url.split('/').pop()!.replace(/\.png$/, '')];
+  const d = (LOGOS as Record<string, { r: number; d: number }>)[url.split('/').pop()!.replace(/\.(png|webp)$/, '')];
   const r = d?.r ?? proporcion(url), tinta = d?.d ?? 0.3;
   const AREA = 10.5, h = Math.min(2.2, Math.sqrt(AREA / r) * Math.pow(0.3 / tinta, 0.2)) * k;
   return `--lw:${(h * r).toFixed(2)}rem;--lh:${h.toFixed(2)}rem`;

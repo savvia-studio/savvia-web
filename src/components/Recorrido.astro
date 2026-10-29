@@ -246,7 +246,7 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
 
     // ── LA PRIMERA TARJETA SE DIBUJA COMO EL ÁRBOL (ronda 41 · «se tiene que dibujar como se dibuja el árbol, con ese toque de Shopify»): desde el
     // impacto de la gota, primero las LÍNEAS (la capa boceto, con un frente blando en círculo) y detrás la PINTURA (la capa viva, con el canto de
-    // papel rasgado de public/media/rasgo-circulo.png). Antes de la gota no hay tarjeta. Luego el boceto se retira y arranca su demo.
+    // papel rasgado de public/media/rasgo-circulo.webp). Antes de la gota no hay tarjeta. Luego el boceto se retira y arranca su demo.
     let dibujada = false;
     const t0el = ts[0], boceto = t0el.querySelector<HTMLElement>('.boceto')!, pintura = t0el.querySelector<HTMLElement>('.vivo')!;
     const dibujarPrimera = (instantaneo: boolean) => {
@@ -264,7 +264,7 @@ const doc = laSavvia.doc.lineas.slice(0, 6);
         const k1 = Math.min(1, t / LINEAS), r1 = R * (1 - Math.pow(1 - k1, 2.2));
         poner(boceto, `radial-gradient(circle at ${ox}px ${oy}px, #000 ${Math.max(0, r1 - 36)}px, transparent ${r1 + 0.1}px)`);
         const k2 = Math.min(1, Math.max(0, (t - RETRASO) / PINTA)), r2 = R * (1 - Math.pow(1 - k2, 1.8)), S = Math.max(0.01, (r2 / 0.44) * 1.04);
-        poner(pintura, `url('/media/rasgo-circulo.png') ${ox - S / 2}px ${oy - S / 2}px / ${S}px ${S}px no-repeat`);
+        poner(pintura, `url('/media/rasgo-circulo.webp') ${ox - S / 2}px ${oy - S / 2}px / ${S}px ${S}px no-repeat`);
         if (t < RETRASO + PINTA) requestAnimationFrame(paso); else fin();
       };
       requestAnimationFrame(paso);

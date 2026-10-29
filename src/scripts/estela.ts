@@ -177,12 +177,16 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let vivo = !!op.soplo && !reducido;
   const gota = !!op.gota && !reducido;
-  const sh = (tipo: number, src: string) => { const s = gl.createShader(tipo)!; gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS) && !gl.isContextLost()) console.error(gl.getShaderInfoLog(s)); return s; };
-  // montar el programa y los uniformes (al crear y cada vez que el contexto vuelve)
-  const montar = () => {
-    const pr = gl.createProgram()!;
-    gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS.replace('NARANJA_RGB', rgbDe('coral').map((v) => (v / 255).toFixed(3)).join(',')))); gl.linkProgram(pr);
-    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return false;
+  // (30/10 · rendimiento en móvil) el programa se compila EN SEGUNDO PLANO (KHR_parallel_shader_compile): preguntar COMPILE_STATUS o LINK_STATUS nada
+  // más enlazar bloquea el hilo hasta que el compilador acaba (0,3–1 s en un móvil, por lienzo). Se sondea COMPLETION_STATUS cada fotograma; hasta
+  // entonces los uniformes son null (WebGL los ignora) y no se pinta. Sin la extensión, como antes: síncrono.
+  const par = gl.getExtension('KHR_parallel_shader_compile') as { COMPLETION_STATUS_KHR: number } | null;
+  const sh = (tipo: number, src: string) => { const s = gl.createShader(tipo)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  let programa = false; // enlazado y con los uniformes puestos
+  let enPrograma = () => {}; // qué hacer cuando el programa queda listo (se define más abajo, con `medir`)
+  // poner en uso el programa ya enlazado y sus uniformes (al crear y cada vez que el contexto vuelve)
+  const ajustar = (pr: WebGLProgram) => {
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { if (!gl.isContextLost()) console.error(gl.getProgramInfoLog(pr)); return false; }
     gl.useProgram(pr);
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
@@ -202,6 +206,20 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     gl.uniform1f(U('soplo'), vivo ? 1 : 0);
     gl.uniform1f(U('lz'), op.sinLuz ? 0 : 1); gl.uniform1f(U('ni'), op.nitido ? 1 : 0); gl.uniform1f(U('pa'), op.limpioArriba ?? 0); gl.uniform1f(U('st'), op.semitono ?? 1);
     gl.uniform1f(U('gota'), op.gota ? 1 : 0);
+    programa = true;
+    return true;
+  };
+  const montar = (alListo: () => void = () => enPrograma()) => {
+    programa = false; U = () => null; uR = uT = uG = uD = uGT = uM = uMK = uE = uEB = uEV = uO = uLX = uFO = null;
+    const pr = gl.createProgram()!;
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS.replace('NARANJA_RGB', rgbDe('coral').map((v) => (v / 255).toFixed(3)).join(',')))); gl.linkProgram(pr);
+    if (!par) { if (!ajustar(pr)) return false; alListo(); return true; }
+    const sondear = () => {
+      if (gl.isContextLost()) return;
+      if (!gl.getProgramParameter(pr, par.COMPLETION_STATUS_KHR)) return void requestAnimationFrame(sondear);
+      if (ajustar(pr)) alListo();
+    };
+    requestAnimationFrame(sondear);
     return true;
   };
   if (!montar()) return null;
@@ -217,7 +235,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   let cic = 0;
   const pintar = (ahora: number) => {
     raf = 0;
-    if (!listo) return;
+    if (!listo || !programa) return;
     if (!suelta) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); return; }
     if (!t0) t0 = ahora;
     const s = (ahora - t0) / 1000;
@@ -277,6 +295,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     setTimeout(() => dormir(), 0); // si ya está lejos cuando termina de cargar, a dormir
   };
   img.complete && img.naturalWidth ? arrancar() : img.addEventListener('load', arrancar, { once: true });
+  enPrograma = () => { if (listo) medir(); }; // el programa llegó después de la imagen: tamaño, uniformes de medida y primer fotograma
   new ResizeObserver(() => listo && medir()).observe(cv);
   // soltar y recuperar el contexto según la distancia a la pantalla (ver arriba)
   const ext = gl.getExtension('WEBGL_lose_context');
@@ -288,10 +307,11 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   });
   cv.addEventListener('webglcontextrestored', () => {
     dormido = false; tex = null; // la textura del contexto perdido ya no existe
-    if (!montar()) return;
-    // lo que estaba a medio aparecer vuelve ya aparecido (el visitante no lo estaba viendo)
-    if (gota) { t0 = performance.now() - (INTRO + CRECE + 1) * 1000; suelta = true; }
-    if (cargada) { textura(); listo = true; medir(); }
+    montar(() => {
+      // lo que estaba a medio aparecer vuelve ya aparecido (el visitante no lo estaba viendo)
+      if (gota) { t0 = performance.now() - (INTRO + CRECE + 1) * 1000; suelta = true; }
+      if (cargada) { textura(); listo = true; medir(); }
+    });
   });
   let lejos = false;
   const dormir = () => { if (ext && lejos && vivos > LIMITE && !dormido && listo && !gl.isContextLost()) { dormido = true; ext.loseContext(); } };

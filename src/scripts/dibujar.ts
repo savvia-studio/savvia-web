@@ -2,10 +2,10 @@
 // podemos conseguir lo mismo para el menú superior cuando se abre». El paisaje (estela.ts) entra en dos tiempos: primero el DIBUJO (líneas claras) y
 // detrás la PINTURA con canto de papel rasgado, en círculo desde un origen. Aquí, lo mismo para una pieza del DOM:
 //   1 · líneas: el contorno de la pieza y el de sus partes (campos, botones, enlaces) se trazan (stroke-dashoffset), escalonadas;
-//   2 · pintura: la pieza se descubre con una máscara de papel rasgado en círculo (public/media/rasgo-circulo.png) que crece desde el origen;
+//   2 · pintura: la pieza se descubre con una máscara de papel rasgado en círculo (public/media/rasgo-circulo.webp) que crece desde el origen;
 //   3 · las líneas se van. Al cerrar, al revés: la pintura se recoge hacia el origen y las líneas se destrazan.
 // Las líneas van en una capa FIJA (se recoloca cada frame) dentro del mismo padre que la pieza: comparte su contexto de apilado.
-const MASCARA = "url('/media/rasgo-circulo.png')";
+const MASCARA = "url('/media/rasgo-circulo.webp')";
 import { mascaraPedida } from './revelar';
 const RADIO = 0.44; // el radio del círculo dentro de la imagen (fracción del lado)
 const NS = 'http://www.w3.org/2000/svg';

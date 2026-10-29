@@ -200,7 +200,7 @@ import { icono } from '../lib/iconos';
                 {s.tipo === 'escena' ? (
                   <div class="mesa" data-f="escena" style={`--z:${Z};--left:${left.toFixed(2)};--cy:${s.cy};--py:${py}`}>
                     {/* RONDA 232 · Andoni: «el de Home of Ambrose no cambia el mockup de estación»: la mesa del estudio, una lámina por estación (como el móvil) */}
-                    {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} src={`/media/estudio/${e}.webp`} alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
+                    {['primavera', 'verano', 'otono', 'invierno'].map((e) => <img class="foto foto-e" data-e={e} src={`/media/estudio/${e}.webp`} srcset={`/media/estudio/${e}-m.webp 1600w, /media/estudio/${e}.webp 2560w`} sizes="(width < 48rem) 100vw, 1672px" alt="" width="1672" height="941" loading="lazy" decoding="async" />)}
                     <span class="pantalla"><Fragment set:html={video} /></span>
                   </div>
                 ) : quad ? (

@@ -296,8 +296,9 @@ import Problemas from './Problemas.astro';
         }, { once: true });
       };
       addEventListener('savvia:estacion', () => { if (visible && !reducido && cargada) relevar(); else if (visible) cargar(); else cargada = ''; });
-      // el póster es el único fotograma antes de llegar (y con movimiento reducido)
-      film.poster = `${nombre()}.jpg`;
+      // el póster es el único fotograma antes de llegar (y con movimiento reducido). (30/10 · rendimiento en móvil) se pide al acercarse (pantalla y
+      // media), no al cargar la página: eran ≈ 95 KB por delante del hero
+      new IntersectionObserver((e, o) => { if (!e[0].isIntersecting) return; o.disconnect(); if (!film.poster) film.poster = `${nombre()}.jpg`; }, { rootMargin: '150% 0px' }).observe(cine);
       // si se cruza el punto de corte (girar una tableta, cambiar el ancho en escritorio), se recarga: son dos motores distintos
       matchMedia('(width < 64rem)').addEventListener('change', () => location.reload());
     }

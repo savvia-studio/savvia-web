@@ -1677,7 +1677,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .cp { position: absolute; inset: 0; background: #302018; animation: bb-cp 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
   @keyframes bb-cp { 0% { clip-path: ellipse(0% 0% at 50% 100%); } 70%, 100% { clip-path: ellipse(90% 120% at 50% 100%); } }
   .campana figcaption { color: #eadde7; z-index: 1; }
-  .rg { position: absolute; inset: 18% 22% 22%; background: url('/media/hero/arbol-otono.webp') center / contain no-repeat; -webkit-mask: url('/media/rasgo-circulo.png') 50% 100% / 0% 0% no-repeat; mask: url('/media/rasgo-circulo.png') 50% 100% / 0% 0% no-repeat; animation: bb-rg 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+  .rg { position: absolute; inset: 18% 22% 22%; background: url('/media/hero/arbol-otono.webp') center / contain no-repeat; -webkit-mask: url('/media/rasgo-circulo.webp') 50% 100% / 0% 0% no-repeat; mask: url('/media/rasgo-circulo.webp') 50% 100% / 0% 0% no-repeat; animation: bb-rg 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
   @keyframes bb-rg { 0% { -webkit-mask-size: 0% 0%; mask-size: 0% 0%; } 70%, 100% { -webkit-mask-size: 260% 260%; mask-size: 260% 260%; } }
   .liq { position: relative; isolation: isolate; overflow: hidden; display: inline-grid; place-items: center; height: 48px; padding-inline: 24px; border-radius: 999px; box-shadow: inset 0 0 0 1px #302018; font-weight: 500; transition: color 0.45s ease; }
   .liq::before { content: ''; position: absolute; z-index: -1; left: 10%; top: 50%; width: 260%; aspect-ratio: 1; border-radius: 47% 53% 44% 56% / 55% 45% 57% 43%; background: #302018; transform: translate(-50%, -50%) scale(0); transition: transform 0.7s cubic-bezier(0.33, 1, 0.68, 1); }

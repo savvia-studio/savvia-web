@@ -42,8 +42,9 @@ const { hero } = home(langDe(Astro.currentLocale));
       <!-- el HALO (clusia): el propio árbol muy desenfocado detrás; su color sangra en el fondo cuando ya está pintado -->
       <i class="halo" aria-hidden="true"></i>
       <!-- RONDA 66 · el roble de CADA ESTACIÓN (láminas de Andoni, tools/r66-robles.py → /media/hero/arbol-<estación>.webp): se elige al parsear -->
-      <img alt="" width="1260" height="583" decoding="async" fetchpriority="high" data-lamina />
-      <script is:inline>document.currentScript.previousElementSibling.src = '/media/hero/arbol-' + (document.documentElement.dataset.estacion || 'otono') + '.webp';</script>
+      <!-- (30/10 · rendimiento en móvil) dos tamaños: -m (880 px) para el roble de ≤ 452 px CSS del móvil; el de 1260, en escritorio y pantallas ×3 -->
+      <img alt="" width="1260" height="583" decoding="async" fetchpriority="high" sizes="(width < 64rem) 432px, 1260px" data-lamina />
+      <script is:inline>(function (i, e) { i.srcset = '/media/hero/arbol-' + e + '-m.webp 880w, /media/hero/arbol-' + e + '.webp 1260w'; i.src = '/media/hero/arbol-' + e + '.webp'; })(document.currentScript.previousElementSibling, document.documentElement.dataset.estacion || 'otono');</script>
       <canvas class="lienzo" data-lienzo></canvas>
     </div>
     <!-- RONDA 20 · «al clicar el árbol me gusta que cambie de color, que cambien como de estaciones»: el nombre de la estación, en mono, al pasar -->
@@ -70,18 +71,18 @@ const { hero } = home(langDe(Astro.currentLocale));
     const tinte = (n: number) => (n === 2 ? 0.9 : 0);
     // RONDA 144 · Eric: «en invierno quitaría la rendija y ese gradiente que hace efecto de ruido, que sea todo más blanquecino»: en invierno el árbol
     // no hierve ni lanza destellos horizontales (soplo apagado); en las demás estaciones sí («parece más vivo»)
-    let t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: estacionActual() !== 1, gota: true, manual: true, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(estacionActual()) });
-    if (t && (estacionActual() === 2 || estacionActual() === 1)) t.estacion(estacionActual()); // ronda 76: el invierno, sin hojas (raleo) y nevado
+    // (30/10 · rendimiento en móvil) el programa WebGL no se compila al evaluar el módulo (0,3–1 s de hilo bloqueado en un móvil antes de pintar nada):
+    // se crea cuando el hilo queda libre tras el primer pintado o, si la gota llega antes, en ese momento (`asegurar`, más abajo)
+    let t: ReturnType<typeof crearEstela> = null;
     const w = window as any;
     // RONDA 30: al caer la gota, primero ENTRA EL HAZ desde arriba (luz-entra); la luz sobre el árbol la pone el shader al terminar de pintarse
-    const brota = () => { t?.soltar(); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
+    const brota = () => { asegurar(); t?.soltar(); hero.classList.add('luz-entra'); setTimeout(() => hero.classList.add('crecido'), reducido ? 0 : 4200); };
     // RONDA 83 · Eric: «la parrilla detrás del árbol tiene que sincronizarse antes de la entrada del árbol»: sin animación de carga (html.sin-carga, puesto
     // en el <head>) todo arrancaba a la vez y el árbol iba por la mitad con las líneas aún trazándose. Ahora la PARRILLA entra primero (puntos del marco,
     // línea y cruces, a una) y el árbol espera a que esté puesta. Con carga no se espera: el árbol nace en el impacto de la gota.
     const ESPERA = document.documentElement.classList.contains('sin-carga') && !reducido ? 900 : 0;
     const suelta = () => { if (ESPERA) setTimeout(brota, ESPERA); else brota(); };
-    if (w.__gotaSuelta) suelta(); else addEventListener('savvia:gota', suelta, { once: true });
-    if (!t) hero.classList.add('sin-gl');
+    if (w.__gotaSuelta) queueMicrotask(suelta); else addEventListener('savvia:gota', suelta, { once: true }); // microtarea: `asegurar` se define más abajo
     // HUEVO DE PASCUA (ronda 21): clic = la estación siguiente (solo vira el color).
     // RONDA 39: la estación es de TODA la web (fondo oscuro, árbol y raíces: src/scripts/estacion.ts). El clic la cambia para todos; si la cambia
     // otro (los botones de estación de Proyectos), el árbol la sigue (pintándose si se ve; de golpe si no).
@@ -89,7 +90,10 @@ const { hero } = home(langDe(Astro.currentLocale));
     let est = estacionActual(), heroVisible = true;
     const rotular = () => { hero.dataset.estacion = EST[est]; };
     rotular();
-    if (t) t.fondo(...fondoDe(est));
+    // (30/10) la máscara del grano (::after) es la MISMA lámina que enseña el <img> (en su tamaño), sin pedir otra por CSS
+    const mascara = () => { if (img.currentSrc) caja.style.setProperty('--hoja-lamina', `url('${img.currentSrc}')`); };
+    mascara(); img.addEventListener('load', mascara);
+    const ponLamina = (n: number) => { const b = `/media/hero/arbol-${EST[n]}`; img.srcset = `${b}-m.webp 880w, ${b}.webp 1260w`; img.src = `${b}.webp`; };
     // CAMBIO DE ESTACIÓN (ronda 66): la lámina nueva se DIBUJA y se PINTA encima de la vieja (líneas y pintura rasgada desde la base, 2,4 s, el gesto de
     // la carga) y al acabar la vieja suelta su contexto WebGL. Sin ver el hero o antes de crecer, de golpe.
     let luzV = 0, pedida = -1;
@@ -99,24 +103,24 @@ const { hero } = home(langDe(Astro.currentLocale));
       const paso = (ahora: number) => {
         if (!a) { a = ahora; w = el.offsetWidth; h = el.offsetHeight; }
         const k = Math.min(1, (ahora - a) / dur), e = k * k * (3 - 2 * k), S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
-        pon(`url('/media/rasgo-circulo.png') ${(ox * w - S / 2).toFixed(1)}px ${(oy * h - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
+        pon(`url('/media/rasgo-circulo.webp') ${(ox * w - S / 2).toFixed(1)}px ${(oy * h - S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
         // el viejo se apaga detrás del frente (si no, se transparentaba y desaparecía de golpe al final: el «salto»)
         if (viejo) viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
         if (k < 1) requestAnimationFrame(paso); else { pon(''); fin(); }
       };
-      pon(`url('/media/rasgo-circulo.png') 0 0 / 0 0 no-repeat`);
+      pon(`url('/media/rasgo-circulo.webp') 0 0 / 0 0 no-repeat`);
       requestAnimationFrame(paso);
     };
     const soltarLienzo = (c: HTMLCanvasElement) => { { const g = (c.getContext('webgl') || c.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } c.remove(); };
     const cambiarLamina = (n: number) => {
       pedida = n;
-      const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/arbol-${EST[n]}.webp`;
+      const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/arbol-${EST[n]}${matchMedia('(width < 64rem)').matches && devicePixelRatio <= 2 ? '-m' : ''}.webp`;
       nueva.onload = () => {
         if (pedida !== n || !t) return;
         // sin verse (o antes de crecer): la lámina nueva en el mismo lienzo, sin compilar otro programa (ver estela.ts › lamina)
         if (!heroVisible || reducido || !hero.classList.contains('crecido')) {
           t.lamina(nueva, { soplo: n !== 1, intensidad: tinte(n) }); t.estacion(n === 2 || n === 1 ? n : 0);
-          img.src = nueva.src; t.fondo(...fondoDe(n));
+          ponLamina(n); t.fondo(...fondoDe(n));
           return;
         }
         // clonado del lienzo actual: así lleva el atributo de ámbito de Astro (con createElement los estilos del componente no le llegan)
@@ -124,7 +128,7 @@ const { hero } = home(langDe(Astro.currentLocale));
         const t2 = crearEstela(cv2, nueva, { origen: [0.5, 1], dir: -1, soplo: n !== 1, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(n) });
         if (!t2) { cv2.remove(); return; }
         if (n === 2 || n === 1) t2.estacion(n);
-        const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
+        const viejo = cv; cv = cv2; t = t2; ponLamina(n);
         t2.fondo(...fondoDe(n)); t2.luz(luzV); t2.visible(heroVisible); t2.crecer(1);
         if (!heroVisible || reducido || !hero.classList.contains('crecido')) return soltarLienzo(viejo);
         // RONDA 67 · «en algunas estaciones tiene un salto raro»: el lienzo nuevo ya viene PINTADO y se descubre con el canto de papel rasgado que crece
@@ -137,7 +141,7 @@ const { hero } = home(langDe(Astro.currentLocale));
       const n = (ev as CustomEvent).detail.n as number;
       if (n === est) return;
       est = n; rotular();
-      if (!t) return;
+      if (!t) return ponLamina(n);
       cambiarLamina(n);
     });
     new IntersectionObserver((e) => { heroVisible = e[0].isIntersecting; t?.visible(heroVisible); }).observe(hero);
@@ -153,6 +157,16 @@ const { hero } = home(langDe(Astro.currentLocale));
       luzV = 0.95 * d - 0.62; t.luz(luzV);
     };
     alinear(0); addEventListener('resize', () => alinear(0));
+    // (30/10 · rendimiento en móvil) el motor se crea aquí, con el hilo libre (o al caer la gota, lo primero que pase): compilar el programa y subir la
+    // textura bloqueaba el hilo 0,3–1 s al evaluar el módulo, antes del primer pintado
+    const asegurar = () => {
+      if (t || hero.classList.contains('sin-gl')) return;
+      t = crearEstela(cv, img, { origen: [0.5, 1], dir: -1, soplo: estacionActual() !== 1, gota: true, manual: true, hd: true, sinLuz: !!fondoClaro, intensidad: tinte(estacionActual()) });
+      if (!t) return hero.classList.add('sin-gl');
+      if (estacionActual() === 2 || estacionActual() === 1) t.estacion(estacionActual()); // ronda 76: el invierno, sin hojas (raleo) y nevado
+      t.fondo(...fondoDe(est)); t.visible(heroVisible); alinear(0);
+    };
+    'requestIdleCallback' in window ? requestIdleCallback(asegurar, { timeout: 1200 }) : setTimeout(asegurar, 250);
     if (!reducido && matchMedia('(hover: hover)').matches) {
       let mx = 0, my = 0, tx = 0, ty = 0, raf = 0;
       const seguir = () => {
@@ -302,10 +316,7 @@ const { hero } = home(langDe(Astro.currentLocale));
     .marco { --gutter: calc(var(--spacing) * 12); }
   }
   /* ronda 66: el halo y el grano se recortan con la lámina de la estación */
-  .arbol-caja { --hoja-lamina: url('/media/hero/arbol-otono.webp'); }
-  .hero[data-estacion='invierno'] .arbol-caja { --hoja-lamina: url('/media/hero/arbol-invierno.webp'); }
-  .hero[data-estacion='primavera'] .arbol-caja { --hoja-lamina: url('/media/hero/arbol-primavera.webp'); }
-  .hero[data-estacion='verano'] .arbol-caja { --hoja-lamina: url('/media/hero/arbol-verano.webp'); }
+  .arbol-caja { --hoja-lamina: none; } /* (30/10) la pone el script: la misma lámina (y tamaño) que enseña el <img>, sin pedir otra por CSS */
   .arbol-caja {
     pointer-events: auto; /* el huevo de pascua */
     cursor: pointer;

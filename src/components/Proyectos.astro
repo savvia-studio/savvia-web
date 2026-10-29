@@ -423,6 +423,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       cargado = true;
       pedir(capas.find((c) => c.dataset.capa === estActual())!);
       montar(webs[activo]);
+      // (30/10 · rendimiento en móvil) las otras tres estaciones se adelantan solo en escritorio: en el móvil eran ≈ 270 KB más al cargar la home para una
+      // mesa que, de pie, no se ve; al cambiar de estación se pide la que toca (ponCapa → pedir)
+      if (innerWidth < 700 || (navigator as any).connection?.saveData) return;
       const resto = () => capas.forEach(pedir);
       'requestIdleCallback' in window ? requestIdleCallback(resto, { timeout: 2500 }) : setTimeout(resto, 1200);
     };
@@ -1485,8 +1488,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: block;
     width: 100%; /* como la captura de .web: a lo ancho, desde arriba */
     height: auto;
-    -webkit-mask: url('/media/rasgo-circulo.png') var(--ox) var(--oy) / 0% 0% no-repeat;
-    mask: url('/media/rasgo-circulo.png') var(--ox) var(--oy) / 0% 0% no-repeat;
+    -webkit-mask: url('/media/rasgo-circulo.webp') var(--ox) var(--oy) / 0% 0% no-repeat;
+    mask: url('/media/rasgo-circulo.webp') var(--ox) var(--oy) / 0% 0% no-repeat;
   }
   /* LA PANTALLA DE CARGA (sentado): noche con grano, «savvia», una línea que se llena y el dominio */
   .carga-web {

@@ -79,7 +79,7 @@ const ogImagen = new URL(`/og/${ogEstacion}${lang === 'en' ? '-en' : ''}.jpg?v=5
     <meta name="theme-color" content="#3b231b" />
     <Font cssVariable="--font-family-display" preload />
     <Font cssVariable="--font-timeless-sans" preload />
-    <Font cssVariable="--font-timeless-grotesk" preload />
+    <Font cssVariable="--font-timeless-grotesk" />{/* (29/10) sin preload: la mono de los detalles espera a la CSS; seis fuentes a la vez retrasaban la hoja de estilos (y el primer pintado) en el móvil */}
     <Font cssVariable="--font-manrope" />
     <Font cssVariable="--font-mano" />
     <Font cssVariable="--font-bricolage" />

@@ -7,8 +7,9 @@
      sigue por la que llega más abajo hasta su punta. Por él resbala la gota que despierta las tarjetas (Recorrido.astro). -->
 <div class="raices" aria-hidden="true" data-raices data-carril-fila="sin-cruces" data-eje="[[0.507,0],[0.505,0.18],[0.501,0.36],[0.497,0.52],[0.4937,0.6787],[0.5063,0.7064],[0.4984,0.7341],[0.5048,0.7618],[0.5087,0.7895],[0.5056,0.8172],[0.5095,0.8449],[0.5087,0.8726],[0.5071,0.8892]]">
   <div class="caja" data-raices-caja>
-    <img alt="" width="1260" height="361" decoding="async" loading="lazy" data-lamina />
-    <script is:inline>document.currentScript.previousElementSibling.src = '/media/hero/raices-' + (document.documentElement.dataset.estacion || 'otono') + '.webp';</script>
+    <!-- (30/10 · rendimiento en móvil) dos tamaños, como el roble del hero: -m (880 px) en el móvil -->
+    <img alt="" width="1260" height="361" decoding="async" loading="lazy" sizes="(width < 64rem) 432px, 1260px" data-lamina />
+    <script is:inline>(function (i, e) { i.srcset = '/media/hero/raices-' + e + '-m.webp 880w, /media/hero/raices-' + e + '.webp 1260w'; i.src = '/media/hero/raices-' + e + '.webp'; })(document.currentScript.previousElementSibling, document.documentElement.dataset.estacion || 'otono');</script>
     <canvas data-lienzo></canvas>
   </div>
 </div>
@@ -36,6 +37,10 @@
     const OPC = (n: number) => ({ origen: [0.5, 0] as [number, number], dir: 1 as const, soplo: n !== 1, nitido: n === 1, limpioArriba: 80, sinLuz: true, estaciones: ESTACIONES_SIN_RALEO, intensidad: TINTE[n] });
     // RONDA 181 · Eric: «con scroll rápido aparece la raíz de los Dolores antes de que se generen las raíces del árbol»: avisamos cuando están pintadas
     const listas = () => { if ((window as any).__raicesListas) return; (window as any).__raicesListas = true; dispatchEvent(new Event('savvia:raices-listas')); };
+    const ponLamina = (n: number) => { const b = `/media/hero/raices-${EST[n]}`; img.srcset = `${b}-m.webp 880w, ${b}.webp 1260w`; img.src = `${b}.webp`; };
+    // (30/10 · rendimiento en móvil) como el roble: el programa WebGL se compila con el hilo libre tras el primer pintado, no al evaluar el módulo
+    const arranque = () => {
+    if (!img.src.includes(`raices-${EST[estacionActual()]}`)) ponLamina(estacionActual()); // si la estación cambió mientras tanto
     let t = crearEstela(cv, img, OPC(estacionActual()));
     t?.estacion(estacionActual());
     if (!t) { raiz.classList.add('sin-gl'); listas(); }
@@ -80,31 +85,31 @@
         const n = (ev as CustomEvent).detail.n as number;
         if (n === est) return;
         est = n; pedida = n;
-        const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/raices-${EST[n]}.webp`;
+        const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/raices-${EST[n]}${matchMedia('(width < 64rem)').matches && devicePixelRatio <= 2 ? '-m' : ''}.webp`;
         nueva.onload = () => setTimeout(() => {
           if (pedida !== n || !t) return;
           // sin verse (o a medio crecer): la lámina nueva en el mismo lienzo, sin compilar otro programa (ver estela.ts › lamina)
           if (!visible || reducido || g < 1) {
             const o = OPC(n); t.lamina(nueva, { soplo: o.soplo, nitido: o.nitido, intensidad: o.intensidad }); t.estacion(n);
-            img.src = nueva.src; t.fondo(...tierra(n));
+            ponLamina(n); t.fondo(...tierra(n));
             return;
           }
           const cv2 = cv.cloneNode(false) as HTMLCanvasElement; cv2.classList.remove('listo'); cv.after(cv2); // clonado: con el atributo de ámbito de Astro
           const t2 = crearEstela(cv2, nueva, OPC(n));
           if (!t2) { cv2.remove(); return; }
           t2.estacion(n);
-          const viejo = cv; cv = cv2; t = t2; img.src = nueva.src;
+          const viejo = cv; cv = cv2; t = t2; ponLamina(n);
           t2.fondo(...tierra(n)); t2.visible(visible);
           t2.crecer(g); // a medio crecer (o sin crecer aún), el lienzo nuevo sigue desde donde iba
           if (!visible || reducido || g < 1) return soltarLienzo(viejo);
           // ronda 67: se descubre con el canto rasgado desde el cuello (sin el destello de líneas), como la copa
           let a = 0, w = 0, h = 0; // medida en el primer fotograma, no en cada uno (ver revelar.ts)
           const pon = (m: string) => { cv2.style.setProperty('-webkit-mask', m); cv2.style.setProperty('mask', m); };
-          pon(`url('/media/rasgo-circulo.png') 0 0 / 0 0 no-repeat`);
+          pon(`url('/media/rasgo-circulo.webp') 0 0 / 0 0 no-repeat`);
           const paso = (ahora: number) => {
             if (!a) { a = ahora; w = cv2.offsetWidth; h = cv2.offsetHeight; }
             const k = Math.min(1, (ahora - a) / 2600), e = k * k * (3 - 2 * k), S = Math.max(8, Math.hypot(w, h) * 2.4 * e);
-            pon(`url('/media/rasgo-circulo.png') ${(w / 2 - S / 2).toFixed(1)}px ${(-S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
+            pon(`url('/media/rasgo-circulo.webp') ${(w / 2 - S / 2).toFixed(1)}px ${(-S / 2).toFixed(1)}px / ${S.toFixed(1)}px ${S.toFixed(1)}px no-repeat`);
             viejo.style.opacity = String(1 - Math.min(1, Math.max(0, (k - 0.15) / 0.75)));
             if (k < 1) requestAnimationFrame(paso); else { pon(''); soltarLienzo(viejo); }
           };
@@ -112,6 +117,8 @@
         }, visible && !reducido ? 700 : 0);
       });
     }
+    };
+    'requestIdleCallback' in window ? requestIdleCallback(arranque, { timeout: 1200 }) : setTimeout(arranque, 250);
   }
 </script>
 
