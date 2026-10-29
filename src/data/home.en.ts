@@ -157,6 +157,19 @@ export const proyectos = {
   titulo: 'savvia', // round 292: the screen title is the reel's title card; was «Featured projects built with agentic development.»
   nuevos: [
     {
+      slug: 'neety',
+      paleta: ['#F5F7F9', '#9C787C', '#CEB7B5', '#CCD5E5'],
+      n: 'Neety',
+      cat: 'B2B sales',
+      d: 'Detects who to sell to and when. The website shows the signals feed before explaining it.',
+      url: 'https://neety.treseiscero.app/home',
+      estacion: 'otono',
+      hechos: [
+        ['Work', 'Home, agentic design and development'],
+        ['A number', '9 sections'],
+      ],
+    },
+    {
       slug: 'quantus',
       paleta: ['#15181C', '#F01438', '#3A3E44', '#C0C3C5'],
       n: 'Quantus',
@@ -182,19 +195,6 @@ export const proyectos = {
       hechos: [
         ['Work', 'Home, agentic design and development'],
         ['A number', '24 rounds, 4 versions of the home'],
-      ],
-    },
-    {
-      slug: 'neety',
-      paleta: ['#F5F7F9', '#9C787C', '#CEB7B5', '#CCD5E5'],
-      n: 'Neety',
-      cat: 'B2B sales',
-      d: 'Detects who to sell to and when. The website shows the signals feed before explaining it.',
-      url: 'https://neety.treseiscero.app/home',
-      estacion: 'otono',
-      hechos: [
-        ['Work', 'Home, agentic design and development'],
-        ['A number', '9 sections'],
       ],
     },
     {

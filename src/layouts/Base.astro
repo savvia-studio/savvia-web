@@ -7,9 +7,11 @@ interface Props {
   title?: string;
   description?: string;
   carga?: boolean; // ronda 62: solo la home tiene la animación de carga (las páginas de proyectos, no)
+  indexar?: boolean; // 29/10 · lanzamiento: todo se indexa salvo lo que lo pida (Método, aún «próximamente», y la 404)
 }
 const {
   carga = true,
+  indexar = true,
   // RONDA 156 · Eric: el título de la pestaña, «savvia: elevamos tu web con IA.»; y sin «Donostia» en ningún sitio
   title = langDe(Astro.currentLocale) === 'en' ? 'savvia: AI with judgement' : 'savvia: IA con criterio', // ronda 186 (Eric); antes «savvia: tu web con criterio» (r157)
   description = langDe(Astro.currentLocale) === 'en'
@@ -65,8 +67,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <!-- RONDA 216 · los favicons de Andoni por estación (luz tenue, savvia-favicons-telegram-luz-tenue; las anteriores, en tools/retirados/favicon-r211…r215):
          en la pestaña el de 32 px (como en la ronda 205 de Eric) y, para iPhone, el de 180 a sangre (esquinas con su fondo: iOS las redondea) -->
     <link rel="apple-touch-icon" href="/apple-touch-icon-otono.png?v=217" data-icono-apple />
-    <!-- Borrador: no indexar hasta tener licencias de fuentes y visto bueno. -->
-    <meta name="robots" content="noindex, nofollow" />
+    {/* 29/10 · lanzamiento (30/10): fuera el noindex general (Family ya tiene licencia web). Solo lo que pasa `indexar={false}`. */}
+    {!indexar && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-otono-32.png?v=226" data-icono />
     <meta name="theme-color" content="#3b231b" />
     <Font cssVariable="--font-family-display" preload />

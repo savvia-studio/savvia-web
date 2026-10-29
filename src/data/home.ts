@@ -212,6 +212,21 @@ export const proyectos = {
   // `d` y `dato` salen de la propia web de cada cliente y del registro de rondas; PENDIENTES de visto bueno.
   nuevos: [
     {
+      slug: 'neety',
+      paleta: ['#F5F7F9', '#9C787C', '#CEB7B5', '#CCD5E5'], // medida sobre la captura (Multiverse: sus tokens reales). PROVISIONAL: confirmar con el CSS de cada web
+      n: 'Neety',
+      cat: 'Ventas B2B',
+      d: 'Detecta a quién vender y cuándo. La web enseña el feed de señales antes de explicarlo.',
+      url: 'https://neety.treseiscero.app/home',
+      // RONDA 160 · Eric quitó `x-frame-options` en staging: neety.treseiscero.app manda `frame-ancestors 'self' https://savvia.studio https://*.savvia.studio
+      // http://localhost:*` → la web real va en el iframe (neety.com sigue sin dejarse embeber: no cambiar la url).
+      estacion: 'otono',
+      hechos: [
+        ['Trabajo', 'Home, diseño y desarrollo agéntico'],
+        ['Un dato', '9 secciones'],
+      ],
+    },
+    {
       slug: 'quantus', // octubre 2026: Andoni rehízo la web de Multiverse (antes «Kuanta», en marca blanca) como CONCEPTO propio, sin nada del cliente: Quantus
       paleta: ['#15181C', '#F01438', '#3A3E44', '#C0C3C5'], // medida sobre la captura. PROVISIONAL: confirmar con el CSS de cada web
       n: 'Quantus',
@@ -238,21 +253,6 @@ export const proyectos = {
       hechos: [
         ['Trabajo', 'Home, diseño y desarrollo agéntico'],
         ['Un dato', '24 rondas, 4 versiones de la home'],
-      ],
-    },
-    {
-      slug: 'neety',
-      paleta: ['#F5F7F9', '#9C787C', '#CEB7B5', '#CCD5E5'], // medida sobre la captura (Multiverse: sus tokens reales). PROVISIONAL: confirmar con el CSS de cada web
-      n: 'Neety',
-      cat: 'Ventas B2B',
-      d: 'Detecta a quién vender y cuándo. La web enseña el feed de señales antes de explicarlo.',
-      url: 'https://neety.treseiscero.app/home',
-      // RONDA 160 · Eric quitó `x-frame-options` en staging: neety.treseiscero.app manda `frame-ancestors 'self' https://savvia.studio https://*.savvia.studio
-      // http://localhost:*` → la web real va en el iframe (neety.com sigue sin dejarse embeber: no cambiar la url).
-      estacion: 'otono',
-      hechos: [
-        ['Trabajo', 'Home, diseño y desarrollo agéntico'],
-        ['Un dato', '9 secciones'],
       ],
     },
     {

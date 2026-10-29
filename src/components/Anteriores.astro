@@ -99,7 +99,9 @@ const BARRIDO = (v: number) => ['primavera', 'verano', 'otono', 'invierno'].map(
 // 27/10 · las escenas que no son la propia de cada card (el botoncito): el navegador de las cards de mesa, por proporción; y el vídeo de escritorio o de móvil
 const NAV_ALT: Record<string, [number, number, number]> = { '1 / 1': [6, 17, 118], '4 / 5': [10, 23, 116], '3 / 4': [9, 20, 118] };
 // las que tienen grabación en móvil (`<slug>-movil.mp4`, con su póster `.jpg`): si el póster se lee, la hay (como la toma grande del visor)
-const GRABADA_MOVIL = new Set((await Promise.all(A.map((c) => sharp(`public/media/anteriores/video/${c.slug}-movil.jpg`).metadata().then(() => c.slug, () => '')))).filter(Boolean));
+// 29/10 · Eric: sin móvil aunque haya grabación, las que no convencen en el teléfono (Home of Ambrose y Transcend; igual que en Portfolio.astro › SIN_MOVIL)
+const SIN_MOVIL = new Set(['home-of-ambrose', 'transcend-network']);
+const GRABADA_MOVIL = new Set((await Promise.all(A.filter((c) => !SIN_MOVIL.has(c.slug)).map((c) => sharp(`public/media/anteriores/video/${c.slug}-movil.jpg`).metadata().then(() => c.slug, () => '')))).filter(Boolean));
 const NAV_GIRO: Record<string, number> = { '1 / 1': -2.5, '4 / 5': 4.5, '3 / 4': 4 };
 const vid = (c: { slug: string; n: string }, movil: boolean) => `<video class="vid" muted loop playsinline preload="none" data-poster="/media/anteriores/video/${c.slug}${movil ? '-movil' : ''}.jpg" width="${movil ? 390 : 960}" height="${movil ? (c.slug === 'cubbo' ? 798 : 844) : 600}" aria-label="${en ? `Walkthrough of the ${c.n} website` : `Recorrido por la web de ${c.n}`}" data-vid><source src="/media/anteriores/video/${c.slug}${movil ? '-movil' : ''}.mp4" type="video/mp4" /></video>`;
 import { flecha } from '../lib/flecha';

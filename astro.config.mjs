@@ -2,6 +2,7 @@
 import { defineConfig, fontProviders } from 'astro/config';
 
 import tailwindcss from '@tailwindcss/vite';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,6 +21,13 @@ export default defineConfig({
   // Dos idiomas: castellano en / (el de siempre) e inglés en /en/. El enrutado automático por país vive en vercel.json.
   i18n: { defaultLocale: 'es', locales: ['es', 'en'], routing: { prefixDefaultLocale: false } },
   devToolbar: { enabled: false },
+  // 29/10 · lanzamiento: sitemap con los dos idiomas (hreflang); fuera lo que lleva noindex (Método, aún «próximamente», las pruebas y la 404)
+  integrations: [
+    sitemap({
+      i18n: { defaultLocale: 'es', locales: { es: 'es-ES', en: 'en-GB' } },
+      filter: (url) => !/\/(metodo|prueba|sistema|brandbook|handbook|404)(\/|$)/.test(new URL(url).pathname),
+    }),
+  ],
   fonts: [
     {
       // RONDA 152 · Andoni: «la typo, Timeless: Sans para textos de lectura y Grotesk para detalles; luego la serifa». Timeless Free Font License 1.2
