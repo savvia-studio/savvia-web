@@ -50,7 +50,7 @@ function escurrir() {
     const k = Math.min(1, Math.max(0, (ahora - t0 - 60) / LLEGA));
     d.style.clipPath = gota(curva(k), false);
     if (k < 1) requestAnimationFrame(paso);
-    else d.remove();
+    else { d.remove(); dispatchEvent(new CustomEvent('savvia:llegado')); } // 30/10: bordes-safari.ts devuelve a las barras de Safari el color de la página
   };
   requestAnimationFrame(paso);
 }

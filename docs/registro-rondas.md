@@ -5964,3 +5964,8 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
   y en las páginas claras el html seguía en la noche de la estación. `global.css`: el html toma el color de su `<main>` (`:has(> body > main.surface-light)` →
   niebla; `surface-warm` → salvia). `bordes-safari.ts`: en esas páginas las tiras existen solo alrededor del PIE (oscuro y no fijo: sin ellas la barra
   quedaría clara sobre él); en la home, alrededor de Servicios como antes. `astro check` 0 · `astro build` 23 páginas. Publicado (Eric: «dale»). Sin iPhone.
+- **30/10 (Eric, iPhone, caso de Neety desde la home): «que se me abriese directamente así, sin banda de abajo marrón; el tema es el page transition».**
+  La gota de la transición entre páginas (`transicion.ts`) es una capa FIJA en Cacao que toca los dos bordes: Safari toma su color y se lo queda. Al
+  escurrirse lanza `savvia:llegado` y `bordes-safari.ts` saca las tiras 0,9 s con el color de la página. Sin iPhone.
+- **30/10 (Eric, captura de /proyectos en móvil): «la barra horizontal que no es sticky se superpone con la del filtrado; tiene que haber solo 1».**
+  `Carriles.astro`: nuevo `data-sin-fila-movil`; la sección de filtros lo lleva y en móvil queda solo la línea de la fila de filtros. Publicado (Eric: «sube directamente»).

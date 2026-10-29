@@ -21,7 +21,12 @@ if (IOS && ancla) {
   // secciones afectadas?». Solo existen alrededor de Servicios (lo único pegado al borde en móvil): desde una pantalla antes hasta una pantalla después,
   // cuando la sección siguiente ya ocupa los dos bordes y Safari ha tomado su color. Escondidas con display (con opacity 0 Safari las sigue leyendo).
   const mostrar = (si: boolean) => { arriba.style.display = abajo.style.display = si ? '' : 'none'; if (si) pedir(); };
-  new IntersectionObserver(([e]) => mostrar(e.isIntersecting), { rootMargin: '100% 0px' }).observe(ancla);
+  let cerca = false;
+  new IntersectionObserver(([e]) => { cerca = e.isIntersecting; mostrar(cerca); }, { rootMargin: '100% 0px' }).observe(ancla);
+  // 30/10 · Eric (iPhone, /proyectos/neety desde la home): «el case study se me abriese directamente así, sin banda de abajo marrón; el tema es el page transition».
+  // La gota de la transición (transicion.ts) es una capa FIJA en Cacao que toca los dos bordes: Safari toma su color y, al retirarse, se queda con él aunque
+  // la página sea clara (abierta directamente no hay gota y la barra sale clara). Al escurrirse, las tiras asoman un momento con el color de la página.
+  addEventListener('savvia:llegado', () => { mostrar(true); setTimeout(() => mostrar(cerca), 900); });
   const opaco = (c: string) => !!c && c !== 'transparent' && !/,\s*0\)$/.test(c) && !/\/\s*0\)$/.test(c);
   let secciones: HTMLElement[] = [];
   // las secciones con fondo propio, en orden de documento (la última que contiene el punto es la más honda: main > section)
