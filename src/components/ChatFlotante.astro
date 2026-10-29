@@ -531,6 +531,12 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     transition: opacity 0.6s var(--ease-out-expo);
   }
   .cf-abierto:not(.cf-en-hero) .cf-velo { opacity: 1; }
+  /* 29/10 · Eric (iPhone, captura): «aquí te esperas que salga solo el chat encima, no el navbar también, y además en layer como opaco»: con el chat
+     abierto, el velo sube por encima de la barra (55) y de lo pegado de Servicios (58), y el chat por encima del velo; el menú (60–62) no se abre a la vez.
+     En móvil el velo va más cubierto (32 % de Cacao; en escritorio sigue al 14 %) */
+  .cf.cf-abierto .cf-velo { z-index: 59; }
+  .cf.cf-abierto :is(.cf-panel, .cf-btn, .cf-hola) { z-index: 60; }
+  @media (width < 64rem) { .cf.cf-abierto .cf-velo { background: color-mix(in oklab, var(--color-cacao) 32%, transparent); } }
   .cf-panel {
     position: fixed;
     z-index: 52;

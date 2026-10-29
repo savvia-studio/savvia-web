@@ -406,9 +406,6 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     /* 29/10 · Eric (iPhone): «se pone sticky arriba y cambia de color toda la pantalla en Safari», y la banda se quedaba en Nosotros. Safari 26 tiñe la barra de
        estado con el background-color de lo fijo o pegado al borde, y se lo queda. El fondo va como imagen (mismo aspecto), que Safari no toma para teñir. */
     .selector::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: calc(var(--spacing) * 8); background: linear-gradient(var(--bg), transparent); pointer-events: none; }
-    /* 29/10 · Eric (iPhone, captura): «el chat tiene que ir por encima»: las píldoras (z 58) tapaban el panel del chat (z 52). Con el chat abierto, bajan
-       debajo de su velo (z 51), desenfocadas como el resto de la página; al cerrarlo vuelven a su sitio. La barra (55) sigue igual. */
-    :global(html:has(.cf.cf-abierto)) .selector { z-index: 50; }
   }
   @media (width < 64rem) {
     .tarjeta { padding-block: calc(var(--spacing) * 6) 0; }
