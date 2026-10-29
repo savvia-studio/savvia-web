@@ -6016,7 +6016,6 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
   la barra; «Contáctanos» y su pista suben `--bajo`. En Playwright `--bajo` = 0 (sin barras): idéntico a antes. Sin iPhone.
 - **29/10 (Eric, iPhone, Lab): «el vídeo de cada uno sale tosco y raro».** `lab/Mesa.astro`: el vídeo de la lupa sin `controls` (los de iOS salían encima y
   el anillo de foco del `<dialog>` lo enmarcaba en oscuro); en móvil `object-fit: contain` centrado y sin fondo (con `cover` la web salía cortada por los lados).
-<<<<<<< Updated upstream
 ### 30/10 (7.ª) · pulido final: toda la web, escritorio y móvil (en local, Nilo)
 - **Andoni (textual):** «quiero un pulido final de la web a tope, tanto mobile como desktop. Revisa todo y saca cosas que se nos hayan podido pasar».
 - **Cómo:** build + `astro preview` (4390). Las 19 páginas (es y en, legales y 404) en Chrome y WebKit a 1280 × 720 y 390 × 844: consola, respuestas ≥ 400, desborde,
@@ -6089,7 +6088,6 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
   bajo la barra con nube, pie que crece lo que tapa el buscador, lab, slider sin flechas con un solo proyecto) integrados igual (solo chocaba el registro); encima,
   check 0, build 23 páginas, píldoras en una fila a 320/360/375 (es y en), storybook sin nada fuera a 320, `tools/verify.cjs` en /, /proyectos, /proyectos/neety,
   /storybook, /en/, /en/proyectos, /lab y /404 (Chrome y WebKit, 1280 y 390) limpio. Un commit con todo → push a `main` → Vercel.
-=======
 
 ### 29/10 · lab en móvil: sin solapes y con zoom (en local)
 - **Eric (textual):** «en lab los proyectos se solapan en mobile iphone 13 mini cuidado» · «hacemos en mobile que se pueda zoom out igual».
@@ -6106,4 +6104,19 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
 - **29/10 (Eric, lupa del lab en móvil): «contenido y mockup unidos mejor, ese espacio que queda queda raro» · «esto quitar» (la línea «EXP-002, dominio»).** `lab/Mesa.astro`: en móvil la lupa mide lo que su contenido (máx. `100svh − 16px`) y va centrada en el alto visible (`top: 50svh` + `translateY(-50%)`); el mockup a todo el ancho, 64 px arriba para la ×, 20 px entre mockup y texto. Fuera `.lupa-cod` (código y dominio) en móvil y escritorio. Medido en WebKit 375 × 629 (captura) · `astro check` 0 · `verify.cjs` /lab limpio. Sin iPhone.
 - **29/10 (Eric, lupa del lab): «la simetría: las arrows están más abajo que Ir a la web» · «a la X arriba le falta algo de aire».** `.lupa-pie .ir` centrado (el `align-self: flex-start` de `.ir` lo subía): medido, los dos centros a 560,7 px. En móvil, la × a 22 px de los bordes y 80 px arriba antes del mockup.
 - **29/10 (Eric, lab): «que esto sea slider, que pases de uno a otro» · «reutiliza slider» · «si deslizas o pellizcas, que eso se vaya» · «en mobile esto (Elige el fondo) molesta» · «las arrows no casan con el resto, el color».** `lab/Mesa.astro`: la LUPA es un slider con lo del visor de proyectos (`obra/Visor.astro`): flechas `.barra-cristal` + `flecha()` junto a «Ir a la web», teclas ← →, deslizar sobre el mockup (48 px, más de lado que de alto), en bucle, con fundido de 180 ms; en la lupa, cada flecha es un círculo en el papel de la tarjeta como la × (sin la barra oscura). La PISTA («Desliza o pellizca…») se va con el primer gesto (arrastre, pellizco, rueda o flechas: `.lab.explorado`). EL FONDO en móvil, plegado en una muestra redonda del color (abajo a la derecha); al tocarla se abre el panel; se pliega al tocar fuera o con Escape. Medido en WebKit 375 × 629 (capturas; paso Gravitas → Apogee → Gravitas → Pulso; panel que abre y se pliega) · `astro check` 0 · `verify.cjs` /lab y /en/lab limpio. Sin iPhone. Sin publicar.
->>>>>>> Stashed changes
+
+### 29/10 · Pie en móvil: la página vuelve a acabar donde acababa
+- **Eric (textual, iPhone):** «que la web no termine ahí, que termina aquí» · «fíjate además cómo nada solapa» · «aunque el buscador solape montañas se ve bien».
+- **Hecho:** `Pie.astro`: fuera `--bajo` (100lvh − 100svh). El paisaje ya no crece lo que tapa el buscador de Safari ni «Contáctanos» sube ese alto: alargaba la página y, al final del todo, la barra de la web pisaba «La savvia de tu web.». Vuelve `--alto-pie: min(66.7vw, 40lvh)` y la lámina a `left: -50%; width: 200%`.
+- **Medido:** `astro check` 0 errores · `astro build` 23 páginas. Falta verlo en el iPhone. Sin commit.
+
+### 29/10 · Lupa del lab: se abre sin anillo de foco
+- **Eric (textual, iPhone):** «lo de ir a la web se abre así con el focus cruidado, eso no».
+- **Hecho:** `lab/Mesa.astro`: `showModal()` llevaba el foco al primer enfocable («Ir a la web») y Safari le pintaba el anillo. El `<dialog>` lleva `tabindex="-1"` y recibe él el foco al abrir (`.lupa:focus` sin contorno); Tab sigue entrando en el enlace, las flechas y la ×, y al cerrar el foco vuelve a la pieza.
+- **Medido:** `astro check` 0 errores. Falta verlo en el iPhone. Sin commit.
+
+### 29/10 · Visor en móvil: la pantalla en negro
+- **Eric (textual, iPhone):** «en mobile Kymatio sigue en negro» · «y el thumbnail dónde está?».
+- **Causa:** el visor (home `Anteriores.astro` y portfolio `obra/Visor.astro`) confiaba la miniatura al `poster` del `<video>`, con fondo `--vf` negro detrás. Cuando iOS no pinta el vídeo (bajo consumo, demasiados decodificadores) se veía el negro. Y `jugar()` corría con el visor aún cerrado: si iOS vetaba el autoplay, el botón de play no se ponía (la pantalla medía 0 px).
+- **Hecho:** la miniatura WebP va de FONDO de `.vis-pant` (cover, arriba) y el vídeo está a opacidad 0 hasta su primer `playing` (`.listo`, se quita al soltarlo). `showModal()` va antes de `ir()`.
+- **Medido:** WebKit 390 × 844 táctil, home y /proyectos: con el mp4 bloqueado se ve la web de Kymatio en el monitor; con el mp4, el vídeo encima (opacidad 1) · `astro check` 0 errores. Sin iPhone. Sin commit.

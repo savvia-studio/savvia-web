@@ -351,6 +351,10 @@ import { icono } from '../lib/iconos';
         if (v.dataset.cargado) return;
         v.dataset.cargado = '1';
         if (v.dataset.visorPoster) v.poster = v.dataset.visorPoster.replace(/^(\/media\/(?:obra|anteriores\/video)\/.+)\.jpg$/, '$1.webp'); // 29/10 · el cartel WebP
+        // 29/10 · Eric (iPhone): «Kymatio sigue en negro, ¿y el thumbnail?»: iOS no siempre pinta el póster de un <video> (bajo consumo, demasiados decodificadores):
+        // la miniatura va DEBAJO, de fondo de la pantalla, y el vídeo solo se enseña cuando reproduce de verdad
+        if (v.poster) v.parentElement!.style.backgroundImage = `url(${v.poster})`;
+        v.addEventListener('playing', () => v.classList.add('listo'), { once: true });
         const so = document.createElement('source'); so.src = v.dataset.src!; so.type = 'video/mp4'; v.appendChild(so); v.load();
       };
       // RONDA 218 · Safari se quedaba sin memoria: cada vídeo del visor, una vez cargado, no se soltaba nunca. Ahora solo viven el actual y sus dos vecinos, y al cerrar se sueltan todos
@@ -358,6 +362,7 @@ import { icono } from '../lib/iconos';
         const v = vid(i);
         if (!v.dataset.cargado) return;
         v.pause(); v.querySelectorAll('source').forEach((x) => x.remove()); v.removeAttribute('src'); v.load();
+        v.classList.remove('listo');
         delete v.dataset.cargado;
       };
       const ir = (n: number, animar = true) => {
@@ -402,8 +407,9 @@ import { icono } from '../lib/iconos';
         vuelta = document.activeElement as HTMLElement | null;
         clearTimeout(cerrando); vis.classList.remove('cierra');
         cur = -1; // al abrir, siempre «cambia»: el vídeo empieza de cero aunque sea el mismo proyecto de la vez anterior
-        ir(i, false);
-        vis.showModal(); vis.removeAttribute('aria-hidden'); ajusta();
+        // abierto ANTES de jugar: si iOS veta el autoplay, el botón de play se pone sobre una pantalla que ya mide (cerrado medía 0)
+        vis.showModal(); vis.removeAttribute('aria-hidden');
+        ir(i, false); ajusta();
         document.documentElement.style.overflow = 'hidden';
       };
       const cierra = () => {
@@ -1610,8 +1616,10 @@ import { icono } from '../lib/iconos';
     background: #2a1d17;
   }
   .vis-foto { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .vis-pant { position: absolute; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; overflow: hidden; background: #121213; box-shadow: 0 0 0 2px #121213; }
-  .vis-pant .vis-vid { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; background: var(--vf, #000); }
+  .vis-pant { position: absolute; left: 39.03%; top: 36.96%; width: 21.78%; height: 21.04%; overflow: hidden; background: #121213 no-repeat 50% 0 / cover; box-shadow: 0 0 0 2px #121213; }
+  .vis-pant .vis-vid { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+  .vis-pant video.vis-vid { opacity: 0; }
+  .vis-pant video.vis-vid.listo { opacity: 1; }
   /* el pie: quién (nombre grande y sector) a la izquierda; a la derecha, «Visitar la web» y la barra de cristal */
   .vis-pie {
     display: flex;

@@ -102,7 +102,7 @@ const piezas = experimentos
 
 </section>
 
-<dialog class="lupa surface-light" data-lupa aria-labelledby="lupa-h">
+<dialog class="lupa surface-light" data-lupa aria-labelledby="lupa-h" tabindex="-1">
   <div class="lupa-in">
     <!-- 29/10 · Eric: «enmárcalo en mockup como tenemos nosotros, en marco de cristal»: la ventana de cristal de los proyectos (obra/Pieza.astro › .mockup) -->
     <div class="lupa-pant"><div class="lupa-marco" data-lupa-marco><video muted loop playsinline preload="none" data-lupa-video></video></div></div>
@@ -550,6 +550,8 @@ const piezas = experimentos
     desde = p;
     pintar(i);
     lupa.showModal();
+    // 29/10 · Eric (iPhone): «Ir a la web se abre con el focus, eso no»: showModal lleva el foco al primer enlace y Safari le pinta el anillo; el foco va a la tarjeta
+    lupa.focus({ preventScroll: true });
   }
   // el paso, como en el visor: flechas, teclas ← → y deslizar el dedo sobre el mockup (48 px y más de lado que de alto); el nuevo entra con un fundido
   function ir(d: number) {
@@ -1048,6 +1050,7 @@ const piezas = experimentos
     color: var(--fg);
     overflow: auto;
   }
+  .lupa:focus { outline: none; }
   .lupa::backdrop {
     background: color-mix(in oklab, var(--color-cacao) 40%, transparent);
     backdrop-filter: blur(8px);
