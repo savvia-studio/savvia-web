@@ -5982,3 +5982,8 @@ Hecho:
 Verificado: `astro check` 0 errores, build verde, verify (Chrome + WebKit, 1280 y 390) limpio en /, /en, /proyectos y /manifiesto.
 Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de estilo y layout en ES frente a 0,4 s); recomprimir vídeos (reel ~10 MB,
 `anteriores/video/*-grande.mp4` hasta 15 MB, `obra/quantus/cubierta.mp4` 4,7 MB), siempre a 1× y enteros; medir antes/después.
+- **30/10 (Eric, captura de /proyectos/neety en iPhone): «aunque la banda esté de color blanco la banda sigue, la de detrás del buscador… quiero quitarla».**
+  Safari 26 pinta una banda sólida bajo su buscador cuando algo FIJO toca el borde de abajo, y se queda con ella. En las secundarias lo tocaban la cortina
+  de la transición (`.vt-savia` y `html.vt-llega::after`, fijas a pantalla completa) y las tiras de `bordes-safari.ts` (alrededor del pie y 900 ms al llegar).
+  **Hecho:** la cortina pasa a `position: absolute` (100 lvh, a la altura del scroll: `transicion.ts › capa()`); las tiras solo existen en la home
+  (alrededor de Servicios); fuera `savvia:llegado`. `astro check` 0 · `astro build` 23 páginas. Sin iPhone. Sin publicar.

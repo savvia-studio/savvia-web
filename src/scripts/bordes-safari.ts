@@ -4,10 +4,10 @@
 // con el color de la sección que hay detrás (por la geometría de las secciones, no por lo que caiga bajo el punto). Van debajo de las barras de Safari
 // (viewport-fit=cover): no se ven. Solo en iPhone e iPad. (Lo de antes no valía: una línea de 1 px, que Safari ignora y además se veía.)
 const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-// 30/10 · Eric: «en las páginas secundarias no tiene que haber bandas extra sobre el buscador» (la barra de Safari en Cacao sobre /proyectos). En la home,
-// las tiras existen alrededor de Servicios; en las páginas CLARAS (html del color de la página, global.css), alrededor del PIE, que es oscuro y no está
-// fijo: sin ellas, Safari dejaría la barra en claro sobre el pie. En cualquier otra página, ni se crean.
-const ancla = document.getElementById('servicios') || (document.querySelector('body > main.surface-light, body > main.surface-warm') ? document.querySelector<HTMLElement>('body > footer') : null);
+// 30/10 · Eric: «en las páginas secundarias no tiene que haber bandas extra sobre el buscador» y, tras darles el color de la página, «aunque la banda esté
+// de color blanco la banda sigue; quiero quitarla». La banda la pinta Safari porque algo FIJO toca el borde (estas tiras o la cortina de la transición) y
+// se queda con ella. En las secundarias no se crean tiras (la cortina ya no es fija: global.css › .vt-savia): la barra queda de cristal sobre la página.
+const ancla = document.getElementById('servicios');
 if (IOS && ancla) {
   const tira = (lado: 'top' | 'bottom') => {
     const t = document.createElement('div');
@@ -23,10 +23,6 @@ if (IOS && ancla) {
   const mostrar = (si: boolean) => { arriba.style.display = abajo.style.display = si ? '' : 'none'; if (si) pedir(); };
   let cerca = false;
   new IntersectionObserver(([e]) => { cerca = e.isIntersecting; mostrar(cerca); }, { rootMargin: '100% 0px' }).observe(ancla);
-  // 30/10 · Eric (iPhone, /proyectos/neety desde la home): «el case study se me abriese directamente así, sin banda de abajo marrón; el tema es el page transition».
-  // La gota de la transición (transicion.ts) es una capa FIJA en Cacao que toca los dos bordes: Safari toma su color y, al retirarse, se queda con él aunque
-  // la página sea clara (abierta directamente no hay gota y la barra sale clara). Al escurrirse, las tiras asoman un momento con el color de la página.
-  addEventListener('savvia:llegado', () => { mostrar(true); setTimeout(() => mostrar(cerca), 900); });
   const opaco = (c: string) => !!c && c !== 'transparent' && !/,\s*0\)$/.test(c) && !/\/\s*0\)$/.test(c);
   let secciones: HTMLElement[] = [];
   // las secciones con fondo propio, en orden de documento (la última que contiene el punto es la más honda: main > section)

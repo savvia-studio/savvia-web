@@ -868,8 +868,12 @@ html.vt-local::view-transition-old(root) {
 /* la capa de SAVIA (la pone transicion.ts; la máscara crece desde donde pulsas) */
 /* RONDA 69 · «que la animación entre pantallas no vaya al naranja, que vaya al marrón»: la savia de la transición es Cacao con grano y el logotipo, en claro */
 .vt-savia {
-  position: fixed;
-  inset: 0;
+  /* 30/10 · Eric (iPhone): fija, Safari 26 pintaba con ella una banda bajo el buscador y la dejaba puesta. En el documento, a la altura del scroll (transicion.ts) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100lvh;
   z-index: 2147483000;
   display: grid;
   place-items: center;
@@ -898,8 +902,11 @@ html.vt-local::view-transition-old(root) {
 /* la página nueva nace cubierta de savia, con el logotipo (transicion.ts la escurre; salvavidas en el <head>) */
 html.vt-llega::after {
   content: '';
-  position: fixed;
-  inset: 0;
+  position: absolute; /* no fija: ver .vt-savia */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100lvh;
   z-index: 2147483000;
   pointer-events: none;
   background: var(--color-cacao);

@@ -15,6 +15,7 @@ const curva = (k: number) => (k <= 0 ? 0 : k >= 1 ? 1 : k < 0.5 ? 4 * k * k * k 
 function capa() {
   const d = document.createElement('div');
   d.className = 'vt-savia'; d.setAttribute('aria-hidden', 'true'); d.style.clipPath = 'inset(100% 0 0 0)';
+  d.style.top = `${scrollY}px`; // no es fija (global.css): se pone donde está la pantalla
   document.body.append(d);
   return d;
 }
@@ -50,7 +51,7 @@ function escurrir() {
     const k = Math.min(1, Math.max(0, (ahora - t0 - 60) / LLEGA));
     d.style.clipPath = gota(curva(k), false);
     if (k < 1) requestAnimationFrame(paso);
-    else { d.remove(); dispatchEvent(new CustomEvent('savvia:llegado')); } // 30/10: bordes-safari.ts devuelve a las barras de Safari el color de la página
+    else d.remove();
   };
   requestAnimationFrame(paso);
 }
