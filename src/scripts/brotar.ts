@@ -30,7 +30,8 @@ function brote(el: HTMLElement) {
   const caja = el.getBoundingClientRect();
   const est = leerEst(el), cae = est === 'otono' || est === 'invierno';
   // en otoño y en invierno lo que llega CAE: el lienzo sube más por encima de la palabra para que haya recorrido
-  const pad = Math.ceil(fs * 0.5), arriba = Math.ceil(fs * (cae ? 1.9 : 0.9));
+  // 29/10 · Andoni: «en otoño y en invierno, que las hojas y la nieve caigan desde más abajo»: nacen a 1,1 cuerpos por encima (antes 1,9)
+  const pad = Math.ceil(fs * 0.5), arriba = Math.ceil(fs * (cae ? 1.1 : 0.9));
   const W = Math.ceil(caja.width + pad * 2), H = Math.ceil(caja.height + arriba + pad);
   // la línea base, con una sonda en línea sin alto
   const sonda = document.createElement('span');

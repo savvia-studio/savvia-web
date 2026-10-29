@@ -844,6 +844,10 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     .flota::after { z-index: 1; } /* sobre la fila también (es su propio plano: isolation) */
     .flota.bajo-pie::after { content: none; }
     .flota.pegada { --aire: 0px; }
+    /* 29/10 · Andoni, en Safari: «al hacer scroll, el sticky de arriba tiembla y se ve una minirrayita por detrás». La fila pegada, en su propia capa
+       (iOS la mueve uno o dos píxeles con la inercia del scroll si no) y su velo, 40 px por encima de su borde: por ese hueco asomaba lo de detrás */
+    .flota { -webkit-transform: translateZ(0); transform: translateZ(0); }
+    .flota::before { top: calc(var(--pega, 0px) * -1 - 40px); height: calc(100% + var(--pega, 0px) + var(--spacing) * 12 + 40px); }
     .mandos::after { border-top: 1px solid var(--rule); } /* su línea de arriba: el velo tapa la de la sección (Eric) */
     .mandos, .mandos .desp-b, .estado-f { transition: none; }
   }
