@@ -47,10 +47,10 @@ type Obra = { slug: string; nombre: string; dominio: string; href: string; secto
 const GRABADOS = new Set(['greet', 'playground-agentico', 'fiallegas-abogados', 'gsbindex', 'profounders-capital', 'bluence', 'lyra', 'adaral', 'managerpro-by-codely', 'valuat', 'zrive', 'ikon', 'kabila', 'impact-bridge', 'gow-delivery', 'alpine-security', 'junipero-vc', 'business-online-payroll', 'claudia-be', 'cubbo', 'eleven-lab', 'home-of-ambrose', 'invopop', 'isotrol', 'kymatio', 'monad', 'naterra', 'remerge', 'routal', 'surepayroll', 'thx', 'transcend-network', 'wisable', 'homeplus-casavo', 'vitalera', 'kalma', 'playground-iep', 'casa-for-agents', 'stellar']);
 // 27/10 · Eric (vitrina de proyectos): «solo thumbnail» (Home+ Casavo): su captura, sin vídeo ni móvil;
 // y sin móvil, los que no convencen en el teléfono (Lyra, Eleven Lab, Zrive: «hay cosas desalineadas», «bastante pobre»; Valuat: «solo desktop»;
-// 29/10, Home of Ambrose y Transcend: «que no se pueda ver en mobile, no me gusta cómo se ve»)
+// 29/10, Home of Ambrose, Transcend, Isotrol y GOW: «que no se pueda ver en mobile, no me gusta cómo se ve»; GOW, «tiene bastante zoom»)
 // (Crece con Casavo era «solo thumbnail» hasta que llegaron sus grabaciones, el 27/10: ahora con vídeo de escritorio y de móvil)
 const SOLO_THUMB = new Set(['homeplus-casavo']);
-const SIN_MOVIL = new Set(['lyra', 'eleven-lab', 'zrive', 'invopop', 'home-of-ambrose', 'transcend-network', ...SOLO_THUMB]);
+const SIN_MOVIL = new Set(['lyra', 'eleven-lab', 'zrive', 'invopop', 'home-of-ambrose', 'transcend-network', 'isotrol', 'gow-delivery', ...SOLO_THUMB]);
 const conVideo = (slug: string) => GRABADOS.has(slug) && !SOLO_THUMB.has(slug);
 const MOVIL_GRABADO = new Set(['cubbo', 'valuat', 'remerge', 'claudia-be', 'routal', 'surepayroll', 'monad', 'thx', 'gsbindex', 'home-of-ambrose', 'kymatio', 'profounders-capital', 'naterra', 'bluence', 'lyra', 'business-online-payroll', 'adaral', 'managerpro-by-codely', 'fiallegas-abogados', 'gow-delivery','alpine-security', 'homeplus-casavo', 'junipero-vc', 'eleven-lab', 'vitalera', 'ikon', 'isotrol', 'qalea', 'kalma', 'kabila', 'impact-bridge', 'playground-agentico', 'transcend-network', 'wisable', 'greet', 'playground-iep', 'stellar', 'casa-for-agents']); // con grabación en móvil (<slug>-movil.mp4)
 // 26/10 · Eric: Greet (greet.video, de los últimos), que no está en el CMS de treseiscero: va detrás de los del CMS (al final: así no mueve de sitio ni de forma a los demás), con su grabación (Screen Studio)
