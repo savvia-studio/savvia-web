@@ -6199,3 +6199,7 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
 - Eric: «hacer mención a https://www.aconiastudio.com/, de ahí hemos extraído el mockup desktop de mesa (comprado)» · «y mención a Klim Foundry, de ahí hemos comprado la fuente heading».
 - `Libro.astro`: dos filas nuevas al final de HERRAMIENTAS (es y en), Aconia Studio (icono `desk`) y Klim Type Foundry (icono `type`), con enlace `.link` al final del texto. `Fila` admite un tercer campo opcional, el enlace. Después: «con licencia» en vez de «comprado» y logos reales en `src/assets/marcas/` (aconia.svg, monograma vectorizado de su favicon; klim.svg, su mask-icon).
 - astro check y build en verde.
+
+### 29/10 · Storybook › Herramientas: Ship Studio mejor explicado
+- Eric: «esto está muy mal explicado y "en vivo" suena a latino» · «menciona que tiene un canvas al lado».
+- `Libro.astro`: «La vista previa en vivo mientras se trabaja.» → «Donde trabajamos con Claude. El agente y, al lado, un canvas con la web que se actualiza en directo con cada cambio.» (y en inglés).
