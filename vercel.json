@@ -19,6 +19,71 @@
   ],
   "redirects": [
     {
+      "source": "/portfolio/neety",
+      "destination": "/en/proyectos/neety",
+      "permanent": true
+    },
+    {
+      "source": "/es/portfolio/neety",
+      "destination": "/proyectos/neety",
+      "permanent": true
+    },
+    {
+      "source": "/portfolio/:slug*",
+      "destination": "/en/proyectos",
+      "permanent": true
+    },
+    {
+      "source": "/es/portfolio/:slug*",
+      "destination": "/proyectos",
+      "permanent": true
+    },
+    {
+      "source": "/manifesto",
+      "destination": "/en/manifiesto",
+      "permanent": true
+    },
+    {
+      "source": "/es/manifesto",
+      "destination": "/manifiesto",
+      "permanent": true
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/en/privacidad",
+      "permanent": true
+    },
+    {
+      "source": "/es/privacy-policy",
+      "destination": "/privacidad",
+      "permanent": true
+    },
+    {
+      "source": "/terms-conditions",
+      "destination": "/en/aviso-legal",
+      "permanent": true
+    },
+    {
+      "source": "/es/terms-conditions",
+      "destination": "/aviso-legal",
+      "permanent": true
+    },
+    {
+      "source": "/:viejo(pricing|tiny-web|mure-data-treseiscero|home-test-no-index)",
+      "destination": "/en",
+      "permanent": true
+    },
+    {
+      "source": "/es/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/es",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/",
       "has": [
         {

@@ -4,6 +4,20 @@
 export const DUR_ESTACION = 2600;
 const MASCARA = "url('/media/rasgo-circulo.png')";
 const reducido = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+// 29/10 · Eric, en /proyectos: «la primera vez aparece un poco de glitch, como que hay un salto»: mientras la máscara no ha llegado, el navegador
+// esconde entera la capa enmascarada (la foto vieja desaparecía un instante y volvía con el agujero). Se pide al cargar y se espera antes de rasgar
+let mascaraLista: Promise<unknown> | null = null;
+// (una máscara CSS se pide en modo CORS: un <img> normal no le servía de caché, por eso crossOrigin; y una capa invisible ya con la máscara puesta
+// deja la imagen de la máscara cargada en el motor de estilos antes del primer barrido)
+export const mascaraPedida = () => (mascaraLista ??= (() => {
+  const i = new Image(); i.crossOrigin = 'anonymous'; i.src = '/media/rasgo-circulo.png';
+  const c = document.createElement('i');
+  c.setAttribute('aria-hidden', 'true');
+  c.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1';
+  ponMascara(c, `${MASCARA} 0 0 / 2px 2px no-repeat`);
+  document.body.append(c);
+  return Promise.all([i.decode().catch(() => {}), new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))]);
+})());
 
 const ponMascara = (el: HTMLElement, m: string) => { el.style.setProperty('-webkit-mask', m); el.style.setProperty('mask', m); };
 

@@ -16,6 +16,7 @@
 //   El formulario se DIBUJA al abrir y al cerrar (src/scripts/dibujar.ts), como el paisaje.
 import { home } from '../data/idioma';
 import { langDe, ruta } from '../lib/i18n';
+import { legalDe, LEGAL_KEYS, LEGAL_RUTA } from '../data/legal';
 const lang = langDe(Astro.currentLocale);
 const en = lang === 'en';
 const { pie, nav } = home(lang);
@@ -40,9 +41,14 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
         <p class="text-sub measure mt-4 lg:mt-6">{pie.pitch}</p>
       </div>
       <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
-      <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right">
+      <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right lg:relative">
         <ul class="enlaces text-ui flex flex-col gap-3 font-light lg:items-end" data-enlaces>
           {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie brota">{l.label}</a> : <span class="enlace-pie pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
+        </ul>
+        <!-- 29/10 · los textos legales (src/views/Legal.astro), pequeños bajo los enlaces. En escritorio, fuera del flujo: no le suman alto al pie
+             (si no, al final de la página el titular se salía por arriba) -->
+        <ul class="legales detail flex flex-col gap-y-1 mt-8 lg:items-end lg:absolute lg:top-full lg:right-0">
+          {LEGAL_KEYS.map((k) => <li><a href={ruta(lang, LEGAL_RUTA[k])} class="enlace-pie">{legalDe(lang, k).titulo}</a></li>)}
         </ul>
       </div>
     </div>
@@ -98,8 +104,9 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     // texto en Family y escalarlo al ancho del contenido
     const contacta = pie.querySelector<HTMLElement>('[data-contacta]')!, contenido = pie.querySelector<HTMLElement>('.contenido')!;
     const ajustarContacta = () => {
-      // RONDA 268 · Eric: «igual más pequeño el Contáctanos en móvil»: por debajo de 64 rem, al 78 % del ancho de las líneas (centrado)
-      const w = (contenido.clientWidth - 2 * parseFloat(getComputedStyle(contenido).paddingLeft)) * (innerWidth < 1024 ? 0.78 : 1);
+      // RONDA 268 · Eric: «igual más pequeño el Contáctanos en móvil»: por debajo de 64 rem, al 78 % del ancho de las líneas (centrado). 29/10 · «un poco más
+      // grande en mobile»: al 92 % (el paisaje ya es el doble de alto)
+      const w = (contenido.clientWidth - 2 * parseFloat(getComputedStyle(contenido).paddingLeft)) * (innerWidth < 1024 ? 0.92 : 1);
       const c = document.createElement('canvas').getContext('2d')!;
       c.font = `100px ${getComputedStyle(contacta).fontFamily}`;
       const tw = c.measureText(contacta.querySelector('[data-contacta-txt]')!.textContent!.trim()).width || 1;
@@ -533,6 +540,14 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     padding-bottom: calc(400px + 0.564 * min(33.35vw, 62lvh)); /* ronda 35: a 400 px de Carta fundacional: el panel, más alto, asoma por encima del paisaje sin tocar los enlaces */
   }
   @media (min-width: 1024px) { .contenido { padding-top: 256px; } }
+  /* 29/10 · Eric: «en móvil el navbar queda muy pegado al titular» (al final de la página el pie no cabía y su arriba quedaba bajo la barra) «y la montaña
+     de abajo queda muy pequeña»: en móvil el paisaje mide el doble de alto (la lámina, al doble de ancho y recortada a los lados, sin deformarse) y el
+     relleno de abajo es solo lo que sobra bajo las cimas + 48 px (los 400 px eran para el panel del formulario, que ya no está), así el pie cabe entero */
+  @media (width < 64rem) {
+    .pie { --alto-pie: min(66.7vw, 40lvh); --alto: var(--alto-pie); min-height: 100lvh; } /* el pie llena la pantalla: el titular, a 112 px de su arriba, y lo que sobre, entre los enlaces y el monte */
+    .contenido { padding-top: 112px; padding-bottom: calc(48px + 0.564 * var(--alto)); }
+    .paisaje .capa { left: -50%; width: 200%; }
+  }
   .contenido a {
     pointer-events: auto;
   }
@@ -571,7 +586,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     right: 0;
     bottom: 0;
     z-index: 1;
-    --alto: min(33.35vw, 62lvh);
+    --alto: var(--alto-pie, min(33.35vw, 62lvh));
     --extra: 18rem; /* ronda 37: la tarjeta asoma más por encima del paisaje */
     /* ronda 291 · Eric: «ese borde cortado no se puede quitar»: la caja llega hasta el borde de arriba del PIE (todo lo de dentro va anclado abajo), así
        las hojas de «Contáctanos» nacen ahí y no en mitad del titular; ni más arriba (sobre la sección clara) ni más abajo (hueco marrón) */
@@ -819,5 +834,8 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     opacity: 0.18; /* 28/10: «que se vean algo menos» (antes 0,3) */
   }
   :global(html:not(.js)) .capa { translate: 0 0; }
+  .legales { opacity: 0.72; }
+  .legales { font-size: 12px; } /* 29/10 · Eric: «en vertical y pequeñitos» (móvil y escritorio) */
+  @media (width >= 64rem) { .legales { font-size: 11px; } } /* 29/10 · «en desktop algo más pequeños» */
   .pronto { opacity: 0.72; cursor: default; } /* 28/10: 0,5 daba 4,3:1 sobre la noche (3,9 sobre la nieve); 0,72 pasa en las cuatro */
 </style>

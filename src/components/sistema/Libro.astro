@@ -1028,7 +1028,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     f.addEventListener('load', () => {
       try {
         const w = f.contentWindow!, d = f.contentDocument!;
-        d.head.insertAdjacentHTML('beforeend', '<style>#reviewRoot,[class*="styles-module__"],header[data-nav],[data-chat]{display:none!important}</style>');
+        // 29/10 · Eric: «que no se pueda hacer scroll sobre el elemento»: el portfolio de dentro no se desplaza (la rueda pasa a la página del sistema);
+        // colocar() lo sigue moviendo por código
+        d.head.insertAdjacentHTML('beforeend', '<style>#reviewRoot,[class*="styles-module__"],header[data-nav],[data-chat]{display:none!important}html,body{overflow:hidden!important;overscroll-behavior:none}</style>');
         const colocar = () => { const b = d.querySelector('.barra-f'); if (b) w.scrollTo(0, b.getBoundingClientRect().top + w.scrollY - 32); };
         // 29/10 · Andoni: «filtros del storybook: que solo se puedan clicar los filtros, sin hacer scroll»: dentro no se desplaza (ni rueda, ni dedo, ni
         // teclas); la rueda y el dedo mueven la página del storybook, como si la demo fuera una imagen

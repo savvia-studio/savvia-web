@@ -2,6 +2,8 @@
 // filtrar), el navegador que se pone recto y entero al pasar y el vídeo de la forma visible. Lo de Anteriores.astro (rondas 19, 206 y 290), para piezas que
 // cambian de sitio.
 import { jugar } from './jugar';
+import { rasgarCopia, estaVisible, mascaraPedida } from './revelar';
+mascaraPedida(); // la máscara del barrido, lista antes del primer cambio de estación
 
 export type Forma = 'navegador' | 'escena' | 'movil' | 'tel';
 const FORMAS: Forma[] = ['navegador', 'escena', 'movil', 'tel'];
@@ -37,7 +39,22 @@ function cargar(pz: HTMLElement) {
   if (quad) { quad.style.setProperty('--s', String(quad.offsetWidth / 1672)); ro.observe(quad); }
 }
 // 29/10 · Eric: «cambio de una estación a otra y se me van a blanco las imágenes»: la lámina de la estación nueva no se había pedido nunca
-addEventListener('savvia:estacion', () => document.querySelectorAll<HTMLElement>('[data-pieza-casa][data-cargada]').forEach(cargar));
+// 29/10 · Eric: «la foto se puede cambiar como un barrido como en la home, con el mockup fijo?»: lo de Anteriores.astro, la foto VIEJA encima de la
+// nueva (y bajo la pantalla, z 2) se rasga desde abajo hasta que no queda nada; al acabar vuelve a su sitio y el CSS la esconde
+let estPrev = document.documentElement.dataset.estacion || 'otono';
+addEventListener('savvia:estacion', () => {
+  const viejo = estPrev; estPrev = document.documentElement.dataset.estacion || 'otono';
+  document.querySelectorAll<HTMLElement>('[data-pieza-casa][data-cargada]').forEach(cargar);
+  if (viejo === estPrev) return;
+  document.querySelectorAll<HTMLElement>('[data-pieza-casa] .mesa').forEach((m) => {
+    const img = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${viejo}"]`);
+    if (!img?.src || !m.offsetParent || !estaVisible(m)) return;
+    img.style.cssText = 'display:block;position:absolute;inset:0;z-index:1;pointer-events:none';
+    // la vieja tapa mientras llega la nueva (si no, se rasgaba hacia un hueco en blanco)
+    const nueva = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${estPrev}"]`), ir = () => rasgarCopia(img, { ox: 0.5, oy: 1, ref: m.closest<HTMLElement>('.lamina') ?? undefined, fin: () => { img.style.cssText = ''; } });
+    Promise.all([nueva?.src ? nueva.decode().catch(() => {}) : null, mascaraPedida()]).then(ir, ir);
+  });
+});
 const ro = new ResizeObserver((es) => es.forEach((e) => (e.target as HTMLElement).style.setProperty('--s', String(e.contentRect.width / 1672))));
 
 // la ENTRADA: al asomar, `.visto` (el CSS descubre la lámina y sube su contenido); `entrar(pz, true)` la repite (al filtrar)

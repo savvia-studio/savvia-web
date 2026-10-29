@@ -109,7 +109,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <div class="aviso-desliza" aria-hidden="true" data-aviso-desliza><span class="icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path class="ch" d="M6.5 9 12 14.5 17.5 9" /></svg></span><span data-aviso-texto>{en ? 'scroll inside to see the site' : 'desliza dentro para ver la web'}</span></div>
             <!-- RONDA 50 · «el indicador de scroll como estaba antes, encima de la pantalla del ordenador»: vuelve la píldora de la ronda 39, al pie
                  de la web; se va con el primer gesto sobre ella (la capa `capta`, ronda 41) -->
-            <div class="sigue-cursor" aria-hidden="true" data-sigue><span class="txt"><svg class="silla" viewBox="0 0 24 24" fill="none"><rect class="respaldo" x="7" y="2.5" width="10" height="8.5" rx="3" /><rect x="5" y="12.5" width="14" height="3" rx="1.5" /><path d="M12 15.5v4M7.5 21.5l4.5-2 4.5 2" /></svg>{en ? 'click to sit down' : 'clic para sentarte'}</span></div>
+            <div class="sigue-cursor" aria-hidden="true" data-sigue><span class="txt"><svg class="silla" viewBox="0 0 24 24" fill="none"><rect class="respaldo" x="7" y="2.5" width="10" height="8.5" rx="3" /><rect x="5" y="12.5" width="14" height="3" rx="1.5" /><path d="M12 15.5v4M7.5 21.5l4.5-2 4.5 2" /></svg>{en ? 'see projects' : 'ver proyectos'}</span></div>
             <p class="pista-scroll" aria-hidden="true" data-pista-scroll><i class="raton"><i></i></i><span data-pista-texto>{en ? 'click to browse' : 'clic para navegar'}</span></p>
             <!-- RONDA 67 · la PANTALLA DE CARGA al sentarse o al cambiar de proyecto sentado: savvia, una línea de savia que corre y el dominio -->
             <!-- RONDA 162 · la CONSTRUCCIÓN del reel antes de cada miniatura (de pie): el agente y nosotros dibujan la maqueta y se pinta la web -->
@@ -505,7 +505,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     if (MOVIL) sigue.classList.add('fija');
     if (TACTIL) sigue.querySelector('.txt')!.lastChild!.textContent = t('toca para sentarte', 'tap to sit down'); // táctil: la misma píldora que en escritorio, anclada en el centro del monitor
     // ronda 157: los textos de la píldora (B: se entra con el clic; D: con el movimiento) y «¿cae dentro del monitor?» (se declaran aquí: entrar() los usa desde el primer fotograma)
-    const TXT_B = matchMedia('(hover: none)').matches ? t('toca para sentarte', 'tap to sit down') : t('clic para sentarte', 'click to sit down'), TXT_D = t('desliza dentro', 'scroll inside');
+    // 29/10 · Eric: «aquí cambiar a "ver proyectos"» (antes «clic para sentarte», «toca para sentarte» en táctil)
+    const TXT_B = t('ver proyectos', 'see projects'), TXT_D = t('desliza dentro', 'scroll inside');
     const pistaTexto = $('[data-pista-texto]');
     // ronda 160 (Eric: «que el clic también sirva en el recuadro exterior»): cuenta también el marco del monitor (≈ 4 % del ancho de la pantalla)
     const enMonitor = (x: number, y: number) => { const r = $('[data-pantalla]').getBoundingClientRect(), m = r.width * 0.04; return x >= r.left - m && x <= r.right + m && y >= r.top - m && y <= r.bottom + m; };

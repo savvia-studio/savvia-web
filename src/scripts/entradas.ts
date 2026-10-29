@@ -50,8 +50,9 @@ if (!reducido && 'IntersectionObserver' in window) {
     if (!s.sec.hasAttribute('data-sube-eco')) continue;
     let previo = s.sec.previousElementSibling as HTMLElement | null;
     // el pie va fuera de <main>: su sección anterior es la última de <main>
-    if (previo?.tagName === 'MAIN') previo = ([...previo.children].reverse().find((c) => c.tagName === 'SECTION') as HTMLElement | undefined) ?? null;
-    while (previo && previo.tagName !== 'SECTION') previo = previo.previousElementSibling as HTMLElement | null;
+    // 29/10 · Eric (las páginas legales: «la ola del footer que vaya atrás y el texto que cambie de color»): un <main> sin secciones (Legal.astro: main > .wrap) es él mismo la sección
+    if (previo?.tagName === 'MAIN') previo = ([...previo.children].reverse().find((c) => c.tagName === 'SECTION') as HTMLElement | undefined) ?? (previo.querySelector(':scope > .wrap') ? previo : null);
+    while (previo && previo.tagName !== 'SECTION' && previo.tagName !== 'MAIN') previo = previo.previousElementSibling as HTMLElement | null;
     const fuente = previo?.querySelector<HTMLElement>(':scope > .wrap');
     // 27/10 · Eric (/proyectos: «la ola marrón tiene que ir detrás de la reseña y lo que toque, en blanco»): una sección sin .wrap dentro puede marcar con
     // [data-eco-ultimo] la lista cuyo ÚLTIMO hijo visible es lo que toca la gota (la rejilla: una reseña o, al filtrar, un proyecto); solo se copia ese, en su sitio

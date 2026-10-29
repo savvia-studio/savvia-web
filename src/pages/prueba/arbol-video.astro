@@ -3,8 +3,12 @@
 // La copa brota hacia arriba desde la gota (estela.ts, sin carga: la gota cae sola) y las raíces bajan a la vez desde el cuello.
 // ?fondo=rrggbb cambia el fondo (por defecto, la noche de la estación) · ?est=0…3 la estación · ?grabar=1 espera a que el grabador mueva el reloj ·
 // ?estaciones=1 (&cada=3.5): ya crecido, pasa por las cuatro estaciones y vuelve a la primera.
+// ?og=1 (&lang=en) (29/10, Eric): la imagen para compartir: 1200×630, el titular arriba y el árbol con sus raíces ajustado al rectángulo (tools/og-arbol.cjs).
 if (import.meta.env.PROD) return Astro.redirect('/');
+import { Font } from 'astro:assets';
 import '../../styles/global.css';
+import { hero } from '../../data/home';
+import { hero as heroEn } from '../../data/home.en';
 ---
 
 <!doctype html>
@@ -15,13 +19,18 @@ import '../../styles/global.css';
     <meta name="robots" content="noindex, nofollow" />
     <title>Árbol · vídeo</title>
     <link rel="icon" href="data:," />
+    <Font cssVariable="--font-family-display" preload />
     <script is:inline>
       var q = new URLSearchParams(location.search), e = ['otono', 'invierno', 'primavera', 'verano'][+(q.get('est') || 0)] || 'otono';
       document.documentElement.dataset.estacion = e;
+      if (q.has('og')) document.documentElement.classList.add('og');
+      if (q.has('fondo')) document.documentElement.classList.add('fondo-fijo');
+      addEventListener('DOMContentLoaded', function () { var h = document.querySelector('.og-titular'); if (q.get('lang') === 'en') h.textContent = h.dataset.en; });
     </script>
   </head>
   <body>
     <main class="escena" data-escena>
+      <h1 class="og-titular" data-es={hero.h1} data-en={heroEn.h1}>{hero.h1}</h1>
       <div class="arbol">
                 <canvas data-lienzo-copa></canvas>
       </div>
@@ -182,6 +191,24 @@ import '../../styles/global.css';
     width: var(--w);
   }
   .arbol { aspect-ratio: 1260 / 583; }
+  .og-titular { display: none; }
+  /* ?og=1 · 1200×630: el titular arriba, en la tinta de la estación, y el árbol entero en el alto que queda */
+  html.og .og-titular {
+    display: block;
+    margin: 0 0 var(--og-hueco, 92px);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: var(--og-tam, 60px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--tinta); /* sobre la noche de la estación (29/10, Eric: «cada estación con su fondo») */
+  }
+  html.og.fondo-fijo .og-titular { color: var(--color-cacao); }
+  html.og .escena {
+    --w: calc((100vh - var(--og-arriba, 76px) - var(--og-abajo, 56px) - var(--og-tam, 60px) - var(--og-hueco, 92px)) * 1260 / 944);
+    padding-block: var(--og-arriba, 76px) var(--og-abajo, 56px);
+    box-sizing: border-box;
+  }
   .raices { aspect-ratio: 1260 / 361; }
   canvas,
   img {

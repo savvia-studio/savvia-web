@@ -16,13 +16,17 @@ const {
   title = langDe(Astro.currentLocale) === 'en' ? 'savvia: AI with judgement' : 'savvia: IA con criterio', // ronda 186 (Eric); antes «savvia: tu web con criterio» (r157)
   description = langDe(Astro.currentLocale) === 'en'
     ? 'We elevate your website with AI. savvia is the web studio of Eric and Andoni, specialists in orchestrating agentic development.'
-    : 'Elevamos tu web con IA. savvia es el estudio web de Eric y Andoni, especialistas en orquestar el desarrollo agéntico.',
+    : 'Orquestamos la IA con criterio: tu web, a la altura de tu marca y lista para seguir evolucionando.', // 29/10 (Eric)
 } = Astro.props;
 const lang = langDe(Astro.currentLocale);
 const hrefLang = (l: 'es' | 'en') => new URL(enOtroIdioma(Astro.url.pathname, l), Astro.site);
 const canonical = new URL(Astro.url.pathname, Astro.site);
-// 29/10 · la imagen para compartir en el idioma de la página (tools/r156-og.cjs; la inglesa, og-en.jpg)
-const ogImagen = new URL(lang === 'en' ? '/og-en.jpg?v=1' : '/og.jpg?v=156', Astro.site);
+// 29/10 · la imagen para compartir: el árbol con sus raíces sobre el fondo (la noche) de la ESTACIÓN en la que se compila (los meses de estacion.ts), en el idioma de la página
+// (tools/og-arbol.cjs). Un archivo por estación: las redes guardan la imagen por dirección, así cada cambio de estación es una imagen nueva.
+// OJO: cambia al publicar; hay que publicar después del 1 de dic, mar, jun y sep.
+const mes = new Date().getMonth() + 1;
+const ogEstacion = mes >= 3 && mes <= 5 ? 'primavera' : mes >= 6 && mes <= 8 ? 'verano' : mes >= 9 && mes <= 11 ? 'otono' : 'invierno';
+const ogImagen = new URL(`/og/${ogEstacion}${lang === 'en' ? '-en' : ''}.jpg?v=5`, Astro.site);
 ---
 
 <!doctype html>
@@ -59,7 +63,7 @@ const ogImagen = new URL(lang === 'en' ? '/og-en.jpg?v=1' : '/og.jpg?v=156', Ast
     <meta property="og:image" content={ogImagen} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={lang === 'en' ? 'savvia: the oak in watercolour under the headline “We elevate your website with AI”' : 'savvia: el roble en acuarela bajo el titular «Elevamos tu web con IA»'} />
+    <meta property="og:image:alt" content={lang === 'en' ? 'savvia: the watercolour oak and its roots under the headline “We elevate your website with AI”' : 'savvia: el roble en acuarela con sus raíces bajo el titular «Elevamos tu web con IA»'} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />

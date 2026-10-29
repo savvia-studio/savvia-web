@@ -1231,7 +1231,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   }
   /* 28/10 · DEL DISEÑO A LA ANIMACIÓN: dos huecos de 4:5 con la carátula de los detalles (Medio con placa: degradado de marca y ventana de cristal);
      altos para que el marco de Figma se vea ENTERO y quieto (Eric: «entero a la vista»). Al verse, el hueco se abre desde un margen */
-  .anim-hueco.herr-hueco { aspect-ratio: 16 / 11; } /* más bajas que las de la animación (4:5): son grabaciones apaisadas */
+  .anim-hueco.herr-hueco { aspect-ratio: 16 / 13; } /* más bajas que las de la animación (4:5): son grabaciones apaisadas. 29/10 · Eric: «estos 2 ponlos un poco más altos» (16/11 → 16/13) */
   .micro-mas { margin-top: clamp(2.5rem, 1.75rem + 2vw, 4rem); }
   .anim { display: grid; gap: calc(var(--spacing) * 8) calc(var(--spacing) * 6); }
   @media (width >= 48rem) { .anim { grid-template-columns: 1fr 1fr; } }

@@ -99,7 +99,13 @@
   "cubbo": {
    "forma": "movil",
    "zt": 2.45,
-   "ar": 0.8
+   "ar": 0.8,
+   "nav": [
+    7,
+    21,
+    132,
+    0
+   ]
   },
   "thx": {
    "forma": "navegador",
@@ -127,7 +133,13 @@
   "home-of-ambrose": {
    "forma": "escena",
    "zm": 3.55,
-   "ar": 0.8
+   "ar": 0.8,
+   "nav": [
+    7,
+    21,
+    132,
+    0
+   ]
   },
   "kymatio": {
    "forma": "navegador",
@@ -183,7 +195,7 @@
    "forma": "escena",
    "nav": [
     6,
-    17,
+    26,
     118,
     -2.5
    ],
@@ -307,7 +319,7 @@
    "zm": 3.2
   },
   "junipero-vc": {
-   "forma": "escena",
+   "forma": "movil",
    "nav": [
     4,
     29,
@@ -371,7 +383,18 @@
   },
   "kalma": {
    "forma": "escena",
-   "zm": 3.6
+   "zm": 3.6,
+   "nav": [
+    6,
+    27,
+    118,
+    -2.5
+   ],
+   "c": [
+    "#fffffe",
+    "#c8dbc3",
+    "#fffffe"
+   ]
   },
   "kabila": {
    "forma": "movil",
@@ -393,7 +416,7 @@
    ]
   },
   "playground-agentico": {
-   "forma": "navegador",
+   "forma": "escena",
    "nav": [
     10,
     23,
@@ -471,7 +494,13 @@
   },
   "fiallegas-abogados": {
    "forma": "movil",
-   "zm": 3.4
+   "zm": 3.4,
+   "nav": [
+    7,
+    21,
+    132,
+    0
+   ]
   },
   "stellar": {
    "forma": "escena",
