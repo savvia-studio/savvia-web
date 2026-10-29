@@ -89,7 +89,10 @@ const ogImagen = new URL(lang === 'en' ? '/og-en.jpg?v=1' : '/og.jpg?v=156', Ast
       // (regla dura 3). Primavera mar–may · verano jun–ago · otoño sep–nov · invierno dic–feb. `?estacion=invierno` la fuerza (para revisar).
       (function () {
         var q = /[?&]estacion=(otono|invierno|primavera|verano)/.exec(location.search), m = new Date().getMonth() + 1;
-        var e = q ? q[1] : m >= 3 && m <= 5 ? 'primavera' : m >= 6 && m <= 8 ? 'verano' : m >= 9 && m <= 11 ? 'otono' : 'invierno';
+        // 29/10 · Eric: «al final si alguien cambia, quiere ver todo en esa estación», sin romper la de la fecha: la elegida dura la VISITA
+        // (sessionStorage «savvia-estacion»: pasa de página a página; al cerrar la pestaña, vuelve la de hoy)
+        var g = null; try { g = /^(otono|invierno|primavera|verano)$/.exec(sessionStorage.getItem('savvia-estacion') || ''); } catch (_) {}
+        var e = q ? q[1] : g ? g[1] : m >= 3 && m <= 5 ? 'primavera' : m >= 6 && m <= 8 ? 'verano' : m >= 9 && m <= 11 ? 'otono' : 'invierno';
         document.documentElement.dataset.estacion = e;
         var c = { otono: '#3b231b', invierno: '#f5f5f7', primavera: '#3a2932', verano: '#1b3125' }[e];
         document.querySelector('meta[name="theme-color"]').setAttribute('content', c);
@@ -107,6 +110,7 @@ const ogImagen = new URL(lang === 'en' ? '/og-en.jpg?v=1' : '/og.jpg?v=156', Ast
         var fundiendo = 0;
         addEventListener('savvia:estacion', function () {
           var de = e, a = document.documentElement.dataset.estacion; e = a;
+          try { sessionStorage.setItem('savvia-estacion', a); } catch (_) {}
           var link = document.querySelector('[data-icono]');
           if (!link || de === a || matchMedia('(prefers-reduced-motion: reduce)').matches) return icono(a);
           var id = ++fundiendo, i1 = new Image(), i2 = new Image(), listos = 0;
