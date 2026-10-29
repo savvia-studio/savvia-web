@@ -840,8 +840,10 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
       inset-inline: 0;
       top: calc(var(--pega, 0px) * -1);
       height: calc(100% + var(--pega, 0px) + var(--spacing) * 12);
-      /* 29/10 · sin mezcla por diferencia: sobre una capa pegada, iOS la repinta en cada fotograma del scroll (el temblor); el mismo tono, en línea normal */
-      border-inline: 1px solid color-mix(in oklab, var(--fg) 11%, transparent);
+      /* 29/10 · sin mezcla por diferencia: sobre una capa pegada, iOS la repinta en cada fotograma del scroll (el temblor); el mismo tono, en línea normal.
+         30/10 · Andoni: «los filtros tienen un salto» (captura): ese tono no era el de los carriles (que van por diferencia: Rosa niebla al 14 % sobre el
+         fondo claro da el fondo oscurecido un 14 %) y se veía dónde acababan. Ahora, exactamente ese gris, opaco */
+      border-inline: 1px solid color-mix(in srgb, #000 14%, var(--bg, #f5f5f7));
       pointer-events: none;
     }
     .flota::after { z-index: 1; } /* sobre la fila también (es su propio plano: isolation) */
@@ -849,11 +851,18 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
     .flota.pegada { --aire: 0px; }
     /* 29/10 · Andoni, en Safari: «al hacer scroll, el sticky de arriba tiembla y se ve una minirrayita por detrás»: su velo, 40 px por encima de su borde
        (por ese hueco asomaba lo de detrás). (2.ª) Fuera la capa propia (translateZ) que se probó: en una pieza pegada, iOS puede temblar más con ella */
-    .flota::before { top: calc(var(--pega, 0px) * -1 - 40px); height: calc(100% + var(--pega, 0px) + var(--spacing) * 12 + 40px); }
+    /* (30/10 · el «salto» de la captura de Andoni) suelta, la fila no lleva velo por encima: tapaba los carriles en los 40 px de encima de la fila; solo pegada */
+    .flota::before { top: calc(var(--pega, 0px) * -1); height: calc(100% + var(--pega, 0px) + var(--spacing) * 12); }
     /* 30/10 · Andoni: «arriba quedan separados de las guías y tienen que ir juntos»: en el iPhone la página se ve también bajo la barra de estado y la
        barra de Safari (y en el rebote del scroll), por encima del borde de la fila. El velo y las dos líneas suben 160 px más allá del borde: lo de
        encima de la fila es la misma fila, con sus guías seguidas hasta el canto de la pantalla */
     .flota.pegada::before { top: -200px; height: calc(100% + 200px + var(--spacing) * 12); }
+    /* 30/10 · Andoni: «al posarse arriba y seguir haciendo scroll, tiemblan, en Safari y en Chrome» (los dos son WebKit en el iPhone; en Chrome de escritorio
+       medido fotograma a fotograma, quieta). En WebKit una pieza pegada solo la mueve el hilo del scroll si su contenedor no recorta: con el
+       `overflow-x: clip` de .todos la recolocaba el hilo principal, un fotograma tarde (el temblor). En móvil fuera ese recorte; el velo, que para eso se
+       salía 100 vw a cada lado, mide ahora justo la pantalla (el body ya recorta en horizontal) */
+    .todos { overflow-x: visible; }
+    .flota::before { left: calc(50% - 50vw); right: calc(50% - 50vw); }
     .flota.pegada::after { top: -200px; height: calc(100% + 200px + var(--spacing) * 12); }
     .flota::before { background: linear-gradient(var(--bg, #eadde7) calc(100% - var(--spacing) * 12), transparent); } /* opaco hasta el borde de la fila; se desvanece en los 48 px de debajo */
     .mandos::after { border-top: 1px solid var(--rule); } /* su línea de arriba: el velo tapa la de la sección (Eric) */

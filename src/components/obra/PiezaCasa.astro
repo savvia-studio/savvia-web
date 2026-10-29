@@ -212,6 +212,10 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
   /* (30/10) la pantalla, cuando ya está la foto: antes se veía un móvil negro sobre el degradado mientras llegaba la lámina */
   .mesa:not(.lista) .pantalla { opacity: 0; }
   .mesa .pantalla { transition: opacity 0.5s var(--ease-out-expo); }
+  /* 30/10 · Andoni: «la pantalla de Neety sigue parpadeando al cambiar de estación; en la web no pasa, en el móvil sí». En el móvil el vídeo de la pieza
+     está sonando (en escritorio, solo al pasar el ratón), y en iOS un vídeo dentro de una caja con máscara y matrix3d se recompone (y parpadea) cuando la
+     foto de debajo gana capa propia para el rasgado. En táctil, la foto de la mesa ya va siempre en su capa: el rasgado no cambia el árbol de capas */
+  @media (hover: none) { .mesa .foto-e { transform: translateZ(0); } }
   .mesa .foto-e { display: none; }
   .mesa .foto-e[data-e='otono'] { display: block; }
   :global(html[data-estacion='primavera']) .mesa .foto-e[data-e='primavera'],

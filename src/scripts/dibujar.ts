@@ -6,6 +6,7 @@
 //   3 · las líneas se van. Al cerrar, al revés: la pintura se recoge hacia el origen y las líneas se destrazan.
 // Las líneas van en una capa FIJA (se recoloca cada frame) dentro del mismo padre que la pieza: comparte su contexto de apilado.
 const MASCARA = "url('/media/rasgo-circulo.png')";
+import { mascaraPedida } from './revelar';
 const RADIO = 0.44; // el radio del círculo dentro de la imagen (fracción del lado)
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -46,7 +47,9 @@ function pintarComoEstacion(el: HTMLElement, op: Op) {
     if (conFilo) filo.style.opacity = String(0.75 * (op.abrir ? Math.pow(1 - k, 0.7) : Math.pow(1 - k, 0.4) * Math.min(1, k * 6)));
     if (k < 1) raf = requestAnimationFrame(paso); else { fin(); op.alTerminar?.(); }
   };
-  raf = requestAnimationFrame(paso);
+  // (30/10 · Andoni: «el menú en Safari se abre raro las primeras veces, como si no hiciera la animación»): mientras la imagen de la máscara no ha llegado,
+  // Safari esconde entera la capa enmascarada (la tarjeta aparecía de golpe al final). Se espera a que esté (precargada al cargar la página: Nav.astro)
+  mascaraPedida().then(() => { if (vivo) raf = requestAnimationFrame(paso); });
 }
 
 // RONDA 41 · «el formulario de contáctanos, probar que se dibuje como el árbol del hero»: en modo `arbol` las líneas no son contornos trazados sino

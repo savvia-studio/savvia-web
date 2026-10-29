@@ -132,6 +132,9 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   import { reelArchivo, seguirEstacion } from '../scripts/reel';
   import { jugar } from '../scripts/jugar';
   import { dibujar } from '../scripts/dibujar';
+  import { mascaraPedida } from '../scripts/revelar';
+  // (30/10) la máscara con que se pinta la tarjeta, cargada antes de la primera apertura (en Safari, sin ella la tarjeta no se animaba)
+  if (document.readyState === 'complete') mascaraPedida(); else addEventListener('load', () => mascaraPedida(), { once: true });
   import { tinta } from '../scripts/tinta';
   import { t } from '../scripts/i18n';
   import { EST, NOMBRE, estacionActual, fijarEstacion } from '../scripts/estacion';
