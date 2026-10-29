@@ -102,8 +102,14 @@ import personasEn from '../data/personas.en.json';
     // móvil: la charla no tiene scroll propio (CSS): la página se mueve SOLO lo justo para que lo último quede a la vista, medido contra la parte visible
     // de verdad (`visualViewport`: con el teclado de iOS/Chrome abierto es más baja que `innerHeight`); escritorio: scroll de la charla
     // RONDA 290 · Eric: al escribir, el teclado hacía saltar la página al pie, y al enviar la conversación no se veía
+    // RONDA 298 · Eric (Safari): al enviar y subir con la rueda, la página «subía y bajaba muy rápido»: cada paso de la respuesta volvía a tirar hacia abajo
+    // (suave) contra el gesto del visitante. En cuanto él mueve la página por su cuenta, se deja de seguir la conversación hasta la siguiente pregunta.
+    let soltado = false;
+    addEventListener('wheel', () => { soltado = true; }, { passive: true });
+    addEventListener('touchmove', () => { soltado = true; }, { passive: true });
+    addEventListener('keydown', (e) => { if (/^(Arrow(Up|Down)|Page(Up|Down)|Home|End| )$/.test(e.key) && e.target === document.body) soltado = true; });
     const verEnMovil = (el: Element | null | undefined) => {
-      if (!el) return;
+      if (!el || soltado) return;
       const vh = window.visualViewport?.height ?? innerHeight, r = el.getBoundingClientRect();
       // solo hacia abajo y solo si queda tapado: nunca sube la página
       const d = r.bottom > vh - 24 ? Math.min(r.bottom - (vh - 24), Math.max(0, r.top - 96)) : 0;
@@ -115,7 +121,7 @@ import personasEn from '../data/personas.en.json';
     // una pregunta → su burbuja; «está escribiendo…» con la cara de quien contesta; y la respuesta
     // `pendiente`: si la respuesta aún se está buscando (pregunta libre), la pregunta ya está en pantalla y «está escribiendo…» espera a que llegue
     const conversar = (ex: HTMLElement, quien: number, alFinal?: () => void, pendiente?: Promise<unknown>) => {
-      ocupado = true;
+      ocupado = true; soltado = false;
       charla.insertBefore(ex, escribiendo);
       ex.hidden = false; ex.classList.remove('pendiente'); ex.classList.add('q-on');
       const r = ex.querySelector<HTMLElement>('.resp');
