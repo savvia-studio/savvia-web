@@ -5992,3 +5992,6 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
   abajo. Suelta, la fila ya no las dibuja (`.flota:not(.pegada)::after { content: none }`): quedan solo los carriles. Pegada, igual que antes.
   (3.ª) «cuando se pone sticky aparecen las líneas superpuestas»: pegada pasaba lo mismo (la fila va bajo la barra desde la 14.ª y los carriles se ven
   encima). Fuera `.flota::after` en móvil siempre. Sin ver pegada en el preview (no hace scroll).
+- **29/10 (Eric): «esta arreglado el tema bandas» · «en mobile tenemos que quitar el page transition».** La banda se fue al publicar: el deploy fallaba desde
+  223ce3e por `vercel.json` (grupo anidado `og\.(png|jpg|webp)`, Vercel no lo acepta: 248280b) y los carriles dejaron de ser fijos (e13e91d).
+  `transicion.ts`: por debajo de 64 rem no se intercepta el clic (sin gota al salir ni página cubierta al llegar).

@@ -65,6 +65,8 @@ addEventListener('click', (e) => {
   if (url.origin !== location.origin) return;
   if (url.pathname === location.pathname && url.search === location.search) return; // anclas y la misma página
   if (reducido()) return;
+  // 29/10 · Eric (iPhone): «en mobile tenemos que quitar el page transition». En móvil se navega sin la gota (sin ella tampoco nace cubierta la página nueva)
+  if (matchMedia('(width < 64rem)').matches) return;
   // RONDA 133 · dentro del handbook se PASA PÁGINA (transición nativa entre documentos: components/handbook/PasarPagina.astro); sin soporte, la gota
   if (esLibro(location.pathname) && esLibro(url.pathname) && 'CSSViewTransitionRule' in window) return;
   e.preventDefault();
