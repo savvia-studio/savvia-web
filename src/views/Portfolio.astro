@@ -175,7 +175,7 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     </header>
 
     <!-- 27/10 · Eric: en móvil, sin las dos cruces del vértice de la fila de filtros. (28/10 se quitó la fila entera y Eric la echó en falta: vuelve) -->
-    <section class="wrap todos" aria-label={en ? 'All projects' : 'Todos los proyectos'} data-todos data-carril-sin-cruces-movil>
+    <section class="wrap todos" aria-label={en ? 'All projects' : 'Todos los proyectos'} data-todos data-sin-fila-movil>
       <!-- RONDA 64 · «dejamos solo el buscador; en el buscador está escrito por defecto "Todos los proyectos": el titular se convierte en el propio
            buscador». El h2 es el campo: en Family, del tamaño de un titular; al escribir, busca. A la derecha, discretos: «Filtros» (se despliegan)
            y el orden de la rejilla (filas de 2 o de 3; ronda 129: fuera el «libre»). -->
@@ -190,6 +190,9 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
            desplegables —país · tecnología · servicio · categoría—, cada uno con su rótulo y lo elegido, y «Quitar filtros», en una barra que flota abajo;
            cada lista se abre encima de su botón -->
       <div class="flota" data-flota>
+        <!-- 29/10 (14.ª) · Eric (iPhone): «en móvil, los filtros sticky justo bajo la barra; los proyectos pasan por debajo y se esconden tras el filtro; así la barra sigue».
+             Pegada en móvil, un velo REAL (no un pseudo: la barra lo encuentra con elementsFromPoint y lee su color) del borde de la pantalla al borde de la fila -->
+        <span class="velo-b" aria-hidden="true" data-velo-barra></span>
         <div class="mandos barra-f" role="group" aria-label={en ? 'Filters' : 'Filtros'}>
           <!-- la BARRITA que sigue al puntero por los filtros y se queda en el que está abierto (Andoni) -->
           <span class="mira" aria-hidden="true" data-mira></span>
@@ -527,13 +530,14 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     const nav = document.querySelector<HTMLElement>('header[data-nav]'), f = flota.querySelector<HTMLElement>('.mandos')!.getBoundingClientRect();
     const pisa = !movil.matches && (!nav || [...nav.children].some((c) => { const b = c.getBoundingClientRect(); return b.width > 0 && b.right > f.left && b.left < f.right; }));
     // pegada, nunca a ras: 12 px de aire arriba como poco
-    // en móvil, a ras (Eric, 27/10: «no hace falta que el filtraje sea más alto cuando se pone sticky»)
-    const n = nav?.getBoundingClientRect(), pega = movil.matches ? 0 : Math.max(12, pisa || !n ? 0 : Math.round(n.top + n.height / 2 - f.height / 2));
+    // en móvil, DEBAJO de la barra (29/10 (14.ª) · Eric: «los filtros sticky justo bajo la barra, así la barra sigue»; antes, a ras y por encima de ella),
+    // con 12 px de aire entre las dos (Eric: «hay que dejar un poco más de espacio entre navbar y sticky filters»)
+    const n = nav?.getBoundingClientRect(), pega = movil.matches ? Math.round(n?.bottom ?? 0) + 12 : Math.max(12, pisa || !n ? 0 : Math.round(n.top + n.height / 2 - f.height / 2));
     if (flota.style.getPropertyValue('--pega') !== pega + 'px') flota.style.setProperty('--pega', pega + 'px');
     // con margen: en el scroll con inercia de iOS la caja da medios píxeles y `pegada` se ponía y se quitaba en fotogramas seguidos (sus filetes se encendían
     // y apagaban: el temblor); ahora solo cambia cuando la fila de verdad se suelta
     const r = flota.getBoundingClientRect(), si = arriba - scrollY <= pega + 2 && r.top <= pega + 2;
-    // en móvil la barra no se aparta: la fila pasa POR ENCIMA de ella (z-index, en el CSS) (Eric, 27/10)
+    // en móvil la barra no se aparta: la fila se pega debajo de ella (29/10 (14.ª); del 27/10 al 29/10 (14.ª) pasaba por encima)
     flota.classList.toggle('pegada', si); document.documentElement.classList.toggle('filtros-pegados', si && pisa && !movil.matches);
     // y en cuanto el pie asoma, la fila vuelve a su plano para que la gota marrón la tape (la «nube» del 26/10)
     // (cuando la cima de la gota llega a la fila: la curva, la de entradas.ts › __subeEn; antes, la barra se le montaba encima con el marrón aún lejos)
@@ -607,6 +611,7 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     pointer-events: none;
   }
   .flota > * { pointer-events: auto; }
+  .velo-b { display: none; } /* solo existe en móvil, pegada (abajo) */
   .mandos {
     --lu: calc(var(--spacing) * 12); /* el alto de los filtros y el hueco de la papelera y del recuento (40 px en móvil) */
     position: relative;
@@ -873,15 +878,28 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     .desp + .desp .desp-menu { left: -1px; }
     .desp:has(+ .desp) .desp-menu { right: -1px; }
   }
-  /* 27/10 · Eric: «en móvil, el filtraje POR ENCIMA del navbar; no que se anime algo» y «jugar con el z-index». En móvil la barra no se aparta ni se
-     funde: la fila (y su velo) suben a un plano por encima de ella (la barra va a z 55) y la tapan al pegarse. Para eso .obras deja de ser su propio
-     plano, y la fila se pega sin crecer su aire */
+  /* 27/10 · Eric: «en móvil, el filtraje POR ENCIMA del navbar; no que se anime algo» y «jugar con el z-index»: del 27/10 al 29/10 (14.ª) la fila subía a z 56 y
+     tapaba la barra al pegarse. 29/10 (14.ª) · Eric (iPhone, captura): «en móvil es mejor que los filtros queden sticky justo bajo la barra; los proyectos pasan por
+     debajo y se esconden tras el filtro; así la barra sigue». La fila vuelve a su plano (z 20, bajo la barra) y se pega a la altura del borde de la barra
+     (--pega = su base, en el script); su velo sube hasta el canto de la pantalla, así que la barra lee sobre el fondo claro y la rejilla desaparece bajo la fila.
+     La fila se pega sin crecer su aire */
   @media (width < 48rem) {
-    .obras { z-index: auto; }
-    .flota { z-index: 56; }
-    .obras:has(.flota.bajo-pie) { z-index: 1; }
-    .flota.bajo-pie { z-index: 20; }
-    /* por encima de la barra, la fila (y su velo) tapaban también los carriles (z 40): sus dos líneas, dibujadas aquí, de arriba abajo del velo (Eric) */
+    /* el velo real tras la barra (data-velo-barra): opaco del canto de la pantalla al borde de abajo de la fila; sin puntero (la barra lo tiene en su lista) */
+    .flota.pegada:not(.bajo-pie) > .velo-b {
+      display: block;
+      position: absolute;
+      z-index: -1;
+      left: calc(50% - 50vw);
+      right: calc(50% - 50vw);
+      top: -200px;
+      bottom: 0;
+      background: var(--bg, #eadde7);
+      pointer-events: none;
+    }
+    /* los filetes entre celdas no suben por el aire de encima (sería cruzar la barra): solo los dos carriles (.flota::after) */
+    .flota.pegada .desp + .desp .desp-b::before, .flota.pegada .estado-f:has(.limpiar-f.on)::before { height: 0; }
+    .flota.pegada .mandos > .mira { height: var(--h, 0px); translate: var(--x, 0) var(--y, 0px); }
+    /* la fila (y su velo) tapaban también los carriles (z 40): sus dos líneas, dibujadas aquí, de arriba abajo del velo (Eric) */
     .flota::after {
       content: '';
       position: absolute;
@@ -905,7 +923,11 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     /* 30/10 · Andoni: «arriba quedan separados de las guías y tienen que ir juntos»: en el iPhone la página se ve también bajo la barra de estado y la
        barra de Safari (y en el rebote del scroll), por encima del borde de la fila. El velo y las dos líneas suben 160 px más allá del borde: lo de
        encima de la fila es la misma fila, con sus guías seguidas hasta el canto de la pantalla */
-    .flota.pegada::before { top: -200px; height: calc(100% + 200px + var(--spacing) * 12); }
+    /* (29/10, 14.ª: se probó cortar el velo en el borde de la fila, sin el desvanecido; Eric: «la nubecita no está ahora, es un corte blanco». Vuelve la nube.)
+       Eric: «donde la nube hay 2-3 píxeles blancos que prefiero que sea nube»: la fila lleva 8 px de relleno abajo y el velo seguía opaco en ellos; la nube
+       (los 48 px del degradado) arranca ahora en la línea de abajo de la fila: el velo mide 8 px menos, y el velo real para la barra acaba en esa línea */
+    .flota.pegada::before { top: -200px; height: calc(100% + 200px + var(--spacing) * 12 - var(--spacing) * 2); }
+    .flota.pegada:not(.bajo-pie) > .velo-b { bottom: calc(var(--spacing) * 2); }
     /* 30/10 · Andoni: «al posarse arriba y seguir haciendo scroll, tiemblan, en Safari y en Chrome» (los dos son WebKit en el iPhone; en Chrome de escritorio
        medido fotograma a fotograma, quieta). En WebKit una pieza pegada solo la mueve el hilo del scroll si su contenedor no recorta: con el
        `overflow-x: clip` de .todos la recolocaba el hilo principal, un fotograma tarde (el temblor). En móvil fuera ese recorte; el velo, que para eso se
@@ -914,7 +936,8 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
     .flota::before { left: calc(50% - 50vw); right: calc(50% - 50vw); }
     .flota.pegada::after { top: -200px; height: calc(100% + 200px + var(--spacing) * 12); }
     .flota::before { background: linear-gradient(var(--bg, #eadde7) calc(100% - var(--spacing) * 12), transparent); } /* opaco hasta el borde de la fila; se desvanece en los 48 px de debajo */
-    .mandos::after { border-top: 1px solid var(--rule); } /* su línea de arriba: el velo tapa la de la sección (Eric) */
+    .mandos::after { border-top: 1px solid var(--rule); } /* su línea de arriba. 30/10 · Eric: «la barra horizontal que no es sticky se superpone con la del
+       filtrado; tiene que haber solo 1»: en móvil la sección ya no lleva fila de carriles (data-sin-fila-movil, Carriles.astro); queda solo esta */
     /* 29/10 · Eric: «los horizontales, algo más gorditos»: la línea de la sección (Carriles) va redondeada al px y la fila cae en medio píxel (340,47):
        en Safari asomaba un píxel por encima del velo, junto al filo de la fila, y se leían como una línea doble. Suelta, el velo sube 1 px y la tapa */
     .flota:not(.pegada)::before { top: -1px; height: calc(100% + 1px + var(--spacing) * 12); }

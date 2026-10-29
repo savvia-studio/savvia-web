@@ -396,7 +396,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       // el fondo de una capa: su color, un degradado (media de sus colores: las manchas de «Más proyectos») o una imagen de fondo a «cover»
       // (se lee su píxel). Se miran también ::after y ::before, que suelen ser la capa que pinta (inset: 0). El grano no cuenta.
       const fondos = new Map<string, HTMLImageElement>();
-      const sinPuntero = [...document.querySelectorAll('[data-titulo]'), ...document.querySelectorAll('[data-web]')]; // por orden de apilado: el titular va encima
+      // (29/10 (14.ª)) y el velo de la fila de filtros del portfolio pegada bajo la barra en móvil (data-velo-barra): un fondo sin puntero que tapa la rejilla
+      const sinPuntero = [...document.querySelectorAll('[data-titulo]'), ...document.querySelectorAll('[data-web]'), ...document.querySelectorAll('[data-velo-barra]')]; // por orden de apilado: el titular va encima
       // DEGRADADOS: se evalúa el degradado en el punto (radiales con tamaño y centro en %, lineales con dirección o ángulo, y el color de base),
       // capa sobre capa como los compone el navegador. Las manchas de «Más proyectos» son eso: dos radiales de sus colores sobre uno liso.
       type RGBA = [number, number, number, number];
@@ -1041,8 +1042,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   html.menu-visible [data-nav] {
     z-index: 49;
   }
-  /* 29/10 · Andoni, en Safari móvil: «al abrir el menú, los filtros se ven por encima» (la fila pegada del portfolio va a z 56 para tapar la barra, y el
-     selector pegado de Servicios a 58). Mientras el menú se ve, su pila entera sube por encima de cualquier pieza pegada de la web, sin cambiar su orden
+  /* 29/10 · Andoni, en Safari móvil: «al abrir el menú, los filtros se ven por encima» (la fila pegada del portfolio iba a z 56 para tapar la barra —desde el
+     29/10 (14.ª) se pega debajo, a z 20—, y el selector pegado de Servicios va a 58). Mientras el menú se ve, su pila entera sube por encima de cualquier pieza pegada de la web, sin cambiar su orden
      (velo < barra < tarjeta); el escenario sentado (60) y la carga (70) nunca coinciden con el menú abierto */
   html:is(.menu-visible, .menu-abierto) .velo { z-index: 60; }
   html:is(.menu-visible, .menu-abierto) [data-nav] { z-index: 61; }

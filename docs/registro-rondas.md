@@ -5950,9 +5950,10 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 
 ### 29/10 (Eric, 14.ª, iPhone, captura del portfolio) · «en móvil es posible que sea mejor que los filtros queden sticky justo como ahí en la foto; los proyectos pasan por debajo pero no se ven, se esconden directamente detrás del sticky filter; así el navbar sigue»
 - **Antes (27/10):** en móvil la fila de filtros se pegaba a ras (top 0) y subía a z 56, POR ENCIMA de la barra, tapándola; bajo la fila, 48 px de desvanecido.
-- **Hecho (`Portfolio.astro`):** en móvil `--pega` = la base de la barra (`nav.bottom`, 54 px en el iPhone de prueba): la fila se pega JUSTO DEBAJO y la
-  barra sigue a la vista. La fila vuelve a su plano (z 20, bajo la barra; `.obras` conserva su z 1, como en escritorio). Pegada, su velo (con su nube de 48 px por debajo,
-  como antes: se probó cortarlo a ras y Eric: «la nubecita no está ahora, es un corte blanco») sube 200 px por encima, tras la barra y el safe-area. Los filetes
+- **Hecho (`Portfolio.astro`):** en móvil `--pega` = la base de la barra + 12 px de aire (`nav.bottom`, 54 + 12 = 66 px en el iPhone de prueba; Eric: «hay que dejar un
+  poco más de espacio entre navbar y sticky filters»): la fila se pega DEBAJO y la barra sigue a la vista. La fila vuelve a su plano (z 20, bajo la barra; `.obras` conserva su z 1, como en escritorio). Pegada, su velo (con su nube de 48 px por debajo,
+  como antes: se probó cortarlo a ras y Eric: «la nubecita no está ahora, es un corte blanco») sube 200 px por encima, tras la barra y el safe-area. La nube arranca en la línea de abajo de la fila (Eric: «donde la nube hay 2-3 píxeles blancos»:
+  eran los 8 px de relleno de la fila, que el velo dejaba opacos). Los filetes
   entre celdas no suben por el aire de encima (cruzarían la barra); los dos carriles (`::after`) sí. Un velo REAL (`.velo-b`, `data-velo-barra`, solo
   pegada y no `bajo-pie`) tras la barra, porque la barra lee el color del fondo con `elementsFromPoint`, que no ve pseudoelementos: `Nav.astro` lo añade
   a su lista `sinPuntero` y así lee Rosa niebla (Cacao en la barra) aunque bajo el velo pase una lámina oscura.
