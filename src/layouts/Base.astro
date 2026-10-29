@@ -21,6 +21,8 @@ const {
 const lang = langDe(Astro.currentLocale);
 const hrefLang = (l: 'es' | 'en') => new URL(enOtroIdioma(Astro.url.pathname, l), Astro.site);
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// 29/10 · la imagen para compartir en el idioma de la página (tools/r156-og.cjs; la inglesa, og-en.jpg)
+const ogImagen = new URL(lang === 'en' ? '/og-en.jpg?v=1' : '/og.jpg?v=156', Astro.site);
 ---
 
 <!doctype html>
@@ -54,14 +56,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL('/og.jpg?v=156', Astro.site)} />
+    <meta property="og:image" content={ogImagen} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={lang === 'en' ? 'savvia: the oak in watercolour under the headline “We elevate your website with AI”' : 'savvia: el roble en acuarela bajo el titular «Elevamos tu web con IA»'} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL('/og.jpg?v=156', Astro.site)} />
+    <meta name="twitter:image" content={ogImagen} />
     <!-- RONDA 156 · Eric: «sin isotipo, el favicon es el fondo principal, que cambia con la estación; el árbol en pequeño»: uno por estación
          (tools/r156-favicon.cjs); el script de abajo pone el de la estación antes del primer pintado y lo cambia con ella -->
     <!-- RONDA 216 · los favicons de Andoni por estación (luz tenue, savvia-favicons-telegram-luz-tenue; las anteriores, en tools/retirados/favicon-r211…r215):
