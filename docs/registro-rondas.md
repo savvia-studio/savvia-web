@@ -5999,3 +5999,8 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
   borde de abajo en la home: la CARGA (`.cargador`, fija y Cacao a pantalla completa: Safari se quedaba su banda al irse) y la tira de abajo de
   `bordes-safari.ts` (alrededor de Servicios; Safari conservaba la banda hasta el pie). Hecho: en móvil la carga va `absolute` arriba del todo (100 lvh);
   `bordes-safari.ts` solo crea la tira de ARRIBA (las píldoras de Servicios solo se pegan arriba). Sin iPhone.
+- **29/10 (Eric, iPhone, visor de Proyectos): «si de filtro solo hay un proyecto y luego se va al slider, que no haya arrows».** Hecho: `Visor.astro`
+  oculta las flechas (`[data-vis-acciones]`) al abrir cuando el recorrido tiene un solo proyecto; teclado y deslizar ya no hacían nada con uno.
+- **29/10 (Eric, iPhone, pie de la home): «seguimos igual, no se ven las montañas».** Quedaba otra capa fija a pantalla completa solo en la home: el velo del
+  chat (`ChatFlotante.astro › .cf-velo`, fondo Cacao + desenfoque, a opacidad 0 pero presente). El del menú no da banda porque cerrado va `hidden`.
+  Hecho: en móvil, con el chat cerrado, `.cf-velo` va `display: none`. Sin iPhone.

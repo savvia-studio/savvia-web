@@ -537,6 +537,9 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf.cf-abierto .cf-velo { z-index: 59; }
   .cf.cf-abierto :is(.cf-panel, .cf-btn, .cf-hola) { z-index: 60; }
   /* 29/10 · Eric (iPhone): «es mejor quitar ese layer blur; con las bandas [de Safari] y demás queda raro»: en móvil, tinte plano, sin desenfoque */
+  /* 29/10 · Eric (iPhone, pie de la home): «seguimos igual, no se ven las montañas». Fijo a pantalla completa (aunque sea con opacidad 0), Safari 26 lo cuenta
+     como algo que toca el borde y pinta una banda bajo el buscador. En móvil, cerrado el chat, el velo no existe */
+  @media (width < 64rem) { .cf:not(.cf-abierto) .cf-velo { display: none; } }
   @media (width < 64rem) { .cf.cf-abierto .cf-velo { background: color-mix(in oklab, var(--color-cacao) 32%, transparent); -webkit-backdrop-filter: none; backdrop-filter: none; } }
   .cf-panel {
     position: fixed;
