@@ -347,7 +347,8 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     transform-box: fill-box;
     transform-origin: center;
     transform: scale(0);
-    transition: transform 0.18s ease-in;
+    opacity: 0; /* 29/10 · Eric: en iPhone, un puntito dentro del aro apagado: WebKit pinta algo aunque esté a scale(0) y el tic con dashoffset entero */
+    transition: transform 0.18s ease-in, opacity 0s linear 0.18s;
   }
   .punto :global(.check) :global(.onda) {
     stroke: var(--fg);
@@ -362,12 +363,13 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     stroke-width: 1.4; /* RONDA 144 · Eric: «el tic, un poco más finito» (antes 2) */
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    transition: stroke-dashoffset 0.12s ease-in;
+    opacity: 0;
+    transition: stroke-dashoffset 0.12s ease-in, opacity 0s linear 0.12s;
   }
   .punto.on :global(.check) :global(.aro) { opacity: 1; }
-  .punto.on :global(.check) :global(.relleno) { transform: scale(1); transition: transform 0.36s cubic-bezier(0.34, 1.5, 0.64, 1); }
+  .punto.on :global(.check) :global(.relleno) { transform: scale(1); opacity: 1; transition: transform 0.36s cubic-bezier(0.34, 1.5, 0.64, 1), opacity 0s; }
   .punto.on :global(.check) :global(.onda) { animation: serv-onda 0.6s var(--ease-out-expo) both; }
-  .punto.on :global(.check) :global(.v) { stroke-dashoffset: 0; transition: stroke-dashoffset 0.4s var(--ease-out-expo) 0.14s; }
+  .punto.on :global(.check) :global(.v) { stroke-dashoffset: 0; opacity: 1; transition: stroke-dashoffset 0.4s var(--ease-out-expo) 0.14s, opacity 0s linear 0.14s; }
   @keyframes serv-onda {
     0% { opacity: 0.55; transform: scale(0.6); }
     100% { opacity: 0; transform: scale(1.9); }
@@ -404,6 +406,9 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     /* 29/10 · Eric (iPhone): «se pone sticky arriba y cambia de color toda la pantalla en Safari», y la banda se quedaba en Nosotros. Safari 26 tiñe la barra de
        estado con el background-color de lo fijo o pegado al borde, y se lo queda. El fondo va como imagen (mismo aspecto), que Safari no toma para teñir. */
     .selector::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: calc(var(--spacing) * 8); background: linear-gradient(var(--bg), transparent); pointer-events: none; }
+    /* 29/10 · Eric (iPhone, captura): «el chat tiene que ir por encima»: las píldoras (z 58) tapaban el panel del chat (z 52). Con el chat abierto, bajan
+       debajo de su velo (z 51), desenfocadas como el resto de la página; al cerrarlo vuelven a su sitio. La barra (55) sigue igual. */
+    :global(html:has(.cf.cf-abierto)) .selector { z-index: 50; }
   }
   @media (width < 64rem) {
     .tarjeta { padding-block: calc(var(--spacing) * 6) 0; }
