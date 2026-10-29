@@ -98,8 +98,6 @@ const piezas = experimentos
     </div>
   </div>
 
-  <Cta href="#contacto" class="al-pie" variante="secundario" tam="sm" flecha="abajo">{en ? 'Contact' : 'Contacto'}</Cta>
-
 </section>
 
 <dialog class="lupa surface-light" data-lupa aria-labelledby="lupa-h" tabindex="-1">
@@ -953,14 +951,6 @@ const piezas = experimentos
       0 0 0 5px var(--color-coral),
       0 2px 8px rgb(0 0 0 / 0.35);
   }
-  /* RONDA 134 · «Contacto ↓», el CTA secundario de la casa, en la tinta del lienzo */
-  .al-pie {
-    position: absolute;
-    left: max(24px, env(safe-area-inset-left));
-    bottom: max(28px, env(safe-area-inset-bottom));
-    z-index: 6;
-    color: var(--tinta);
-  }
 
   @media (max-width: 899px) {
     /* 30/10 · Andoni: «la tarjeta central, más estrecha y más alta» */
@@ -1032,9 +1022,6 @@ const piezas = experimentos
       cursor: pointer;
     }
     .fondos.abierto .fondos-boton {
-      display: none;
-    }
-    .al-pie {
       display: none;
     }
   }

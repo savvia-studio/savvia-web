@@ -11,7 +11,7 @@ export const nav = {
     { label: 'Manifesto', href: '/en/manifiesto' },
   ] as { label: string; href?: string }[],
   reel: { label: 'Reel', duracion: '1:28' },
-  mas: { titulo: 'More', links: [{ label: 'Storybook', href: '/storybook' }, { label: 'Method' /* ronda 307, 25.ª: coming soon */ }] as { label: string; href?: string }[] },
+  mas: { titulo: 'More', links: [{ label: 'Storybook', href: '/storybook' }, { label: 'Neety case study', href: '/proyectos/neety' } /* 29/10: the latest case, instead of «Method (coming soon)» */] as { label: string; href?: string }[] },
 };
 
 export const hero = {

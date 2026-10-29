@@ -15,7 +15,7 @@ export const nav = {
   ] as { label: string; href?: string }[],
   reel: { label: 'Reel', duracion: '1:28' }, // ronda 263: el reel cinético · ronda 130: el reel vuelve, montado con Quantus y Patchbay (marca blanca)
   // Segundo grupo de la tarjeta del menú (pequeño, bajo el filete): el correo (de `pie.correo`) y el handbook (sin `href` saldría como «pronto»)
-  mas: { titulo: 'Más', links: [{ label: 'Storybook', href: '/storybook' }, { label: 'Método' /* RONDA 307, 25.ª · «Método, próximamente y que no se pueda clicar» (vuelve con href: '/metodo') */ }] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href?: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
+  mas: { titulo: 'Más', links: [{ label: 'Storybook', href: '/storybook' }, { label: 'Caso Neety', href: '/proyectos/neety' } /* 29/10 · Eric: el último caso de éxito, en lugar de «Método (próximamente)» (vuelve con { label: 'Método', href: '/metodo' }) */] /* ronda 180: Sistema = diseño + desarrollo; el Método, aparte */ as { label: string; href?: string }[] }, // ronda 127: la página del handbook (referencia de Andoni: designhandbook.com)
 };
 
 export const hero = {

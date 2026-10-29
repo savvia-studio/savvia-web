@@ -6126,3 +6126,8 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
 - **Causa:** `views/Manifiesto.astro`: el respaldo (`<img class="respaldo">`, la lámina ya pintada del brote y de las raíces) se veía desde el HTML hasta que el motor arrancaba (láminas descodificadas + script). Entonces se ocultaba (`.gl`) y el lienzo dibujaba desde cero. En el iPhone ese hueco dura un segundo.
 - **Hecho:** un `<script is:inline>` al abrir el `<main>` pone `html.mf-gl` y el respaldo va oculto desde el primer frame. Si el motor no arranca (sin WebGL), se quita la clase y se ve la lámina tal cual.
 - **Medido:** WebKit 390 × 664 táctil con los scripts retrasados 1,2 s: el respaldo, oculto a 0,4 · 0,9 · 1,5 · 2,5 · 4,5 s, y el brote dibujándose desde la bellota · `astro check` 0 errores. Sin iPhone. Sin commit.
+
+### 29/10 · Menú: el caso de Neety en lugar de «Método (próximamente)»
+- **Eric (textual):** «poner el último caso de éxito también como botón» (en «Más», en vez de «Método (próximamente)») · el reel «en el marco de cristal» → «queda muy tosco» → «mejor sin nada».
+- **Hecho:** `home.ts` / `home.en.ts › nav.mas`: «Caso Neety» / «Neety case study» → `/proyectos/neety` (sale en el menú y en el pie). El reel del menú se queda como estaba (el marco de cristal se probó y se quitó).
+- **Medido:** `astro check` 0 errores.
