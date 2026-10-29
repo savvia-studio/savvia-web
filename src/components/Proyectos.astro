@@ -388,6 +388,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const marcha = () => {
         const va = visto && listo && !sentado && !explorando && !document.hidden && !reducido;
         reel.classList.toggle('listo', listo && !reducido && suena);
+        // (30/10) parado, al cambiar de estación se queda sin archivo (reel.ts): al volver a ponerse en marcha pide el de la estación nueva
+        if (va && !reel.getAttribute('src')) reel.src = reelArchivo('reel');
         if (va) reel.play().catch(() => { suena = false; reel.classList.remove('listo'); }); else reel.pause();
       };
       let listo = false;
@@ -1343,6 +1345,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     transition: opacity 0.9s ease;
   }
   .reel-loop:global(.listo) { opacity: 1; }
+  /* 30/10 · Andoni, en el móvil: «el reel tiene algunas bandas blancas en las esquinas del monitor». La pantalla es blanca por debajo (para las webs) y, en
+     iOS, el vídeo dentro de una caja escalada puede quedarse a medio píxel de sus bordes: con el reel, el fondo y el filo son el negro del bisel. El vídeo,
+     además, en su capa y medio píxel más grande por cada lado */
+  .pantalla:has(.reel-loop:global(.listo)) { background: #121213; }
+  .reel-loop { inset: -0.5px; width: calc(100% + 1px); height: calc(100% + 1px); transform: translateZ(0); }
   [data-estudio].sentado .reel-loop:global(.listo),
   .escenario.explora .reel-loop:global(.listo) { opacity: 0; }
   .visor {

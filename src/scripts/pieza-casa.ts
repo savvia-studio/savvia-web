@@ -74,11 +74,33 @@ addEventListener('savvia:estacion', () => {
     // 30/10 · Andoni, en el iPhone: «el vídeo de Neety sigue parpadeando al cambiar de estación». El rasgado repinta la máscara de la foto en cada fotograma
     // durante 2,6 s, justo debajo del vídeo que suena (en escritorio solo suena con el ratón encima: ahí no pasa). En táctil, la vieja se FUNDE (opacidad,
     // que mueve el compositor sin repintar nada) en vez de rasgarse
-    const fundir = () => { img.style.transition = 'opacity 1.4s ease'; requestAnimationFrame(() => { img.style.opacity = '0'; }); setTimeout(() => { img.style.cssText = ''; }, 1500); };
+    // (30/10, 2.ª) «seguimos sin dar en la tecla»: en Chrome con el modo móvil no pasa y en el iPhone sí, así que es cómo iOS compone el vídeo (una capa
+    // nativa aparte, aquí dentro de una pantalla con máscara y matrix3d): cada vez que algo de alrededor cambia de capa, la rehace y parpadea. Mientras dura
+    // el cambio, el vídeo queda TAPADO por una copia congelada de su fotograma (un lienzo con la misma forma de pantalla); al acabar se quita
+    const soltar = !conRaton ? congelar(m) : () => {};
+    const fundir = () => { img.style.transition = 'opacity 1.4s ease'; requestAnimationFrame(() => { img.style.opacity = '0'; }); setTimeout(() => { img.style.cssText = ''; soltar(); }, 1600); };
     const nueva = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${estPrev}"]`), ir = !conRaton ? fundir : () => rasgarCopia(img, { ox: 0.5, oy: 1, ref: m.closest<HTMLElement>('.lamina') ?? undefined, fin: () => { img.style.cssText = ''; } });
     Promise.all([nueva?.src ? nueva.decode().catch(() => {}) : null, mascaraPedida()]).then(ir, ir);
   });
 });
+// el fotograma que se ve de cada vídeo de la pantalla, en un lienzo encima (mismo hueco y, en el móvil de la mesa, misma máscara); devuelve cómo quitarlo
+function congelar(m: HTMLElement) {
+  const lienzos: HTMLCanvasElement[] = [];
+  m.querySelectorAll<HTMLVideoElement>('.pantalla video').forEach((v) => {
+    if (v.readyState < 2 || !v.videoWidth) return;
+    const w = v.clientWidth, h = v.clientHeight, d = Math.min(2, devicePixelRatio || 1);
+    if (!w || !h) return;
+    const c = document.createElement('canvas'); c.width = Math.round(w * d); c.height = Math.round(h * d);
+    const x = c.getContext('2d'); if (!x) return;
+    // object-fit: cover y object-position: 50 % 0, como el vídeo
+    const k = Math.max(c.width / v.videoWidth, c.height / v.videoHeight), dw = v.videoWidth * k, dh = v.videoHeight * k;
+    try { x.drawImage(v, (c.width - dw) / 2, 0, dw, dh); } catch { return; }
+    c.className = v.className; c.setAttribute('aria-hidden', 'true');
+    c.style.cssText = v.parentElement?.classList.contains('quad') ? 'z-index:1' : 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:1';
+    v.after(c); lienzos.push(c);
+  });
+  return () => lienzos.forEach((c) => c.remove());
+}
 const ro = new ResizeObserver((es) => es.forEach((e) => (e.target as HTMLElement).style.setProperty('--s', String(e.contentRect.width / 1672))));
 
 // la ENTRADA: al asomar, `.visto` (el CSS descubre la lámina y sube su contenido); `entrar(pz, true)` la repite (al filtrar)

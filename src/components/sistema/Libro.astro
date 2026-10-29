@@ -265,7 +265,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     (function () {
       var h = document.documentElement; h.classList.add('pagina-clara');
       var poner = function () { var m = document.querySelector('main.libro'), c = m ? getComputedStyle(m).backgroundColor : '#f5f5f7'; h.style.backgroundColor = c; document.querySelector('meta[name="theme-color"]').setAttribute('content', c); };
-      poner(); addEventListener('DOMContentLoaded', poner); addEventListener('savvia:estacion', function () { requestAnimationFrame(poner); });
+      poner(); addEventListener('DOMContentLoaded', poner); addEventListener('savvia:estacion', function () { requestAnimationFrame(function () { var m = document.querySelector('main.libro'); if (m) h.style.backgroundColor = getComputedStyle(m).backgroundColor; }); });
     })();
   </script>
   <main id="contenido" class="libro surface-light">

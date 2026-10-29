@@ -21,6 +21,8 @@ export function fijarEstacion(n: number, origen: string) {
   const i = ((n % 4) + 4) % 4;
   if (EST[i] === document.documentElement.dataset.estacion) return;
   document.documentElement.dataset.estacion = EST[i];
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', HEX[i]);
+  // (30/10) las páginas claras (html.pagina-clara: storybook, portfolio) llevan su propio color de barra y no cambia con la estación: en el móvil el cambio
+  // de color de la barra del navegador recompone la página entera (y hacía parpadear el vídeo que suena)
+  if (!document.documentElement.classList.contains('pagina-clara')) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', HEX[i]);
   dispatchEvent(new CustomEvent('savvia:estacion', { detail: { n: i, origen } }));
 }

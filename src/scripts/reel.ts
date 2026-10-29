@@ -11,9 +11,13 @@ export const seguirEstacion = (v: HTMLVideoElement, tipo: TipoReel) => {
     v.poster = reelArchivo(tipo, 'jpg');
     if (!v.getAttribute('src')) return;
     const t = v.currentTime, sonaba = !v.paused;
+    // 30/10 · Andoni: «el vídeo de Neety parpadea al cambiar de estación, en el móvil (Safari y Chrome); en la web no». Si está parado (el del menú, cerrado),
+    // ya no se recarga en el acto: en el móvil cargar otro vídeo le quita un instante el descodificador al que suena. Se le quita el archivo y quien lo
+    // vuelva a poner en marcha (el menú, la escena) pide el de la estación nueva
+    if (!sonaba) { v.removeAttribute('src'); return; }
     v.src = reelArchivo(tipo);
     v.addEventListener('loadedmetadata', () => { v.currentTime = t % (v.duration || 1e9); }, { once: true });
     // con preload="none", Chrome no carga el nuevo hasta que se le pide: si sonaba, se le pide ya (y así llega a loadedmetadata)
-    if (sonaba) v.play().catch(() => {}); else v.load();
+    v.play().catch(() => {});
   });
 };

@@ -216,6 +216,8 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
      está sonando (en escritorio, solo al pasar el ratón), y en iOS un vídeo dentro de una caja con máscara y matrix3d se recompone (y parpadea) cuando la
      foto de debajo gana capa propia para el rasgado. En táctil, la foto de la mesa ya va siempre en su capa: el rasgado no cambia el árbol de capas */
   @media (hover: none) { .mesa .foto-e { transform: translateZ(0); } }
+  /* (30/10, 2.ª) y el vídeo, en su propia capa fija (el arreglo conocido del parpadeo de vídeo en iOS cuando cambia lo de alrededor) */
+  @media (hover: none) { .mesa .pantalla :global(video) { transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; } }
   .mesa .foto-e { display: none; }
   .mesa .foto-e[data-e='otono'] { display: block; }
   :global(html[data-estacion='primavera']) .mesa .foto-e[data-e='primavera'],

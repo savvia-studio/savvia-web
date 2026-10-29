@@ -143,7 +143,7 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
 const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
   const f = AJUSTES[o.slug]?.forma, conMovil = !!(o.movil || o.videoMovil);
   if (f === 'escena') return ['/media/estudio/{e}-m.webp'];
-  if ((f === 'movil' || f === 'tel') && conMovil) return ['/media/anteriores/mesa-movil-{e}-m.webp', '/media/anteriores/mesa-movil-mascara.png?v=5', '/media/anteriores/mesa-movil-cristal.png?v=5', ...(o.videoMovil ? [o.videoMovil.poster.replace(/\.jpg$/, '.webp')] : [])];
+  if (f === 'movil' && conMovil) return ['/media/anteriores/mesa-movil-{e}-m.webp', '/media/anteriores/mesa-movil-mascara.png?v=5', '/media/anteriores/mesa-movil-cristal.png?v=5', ...(o.videoMovil ? [o.videoMovil.poster.replace(/\.jpg$/, '.webp')] : [])];
   return o.portada.src ? [o.portada.poster.replace(/\.jpg$/, '.webp')] : [];
 });
 ---
@@ -159,6 +159,15 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
   <Carriles />
   <!-- ronda 129: con JS, el navegador de cada pieza espera bajo su borde y sube al entrar (sin JS, en su sitio). Antes de pintar las piezas. -->
   <script is:inline>document.documentElement.classList.add('pz-js');</script>
+  {/* 30/10 · como el storybook: la página es clara, así que el fondo del documento y el color de la barra del navegador son su claro y no cambian con la
+       estación (en el móvil, cambiar el color de la barra recompone la página y hacía parpadear el vídeo de Neety) */}
+  <script is:inline>
+    (function () {
+      var h = document.documentElement; h.classList.add('pagina-clara');
+      var poner = function () { var m = document.querySelector('main.obras'), c = m ? getComputedStyle(m).backgroundColor : '#f5f5f7'; h.style.backgroundColor = c; document.querySelector('meta[name="theme-color"]').setAttribute('content', c); };
+      poner(); addEventListener('DOMContentLoaded', poner);
+    })();
+  </script>
   <main id="contenido" class="obras surface-light">
     <header class="wrap cabecera">
       <h1 class="font-display titular" data-entra>{en ? 'Custom websites.' : 'Webs a medida.'}</h1>
