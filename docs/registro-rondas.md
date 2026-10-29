@@ -6190,3 +6190,7 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
   `story.png` y cuatro PNG sueltos en la raíz (`lupa-d.png`, `lupa-m.png`, `pie-1440.png`, `pie-390.png`) y hay una carpeta `undefined/` sin seguimiento; (14) el
   Lab en WebKit headless: la rueda sobre el lienzo mueve la página (en Chrome mueve la mesa): comprobar en Safari real (el código hace `preventDefault`; puede
   ser artefacto de Playwright). Sin commit ni publicar hasta que Andoni lo pida.
+- **PUBLICADA (30/10):** commit `deeee39` → push a `main` → Vercel. Medido EN VIVO: `/sonido.md` 404; cabeceras de seguridad servidas (nosniff, referrer-policy,
+  X-Frame-Options, Permissions-Policy, HSTS); `tools/verify.cjs` en /, /proyectos, /proyectos/neety y /en (Chrome y WebKit, 1280 y 390): limpio, 0 ≥ 400,
+  desborde 0 (la primera pasada de la home pilló el despliegue a medias, CSS con otro hash; a los 30 s, limpio). La redirección de `www` solo casaba sin barra
+  final (`/proyectos` sí, `/`, `/proyectos/` y `/en/` no: `:path*` no coge la barra final, la trampa de la ronda 111) → dos reglas, `/` y `/:path(.*)`.
