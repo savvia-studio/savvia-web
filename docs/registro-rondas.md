@@ -6194,3 +6194,8 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
   X-Frame-Options, Permissions-Policy, HSTS); `tools/verify.cjs` en /, /proyectos, /proyectos/neety y /en (Chrome y WebKit, 1280 y 390): limpio, 0 ≥ 400,
   desborde 0 (la primera pasada de la home pilló el despliegue a medias, CSS con otro hash; a los 30 s, limpio). La redirección de `www` solo casaba sin barra
   final (`/proyectos` sí, `/`, `/proyectos/` y `/en/` no: `:path*` no coge la barra final, la trampa de la ronda 111) → dos reglas, `/` y `/:path(.*)`.
+
+### 29/10 · Storybook › Herramientas y skills: créditos de lo comprado
+- Eric: «hacer mención a https://www.aconiastudio.com/, de ahí hemos extraído el mockup desktop de mesa (comprado)» · «y mención a Klim Foundry, de ahí hemos comprado la fuente heading».
+- `Libro.astro`: dos filas nuevas al final de HERRAMIENTAS (es y en), Aconia Studio (icono `desk`) y Klim Type Foundry (icono `type`), con enlace `.link` al final del texto. `Fila` admite un tercer campo opcional, el enlace. Después: «con licencia» en vez de «comprado» y logos reales en `src/assets/marcas/` (aconia.svg, monograma vectorizado de su favicon; klim.svg, su mask-icon).
+- astro check y build en verde.

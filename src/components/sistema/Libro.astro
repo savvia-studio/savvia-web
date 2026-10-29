@@ -80,7 +80,7 @@ const GRUPOS_EN = [
 const GRUPOS_L = (en ? GRUPOS_EN : GRUPOS) as unknown as readonly (readonly [string, readonly (readonly [string, string])[]])[];
 
 // RONDA 178 · Eric: «también cómo hemos hecho los 3D, y skills usadas · tecnología usada, stack». Todo sale del registro (AGENTS.md) y del código.
-type Fila = [string, string];
+type Fila = [string, string, string?];  // 29/10 · el tercero, opcional: el enlace de la mención (créditos de lo comprado)
 // 28/10 · Andoni: «Stack, añadir iconografía» · «Herramientas y skills, también»: el logotipo de cada herramienta cuando lo tiene (Simple Icons 16.36,
 // CC0, en src/assets/marcas/; uso nominativo, en la tinta del texto) y, si no, un Iconoir del concepto · 29/10 · Eric: «pon logos reales»: Agentation, Ship Studio, Screen Studio (de sus iconos) y Playwright (de su SVG oficial), redibujados en una tinta
 const MARCAS = import.meta.glob('/src/assets/marcas/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
@@ -93,6 +93,7 @@ const IC_STACK: Record<string, string[]> = {
 const IC_HERR: Record<string, string[]> = {
   'Claude Code': ['m:claude'], HyperFrames: ['m:hyperframes'], 'web-perf-forensics': ['activity'], 'Artifacts de Claude': ['m:claude'], Agentation: ['m:agentation'],
   'Ship Studio': ['m:shipstudio'], 'Screen Studio': ['m:screenstudio'], Playwright: ['m:playwright'], 'sharp, ffmpeg, Python': ['m:ffmpeg', 'm:python'],
+  'Aconia Studio': ['m:aconia'], 'Klim Type Foundry': ['m:klim'],
 };
 const STACK: Fila[] = [
   ['Astro 7', 'Web estática, una página por ruta, sin framework de componentes en el navegador. Cada componente lleva su script en TypeScript y sus estilos acotados. Sin ClientRouter.'],
@@ -131,6 +132,9 @@ const HERRAMIENTAS: Fila[] = [
   ['Screen Studio', 'Las grabaciones de las webs del portfolio, de escritorio y de móvil. tools/portfolio-tsc/video.sh las recorta y las pasa a la tarjeta, la toma grande y el póster.'],
   ['Playwright', 'Las pruebas en Chrome y WebKit y las grabaciones de las webs.'],
   ['sharp, ffmpeg, Python', 'Imágenes, como recortes, tiras y capturas, más vídeo y audio. Pillow, numpy, scikit-image y fontTools para medir y recortar, librosa para el pulso de la música y Blender para el roble 3D de molde.'],
+  // 29/10 · Eric: «“comprado” suena mal» → «con licencia»; logos reales (el monograma de Aconia, vectorizado de su favicon; el emblema de Klim, su mask-icon) · antes: «hacer mención a Aconia, de ahí hemos extraído el mockup desktop de mesa (comprado)» y «a Klim, de ahí hemos comprado la fuente heading»
+  ['Aconia Studio', 'La mesa en la que te sientas en los proyectos destacados parte de su mockup de escritorio, con licencia.', 'https://www.aconiastudio.com/'],
+  ['Klim Type Foundry', 'Family, la fuente de los titulares, con licencia.', 'https://klim.co.nz/fonts/family/#information/credits-and-awards'],
 ];
 // en inglés, el mismo orden que HERRAMIENTAS (los iconos, por HERRAMIENTAS[k][0])
 const HERRAMIENTAS_EN: Fila[] = [
@@ -143,6 +147,8 @@ const HERRAMIENTAS_EN: Fila[] = [
   ['Screen Studio', 'The recordings of the portfolio websites, desktop and mobile. tools/portfolio-tsc/video.sh trims them and turns them into the card, the large shot and the poster.'],
   ['Playwright', 'The tests in Chrome and WebKit and the website recordings.'],
   ['sharp, ffmpeg, Python', 'Images, like crops, strips and screenshots, plus video and audio. Pillow, numpy, scikit-image and fontTools to measure and crop, librosa for the beat of the music and Blender for the 3D oak used as a mould.'],
+  ['Aconia Studio', 'The desk you sit at in the featured projects starts from their desktop mockup, under licence.', 'https://www.aconiastudio.com/'],
+  ['Klim Type Foundry', 'Family, the typeface of the headlines, under licence.', 'https://klim.co.nz/fonts/family/#information/credits-and-awards'],
 ];
 
 // ── LA CONSTRUCCIÓN: anclas y manejadores de cada trazo del logotipo (comandos absolutos)
@@ -856,7 +862,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         <section id="herramientas" class="seccion" aria-labelledby="h-herramientas">
           <h2 id="h-herramientas" class="font-display text-h2">{en ? <>Tools and skills</> : <>Herramientas y skills</>}</h2>
           <p class="cuerpo">{en ? <>What it was built with, besides the code.</> : <>Con lo que se ha construido, además del código.</>}</p>
-          <dl class="dev-filas con-ic">{(en ? HERRAMIENTAS_EN : HERRAMIENTAS).map(([t, d], k) => (<div><dt><span class="ic-fila" set:html={(IC_HERR[HERRAMIENTAS[k][0]] ?? []).map(icFila).join('')} />{t}</dt><dd>{d}</dd></div>))}</dl>
+          <dl class="dev-filas con-ic">{(en ? HERRAMIENTAS_EN : HERRAMIENTAS).map(([t, d, u], k) => (<div><dt><span class="ic-fila" set:html={(IC_HERR[HERRAMIENTAS[k][0]] ?? []).map(icFila).join('')} />{t}</dt><dd>{d}{u && <> <a class="link" href={u} target="_blank" rel="noopener">{new URL(u).hostname.replace(/^www\./, '')}</a></>}</dd></div>))}</dl>
         </section>
 
         {/* 28/10 · Andoni: «cerrar de alguna manera más bonita, con Eric y conmigo diciendo algo»: la despedida como en Preguntas, cada uno con su cara;
