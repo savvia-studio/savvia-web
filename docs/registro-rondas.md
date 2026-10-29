@@ -6131,3 +6131,62 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
 - **Eric (textual):** «poner el último caso de éxito también como botón» (en «Más», en vez de «Método (próximamente)») · el reel «en el marco de cristal» → «queda muy tosco» → «mejor sin nada».
 - **Hecho:** `home.ts` / `home.en.ts › nav.mas`: «Caso Neety» / «Neety case study» → `/proyectos/neety` (sale en el menú y en el pie). El reel del menú se queda como estaba (el marco de cristal se probó y se quitó).
 - **Medido:** `astro check` 0 errores.
+
+### 30/10 (8.ª) · pasada exhaustiva de toda la web: seis auditores, lo arreglado y lo que queda por decidir (en local, Nilo)
+- **Andoni (textual):** «Yo en mi movil lo veo todo bien ya, pero quiero hacer otra pasada exhaustiva de todo».
+- **Cómo:** seis auditores de solo lectura en paralelo sobre la build de `480e038` (metadatos e infraestructura · copy ES/EN · enlaces · anchos 768–1920
+  y apaisado · recorridos de interacción (Chrome y WebKit, 1280 y 390) · accesibilidad (19 páginas: foco, contraste por píxel, nombres, zoom 200 %,
+  movimiento, sonido)) y el de rendimiento al final, solo. Cada hallazgo se verificó antes de tocar nada; lo que es diseño de Eric o decisión de Andoni
+  queda en «por decidir» (abajo). Integrados antes los seis commits nuevos de Eric (`c77bc0b` … `acbcf20`) sin conflictos.
+- **Arreglado (accesibilidad):** `Portfolio.astro`: al elegir una opción del filtro el foco caía al `body` (cerrar la lista la hacía inerte con el foco
+  dentro); vuelve al botón del filtro. `entradas.ts`: el eco inerte de las transiciones copiaba `<label for="otra">` y el campo se leía «¿Tienes otra?
+  ¿Tienes otra?»: la copia pierde también `for`. `Proyectos.astro`: «Siéntate…» con foco de teclado se ve también antes de `.dentro` (antes, un botón
+  invisible era parada del Tab); sentado, el Tab se queda dentro del escenario (antes se iba a 14 paradas invisibles de la página de detrás). `ChatFlotante.astro`:
+  el botón retirado (opacidad 0) es `inert`; el paso del email del brief va en un campo `type="email"`. `Nav.astro`: al cerrar el reel el foco vuelve al botón
+  del menú (o a la pieza que lo abrió). CONTRASTE (medido por píxel, antes → después): rótulos y pies de figura del caso de Neety al 50 % (2,99:1) → 70 %
+  (8,2:1), ficha lateral y «Ver la web» igual; radio: pestañas 58 → 74 %, rótulos de 11 px 40–46 → 66 % y el cristal del panel 72 → 86 % de noche (en invierno
+  quedaba gris sobre la página clara: 2,2–3,3:1 → 5,0–5,3:1; en otoño 6,4–7,9); legales del pie en `--fg` al 80 % (antes `--fg2` × 0,72: 2,0:1 sobre la nieve y
+  4,1–4,3 en el resto → 6,7–9,1); placeholders de «¿Tienes otra?» y del chat en Cacao al 70 % (antes el del navegador, 3,0:1 → 5,1). `Legal.astro`: con la letra al
+  200 % el email de la tabla se salía 22 px (`overflow-wrap: anywhere`).
+- **Arreglado (recorridos):** chat: lo escrito mientras el bot se presenta se mandaba al vacío (quedaba en el campo sin aviso): ahora se envía en cuanto
+  termina; el clic fuera que pliega el chat ya no llega a lo de debajo (sentaba al visitante en el monitor): el velo recoge el clic. `Portfolio.astro`: un
+  filtro inventado en la dirección (`?pais=Atlantida`) enseñaba «0 proyectos» con su rótulo: solo valen valores que existen. `404.astro`: en inglés el logotipo
+  llevaba a `/` (ahora `/en/`). `Libro.astro`: al pulsar un apartado del índice se marca al momento. `sonido-estudio.ts`: el paso bajo «abierto» a 18 kHz
+  avisaba en Chrome (nominal ≤ 12 kHz) → 12 kHz.
+- **Arreglado (resto de auditores, ya en la ronda anterior de esta pasada):** ficha de sentado en apaisado 844 × 390 junto al monitor (tapaba el 55 % de la
+  pantalla; medido ahora: 0 % de solape); recorte del storybook (`overflow-clip-margin`); `og:url` del 404; escala tipográfica del caso a 1024; títulos legales
+  sin punto medio; «Contáctanos» sin prometer agendar mientras no haya cal.com; portfolio EN con las etiquetas corregidas de Eric y «México» → «Mexico»
+  (recuentos ES = EN: España 25, Figma 22, Claude Code 4, 0 pares duplicados); dos filas más en la política de cookies (sonido y fondo del Lab);
+  `/sonido.md` fuera de `public/`; `vercel.json`: cabeceras de seguridad y `www.savvia.studio` → `savvia.studio`; Safari ya no avisa «restoreContext not
+  allowed» (solo se restaura un contexto que soltamos nosotros).
+- **Rendimiento (auditor, al final y solo; Chrome real con el hilo principal ×4, 1280 @2x y 390 @3x; local frente a vivo en / y /proyectos, dos pasadas):**
+  local y vivo prácticamente iguales (peticiones iguales, bytes ±1 %, misma memoria y mismos contextos WebGL); peor en local solo /proyectos escritorio, fotogramas
+  > 20 ms 23,9 % frente a 20,1 %, sin causa en el código. Lo que más cuesta: /proyectos en escritorio descarga 24 mp4 (13,7 MB) al bajar con el puntero quieto
+  (cada pieza que pasa bajo el cursor arranca su vídeo: es el diseño «al pasar»; en móvil 1,7 MB); la home pide 109 recursos y 3,0 MB (60 imágenes = 2,4 MB) antes
+  de que el visitante dibuje el círculo; fotogramas > 20 ms al bajar: home 19–20 %, /proyectos 23–25 %, storybook 14 % (móvil 4–8 %; Neety y Lab ~1–2 %);
+  tareas largas: /proyectos 720–872 ms en todo el recorrido (máx. 140 ms), home máx. 177 ms, storybook una de 424 ms a los 0,6 s (sin perfilar); al cerrar el círculo
+  de la carga una tarea de 477 ms (238 en móvil) por crear los AudioContext (`sonido-estudio.ts:30/42`, `sonidos.ts:22`); LCP de /proyectos 2,9 s (igual en vivo:
+  `estudio/otono.webp` llega en < 1 s y se enseña tarde). Perfil de la bajada de la home: 43 % `(program)`; lo propio son llamadas nativas: `texImage2D` desde
+  `estela.ts:285` 221 ms, `elementsFromPoint` desde `Nav.astro:515` 131 ms, `getBoundingClientRect` en `Proyectos.astro:802-813` 120 ms, `getImageData` en
+  `Nav.astro:380/392` 80 ms, `elementsFromPoint` en `ChatFlotante.astro:123` 44 ms. ARREGLADO: la lámina del roble se descargaba DOS veces (334 KB): el `<img>`
+  en modo no-CORS y la misma URL como máscara CSS (`--hoja-lamina`) en modo CORS no comparten caché → `crossorigin="anonymous"` en el `<img>` y en la lámina
+  del cambio de estación (medido: una petición; el lienzo pinta igual en Chrome y WebKit, 39 % de píxeles con tinta). `hero-bg-mobile-v5.avif` en la home de
+  escritorio es la réplica de Neety dentro de la miniatura de «savvia agentic» (contenedor < 64 rem): correcto. Lo demás queda anotado, sin tocar.
+- **Medido (build definitiva, Chrome y WebKit, 1280 × 720 y 390 × 844, diez páginas):** consola limpia, 0 respuestas ≥ 400, desborde 0 (solo el aviso benigno
+  de ResizeObserver del storybook en WebKit) · 13 páginas × 320/360/375 × 2 motores: desborde 0 y píldoras de Servicios en una fila · `astro check` 0 ·
+  `spacing-lint` solo el `px-10` aceptado de la réplica de Neety · sondas de cada arreglo (foco, contraste, chat, filtros, 404, índice) en verde · ids duplicados
+  con el eco: 0.
+- **Por decidir (Andoni y Eric), no tocado:** (1) la redirección por país a `/en` (vercel.json) existe pero la web no tiene selector de idioma ni escribe
+  nunca la cookie `savvia-lang`: un visitante de EE. UU. o Reino Unido no puede ver la versión en castellano; (2) el pie mide 1.040–1.120 px en escritorio
+  (256 px de aire arriba): a 1280 × 720 y 1366 × 768, al final de la página, «Servicios», «Portfolio» y «Lab» quedan por encima del borde superior y
+  «Storybook» bajo la barra fija; (3) la barra se oculta mientras los filtros del portfolio van pegados (regla de Eric) a 768–1440; (4) la radio se abre con solo
+  recibir foco y añade 6 paradas de Tab delante del contenido en todas las páginas (hay skip link); (5) nombres: VC/Tech/Consultancy, «Mercado inmobiliario»,
+  Neety «Ventas B2B» frente a «Ventas B2B, SaaS», «Andoni y Eric» frente a «Eric y Andoni», dos citas distintas de Danny Saltaren y de JJ Velaz, «80 componentes»
+  frente a 51, FAQ «normalmente con Astro»; (6) sin JSON-LD, favicon sin `.ico`/manifest, misma imagen para compartir en todas las páginas; (7) `/handbook` →
+  `/metodo` → `/` encadena meta-refresh de 2 s (podrían ser 301 en vercel.json); (8) 404 solo con «404» a la vista (el texto es sr-only) y sin pie; (9) en
+  `/proyectos` 113 botones Navegador/Mesa/Móvil de 28 × 28 con 2 px de hueco; (10) vídeos en bucle sin control de pausa (Lab arranca tres a la vez; con
+  movimiento reducido no corren); (11) «Contáctanos» del pie en invierno a 390 queda a 2,8:1 (texto grande, mínimo 3) por diseño (tenue hasta pasar);
+  (12) la ficha pegada del caso: al final de la página su última línea («neety.com») queda bajo el logotipo de la barra; (13) Eric ha subido al repositorio
+  `story.png` y cuatro PNG sueltos en la raíz (`lupa-d.png`, `lupa-m.png`, `pie-1440.png`, `pie-390.png`) y hay una carpeta `undefined/` sin seguimiento; (14) el
+  Lab en WebKit headless: la rueda sobre el lienzo mueve la página (en Chrome mueve la mesa): comprobar en Safari real (el código hace `preventDefault`; puede
+  ser artefacto de Playwright). Sin commit ni publicar hasta que Andoni lo pida.

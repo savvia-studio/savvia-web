@@ -68,12 +68,12 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
         {i === 1 && <span class="contacta contacta-tras font-display" aria-hidden="true" data-contacta-tras><span>{pie.contactar}</span><span class="contacta-luz" data-contacta-luz>{pie.contactar}</span></span>}
         {i === 1 && <div class="tiempo" aria-hidden="true" data-tiempo><canvas class="lienzo-tiempo" data-tiempo-lienzo></canvas></div>}
         {i === 2 && (
-          <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`${pie.contactar}, ${pie.agenda}${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
+          <a class="contacta contacta-delante font-display" href={pie.cal || `mailto:${pie.correo}`} aria-label={`${pie.contactar}, ${pie.cal ? pie.agenda : pie.escribe}${pie.cal ? '' : ` (${pie.correo})`}`} data-contacta>
             <span data-contacta-txt>{pie.contactar}</span>
             <span class="contacta-luz" aria-hidden="true" data-contacta-luz>{pie.contactar}</span>
           </a>
         )}
-        {i === 2 && <span class="pista-contacta detail" aria-hidden="true">{pie.pista}</span>}
+        {i === 2 && <span class="pista-contacta detail" aria-hidden="true">{pie.cal ? pie.pista : pie.pistaEscribe}</span>}
       </>
     ))}
   </div>
@@ -869,7 +869,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     opacity: 0.18; /* 28/10: «que se vean algo menos» (antes 0,3) */
   }
   :global(html:not(.js)) .capa { translate: 0 0; }
-  .legales { opacity: 0.72; }
+  .legales { opacity: 0.8; color: var(--fg); } /* 30/10 (a11y): en --fg2 × 0,72 daban 2,0:1 sobre la nieve y 4,1–4,3 en el resto */
   .legales { font-size: 12px; } /* 29/10 · Eric: «en vertical y pequeñitos» (móvil y escritorio) */
   @media (width >= 64rem) { .legales { font-size: 11px; } } /* 29/10 · «en desktop algo más pequeños» */
   .pronto { opacity: 0.72; cursor: default; } /* 28/10: 0,5 daba 4,3:1 sobre la noche (3,9 sobre la nieve); 0,72 pasa en las cuatro */

@@ -1077,6 +1077,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   });
   const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) marcar(e.target.id); }, { rootMargin: '-30% 0px -65% 0px' });
   secciones.forEach((s) => io.observe(s));
+  enlaces.forEach((a) => a.addEventListener('click', () => marcar(a.dataset.ir!))); // 30/10 (recorridos): al pulsar un apartado, se marca al momento (la banda del observador tardaba o no llegaba)
   // la construcción se dibuja al llegar
   document.querySelectorAll<HTMLElement>('[data-construccion]').forEach((cons) => {
     new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { cons.classList.add('visto'); o.disconnect(); } }, { threshold: 0.3 }).observe(cons);
@@ -1480,7 +1481,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     .est-paleta { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 4) calc(var(--spacing) * 2); }
     .est-paleta .est-u { display: none; }
   }
-  .est-pila { display: grid; overflow: clip; overflow-clip-margin: 0.25em; }
+  .est-pila { display: grid; overflow: clip; overflow-clip-margin: 0.5em; } /* 30/10 (pulido exhaustivo): a 1024 recortaba 3 px de «Otoño», la fecha y la frase */
   .est-paleta [data-nombre-c], .est-paleta [data-hex-c] { display: block; overflow: clip; } .est-paleta :global(.ln) { display: block; }
   .est-cab { grid-area: 1 / 1; opacity: 0; translate: 0 12px; transition: opacity 0.6s ease, translate 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
   .est-cab.on { opacity: 1; translate: 0 0; }

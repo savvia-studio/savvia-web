@@ -151,6 +151,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       const lejos = enHero || (scrollY > 0 && (heroEl ? heroAbajo - scrollY < innerHeight * 0.8 : scrollY > innerHeight * 0.9)); // RONDA 264 · Eric: «discreto»: nada en el hero; aparece en cuanto asoma la segunda sección (el borde del hero sube del 80 % de la pantalla)
       const oculto = sinBoton || !lejos || preguntasVisible || pieCerca || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
       raiz.classList.toggle('cf-fuera', oculto && (!abierto || desdeOculto));
+      btn.inert = raiz.classList.contains('cf-fuera'); // 30/10 (a11y): retirado (opacidad 0) no es parada del Tab
       if (!abierto) desdeOculto = false;
       if (!raf) { const falta = Math.max(0, 150 - (performance.now() - colorEn)); raf = window.setTimeout(() => requestAnimationFrame(() => { raf = 0; colorEn = performance.now(); raiz.classList.toggle('cf-claro', fondoClaro()); raiz.classList.toggle('cf-hola-claro', holaClaro()); }), falta); }
     };
@@ -220,6 +221,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     addEventListener('keydown', (e) => e.key === 'Escape' && abierto && poner(false));
     // clic fuera del chat = se pliega
     document.addEventListener('pointerdown', (e) => { if (abierto && !raiz.contains(e.target as Node)) poner(false); });
+    // 30/10 (recorridos): el clic que pliega el chat no llega a lo de debajo (sentaba al visitante en el monitor): mientras está abierto, el velo recoge el clic
+    raiz.querySelector('.cf-velo')!.addEventListener('click', (e) => { e.stopPropagation(); poner(false); });
     new MutationObserver(() => html.classList.contains('menu-abierto') && abierto && poner(false)).observe(html, { attributes: true, attributeFilter: ['class'] });
 
     // ── la lista: difuminado de arriba y de abajo solo cuando hay conversación por encima o por debajo
@@ -299,13 +302,15 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       const n = Math.min(Math.max(0, idx + 1), total()), t = total();
       linea.style.setProperty('--p', String(n / t));
     };
-    const ponerCampo = (ph: string, bloqueo = false) => { campo.placeholder = ph; campo.type = 'text'; campo.dataset.modo = bloqueo ? 'texto' : 'libre'; };
+    const ponerCampo = (ph: string, bloqueo = false, tipo: 'text' | 'email' = 'text') => { campo.placeholder = ph; campo.type = tipo; campo.autocomplete = tipo === 'email' ? 'email' : 'off'; campo.dataset.modo = bloqueo ? 'texto' : 'libre'; }; // 30/10 (a11y): el email del brief, en un campo de email (teclado y autocompletado)
 
+    let pendiente = false;
     const empezar = async () => {
       ocupado = true;
       await bot(brief.saludo);
       await mostrarServicio();
       ocupado = false;
+      if (pendiente) { pendiente = false; form.requestSubmit(); }
     };
     const mostrarServicio = async () => {
       await bot([...((brief.servicio as { expl?: string[] }).expl ?? []), brief.servicio.q]);
@@ -368,7 +373,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       paso = 'contacto';
       await bot([c.q]);
       esperaTexto = { id: c.id, tipo: c.tipo, sig: () => contacto(k + 1) };
-      ponerCampo(c.ph, true); campo.focus({ preventScroll: true });
+      ponerCampo(c.ph, true, c.tipo === 'email' ? 'email' : 'text'); campo.focus({ preventScroll: true });
       if (c.tipo === 'opcional') opciones([], () => {}, { t: t('Saltar', 'Skip'), fn: async () => { if (ocupado) return; ocupado = true; esperaTexto = null; tu(t('Saltar', 'Skip')); quien = 1 - quien; ponerCampo(t('Escribe una pregunta…', 'Write a question…')); await contacto(k + 1); ocupado = false; } });
     };
     const terminar = async () => {
@@ -430,7 +435,8 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const txt = campo.value.trim();
-      if (!txt || ocupado) return campo.focus();
+      if (!txt) return campo.focus();
+      if (ocupado) { pendiente = true; return campo.focus(); } // 30/10 (recorridos): lo escrito mientras el bot habla se manda en cuanto termina
       if (esperaTexto) {
         const e2 = esperaTexto;
         // RONDA 290 · Eric: «en el formulario multi-step conecta la IA también por si preguntan cosas»: si en un paso de texto lo escrito es una PREGUNTA, la contesta el chat
@@ -439,7 +445,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
         if (esPregunta) {
           esperaTexto = null; campo.value = '';
           await libre(txt);
-          if (!esperaTexto) { esperaTexto = e2; ponerCampo(campo.placeholder, true); }
+          if (!esperaTexto) { esperaTexto = e2; ponerCampo(campo.placeholder, true, e2.tipo === 'email' ? 'email' : 'text'); }
           return;
         }
         if (e2.tipo === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(txt)) { ocupado = true; tu(txt); campo.value = ''; quien = 1 - quien; await bot([t('Parece que falta algo en ese email. ¿Me lo escribes otra vez?', 'Something seems to be missing from that email. Could you type it again?')]); ocupado = false; return; }
@@ -548,7 +554,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   /* 29/10 · Eric (iPhone, captura): «aquí te esperas que salga solo el chat encima, no el navbar también, y además en layer como opaco»: con el chat
      abierto, el velo sube por encima de la barra (55) y de lo pegado de Servicios (58), y el chat por encima del velo; el menú (60–62) no se abre a la vez.
      En móvil el velo va más cubierto (32 % de Cacao; en escritorio sigue al 14 %) */
-  .cf.cf-abierto .cf-velo { z-index: 59; }
+  .cf.cf-abierto .cf-velo { z-index: 59; pointer-events: auto; }
   .cf.cf-abierto :is(.cf-panel, .cf-btn, .cf-hola) { z-index: 60; }
   /* 29/10 · Eric (iPhone): «es mejor quitar ese layer blur; con las bandas [de Safari] y demás queda raro»: en móvil, tinte plano, sin desenfoque */
   /* 29/10 · Eric (iPhone, pie de la home): «seguimos igual, no se ven las montañas». Fijo a pantalla completa (aunque sea con opacidad 0), Safari 26 lo cuenta
@@ -643,6 +649,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   .cf-mail a { color: var(--fg); }
   .cf-form { display: flex; gap: 8px; padding: 12px 16px 16px; border-top: 1px solid var(--rule); }
   .cf-form input { flex: 1; min-width: 0; min-height: 44px; padding-inline: 16px; border-radius: 999px; background: color-mix(in oklab, #fff 50%, transparent); box-shadow: inset 0 0 0 1px var(--rule); font-size: max(1rem, var(--text-ui)); color: var(--fg); transition: box-shadow 0.45s var(--ease-out-expo), background-color 0.45s var(--ease-out-expo); }
+  .cf-form input::placeholder { color: color-mix(in oklab, var(--color-cacao) 70%, transparent); opacity: 1; } /* 30/10 (a11y): el placeholder por defecto daba 3,0:1 */
   .cf-form input:hover { background: color-mix(in oklab, #fff 72%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cacao) 38%, transparent); }
   .cf-form input:focus-visible { outline: none; background: color-mix(in oklab, #fff 88%, transparent); box-shadow: inset 0 0 0 1.5px var(--color-naranja); }
   .cf-mandar { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; cursor: pointer; background: var(--color-cacao); color: var(--color-niebla); transition: background-color 0.5s var(--ease-out-expo); }

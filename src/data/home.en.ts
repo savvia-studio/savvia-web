@@ -371,7 +371,9 @@ export const pie = {
   pitch: 'The studio that orchestrates AI, with judgement.',
   contactar: 'Contact us', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Click to book a call with us',
-  pista: 'Tap to book a call', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
+  escribe: 'Click to write to us', // 30/10: while `cal` is empty the link opens email, so no «book a call»
+  pista: 'Tap to book a call',
+  pistaEscribe: 'Tap to write to us', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
   correo: 'hola@savvia.studio',
   correoTexto: 'Contact via email',
   cal: '',

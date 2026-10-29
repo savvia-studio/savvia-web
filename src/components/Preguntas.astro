@@ -496,6 +496,8 @@ import personasEn from '../data/personas.en.json';
     transition: box-shadow 0.45s var(--ease-out-expo), background-color 0.45s var(--ease-out-expo);
   }
   .campo::placeholder {
+    color: color-mix(in oklab, var(--color-cacao) 70%, transparent); /* 30/10 (a11y): el placeholder por defecto daba 3,0:1 */
+    opacity: 1;
     transition: opacity 0.35s var(--ease-out-expo);
   }
   .campo:hover {

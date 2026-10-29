@@ -755,6 +755,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
     addEventListener('resize', encuadrar);
     addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && sentado) return sentar(false);
+      // 30/10 (a11y): sentado, el Tab se quedaba en la página de detrás (14 paradas a opacidad 0): se cierra el ciclo dentro del escenario
+      if (e.key === 'Tab' && sentado) {
+        const f = [...escenario.querySelectorAll<HTMLElement>('a[href], button, iframe, [tabindex]:not([tabindex="-1"])')].filter((x) => !x.hidden && !x.closest('[hidden], [inert]') && x.getClientRects().length && getComputedStyle(x).visibility !== 'hidden' && (x.offsetParent !== null || x.tagName === 'IFRAME'));
+        if (f.length) {
+          const i = f.indexOf(document.activeElement as HTMLElement);
+          if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
+          else if (!e.shiftKey && (i === -1 || i === f.length - 1)) { e.preventDefault(); f[0].focus(); }
+        }
+      }
       const dentro = sentado || raiz.contains(document.activeElement);
       if (!dentro) return;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); rodar(1); }
@@ -1674,8 +1683,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     opacity: 1;
   }
   /* RONDA 171 (Eric: «el botón estático de siéntate ya no tiene sentido»): solo para el teclado; se ve al enfocarlo */
-  .dentro .llamada:focus-visible {
-    opacity: 1;
+  .llamada:focus-visible {
+    opacity: 1; /* 30/10 (a11y): antes solo con `.dentro`; con el Tab antes de entrar, el foco caía en un botón invisible */
   }
   .llamada:not(:focus-visible) {
     pointer-events: none;
@@ -2603,6 +2612,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* RONDA 264 · Eric: «el banner de Playground IEP (categoría, nombre y ver caso de estudio) en mobile lo quitamos por espacio»; en escritorio se mantiene */
   @media (width < 48rem) {
     [data-estudio] .ui-info { display: none; }
+  }
+  /* 30/10 (pulido exhaustivo, Nilo) · MÓVIL APAISADO (844 × 390): la ficha iba abajo (como en retrato) y tapaba el 55 % de la pantalla del monitor.
+     Con poca altura va al lado izquierdo del monitor, a media altura, estrecha (el monitor empieza a 207 px del borde a 844) */
+  @media (width >= 48rem) and (width < 64rem) and (height < 32rem) {
+    [data-estudio].sentado .ui-info,
+    .escenario.asiento .ui-info { left: calc(var(--spacing) * 4); right: auto; top: 50%; bottom: auto; translate: 0 -50%; width: min(22vw, 12rem); }
+    .ficha { padding: calc(var(--spacing) * 3); }
   }
   @media (prefers-reduced-motion: reduce) {
     .escena,

@@ -29,7 +29,7 @@ const fecha = new Intl.DateTimeFormat(en ? 'en-GB' : 'es-ES', { month: 'long', y
 
 ---
 
-<Base title={`${d.titulo} · savvia`} description={d.descripcion} carga={false}>
+<Base title={en ? `${d.titulo} at savvia` : `${d.titulo} en savvia`} description={d.descripcion} carga={false}>
   <Nav />
   <Carriles />
   <main id="contenido" class="legal surface-light">
@@ -129,7 +129,8 @@ const fecha = new Intl.DateTimeFormat(en ? 'en-GB' : 'es-ES', { month: 'long', y
   .datos, .filas { display: flex; flex-direction: column; border-top: 1px solid var(--rule); }
   .datos div { display: grid; grid-template-columns: 6rem 1fr; gap: calc(var(--spacing) * 4); padding-block: calc(var(--spacing) * 3); border-bottom: 1px solid var(--rule); }
   .datos dt { padding-top: 0.25em; }
-  .datos dd { color: var(--fg); }
+  .datos dd { color: var(--fg); overflow-wrap: anywhere; } /* 30/10 (a11y): con la letra al 200 %, el email se salía por la derecha */
+  .filas dd { overflow-wrap: anywhere; }
   .filas div { display: flex; flex-direction: column; gap: calc(var(--spacing) * 1); padding-block: calc(var(--spacing) * 4); border-bottom: 1px solid var(--rule); }
   .filas dt { font-weight: 600; color: var(--fg); }
   .dura { margin-top: calc(var(--spacing) * 1); }

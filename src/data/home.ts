@@ -610,7 +610,9 @@ export const pie = {
   pitch: 'El estudio que orquesta la IA, con criterio.', // ronda 24: «lo dejamos solo en esto»; ronda 48: sin «tu web» (ya lo dice el titular del pie)
   contactar: 'Contáctanos', // ronda 228: vuelve la palabra entre las montañas
   agenda: 'Haz clic para agendar una reunión con nosotros',
-  pista: 'Toca para agendar una llamada', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
+  escribe: 'Haz clic para escribirnos', // 30/10 (pulido exhaustivo): mientras `cal` esté vacío, el enlace abre el correo: no se promete «agendar»
+  pista: 'Toca para agendar una llamada',
+  pistaEscribe: 'Toca para escribirnos', // ronda 268: la ayuda de móvil, sobre «Contáctanos»
   correo: 'hola@savvia.studio', // dirección real (solo en mailto); lo que se LEE en la web es `correoTexto`
   correoTexto: 'Contactar vía email',
   cal: '', // ronda 65: «Contáctanos» llevará a un cal.com (falta el enlace); mientras, al correo
@@ -677,7 +679,7 @@ export const partitura = {
       { ag: 3, sec: 'comp', src: 'logo', slot: 'logo', label: 'Logotipo', chip: '<Logo />' },
       { ag: 1, sec: 'comp', src: 'punto', slot: 'punto', label: 'Punto pulsante', chip: '<PulsingDot />' },
     ] as { ag: number; sec: string; src: string; slot: string; label: string; chip: string }[],
-    color: [['Naranja Core', '#FE8238'], ['Azúl bebe', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Degradado granular', 'grad']] as [string, string][],
+    color: [['Naranja Core', '#FE8238'], ['Azul bebé', '#A7C5F9'], ['Berenjena', '#431B44'], ['Ciruela', '#2A0E2C'], ['Mint claro', '#EBFFF6'], ['Base Cálida', '#F8F7EC'], ['Gris Tecnológico', '#F5F7F9'], ['Degradado granular', 'grad']] as [string, string][],
     tipografia: [['Bricolage Grotesque', 'titulares, H1 XL 112 / 64, 120 %'], ['Switzer', 'cuerpo, regular 16, 150 %']] as [string, string][],
     espaciado: [['xtiny', 4], ['tiny', 8], ['xxsmall', 16], ['xsmall', 20], ['small', 24], ['medium', 32], ['large', 48], ['xlarge', 64], ['xxlarge', 80], ['huge', 96], ['xhuge', 112], ['xxhuge', 160]] as [string, number][],
     gradiente: { clase: '.rail-gradient-x', paradas: ['#F8F7EC', '#FE8238', '#431B44', '#A7C5F9', '#FFFFFF'], nota: 'crema → naranja → berenjena → azul → blanco' },

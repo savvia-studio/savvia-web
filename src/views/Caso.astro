@@ -1094,7 +1094,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     --aire: clamp(4rem, 2.5rem + 3.5vw, 6.5rem); /* 64 → 104 entre bloques (antes 96 → 160) */
     padding-top: calc(var(--spacing) * 28);
   }
-  .t-ojo { font-size: var(--text-aux); line-height: 1.45; color: color-mix(in oklab, var(--fg) 50%, transparent); font-variant-numeric: tabular-nums; }
+  .t-ojo { font-size: var(--text-aux); line-height: 1.45; color: color-mix(in oklab, var(--fg) 70%, transparent); font-variant-numeric: tabular-nums; } /* 30/10 (a11y): al 50 % daba 2,99:1 sobre claro */
   .t-enc { font-family: var(--font-display); font-weight: 400; font-size: var(--text-h3); line-height: 1.15; color: var(--fg); text-wrap: balance; }
   .t-h { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 1.15rem + 0.35vw, 1.375rem); line-height: 1.25; color: var(--fg); text-wrap: balance; }
   .t-lead { font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.75rem); line-height: 1.35; color: var(--fg); text-wrap: pretty; }
@@ -1483,6 +1483,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     /* 29/10 · Eric: «escálalo un poco más para que esté algo más pequeño en mobile»: los titulares, al 72 % (y así XL, L y M ya no empatan al ancho) */
     .tf-escala .tf-m[data-corta] { white-space: nowrap; font-size: min(var(--fs) * 0.72, 100cqi / (var(--ch) * 0.56)) !important; }
   }
+  /* 30/10 (pulido exhaustivo, Nilo) · entre 48 y 72 rem (1024 px) la columna de la muestra no daba para «Large» y «Medium» en una línea y se cortaban con «…»: en dos líneas */
+  @media (width >= 48rem) and (width < 72rem) { .tf-escala .tf-m { white-space: normal; text-overflow: clip; } }
   .tf-n, .tf-d { color: var(--fg2); }
   .tf-m { line-height: 1.1; text-wrap: balance; min-width: 0; }
   .tipo-cartas { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); }
@@ -1863,9 +1865,9 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .lado-desc { font-size: 1rem; line-height: 1.55; color: var(--fg); text-wrap: pretty; }
   .tv-p { margin-left: 0.75em; } /* ronda 307, 23.ª: el uso, aparte del valor (antes «#hex · %») */
   .lado-ficha { display: grid; gap: calc(var(--spacing) * 3); margin: calc(var(--spacing) * 2) 0 0; font-size: var(--text-aux); line-height: 1.45; }
-  .lado-ficha dt { color: color-mix(in oklab, var(--fg) 50%, transparent); }
+  .lado-ficha dt { color: color-mix(in oklab, var(--fg) 70%, transparent); } /* 30/10 (a11y): 2,99:1 al 50 % */
   .lado-ficha dd { margin: 0; color: var(--fg); }
-  .ir-web { display: inline-flex; align-items: center; gap: 0.5em; width: fit-content; margin-top: calc(var(--spacing) * 1); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); transition: color 0.25s ease; }
+  .ir-web { display: inline-flex; align-items: center; gap: 0.5em; width: fit-content; margin-top: calc(var(--spacing) * 1); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 72%, transparent); transition: color 0.25s ease; } /* 30/10 (a11y): 3,95:1 al 60 % */
   .ir-web:hover, .ir-web:focus-visible { color: var(--fg); }
   /* 29/10 · Andoni: «el ver la librería > se ve raro»: fuera el empujón de la flecha diagonal (subía 0,18 em); el chevrón, recto y a medio cuerpo de la
      palabra, como en el resto de la web */

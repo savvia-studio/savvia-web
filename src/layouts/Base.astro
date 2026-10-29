@@ -58,7 +58,7 @@ const ogImagen = new URL(`/og/${ogEstacion}${lang === 'en' ? '-en' : ''}.jpg?v=5
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="savvia" />
     <meta property="og:locale" content={lang === 'en' ? 'en_GB' : 'es_ES'} />
-    <meta property="og:url" content={canonical} />
+    {indexar && <meta property="og:url" content={canonical} />}{/* 30/10 (pulido exhaustivo): en el 404 apuntaba a /404/, que no existe */}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImagen} />

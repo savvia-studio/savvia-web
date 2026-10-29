@@ -86,6 +86,7 @@ if (!reducido && 'IntersectionObserver' in window) {
         });
       }
       copia.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+      copia.querySelectorAll('[for]').forEach((e) => e.removeAttribute('for')); // 30/10 (a11y): un <label for> del eco se sumaba al nombre del campo original
       copia.querySelectorAll('[data-carril-fila]').forEach((e) => e.removeAttribute('data-carril-fila')); // la copia no es una guía: Carriles la contaba y trazaba una línea doble
       copia.querySelectorAll('video, canvas:not([data-eco]), iframe').forEach((e) => e.remove());
       copia.querySelectorAll('[data-cine] > *').forEach((e) => e.remove()); // RONDA 218: la película (≈860 nodos y la réplica de Neety, 19 MB decodificada) no se copia al eco: es una imagen, no texto que haya que volver blanco

@@ -43,7 +43,8 @@ const { hero } = home(langDe(Astro.currentLocale));
       <i class="halo" aria-hidden="true"></i>
       <!-- RONDA 66 · el roble de CADA ESTACIÓN (láminas de Andoni, tools/r66-robles.py → /media/hero/arbol-<estación>.webp): se elige al parsear -->
       <!-- (30/10 · rendimiento en móvil) dos tamaños: -m (880 px) para el roble de ≤ 452 px CSS del móvil; el de 1260, en escritorio y pantallas ×3 -->
-      <img alt="" width="1260" height="583" decoding="async" fetchpriority="high" sizes="(width < 64rem) 432px, 1260px" data-lamina />
+      <!-- (30/10 · rendimiento) crossorigin: la misma lámina se usa de máscara CSS (--hoja-lamina), que el navegador pide en modo CORS; sin esto la descargaba DOS veces -->
+      <img alt="" width="1260" height="583" decoding="async" fetchpriority="high" crossorigin="anonymous" sizes="(width < 64rem) 432px, 1260px" data-lamina />
       <script is:inline>(function (i, e) { i.srcset = '/media/hero/arbol-' + e + '-m.webp 880w, /media/hero/arbol-' + e + '.webp 1260w'; i.src = '/media/hero/arbol-' + e + '.webp'; })(document.currentScript.previousElementSibling, document.documentElement.dataset.estacion || 'otono');</script>
       <canvas class="lienzo" data-lienzo></canvas>
     </div>
@@ -114,7 +115,7 @@ const { hero } = home(langDe(Astro.currentLocale));
     const soltarLienzo = (c: HTMLCanvasElement) => { { const g = (c.getContext('webgl') || c.getContext('webgl2')); if (g && !g.isContextLost()) g.getExtension('WEBGL_lose_context')?.loseContext(); } c.remove(); };
     const cambiarLamina = (n: number) => {
       pedida = n;
-      const nueva = new Image(); nueva.decoding = 'async'; nueva.src = `/media/hero/arbol-${EST[n]}${matchMedia('(width < 64rem)').matches && devicePixelRatio <= 2 ? '-m' : ''}.webp`;
+      const nueva = new Image(); nueva.decoding = 'async'; nueva.crossOrigin = 'anonymous'; nueva.src = `/media/hero/arbol-${EST[n]}${matchMedia('(width < 64rem)').matches && devicePixelRatio <= 2 ? '-m' : ''}.webp`;
       nueva.onload = () => {
         if (pedida !== n || !t) return;
         // sin verse (o antes de crecer): la lámina nueva en el mismo lienzo, sin compilar otro programa (ver estela.ts › lamina)

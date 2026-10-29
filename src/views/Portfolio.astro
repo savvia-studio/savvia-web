@@ -39,8 +39,14 @@ const ES: Record<string, string> = {
   Healthcare: 'Salud', Legal: 'Legal', Logistics: 'Logística', 'Real State': 'Inmobiliario', 'Renewable energy': 'Renovables', 'Social Impact': 'Impacto social', Tech: 'Tecnología', VC: 'Capital riesgo',
 };
 // 30/10 (pulido) · en inglés, los rótulos del CMS salían tal cual, con una falta («Real State») y mayúsculas sueltas: se corrigen al enseñarlos
-const EN: Record<string, string> = { 'Real State': 'Real estate', 'Social Impact': 'Social impact', 'Brand Portfolio': 'Brand portfolio' };
-const t = (x: string) => (en ? EN[x] ?? x : ES[x] ?? x);
+const EN: Record<string, string> = { 'Real State': 'Real estate', 'Social Impact': 'Social impact', 'Brand Portfolio': 'Brand portfolio', 'México': 'Mexico' };
+// 30/10 (pulido exhaustivo, Nilo) · las etiquetas corregidas por Eric (AJUSTES[].t) están en castellano y solo se aplicaban en castellano: el portfolio en
+// inglés enseñaba las crudas del CMS (recuentos distintos, pares duplicados «CMS integration» + «CMS», sin Vercel, GSAP, Lenis…). Ahora se aplican en los
+// dos idiomas y, en inglés, cada valor vuelve a su rótulo del CMS por el mapa inverso y pasa por las correcciones de EN
+const ES_INV: Record<string, string> = Object.fromEntries(Object.entries(ES).map(([k, v]) => [v, k]));
+const aEn = (x: string) => { const raw = ES_INV[x] ?? x; return EN[raw] ?? raw; };
+const t = (x: string) => (en ? aEn(x) : ES[x] ?? x);
+const tr = (x: string) => (en ? aEn(x) : x); // los valores de AJUSTES[].t ya están en castellano
 // categorías que no dicen a qué se dedica el cliente (no sirven de sector bajo la pieza)
 const META = new Set(['Awwwards', 'YCombinator', 'Webflow Enterprise', 'Tech']);
 type Obra = { slug: string; nombre: string; dominio: string; href: string; sector: string; colores: [string, string, string]; portada: { tipo: 'video'; src: string; poster: string }; movil?: string; videoMovil?: { src: string; poster: string };
@@ -116,7 +122,7 @@ const TODAS: Obra[] = [
 const OBRAS: Obra[] = TODAS.map((o, n) => ({ o, n })).sort((a, b) => puesto(a.o.slug) - puesto(b.o.slug) || a.n - b.n).map(({ o }) => o)
   .filter((o) => !AJUSTES[o.slug]?.oculto)
   .map((o) => { const a = AJUSTES[o.slug]; return a ? { ...o, nombre: a.n ?? o.nombre, sector: a.s ?? o.sector, colores: a.c ?? o.colores,
-    ...(a.t && !en ? { pais: a.t.pais ?? o.pais, tec: a.t.tec ?? o.tec, servicios: a.t.servicio ?? o.servicios, categorias: a.t.categoria ?? o.categorias } : {}) } : o; });
+    ...(a.t ? { pais: (a.t.pais ?? o.pais).map(tr), tec: (a.t.tec ?? o.tec).map(tr), servicios: (a.t.servicio ?? o.servicios).map(tr), categorias: (a.t.categoria ?? o.categorias).map(tr) } : {}) } : o; });
 // los cuatro filtros, con su recuento (de más a menos; a igualdad, por nombre)
 const opciones = (f: (o: Obra) => string[]) => {
   const n = new Map<string, number>();
@@ -179,7 +185,7 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
   <main id="contenido" class="obras surface-light">
     <header class="wrap cabecera">
       <h1 class="font-display titular" data-entra>{en ? 'Custom websites.' : 'Webs a medida.'}</h1>
-      <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? 'Our featured projects since 2020, both no-code and agentic development.' : 'Nuestros proyectos destacados desde 2020, tanto de no-code como desarrollo agéntico.'}</p>
+      <p class="text-sub text-fg2 mt-6 measure" data-enfoca>{en ? 'Our featured projects since 2020, both no-code and agentic development.' : 'Nuestros proyectos destacados desde 2020, tanto de no-code como de desarrollo agéntico.'}</p>
     </header>
 
     <!-- 27/10 · Eric: en móvil, sin las dos cruces del vértice de la fila de filtros. (28/10 se quitó la fila entera y Eric la echó en falta: vuelve) -->
@@ -374,7 +380,7 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
   // se quita el filtro anterior». UN filtro a la vez (cada opción tiene al menos un proyecto); de una dirección con varios, vale el primero
   const filtro: Record<(typeof F)[number], string> = { pais: '', tec: '', servicio: '', categoria: '' };
   const deUrl = F.find((k) => q.get(k));
-  if (deUrl) filtro[deUrl] = q.get(deUrl)!;
+  if (deUrl && caja.querySelector(`.op[data-f="${deUrl}"][data-v="${CSS.escape(q.get(deUrl)!)}"]`)) filtro[deUrl] = q.get(deUrl)!; // 30/10 (recorridos): solo valores que existen como opción
   let busca = ''; // sin buscador (el motor de búsqueda se queda por si vuelve)
 
   let reentrar = false; // reentrar: al filtrar, las piezas vuelven a entrar como al llegar
@@ -484,7 +490,8 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
       nube(m);
     });
   });
-  ops.forEach((b) => b.addEventListener('click', () => { F.forEach((k) => (filtro[k] = '')); filtro[b.dataset.f as (typeof F)[number]] = b.dataset.v!; cerrarF(); reentrar = true; pintar(true); reentrar = false; }));
+  ops.forEach((b) => b.addEventListener('click', () => { F.forEach((k) => (filtro[k] = '')); filtro[b.dataset.f as (typeof F)[number]] = b.dataset.v!; cerrarF(); reentrar = true; pintar(true); reentrar = false;
+    b.closest('[data-desp]')?.querySelector<HTMLButtonElement>('[data-desp-b]')?.focus({ preventScroll: true }); })); // 30/10 (a11y): cerrar la lista la hacía inerte con el foco dentro y el foco caía al body
   const limpiar = () => { F.forEach((k) => (filtro[k] = '')); cerrarF(); reentrar = true; pintar(true); reentrar = false; };
   caja.querySelector('[data-limpiar]')!.addEventListener('click', limpiar);
   limpiarF.addEventListener('click', limpiar);

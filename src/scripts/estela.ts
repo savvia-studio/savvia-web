@@ -302,14 +302,16 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   new ResizeObserver(() => listo && medir()).observe(cv);
   // soltar y recuperar el contexto según la distancia a la pantalla (ver arriba)
   let ext = gl.getExtension('WEBGL_lose_context');
-  let dormido = false;
+  let dormido = false, nuestro = false; // nuestro: lo hemos soltado NOSOTROS con loseContext() (solo entonces vale restoreContext())
   cv.addEventListener('webglcontextlost', (e) => {
     e.preventDefault(); listo = false; if (raf) { cancelAnimationFrame(raf); raf = 0; }
-    // si lo ha tirado el NAVEGADOR (tope de contextos) y no nosotros: se recupera en cuanto se pueda (a la vista, ya; lejos, al acercarse)
-    if (!dormido && cv.isConnected) { dormido = true; if (!lejos) setTimeout(() => ext?.restoreContext(), 120); }
+    // si lo ha tirado el NAVEGADOR (tope de contextos) y no nosotros: con preventDefault() el navegador lo restaura solo en cuanto puede (y dispara
+    // webglcontextrestored). 30/10 (pulido, Nilo): antes se llamaba a restoreContext() también aquí, y WebKit daba «INVALID_OPERATION: restoreContext:
+    // context restoration not allowed» (solo se permite tras un loseContext() propio)
+    if (!dormido && cv.isConnected) dormido = true;
   });
   cv.addEventListener('webglcontextrestored', () => {
-    dormido = false; tex = null; ext = gl.getExtension('WEBGL_lose_context'); // la textura del contexto perdido ya no existe; la extensión, tampoco: se vuelve a pedir
+    dormido = false; nuestro = false; tex = null; ext = gl.getExtension('WEBGL_lose_context'); // la textura del contexto perdido ya no existe; la extensión, tampoco: se vuelve a pedir
     montar(() => {
       // lo que estaba a medio aparecer vuelve ya aparecido (el visitante no lo estaba viendo)
       if (gota) { t0 = performance.now() - (INTRO + CRECE + 1) * 1000; suelta = true; }
@@ -317,11 +319,11 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     });
   });
   let lejos = false;
-  const dormir = () => { if (ext && lejos && vivos > LIMITE && !dormido && listo && !gl.isContextLost()) { dormido = true; ext.loseContext(); } };
+  const dormir = () => { if (ext && lejos && vivos > LIMITE && !dormido && listo && !gl.isContextLost()) { dormido = true; nuestro = true; ext.loseContext(); } };
   if (ext) new IntersectionObserver(([e]) => {
     lejos = !e.isIntersecting;
     if (lejos) dormir();
-    else if (dormido) ext?.restoreContext();
+    else if (dormido && nuestro) ext?.restoreContext();
   }, { rootMargin: '100% 0px' }).observe(cv);
   return {
     fondo(r, g2, b) { foV = [r / 255, g2 / 255, b / 255]; gl.uniform3f(uFO, foV[0], foV[1], foV[2]); ult = 0; pedir(); },

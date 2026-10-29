@@ -276,7 +276,9 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   dlg.querySelector('[data-reel-son]')!.addEventListener('click', () => (vid.muted = !vid.muted));
   hilo.addEventListener('pointerdown', (e) => { const r = hilo.getBoundingClientRect(); if (vid.duration) vid.currentTime = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * vid.duration; });
   // RONDA 76 · también lo abre la pieza del reel en «Más proyectos» ([data-abre-reel]): se pinta desde ella
+  let vuelveReel: HTMLElement | null = null; // 30/10 (a11y): al cerrar, el foco volvía al body (el menú se cerró al abrirlo)
   const abrirReel = (desde: HTMLElement) => {
+    vuelveReel = desde === reelBt ? btn : desde;
     const r = desde.getBoundingClientRect(); origenReel = [r.left + r.width / 2, r.top + r.height / 2];
     if (!vid.getAttribute('src')) vid.src = reelArchivo('reel');
     vid.currentTime = 0; vid.muted = false; estadoReel();
@@ -291,7 +293,7 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
   const cerrarReel = () => {
     if (!dlg.open || cerrandoReel) return;
     cerrandoReel = true; vid.pause(); dlg.classList.remove('on');
-    dibujar(panel, { estacion: true, abrir: false, origen: origenReel, color: LINEA_REEL(), alTerminar: () => { dlg.close(); cerrandoReel = false; } });
+    dibujar(panel, { estacion: true, abrir: false, origen: origenReel, color: LINEA_REEL(), alTerminar: () => { dlg.close(); cerrandoReel = false; vuelveReel?.focus({ preventScroll: true }); } });
   };
   dlg.querySelector('[data-reel-cerrar]')!.addEventListener('click', cerrarReel);
   dlg.addEventListener('cancel', (e) => { e.preventDefault(); cerrarReel(); });

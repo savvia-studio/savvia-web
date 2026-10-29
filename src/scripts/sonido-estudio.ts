@@ -14,7 +14,7 @@ const CLAVE = 'savvia:son'; // ronda 76: clave nueva: el sonido arranca APAGADO 
 // sentado, el ambiente pasa por unos CASCOS: paso bajo que cierra de 18 kHz a 480 Hz (se va el aire, quedan el cuerpo y el grave), un pico suave en
 // 180 Hz (la presión de la almohadilla) y la mitad de volumen. Entra y sale en el tiempo del viaje de cámara (~1,5 s). Los efectos de interfaz no
 // pasan por aquí: siguen nítidos, «dentro» de los cascos.
-const CASCOS = { abierto: 18000, cerrado: 480, nivel: 0.42, t: 0.45 };
+const CASCOS = { abierto: 12000, cerrado: 480, nivel: 0.42, t: 0.45 }; // 30/10: 18 kHz avisaba en Chrome («outside nominal range [0, 12000]»)
 const NIVEL = 0.035; // ronda 144 · «el sonido de ambiente bastante más bajo por defecto» (antes 0,09)
 // // ronda 59: las grabaciones van a −23 LUFS; × 0,09 ≈ −44 LUFS, muy de fondo (Andoni: «que se escuchen menos, más sutiles»; antes 0,2)
 

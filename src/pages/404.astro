@@ -35,6 +35,7 @@ import Cuatro from '../components/404/Cuatro.astro';
       document.title = 'Page not found on savvia';
       var d = document.querySelector('meta[name="description"]');
       if (d) d.setAttribute('content', 'This page does not exist or has moved. The rest of savvia is right where it was.');
+      var marca = document.querySelector('a.marca'); if (marca) { marca.setAttribute('href', '/en/'); marca.setAttribute('aria-label', 'savvia, home'); }
       document.querySelectorAll('[data-en]').forEach(function (el) {
         var cta = el.querySelector('.btn-tx');
         (cta || el).textContent = el.getAttribute('data-en');
