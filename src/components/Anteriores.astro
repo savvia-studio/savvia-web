@@ -494,6 +494,28 @@ import { icono } from '../lib/iconos';
     const vigilar = () => { if (!vigilante) vigilante = window.setInterval(() => { activos.forEach((f) => f()); if (!activos.size) { clearInterval(vigilante); vigilante = 0; } }, 250); };
     // 27/10 · cada pieza lleva el vídeo de cada escena: solo suena el de la que se ve (data-forma de la pieza; la escena, data-f)
     const seVe = (v: HTMLVideoElement, pz: Element) => v.closest<HTMLElement>('[data-f]')?.dataset.f === (pz as HTMLElement).dataset.forma;
+    const tactiles = new Map<Element, { fns: ((si: boolean) => void)[]; ve: boolean }>();
+    let sonandoPz: Element | null = null, relojVideo = 0, cargada = document.readyState === 'complete';
+    addEventListener('load', () => { cargada = true; elegirVideo(); }, { once: true });
+    const vistaTactil = new IntersectionObserver((es) => { es.forEach((e) => { const t = tactiles.get(e.target)!; t.ve = e.isIntersecting; if (!t.ve) { t.fns.forEach((f) => f(false)); if (sonandoPz === e.target) sonandoPz = null; } }); elegirVideo(); }, { threshold: [0, 0.6] });
+    function elegirVideo() {
+      clearTimeout(relojVideo);
+      relojVideo = window.setTimeout(() => {
+        if (!cargada) return;
+        let mejor: Element | null = null, d = Infinity;
+        tactiles.forEach((t, pz) => {
+          if (!t.ve) return;
+          const r = pz.getBoundingClientRect(), vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+          if (vis < Math.min(r.height, innerHeight) * 0.6) return;
+          const dd = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (dd < d) { d = dd; mejor = pz; }
+        });
+        if (mejor === sonandoPz) return;
+        if (sonandoPz) tactiles.get(sonandoPz)?.fns.forEach((f) => f(false));
+        sonandoPz = mejor;
+        if (mejor) tactiles.get(mejor)!.fns.forEach((f) => f(true));
+      }, 900);
+    }
+    if (!conRaton) addEventListener('scroll', () => { if (tactiles.size) elegirVideo(); }, { passive: true });
     vids.forEach((v) => {
       const pieza = v.closest('[data-pieza]')!;
       let activo = false, jugado = false, enVista = false;
@@ -512,15 +534,18 @@ import { icono } from '../lib/iconos';
       document.addEventListener('visibilitychange', () => { if (document.hidden && !v.hasAttribute('data-siempre')) parar(); });
       addEventListener('blur', () => { if (!v.hasAttribute('data-siempre')) parar(); });
       // RONDA 204 · Eric: Home of Ambrose (`data-siempre`) suena siempre en bucle mientras está a la vista, «para que se vea que es vídeo»; el resto, al pasar
-      if (v.hasAttribute('data-siempre')) new IntersectionObserver((e) => { if (e[0].isIntersecting) { activo = true; jugar(v); } else parar(); }, { threshold: 0.35 }).observe(pieza);
-      else if (conRaton) {
+      // (30/10 · rendimiento en móvil: al bajar la home con 4G lenta se descargaban 19 MB, el vídeo de cada pieza que pasaba) en táctil, como en el portfolio:
+      // se ve el cartel y suena UNO, el de la pieza más centrada cuando el scroll lleva 0,9 s parado (`elegirVideo`, más abajo); también Home of Ambrose
+      if (!conRaton) { const t = tactiles.get(pieza) ?? { fns: [] as ((si: boolean) => void)[], ve: false }; t.fns.push((si) => { enVista = si; tocar(si); }); tactiles.set(pieza, t); if (t.fns.length === 1) vistaTactil.observe(pieza); }
+      else if (v.hasAttribute('data-siempre')) new IntersectionObserver((e) => { if (e[0].isIntersecting) { activo = true; jugar(v); } else parar(); }, { threshold: 0.35 }).observe(pieza);
+      else {
         pieza.addEventListener('pointerenter', () => tocar(true));
         pieza.addEventListener('pointerleave', () => tocar(false));
         pieza.addEventListener('focusin', () => { if (pieza.matches(':focus-visible')) tocar(true); });
         pieza.addEventListener('focusout', () => tocar(false));
         // si la pieza sale de la pantalla (scroll con el cursor encima), también se reinicia
         new IntersectionObserver((e) => { if (!e[0].isIntersecting) parar(); }, { threshold: 0 }).observe(pieza);
-      } else new IntersectionObserver((e) => { enVista = e[0].isIntersecting; tocar(enVista); }, { threshold: 0.55 }).observe(pieza);
+      }
     });
     // las pantallas en perspectiva: la homografía lleva píxeles → hace falta la escala real de la lámina (--s = ancho de la mesa / 1672)
     const mesas = [...document.querySelectorAll<HTMLElement>('[data-mesa-quad]')];

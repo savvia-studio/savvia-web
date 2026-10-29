@@ -23,6 +23,8 @@ import Carriles from '../components/Carriles.astro';
 import Pie from '../components/Pie.astro';
 import Cta from '../components/Cta.astro';
 import Medio from '../components/obra/Medio.astro';
+// (30/10) los carteles de las grabaciones, en WebP (la mitad que el JPG) donde lo hay
+const webpCartel = (u?: string) => (u && /^\/media\/(obra|anteriores\/video)\/.+\.jpg$/.test(u) ? u.replace(/\.jpg$/, '.webp') : u);
 import Pieza from '../components/obra/Pieza.astro';
 import Voces from '../components/Voces.astro';
 import { flecha } from '../lib/flecha';
@@ -243,7 +245,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
             <div class="pm-mesa pm-e" style={`--z:${ZP};--px:${PANT.x + PANT.w / 2};--py:${PANT.y + PANT.h / 2}`}>
               <img class="pm-foto" data-mesa alt="" width="5120" height="2880" decoding="async" fetchpriority="high" />
               <span class="pm-pant">
-                <video muted loop playsinline preload="none" poster={portadaVid.poster} data-src={portadaVid.src} aria-label={en ? `${p.nombre}'s website` : `La web de ${p.nombre}`} />
+                <video muted loop playsinline preload="none" poster={webpCartel(portadaVid.poster)} data-src={portadaVid.src} aria-label={en ? `${p.nombre}'s website` : `La web de ${p.nombre}`} />
               </span>
             </div>
             {MM && p.cubiertaMovil && (
@@ -251,7 +253,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
                 <div class="pm-mesa pm-m" style={`--px:${MM.cx};--py:${MM.cy}`} data-pm-quad>
                   <img class="pm-foto" data-mesa-m alt="" width="1672" height="941" decoding="async" />
                   <span class="pm-quad" style={`--mascara:url(${MM.mascara});--cristal:url(${MM.cristal});--vx:${MM.video[0]}%;--vy:${MM.video[1]}%;--vw:${MM.video[2]}%;--vh:${MM.video[3]}%;left:${MM.caja.left.toFixed(3)}%;top:${MM.caja.top.toFixed(3)}%;width:${MM.caja.width.toFixed(3)}%;height:${MM.caja.height.toFixed(3)}%;transform:${MM.matriz}`}>
-                    <video muted loop playsinline preload="none" poster={p.cubiertaMovil.poster} data-src={p.cubiertaMovil.src} aria-label={en ? `${p.nombre}'s website on a phone` : `La web de ${p.nombre} en el móvil`} />
+                    <video muted loop playsinline preload="none" poster={webpCartel(p.cubiertaMovil.poster)} data-src={p.cubiertaMovil.src} aria-label={en ? `${p.nombre}'s website on a phone` : `La web de ${p.nombre} en el móvil`} />
                   </span>
                 </div>
                 <div class="escenas" role="group" aria-label={en ? `View ${p.nombre} on` : `Ver ${p.nombre} en`}>
@@ -264,7 +266,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
         )
       }
       <!-- la lámina de la estación de la web, antes de que se pida ninguna -->
-      <script is:inline set:html={`(function(){var s=document.currentScript.parentNode.querySelector('[data-mesa]');if(!s)return;var b='/media/estudio/'+(document.documentElement.dataset.estacion||'otono');s.sizes='(width >= 64rem) ${ZP * 65}vw, ${ZP * 92}vw';s.srcset=b+'-m.webp 1600w, '+b+'.webp 2560w, '+b+'-xl.webp 5120w';})();`} />
+      <script is:inline set:html={`(function(){var s=document.currentScript.parentNode.querySelector('[data-mesa]');if(!s)return;var b='/media/estudio/'+(document.documentElement.dataset.estacion||'otono');s.sizes='(width >= 64rem) ${ZP * 65}vw, ${ZP * 92}vw';s.srcset=b+'-m.webp 1600w, '+b+'.webp 2560w'+(innerWidth<768?'':', '+b+'-xl.webp 5120w');})();`} />
     </div>
 
     {
@@ -627,7 +629,7 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
           </div>
           <div class="motion" data-motion style={`--c1:${tarjeta(0)};--c2:${tarjeta(1)};--c3:${tarjeta(2)}`}>
             <div class="mo-lienzo">
-              <video muted loop playsinline preload="none" poster={movVideo.poster} data-src={movVideo.src} aria-label={en ? `Recording of ${p.nombre}'s website` : `Grabación de la web de ${p.nombre}`}></video>
+              <video muted loop playsinline preload="none" data-poster={movVideo.poster} data-poster-cerca data-src={movVideo.src} aria-label={en ? `Recording of ${p.nombre}'s website` : `Grabación de la web de ${p.nombre}`}></video>
             </div>
             <div class="mo-linea" data-mo-linea role="slider" tabindex="0" aria-label={en ? 'Timeline' : 'Línea de tiempo'} aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
               {MO_PISTAS.map((pi, k) => <span class="pista" style={`--a:${pi[0]};--b:${pi[1]};--k:${k}`}><i /></span>)}
@@ -861,12 +863,14 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     // suena solo la grabación de la escena que se ve
     const vid = () => pm.querySelector<HTMLVideoElement>(pm.dataset.escena === 'movil' ? '.pm-m video' : '.pm-e video')!;
     let aLaVista = false;
-    const sonar = () => { pm.querySelectorAll('video').forEach((x) => x.pause()); if (!aLaVista) return; const v = vid(); if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!quieto) v.play().catch(() => {}); };
+    // (30/10 · rendimiento en móvil) en pantallas estrechas, la grabación normal (960 px) en vez de la grande (1600 px: 3,3 MB la de Neety)
+    const sonar = () => { pm.querySelectorAll('video').forEach((x) => x.pause()); if (!aLaVista) return; const v = vid(); if (!v.src && v.dataset.src) v.src = innerWidth < 768 ? v.dataset.src.replace(/-grande\.mp4$/, '.mp4') : v.dataset.src; if (!quieto) v.play().catch(() => {}); };
     new IntersectionObserver(([e]) => { aLaVista = e.isIntersecting; sonar(); }, { threshold: 0.2 }).observe(pm);
     const est = () => document.documentElement.dataset.estacion || 'otono';
     const lamM = () => { if (fotoM && pm.dataset.escena === 'movil') cambiarFoto(fotoM, { src: `/media/anteriores/mesa-movil-${est()}.webp` }); };
     // (30/10) la lámina nueva entra con el rasgado de la estación, ya descargada (antes cambiaba de golpe)
-    addEventListener('savvia:estacion', () => { const b = `/media/estudio/${est()}`; cambiarFoto(foto, { srcset: `${b}-m.webp 1600w, ${b}.webp 2560w, ${b}-xl.webp 5120w` }); lamM(); });
+    // (30/10) en el móvil, sin la de 5120 px (era la imagen principal y llegaba a los 9,8 s con 4G lenta)
+    addEventListener('savvia:estacion', () => { const b = `/media/estudio/${est()}`; cambiarFoto(foto, { srcset: `${b}-m.webp 1600w, ${b}.webp 2560w${innerWidth < 768 ? '' : `, ${b}-xl.webp 5120w`}` }); lamM(); });
     // el MÓVIL de la mesa: la homografía de la pantalla escala con la lámina (--s = su ancho / 1672)
     const quad = pm.querySelector<HTMLElement>('[data-pm-quad]');
     if (quad) new ResizeObserver(([e]) => quad.style.setProperty('--s', String(e.contentRect.width / 1672))).observe(quad);

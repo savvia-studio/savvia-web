@@ -9,9 +9,10 @@ export default defineConfig({
   // RONDA 177 · brandbook y handbook se unifican en /sistema: las direcciones antiguas siguen funcionando
   redirects: {
     // ronda 180 · Sistema = diseño + desarrollo en una página; el Método (antes handbook), aparte
-    '/brandbook': '/sistema',
-    '/sistema/marca': '/sistema',
-    '/sistema/dev': '/sistema#stack',
+    // 30/10 · Andoni: «la redirección, en un solo salto»: /sistema ya lleva a /storybook (src/pages/sistema), así que van directas
+    '/brandbook': '/storybook',
+    '/sistema/marca': '/storybook',
+    '/sistema/dev': '/storybook#stack',
     '/handbook': '/metodo',
     '/handbook/[slug]': '/metodo/[slug]',
     '/sistema/metodo': '/metodo',

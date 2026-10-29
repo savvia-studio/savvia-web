@@ -30,7 +30,7 @@ const estilo = [`--color:${placa ?? color}`, placa && colores ? `--c2:${colores[
   <div class="marco">
     {
       medio.tipo === 'video' ? (
-        <video muted loop playsinline preload="none" poster={medio.poster} data-src={medio.src} aria-label={alt} />
+        <video muted loop playsinline preload="none" data-poster={medio.poster} data-src={medio.src} aria-label={alt} />
       ) : (
         <img src={medio.src} alt={alt} loading="lazy" decoding="async" />
       )
@@ -47,6 +47,11 @@ const estilo = [`--color:${placa ?? color}`, placa && colores ? `--c2:${colores[
     const v = e.target.querySelector('video'); if (!v) return;
     if (e.isIntersecting) { cargar(v); if (!reducido) jugar(v); } else v.pause();
   }), { rootMargin: '200px 0px' });
+  // (30/10 · rendimiento en móvil: en el caso de Neety, los carteles de todos los vídeos de la página, ~700 KB, se descargaban al abrir y retrasaban la
+  // imagen principal a los 9,8 s con 4G lenta) el cartel se pide al acercarse (800 px antes), y en WebP donde lo hay
+  const webp = (u: string) => (/\/media\/(obra|anteriores\/video)\/.+\.jpg$/.test(u) ? u.replace(/\.jpg$/, '.webp') : u);
+  const carteles = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; const v = e.target as HTMLVideoElement; if (v.dataset.poster && !v.poster) v.poster = webp(v.dataset.poster); carteles.unobserve(v); }), { rootMargin: '800px 0px' });
+  document.querySelectorAll<HTMLVideoElement>('[data-obra-medio] video[data-poster], video[data-poster-cerca]').forEach((v) => carteles.observe(v));
   document.querySelectorAll<HTMLElement>('[data-obra-medio]').forEach((m) => {
     const v = m.querySelector('video'); if (!v) return;
     if (m.dataset.al === 'vista') { io.observe(m); return; }

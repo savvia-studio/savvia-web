@@ -801,7 +801,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                  (la captura se queda de respaldo hasta que carga) */}
             <figure class="placa clara filtros-demo" data-filtros-demo>
               <img src="/media/sistema/componentes/filtros-abierto.webp?v=2" alt={en ? "The portfolio filters: Country, Technology, Service and Category, with Technology open" : "Los filtros del portfolio: País, Tecnología, Servicio y Categoría, con Tecnología abierto"} width="1248" height="515" loading="lazy" decoding="async" />
-              <iframe title={en ? "The portfolio filters, live" : "Los filtros del portfolio, en vivo"} data-src={en ? '/en/proyectos?carga=0&chat=0' : '/proyectos?carga=0&chat=0'} loading="lazy" tabindex="0"></iframe>
+              <iframe title={en ? "The portfolio filters, live" : "Los filtros del portfolio, en vivo"} data-src={en ? '/en/proyectos?carga=0&chat=0&demo=1' : '/proyectos?carga=0&chat=0&demo=1'} loading="lazy" tabindex="0"></iframe>
             </figure>
           </div>
           <div class="comp">

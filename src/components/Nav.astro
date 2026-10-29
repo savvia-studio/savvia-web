@@ -532,13 +532,15 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
         return gota ? fondoDe(gota) : null;
       };
       let claro = html.classList.contains('sobre-claro'), ultimo = 0, temp = 0, ultimas: number[] = [];
+      const TACTIL_BARRA = matchMedia('(hover: none)').matches;
       const mirar = () => {
         ultimo = performance.now(); temp = 0;
         // seis puntos repartidos por el logotipo (tres a lo ancho, en dos alturas, sobre las minúsculas, donde está la mayor parte de la tinta): sobre una foto o en el filo de una capa, un solo píxel engaña
         const base = lum(getComputedStyle(html).backgroundColor) ?? 0;
         // la MEDIANA (en el filo de una tarjeta manda lo que hay bajo la mayor parte del logotipo)
         const vs: number[] = [];
-        for (const fy of [0.02, 0.28]) for (const f of [-0.3, 0, 0.3]) { const l = muestra(cx + f * lw, cy + fy * lh); if (!Number.isNaN(l)) vs.push(l ?? base); }
+        // (30/10) en táctil, una sola altura (tres puntos): cada punto sobre un vídeo lee un píxel de la GPU, y en el storybook (muchos vídeos) era lo que más costaba
+        for (const fy of TACTIL_BARRA ? [0.28] : [0.02, 0.28]) for (const f of [-0.3, 0, 0.3]) { const l = muestra(cx + f * lw, cy + fy * lh); if (!Number.isNaN(l)) vs.push(l ?? base); }
         vs.sort((a, b) => a - b); ultimas = vs;
         if (!vs.length) { if (!html.classList.contains('nav-lista')) html.classList.add('nav-lista'); return; } // todo es un vídeo aún sin fotograma: se queda como estaba
         const v = vs.length % 2 ? vs[vs.length >> 1] : (vs[vs.length / 2 - 1] + vs[vs.length / 2]) / 2;
@@ -549,7 +551,8 @@ const EST = ['otono', 'invierno', 'primavera', 'verano'] as const; // el orden d
       };
       const pedir = () => {
         if (temp) return;
-        const falta = 90 - (performance.now() - ultimo);
+        // (30/10) en táctil, cada 160 ms: elementsFromPoint y la muestra de píxeles costaban ~450 ms al bajar la home con la CPU de un móvil
+        const falta = (TACTIL_BARRA ? 160 : 90) - (performance.now() - ultimo);
         temp = window.setTimeout(() => requestAnimationFrame(mirar), Math.max(0, falta));
       };
       // la muestra pendiente lee la posición del momento en que corre: la última siempre cae donde se paró el scroll

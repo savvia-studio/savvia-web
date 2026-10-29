@@ -116,9 +116,11 @@ function parar(pz: HTMLElement) {
   pz.querySelectorAll<HTMLVideoElement>('video').forEach((v) => { if (!v.paused || v.currentTime > 0) { v.pause(); v.load(); } });
   pz.classList.remove('suena');
 }
+// (30/10) `?demo=1`: el portfolio dentro de la demo de filtros del storybook; solo enseña los filtros, sin vídeos (el primero eran 1,8 MB en el móvil)
+const demo = /[?&]demo=1/.test(location.search);
 function tocar(pz: HTMLElement) {
   const v = videoDe(pz);
-  if (!v || reducido) return;
+  if (!v || reducido || demo) return;
   v.addEventListener('playing', () => pz.classList.add('suena'), { once: true });
   jugar(v);
 }

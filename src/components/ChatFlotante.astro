@@ -127,13 +127,18 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       return (luminancia(getComputedStyle(html).backgroundColor) ?? 0) > 0.4;
     };
     const heroEl = document.querySelector('[data-hero]');
-    let raf = 0;
+    // (30/10 · rendimiento en móvil) el borde del hero, en coordenadas de la página (antes se medía en cada evento de scroll), y el color de debajo como mucho
+    // cada 150 ms (antes, en cada fotograma: elementsFromPoint + estilos, 380 ms acumulados al bajar la home con la CPU de un móvil)
+    let heroAbajo = 0;
+    const medirHero = () => { heroAbajo = heroEl ? heroEl.getBoundingClientRect().bottom + scrollY : 0; };
+    medirHero(); new ResizeObserver(medirHero).observe(document.body);
+    let raf = 0, colorEn = 0;
     const refrescarBtn = () => {
-      const lejos = enHero || (scrollY > 0 && (heroEl ? heroEl.getBoundingClientRect().bottom < innerHeight * 0.8 : scrollY > innerHeight * 0.9)); // RONDA 264 · Eric: «discreto»: nada en el hero; aparece en cuanto asoma la segunda sección (el borde del hero sube del 80 % de la pantalla)
+      const lejos = enHero || (scrollY > 0 && (heroEl ? heroAbajo - scrollY < innerHeight * 0.8 : scrollY > innerHeight * 0.9)); // RONDA 264 · Eric: «discreto»: nada en el hero; aparece en cuanto asoma la segunda sección (el borde del hero sube del 80 % de la pantalla)
       const oculto = sinBoton || !lejos || preguntasVisible || pieCerca || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
       raiz.classList.toggle('cf-fuera', oculto && (!abierto || desdeOculto));
       if (!abierto) desdeOculto = false;
-      if (!raf) raf = requestAnimationFrame(() => { raf = 0; raiz.classList.toggle('cf-claro', fondoClaro()); });
+      if (!raf) { const falta = Math.max(0, 150 - (performance.now() - colorEn)); raf = window.setTimeout(() => requestAnimationFrame(() => { raf = 0; colorEn = performance.now(); raiz.classList.toggle('cf-claro', fondoClaro()); }), falta); }
     };
     addEventListener('scroll', refrescarBtn, { passive: true });
     addEventListener('resize', refrescarBtn);

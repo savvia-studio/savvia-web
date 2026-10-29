@@ -860,8 +860,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
     // RONDA 20 · «savvia se tiene que ver con el color claro» sobre la escena: mientras la sección pasa bajo la barra, html.sobre-escena
     let sobre = false;
-    const mirarBarra = () => { const r = raiz.getBoundingClientRect(); const si = r.top <= 72 && r.bottom >= 72; if (si !== sobre) { sobre = si; document.documentElement.classList.toggle('sobre-escena', si); } };
-    addEventListener('scroll', mirarBarra, { passive: true }); mirarBarra();
+    // (30/10 · rendimiento en móvil) se leía la caja de la sección en cada evento de scroll (un reflujo forzado: 600 ms acumulados al bajar la home con la
+    // CPU de un móvil). Ahora su sitio en la página, medido al cambiar de tamaño, y la comprobación una vez por fotograma
+    let barraArriba = 0, barraAbajo = 0, barraPedida = false;
+    const medirBarra = () => { const r = raiz.getBoundingClientRect(); barraArriba = r.top + scrollY; barraAbajo = r.bottom + scrollY; };
+    const mirarBarra = () => { barraPedida = false; const y = scrollY + 72, si = y >= barraArriba && y <= barraAbajo; if (si !== sobre) { sobre = si; document.documentElement.classList.toggle('sobre-escena', si); } };
+    new ResizeObserver(() => { medirBarra(); mirarBarra(); }).observe(document.body);
+    addEventListener('scroll', () => { if (!barraPedida) { barraPedida = true; requestAnimationFrame(mirarBarra); } }, { passive: true }); medirBarra(); mirarBarra();
     if (reducido) { escenario.classList.add('dentro'); titulo.hidden = true; }
     else { addEventListener('scroll', pedirE, { passive: true }); addEventListener('resize', () => { e = -1; pedirE(); }); entrar(); }
     // La web del monitor se recorre SIEMPRE, pero solo se activa cuando el ratón se MUEVE por la escena: un scroll de página con

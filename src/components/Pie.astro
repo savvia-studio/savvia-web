@@ -59,7 +59,8 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     {CAPAS.map((c, i) => (
       <>
         <div class={`capa ${c.n}`} style={`--d:${c.d}px;--m:${c.m}px`} data-capa aria-hidden="true">
-          <img src={`/media/pie/${c.n}.webp`} alt="" width="2000" height="667" loading="lazy" decoding="async" data-lamina />
+          {/* (30/10 · rendimiento en móvil) a la medida de la pantalla: en un iPhone, la de 1400 px (las tres capas, de 795 a 263 KB) */}
+          <img src={`/media/pie/${c.n}.webp`} srcset={`/media/pie/${c.n}-m.webp 1000w, /media/pie/${c.n}-t.webp 1400w, /media/pie/${c.n}.webp 2000w`} sizes="100vw" alt="" width="2000" height="667" loading="lazy" decoding="async" data-lamina />
           <canvas data-lienzo></canvas>
           {c.n === 'hierba' && <canvas class="flores" aria-hidden="true" data-flores></canvas>}
         </div>
@@ -199,7 +200,11 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
         luz.style.setProperty('--bt', `${t.toFixed(1)}px`); luz.style.setProperty('--bw', `${(rh.width * 0.32).toFixed(1)}px`);
       });
     };
-    const pedirLuz = () => { if (!rafL) rafL = requestAnimationFrame(iluminar); };
+    // (30/10 · rendimiento en móvil) solo con el pie cerca de la pantalla: antes se medía en cada fotograma del scroll de toda la página (~1 s acumulado al
+    // bajar el storybook con la CPU de un móvil)
+    let pieCerca = false;
+    new IntersectionObserver((e) => { pieCerca = e[0].isIntersecting; if (pieCerca) pedirLuz(); }, { rootMargin: '200px 0px' }).observe(pie);
+    const pedirLuz = () => { if (pieCerca && !rafL) rafL = requestAnimationFrame(iluminar); };
     addEventListener('scroll', pedirLuz, { passive: true }); addEventListener('resize', pedirLuz);
     new MutationObserver(pedirLuz).observe(pie, { attributes: true, attributeFilter: ['style'] }); // --lx: la luz sigue al ratón
     haz.addEventListener('transitionend', pedirLuz);
