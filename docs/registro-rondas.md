@@ -5990,3 +5990,5 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
 - 29/10 · Eric (móvil, captura): «a izquierda y derecha de los filtros, sobre las líneas verticales, hay una línea extra que sobra» y «sigue habiendo doble
   línea donde están los filtros». Con la fila suelta, sus dos líneas propias (`.flota::after`) iban encima de los carriles, medio píxel desplazadas y 48 px más
   abajo. Suelta, la fila ya no las dibuja (`.flota:not(.pegada)::after { content: none }`): quedan solo los carriles. Pegada, igual que antes.
+  (3.ª) «cuando se pone sticky aparecen las líneas superpuestas»: pegada pasaba lo mismo (la fila va bajo la barra desde la 14.ª y los carriles se ven
+  encima). Fuera `.flota::after` en móvil siempre. Sin ver pegada en el preview (no hace scroll).
