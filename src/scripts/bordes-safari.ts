@@ -13,6 +13,13 @@ if (IOS) {
     return t;
   };
   const arriba = tira('top'), abajo = tira('bottom');
+  // 29/10 (8.ª) · Eric: «en el hero al árbol se le corta la base» (la tira de abajo tapa 6 px de lo que toca el borde) y «¿pueden aparecer solo en las
+  // secciones afectadas?». Solo existen alrededor de Servicios (lo único pegado al borde en móvil): desde una pantalla antes hasta una pantalla después,
+  // cuando la sección siguiente ya ocupa los dos bordes y Safari ha tomado su color. Escondidas con display (con opacity 0 Safari las sigue leyendo).
+  const mostrar = (si: boolean) => { arriba.style.display = abajo.style.display = si ? '' : 'none'; if (si) pedir(); };
+  const servicios = document.getElementById('servicios');
+  if (servicios) new IntersectionObserver(([e]) => mostrar(e.isIntersecting), { rootMargin: '100% 0px' }).observe(servicios);
+  else mostrar(false);
   const opaco = (c: string) => !!c && c !== 'transparent' && !/,\s*0\)$/.test(c) && !/\/\s*0\)$/.test(c);
   let secciones: HTMLElement[] = [];
   // las secciones con fondo propio, en orden de documento (la última que contiene el punto es la más honda: main > section)
