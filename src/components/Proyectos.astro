@@ -341,7 +341,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
         // RONDA 266 · Eric: «en móvil te tienes que sentar para ver el vídeo»: de pie se queda el póster quieto; solo suena sentado
         if (sentado) v.play().catch(() => {}); else v.preload = 'metadata';
         m.el = v as any;
-      } else if (w.dataset.embed === 'no' || !vivo) {
+      } else if (w.dataset.embed === 'no' || !vivo || innerWidth < 700) {
+        // 29/10 · Eric: los vídeos de Quantus y Patchbay del móvil no eran grabaciones nuestras (Screen Studio): fuera. En móvil, sin vídeo, la captura
+        // (el iframe reventaba Safari, ronda 270) hasta que Eric grabe el suyo
         // ronda 152: sentado o explorando de pie, la que no se deja embeber enseña su página ENTERA (Neety: 1440 × 12 144), que se recorre
         const img = new Image(); img.src = (vivo && w.dataset.capLargo) || w.dataset.cap!; img.alt = t(`${w.getAttribute('aria-label')}, completa`, `${w.getAttribute('aria-label')}, full page`); img.decoding = 'async';
         img.complete && img.naturalWidth ? listo() : img.addEventListener('load', listo, { once: true });
@@ -503,9 +505,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const sigue = $('[data-sigue]'); document.body.append(sigue);
     const MOVIL = matchMedia('(width < 48rem), (hover: none)').matches; // móvil: no hay puntero que seguir; la píldora va SIEMPRE centrada en el monitor
     if (MOVIL) sigue.classList.add('fija');
-    if (TACTIL) sigue.querySelector('.txt')!.lastChild!.textContent = t('toca para sentarte', 'tap to sit down'); // táctil: la misma píldora que en escritorio, anclada en el centro del monitor
     // ronda 157: los textos de la píldora (B: se entra con el clic; D: con el movimiento) y «¿cae dentro del monitor?» (se declaran aquí: entrar() los usa desde el primer fotograma)
-    // 29/10 · Eric: «aquí cambiar a "ver proyectos"» (antes «clic para sentarte», «toca para sentarte» en táctil)
+    // 29/10 · Eric: «aquí cambiar a "ver proyectos"», también en móvil (antes «clic para sentarte», «toca para sentarte» en táctil)
     const TXT_B = t('ver proyectos', 'see projects'), TXT_D = t('desliza dentro', 'scroll inside');
     const pistaTexto = $('[data-pista-texto]');
     // ronda 160 (Eric: «que el clic también sirva en el recuadro exterior»): cuenta también el marco del monitor (≈ 4 % del ancho de la pantalla)

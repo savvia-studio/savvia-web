@@ -162,6 +162,8 @@ const ogImagen = new URL(`/og/${ogEstacion}${lang === 'en' ? '-en' : ''}.jpg?v=5
         setTimeout(function () { if (!window.__cargaViva) document.documentElement.classList.remove('cargando'); }, 8000);
       } else document.documentElement.classList.add('carriles-entran', 'sin-carga'); // sin-carga (ronda 83): la parrilla del hero entra antes que el árbol
     </script>
+    <!-- lo que una página necesita pedir pronto, con la estación ya puesta (Portfolio: las fotos de las primeras piezas) -->
+    <slot name="head" />
   </head>
   <body>
     <a href="#contenido" class="detail sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-niebla focus:px-3 focus:py-2 focus:text-cacao">

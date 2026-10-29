@@ -138,9 +138,23 @@ const casaDe = (o: Obra): ObraCasa => ({
   zMesa: AJUSTES[o.slug]?.zm, zMovil: AJUSTES[o.slug]?.zt,
 });
 const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, ...o.servicios, ...o.categorias].filter(Boolean).join(' · ');
+// 29/10 · Eric: «con poca cobertura 4G tardan un poco en cargar los proyectos» (móvil): lo que enseñan las DOS primeras piezas (la pantalla del móvil al abrir),
+// pedido desde el <head>, antes que las seis fuentes; `{e}` = la estación, que se sabe en el navegador. Las mismas rutas que PiezaCasa.astro
+const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
+  const f = AJUSTES[o.slug]?.forma, conMovil = !!(o.movil || o.videoMovil);
+  if (f === 'escena') return ['/media/estudio/{e}-m.webp'];
+  if ((f === 'movil' || f === 'tel') && conMovil) return ['/media/anteriores/mesa-movil-{e}-m.webp', '/media/anteriores/mesa-movil-mascara.png?v=5', '/media/anteriores/mesa-movil-cristal.png?v=5', ...(o.videoMovil ? [o.videoMovil.poster.replace(/\.jpg$/, '.webp')] : [])];
+  return o.portada.src ? [o.portada.poster.replace(/\.jpg$/, '.webp')] : [];
+});
 ---
 
 <Base title={en ? 'savvia projects' : 'Proyectos de savvia'} description={en ? 'Custom websites, end to end: the projects of savvia, the web studio of Eric and Andoni.' : 'Webs a medida, de principio a fin: los proyectos de savvia, el estudio web de Eric y Andoni.'} carga={false}>
+  <script is:inline slot="head" define:vars={{ PRIMERAS }}>
+    if (innerWidth < 768) {
+      var e = document.documentElement.dataset.estacion || 'otono';
+      PRIMERAS.forEach(function (u) { var l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.fetchPriority = 'high'; l.href = u.replace('{e}', e); document.head.append(l); });
+    }
+  </script>
   <Nav />
   <Carriles />
   <!-- ronda 129: con JS, el navegador de cada pieza espera bajo su borde y sube al entrar (sin JS, en su sitio). Antes de pintar las piezas. -->
@@ -224,6 +238,32 @@ const texto = (o: Obra) => [o.nombre, o.dominio, o.sector, ...o.pais, ...o.tec, 
         }
         {Array.from({ length: MENTORES - CORTES.length }, (_, j) => CORTES.length + j).map((k) => <li class="mentor" data-mentor hidden><Voces k={k} /></li>)}
       </ul>
+      {/* 29/10 · Eric: «a veces con poca cobertura 4G tardan un poco en cargar los proyectos» (en móvil): la foto de la mesa no se pedía hasta que llegaba
+          toda la cadena de módulos (medido con 4G lenta: la primera foto a los 5 s, el degradado a los 1,5). En cuanto está el HTML, las piezas que se ven
+          piden ya lo de SU forma (lo mismo que scripts/pieza-casa.ts › cargar, que luego las encuentra con `src` y no repite) */}
+      <script is:inline>
+        (function () {
+          var est = document.documentElement.dataset.estacion || 'otono', estrecha = innerWidth < 768;
+          var sel = { navegador: '.f-nav', escena: '.f-escena', movil: '.f-movil', tel: '.f-movil' };
+          document.querySelectorAll('[data-rejilla-obras] > li[data-obra]').forEach(function (it) {
+            var pz = it.querySelector('[data-pieza-casa]'), r = it.getBoundingClientRect();
+            if (!pz || r.top > innerHeight * 1.2) return;
+            var f = it.dataset.forma || 'navegador';
+            if ((f === 'movil' || f === 'tel') && !pz.hasAttribute('data-con-movil')) f = 'navegador';
+            var v = pz.querySelector(sel[f]);
+            if (!v) return;
+            v.querySelectorAll('img[data-img]').forEach(function (im) {
+              if (im.src || (im.dataset.e && im.dataset.e !== est)) return;
+              var u = im.dataset.img;
+              if (estrecha && /\/media\/(estudio\/|anteriores\/mesa-movil)/.test(u) && !/-m\.webp$/.test(u)) u = u.replace(/\.webp$/, '-m.webp');
+              im.fetchPriority = 'high';
+              if (im.dataset.e) im.addEventListener('load', function () { v.classList.add('lista'); }, { once: true });
+              im.src = u;
+            });
+            v.querySelectorAll('video[data-poster]').forEach(function (vd) { if (!vd.poster) vd.poster = vd.dataset.poster.replace(/\.jpg$/, '.webp'); });
+          });
+        })();
+      </script>
     </section>
     <!-- 27/10 · Eric: fuera la cuadrícula de clientes y testimonios («ya la tenemos en la home y aquí es demasiado») -->
     <Visor obras={OBRAS.map((o) => ({ slug: o.slug, nombre: o.nombre, sector: o.sector, colores: o.colores, video: o.portada.src || undefined, poster: o.portada.poster }))} />
