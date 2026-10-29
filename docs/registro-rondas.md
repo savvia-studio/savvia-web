@@ -5936,3 +5936,13 @@ comentarios del código conservan su número de entonces: 203→217 · 204→218
 - **Medido:** `astro check` y `astro build` (abajo). Publicado a petición de Eric («puedes subir directamente»), con su cambio pendiente de `Servicios.astro`
   (tic sin puntito en iPhone y las píldoras bajo el chat abierto).
 - **29/10 (Eric, 13.ª): «en desktop el sonido de fuuum cuando te sientas no está, ¿no? En mobile sí. ¿Podemos incorporarlo?»** Medido en Chrome (1280 × 720, sonido encendido): el efecto `sentarse` SÍ se dispara en escritorio (`__sfxCount` 0 → 1 al sentarse con clic), pero era solo el «peso» (seno de 120 → 62 Hz por un paso bajo de 260 Hz, ganancia 0,028): un portátil apenas lo reproduce. Hecho (`sonido-estudio.ts › fuum()`): el FUUM del viaje de cámara, ruido blanco por un paso banda (Q 0,8) que sube de 160 a 1.500 Hz y baja a 220 en 1,3 s con la ganancia que hincha y se apaga (pico 0,22); el peso y el clic pasan al final (1,0 y 1,16 s), cuando la cámara se posa. Al levantarse, al revés y más corto (700 → 1.100 → 140 Hz, 0,9 s, pico 0,12) con su peso a los 0,5 s. Medido en `OfflineAudioContext`: fuum −37,7 dB RMS (pico 0,125) frente al peso −42,4 dB. Igual en móvil y escritorio. SIN oír en un altavoz real: lo juzga Eric. Sin publicar.
+
+### 30/10 (Eric, iPhone, captura de Servicios) · «cuando vas desde el menú de Servicios a Servicios, el navbar se pega al título» · «la nube del sticky de las pills en móvil hace que justo ahí no se vean las líneas verticales»
+- **Causa 1:** el ancla `/#servicios` dejaba el borde de la sección en el borde del viewport, y en móvil el titular va a 24 px de ese borde (ronda 292): la barra
+  fija (16 + 22 + 16 px, o el safe-area en iPhone) le caía encima.
+- **Causa 2:** el velo de las píldoras pegadas (fondo + 2 px de sombra arriba + degradado abajo, z 58) cubría el `wrap` de borde a borde, justo donde van los
+  carriles (1 px en cada borde, fijos, z 40).
+- **Hecho (`Servicios.astro`):** `scroll-margin-top` en la sección (< 64 rem) = 48 px + el alto del safe-area (mínimo 16 px): el titular llega por debajo de la
+  barra. El velo va 1 px metido por cada lado (el fondo como imagen posicionada, la sombra pasa a un `::before` y el degradado se estrecha): los carriles
+  siguen a la vista a través de la banda.
+- **Medido:** Chrome 390 × 844 tras el ancla, sección a 64 px del borde y titular bajo la barra; con las píldoras pegadas, los dos carriles continuos. Sin publicar.
