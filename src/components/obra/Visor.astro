@@ -57,7 +57,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
         <p class="detail vis-sector" data-vis-sector></p>
         <a class="btn-secondary btn-sm vis-caso" href="#" hidden data-vis-caso><span class="btn-tx">{en ? 'View case study' : 'Ver caso de estudio'}</span><Fragment set:html={flecha()} /></a>
       </div>
-      <div class="vis-acciones">
+      <div class="vis-acciones" data-vis-acciones>
         <div class="barra-cristal" role="group" aria-label={en ? 'Projects' : 'Proyectos'}>
           <button type="button" class="paso" aria-label={en ? 'Previous project' : 'Proyecto anterior'} data-vis-paso="-1"><Fragment set:html={flecha('izq')} /></button>
           <button type="button" class="paso" aria-label={en ? 'Next project' : 'Proyecto siguiente'} data-vis-paso="1"><Fragment set:html={flecha()} /></button>
@@ -76,6 +76,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
     const porSlug = new Map(slides.map((s) => [s.dataset.slug!, s]));
     const verCaso = vis.querySelector<HTMLAnchorElement>('[data-vis-caso]');
     const quien = vis.querySelector<HTMLElement>('[data-vis-quien]')!, nombre = vis.querySelector<HTMLElement>('[data-vis-nombre]')!, sector = vis.querySelector<HTMLElement>('[data-vis-sector]')!;
+    const acciones = vis.querySelector<HTMLElement>('[data-vis-acciones]')!;
     const panel = vis.querySelector<HTMLElement>('[data-vis-panel]')!, caja = vis.querySelector<HTMLElement>('[data-vis-caja]')!;
     const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     // el recorrido: las tarjetas que se ven ahora, en el orden del mosaico (se fija al abrir)
@@ -140,6 +141,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
       orden = [...document.querySelectorAll<HTMLElement>('[data-abre-visor], [data-pieza-casa][data-caso]')].filter((p) => !p.closest('[hidden]')).map((p) => porSlug.get(p.dataset.slug!)).filter(Boolean) as HTMLElement[];
       const i = orden.indexOf(porSlug.get(pz.dataset.slug!)!);
       if (i < 0) return;
+      acciones.hidden = orden.length < 2; // 29/10 · Eric: si el filtro deja un solo proyecto, sin flechas
       vuelta = document.activeElement as HTMLElement | null;
       clearTimeout(cerrando); vis.classList.remove('cierra');
       cur = -1; // al abrir, siempre «cambia»: el vídeo empieza de cero
@@ -267,6 +269,7 @@ const tomas = await Promise.all(obras.map(async (o) => {
   }
   .vis-sector { color: color-mix(in oklab, #f5f5f7 62%, transparent); }
   .vis-acciones { display: flex; align-items: center; gap: calc(var(--spacing) * 6); }
+  .vis-acciones[hidden] { display: none; }
   .vis-caso { color: #f5f5f7; justify-self: start; margin-top: calc(var(--spacing) * 3); } /* bajo el nombre, a la izquierda (Eric) */
   .vis-caso[hidden] { display: none; }
   .vis-x {
