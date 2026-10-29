@@ -89,6 +89,9 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
   .manifiesto {
     position: relative;
     overflow-x: clip;
+    /* 30/10 · Eric (iPhone): «se corta con el tallo». A 100 lvh la bellota caía bajo la barra de Safari (la pantalla «grande» cuenta la barra): el primer
+       pantallazo mide la pantalla PEQUEÑA (svh, lo que se ve con las barras puestas) y las raíces nacen ahí mismo. En escritorio, lo mismo que lvh */
+    --portada: 100svh;
     /* EL BROTE: discreto (≈ 19 % de la pantalla en escritorio). La lámina del brote mide 1000 × 310; el cuello de la bellota, al 46 % del ancho */
     --bh: clamp(7rem, 19lvh, 11rem);
     --bw: calc(var(--bh) * 1000 / 310);
@@ -104,13 +107,14 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
   @media (max-width: 47.99rem) {
     .manifiesto {
       --bh: clamp(6.5rem, 16lvh, 9rem);
+      --aire: 120px; /* 29/10 · Eric (iPhone): «hay mucho espacio entre raíz y donde empieza el texto»: la mitad del aire de escritorio */
     }
   }
 
-  /* ── PRIMER PANTALLAZO: el brote, centrado, con la bellota justo en el borde de abajo (100 lvh) ── */
+  /* ── PRIMER PANTALLAZO: el brote, centrado, con la bellota justo en el borde de abajo (100 svh) ── */
   .portada {
     position: relative;
-    height: 100lvh;
+    height: var(--portada);
   }
   .titulo {
     position: absolute;
@@ -137,9 +141,9 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
     width: var(--bw);
     height: var(--bh);
   }
-  /* las raíces nacen en el cuello (100 lvh) y se inclinan desde él */
+  /* las raíces nacen en el cuello (100 svh) y se inclinan desde él */
   .raices {
-    top: 100lvh;
+    top: var(--portada);
     left: var(--rl);
     width: var(--rw);
     height: var(--rh);
