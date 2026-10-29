@@ -1,6 +1,6 @@
 // 29/10 · Eric (iPhone, Safari 26): al pegarse las píldoras de Servicios, las barras de Safari se ponían del salvia y se quedaban así en el Estudio («sigue
 // cambiando las bandas»). Safari 26 ya no hace caso al theme-color: tiñe la barra de estado y la de abajo con el color de lo que toca cada borde (fijo o
-// pegado, de 6 px o más) y, si luego no encuentra nada, se queda con lo último. Aquí se le da SIEMPRE algo que tomar: una tira fija de 12 px en cada borde
+// pegado, de 6 px o más) y, si luego no encuentra nada, se queda con lo último. Aquí se le da SIEMPRE algo que tomar: una tira fija de 6 px en cada borde (Eric: «¿puede ser algo más pequeño?»; 12 funcionaba; 6 es el mínimo que Safari toma seguro, 1 no)
 // con el color de la sección que hay detrás (por la geometría de las secciones, no por lo que caiga bajo el punto). Van debajo de las barras de Safari
 // (viewport-fit=cover): no se ven. Solo en iPhone e iPad. (Lo de antes no valía: una línea de 1 px, que Safari ignora y además se veía.)
 const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -8,7 +8,7 @@ if (IOS) {
   const tira = (lado: 'top' | 'bottom') => {
     const t = document.createElement('div');
     t.setAttribute('aria-hidden', 'true');
-    t.style.cssText = `position:fixed;left:0;right:0;${lado}:0;height:12px;z-index:2147483000;pointer-events:none;`;
+    t.style.cssText = `position:fixed;left:0;right:0;${lado}:0;height:6px;z-index:2147483000;pointer-events:none;`;
     document.body.append(t);
     return t;
   };

@@ -117,7 +117,10 @@
 
 <style>
   .raices {
-    position: relative; /* ronda 181: sin z-index (no crea contexto): la tierra va detrás de todo y la lámina, por encima de la raíz de los Dolores (z 2) */
+    position: relative;
+    /* 29/10 · la tierra (::before, z -1) iba en el contexto raíz y el fondo OPACO del <body> (barras de Safari, 29/10) la tapaba: la mancha solo se veía
+       en Proyectos, con el borde recto. Contexto propio: la tierra va detrás de la lámina y delante del body. (Los Dolores, que pedían no crearlo, ya no van.) */
+    isolation: isolate;
     margin-top: 0; /* RONDA 16: el pie del árbol es el pie del hero; las raíces nacen justo debajo */
     display: flex;
     justify-content: center;
