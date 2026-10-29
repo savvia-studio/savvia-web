@@ -320,7 +320,10 @@ import { icono } from '../lib/iconos';
         // (30/10) el rasgado espera a que la foto nueva esté descodificada: con red lenta se abría sobre el hueco y la pantalla parpadeaba
         const nueva = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${prev}"]`);
         if (nueva) nueva.loading = 'eager';
-        Promise.race([nueva?.decode().catch(() => {}), new Promise((r) => setTimeout(r, 5000))]).then(() => rasgarCopia(img, { ox: 0.5, oy: 1, ref: m.closest<HTMLElement>('.lamina') ?? undefined, fin: () => { img.style.cssText = ''; } }));
+        // (30/10, iPhone) en táctil la vieja se funde en vez de rasgarse: el rasgado repinta su máscara cada fotograma debajo del vídeo que suena y lo hacía parpadear
+        const tactil = !matchMedia('(hover: hover)').matches;
+        const fundir = () => { img.style.transition = 'opacity 1.4s ease'; requestAnimationFrame(() => { img.style.opacity = '0'; }); setTimeout(() => { img.style.cssText = ''; }, 1500); };
+        Promise.race([nueva?.decode().catch(() => {}), new Promise((r) => setTimeout(r, 5000))]).then(() => (tactil ? fundir() : rasgarCopia(img, { ox: 0.5, oy: 1, ref: m.closest<HTMLElement>('.lamina') ?? undefined, fin: () => { img.style.cssText = ''; } })));
       });
     });
   }
@@ -1273,6 +1276,7 @@ import { icono } from '../lib/iconos';
   }
   /* ronda 209: el móvil de la mesa, en la estación de la web (otoño si no hay otra) */
   .mesa .foto-e { display: none; }
+  @media (hover: none) { .mesa .foto-e { transform: translateZ(0); } } /* (30/10) en táctil, en su capa: el fundido de estación no cambia el árbol de capas bajo el vídeo */
   .mesa .foto-e[data-e='otono'] { display: block; }
   :global(html[data-estacion='primavera']) .mesa .foto-e[data-e='primavera'],
   :global(html[data-estacion='verano']) .mesa .foto-e[data-e='verano'],

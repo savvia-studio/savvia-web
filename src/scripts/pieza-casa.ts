@@ -71,7 +71,11 @@ addEventListener('savvia:estacion', () => {
     if (!img?.src || !m.offsetParent || !estaVisible(m)) return;
     img.style.cssText = 'display:block;position:absolute;inset:0;z-index:1;pointer-events:none';
     // la vieja tapa mientras llega la nueva (si no, se rasgaba hacia un hueco en blanco)
-    const nueva = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${estPrev}"]`), ir = () => rasgarCopia(img, { ox: 0.5, oy: 1, ref: m.closest<HTMLElement>('.lamina') ?? undefined, fin: () => { img.style.cssText = ''; } });
+    // 30/10 · Andoni, en el iPhone: «el vídeo de Neety sigue parpadeando al cambiar de estación». El rasgado repinta la máscara de la foto en cada fotograma
+    // durante 2,6 s, justo debajo del vídeo que suena (en escritorio solo suena con el ratón encima: ahí no pasa). En táctil, la vieja se FUNDE (opacidad,
+    // que mueve el compositor sin repintar nada) en vez de rasgarse
+    const fundir = () => { img.style.transition = 'opacity 1.4s ease'; requestAnimationFrame(() => { img.style.opacity = '0'; }); setTimeout(() => { img.style.cssText = ''; }, 1500); };
+    const nueva = m.querySelector<HTMLImageElement>(`.foto-e[data-e="${estPrev}"]`), ir = !conRaton ? fundir : () => rasgarCopia(img, { ox: 0.5, oy: 1, ref: m.closest<HTMLElement>('.lamina') ?? undefined, fin: () => { img.style.cssText = ''; } });
     Promise.all([nueva?.src ? nueva.decode().catch(() => {}) : null, mascaraPedida()]).then(ir, ir);
   });
 });

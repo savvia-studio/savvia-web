@@ -19,19 +19,32 @@ function pintarComoEstacion(el: HTMLElement, op: Op) {
   const r0 = el.getBoundingClientRect(), cs = getComputedStyle(el);
   const ox = op.origen[0] - r0.left, oy = op.origen[1] - r0.top;
   const R = Math.max(Math.hypot(ox, oy), Math.hypot(r0.width - ox, oy), Math.hypot(ox, r0.height - oy), Math.hypot(r0.width - ox, r0.height - oy)) * 1.08;
+  // 30/10 · Andoni, en el iPhone: «el menú no se anima, sale de golpe y tarda en salir». La máscara rasgada crece hasta más del doble de la pantalla y en un
+  // iPhone (DPR 3) son decenas de millones de píxeles que rasterizar en cada fotograma: Safari no pinta nada hasta que se quita, al final. En pantallas
+  // táctiles, un círculo que crece desde el botón (clip-path con transición: barato) en lugar de la máscara
+  if (matchMedia('(pointer: coarse)').matches) {
+    const T = op.abrir ? 820 : 460, circ = (r: number) => `circle(${r.toFixed(1)}px at ${ox.toFixed(1)}px ${oy.toFixed(1)}px)`;
+    let vivo = true, t = 0;
+    const fin = () => { if (!vivo) return; vivo = false; clearTimeout(t); el.style.removeProperty('clip-path'); el.style.removeProperty('transition'); vivos.delete(el); };
+    vivos.set(el, fin);
+    el.style.transition = 'none';
+    el.style.clipPath = circ(op.abrir ? 0 : R);
+    void el.offsetWidth;
+    el.style.transition = `clip-path ${T}ms ${op.abrir ? 'cubic-bezier(0.33, 0.9, 0.36, 1)' : 'cubic-bezier(0.55, 0, 0.75, 0.2)'}`;
+    el.style.clipPath = circ(op.abrir ? R : 0);
+    t = window.setTimeout(() => { if (!vivo) return; fin(); op.alTerminar?.(); }, T + 40);
+    return;
+  }
   const filo = document.createElement('i');
   filo.setAttribute('aria-hidden', 'true');
   filo.style.cssText = `position:fixed;left:${r0.left}px;top:${r0.top}px;width:${r0.width}px;height:${r0.height}px;border-radius:${cs.borderRadius};background:var(--color-naranja);pointer-events:none;z-index:${cs.zIndex === 'auto' ? 1 : Number(cs.zIndex) + 1};-webkit-mask-composite:source-out;mask-composite:subtract`;
-  // (30/10 · «menú, problemas de rendimiento al abrir y cerrar» en móvil) el anillo es una segunda máscara compuesta que se repinta entera en cada
-  // fotograma; en pantallas táctiles (iPhone a DPR 3) se queda la pintura rasgada sola
-  const conFilo = !matchMedia('(pointer: coarse)').matches;
-  if (conFilo) el.parentElement!.append(filo);
+  el.parentElement!.append(filo);
   const capa = (s: number) => `${MASCARA} ${ox - s / 2}px ${oy - s / 2}px / ${Math.max(0.01, s)}px ${Math.max(0.01, s)}px no-repeat`;
   const poner = (e: HTMLElement, v: string) => { e.style.setProperty('-webkit-mask', v); e.style.setProperty('mask', v); e.style.setProperty('-webkit-mask-composite', 'source-out'); e.style.setProperty('mask-composite', 'subtract'); };
   const pintar = (k: number) => {
     const s = ((R * k) / RADIO) * 1.04;
     el.style.setProperty('-webkit-mask', capa(s)); el.style.setProperty('mask', capa(s));
-    if (conFilo) poner(filo, `${capa(s + 26)}, ${capa(s)}`); // el anillo (~11 px de ancho): el círculo algo mayor MENOS el de la pintura
+    poner(filo, `${capa(s + 26)}, ${capa(s)}`); // el anillo (~11 px de ancho): el círculo algo mayor MENOS el de la pintura
   };
   const T = op.abrir ? 1050 : 600; // ronda 264 · al cerrar, más corto y SIN arranque lento (antes 720 ms con k²: el recorte tarda en tocar la pieza y parece que espera)
   pintar(op.abrir ? 0 : 1);
@@ -44,7 +57,7 @@ function pintarComoEstacion(el: HTMLElement, op: Op) {
     const k = Math.min(1, (ahora - t0) / T);
     const e = op.abrir ? 1 - Math.pow(1 - k, 2.4) : Math.pow(1 - k, 1.7); // abrir: sale rápido y se asienta; cerrar: se recoge hacia el origen
     pintar(e);
-    if (conFilo) filo.style.opacity = String(0.75 * (op.abrir ? Math.pow(1 - k, 0.7) : Math.pow(1 - k, 0.4) * Math.min(1, k * 6)));
+    filo.style.opacity = String(0.75 * (op.abrir ? Math.pow(1 - k, 0.7) : Math.pow(1 - k, 0.4) * Math.min(1, k * 6)));
     if (k < 1) raf = requestAnimationFrame(paso); else { fin(); op.alTerminar?.(); }
   };
   // (30/10 · Andoni: «el menú en Safari se abre raro las primeras veces, como si no hiciera la animación»): mientras la imagen de la máscara no ha llegado,
