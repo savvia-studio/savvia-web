@@ -42,8 +42,9 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
       </div>
       <!-- ronda 28: los enlaces pegados a la línea derecha y alineados arriba con el titular (la parte alta de las mayúsculas) -->
       <div class="col-span-4 lg:col-span-4 lg:col-start-9 lg:text-right lg:relative">
+        <!-- 29/10 · Eric: «de estos alguno en mobile podemos quitar, son muchos, quizás lab»: en móvil, sin Lab (sigue en el menú) -->
         <ul class="enlaces text-ui flex flex-col gap-3 font-light lg:items-end" data-enlaces>
-          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie brota">{l.label}</a> : <span class="enlace-pie pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
+          {[...nav.links.filter((l) => l.href !== '#contacto'), ...nav.mas.links].map((l) =><li class={l.href === '/lab' ? 'max-md:hidden' : undefined}>{l.href ? <a href={ruta(lang, l.href)} class="enlace-pie brota">{l.label}</a> : <span class="enlace-pie pronto" aria-disabled="true">{l.label} <small>{en ? '(coming soon)' : '(próximamente)'}</small></span>}</li>)}
         </ul>
         <!-- 29/10 · los textos legales (src/views/Legal.astro), pequeños bajo los enlaces. En escritorio, fuera del flujo: no le suman alto al pie
              (si no, al final de la página el titular se salía por arriba) -->
