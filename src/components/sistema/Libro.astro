@@ -1046,7 +1046,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         // 29/10 · Eric: «que no se pueda hacer scroll sobre el elemento»: el portfolio de dentro no se desplaza (la rueda pasa a la página del sistema);
         // colocar() lo sigue moviendo por código
         d.head.insertAdjacentHTML('beforeend', '<style>#reviewRoot,[class*="styles-module__"],header[data-nav],[data-chat]{display:none!important}html,body{overflow:hidden!important;overscroll-behavior:none}</style>');
-        const colocar = () => { const b = d.querySelector('.barra-f'); if (b) w.scrollTo(0, b.getBoundingClientRect().top + w.scrollY - 32); };
+        // 29/10 · Eric: «actualizar este compo respecto a lo que es en final»: en móvil la fila va pegada arriba, como en el portfolio (antes quedaba
+        // una franja vacía con las líneas del carril encima de la fila)
+        const colocar = () => { const b = d.querySelector('.barra-f'); if (b) w.scrollTo(0, b.getBoundingClientRect().top + w.scrollY - (fig.classList.contains('movil') ? 0 : 32)); };
         // 29/10 · Andoni: «filtros del storybook: que solo se puedan clicar los filtros, sin hacer scroll»: dentro no se desplaza (ni rueda, ni dedo, ni
         // teclas); la rueda y el dedo mueven la página del storybook, como si la demo fuera una imagen
         d.documentElement.style.overflow = 'hidden';
@@ -1497,6 +1499,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 
   /* ── TIPOGRAFÍA */
   .familias .fam { aspect-ratio: 1; }
+  @media (width < 48rem) { .familias .fam { aspect-ratio: 4 / 3; } .familias .aa { font-size: 6rem; } } /* 29/10 · Eric: en una columna, cuadradas eran altísimas; y las «Aa», más grandes (eran 64 px) sin que crezca la tarjeta */
   .aa { font-size: clamp(4rem, 2rem + 6vw, 7rem); line-height: 1; }
   .aa.sans { font-family: var(--font-sans); }
   .aa.mono { font-family: var(--font-mono); }

@@ -1176,6 +1176,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .escenas svg { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   :global(html:not(.pz-js)) .escenas { display: none; }
   .bloque { padding-top: var(--aire); }
+  /* 29/10 · Eric: «todo el bloque algo más arriba, mismo espacio arriba y abajo»: la lámina del retrato trae aire propio encima de la cabeza; en móvil se descuenta */
+  @media (width < 64rem) { .testimonio-final { margin-top: calc(var(--spacing) * -6); } }
   @media (width >= 64rem) { .enc { position: sticky; top: calc(var(--spacing) * 24); } } /* ronda 153: en el móvil, pegado pisaba el texto */
   /* dos párrafos lado a lado, a la misma altura */
   .dos { display: grid; gap: calc(var(--spacing) * 6); }
@@ -1478,7 +1480,8 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
     .tf-fam figcaption { position: static; align-self: end; }
     .tf-escala li { grid-template-columns: minmax(0, 1fr) auto; row-gap: calc(var(--spacing) * 1); }
     .tf-escala .tf-m { grid-column: 1 / -1; grid-row: 2; white-space: normal; }
-    .tf-escala .tf-m[data-corta] { white-space: nowrap; font-size: min(var(--fs), 100cqi / (var(--ch) * 0.56)) !important; }
+    /* 29/10 · Eric: «escálalo un poco más para que esté algo más pequeño en mobile»: los titulares, al 72 % (y así XL, L y M ya no empatan al ancho) */
+    .tf-escala .tf-m[data-corta] { white-space: nowrap; font-size: min(var(--fs) * 0.72, 100cqi / (var(--ch) * 0.56)) !important; }
   }
   .tf-n, .tf-d { color: var(--fg2); }
   .tf-m { line-height: 1.1; text-wrap: balance; min-width: 0; }

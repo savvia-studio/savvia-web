@@ -174,7 +174,14 @@ const t: Dato = dato ?? home(lang).proyectos.testimonios[k];
   .voz.js .quien.on > span { transition-delay: calc(var(--dq) + 110ms); }
   .quien b { font-weight: 500; color: var(--fg); }
   .quien span { color: var(--fg2); }
-  @media (width < 64rem) { .quien { margin-top: calc(var(--spacing) * 4); } }
+  /* 29/10 · Eric: «en mobile Unai está demasiado pequeño y muy alejado de su reseña»: el retrato a todo el ancho (hasta 24rem) y sin hueco, que el
+     pie del lienzo ya se desvanece y hace de aire */
+  @media (width < 64rem) {
+    .voz { gap: 0; }
+    /* el que viene con escala (Unai, con más aire en su lámina) crece también aquí, desde el pie de la figura, para no alejarse de la cita */
+    .retratos { width: min(100%, 24rem); scale: calc(1 + (var(--escala, 1) - 1) * 0.5); margin-bottom: calc((1 - var(--escala, 1)) * 60%); transform-origin: 50% 82%; }
+    .quien { margin-top: calc(var(--spacing) * 4); }
+  }
   @media (width >= 64rem) {
     .voz { grid-template-columns: 5fr 7fr; gap: calc(var(--spacing) * 16); }
     .retratos { width: 100%; scale: var(--escala, 1); }

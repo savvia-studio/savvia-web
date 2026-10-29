@@ -6120,3 +6120,9 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
 - **Causa:** el visor (home `Anteriores.astro` y portfolio `obra/Visor.astro`) confiaba la miniatura al `poster` del `<video>`, con fondo `--vf` negro detrás. Cuando iOS no pinta el vídeo (bajo consumo, demasiados decodificadores) se veía el negro. Y `jugar()` corría con el visor aún cerrado: si iOS vetaba el autoplay, el botón de play no se ponía (la pantalla medía 0 px).
 - **Hecho:** la miniatura WebP va de FONDO de `.vis-pant` (cover, arriba) y el vídeo está a opacidad 0 hasta su primer `playing` (`.listo`, se quita al soltarlo). `showModal()` va antes de `ir()`.
 - **Medido:** WebKit 390 × 844 táctil, home y /proyectos: con el mp4 bloqueado se ve la web de Kymatio en el monitor; con el mp4, el vídeo encima (opacidad 1) · `astro check` 0 errores. Sin iPhone. Sin commit.
+
+### 29/10 · Manifiesto en móvil: el tallo que salía, se iba a blanco y se volvía a dibujar
+- **Eric (textual, iPhone):** «cuando voy a manifiesto en el mobile parece que se carga por un segundo el tallo y luego se va a blanco y se vuelve a cargar».
+- **Causa:** `views/Manifiesto.astro`: el respaldo (`<img class="respaldo">`, la lámina ya pintada del brote y de las raíces) se veía desde el HTML hasta que el motor arrancaba (láminas descodificadas + script). Entonces se ocultaba (`.gl`) y el lienzo dibujaba desde cero. En el iPhone ese hueco dura un segundo.
+- **Hecho:** un `<script is:inline>` al abrir el `<main>` pone `html.mf-gl` y el respaldo va oculto desde el primer frame. Si el motor no arranca (sin WebGL), se quita la clase y se ve la lámina tal cual.
+- **Medido:** WebKit 390 × 664 táctil con los scripts retrasados 1,2 s: el respaldo, oculto a 0,4 · 0,9 · 1,5 · 2,5 · 4,5 s, y el brote dibujándose desde la bellota · `astro check` 0 errores. Sin iPhone. Sin commit.

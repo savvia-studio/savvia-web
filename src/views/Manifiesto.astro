@@ -46,6 +46,9 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
   <Nav />
   <Carriles />
   <main id="contenido" class="manifiesto surface-light" data-manifiesto>
+    <!-- 29/10 · Eric (iPhone): «se carga un segundo el tallo, luego se va a blanco y se vuelve a cargar»: el respaldo (la lámina ya pintada) se veía hasta que
+         arrancaba el motor, que lo ocultaba y dibujaba desde cero. Oculto desde el primer frame; vuelve solo si el motor no arranca -->
+    <script is:inline>document.documentElement.classList.add('mf-gl');</script>
     <!-- primer pantallazo: «Manifiesto» y, debajo, el brote, con la bellota en el borde de abajo (ronda 155: «arriba del brote centrado tiene que poner manifiesto») -->
     <header class="portada">
       <h1 class="titulo font-display">{manifiesto.titulo}</h1>
@@ -158,7 +161,8 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
     height: 100%;
   }
   .respaldo { object-fit: fill; }
-  .gl .respaldo { visibility: hidden; }
+  .gl .respaldo,
+  :global(html.mf-gl) .respaldo { visibility: hidden; }
 
   /* ── EL TEXTO: una columna centrada, con la capitular en la primera línea ── */
   .texto {
@@ -214,7 +218,7 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
     :global(html.anima) .texto :is(.parrafo, .firma-final) { opacity: 1; transition: none; }
   }
   @media (max-width: 47.99rem) {
-    .texto { gap: calc(var(--spacing) * 12); }
+    .texto { gap: calc(var(--spacing) * 12); --cuerpo: 1.625rem; } /* móvil: 26 px (antes 21,6 → 24; Eric: «algo más grande», «un poquito más») */
   }
 
   /* ── LA FIRMA: la de correo, centrada en la columna (ronda 296: «esa firma que esté centrada mejor») ── */
@@ -392,6 +396,7 @@ const palabras = (t: string) => t.split(/\s+/).filter(Boolean);
       });
     });
   }
+  else document.documentElement.classList.remove('mf-gl'); // sin motor, la lámina tal cual
   g = -1; actualizar();
   };
   Promise.all([laminaBrote.decode(), laminaRaices.decode()]).catch(() => null).then(arrancar);
