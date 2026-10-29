@@ -551,10 +551,13 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   /* 29/10 · Eric: «en móvil el navbar queda muy pegado al titular» (al final de la página el pie no cabía y su arriba quedaba bajo la barra) «y la montaña
      de abajo queda muy pequeña»: en móvil el paisaje mide el doble de alto (la lámina, al doble de ancho y recortada a los lados, sin deformarse) y el
      relleno de abajo es solo lo que sobra bajo las cimas + 48 px (los 400 px eran para el panel del formulario, que ya no está), así el pie cabe entero */
+  /* 29/10 · Eric (iPhone, el pie con el buscador de Safari abierto): «no se ven las montañas» · «que tape todo pero que encaje todo». El buscador flota sobre
+     lo de abajo (lo que va de 100svh a 100lvh, --bajo): el paisaje crece ese alto (misma proporción, 3:1, la de antes en un iPhone) y sigue hasta el
+     borde de abajo, tras la barra; «Contáctanos» y su pista suben --bajo para quedar por encima del buscador */
   @media (width < 64rem) {
-    .pie { --alto-pie: min(66.7vw, 40lvh); --alto: var(--alto-pie); min-height: 100lvh; } /* el pie llena la pantalla: el titular, a 112 px de su arriba, y lo que sobre, entre los enlaces y el monte */
+    .pie { --bajo: max(0px, 100lvh - 100svh); --alto-pie: calc(min(66.7vw, 40lvh) + var(--bajo)); --alto: var(--alto-pie); min-height: 100lvh; } /* el pie llena la pantalla: el titular, a 112 px de su arriba, y lo que sobre, entre los enlaces y el monte */
     .contenido { padding-top: 112px; padding-bottom: calc(48px + 0.564 * var(--alto)); }
-    .paisaje .capa { left: -50%; width: 200%; }
+    .paisaje .capa { left: calc(50% - var(--alto) * 1.5); width: calc(var(--alto) * 3); }
   }
   .contenido a {
     pointer-events: auto;
@@ -610,7 +613,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   .contacta {
     position: absolute;
     left: 50%;
-    bottom: calc(var(--alto) * var(--cb, 0.19));
+    bottom: calc(var(--alto) * var(--cb, 0.19) + var(--bajo, 0px));
     translate: -50% 0;
     width: max-content;
     font-family: var(--font-display);
@@ -628,7 +631,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     display: none;
     position: absolute;
     left: 50%;
-    bottom: calc(var(--alto) * var(--cb, 0.19) + var(--cf, 3rem) * 0.9);
+    bottom: calc(var(--alto) * var(--cb, 0.19) + var(--bajo, 0px) + var(--cf, 3rem) * 0.9);
     translate: -50% 0;
     z-index: 5;
     white-space: nowrap;

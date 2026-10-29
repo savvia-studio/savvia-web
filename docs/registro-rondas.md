@@ -6011,3 +6011,8 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
   Medido en WebKit 390 × 844: fila a 66 px (barra 0–54), `.pegada` solo pegada, sin tiras fijas, consola limpia. Sin iPhone.
   (2.ª) Eric: «al final ten cuidado que la nube desaparezca antes»: `.sin-nube` en cuanto el borde de la sección o la cima de la gota de la siguiente (`__subeEn`)
   llega al borde de abajo de la nube; y al soltarse al final del bloque las píldoras se desvanecen (`.sale`) en vez de pasar bajo el logotipo de la barra.
+- **29/10 (Eric, iPhone, pie): «si está abierto el buscador no se ven las montañas» · «que tape todo pero que encaje todo».** `Pie.astro`, móvil: `--bajo` =
+  `100lvh − 100svh` (lo que tapa el buscador). El paisaje crece ese alto (capas a 3:1, la proporción de antes en un iPhone) y llega al borde de abajo, tras
+  la barra; «Contáctanos» y su pista suben `--bajo`. En Playwright `--bajo` = 0 (sin barras): idéntico a antes. Sin iPhone.
+- **29/10 (Eric, iPhone, Lab): «el vídeo de cada uno sale tosco y raro».** `lab/Mesa.astro`: el vídeo de la lupa sin `controls` (los de iOS salían encima y
+  el anillo de foco del `<dialog>` lo enmarcaba en oscuro); en móvil `object-fit: contain` centrado y sin fondo (con `cover` la web salía cortada por los lados).

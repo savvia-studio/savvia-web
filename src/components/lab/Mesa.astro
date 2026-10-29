@@ -27,7 +27,7 @@ const en = lang === 'en';
 const { experimentos, lab } = labDe(lang);
 const M = '/media/lab/';
 const piezas = experimentos
-  .flatMap((e, i) => e.lienzo.map((l, c) => ({ i, c, x: l.x, y: l.y, w: l.w, mx: l.m.x, my: l.m.y })))
+  .flatMap((e, i) => e.lienzo.map((l, c) => ({ i, c, x: l.x, y: l.y, w: l.w })))
   .sort((a, b) => Math.hypot(a.x + a.w / 2, a.y) - Math.hypot(b.x + b.w / 2, b.y));
 ---
 
@@ -46,8 +46,6 @@ const piezas = experimentos
             data-esp={p.i}
             data-x={p.x}
             data-y={p.y}
-            data-mx={p.mx}
-            data-my={p.my}
             style={`--w:${p.w};--ar:${e.ar};--z:${k + 1};--d:${(k * 0.08).toFixed(2)}s`}
           >
             <header class="cab">
@@ -101,7 +99,7 @@ const piezas = experimentos
 
 <dialog class="lupa surface-light" data-lupa aria-labelledby="lupa-h">
   <div class="lupa-in">
-    <video muted loop playsinline controls preload="none" data-lupa-video></video>
+    <video muted loop playsinline preload="none" data-lupa-video></video>
     <div>
       <p class="lupa-cod" data-lupa-cod></p>
       <h2 id="lupa-h" class="font-display lupa-nombre" data-lupa-nombre></h2>
@@ -202,7 +200,8 @@ const piezas = experimentos
   // ───────────────────────── el MUNDO en bucle ─────────────────────────
   type P = { el: HTMLElement; esp: boolean; x: number; y: number; w: number; h: number; dx: number; dy: number; vx: number; vy: number; lag: number; semilla: number; ult: string };
   const els = [...mundo.querySelectorAll<HTMLElement>('[data-pieza]')];
-  let k = 1, W = 3200, H = 1900, vw = innerWidth, vh = innerHeight;
+  // k = escala de las tarjetas; kp = escala de los sitios; z = ZOOM de la cámara (29/10 · Eric: «en mobile, que se pueda zoom out»: se pellizca)
+  let k = 1, kp = 1, z = 1, zMin = 1, zMax = 1, W = 3200, H = 1900, vw = innerWidth, vh = innerHeight;
   const ps: P[] = els.map((el, i) => ({
     el, esp: !!el.dataset.esp, x: +el.dataset.x!, y: +el.dataset.y!, w: 0, h: 0, dx: 0, dy: 0, vx: 0, vy: 0,
     lag: 0.07 + (((i * 37) % 11) / 11) * 0.09, semilla: ((i * 9301 + 49297) % 233280) / 233280, ult: '',
@@ -213,13 +212,20 @@ const piezas = experimentos
   function medir() {
     vw = sec.clientWidth; vh = sec.clientHeight;
     k = vw < 900 ? 0.62 : 1;
-    // r132: en móvil cada copia tiene su sitio propio (lab.ts › m)
-    ps.forEach((p) => { const d = p.el.dataset; p.x = k < 1 && d.mx ? +d.mx : +d.x!; p.y = k < 1 && d.my ? +d.my : +d.y!; });
+    // 29/10 · Eric: «en lab los proyectos se solapan en el iPhone 13 mini». Los sitios propios del móvil (r132) iban a 0,62 en un mundo de 1612 × 1017 y,
+    // en pantallas bajas, las copias se pisaban al dar la vuelta. Ahora el móvil usa los sitios del escritorio a 0,9 (la tarjeta, a 0,62 de ancho, mide
+    // ~0,72 de alto: cabe en su hueco) y el mundo no depende del alto de la pantalla.
+    kp = k < 1 ? 0.9 : 1;
+    ps.forEach((p) => { p.x = +p.el.dataset.x!; p.y = +p.el.dataset.y!; });
     let maxW = 0, maxH = 0;
     ps.forEach((p) => { p.w = p.el.offsetWidth; p.h = p.el.offsetHeight; maxW = Math.max(maxW, p.w); maxH = Math.max(maxH, p.h); });
     // el mundo: el diseño (lab.ts › mundo) a escala, pero siempre mayor que la pantalla + la pieza más grande (una sola copia por pieza)
-    W = Math.max(MUNDO.w * k, vw + maxW + 120);
-    H = Math.max(MUNDO.h * k, vh + maxH + 120);
+    W = Math.max(MUNDO.w * kp, vw + maxW + 120);
+    H = Math.max(MUNDO.h * kp, vh + maxH + 120);
+    // el zoom: alejarse solo hasta donde el mundo sigue sin verse dar la vuelta (pantalla / z + pieza + margen ≤ mundo); en escritorio, sin zoom
+    zMin = k < 1 ? clamp(Math.max(vw / (W - maxW - 120), vh / (H - maxH - 120)), 0.5, 1) : 1;
+    zMax = k < 1 ? 1.4 : 1;
+    z = clamp(z, zMin, zMax);
     const dpr = Math.min(2, devicePixelRatio || 1);
     lienzo.width = Math.round(vw * dpr); lienzo.height = Math.round(vh * dpr);
     lienzo.style.width = vw + 'px'; lienzo.style.height = vh + 'px';
@@ -246,10 +252,27 @@ const piezas = experimentos
   addEventListener('scroll', () => sec.classList.toggle('libre', libre()), { passive: true });
 
   // ── recorrer: arrastre (ratón, lápiz, dedo); con ratón, una pieza se puede coger y mover ──
-  let modo: '' | 'pan' | 'pieza' = '', pid = -1, sx0 = 0, sy0 = 0, mx0 = 0, my0 = 0, movido = false, zTop = ps.length + 1;
+  let modo: '' | 'pan' | 'pieza' | 'zoom' = '', pid = -1, sx0 = 0, sy0 = 0, mx0 = 0, my0 = 0, movido = false, zTop = ps.length + 1;
   let cogida: P | null = null, tocada: P | null = null;
   let muestras: { t: number; x: number; y: number }[] = [];
+  // ── pellizco (dos dedos): el zoom gira en torno al punto medio de los dedos, que además arrastra ──
+  const dedos = new Map<number, { x: number; y: number }>();
+  let pz0 = { d: 1, z: 1, wx: 0, wy: 0 };
+  const medio = () => { const [a, b] = [...dedos.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, d: Math.hypot(a.x - b.x, a.y - b.y) || 1 }; };
+  function empezarZoom() {
+    const m = medio();
+    pz0 = { d: m.d, z, wx: cam.x + (m.x - vw / 2) / z, wy: cam.y + (m.y - secTopVista() - vh / 2) / z };
+    cogida?.el.classList.remove('cogida');
+    modo = 'zoom'; movido = true; tocada = null; cogida = null; fling = { x: 0, y: 0 };
+    sec.classList.add('paneando');
+  }
+  const secTopVista = () => secTop - scrollY;
+  mundo.addEventListener('gesturestart', (ev) => ev.preventDefault()); // Safari: que el pellizco no amplíe la página
   mundo.addEventListener('pointerdown', (ev) => {
+    if (ev.pointerType === 'touch' && zMax > zMin && !libre()) {
+      dedos.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      if (dedos.size === 2 && modo !== 'zoom') { try { mundo.setPointerCapture(ev.pointerId); } catch {} empezarZoom(); despertar(); return; }
+    }
     if (ev.button > 0 || modo) return;
     const objetivo = ev.target as HTMLElement;
     if (objetivo.closest('[data-ver]')) return;
@@ -263,12 +286,22 @@ const piezas = experimentos
     despertar();
   });
   mundo.addEventListener('pointermove', (ev) => {
+    if (dedos.has(ev.pointerId)) dedos.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (modo === 'zoom') {
+      if (dedos.size < 2) return;
+      const m = medio();
+      z = clamp(pz0.z * (m.d / pz0.d), zMin, zMax);
+      meta.x = cam.x = pz0.wx - (m.x - vw / 2) / z; meta.y = cam.y = pz0.wy - (m.y - secTopVista() - vh / 2) / z;
+      ps.forEach((p) => (p.ult = ''));
+      despertar();
+      return;
+    }
     if (ev.pointerId !== pid) return;
     const dx = ev.clientX - sx0, dy = ev.clientY - sy0;
     if (!movido && Math.hypot(dx, dy) < 5) return;
     if (!movido) { movido = true; sec.classList.add(modo === 'pan' ? 'paneando' : 'cogiendo'); cogida?.el.classList.add('cogida'); }
     if (modo === 'pan') {
-      meta.x = mx0 - dx; meta.y = my0 - dy;
+      meta.x = mx0 - dx / z; meta.y = my0 - dy / z;
       if (reducido) { cam.x = meta.x; cam.y = meta.y; }
       const t = performance.now(); muestras.push({ t, x: ev.clientX, y: ev.clientY });
       while (muestras.length > 2 && t - muestras[0].t > 90) muestras.shift();
@@ -276,10 +309,16 @@ const piezas = experimentos
     despertar();
   });
   const soltar = (ev: PointerEvent) => {
+    dedos.delete(ev.pointerId);
+    if (modo === 'zoom') {
+      // al levantar un dedo se acaba el pellizco; el otro ya no mueve nada hasta soltarse
+      if (dedos.size === 0) { sec.classList.remove('paneando'); modo = ''; pid = -1; despertar(); }
+      return;
+    }
     if (ev.pointerId !== pid) return;
     if (modo === 'pan' && movido && !reducido && muestras.length > 1) {
       const a = muestras[0], b = muestras[muestras.length - 1], dt = Math.max(16, b.t - a.t);
-      fling = { x: clamp((-(b.x - a.x) / dt) * 16, -70, 70), y: clamp((-(b.y - a.y) / dt) * 16, -70, 70) };
+      fling = { x: clamp((-(b.x - a.x) / dt / z) * 16, -70, 70), y: clamp((-(b.y - a.y) / dt / z) * 16, -70, 70) };
     }
     if (!movido && ev.type === 'pointerup' && tocada?.esp) abrir(+tocada.el.dataset.esp!, tocada.el);
     cogida?.el.classList.remove('cogida');
@@ -304,8 +343,8 @@ const piezas = experimentos
   });
   ps.forEach((p) => p.el.addEventListener('focus', () => {
     if (modo) return;
-    const rx = cerca(p.x * k + p.w / 2 + p.dx - cam.x, W), ry = cerca(p.y * k + p.h / 2 + p.dy - cam.y, H);
-    if (Math.abs(rx) > vw * 0.3 || Math.abs(ry) > vh * 0.3) { meta.x = cam.x + rx; meta.y = cam.y + ry * 0.9; despertar(); }
+    const rx = cerca(p.x * kp + p.w / 2 + p.dx - cam.x, W), ry = cerca(p.y * kp + p.h / 2 + p.dy - cam.y, H);
+    if (Math.abs(rx) * z > vw * 0.3 || Math.abs(ry) * z > vh * 0.3) { meta.x = cam.x + rx; meta.y = cam.y + ry * 0.9; despertar(); }
   }));
 
   // ───────────────────────── el bucle: cámara, distorsión por velocidad, raíces ─────────────────────────
@@ -336,9 +375,11 @@ const piezas = experimentos
       if (Math.abs(p.vx) < 0.02) p.vx = 0;
       if (Math.abs(p.vy) < 0.02) p.vy = 0;
       if (p.vx || p.vy) moviendo = true;
-      const cx = vw / 2 + cerca(p.x * k + p.w / 2 + p.dx - cam.x, W), cy = vh / 2 + cerca(p.y * k + p.h / 2 + p.dy - cam.y, H);
-      const X = cx - p.w / 2, Y = cy - p.h / 2;
-      let t = `translate3d(${X.toFixed(1)}px,${Y.toFixed(1)}px,0)`;
+      const ux = cerca(p.x * kp + p.w / 2 + p.dx - cam.x, W), uy = cerca(p.y * kp + p.h / 2 + p.dy - cam.y, H);
+      const cx = vw / 2 + ux * z, cy = vh / 2 + uy * z;
+      const X = cx - (p.w * z) / 2, Y = cy - (p.h * z) / 2;
+      let t = `translate3d(${(cx - p.w / 2).toFixed(1)}px,${(cy - p.h / 2).toFixed(1)}px,0)`;
+      if (z !== 1) t += ` scale(${z.toFixed(4)})`;
       if (!reducido && (p.vx || p.vy)) {
         const vx = clamp(p.vx, -70, 70), vy = clamp(p.vy, -70, 70), ax = Math.abs(vx), ay = Math.abs(vy);
         // de lado: la parte de arriba se queda atrás (inclinación) y la pieza se estira a lo largo del movimiento
@@ -348,7 +389,7 @@ const piezas = experimentos
       }
       if (t !== p.ult) { p.el.style.transform = t; p.ult = t; }
       // las raíces se apagan antes de que la pieza dé la vuelta al mundo (el salto ocurre a W/2)
-      const fx = 1 - clamp((Math.abs(cx - vw / 2) - W * 0.3) / (W * 0.16), 0, 1), fy = 1 - clamp((Math.abs(cy - vh / 2) - H * 0.3) / (H * 0.16), 0, 1);
+      const fx = 1 - clamp((Math.abs(ux) - W * 0.3) / (W * 0.16), 0, 1), fy = 1 - clamp((Math.abs(uy) - H * 0.3) / (H * 0.16), 0, 1);
       pos[i] = { X, Y, cx, cy, f: fx * fy };
     });
     raices(ahora);
@@ -373,7 +414,7 @@ const piezas = experimentos
       const q = pos[i];
       if (q.f <= 0.01) return;
       // el extremo: el borde de la pieza que mira a la card, un poco por dentro (la raíz se mete bajo la ventana)
-      const ex = clamp(cx0, q.X + 14, q.X + p.w - 14), ey = clamp(cy0, q.Y + 10, q.Y + p.h - 10);
+      const ex = clamp(cx0, q.X + 14, q.X + p.w * z - 14), ey = clamp(cy0, q.Y + 10, q.Y + p.h * z - 10);
       // el origen: el borde de la card en dirección a la pieza, por dentro (la raíz sale de debajo del cristal)
       let dx = ex - cx0, dy = ey - cy0;
       const L0 = Math.hypot(dx, dy) || 1;
@@ -394,7 +435,7 @@ const piezas = experimentos
         const m = 1 - t;
         return [m * m * m * sx + 3 * m * m * t * c1x + 3 * m * t * t * c2x + t * t * t * ex, m * m * m * sy + 3 * m * m * t * c1y + 3 * m * t * t * c2y + t * t * t * ey];
       };
-      const esc = k < 1 ? 0.8 : 1;
+      const esc = (k < 1 ? 0.8 : 1) * Math.sqrt(z);
       const ancho = (t: number) => (3.4 - 2.6 * Math.pow(t, 0.7)) * esc;
       cinta(bez, ancho, 0, fin, 30);
       // raicillas: dos o tres brotes laterales que se afinan, y el extremo abierto en dos
@@ -496,7 +537,7 @@ const piezas = experimentos
   });
 
   // sonda para las pruebas
-  (window as any).__lab = { cam, meta, ps, pos, get W() { return W; }, get H() { return H; }, ponerFondo };
+  (window as any).__lab = { cam, meta, ps, pos, get W() { return W; }, get H() { return H; }, get kp() { return kp; }, get z() { return z; }, get zMin() { return zMin; }, ponerFondo };
 
   {
     let tIni = 0;
@@ -925,7 +966,9 @@ const piezas = experimentos
   @media (max-width: 899px) {
     .lupa.lupa { width: calc(100vw - 16px); max-width: none; height: calc(100dvh - 16px); max-height: none; border-radius: 14px; }
     .lupa .lupa-in { height: 100%; grid-template-rows: minmax(0, 1fr) auto; gap: 16px; padding: 8px 8px 20px; }
-    .lupa .lupa-in video { height: 100%; max-height: none; object-fit: cover; object-position: center top; border-radius: 8px; }
+    /* 29/10 · Eric (iPhone): «el vídeo de cada uno sale tosco y raro»: los controles nativos de iOS encima, el anillo de foco del <dialog> sobre el vídeo y el
+       recorte de `cover` (la web cortada por los lados). Sin controles (es un bucle mudo) y entero, centrado en el alto libre, sin fondo */
+    .lupa .lupa-in video { height: 100%; max-height: none; object-fit: contain; object-position: center; background: transparent; border-radius: 0; }
     .lupa-in > div { padding: 0 8px; }
   }
   @media (min-width: 900px) {
