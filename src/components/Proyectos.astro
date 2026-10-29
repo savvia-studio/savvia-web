@@ -1366,7 +1366,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .reel-loop:global(.listo) { opacity: 1; }
   /* 30/10 · Andoni, en el móvil: «el reel tiene algunas bandas blancas en las esquinas del monitor». En iOS, el vídeo dentro de una caja escalada puede
      quedarse a medio píxel de sus bordes: el fondo de la pantalla es el negro del bisel (arriba) y el vídeo va en su capa y medio píxel más grande por cada lado */
-  .reel-loop { inset: -0.5px; width: calc(100% + 1px); height: calc(100% + 1px); transform: translateZ(0); }
+  /* 29/10 (Eric, escritorio: «la raya vertical blanca de 1 px de la derecha»): el `max-width: 100%` que el preflight pone a todo <video> anulaba ese ancho
+     de 100 % + 1 px: el reel se quedaba 0,5 px corto por la derecha y en esa columna asomaba la CAPTURA blanca del proyecto que va debajo. Sin tope de ancho,
+     un píxel por cada lado, y debajo del reel en marcha no se pinta el visor (lo mismo que en móvil, donde ni se monta) */
+  .reel-loop { inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); max-width: none; transform: translateZ(0); }
+  [data-estudio]:not(.sentado) .escenario:not(.explora) .pantalla:has(> .reel-loop:global(.listo)) .visor { visibility: hidden; }
   /* 29/10 · también en móvil: sentado, el reel se apaga y debajo van los vídeos de proyecto (Eric: «no veo los 4 que tenemos y sus vídeos») */
   [data-estudio].sentado .reel-loop:global(.listo),
   [data-estudio] .escenario.explora .reel-loop:global(.listo) { opacity: 0; }
