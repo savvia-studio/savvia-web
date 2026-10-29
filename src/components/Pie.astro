@@ -299,7 +299,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
         if (!t0) t0 = ahora;
         const k = Math.min(1, (ahora - t0) / T), g = 1 - Math.pow(1 - k, 1.6);
         estelas.forEach((t) => t?.crecer(g));
-        if (k < 1) requestAnimationFrame(paso); else { paisaje.classList.add('pintado'); empezarEstaciones(); }
+        if (k < 1) requestAnimationFrame(paso); else { paisaje.classList.add('pintado'); empezarEstaciones(); revisar(); }
       };
       requestAnimationFrame(paso);
     };
@@ -338,6 +338,26 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
       estelas.forEach((t) => t?.visible(visible));
       if (visible && en[0].intersectionRatio > 0.3) dibujar();
     }, { threshold: [0, 0.3, 0.6] }).observe(pie);
+    // 29/10 · Eric: «a veces no se cargan las montañas». En el iPhone, Safari tira contextos WebGL cuando le falta memoria (o al volver de otra app) y
+    // no siempre los devuelve: el lienzo se quedaba vacío y la lámina, a opacidad 0 detrás. Ahora, si con el paisaje ya pintado un lienzo no tiene
+    // contexto o no llegó a arrancar, se enseña la lámina tal cual (`sin-gl`) hasta que el lienzo vuelva
+    let tRev = 0;
+    const revisar = () => {
+      capas.forEach((c, i) => {
+        if (!estelas[i]) return; // sin WebGL desde el principio: ya va con su lámina
+        const cv = c.querySelector<HTMLCanvasElement>('[data-lienzo]');
+        const g = cv && ((cv.getContext('webgl2') || cv.getContext('webgl')) as WebGLRenderingContext | null);
+        const roto = !cv || !g || g.isContextLost() || !cv.classList.contains('listo');
+        c.classList.toggle('sin-gl', roto && paisaje.classList.contains('pintado'));
+      });
+    };
+    const revisarLuego = () => { clearTimeout(tRev); tRev = window.setTimeout(revisar, 1500); };
+    // los eventos de contexto no burbujean: se escuchan en captura
+    paisaje.addEventListener('webglcontextlost', () => { if (visible) revisarLuego(); }, true);
+    paisaje.addEventListener('webglcontextrestored', () => { clearTimeout(tRev); requestAnimationFrame(revisar); }, true);
+    paisaje.addEventListener('load', () => requestAnimationFrame(revisar), true); // una lámina que llega tarde (la captura va antes que el arranque del lienzo)
+    new IntersectionObserver((e) => { if (e[0].isIntersecting) revisarLuego(); }).observe(pie);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && visible) revisarLuego(); });
     if (!reducido) { addEventListener('scroll', pedir, { passive: true }); addEventListener('resize', pedir); pintar(); }
     else paisaje.style.setProperty('--p', '0');
 

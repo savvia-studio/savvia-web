@@ -93,7 +93,8 @@ const tomas = await Promise.all(obras.map(async (o) => {
       if (m.dataset.cargado) return;
       m.dataset.cargado = '1';
       if (m instanceof HTMLImageElement) { m.src = m.dataset.img!; return; }
-      if (m.dataset.poster) m.poster = m.dataset.poster;
+      // 29/10 · Eric: «si el vídeo aún no se carga, que se vea el thumbnail»: el cartel WebP de la ronda de rendimiento (no el JPG grande)
+      if (m.dataset.poster) m.poster = m.dataset.poster.replace(/^(\/media\/(?:obra|anteriores\/video)\/.+)\.jpg$/, '$1.webp');
       const so = document.createElement('source'); so.src = m.dataset.src!; so.type = 'video/mp4'; m.appendChild(so); m.load();
     };
     // RONDA 218 · solo viven el actual y sus dos vecinos (Safari se quedaba sin memoria); al cerrar se sueltan todos

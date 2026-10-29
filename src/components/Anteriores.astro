@@ -350,7 +350,7 @@ import { icono } from '../lib/iconos';
         const v = vid(i);
         if (v.dataset.cargado) return;
         v.dataset.cargado = '1';
-        if (v.dataset.visorPoster) v.poster = v.dataset.visorPoster;
+        if (v.dataset.visorPoster) v.poster = v.dataset.visorPoster.replace(/^(\/media\/(?:obra|anteriores\/video)\/.+)\.jpg$/, '$1.webp'); // 29/10 · el cartel WebP
         const so = document.createElement('source'); so.src = v.dataset.src!; so.type = 'video/mp4'; v.appendChild(so); v.load();
       };
       // RONDA 218 · Safari se quedaba sin memoria: cada vídeo del visor, una vez cargado, no se soltaba nunca. Ahora solo viven el actual y sus dos vecinos, y al cerrar se sueltan todos
