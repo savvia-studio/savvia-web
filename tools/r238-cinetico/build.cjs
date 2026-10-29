@@ -31,7 +31,7 @@ let CSS_EXTRA = '';
 // ── 1 · NEGRO: la GOTA de agua de la carga cae al centro y, del impacto, nace el manifiesto de la web (home.ts › problemas)
 {
   const a = 0, b = B(4.2);
-  escena('e1', a, b, '#3b231b', `<div class="centro"><p class="lin" id="l1"><span id="w1">La IA es la base;</span></p><p class="lin tenue2" id="l2"><span id="w2">el criterio sigue siendo nuestro.</span></p></div>`);
+  escena('e1', a, b, '#3b231b', `<div class="centro"><p class="lin" id="l1"><span id="w1">La IA es la base.</span></p><p class="lin tenue2" id="l2"><span id="w2">El criterio sigue siendo nuestro.</span></p></div>`);
   entra('#w1', B(0) + 0.15); entra('#w2', B(1.3)); sale('#l1', B(3.7)); sale('#l2', B(3.75));
 }
 // ── 2 · «savvia agentic: tu web conectada con la IA.»
