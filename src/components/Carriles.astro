@@ -15,11 +15,15 @@
 
 <script>
   const marcas = document.querySelector<HTMLElement>('[data-marcas]')!;
+  const carriles = document.querySelector<HTMLElement>('.carriles')!;
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   // una fila por sección (y por cada [data-carril-fila]): línea horizontal + dos cruces sobre los carriles
   let pedido = false, trazadas = false;
   const colocar = () => {
     pedido = false;
+    // los carriles cubren el documento entero (no son fijos: ver el CSS); se encogen antes de medir para no sostener un alto que ya no hay
+    carriles.style.height = '0px';
+    carriles.style.height = `${document.documentElement.scrollHeight}px`;
     // RONDA 149 · data-carril-desfase="-40": la línea, 40 px más arriba (la del marco del hero)
     // RONDA 148 · [data-carril-fila="sin-cruces"]: solo la línea (Andoni: «recupera solo la raya horizontal» del hero)
     // 27/10 · [data-carril-sin-cruces-movil]: solo la línea, en móvil (la fila de filtros del portfolio, Eric)
@@ -57,9 +61,14 @@
     mix-blend-mode: difference;
     transition: opacity 0.4s ease;
   }
+  /* 30/10 · Eric (iPhone, home → /proyectos): «hay una banda blanca ahí todavía». Fija a pantalla completa, Safari 26 la cuenta como algo que toca el borde y
+     pinta una banda bajo el buscador. Ahora va en el documento, de arriba abajo (el alto lo pone el script): se ve igual y Safari no la toma. */
   .carriles {
-    position: fixed;
-    inset: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100lvh;
   }
   .marcas {
     position: absolute;
