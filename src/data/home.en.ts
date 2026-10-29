@@ -360,7 +360,7 @@ export const preguntas = {
 
   libre: {
     etiqueta: 'Got another?',
-    ayuda: "Tell us what you'd like to know about us. If we already have an answer, we'll show you ours. If not, an AI will answer with what we know about savvia, and you can ask us to confirm it whenever you like. Please don't write personal data.",
+    ayuda: "If we've already answered it, you'll see our answer. If not, an AI replies with what we know. Please don't write personal data.",
     boton: 'Ask',
     sinRespuesta: "We haven't written that one yet. Send it to us and we'll answer ourselves, usually the same day.",
   },

@@ -599,7 +599,7 @@ export const preguntas = {
 
   libre: {
     etiqueta: '¿Tienes otra?',
-    ayuda: 'Cuéntanos tu duda sobre nosotros. Si ya la tenemos respondida, te enseñamos nuestra respuesta. Si no, te contesta una IA con lo que sabemos de savvia, y puedes confirmárnosla cuando quieras. No escribas datos personales.',
+    ayuda: 'Si ya la hemos respondido, verás nuestra respuesta. Si no, te contesta una IA con lo que sabemos. No escribas datos personales.',
     boton: 'Preguntar',
     sinRespuesta: 'Esa no la tenemos escrita todavía. Mándanosla y te contestamos nosotros, normalmente en el día.',
   },
