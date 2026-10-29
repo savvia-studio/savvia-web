@@ -38,7 +38,9 @@ const ES: Record<string, string> = {
   'Brand Portfolio': 'Portfolio de marca', Consultancy: 'Consultoría', Cybersecurity: 'Ciberseguridad', Delivery: 'Reparto', Eldercare: 'Cuidado de mayores', Finance: 'Finanzas',
   Healthcare: 'Salud', Legal: 'Legal', Logistics: 'Logística', 'Real State': 'Inmobiliario', 'Renewable energy': 'Renovables', 'Social Impact': 'Impacto social', Tech: 'Tecnología', VC: 'Capital riesgo',
 };
-const t = (x: string) => (en ? x : ES[x] ?? x);
+// 30/10 (pulido) · en inglés, los rótulos del CMS salían tal cual, con una falta («Real State») y mayúsculas sueltas: se corrigen al enseñarlos
+const EN: Record<string, string> = { 'Real State': 'Real estate', 'Social Impact': 'Social impact', 'Brand Portfolio': 'Brand portfolio' };
+const t = (x: string) => (en ? EN[x] ?? x : ES[x] ?? x);
 // categorías que no dicen a qué se dedica el cliente (no sirven de sector bajo la pieza)
 const META = new Set(['Awwwards', 'YCombinator', 'Webflow Enterprise', 'Tech']);
 type Obra = { slug: string; nombre: string; dominio: string; href: string; sector: string; colores: [string, string, string]; portada: { tipo: 'video'; src: string; poster: string }; movil?: string; videoMovil?: { src: string; poster: string };
@@ -50,6 +52,9 @@ const GRABADOS = new Set(['greet', 'playground-agentico', 'fiallegas-abogados', 
 // 29/10, Home of Ambrose, Transcend, Isotrol y GOW: «que no se pueda ver en mobile, no me gusta cómo se ve»; GOW, «tiene bastante zoom»)
 // (Crece con Casavo era «solo thumbnail» hasta que llegaron sus grabaciones, el 27/10: ahora con vídeo de escritorio y de móvil)
 const SOLO_THUMB = new Set(['homeplus-casavo']);
+// 30/10 · Andoni: «los proyectos no deberían ir a ninguna web: abren el slider con la grabación y listo, menos Neety, que lleva al caso de estudio».
+// Ninguna pieza enlaza fuera (antes, Cmd+clic, clic central o sin JS iban a la web del cliente; y cuatro webs ya no existían: crececoncasavo.com,
+// gow.delivery, homeplus.casavo.com y endoaula.com). Sin caso, `href` es «#» = PiezaCasa la pinta como botón que abre el visor.
 const SIN_MOVIL = new Set(['lyra', 'eleven-lab', 'zrive', 'invopop', 'home-of-ambrose', 'transcend-network', 'isotrol', 'gow-delivery', ...SOLO_THUMB]);
 const conVideo = (slug: string) => GRABADOS.has(slug) && !SOLO_THUMB.has(slug);
 const MOVIL_GRABADO = new Set(['cubbo', 'valuat', 'remerge', 'claudia-be', 'routal', 'surepayroll', 'monad', 'thx', 'gsbindex', 'home-of-ambrose', 'kymatio', 'profounders-capital', 'naterra', 'bluence', 'lyra', 'business-online-payroll', 'adaral', 'managerpro-by-codely', 'fiallegas-abogados', 'gow-delivery','alpine-security', 'homeplus-casavo', 'junipero-vc', 'eleven-lab', 'vitalera', 'ikon', 'isotrol', 'qalea', 'kalma', 'kabila', 'impact-bridge', 'playground-agentico', 'transcend-network', 'wisable', 'greet', 'playground-iep', 'stellar', 'casa-for-agents']); // con grabación en móvil (<slug>-movil.mp4)
@@ -73,7 +78,7 @@ const TECS = new Set(TSC.flatMap((d) => d.tecnologia));
 // «mostremos todos los que hemos dicho que están bien»: vuelven, con los medios de la vitrina (su portada; Quantus con su móvil, Patchbay sin: «el responsive
 // no está bien resuelto»). (Neety no tiene `url` en su ficha: su web es neety.com, como en home.ts › anteriores)
 const AGENTICOS = ['neety', 'quantus', 'patchbay'].map((s) => caso(s)!).filter(Boolean).map((c): Obra => ({
-  slug: c.slug, nombre: c.nombre, dominio: c.dominio ?? '', href: CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : c.url ?? `https://${c.dominio ?? (c.slug === 'neety' ? 'neety.com' : c.slug)}`, sector: c.sector ?? '', colores: c.colores,
+  slug: c.slug, nombre: c.nombre, dominio: c.dominio ?? '', href: CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : '#', sector: c.sector ?? '', colores: c.colores,
   // 27/10 · Eric: Neety, con su grabación de escritorio de Screen Studio (la de /proyectos; el caso sigue con su portada)
   portada: c.slug === 'neety' ? { tipo: 'video', src: '/media/anteriores/video/neety.mp4', poster: '/media/anteriores/video/neety.jpg' } : { tipo: 'video', src: (c.escritorio ?? c.portada).src, poster: (c.escritorio ?? c.portada).poster ?? '' },
   pais: c.ubicacion ? [c.ubicacion.split(',').pop()!.trim()] : [], tec: (c.stack ?? []).filter((x) => TECS.has(x)), servicios: c.servicios, categorias: c.sector ? [c.sector] : [],
@@ -100,7 +105,7 @@ const TODAS: Obra[] = [
       : { src: '', poster: SOLO_THUMB.has(d.slug) && GRABADOS.has(d.slug) ? `/media/anteriores/video/${d.slug}.jpg` : `/media/portfolio/${d.slug}.webp` };
     return {
       slug: d.slug, nombre: h?.n ?? c?.nombre ?? NOMBRE[d.slug] ?? d.dominio, dominio: d.dominio,
-      href: c && CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : d.dominio ? `https://${d.dominio}` : '#', sector,
+      href: c && CASOS_LISTOS.includes(c.slug) ? ruta(lang, `/proyectos/${c.slug}`) : '#', sector,
       colores: ((h?.color as [string, string, string]) ?? c?.colores ?? d.colores) as [string, string, string],
       portada: { tipo: 'video', ...video }, pais: d.pais.map(t), tec: d.tecnologia, servicios: d.servicios.map(t), categorias: cats,
       movil: (d as { movil?: boolean }).movil && !SIN_MOVIL.has(d.slug) ? `/media/portfolio/${d.slug}-movil.webp` : undefined,
@@ -152,7 +157,10 @@ const PRIMERAS = OBRAS.slice(0, 2).flatMap((o) => {
   <script is:inline slot="head" define:vars={{ PRIMERAS }}>
     if (innerWidth < 768) {
       var e = document.documentElement.dataset.estacion || 'otono';
-      PRIMERAS.forEach(function (u) { var l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.fetchPriority = 'high'; l.href = u.replace('{e}', e); document.head.append(l); });
+      PRIMERAS.forEach(function (u) { var l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.fetchPriority = 'high'; l.href = u.replace('{e}', e);
+        // 30/10 (pulido) · las dos PNG son máscaras CSS (`mask:`), que el navegador pide en modo CORS: sin `crossorigin` el preload no se aprovechaba («credentials mode does not match»)
+        if (/\.png/.test(u)) l.crossOrigin = 'anonymous';
+        document.head.append(l); });
     }
   </script>
   <Nav />

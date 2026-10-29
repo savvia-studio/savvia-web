@@ -117,15 +117,29 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       const [r, g, b] = m.slice(0, 3).map((v) => { const x = +v / 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; });
       return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
-    const fondoClaro = () => {
-      const rb = btn.getBoundingClientRect(), x = rb.left + rb.width / 2, y = rb.top + rb.height / 2;
+    // 30/10 (pulido, Nilo) · el color de debajo se mira en un punto: el centro del botón, y aparte el centro de «¿Hablamos?», que va a su izquierda y
+    // caía sobre otra cosa (una pieza oscura de «Más proyectos» con el botón sobre el claro: la palabra, en tinta oscura, no se leía)
+    const claroEn = (x: number, y: number) => {
       for (const e of document.elementsFromPoint(x, y)) {
         if (raiz.contains(e)) continue;
-        const l = luminancia(getComputedStyle(e).backgroundColor);
-        if (l !== null) return l > 0.4;
+        // 30/10 (pulido, Nilo) · un fondo de DEGRADADO (las manchas de «Más proyectos», con los colores de cada web, pintadas en su ::before) no tiene color
+        // de fondo: se miraba lo de debajo (la sección, clara) y el icono y la palabra salían en tinta oscura sobre una mancha oscura. Se miran también los
+        // pseudoelementos (de arriba abajo: ::after, ::before, el fondo) y en un degradado se promedia la luz de sus colores
+        for (const cs of [getComputedStyle(e, '::after'), getComputedStyle(e, '::before'), getComputedStyle(e)]) {
+          if (cs.content === 'none' && cs !== getComputedStyle(e)) continue;
+          let l = luminancia(cs.backgroundColor);
+          if (l === null && /gradient\(/.test(cs.backgroundImage)) {
+            const ls = (cs.backgroundImage.match(/rgba?\([^)]*\)/g) ?? []).map(luminancia).filter((v): v is number => v !== null);
+            if (ls.length) l = ls.reduce((a, b) => a + b, 0) / ls.length;
+          }
+          if (l !== null) return l > 0.4;
+        }
       }
       return (luminancia(getComputedStyle(html).backgroundColor) ?? 0) > 0.4;
     };
+    const centro = (el: Element): [number, number] => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+    const fondoClaro = () => claroEn(...centro(btn));
+    const holaClaro = () => { const h = raiz.querySelector('[data-cf-hola]'); return h ? claroEn(...centro(h)) : fondoClaro(); };
     const heroEl = document.querySelector('[data-hero]');
     // (30/10 · rendimiento en móvil) el borde del hero, en coordenadas de la página (antes se medía en cada evento de scroll), y el color de debajo como mucho
     // cada 150 ms (antes, en cada fotograma: elementsFromPoint + estilos, 380 ms acumulados al bajar la home con la CPU de un móvil)
@@ -138,7 +152,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       const oculto = sinBoton || !lejos || preguntasVisible || pieCerca || html.classList.contains('menu-abierto') || html.classList.contains('estudio-sentado');
       raiz.classList.toggle('cf-fuera', oculto && (!abierto || desdeOculto));
       if (!abierto) desdeOculto = false;
-      if (!raf) { const falta = Math.max(0, 150 - (performance.now() - colorEn)); raf = window.setTimeout(() => requestAnimationFrame(() => { raf = 0; colorEn = performance.now(); raiz.classList.toggle('cf-claro', fondoClaro()); }), falta); }
+      if (!raf) { const falta = Math.max(0, 150 - (performance.now() - colorEn)); raf = window.setTimeout(() => requestAnimationFrame(() => { raf = 0; colorEn = performance.now(); raiz.classList.toggle('cf-claro', fondoClaro()); raiz.classList.toggle('cf-hola-claro', holaClaro()); }), falta); }
     };
     addEventListener('scroll', refrescarBtn, { passive: true });
     addEventListener('resize', refrescarBtn);
@@ -504,7 +518,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     pointer-events: none;
     transition: opacity 0.8s var(--ease-out-expo), translate 0.8s var(--ease-out-expo), filter 0.8s var(--ease-out-expo), color 0.4s var(--ease-out-expo);
   }
-  .cf.cf-claro .cf-hola { color: var(--color-cacao); }
+  .cf.cf-hola-claro .cf-hola { color: var(--color-cacao); } /* 30/10 (pulido): la palabra lee el fondo bajo ELLA, no bajo el botón */
   .cf .cf-hola:hover { opacity: 1 !important; }
   .cf.cf-hola-on:not(.cf-abierto):not(.cf-fuera) .cf-hola {
     pointer-events: auto;

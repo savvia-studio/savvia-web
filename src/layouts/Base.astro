@@ -49,8 +49,9 @@ const ogImagen = new URL(`/og/${ogEstacion}${lang === 'en' ? '-en' : ''}.jpg?v=5
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    {tieneEn(Astro.url.pathname) && <><link rel="alternate" hreflang="es" href={hrefLang('es')} />
+    {/* 30/10 (pulido) · lo que no se indexa (la 404, el Método) va sin canónica ni hreflang: la 404 declaraba un /en/404/ que no existe */}
+    {indexar && <link rel="canonical" href={canonical} />}
+    {indexar && tieneEn(Astro.url.pathname) && <><link rel="alternate" hreflang="es" href={hrefLang('es')} />
     <link rel="alternate" hreflang="en" href={hrefLang('en')} />
     <link rel="alternate" hreflang="x-default" href={hrefLang('es')} /></>}
     <!-- RONDA 38 · metadatos para compartir (og/twitter en URL absoluta; `site` = https://savvia.studio) -->

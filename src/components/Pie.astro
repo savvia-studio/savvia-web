@@ -841,6 +841,10 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
     display: inline-block;
     transition: opacity 0.35s ease;
   }
+  /* 30/10 (pulido) · con el dedo, la zona de toque crece (relleno con margen negativo: el texto no se mueve); los legales de 12 px medían 15 px de alto */
+  @media (pointer: coarse) {
+    .enlace-pie { position: relative; padding-block: 0.6rem; margin-block: -0.6rem; }
+  }
   ul:has(.enlace-pie:hover) .enlace-pie:not(:hover) {
     opacity: 0.18; /* 28/10: «que se vean algo menos» (antes 0,3) */
   }

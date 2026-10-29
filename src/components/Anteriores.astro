@@ -181,7 +181,7 @@ import { icono } from '../lib/iconos';
             {/* 27/10 · Eric: «en la home tienes que dejar como están, PERO sí que tenemos que dar la oportunidad de cambiar de mobile/mesa y eso como en proyecto»: cada card
                 va en una CELDA (lleva el sitio del mosaico y las variables) con el botoncito de escena al lado del enlace, fuera de él (como Portfolio.astro › li[data-obra]) */}
             <div class="celda" data-celda style={`--col:${s.col};--ratio:${s.ratio};--baja:${s.baja};${m ? `--mx:${m[0]}%;--top:${m[1]}%;--mw:${m[2]}%;` : s.ratio === '3 / 4' ? '--top:20%;' : ''}--giro:${giro}deg;--i:${(i % 3) + 1};--c1:${c.color[0]};--c2:${c.color[1]};--c3:${c.color[2]}`}>
-            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo !== 'claro' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} data-tipo={s.tipo} data-forma={propia} data-nav={nav} href={casoDe(c) ? ruta(lang, `/proyectos/${casoDe(c)}`) : `https://${c.dominio}`} target={casoDe(c) ? undefined : '_blank'} rel={casoDe(c) ? undefined : 'noopener'} data-caso={casoDe(c) ? '' : undefined} data-pieza>
+            <a class={`pieza ${s.tipo} ${s.izq ? 'izq' : ''} ${s.tipo !== 'claro' && claro(c.color[0]) ? 'tinta-oscura' : ''}`} data-slug={c.slug} data-tipo={s.tipo} data-forma={propia} data-nav={nav} href={casoDe(c) ? ruta(lang, `/proyectos/${casoDe(c)}`) : undefined} role={casoDe(c) ? undefined : 'button'} tabindex={casoDe(c) ? undefined : 0} data-caso={casoDe(c) ? '' : undefined} data-pieza>
               <div class={`lamina ${s.g ?? 'g-marca'} ${s.fondo || s.barrido != null ? 'con-fondo' : ''} ${s.barrido != null ? 'barrido' : ''}`} style={s.fondo ? `--fondo:url('${s.fondo}')` : s.barrido != null ? BARRIDO(s.barrido) : undefined}>
                 {/* las escenas que no son la suya: ocultas, sin descargar nada hasta que se eligen (las fotos llevan data-src; los vídeos, preload="none" y el póster al verse) */}
                 {propia !== 'navegador' && <div class="mockup" data-f="navegador"><Fragment set:html={vEscritorio} /></div>}
@@ -418,12 +418,14 @@ import { icono } from '../lib/iconos';
         vuelta?.focus({ preventScroll: true });
       });
       vis.addEventListener('cancel', (e) => { e.preventDefault(); cierra(); }); // Esc: con la misma salida suave
-      piezas.forEach((pz, i) => pz.addEventListener('click', (e) => {
-        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web como siempre
-        if (pz.hasAttribute('data-caso')) return; // 28/10 · con caso de estudio, el clic va al caso
-        // 28/10 · Eric: «en mobile clico y me va a la URL de la web final: eso NUNCA»: también en móvil abre el visor (antes, ronda 268, iba a la web)
-        e.preventDefault(); abre(i);
-      }));
+      // 30/10 · Andoni: «los proyectos no deberían ir a ninguna web: abren el slider con la grabación y listo, menos Neety, que lleva al caso; también la home».
+      // Sin caso, la pieza ya no es un enlace (sin `href`, `role="button"`): clic, Intro y espacio abren el visor; con Cmd+clic, clic central o sin JS no hay
+      // web a la que ir (antes, con modificador iba a la web del cliente). 28/10 · Eric: «en mobile clico y me va a la URL de la web final: eso NUNCA».
+      piezas.forEach((pz, i) => {
+        if (pz.hasAttribute('data-caso')) return; // con caso de estudio, el clic va al caso
+        pz.addEventListener('click', (e) => { if (e.defaultPrevented || e.button !== 0) return; e.preventDefault(); abre(i); });
+        pz.addEventListener('keydown', (e) => { if (e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); abre(i); });
+      });
       vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));
       vis.querySelector('[data-vis-cerrar]')!.addEventListener('click', cierra);
       // clic fuera de la lámina y de los controles = cerrar
@@ -812,6 +814,7 @@ import { icono } from '../lib/iconos';
     display: block;
     min-width: 0;
   }
+  .pieza[role='button'] { cursor: pointer; } /* 30/10: sin `href`, el navegador no pone la mano */
   /* 27/10 · la CELDA del mosaico: lleva el sitio (antes en la pieza) y, encima de la card y fuera del enlace, el botoncito de escena */
   .celda { position: relative; min-width: 0; }
   .banda, .cuadricula-arriba { grid-column: 1 / -1; }

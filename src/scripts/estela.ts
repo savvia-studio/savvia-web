@@ -180,7 +180,6 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   // (30/10 · rendimiento en móvil) el programa se compila EN SEGUNDO PLANO (KHR_parallel_shader_compile): preguntar COMPILE_STATUS o LINK_STATUS nada
   // más enlazar bloquea el hilo hasta que el compilador acaba (0,3–1 s en un móvil, por lienzo). Se sondea COMPLETION_STATUS cada fotograma; hasta
   // entonces los uniformes son null (WebGL los ignora) y no se pinta. Sin la extensión, como antes: síncrono.
-  const par = gl.getExtension('KHR_parallel_shader_compile') as { COMPLETION_STATUS_KHR: number } | null;
   const sh = (tipo: number, src: string) => { const s = gl.createShader(tipo)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
   let programa = false; // enlazado y con los uniformes puestos
   let enPrograma = () => {}; // qué hacer cuando el programa queda listo (se define más abajo, con `medir`)
@@ -211,6 +210,10 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   };
   const montar = (alListo: () => void = () => enPrograma()) => {
     programa = false; U = () => null; uR = uT = uG = uD = uGT = uM = uMK = uE = uEB = uEV = uO = uLX = uFO = null;
+    // 30/10 (pulido, Nilo) · la extensión se pide aquí, en cada montaje: tras perder y recuperar el contexto (Safari duerme los lienzos lejanos y los
+    // recupera al acercarse) los objetos de extensión del contexto anterior ya no valen; con el viejo, WebKit daba «KHR_parallel_shader_compile not
+    // enabled» en cada fotograma, COMPLETION_STATUS devolvía null y el lienzo se quedaba sin pintar para siempre
+    const par = gl.getExtension('KHR_parallel_shader_compile') as { COMPLETION_STATUS_KHR: number } | null;
     const pr = gl.createProgram()!;
     gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS.replace('NARANJA_RGB', rgbDe('coral').map((v) => (v / 255).toFixed(3)).join(',')))); gl.linkProgram(pr);
     if (!par) { if (!ajustar(pr)) return false; alListo(); return true; }
@@ -298,7 +301,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   enPrograma = () => { if (listo) medir(); }; // el programa llegó después de la imagen: tamaño, uniformes de medida y primer fotograma
   new ResizeObserver(() => listo && medir()).observe(cv);
   // soltar y recuperar el contexto según la distancia a la pantalla (ver arriba)
-  const ext = gl.getExtension('WEBGL_lose_context');
+  let ext = gl.getExtension('WEBGL_lose_context');
   let dormido = false;
   cv.addEventListener('webglcontextlost', (e) => {
     e.preventDefault(); listo = false; if (raf) { cancelAnimationFrame(raf); raf = 0; }
@@ -306,7 +309,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
     if (!dormido && cv.isConnected) { dormido = true; if (!lejos) setTimeout(() => ext?.restoreContext(), 120); }
   });
   cv.addEventListener('webglcontextrestored', () => {
-    dormido = false; tex = null; // la textura del contexto perdido ya no existe
+    dormido = false; tex = null; ext = gl.getExtension('WEBGL_lose_context'); // la textura del contexto perdido ya no existe; la extensión, tampoco: se vuelve a pedir
     montar(() => {
       // lo que estaba a medio aparecer vuelve ya aparecido (el visitante no lo estaba viendo)
       if (gota) { t0 = performance.now() - (INTRO + CRECE + 1) * 1000; suelta = true; }
@@ -318,7 +321,7 @@ export function crearEstela(cv: HTMLCanvasElement, img: HTMLImageElement, op: { 
   if (ext) new IntersectionObserver(([e]) => {
     lejos = !e.isIntersecting;
     if (lejos) dormir();
-    else if (dormido) ext.restoreContext();
+    else if (dormido) ext?.restoreContext();
   }, { rootMargin: '100% 0px' }).observe(cv);
   return {
     fondo(r, g2, b) { foV = [r / 255, g2 / 255, b / 255]; gl.uniform3f(uFO, foV[0], foV[1], foV[2]); ult = 0; pedir(); },

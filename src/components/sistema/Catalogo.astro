@@ -200,6 +200,8 @@ const L = (p: Pieza) => (en && PIEZA_EN[p.id] ? { ...p, ...PIEZA_EN[p.id] } : p)
   .cat-est button { padding: 4px 10px; border: 0; border-radius: var(--radius-full); background: none; color: rgb(245 245 247 / 0.88); font: inherit; font-size: var(--text-detail); line-height: 1.4; cursor: pointer; transition: background-color 0.3s ease, color 0.3s ease; }
   .cat-est button:hover { color: #F5F5F7; }
   .cat-est button[aria-checked='true'] { background: #F5F5F7; color: #302018; }
+  /* 30/10 (pulido, Nilo) · a 320 la píldora con las cuatro estaciones (278 px) se salía 10 px de la tarjeta (280 - 24 de margen): letra y relleno más pequeños por debajo de 30 rem */
+  @media (width < 30rem) { .cat-est button { padding-inline: 7px; font-size: 0.75rem; } }
   .cat-nombre { font-size: var(--text-ui); line-height: var(--text-ui--line-height); font-weight: 500; color: var(--fg); }
   .cat-archivo { color: var(--fg2); overflow-wrap: anywhere; }
   .cat-que { margin-top: calc(var(--spacing) * 2); font-size: var(--text-aux); line-height: 1.5; color: var(--fg); text-wrap: pretty; }

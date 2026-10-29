@@ -21,7 +21,7 @@ import { langDe } from '../../lib/i18n';
 // 28/10 · /en/storybook: el mismo libro en inglés (el idioma sale de la dirección); cada texto, en `en ? 'English' : 'castellano'`
 const lang = langDe(Astro.currentLocale);
 const en = lang === 'en';
-const EST_N_EN: Record<string, string> = { primavera: 'Spring', verano: 'Summer', otono: 'Autumn', invierno: 'Winter' };
+const EST_N_EN: Record<string, string> = { primavera: 'Spring', verano: 'Summer', otono: 'Autumn', invierno: 'Winter', blanco: 'White', cacao: 'Cocoa' }; // 30/10 (pulido): también los dos fondos del logotipo, que salían en castellano en /en/
 // RONDA 153 · Iconoir en build (28/10: la muestra por grupos, GRUPOS_ICONOS, salió; queda ico() para la construcción del icono)
 const ICONOIR = import.meta.glob('/node_modules/iconoir/icons/regular/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
 const ico = (n: string) => (ICONOIR[`/node_modules/iconoir/icons/regular/${n}.svg`] ?? '').replace(/\s(width|height)="24"/g, '').replace('<svg ', '<svg aria-hidden="true" focusable="false" ');
@@ -367,8 +367,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                separadas (ronda 154, tools/r154/separar-v.cjs) */}
           <p class="cuerpo">{en ? <>The logo is the word “savvia”, always in lower case. It comes from Family, adjusted by hand: we tightened the whole word and opened up the pair of v’s, which is what turns savia into savvia.</> : <>El logotipo es la palabra «savvia», siempre en minúscula. Nace de Family, ajustada a mano: apretamos la palabra entera y abrimos el par de v, que es lo que convierte savia en savvia.</>}</p>
           <div class="fila f2">
-            <figure class="placa oscura grande"><span class="lockup" role="img" aria-label={en ? "savvia on Cacao" : "savvia sobre Cacao"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>On Cacao, Blanco</> : <>Sobre Cacao, Blanco</>}</figcaption></figure>
-            <figure class="placa clara grande"><span class="lockup" role="img" aria-label={en ? "savvia on white" : "savvia sobre blanco"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>On white, Cacao</> : <>Sobre blanco, Cacao</>}</figcaption></figure>
+            <figure class="placa oscura grande"><span class="lockup" role="img" aria-label={en ? "savvia on Cocoa" : "savvia sobre Cacao"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>On Cocoa, white</> : <>Sobre Cacao, Blanco</>}</figcaption></figure>
+            <figure class="placa clara grande"><span class="lockup" role="img" aria-label={en ? "savvia on white" : "savvia sobre blanco"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>On white, Cocoa</> : <>Sobre blanco, Cacao</>}</figcaption></figure>
           </div>
           <h3 class="font-display text-h3 sub-bb">{en ? <>Why there is no isotype</> : <>Por qué no hay isotipo</>}</h3>
           <p class="cuerpo">{en ? <>Sap has no fixed shape: it runs within and changes with every season. That is why savvia has no symbol: the brand is the word, and what changes (the colour, the oak, the season) acts as one.</> : <>La savia no tiene una forma fija: corre por dentro y cambia con cada estación. Por eso savvia no tiene símbolo: la marca es la palabra, y lo que cambia (el color, el roble, la estación) hace de símbolo.</>}</p>
@@ -464,7 +464,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
                 ].map(([k, v, u], j) => (
                   <li style={`--c:${v}`} data-c={j} hidden={!estL[0].colores[j]}><i class="est-m" /><span class="est-mn" data-nombre-c={j}>{estL[0].colores[j]?.[1]}</span><span class="detail" data-hex-c={j}>{estL[0].colores[j]?.[2]}</span><span class="detail est-u">{u}</span></li>
                 ))}
-                <li class="comun" style="--c:#F5F5F7" data-comun><i class="est-m" /><span class="est-mn">Blanco</span><span class="detail">#F5F5F7</span><span class="detail est-u">{en ? <>light areas, all year round</> : <>lo claro, todo el año</>}</span></li>
+                <li class="comun" style="--c:#F5F5F7" data-comun><i class="est-m" /><span class="est-mn">{en ? 'White' : 'Blanco'}</span><span class="detail">#F5F5F7</span><span class="detail est-u">{en ? <>light areas, all year round</> : <>lo claro, todo el año</>}</span></li>
               </ul>
             </div>
           </div>
@@ -709,7 +709,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         <section id="descargas" class="seccion" aria-labelledby="h-descargas">
           <h2 id="h-descargas" class="font-display text-h2">{en ? <>Downloads</> : <>Descargas</>}</h2>
           <p class="cuerpo">{en ? <>Everything from the brand, for whoever needs it: the logo, the icons and the social backgrounds, one per season. Download it all or piece by piece.</> : <>Todo lo de la marca, para quien lo necesite: el logotipo, los iconos y los fondos para redes, uno por estación. Descárgalo entero o pieza a pieza.</>}</p>
-          <p class="mt-8"><a class="btn btn-primary" href="/descargas/savvia-kit.zip" download><span class="btn-tx">{en ? <>Download everything · ZIP 9.8 MB</> : <>Descargar todo · ZIP 9,8 MB</>}</span><Fragment set:html={flecha('abajo')} /></a></p>
+          <p class="mt-8"><a class="btn btn-primary" href="/descargas/savvia-kit.zip" download><span class="btn-tx">{en ? <>Download everything</> : <>Descargar todo</>}</span><Fragment set:html={flecha('abajo')} /></a></p>
+          {/* 30/10 (pulido, Nilo) · el peso fuera del botón: con «Download everything · ZIP 9.8 MB» el botón medía 311 px y a 320 se salía por la derecha (y el punto medio no va en texto visible) */}
+          <p class="detail mt-2">{en ? <>ZIP, 9.8 MB</> : <>ZIP, 9,8 MB</>}</p>
           <h3 class="font-display text-h3 sub-bb">{en ? <>Logo</> : <>Logotipo</>}</h3>
           <div class="dl-logos">
             {[['blanco', 'Blanco', '#3B231B', '#F5F5F7'], ['cacao', 'Cacao', '#F5F5F7', '#3B231B'], ['otono', 'Otoño', '#3B231B', '#ECBF8F'], ['invierno', 'Invierno', '#F5F5F7', '#22303E'], ['primavera', 'Primavera', '#3A2932', '#F4C7D5'], ['verano', 'Verano', '#1B3125', '#CFE6A4']].map(([id, n, fondo, tinta]) => (
@@ -1801,6 +1803,13 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
     .ventana { width: 90%; }
     .v-tab:not(.on), .v-mas { display: none; }
   }
+  /* 30/10 (pulido, Nilo) · a 320 el rótulo pasaba a dos líneas y la ventana (al pie de una placa 21:9 de 120 px de alto) se le montaba encima: (va después del bloque de 48 rem, que fija 4:3) por debajo de
+     30 rem el rótulo va en flujo, arriba, y la ventana debajo, entera */
+  @media (width < 30rem) {
+    .apl-nav { aspect-ratio: auto; grid-template-rows: auto 1fr; row-gap: calc(var(--spacing) * 3); place-items: end center; }
+    .apl-nav .apl-pie { order: -1; position: static; justify-self: start; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4) 0; }
+    .apl-nav .ventana { width: 80%; max-height: none; }
+  }
   @media (prefers-reduced-motion: reduce) {
     .raices-d path { stroke-dashoffset: 0; }
     .br .tallo { stroke-dashoffset: 0; } .br .h1, .br .h2 { scale: 1; }
@@ -1850,6 +1859,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .lockups-est .placa { aspect-ratio: 4 / 3; }
   .lockups-est .lockup { font-size: clamp(1.3rem, 2.2vw, 1.9rem); }
   @media (width < 48rem) { .lockups-est { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* 30/10 (pulido, Nilo) · a 320 la etiqueta («PRIMAVERA, CIRUELA») pasa a dos líneas y pisaba el logotipo en la placa 4:3: placa cuadrada, con aire para las dos líneas */
+  @media (width < 30rem) { .lockups-est .placa { aspect-ratio: 1; } .lockups-est .lockup { translate: 0 -0.5em; } }
   .rotulo-bb { margin-top: calc(var(--spacing) * 10); color: var(--fg2); }
   .sub-bb { margin-top: calc(var(--spacing) * 16); }
   /* 28/10 (4.ª) · EL CICLO, sin cajas: cuatro columnas con su roble apoyado en la línea del año; la pista (un rectángulo de esquinas redondas que pasa
@@ -1891,6 +1902,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .ciclo.cartas .ci-savia { margin: calc(var(--spacing) * 2) calc(var(--spacing) * 6) 0; font-size: var(--text-aux); color: color-mix(in srgb, var(--ci-tinta) 80%, transparent); max-width: 34ch; }
   .ciclo.cartas .ci-proy { margin: calc(var(--spacing) * 2) calc(var(--spacing) * 6) 0; font-size: var(--text-aux); color: color-mix(in srgb, var(--ci-tinta) 66%, transparent); max-width: 34ch; }
   .ciclo.cartas .ci-proy b { display: inline; margin: 0 0.35em 0 0; font-weight: 500; color: inherit; }
+  .ciclo.cartas .ci-savia, .ciclo.cartas .ci-proy { width: auto; } /* 30/10 (pulido, Nilo): con width 100 % más los 24 px de margen a cada lado, el texto se salía 24 px por la derecha de la tarjeta (recortado) por debajo de 390 */
   /* invierno es nieve sobre el fondo: su filo va en una capa POR ENCIMA del roble (la imagen, con su fondo de nieve, tapaba la sombra interior al crecer)
      y, donde el anillo muerde su esquina, el contorno del hueco lleva el mismo trazo (.ci-a-filo) */
   .ciclo.cartas .ci-e[data-ci='3']::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; box-shadow: inset 0 0 0 1px rgb(34 48 62 / 0.12); pointer-events: none; }
@@ -2101,7 +2113,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .dl-logo { margin: 0; aspect-ratio: 4 / 3; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4) calc(var(--spacing) * 4); border-radius: var(--radius-lg, 8px); }
   .dl-logo .logo-masc { width: 62%; height: auto; aspect-ratio: 2373 / 707; }
   .dl-logo { box-shadow: inset 0 0 0 1px var(--rule); }
-  .dl-logo figcaption { display: flex; gap: calc(var(--spacing) * 4); width: 100%; }
+  .dl-logo figcaption { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 1) calc(var(--spacing) * 4); width: 100%; } /* 30/10 (pulido): en fichas estrechas (< 390) SVG y PNG se salían; ahora pasan a la línea de abajo */
   .dl-logo figcaption span { margin-right: auto; opacity: .8; }
   .dl-logo a, .dl-lista a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   .dl-opc { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); margin-top: calc(var(--spacing) * 6); }
@@ -2131,10 +2143,11 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .dl-avatar { position: absolute; left: 4cqi; top: calc(100cqi / 3 - 11cqi); width: 22cqi; height: auto; border-radius: 50%; box-shadow: 0 0 0 3px var(--bg, var(--color-cacao)), 0 0 0 4px var(--rule); }
   /* el nombre, a la derecha del avatar (que asoma bajo el fondo como en X y LinkedIn): no lo tapa */
   .dl-n { margin: calc(var(--spacing) * 3) 0 0 30cqi; min-height: 13cqi; font-size: var(--text-h3); }
-  .dl-lista { margin-top: calc(var(--spacing) * 3); display: grid; gap: calc(var(--spacing) * 2); }
-  .dl-lista li { display: flex; gap: calc(var(--spacing) * 3); border-top: 1px solid var(--rule); padding-top: calc(var(--spacing) * 2); }
+  .dl-lista { margin-top: calc(var(--spacing) * 3); display: grid; grid-template-columns: minmax(0, 1fr); gap: calc(var(--spacing) * 2); } /* 30/10 (pulido): la columna implícita crecía al contenido mínimo y a 320 la lista llegaba al borde de la ventana */
+  .dl-lista li { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3); min-width: 0; border-top: 1px solid var(--rule); padding-top: calc(var(--spacing) * 2); }
   .dl-lista li span { margin-right: auto; color: var(--fg2); }
   @media (width < 48rem) { .dl-logos { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dl-est { grid-template-columns: 1fr; } }
+  @media (width < 48rem) { .dl-logo figcaption span { flex-basis: 100%; } } /* 30/10 (pulido): en el móvil, el nombre en su línea y SVG · PNG juntos debajo (si no, SVG se quedaba arriba y PNG bajaba solo) */
   /* ronda 266 · el perfil en redes (sustituye a la tarjeta de visita) */
   /* 29/10 · Eric: el perfil, del mismo alto que el chat de al lado: sin proporción fija, se estira con la fila (el chat crece con su contenido) */
   .apl-perfil { grid-column: span 7; aspect-ratio: auto; align-self: stretch; min-height: calc(var(--spacing) * 96); background: radial-gradient(120% 90% at 30% 20%, #f3ece4, #e2d6ca); color: var(--color-cacao); }
@@ -2164,6 +2177,9 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .est-robles { grid-column: 7 / span 6; }
   .est-paleta { grid-column: 1 / -1; }
   @media (width < 64rem) { .est-txt, .est-robles { grid-column: 1 / -1; } }
+  /* 30/10 (pulido, Nilo) · por debajo de 64 rem todo ocupa la fila entera, pero la retícula seguía siendo de 12 columnas con 11 huecos de 24 px: 264 px de huecos en
+     una tarjeta de 232 (a 320) y la retícula se salía 32 px por la derecha (la muestra Coral y el botón «Verano», fuera de la tarjeta). Una sola columna */
+  @media (width < 64rem) { .est-dentro { grid-template-columns: minmax(0, 1fr); column-gap: 0; } }
   .est-puntos { flex-wrap: wrap; gap: calc(var(--spacing) * 2); }
   /* 28/10 · Eric: «que no se monten ya en desktop»: en escritorio, en una fila (menos relleno a los lados) */
   @media (width >= 64rem) { .est-puntos { flex-wrap: nowrap; } .est-puntos button { padding-inline: calc(var(--spacing) * 3); white-space: nowrap; } }

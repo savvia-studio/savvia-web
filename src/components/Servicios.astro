@@ -337,6 +337,13 @@ const Check = `<svg class="check" viewBox="0 0 20 20" aria-hidden="true"><circle
     .d-movil p { grid-area: 1 / 1; color: var(--fg2); text-wrap: pretty; opacity: 0; transition: opacity 0.35s ease; }
     .d-movil p.on { opacity: 1; transition-delay: 0.1s; }
   }
+  /* 30/10 (pulido, Nilo) · por debajo de 390 px las tres píldoras no cabían en una fila (medido: 346 px de píldoras en 280, 320 y 335 px de ancho) y la banda
+     pegada pasaba a dos filas, tapando 46 px más de lista. Letra y relleno a escala para que quepan en una (320: 15 px, 360: 15, 375: 16); a 390 no cambia nada */
+  @media (width < 24.375rem) {
+    .selector { gap: 6px; }
+    .opcion { padding-inline: clamp(7px, 2.2vw, 9px); }
+    .nombre { font-size: clamp(15px, 4.2vw, 16.5px); }
+  }
 
   /* ── LA TARJETA (papel claro sobre el salvia) */
   /* ── LA TARJETA (ronda 134: sin caja propia; es la celda entre las guías, a la derecha del divisor) */

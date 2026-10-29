@@ -175,7 +175,8 @@ import Problemas from './Problemas.astro';
         </div>
         <div class="lienzo" data-lienzo>
           <!-- la home de Neety: su hero REAL (réplica exacta, vista tablet 768 × 864 escalada al hueco), que se monta con lo que cogen los agentes -->
-          <div class="neety" data-neety data-slot="fondo"><NeetyHero caja /></div>
+          {/* 30/10 (pulido) · `inert`: la réplica es una ilustración; sus enlaces (Plataforma, Log in, Solicitar demo…) eran paradas del Tab y los lectores de pantalla los anunciaban */}
+          <div class="neety" data-neety data-slot="fondo" inert><NeetyHero caja /></div>
           <!-- la PETICIÓN de Tu equipo: se teclea en vivo, se envía y se recoge en la píldora de estado -->
           <div class="composer" data-composer>
             <!-- ronda 203 · Eric: «más fiel al típico chat de Claude o ChatGPT»: el texto arriba y, abajo, «+», el modelo y enviar -->

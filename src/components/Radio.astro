@@ -32,7 +32,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     <span class="m-ondas" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     <span class="m-pausa" aria-hidden="true"><Fragment set:html={icono('pause', 'fill')} /></span>
   </button>
-  <div class="panel" id="radio-panel" data-radio-panel>
+  <div class="panel" id="radio-panel" data-radio-panel inert>
     <div class="cabeza">
       <div class="emisoras" role="tablist" aria-label={en ? 'Station' : 'Emisora'}>
         <button type="button" role="tab" aria-selected="true" data-em="todas">{en ? 'All' : 'Todas'}</button>
@@ -49,7 +49,7 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     <ol class="pistas" aria-label={en ? 'Tracks' : 'Piezas'}>
       {PISTAS.map((p) => (
         <li data-em={p.em}>
-          <button type="button" data-pista={p.id} data-t={p.t} data-ini={p.ini} data-fin={p.fin}>
+          <button type="button" data-pista={p.id} data-t={p.t} data-ini={p.ini} data-fin={p.fin} tabindex="-1">
             <span class="p-t">{p.t}</span>
             <span class="p-em">{p.emNombre}</span>
             <span class="p-ondas" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -257,6 +257,10 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       bPlay.setAttribute('aria-label', on ? `${t('Apagar la música', 'Turn the music off')}${actual ? ` (${actual.t})` : ''}` : t('Encender la música', 'Turn the music on'));
       tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.em === em)));
       items.forEach((b) => b.classList.toggle('on', on && !!actual && b.dataset.pista === actual.id));
+      // 30/10 (pulido) · la lista es UNA parada del Tab (la pieza que suena o la primera a la vista) y se recorre con las flechas: antes eran 14 paradas antes de llegar al menú
+      const aLaVista = items.filter((b) => b.closest('li')!.getClientRects().length);
+      const foco = aLaVista.find((b) => b.classList.contains('on')) ?? aLaVista[0];
+      items.forEach((b) => { b.tabIndex = b === foco ? 0 : -1; });
       if (actual && actual.id !== vista) { vista = actual.id; centrar(caja.classList.contains('abierto')); }
       ahora.textContent = on && actual ? (cede ? t(`${actual.t} sigue al salir de la mesa`, `${actual.t} keeps playing when you leave the desk`) : t(`Suena ${actual.t}`, `Playing ${actual.t}`)) : t('Apagada', 'Off');
     };
@@ -393,7 +397,9 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
     let tAbrir = 0;
     // solo se centra al ABRIRSE (de cerrado a abierto): al pulsar una pieza, su foco disparaba esto otra vez y la lista saltaba a la que sonaba entre el
     // pulsar y el soltar, así que el clic caía fuera y no cambiaba (RONDA 158 · Eric)
-    const abrir = (si: boolean) => { const ya = caja.classList.contains('abierto'); caja.classList.toggle('abierto', si); bPlay.setAttribute('aria-expanded', String(si)); if (si && !ya) centrar(false); };
+    // 30/10 (pulido) · cerrado, el panel es `inert` (está a opacidad 0): sus 18 botones ya no son paradas del Tab ni los anuncia el lector de pantalla
+    const panel = caja.querySelector<HTMLElement>('[data-radio-panel]')!;
+    const abrir = (si: boolean) => { const ya = caja.classList.contains('abierto'); caja.classList.toggle('abierto', si); panel.inert = !si; bPlay.setAttribute('aria-expanded', String(si)); if (si && !ya) centrar(false); };
     if (matchMedia('(hover: hover)').matches) {
       caja.addEventListener('pointerenter', () => { clearTimeout(tAbrir); tAbrir = window.setTimeout(() => abrir(true), 140); });
       caja.addEventListener('pointerleave', () => { clearTimeout(tAbrir); tAbrir = window.setTimeout(() => abrir(false), 260); });
@@ -416,6 +422,14 @@ const PISTAS = EMISORAS.flatMap((e) => e.pistas.map((p: { f: string; t: string; 
       try { localStorage.setItem('savvia:radio', em); } catch {}
       if (on && actual && em !== 'todas' && actual.em !== em) sonar(true); else { pintar(); centrar(false); }
     }));
+    caja.querySelector<HTMLElement>('.pistas')!.addEventListener('keydown', (e) => {
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+      const aLaVista = items.filter((b) => b.closest('li')!.getClientRects().length);
+      const i = aLaVista.indexOf(document.activeElement as HTMLButtonElement); if (i < 0) return;
+      e.preventDefault();
+      const j = e.key === 'Home' ? 0 : e.key === 'End' ? aLaVista.length - 1 : Math.min(aLaVista.length - 1, Math.max(0, i + (e.key === 'ArrowDown' ? 1 : -1)));
+      aLaVista[j].focus();
+    });
     items.forEach((b) => b.addEventListener('click', () => {
       const p = PISTAS.find((x) => x.id === b.dataset.pista)!;
       if (on && actual?.id === p.id) return;

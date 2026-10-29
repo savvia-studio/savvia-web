@@ -163,8 +163,15 @@ const tomas = await Promise.all(obras.map(async (o) => {
     vis.addEventListener('cancel', (e) => { e.preventDefault(); cierra(); });
     document.addEventListener('click', (e) => {
       const pz = (e.target as HTMLElement).closest<HTMLElement>('[data-abre-visor]');
-      if (!pz || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // con modificador, va a la web
+      if (!pz || e.defaultPrevented || e.button !== 0) return;
       // 28/10 · Eric: «en mobile clico y me va a la URL de la web final: eso NUNCA; tiene que abrir el slider»: también en móvil, el visor (antes, ronda 268, iba a la web)
+      e.preventDefault(); abre(pz);
+    });
+    // 30/10 · la pieza sin caso ya no es un enlace (PiezaCasa: role="button"): Intro y espacio abren el visor, como el clic
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const pz = (e.target as HTMLElement).closest<HTMLElement>('[data-abre-visor]:not([href])');
+      if (!pz) return;
       e.preventDefault(); abre(pz);
     });
     vis.querySelectorAll<HTMLElement>('[data-vis-paso]').forEach((b) => b.addEventListener('click', () => ir(cur + Number(b.dataset.visPaso))));

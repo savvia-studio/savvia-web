@@ -21,6 +21,8 @@ interface Props { o: ObraCasa; i: number }
 const { o, i } = Astro.props;
 const en = Astro.currentLocale === 'en';
 // sin caso de estudio: enlaza a su web y, en escritorio, el clic abre el VISOR (Visor.astro), como en la home; con caso, lleva al caso.
+// 30/10 · Andoni: «no deberían ir a ninguna web: abren el slider con la grabación y listo, menos Neety, que lleva al caso». Sin caso, la pieza ya no es
+// un enlace (sin `href`, con `role="button"`): el clic, Intro y espacio abren el visor; no hay web a la que ir con Cmd+clic, clic central o sin JS.
 // 26/10 · Eric: fuera la píldora «Caso de estudio» y la flecha ↗; al pasar, la LUPA (la de la home) en el sitio del icono de vídeo
 const fuera = /^https?:/.test(o.href);
 // 27/10 · Eric: «clico aquí [Stellar] y me hace scroll up»: sin dominio todavía, el enlace era «#» y subía la página. Sin web, el clic abre el visor igual
@@ -76,9 +78,9 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
 
 <a
   class={`pieza navegador ${esClaro ? 'claro tinta-oscura' : 'mancha'}`}
-  href={o.href}
-  target={fuera ? '_blank' : undefined}
-  rel={fuera ? 'noopener' : undefined}
+  href={caso ? o.href : undefined}
+  role={caso ? undefined : 'button'}
+  tabindex={caso ? undefined : 0}
   data-pieza
   data-pieza-casa
   data-slug={o.slug}
@@ -117,6 +119,7 @@ const enMovil = o.movil || o.videoMovil ? medio(o.videoMovil, o.movil, true) : '
 <style>
   /* ── lo de Anteriores.astro (rondas 18–290), tal cual */
   .pieza { display: block; min-width: 0; color: inherit; }
+  .pieza[role='button'] { cursor: pointer; } /* 30/10: sin `href`, el navegador no pone la mano */
   .lamina {
     position: relative;
     aspect-ratio: var(--ratio, 4 / 5);

@@ -6016,3 +6016,75 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
   la barra; «Contáctanos» y su pista suben `--bajo`. En Playwright `--bajo` = 0 (sin barras): idéntico a antes. Sin iPhone.
 - **29/10 (Eric, iPhone, Lab): «el vídeo de cada uno sale tosco y raro».** `lab/Mesa.astro`: el vídeo de la lupa sin `controls` (los de iOS salían encima y
   el anillo de foco del `<dialog>` lo enmarcaba en oscuro); en móvil `object-fit: contain` centrado y sin fondo (con `cover` la web salía cortada por los lados).
+### 30/10 (7.ª) · pulido final: toda la web, escritorio y móvil (en local, Nilo)
+- **Andoni (textual):** «quiero un pulido final de la web a tope, tanto mobile como desktop. Revisa todo y saca cosas que se nos hayan podido pasar».
+- **Cómo:** build + `astro preview` (4390). Las 19 páginas (es y en, legales y 404) en Chrome y WebKit a 1280 × 720 y 390 × 844: consola, respuestas ≥ 400, desborde,
+  título, descripción, canónica, hreflang, og, h1, `alt`, texto < 11 px, botones < 24 px, enlaces vacíos (`scratchpad/auditoria.cjs`); los 122 enlaces únicos
+  de la web y los 82 dominios del portfolio, pedidos uno a uno; capturas de página entera troceadas y revisadas (un agente las del storybook y el portfolio) y
+  TIRAS con scroll real de la home y el portfolio en móvil (las de página entera mienten en lo fijado y en los lienzos); teclado (orden del Tab, menú, radio,
+  Escape, saltar al contenido) y movimiento reducido; grep del diccionario, `Savvia`, FALTA, `_blank` sin `rel`, `vh`, `translate` + `transform`; `spacing-lint`.
+- **Hallado y arreglado:**
+  · PORTFOLIO: cuatro piezas enlazaban a webs que YA NO EXISTEN (crececoncasavo.com, gow.delivery y homeplus.casavo.com no resuelven; endoaula.com da 404).
+    **Andoni: «los proyectos no deberían ir a ninguna web: abren el slider con la grabación y listo, menos Neety, que lleva al caso de estudio»** → ninguna pieza
+    sin caso es ya un enlace (`PiezaCasa.astro`: sin `href`, `role="button"`, cursor de mano): clic, Intro y espacio abren el visor (`Visor.astro`, nuevo `keydown`);
+    con Cmd+clic, clic central o sin JS tampoco hay web a la que ir (antes, el clic normal ya abría el visor, pero con modificador se iba a la web). Neety sigue
+    llevando a /proyectos/neety. `Portfolio.astro`: el `href` de las piezas sin caso es «#». Medido (`scratchpad/visor.cjs`, Chrome y WebKit, 1280 y 390, es y en):
+    clic, Intro y Cmd+clic abren el visor sin pestañas nuevas; Neety navega al caso. Andoni: «sí, también la home» → `Anteriores.astro`, igual: las piezas sin caso
+    son botones (clic, Intro y espacio abren el visor; sin web con Cmd+clic ni sin JS) y Neety lleva al caso. Medido (`scratchpad/visor-home.cjs`) en los mismos
+    cuatro escenarios y dos idiomas.
+  · PORTFOLIO EN INGLÉS: los rótulos del CMS salían tal cual: «Real State» (falta) y «Social Impact» / «Brand Portfolio» con mayúscula suelta → «Real estate»,
+    «Social impact», «Brand portfolio» (`EN` en `Portfolio.astro`, solo al enseñarlos).
+  · STORYBOOK EN INGLÉS: «On Cacao, Blanco», «On white, Cacao», la muestra «Blanco #F5F5F7» y los nombres de los logotipos descargables en castellano → Cocoa / White.
+  · 404: declaraba canónica y hreflang a /en/404/, que no existe → sin canónica ni hreflang en lo que lleva `indexar={false}` (`Base.astro`).
+  · TECLADO: con el menú abierto, el Tab salía del menú a la página de detrás (tras el reel seguía por «Siéntate a ver los proyectos») → `main`, `footer` y el
+    chat quedan `inert` mientras está abierto (`Nav.astro › poner`). La RADIO: su panel cerrado (opacidad 0) tenía 18 botones focalizables → `inert` cerrado; y
+    la lista de piezas era 14 paradas del Tab antes de llegar al menú → una sola (la que suena o la primera) y flechas / Inicio / Fin (`Radio.astro`). La réplica
+    del hero de Neety (`LaPartitura.astro`) llevaba 10 enlaces `href="#"` (Plataforma, Log in, Solicitar demo…) que eran paradas del Tab y los leía el lector de
+    pantalla → `inert`.
+  · PRELOAD: en /proyectos y /storybook a 390, Chrome avisaba de que los preloads de `mesa-movil-mascara.png` y `-cristal.png` no se usaban («credentials mode does
+    not match»): son máscaras CSS, que se piden en modo CORS → `crossorigin="anonymous"` en el preload.
+  · PIE con el dedo: los enlaces (Servicios… y los legales de 12 px, 15 px de alto) con zona de toque de ~32 px sin mover el texto (`pointer: coarse`).
+- **Comprobado y sin tocar:** consola limpia y desborde 0 en las 19 páginas y los dos motores (queda el aviso de WebKit por `interactive-widget`, que es de Chrome,
+  y el de ResizeObserver del storybook); 0 respuestas ≥ 400; títulos, descripciones, canónicas y hreflang correctos en todo lo indexable; `alt` en todas las imágenes;
+  sin `_blank` sin `rel`, sin `vh`, sin FALTA visible (los `falta` de `home.en.ts` no se renderizan); el reel suena en el monitor también en móvil; el paisaje del pie
+  se pinta (en la captura de página entera sale vacío porque es WebGL); movimiento reducido sin errores y con el texto a la vista; las fuentes de la muestra de Neety
+  (Bricolage, Switzer, Inter, Roboto Mono) cargan.
+- **Visto, para decidir (no es fallo de código):** en escritorio la píldora «ver proyectos» va centrada en la pantalla del monitor, encima del texto del reel
+  («La IA es la base…»); en móvil va bajo el monitor. Los rótulos de la figura «Construcción» del storybook (ascendentes, altura de x, línea base) en móvil quedan
+  por debajo de 6 px. «E-invoicing» (Invopop, en inglés) se ve con aire alrededor del guion en Timeless Sans. La pieza «SoundTown» lleva hoy a soundkins.com.
+- **Medido:** `astro check` 0 · `astro build` OK · `spacing-lint` (queda el `px-10` de `NeetyHero.astro`, réplica de Neety) · `tools/verify.cjs` en /, /proyectos,
+  /proyectos/neety, /storybook, /en/, /en/proyectos, /en/storybook y /404 (Chrome y WebKit, 1280 y 390): limpio, 0 ≥ 400, desborde 0 · Tab en la home: saltar ·
+  logotipo · radio (tres emisoras, play, siguiente, UNA pieza) · estación · menú · contenido; menú abierto: Esc devuelve el foco al botón y el Tab no sale; radio
+  cerrada `inert: true`; sin avisos de preload en /proyectos a 390. Sin publicar.
+- **A media ronda (Andoni):** «revisa también en móviles que tengan menos de 390 para ver si hay cosas que se vean mal, y antes de tocar pásame las capturas de los
+  fallos que veas» → auditoría a 320, 360 y 375 (Chrome y WebKit, 13 páginas): desborde 0 en todas; diez fallos visuales enviados en tres hojas (Servicios, Servicios
+  en inglés, storybook y el chat) sin tocar nada. Luego: «vale, pero antes mira correcciones de Eric y que esto no rompa ninguna otra cosa que tengamos».
+- **Eric, integrado:** 17 commits suyos en `origin/main` (del `dbd0fac` al `f5d2a21`: filtros del portfolio pegados bajo la barra, Safari sin banda, rendimiento en móvil,
+  chat, manifiesto a 100svh, el whoosh de sentarse…) traídos con `stash` + `merge --ff-only`; solo chocaba el registro (los dos añadíamos al final): se dejan sus
+  entradas y la de esta ronda detrás. Mis cambios (visor, inert, 404, storybook) van encima sin conflicto. Revisado lo suyo con las pruebas de la casa: visor con
+  clic, intro y Cmd+clic en portfolio y home (es/en, Chrome y WebKit, 1280 y 390), teclado del menú, flechas de la radio, verify en las ocho páginas: todo en verde.
+- **Fallo real cazado en lo de Eric (`estela.ts`):** su compilado de shaders en segundo plano (`KHR_parallel_shader_compile`) pedía la extensión UNA vez, al crear el
+  lienzo; en Safari los lienzos lejanos se duermen (`WEBGL_lose_context`) y al recuperar el contexto los objetos de extensión del contexto anterior ya no valen:
+  WebKit daba «KHR_parallel_shader_compile not enabled» en cada fotograma, `COMPLETION_STATUS` devolvía null y el lienzo se quedaba SIN PINTAR para siempre
+  (medido en `/en/proyectos` y `/en/storybook` a 360 en WebKit: cientos de avisos). Ahora la extensión se pide en cada `montar()` y `WEBGL_lose_context` se vuelve
+  a pedir al recuperar. Tras el arreglo: 0 avisos en las mismas pruebas.
+- **Anchos estrechos, arreglado (los diez):** 1 · Servicios: por debajo de 390 las píldoras a escala (`clamp(15px, 4.2vw, 16.5px)`, relleno 7–9 px, hueco 6): caben en UNA
+  fila a 320, 360 y 375, en castellano y en inglés (medido: 1 fila; a 390 no cambia nada) · 2 · tarjetas del ciclo del storybook: `width: auto` (con 100 % más
+  márgenes se salían 24 px) · 3 · lockups por estación: placa cuadrada por debajo de 30 rem (la etiqueta de dos líneas pisaba el logotipo) · 4 y 7 · la tarjeta de
+  estaciones: su retícula de 12 columnas con 11 huecos de 24 px medía 264 px en 232 (se salía 32 px: la muestra Coral y los botones): una columna por debajo de
+  64 rem; y la píldora de estaciones del catálogo (pie y 404), letra 12 px por debajo de 30 rem (se salía 10 px) · 5 · fichas de logos: el nombre en su línea y
+  SVG · PNG debajo · 6 · listas de descargas: la columna implícita de la rejilla crecía al contenido (llegaban al borde): `minmax(0, 1fr)` y filas que parten · 8 · la
+  ficha del navegador: por debajo de 30 rem el rótulo va en flujo arriba y la ventana entera debajo (la regla va tras el bloque de 48 rem, que fija 4:3) · 9 · el
+  monitor del storybook a 320 NO era un fallo (estado de la animación) · 10 · «¿Hablamos?» lee el fondo bajo LA PALABRA (no bajo el botón) y, con el botón, mira
+  también los pseudoelementos y promedia los colores de un degradado (las manchas de «Más proyectos» van en `::before`): sobre la mancha verde de Monad a 1280 y sobre
+  el vídeo del monitor a 390, en claro. Además, en inglés el botón «Download everything · ZIP 9.8 MB» medía 311 px y se salía a 320: el peso pasa a una línea
+  pequeña debajo (y fuera el punto medio del texto visible, en los dos idiomas).
+- **Medido:** `astro check` 0 errores · `astro build` OK (23 páginas) · `spacing-lint` (queda el `px-10` de la réplica de Neety) · `scratchpad/estrechos.cjs` (13 páginas ×
+  320/360/375 × Chrome y WebKit): desborde 0 y consola limpia (solo el ResizeObserver del storybook en WebKit, de antes) · `scratchpad/sale.cjs` (/storybook y
+  /en/storybook a 320 y 360): 0 elementos fuera de su contenedor o de los márgenes · `tools/verify.cjs` en /, /proyectos, /proyectos/neety, /storybook, /en/,
+  /en/proyectos, /en/storybook y /404 (Chrome y WebKit, 1280 y 390): limpio, 0 ≥ 400, desborde 0 · visor, teclado, menú y radio sin regresión encima de lo de Eric ·
+  capturas del después en `scratchpad/despues/`. Sin commit, sin publicar.
+- **PUBLICADA (30/10)** (Andoni: «mira si Eric ha tocado algo y dale»): antes, otros 11 commits de Eric (`248280b` → `f61bdf0`: Safari sin tiras, píldoras de Servicios
+  bajo la barra con nube, pie que crece lo que tapa el buscador, lab, slider sin flechas con un solo proyecto) integrados igual (solo chocaba el registro); encima,
+  check 0, build 23 páginas, píldoras en una fila a 320/360/375 (es y en), storybook sin nada fuera a 320, `tools/verify.cjs` en /, /proyectos, /proyectos/neety,
+  /storybook, /en/, /en/proyectos, /lab y /404 (Chrome y WebKit, 1280 y 390) limpio. Un commit con todo → push a `main` → Vercel.
