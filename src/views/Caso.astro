@@ -1856,9 +1856,10 @@ const dePlaca = (z: { placa?: number }, f?: string) => (z.placa !== undefined ? 
   .lado-ficha { display: grid; gap: calc(var(--spacing) * 3); margin: calc(var(--spacing) * 2) 0 0; font-size: var(--text-aux); line-height: 1.45; }
   .lado-ficha dt { color: color-mix(in oklab, var(--fg) 50%, transparent); }
   .lado-ficha dd { margin: 0; color: var(--fg); }
-  .ir-web { display: inline-flex; align-items: center; gap: 2px; width: fit-content; margin-top: calc(var(--spacing) * 1); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); transition: color 0.25s ease; }
+  .ir-web { display: inline-flex; align-items: center; gap: 0.5em; width: fit-content; margin-top: calc(var(--spacing) * 1); font-size: var(--text-aux); color: color-mix(in oklab, var(--fg) 60%, transparent); transition: color 0.25s ease; }
   .ir-web:hover, .ir-web:focus-visible { color: var(--fg); }
-  .ir-web :global(.btn-flecha.fuera) { position: relative; top: -0.18em; left: 0.12em; }
+  /* 29/10 · Andoni: «el ver la librería > se ve raro»: fuera el empujón de la flecha diagonal (subía 0,18 em); el chevrón, recto y a medio cuerpo de la
+     palabra, como en el resto de la web */
   /* el chevrón girado (fuera) caía por debajo de la línea: se sube a la altura de la x (Eric: «la › está demasiado abajo») */
   .ant-sig { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 4); margin-top: calc(var(--spacing) * 10); padding-top: calc(var(--spacing) * 4); border-top: 1px solid var(--rule); }
   .ant-sig a { display: grid; gap: 2px; min-width: 0; padding: calc(var(--spacing) * 1) 0; }

@@ -299,7 +299,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
 
         <section id="ciclo" class="seccion" aria-labelledby="h-ciclo">
           <h2 id="h-ciclo" class="font-display text-h2">{en ? <>The cycle</> : <>El ciclo</>}</h2>
-          <p class="cuerpo">{en ? <>The seasons are the pulse of the sap. It rises, bears fruit and goes back to the root. Your website should grow the same way and be the seed of lasting, meaningful relationships.</> : <>Las estaciones son el pulso de la savia. Sube, da fruto y vuelve a la raíz. Tu web debería crecer igual y ser la semilla de relaciones duraderas y con sentido.</>}</p>
+          <p class="cuerpo">{en ? <>The seasons are the cycle that repeats with every project. Each turn teaches us something and makes the next one better. We look after every part, from the root to the last branch, so that in the end the website blooms and bears fruit.</> : <>Las estaciones son el ciclo que se repite con cada proyecto. Cada vuelta nos enseña algo y hace mejor la siguiente. Cuidamos cada parte, de la raíz a la última rama, para que al final la web florezca y dé su fruto.</>}</p>
           {/* 28/10 (4.ª) · «lo del ciclo no me gusta, ponlo más elegante»: sin tarjetas. Los cuatro robles, de pie sobre una misma línea que es el año; la
                línea vuelve por debajo y se cierra (un ciclo) y una gota de savia la recorre: la estación por la que pasa se enciende */}
           <div class="ciclo cartas" data-ciclo>
@@ -325,12 +325,12 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
         <section id="simbolos" class="seccion" aria-labelledby="h-simbolos">
           <h2 id="h-simbolos" class="font-display text-h2">{en ? <>The symbols</> : <>Los símbolos</>}</h2>
           {/* 28/10 · Eric, «mismo con esto»: los símbolos, en párrafos como el relato (antes una lista de nombre y texto) */}
-          <p class="cuerpo">{en ? <>Five symbols tell the story, and each one says something about how we work.</> : <>Cinco símbolos cuentan la historia, y cada uno dice algo de cómo trabajamos.</>}</p>
+          <p class="cuerpo">{en ? <>Four symbols tell the story, and each one says something about how we work.</> : <>Cuatro símbolos cuentan la historia, y cada uno dice algo de cómo trabajamos.</>}</p>
           {/* 28/10 (3.ª) · Andoni: «debajo de los símbolos, unas cards con los símbolos» */}
           <ul class="simb">
             {/* 28/10 (12.ª) · Andoni: «los símbolos, explícalos mejor, que tengan un significado»: qué ES cada uno (en mono) y por qué */}
-            {(en ? [['The oak', 'Your website', 'It grows from the root, branch by branch, and keeps growing with you after launch.'], ['The drop', 'The beginning', 'Everything starts with something small, a conversation, and the rest is born from it.'], ['The roots', 'What you cannot see', 'The guardrails and the recipe that hold your website up, even when nobody looks at them.'], ['The seasons', 'Time', 'The website changes with the year, like something alive, and never stands still.'], ['The horizon', 'What comes next', 'An open place at the end of the road, where one word is enough to begin.']]
-                 : [['El roble', 'Tu web', 'Crece desde la raíz, rama a rama, y sigue creciendo contigo después de publicarla.'], ['La gota', 'El principio', 'Todo empieza por algo pequeño, una conversación, y de ella nace todo lo demás.'], ['Las raíces', 'Lo que no se ve', 'Los guardarraíles y la receta que sostienen tu web aunque nadie los mire.'], ['Las estaciones', 'El tiempo', 'La web cambia con el año, como algo vivo, y nunca se queda quieta.'], ['El horizonte', 'Lo que viene', 'Un lugar abierto al final del camino, donde basta una palabra para empezar.']]).map(([n, q, d]) => (
+            {(en ? [['The oak', 'Your website', 'It grows from the root, branch by branch, and keeps growing with you after launch.'], ['The drop', 'The beginning', 'Everything starts with something small, a conversation, and the rest is born from it.'], ['The roots', 'What you cannot see', 'The guardrails and the recipe that hold your website up, even when nobody looks at them.'], ['The seasons', 'Time', 'The website changes with the year, like something alive, and never stands still.']]
+                 : [['El roble', 'Tu web', 'Crece desde la raíz, rama a rama, y sigue creciendo contigo después de publicarla.'], ['La gota', 'El principio', 'Todo empieza por algo pequeño, una conversación, y de ella nace todo lo demás.'], ['Las raíces', 'Lo que no se ve', 'Los guardarraíles y la receta que sostienen tu web aunque nadie los mire.'], ['Las estaciones', 'El tiempo', 'La web cambia con el año, como algo vivo, y nunca se queda quieta.']]).map(([n, q, d]) => (
               <li><p class="font-display simb-n">{n}</p><p class="detail simb-q">{q}</p><p class="simb-d">{d}</p></li>
             ))}
           </ul>
@@ -342,7 +342,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
           {/* 28/10 (11.ª) · Andoni: «tiene que ser una historia que contamos al cliente»: en segunda persona, lo que vive al recorrer la home */}
           <p class="cuerpo">{en ? <>You arrive and the first thing you see is a promise: we elevate your website with AI. A drop falls and an oak is born from it. That is how we start with you: from within, listening, like sap.</> : <>Entras y lo primero que ves es una promesa: elevamos tu web con IA. Cae una gota y de ella nace un roble. Así empezamos contigo: por dentro, escuchando, como la savia.</>}</p>
           <p class="cuerpo">{en ? <>You go down and sit at our desk. You open the projects we have made and walk through them from the inside. Then you watch a website grow in front of you, connected to AI and guided by our judgement: that is how yours will be.</> : <>Bajas y te sientas a nuestra mesa. Abres los proyectos que hemos hecho y los recorres por dentro. Después ves crecer una web delante de ti, conectada con la IA y guiada por nuestro criterio: así será la tuya.</>}</p>
-          <p class="cuerpo">{en ? <>At the end, you meet us. We tell you the three ways of working together, answer your questions and leave you facing an open horizon, with a single word to begin.</> : <>Al final nos conoces. Te contamos las tres formas de trabajar juntos, resolvemos tus dudas y te dejamos frente a un horizonte abierto, con una sola palabra para empezar.</>}</p>
+          <p class="cuerpo">{en ? <>At the end, you meet us. We tell you the three ways of working together, answer your questions and leave you in an open meadow, with a single word to begin.</> : <>Al final nos conoces. Te contamos las tres formas de trabajar juntos, resolvemos tus dudas y te dejamos en un prado abierto, con una sola palabra para empezar.</>}</p>
           {/* 29/10 · Eric: fuera las tres reglas del relato (se cuenta, a quien entra, viva): «A quien entra» ya está en Voz */}
         </section>
 
@@ -371,7 +371,7 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
               </>
             ))}
           </div>
-          <div class="fila">
+          <div class="fila fila-minimo">
             <figure class="placa clara sm minimo"><span class="lockup peq" role="img" aria-label={en ? "savvia at small size" : "savvia en pequeño"}><span class="logo-masc"></span></span><figcaption class="detail">{en ? <>Minimum size, 20 px high</> : <>Tamaño mínimo, 20 px de alto</>}</figcaption></figure>
           </div>
           <ul class="reglas ficha">
@@ -1308,7 +1308,8 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   .cuerpo { margin-top: calc(var(--spacing) * 4); max-width: 60ch; font-size: var(--text-body); line-height: 1.6; color: var(--fg2); text-wrap: pretty; }
   .fila { display: grid; gap: calc(var(--spacing) * 6); margin-top: calc(var(--spacing) * 6); }
   .fila.f2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .placa.sm.minimo { aspect-ratio: 5 / 1; } /* (2.ª) · sola en su fila desde que el favicon va solo abajo: baja y apaisada */
+  .placa.sm.minimo { aspect-ratio: 5 / 1; }
+  @media (width < 48rem) { .fila-minimo { display: none; } } /* 29/10 · Andoni: «en mobile, el savvia de tamaño mínimo, lo quitaría» */ /* (2.ª) · sola en su fila desde que el favicon va solo abajo: baja y apaisada */
   .fila.f3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cuerpo + .fila { margin-top: calc(var(--spacing) * 10); }
   @media (width < 48rem) { .fila.f2, .fila.f3 { grid-template-columns: 1fr; } }
@@ -1499,12 +1500,12 @@ const FIRMA_OPS = Object.fromEntries(OPC_FIRMA.map(({ id }) => [id, FIRMAS.map((
   /* 28/10 · Andoni: «la cita de narrativa tampoco me convence como está puesta» → una tarjeta en la noche de la estación (como la cubierta), la frase centrada,
      una gota de savia encima y la nota en mono debajo */
   /* (4.ª) · «los símbolos, sin las imágenes de abajo»: tarjetas de texto, sutiles (el texto al 4 % sobre el fondo); el nombre y su frase */
-  .simb { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: calc(var(--spacing) * 3); margin: calc(var(--spacing) * 10) 0 0; padding: 0; list-style: none; }
+  .simb { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); /* 29/10 · cuatro, sin el fruto */ gap: calc(var(--spacing) * 3); margin: calc(var(--spacing) * 10) 0 0; padding: 0; list-style: none; }
   .simb li { display: grid; align-content: start; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 6) calc(var(--spacing) * 5); border-radius: var(--radius-lg); background: color-mix(in oklab, var(--fg) 4%, var(--bg, #F5F5F7)); }
   .simb-n { margin: 0; font-size: 1.25rem; line-height: 1.2; color: var(--fg); }
   .simb-q { margin: 0; color: var(--fg); opacity: 0.7; }
   .simb-d { margin: 0; font-size: var(--text-aux); line-height: 1.5; color: var(--fg2); text-wrap: pretty; }
-  @media (width >= 40rem) and (width < 64rem) { .simb { grid-template-columns: repeat(6, minmax(0, 1fr)); } .simb li { grid-column: span 2; } .simb li:nth-child(4), .simb li:nth-child(5) { grid-column: span 3; } } /* 3 + 2, sin hueco */
+  @media (width >= 40rem) and (width < 64rem) { .simb { grid-template-columns: repeat(2, minmax(0, 1fr)); } } /* 2 × 2 */
   @media (width < 40rem) { .simb { grid-template-columns: repeat(2, minmax(0, 1fr)); } .simb li:last-child:nth-child(odd) { grid-column: 1 / -1; } } /* el quinto, a lo ancho: no queda huérfano */
 
   /* ── COMPONENTES */
