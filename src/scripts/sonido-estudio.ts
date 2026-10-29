@@ -108,13 +108,28 @@ export function crearSonido() {
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + ataque); g.gain.exponentialRampToValueAtTime(0.0006, t + 0.4);
     o.connect(lp).connect(g).connect(ctx!.destination); o.start(t); o.stop(t + 0.45);
   }
+  // 29/10 · Eric: «en desktop el sonido de fuuum cuando te sientas no está, ¿no? Podemos incorporarlo»: el peso (120 → 62 Hz, muy bajo) no lo reproducen
+  // los altavoces de un portátil. El FUUM es el viaje de la cámara: ruido blanco por un paso banda que sube y vuelve a bajar (el aire que pasa), con la
+  // ganancia que hincha y se apaga, en el tiempo del dolly (1,5 s); el peso y el clic quedan al final, cuando la cámara se posa. Al levantarse, al revés y más corto.
+  function blanco(seg: number) {
+    const b = ctx!.createBuffer(1, Math.ceil(ctx!.sampleRate * seg), ctx!.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return b;
+  }
+  function fuum(t: number, dur: number, f0: number, f1: number, f2: number, v: number, cima = 0.4) {
+    const s = ctx!.createBufferSource(); s.buffer = blanco(dur + 0.1);
+    const bp = ctx!.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.8;
+    bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur * cima); bp.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    const g = ctx!.createGain(); g.gain.setValueAtTime(0.0006, t); g.gain.exponentialRampToValueAtTime(v, t + dur * cima); g.gain.exponentialRampToValueAtTime(0.0006, t + dur);
+    s.connect(bp).connect(g).connect(ctx!.destination); s.start(t); s.stop(t + dur + 0.1);
+  }
   function fx(tipo: 'cambio' | 'sentarse' | 'levantarse') {
     if (!on || !ctx) return;
     const t = ctx.currentTime;
     n++;
     if (tipo === 'cambio') { clic(t, 1900, 0.012); clic(t + 0.045, 1350, 0.009); } // «encajado» = doble clic (ronda 38: a la mitad; ronda 59: otra mitad)
-    if (tipo === 'sentarse') { peso(t, 120, 62, 0.028, 0.05); clic(t + 0.16, 900, 0.005); }
-    if (tipo === 'levantarse') peso(t, 70, 110, 0.015, 0.08);
+    if (tipo === 'sentarse') { fuum(t, 1.3, 160, 1500, 220, 0.22); peso(t + 1.0, 120, 62, 0.028, 0.05); clic(t + 1.16, 900, 0.005); }
+    if (tipo === 'levantarse') { fuum(t, 0.9, 700, 1100, 140, 0.12, 0.25); peso(t + 0.5, 70, 110, 0.015, 0.08); }
   }
 
   // RONDA 152 · el altavoz de la barra manda sobre todo el sonido: el ambiente lo sigue
