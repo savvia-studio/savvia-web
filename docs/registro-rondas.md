@@ -5995,3 +5995,7 @@ Pendiente: por qué la home ES bloquea 9–12 s y la EN no (Lighthouse: 7,8 s de
 - **29/10 (Eric): «esta arreglado el tema bandas» · «en mobile tenemos que quitar el page transition».** La banda se fue al publicar: el deploy fallaba desde
   223ce3e por `vercel.json` (grupo anidado `og\.(png|jpg|webp)`, Vercel no lo acepta: 248280b) y los carriles dejaron de ser fijos (e13e91d).
   `transicion.ts`: por debajo de 64 rem no se intercepta el clic (sin gota al salir ni página cubierta al llegar).
+- **29/10 (Eric, iPhone, pie de la home): «el problema de las bandas en la home persiste… en el hero y footer no tienen que estar».** Dos cosas fijas tocaban el
+  borde de abajo en la home: la CARGA (`.cargador`, fija y Cacao a pantalla completa: Safari se quedaba su banda al irse) y la tira de abajo de
+  `bordes-safari.ts` (alrededor de Servicios; Safari conservaba la banda hasta el pie). Hecho: en móvil la carga va `absolute` arriba del todo (100 lvh);
+  `bordes-safari.ts` solo crea la tira de ARRIBA (las píldoras de Servicios solo se pegan arriba). Sin iPhone.

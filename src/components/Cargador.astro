@@ -427,6 +427,11 @@ const en = langDe(Astro.currentLocale) === 'en';
     -webkit-user-select: none;
     touch-action: none; /* el dedo dibuja la V, no hace scroll */
   }
+  /* 29/10 · Eric (iPhone): «el problema de las bandas en la home persiste… en el hero y footer no tienen que estar». Fija a pantalla completa y en Cacao,
+     Safari 26 pintaba con ella una banda bajo el buscador y se la quedaba al irse la carga. En móvil va en el documento, arriba del todo (la carga es con scroll 0) */
+  @media (width < 64rem) {
+    .cargador { position: absolute; inset: auto; left: 0; top: 0; width: 100%; height: 100lvh; }
+  }
   /* el velo: la misma materia que la página. Se retira cuando la gota empieza a caer (debajo solo hay fondo: el hero aún está abajo) */
   .cargador::before {
     content: '';

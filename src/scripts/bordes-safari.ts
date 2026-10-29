@@ -7,6 +7,8 @@ const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform 
 // 30/10 · Eric: «en las páginas secundarias no tiene que haber bandas extra sobre el buscador» y, tras darles el color de la página, «aunque la banda esté
 // de color blanco la banda sigue; quiero quitarla». La banda la pinta Safari porque algo FIJO toca el borde (estas tiras o la cortina de la transición) y
 // se queda con ella. En las secundarias no se crean tiras (la cortina ya no es fija: global.css › .vt-savia): la barra queda de cristal sobre la página.
+// 29/10 · Eric (iPhone, pie de la home): «el problema de las bandas persiste; en el hero y footer no tienen que estar». La tira de ABAJO dejaba la banda
+// bajo el buscador al pasar Servicios y Safari se la quedaba hasta el pie. Las píldoras solo se pegan ARRIBA: queda solo la tira de arriba.
 const ancla = document.getElementById('servicios');
 if (IOS && ancla) {
   const tira = (lado: 'top' | 'bottom') => {
@@ -16,11 +18,11 @@ if (IOS && ancla) {
     document.body.append(t);
     return t;
   };
-  const arriba = tira('top'), abajo = tira('bottom');
+  const arriba = tira('top');
   // 29/10 (8.ª) · Eric: «en el hero al árbol se le corta la base» (la tira de abajo tapa 6 px de lo que toca el borde) y «¿pueden aparecer solo en las
   // secciones afectadas?». Solo existen alrededor de Servicios (lo único pegado al borde en móvil): desde una pantalla antes hasta una pantalla después,
   // cuando la sección siguiente ya ocupa los dos bordes y Safari ha tomado su color. Escondidas con display (con opacity 0 Safari las sigue leyendo).
-  const mostrar = (si: boolean) => { arriba.style.display = abajo.style.display = si ? '' : 'none'; if (si) pedir(); };
+  const mostrar = (si: boolean) => { arriba.style.display = si ? '' : 'none'; if (si) pedir(); };
   let cerca = false;
   new IntersectionObserver(([e]) => { cerca = e.isIntersecting; mostrar(cerca); }, { rootMargin: '100% 0px' }).observe(ancla);
   const opaco = (c: string) => !!c && c !== 'transparent' && !/,\s*0\)$/.test(c) && !/\/\s*0\)$/.test(c);
@@ -45,9 +47,8 @@ if (IOS && ancla) {
   let raf = 0;
   const poner = () => {
     raf = 0;
-    const a = colorEn(1), b = colorEn(innerHeight - 1);
+    const a = colorEn(1);
     if (arriba.style.backgroundColor !== a) arriba.style.backgroundColor = a;
-    if (abajo.style.backgroundColor !== b) abajo.style.backgroundColor = b;
   };
   const pedir = () => { if (!raf) raf = requestAnimationFrame(poner); };
   addEventListener('scroll', pedir, { passive: true });
