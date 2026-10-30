@@ -268,14 +268,16 @@ import { icono } from '../lib/iconos';
             );
           })
         }
+        <!-- 30/10 · José Luis y Eric: con caso de estudio, la imagen del centro también lleva a él (para el teclado ya está el botón) -->
+        <a class="vis-abre" href="#" hidden tabindex="-1" aria-hidden="true" data-vis-abre></a>
       </div>
       <div class="vis-pie">
         <div class="vis-quien" data-vis-quien>
           <h3 class="vis-nombre font-display" data-vis-nombre></h3>
           <p class="detail vis-sector" data-vis-sector></p>
-          <a class="btn-secondary btn-sm vis-caso" href="#" hidden data-vis-caso><span class="btn-tx">{en ? 'View case study' : 'Ver caso de estudio'}</span><Fragment set:html={flecha()} /></a>
         </div>
         <div class="vis-acciones">
+            <a class="btn-secondary btn-sm vis-caso" href="#" hidden data-vis-caso><span class="btn-tx">{en ? 'View case study' : 'Ver caso de estudio'}</span><Fragment set:html={flecha()} /></a>
           <div class="barra-cristal" role="group" aria-label={en ? 'Projects' : 'Proyectos'}>
             <button type="button" class="paso" aria-label={en ? 'Previous project' : 'Proyecto anterior'} data-vis-paso="-1"><Fragment set:html={flecha('izq')} /></button>
             <button type="button" class="paso" aria-label={en ? 'Next project' : 'Proyecto siguiente'} data-vis-paso="1"><Fragment set:html={flecha()} /></button>
@@ -336,7 +338,7 @@ import { icono } from '../lib/iconos';
       const slides = [...vis.querySelectorAll<HTMLElement>('[data-vis-slide]')];
       const quien = vis.querySelector<HTMLElement>('[data-vis-quien]')!, nombre = vis.querySelector<HTMLElement>('[data-vis-nombre]')!, sector = vis.querySelector<HTMLElement>('[data-vis-sector]')!;
       const panel = vis.querySelector<HTMLElement>('[data-vis-panel]')!;
-      const verCaso = vis.querySelector<HTMLAnchorElement>('[data-vis-caso]');
+      const verCaso = vis.querySelector<HTMLAnchorElement>('[data-vis-caso]'), abreCaso = vis.querySelector<HTMLAnchorElement>('[data-vis-abre]');
       const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
       let cur = -1, vuelta: HTMLElement | null = null, cerrando = 0;
       const vid = (i: number) => slides[i].querySelector<HTMLVideoElement>('video')!;
@@ -383,7 +385,7 @@ import { icono } from '../lib/iconos';
         slides.forEach((_, i) => { const d = (i - n + slides.length) % slides.length; if (d > 1 && d < slides.length - 1) soltar(i); });
         const d = slides[n].dataset;
         nombre.textContent = d.n ?? ''; sector.textContent = d.sector ?? '';
-        if (verCaso) { verCaso.hidden = !d.caso; if (d.caso) verCaso.href = d.caso; } // Eric: «aquí poner Ver caso de estudio»: solo si el proyecto tiene caso
+        [verCaso, abreCaso].forEach((l) => { if (!l) return; l.hidden = !d.caso; if (d.caso) l.href = d.caso; }); // Eric: «aquí poner Ver caso de estudio»: solo si el proyecto tiene caso
         if (cambia && animar && !reducido) quien.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
       };
       vis.addEventListener('close', () => slides.forEach((_, i) => soltar(i)));
@@ -1637,8 +1639,10 @@ import { icono } from '../lib/iconos';
   }
   .vis-sector { color: color-mix(in oklab, #f5f5f7 62%, transparent); }
   .vis-acciones { display: flex; align-items: center; gap: calc(var(--spacing) * 6); }
-  .vis-caso { color: #f5f5f7; justify-self: start; margin-top: calc(var(--spacing) * 3); } /* bajo el nombre, a la izquierda (Eric) */
+  .vis-caso { color: #f5f5f7; } /* 30/10 · Eric: «queda descolgado»: junto a las flechas, no bajo el nombre */
   .vis-caso[hidden] { display: none; }
+  .vis-abre { position: absolute; inset: 0; z-index: 2; cursor: pointer; }
+  .vis-abre[hidden] { display: none; }
   /* cerrar: la misma cápsula de cristal, arriba a la derecha de la ventana */
   .vis-x {
     position: fixed;
@@ -1655,7 +1659,10 @@ import { icono } from '../lib/iconos';
     .vis-caja { --vw: min(100vw - calc(var(--spacing) * 6), (100dvh - calc(var(--spacing) * 44)) * 1.6); }
     /* 28/10 · Eric: en móvil, «más zoom al escritorio» (el monitor llena casi el panel) y las flechas a la derecha del nombre, en la misma fila */
     .vis-mesa { --z: 3.6 !important; }
-    .vis-pie { flex-wrap: nowrap; align-items: flex-start; gap: calc(var(--spacing) * 4); }
+    .vis-pie { flex-wrap: wrap; align-items: flex-start; gap: calc(var(--spacing) * 4); }
+    .vis-quien { flex: 1 1 0; }
+    .vis-acciones { display: contents; }
+    .vis-caso { order: 1; flex: 0 0 100%; justify-content: flex-start; }
   }
   @media (prefers-reduced-motion: reduce) {
     .vis[open]::backdrop, .vis[open] .vis-caja, .vis[open] .vis-x { animation: none; }
