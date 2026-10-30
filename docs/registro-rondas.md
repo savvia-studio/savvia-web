@@ -6220,3 +6220,30 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
 ## 30/10 (Eric) · Visor: la imagen lleva al caso y «Ver caso de estudio» junto a las flechas
 - **José Luis:** «Cuando haya caso de estudio, enlazaría la imagen/vídeo del centro». **Eric:** «queda algo descolgado ahí el ver caso de estudio».
 - **Hecho (en los dos visores, `Anteriores.astro` y `obra/Visor.astro`):** con caso, una capa `<a data-vis-abre>` cubre el panel y lleva al caso (fuera del tabulador y de los lectores: para eso está el botón); sin caso no existe y el panel no hace nada. El botón pasa de debajo del nombre a la derecha, junto a las flechas; en móvil va en su fila, alineado a la izquierda. En `Visor.astro`, `hidden` con un solo proyecto quita solo las flechas (`data-vis-flechas`), no el botón.
+
+### 30/10 · el pie que llegaba «ya con hierba» y la web del monitor que se cogía de pie (en local, Nilo)
+- **Andoni (textual):** «1. El footer en verano al cambiar de estaciones sale ya con hierba y como que se resetea, tiene que empezar. 2. Y luego el mockup donde
+  te sientas, cuando lo has medio pasado puedes hacer scroll en la pantalla sin sentarte, si tienes el ratón en la pantalla».
+- **Reproducido (Chrome y WebKit, 1440 × 900 @2x y 1280 × 720):** (1) la hierba del «Contáctanos» (`tiempo-encima.ts`) crecía bien desde cero si la estación se
+  cambiaba con el pie A LA VISTA (otoño → invierno → primavera → verano, clics seguidos o espaciados, local y en vivo). El fallo estaba en el otro camino: pie
+  visto en verano (hierba crecida) → subir → cambiar de estación arriba → bajar: el motor difería el cambio «hasta volver a verse» y al llegar pintaba el
+  verano viejo con la hierba ENTERA (32.000 píxeles verdes, sin fundido: `c.globalAlpha = 1` pisaba el `fade`) durante 1,4 s (2,4 en WebKit), la cortaba de
+  golpe (0/0) y entonces empezaba la estación nueva. (2) en la fase D (la pista ya soltada, el monitor a medio pasar) mover el ratón sobre la pantalla ponía
+  `.explora` (la exploración de pie de la ronda 152): montaba el iframe, la pantalla cogía el puntero y 4 golpes de rueda movían 0 px la página.
+- **Hecho (`src/scripts/tiempo-encima.ts`):** si la zona no se ve (o el motor aún no ha arrancado) el cambio de estación se aplica YA, sin fundido: al llegar, la
+  nueva empieza desde cero. La hierba del verano se funde al irse (alfa 201 → 98 → 51 → 33 → 0 en ~0,8 s; antes, corte). Al cambiar de tamaño con la escena en
+  marcha se vuelve a medir la palabra pero el reloj se conserva (verano y primavera): la hierba sigue donde estaba (antes, cada cambio de 2 px volvía a
+  sembrar desde cero). En verano nunca se «adelanta» (la hierba crecida de golpe): siempre crece. **`Proyectos.astro`:** de pie (D) mover el ratón sobre el
+  monitor ya no coge la web; la web solo coge el puntero sentado (regla de la ronda 66); `explorar` queda para soltarla. De paso, una ZONA MUERTA medida en
+  `entrar()`: si el scroll caía a menos de 0,0004 de la meta antes de pasarla (p. ej. 2055 px con la meta en 2055,27), el fotograma final se saltaba y la
+  escena se quedaba `entrando` sin llegar nunca a D (ni `dentro`, ni `transform` limpio); ahora en los topes (0 y 1) no se salta.
+- **Medido (sobre el servidor de desarrollo, `tools/r310/`):** `pie-cambio-arriba.cjs` (Chrome y WebKit): al bajar tras cambiar arriba, 0 verdes desde el primer
+  fotograma y la estación nueva crece desde cero (antes 32.353 → corte a 1,48 s) · `pie-fundido.cjs`: verano → otoño a la vista, fundido gradual en los dos
+  motores · `pie-resize.cjs`: 1440 → 1380 px de ancho en verano: la hierba sigue creciendo (25.962 → 31.133), sin volver a cero · `monitor-de-pie.cjs` (D, pantalla
+  a medio pasar): tras mover el ratón, `pointer-events: none`, sin iframe, y 4 ruedas mueven 400 px la página (antes 0) · `monitor-sentado.cjs` (Chrome y
+  WebKit): el clic sienta, 4 ruedas sobre el monitor = 0 px de página con el iframe montado, Esc levanta · `monitor-fase-d.cjs`: a f 1,026 la escena ya está
+  en D (`dentro`, sin `transform`; antes se quedaba `entrando`) · `tools/verify.cjs` en / (Chrome y WebKit, 1280 y 390): consola limpia (solo el aviso de
+  WebKit por `interactive-widget` en el viewport, de siempre), 0 ≥ 400, desborde 0 · `astro check` 0 errores · `astro build` OK (24 páginas) · `spacing-lint`
+  solo el `px-10` aceptado de la réplica de Neety. **SIN medir:** en el iPhone (el camino arreglado es el mismo).
+- **Pendiente:** sin commit ni publicar hasta que Andoni lo pida. En el worktree había cambios previos sin confirmar que no son de esta ronda (los mp4 del reel en
+  `public/media/reel/`, `tools/r307/build.cjs` y varios archivos sueltos sin seguimiento).

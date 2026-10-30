@@ -812,7 +812,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (reducido || sentado) return;
       const r = pista.getBoundingClientRect(), T = r.height - innerHeight, y = -r.top, f = y / T;
       const clave = Math.min(1, Math.max(0, f));
-      if (Math.abs(clave - e) < 0.0004) return;
+      if (Math.abs(clave - e) < 0.0004 && (clave === e || (clave > 0 && clave < 1))) return; // (30/10) en los topes (0 y 1) no se salta: si el scroll caía a < 0,0004 de la meta antes de pasarla, el fotograma final (fase D) nunca llegaba y la escena se quedaba «entrando»
       e = clave;
       const E = escenario.getBoundingClientRect(), sw = escena.offsetWidth, sh = escena.offsetHeight;
       const pw = PANT.w * sw, ph = PANT.h * sh;
@@ -904,7 +904,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       if (si) seguir(null);
       pistaScroll.classList.remove('on');
     }
-    let finAviso = 0, ultX = -1, ultY = -1;
+    let finAviso = 0;
     // RONDA 160 (Eric, Agentation) · «ese clic para navegar, más presente, como al pasar sobre la pantalla; y si haces clic, que los bordes de la
     // pantalla cojan color»: con ratón, «clic para navegar» va pegado al cursor mientras está sobre el monitor (fase B, sin coger la web); al
     // cogerla, la pantalla se enciende con un filo de savia (.explora). Vive en el <body>: dentro del escenario escalado, `fixed` no vale.
@@ -947,11 +947,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     escenario.addEventListener('pointermove', (ev) => {
       if (sentado || MOVIL || ev.pointerType !== 'mouse') return;
       if (invita()) { pX = ev.clientX; pY = ev.clientY; invitarQuieto(); return; } // ronda 161/165/171: toda la escena invita a sentarse
-      if (explorando || fase !== 'D') return;
-      const primero = ultX < 0, mov = Math.abs(ev.clientX - ultX) + Math.abs(ev.clientY - ultY); ultX = ev.clientX; ultY = ev.clientY;
-      if (primero) return;
-      if (mov < 1) return; // Safari no siempre da movementX: el movimiento se mide a mano
-      if (enMonitor(ev.clientX, ev.clientY)) explorar(true);
+      // (30/10 · Andoni: «cuando lo has medio pasado puedes hacer scroll en la pantalla sin sentarte, si tienes el ratón en la pantalla»): de pie (D)
+      // mover el ratón sobre el monitor ya NO coge la web (la exploración de pie de la ronda 152). La web del monitor solo coge el puntero sentado
+      // (regla de la ronda 66). `explorar` queda para soltarla (A, C, pointerleave).
     }, { passive: true });
     // ronda 161: en B el clic (o el toque: `click` no salta al arrastrar para hacer scroll) te SIENTA, con el viaje de cámara
     // RONDA 266 · Eric: «en esa sección, prácticamente donde toques te haga sentarte»: en táctil el toque vale en TODA la sección (no solo en el escenario) y
@@ -1611,7 +1609,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: none !important;
   }
   /* RONDA 152 (2.ª) · «la entrada como antes, pero que puedas hacer scroll en la pantalla para ver el proyecto»: de pie, al mover el ratón sobre el
-     monitor la pantalla coge el puntero (la web real o su página entera) y la píldora «desliza dentro» lo cuenta */
+     monitor la pantalla coge el puntero (la web real o su página entera) y la píldora «desliza dentro» lo cuenta.
+     (30/10 · Andoni: «puedes hacer scroll en la pantalla sin sentarte») ya nada pone `.explora` de pie: la web solo coge el puntero sentado. */
   [data-estudio]:not(.sentado) .escenario.explora .pantalla { pointer-events: auto; cursor: ns-resize; }
   [data-estudio]:not(.sentado) .escenario.explora .web { overscroll-behavior: contain; }
   /* RONDA 158 (Eric, Agentation: «en el slider de primeras hago clic en la pantalla y la web no me desliza») · de pie las cuatro webs están

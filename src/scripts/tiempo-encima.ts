@@ -374,7 +374,7 @@ export function tiempoEncima({ zona, cv, palabra, espera }: { zona: HTMLElement;
         c.globalAlpha = fade;
         if (palabra) { // solo la hierba: la luz es la del pie
           lx.setTransform(1, 0, 0, 1, 0, 0); lx.clearRect(0, 0, luz.width, luz.height); lx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          pintarHierba(lx); c.globalAlpha = 1; c.drawImage(luz, 0, 0, W, H); return;
+          pintarHierba(lx); c.globalAlpha = fade; c.drawImage(luz, 0, 0, W, H); c.globalAlpha = 1; return; // (30/10) con el fundido: al irse el verano la hierba se funde, no se corta
         }
         const [xTop, top, , ancho] = sol(c, dt);
         // las cifras, y su cara al sol dorada (la banda del haz, solo sobre la tinta)
@@ -439,16 +439,30 @@ export function tiempoEncima({ zona, cv, palabra, espera }: { zona: HTMLElement;
       dibujar(0);
     };
     let terminado = false;
-    const arrancar = () => {
+    // (30/10 · Andoni: «el footer en verano sale ya con hierba y como que se resetea; tiene que empezar») · `conservar`: al cambiar de tamaño con la
+    // escena en marcha se vuelve a medir la palabra pero el reloj sigue (la hierba y las flores siguen donde estaban; antes, cada cambio de 2 px
+    // de la zona volvía a sembrar desde cero). Y en verano nunca se «adelanta» (la hierba crecida de golpe): siempre crece.
+    const arrancar = (conservar = false) => {
+      const tAntes = t;
       preparar();
-      if (reducido || terminado) adelantar(); else despertar();
+      if (conservar && (est === 'verano' || est === 'primavera')) t = tAntes;
+      if (reducido || (terminado && est !== 'verano')) adelantar(); else despertar();
     };
 
     // la estación cambia en vivo (el icono de la barra)
     new MutationObserver(() => {
       if (leerEst() === est && fadeMeta === 1) return;
       if (reducido) { est = leerEst(); setTimeout(() => { preparar(); adelantar(); }, 1300); return; }
-      terminado = false; fadeMeta = 0; despertar();
+      terminado = false;
+      // (30/10) si la zona no se ve (la estación se cambia arriba y se baja después), el cambio se aplica YA y sin fundido: al llegar, la estación
+      // nueva empieza desde cero. Antes se difería al volver a verse: el pie llegaba con la estación vieja (la hierba del verano entera, sin fundir)
+      // durante ~1,4 s (2,4 en Safari), se cortaba de golpe y entonces empezaba la nueva: «sale ya con hierba y como que se resetea»
+      if (!visible || !listo) {
+        est = leerEst(); fade = 1; fadeMeta = 1; colorT = 0;
+        if (listo) { preparar(); dibujar(0); }
+        return;
+      }
+      fadeMeta = 0; despertar();
     }).observe(html, { attributes: true, attributeFilter: ['data-estacion'] });
 
     zona.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse' && est === 'verano') { mxT = e.clientX / innerWidth; } });
@@ -459,7 +473,7 @@ export function tiempoEncima({ zona, cv, palabra, espera }: { zona: HTMLElement;
       const r = zona.getBoundingClientRect();
       if (Math.abs(r.width - w0) < 2 && Math.abs(r.height - h0) < 2) return;
       w0 = r.width; h0 = r.height;
-      clearTimeout(rt); rt = window.setTimeout(() => { if (!listo) return; terminado = terminado || !vivo(); arrancar(); }, 160);
+      clearTimeout(rt); rt = window.setTimeout(() => { if (!listo) return; terminado = terminado || !vivo(); arrancar(true); }, 160);
     }).observe(zona);
     if (!palabra) (window as any).__cuatro = () => ({ est, emitidos, total: total(), vivas: parts.length, flores: flores.filter((f) => t > f.t + 1.6).length, de: flores.length, hierba: hierba.length, terminado: listo && !vivo(), x0, x1, suelo, techo, fs });
     document.fonts.ready.then(() => espera).then(() => { cv.classList.add('listo'); arrancar(); });
