@@ -2,6 +2,7 @@
 // Base: la política de privacidad de la web anterior (treseiscero CB), puesta al día con lo que hace HOY savvia.studio, leído en el código:
 // · el chat de preguntas manda la pregunta a api/preguntar.js → OpenRouter → Anthropic; no se guarda. El freno cuenta preguntas por IP y hora en
 //   Upstash (la clave caduca a los 3700 s) o en memoria.
+// · el cuestionario del chat nos llega por correo: api/brief.js → Resend; la web no lo guarda.
 // · alojamiento en Vercel. Sin analítica, sin píxeles, sin cookies. Fuentes en el propio servidor.
 // · en el navegador solo hay localStorage / sessionStorage de preferencias (tabla de cookies). Si se estrena una clave nueva, va a la tabla.
 // FALTA (no se inventa): el NIF de savvia CB, obligatorio en el aviso legal (LSSI art. 10). Cuando llegue, va en `TITULAR`.
@@ -66,6 +67,7 @@ const ES: Record<LegalKey, DocLegal> = {
       { k: 'h2', id: 'datos', t: 'Qué datos tratamos' },
       { k: 'ul', items: [
         '**Si nos escribes.** Tu nombre, tu correo y lo que nos cuentes.',
+        '**Si rellenas el cuestionario del chat.** Tu nombre, tu correo, tus respuestas y lo que quieras añadir. Nos llega por correo.',
         '**Si usas el chat de preguntas.** Solo el texto de tu pregunta. Junto al chat te pedimos que no escribas datos personales.',
         '**Al navegar.** Como en cualquier web, el servidor recibe tu dirección IP y datos técnicos de tu navegador. No los usamos para saber quién eres.',
       ] },
@@ -89,10 +91,11 @@ const ES: Record<LegalKey, DocLegal> = {
         '**Vercel**, que aloja la web.',
         '**OpenRouter y Anthropic**, que hacen llegar la pregunta del chat al modelo de IA y la contestan.',
         '**Upstash**, donde vive la cuenta de preguntas por IP.',
+        '**Resend**, que nos hace llegar por correo el cuestionario del chat.',
         '**Nuestro proveedor de correo**, donde llegan tus mensajes.',
       ] },
       { k: 'h2', id: 'transferencias', t: 'Transferencias internacionales' },
-      { k: 'p', t: 'Vercel, OpenRouter, Anthropic y Upstash tienen sede en Estados Unidos, así que algunos datos pueden salir del Espacio Económico Europeo. Lo hacen con las garantías que pide el RGPD, como el Marco de Privacidad de Datos entre la UE y EE. UU. o las cláusulas contractuales tipo de la Comisión Europea.' },
+      { k: 'p', t: 'Vercel, OpenRouter, Anthropic, Upstash y Resend tienen sede en Estados Unidos, así que algunos datos pueden salir del Espacio Económico Europeo. Lo hacen con las garantías que pide el RGPD, como el Marco de Privacidad de Datos entre la UE y EE. UU. o las cláusulas contractuales tipo de la Comisión Europea.' },
       { k: 'h2', id: 'plazos', t: 'Cuánto tiempo los guardamos' },
       { k: 'ul', items: [
         '**Tus mensajes**, mientras hablemos y, si trabajamos juntos, el tiempo que obliga la ley.',
@@ -171,6 +174,7 @@ const EN: Record<LegalKey, DocLegal> = {
       { k: 'h2', id: 'datos', t: 'What data we process' },
       { k: 'ul', items: [
         '**If you write to us.** Your name, your email and whatever you tell us.',
+        '**If you fill in the chat questionnaire.** Your name, your email, your answers and anything you want to add. It reaches us by email.',
         '**If you use the questions chat.** Only the text of your question. Next to the chat we ask you not to include personal data.',
         '**When you browse.** As on any website, the server receives your IP address and technical details of your browser. We do not use them to find out who you are.',
       ] },
@@ -194,10 +198,11 @@ const EN: Record<LegalKey, DocLegal> = {
         '**Vercel**, which hosts the website.',
         '**OpenRouter and Anthropic**, which pass the chat question to the AI model and answer it.',
         '**Upstash**, where the count of questions per IP is kept.',
+        '**Resend**, which delivers the chat questionnaire to us by email.',
         '**Our email provider**, where your messages arrive.',
       ] },
       { k: 'h2', id: 'transferencias', t: 'International transfers' },
-      { k: 'p', t: 'Vercel, OpenRouter, Anthropic and Upstash are based in the United States, so some data may leave the European Economic Area. It does so with the safeguards the GDPR requires, such as the EU-US Data Privacy Framework or the European Commission’s standard contractual clauses.' },
+      { k: 'p', t: 'Vercel, OpenRouter, Anthropic, Upstash and Resend are based in the United States, so some data may leave the European Economic Area. It does so with the safeguards the GDPR requires, such as the EU-US Data Privacy Framework or the European Commission’s standard contractual clauses.' },
       { k: 'h2', id: 'plazos', t: 'How long we keep it' },
       { k: 'ul', items: [
         '**Your messages**, while we are in touch and, if we work together, for as long as the law requires.',

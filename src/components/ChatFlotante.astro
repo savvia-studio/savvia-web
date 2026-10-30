@@ -279,7 +279,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
         const a = el('a', x.enlace ? 'cf-por-correo' : k === 0 ? 'cf-cta cf-cta-1' : 'cf-cta', resolver(x.t));
         a.href = x.h === 'cal' ? cal || `mailto:${correo}` : resolver(x.h);
         if (/^https?:/.test(a.href)) { a.target = '_blank'; a.rel = 'noopener'; }
-        if (a.href.startsWith('mailto:')) a.dataset.copiar = a.href.slice(7).split('?')[0];
+        if (a.href.startsWith('mailto:') && !a.href.includes('?')) a.dataset.copiar = a.href.slice(7); // con asunto y texto se abre: copiar solo la dirección los perdería
         c.append(a);
       });
       return c;
@@ -380,7 +380,6 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
     const terminar = async () => {
       idx = secuencia.length; pintarProg(); ponerCampo(t('Escribe una pregunta…', 'Write a question…'));
       quien = 1 - quien;
-      const fin = (brief.fin as string[]).map((t) => t);
       await pensar(700);
       const f = filaBot(); const r = el('div', 'cf-b cf-resumen');
       r.append(el('p', 'cf-rt', t('Esto es lo que nos has contado', 'This is what you told us')));
@@ -393,8 +392,19 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
       });
       f.append(r); lista.append(f); bajar();
       quien = 1 - quien;
-      await bot(fin, [{ t: t('Reservar una llamada de 15 minutos', 'Book a 15-minute call'), h: 'cal' }, { t: t('Contactar vía email', 'Contact via email'), h: `mailto:${correo}` }]);
-      (window as any).__chatBrief = { ruta, respuestas, datos }; // para la fase 2 (envío)
+      // 30/10: el brief SE ENVÍA (api/brief.js). Solo se promete la respuesta si ha llegado; si no, el visitante lo manda por correo ya escrito
+      if (await enviarBrief()) await bot(brief.fin as string[], [...(cal ? [{ t: t('Reservar una llamada de 15 minutos', 'Book a 15-minute call'), h: 'cal' }] : []), { t: t('Contactar vía email', 'Contact via email'), h: `mailto:${correo}` }]);
+      else await bot(brief.finFallo as string[], [{ t: t('Mandarlo por correo', 'Send it by email'), h: mailtoBrief() }]);
+    };
+    const enviarBrief = async () => {
+      try {
+        const r = await fetch('/api/brief', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ruta, respuestas, datos, lang: t('es', 'en') }), signal: AbortSignal.timeout(12000) });
+        return r.ok && (await r.json()).ok === true;
+      } catch { return false; }
+    };
+    const mailtoBrief = () => {
+      const texto = [...respuestas.flatMap((x) => [x.q, x.a, '']), ...(datos.mas ? [datos.mas, ''] : []), `${datos.nombre || ''} · ${datos.email || ''}`].join('\n').slice(0, 1500); // los mailto largos no abren
+      return `mailto:${correo}?subject=${encodeURIComponent(t('Mi brief', 'My brief'))}&body=${encodeURIComponent(texto)}`;
     };
 
     // ── PREGUNTAS LIBRES: la web y la IA contestan; si hay brief en marcha, se vuelve a él
