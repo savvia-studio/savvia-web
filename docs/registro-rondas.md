@@ -6247,3 +6247,8 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
   solo el `px-10` aceptado de la réplica de Neety. **SIN medir:** en el iPhone (el camino arreglado es el mismo).
 - **Pendiente:** sin commit ni publicar hasta que Andoni lo pida. En el worktree había cambios previos sin confirmar que no son de esta ronda (los mp4 del reel en
   `public/media/reel/`, `tools/r307/build.cjs` y varios archivos sueltos sin seguimiento).
+- **PUBLICADA (30/10):** commit `c6028d5` (rebasado sobre los seis commits de Eric que había en `origin/main`: créditos y Ship Studio del storybook, Contáctanos
+  que abre el chat, vercel.json, chat por correo y el visor; solo chocaba el registro) → push a `main` → Vercel. Medido EN VIVO: `pie-cambio-arriba.cjs`
+  (Chrome y WebKit): al bajar tras cambiar arriba, 0 verdes desde el primer fotograma y la estación nueva empieza desde cero · `monitor-de-pie.cjs`: de pie,
+  tras mover el ratón sobre la pantalla, `pointer-events: none`, sin iframe y 4 ruedas mueven 400 px la página · `tools/verify.cjs` en / (Chrome y WebKit,
+  1280 y 390): consola limpia (solo el aviso de WebKit por `interactive-widget`), 0 ≥ 400, desborde 0.
