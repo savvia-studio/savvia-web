@@ -181,6 +181,11 @@
         {
           "type": "cookie",
           "key": "savvia-lang"
+        },
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Twitterbot|Discordbot|facebookexternalhit|Facebot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Googlebot|bingbot|Applebot|DuckDuckBot).*"
         }
       ],
       "destination": "/en",
@@ -199,6 +204,11 @@
         {
           "type": "cookie",
           "key": "savvia-lang"
+        },
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Twitterbot|Discordbot|facebookexternalhit|Facebot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Googlebot|bingbot|Applebot|DuckDuckBot).*"
         }
       ],
       "destination": "/en/proyectos",
@@ -217,6 +227,11 @@
         {
           "type": "cookie",
           "key": "savvia-lang"
+        },
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Twitterbot|Discordbot|facebookexternalhit|Facebot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Googlebot|bingbot|Applebot|DuckDuckBot).*"
         }
       ],
       "destination": "/en/proyectos/:slug*",
@@ -235,6 +250,11 @@
         {
           "type": "cookie",
           "key": "savvia-lang"
+        },
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Twitterbot|Discordbot|facebookexternalhit|Facebot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Googlebot|bingbot|Applebot|DuckDuckBot).*"
         }
       ],
       "destination": "/en/manifiesto",

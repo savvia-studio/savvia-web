@@ -6208,3 +6208,6 @@ crecer, al cargar una lámina). Si el lienzo no tiene contexto o no llegó a arr
 - Eric, en /proyectos/neety: «si clickas en contáctanos no se abre el chat, se abre modal de gmail» + «en todos». El chat solo estaba montado en la home; ahora lo monta `Pie.astro` tras el `</footer>`. El botón flotante sigue solo en la home (`<Pie chatConBoton />`).
 - «el footer todavía pinta una línea 1px horizontal blanca»: el documento mide hasta 1,5 px más que el pie y se veía el fondo claro de `html`. `box-shadow` sin desenfoque en `.pie` (no alarga la página).
 - La palabra baja de `--cb` 0,19 a 0,155 en escritorio: el remate de la «n» asomaba como una raya por el canto de la hierba.
+
+## 30/10 · Vista previa en inglés en X y Discord
+- Eric y Andoni: al pegar savvia.studio, X y Discord enseñaban la tarjeta en inglés (Telegram, en castellano). Causa: las redirecciones por país de `vercel.json` (US, GB…): los robots de X y Discord salen de EE. UU. y acababan en /en. Ahora esas redirecciones excluyen a los robots de vista previa y buscadores por `user-agent`.
