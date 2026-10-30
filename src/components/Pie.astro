@@ -17,6 +17,10 @@
 import { home } from '../data/idioma';
 import { langDe, ruta } from '../lib/i18n';
 import { legalDe, LEGAL_KEYS, LEGAL_RUTA } from '../data/legal';
+import ChatFlotante from './ChatFlotante.astro';
+// 30/10 · Eric, en /proyectos/neety: «si clickas en contáctanos no se abre el chat, se abre gmail». El chat solo estaba en la home: ahora va con el pie, en toda
+// página con pie; el botón flotante sigue siendo solo de la home (`chatConBoton`)
+const { chatConBoton = false } = Astro.props;
 const lang = langDe(Astro.currentLocale);
 const en = lang === 'en';
 const { pie, nav } = home(lang);
@@ -87,6 +91,7 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   <div class="cursor-contacto" aria-hidden="true" data-cursor-contacto><span class="txt"><svg viewBox="0 0 24 24" fill="none"><path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5V16.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5Z" /></svg>{en ? 'click to chat with us' : 'clic para escribirnos'}</span></div>
   <!-- RONDA 207 · Eric: «no pongas nada ni @ ni na»: fuera la línea mono del pie («savvia · desde 2020» y «© año») -->
 </footer>
+<ChatFlotante sinBoton={!chatConBoton} />
 
 
 <script>
@@ -556,6 +561,9 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
 <style>
   .pie {
     position: relative;
+    /* 30/10 · Eric: «el footer todavía pinta una línea horizontal blanca» (1–2 px, al final de la página): el documento mide hasta 1,5 px más que el pie (decimales) y ahí
+       se veía el fondo claro de `html`. La sombra sin desenfoque tapa ese resto sin alargar la página */
+    box-shadow: 0 0.25rem 0 var(--bg);
     /* RONDA 26: sin overflow hidden: recortaba la gota de la transición líquida (data-sube), que vive por encima del borde superior.
        RONDA 27: sin min-height: manda la distancia paisaje–enlaces (a 1280 sale ~750 px igualmente) */
   }
@@ -662,6 +670,8 @@ const [antes, despues = ''] = pie.tagline.split(/savv?ia|\bsap\b/);
   }
   .pintado .pista-contacta { opacity: 0.7; }
   /* RONDA 268 · Eric: «el Contáctanos en móvil un poco más abajo»: del 19 % al 13 % de la altura del paisaje (la pista lo sigue) */
+  /* 30/10 · el remate del pie de la «n» asomaba como una raya blanca por el canto de la hierba. Del 19 % al 15,5 %: la hierba lo tapa */
+  [data-pie] { --cb: 0.155; }
   @media (width < 64rem) { [data-pie] { --cb: 0.13; } }
   @media (hover: none) { .pista-contacta { display: block; } }
   /* RONDA 290 · Eric: «el radio de acción es muy pequeño y a veces no responde»: en táctil, el toque cuenta bastante por fuera de la palabra */

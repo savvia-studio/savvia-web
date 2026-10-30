@@ -3,6 +3,7 @@ import { home } from '../data/idioma';
 import { langDe } from '../lib/i18n';
 import personasEs from '../data/personas.json';
 import personasEn from '../data/personas.en.json';
+const { sinBoton = false } = Astro.props; // fuera de la home: sin botón flotante, solo el modal que abre «Contáctanos» del pie
 const lang = langDe(Astro.currentLocale);
 const personas = lang === 'en' ? personasEn : personasEs;
 const { pie } = home(lang);
@@ -27,7 +28,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   · Datos: src/data/brief.json (pasos y reacciones) · src/data/preguntas.json (las respuestas escritas) · src/data/personas.json · api/preguntar.js.
   · PROTOTIPO: aún NO envía nada. Al terminar, el resumen queda en pantalla y se avisa.
 -->
-<div class="cf cf-fuera" data-cf hidden data-cal={pie.cal} data-correo={pie.correo} data-caras={JSON.stringify(CARA)} data-personas={JSON.stringify(personas)}>
+<div class="cf cf-fuera" data-cf hidden data-sin-boton={sinBoton ? '' : undefined} data-cal={pie.cal} data-correo={pie.correo} data-caras={JSON.stringify(CARA)} data-personas={JSON.stringify(personas)}>
   <i class="cf-velo" aria-hidden="true"></i>
   <button type="button" class="cf-btn" data-cf-btn aria-expanded="false" aria-controls="cf-panel" aria-label={T.abrir}>
     <span class="cf-ic cf-ic-chat" set:html={ico(chatR)} />
@@ -82,7 +83,7 @@ const CARA = ['/media/equipo/cara-andoni-transparente.webp', '/media/equipo/cara
   const enHero = activo === 'hero'; // ?chat=hero: también visible desde el hero, para decidir si queda o no
   // 29/10 · Eric (móvil): «el toca para agendar llamada me abre el email cuando debería abrir el chat»: con ?chat=0 (que se recuerda en la pestaña) no había
   // chat y «Contáctanos» del pie caía al mailto. Ahora ?chat=0 solo quita el BOTÓN flotante; el chat sigue montado para el pie
-  const sinBoton = activo === '0';
+  const sinBoton = activo === '0' || !!raiz?.hasAttribute('data-sin-boton');
   if (raiz) {
     raiz.hidden = false;
     raiz.classList.toggle('cf-local', local);
